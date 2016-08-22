@@ -2,9 +2,9 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using SFA.DAS.Commitments.Domain.Configuration;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 
-namespace SFA.DAS.Commitments.Domain.Data
+namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public abstract class BaseRepository
     {

@@ -17,8 +17,8 @@
 
 using MediatR;
 using Microsoft.Azure;
-using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;

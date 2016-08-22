@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Commitments.Domain.Configuration
+﻿namespace SFA.DAS.Commitments.Infrastructure.Configuration
 {
     public class CommitmentConfiguration
     {

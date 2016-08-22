@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\CommitmentConfiguration.cs" />
+    <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

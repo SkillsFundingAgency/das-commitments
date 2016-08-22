@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {

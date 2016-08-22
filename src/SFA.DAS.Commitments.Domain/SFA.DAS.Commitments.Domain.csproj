@@ -33,20 +33,12 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AgreementStatus.cs" />
     <Compile Include="Apprenticeship.cs" />
     <Compile Include="ApprenticeshipStatus.cs" />
     <Compile Include="Commitment.cs" />
-    <Compile Include="Configuration\CommitmentConfiguration.cs" />
-    <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
