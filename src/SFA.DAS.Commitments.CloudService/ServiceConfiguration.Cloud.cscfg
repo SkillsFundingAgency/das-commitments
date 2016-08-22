@@ -4,6 +4,7 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="EnvironmentName" value="__EnvironmentName__" />
     </ConfigurationSettings>
   </Role>
   <Role name="SFA.DAS.ProviderApprenticeshipsService.Web">
