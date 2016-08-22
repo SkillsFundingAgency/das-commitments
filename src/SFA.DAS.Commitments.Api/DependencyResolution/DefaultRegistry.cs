@@ -15,6 +15,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Infrastructure.Data;
+
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
     using StructureMap.Configuration.DSL;
     using StructureMap.Graph;
@@ -28,7 +31,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
                     scan.TheCallingAssembly();
                     scan.WithDefaultConventions();
                 });
-            //For<IExample>().Use<Example>();
+            For<ICommitmentRepository>().Use<CommitmentRepository>();
         }
 
         #endregion

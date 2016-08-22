@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SFA.DAS.Commitments.Domain</RootNamespace>
     <AssemblyName>SFA.DAS.Commitments.Domain</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,6 +45,9 @@
     <Compile Include="Apprenticeship.cs" />
     <Compile Include="ApprenticeshipStatus.cs" />
     <Compile Include="Commitment.cs" />
+    <Compile Include="Configuration\CommitmentConfiguration.cs" />
+    <Compile Include="Data\BaseRepository.cs" />
+    <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
