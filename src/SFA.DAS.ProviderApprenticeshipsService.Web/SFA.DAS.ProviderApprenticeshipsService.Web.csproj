@@ -216,6 +216,7 @@
     <Content Include="assets\stylesheets\images\govuk-crest.png" />
     <Content Include="assets\stylesheets\images\open-government-licence.png" />
     <Content Include="assets\stylesheets\images\open-government-licence_2x.png" />
+    <Content Include="Content\elements.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
