@@ -511,18 +511,18 @@ Target "Create Nuget Package" (fun _ ->
    ==>"Build Solution"
    ==>"Build Database project"
    ==>"Publish Solution"
-   ==>"Cleaning Unit Tests"
-   ==>"Building Unit Tests"
-   ==>"Run NUnit Tests"
+   //==>"Cleaning Unit Tests"
+   //==>"Building Unit Tests"
+   //==>"Run NUnit Tests"
    //==>"Compile Views"
    ==>"Create Nuget Package"
    ==>"Zip Compiled Source"
    ==>"Create Development Site in IIS"
-   ==>"Create Accceptance Test Site in IIS"
+   //==>"Create Accceptance Test Site in IIS"
 
 
 "Set Solution Name"
     ==> "Build Database project"
     ==> "Publish Database project"
    
-RunTargetOrDefault  "Create Accceptance Test Site in IIS"
+RunTargetOrDefault  "Create Development Site in IIS"
