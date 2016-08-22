@@ -514,7 +514,7 @@ Target "Create Nuget Package" (fun _ ->
    ==>"Cleaning Unit Tests"
    ==>"Building Unit Tests"
    ==>"Run NUnit Tests"
-   ==>"Compile Views"
+   //==>"Compile Views"
    ==>"Create Nuget Package"
    ==>"Zip Compiled Source"
    ==>"Create Development Site in IIS"

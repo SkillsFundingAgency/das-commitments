@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderApprentices
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
 EndProject
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.Commitments.CloudService", "SFA.DAS.Commitments.CloudService\SFA.DAS.Commitments.CloudService.ccproj", "{3AABCD1E-260B-4333-9B7F-014F58D2F656}"
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.CloudService", "SFA.DAS.Commitments.CloudService\SFA.DAS.CloudService.ccproj", "{3AABCD1E-260B-4333-9B7F-014F58D2F656}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
