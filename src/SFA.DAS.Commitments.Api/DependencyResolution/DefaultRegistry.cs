@@ -15,8 +15,6 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.Configuration;
 using Microsoft.Azure;
 using SFA.DAS.Commitments.Domain.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
@@ -54,9 +52,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
             var configurationService = new ConfigurationService(configurationRepository,
                 new ConfigurationOptions(ServiceName, environment, "1.0"));
 
-            var result = configurationService.Get<CommitmentConfiguration>();
-
-            return result;
+            return configurationService.Get<CommitmentConfiguration>();
         }
 
         private static IConfigurationRepository GetConfigurationRepository()

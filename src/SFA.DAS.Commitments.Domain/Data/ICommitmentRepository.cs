@@ -1,7 +1,9 @@
-﻿namespace SFA.DAS.Commitments.Domain.Data
+﻿using System.Threading.Tasks;
+
+namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface ICommitmentRepository
     {
-        void Create(Commitment commitment);
+        Task Create(Commitment commitment);
     }
 }
