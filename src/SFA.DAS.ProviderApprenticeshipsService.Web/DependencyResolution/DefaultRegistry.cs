@@ -16,49 +16,28 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using MediatR;
-using Microsoft.Azure;
-using SFA.DAS.Commitments.Domain.Configuration;
-using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Infrastructure.Data;
-using SFA.DAS.Configuration;
-using SFA.DAS.Configuration.AzureTableStorage;
 
-namespace SFA.DAS.Commitments.Api.DependencyResolution {
+namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
     using StructureMap.Configuration.DSL;
     using StructureMap.Graph;
 	
     public class DefaultRegistry : Registry {
-        private const string ServiceName = "SFA.DAS.Commitments";
+        #region Constructors and Destructors
 
         public DefaultRegistry() {
             Scan(
                 scan => {
                     scan.TheCallingAssembly();
                     scan.WithDefaultConventions();
+					scan.With(new ControllerConvention());
                 });
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
 
-            var config = GetConfiguration();
-
-            For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<CommitmentConfiguration>().Is(config);
+            //For<IExample>().Use<Example>();
         }
 
-        private CommitmentConfiguration GetConfiguration()
-        {
-            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-
-            var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository,
-                new ConfigurationOptions(ServiceName, environment, "1.0"));
-
-            return configurationService.Get<CommitmentConfiguration>();
-        }
-
-        private static IConfigurationRepository GetConfigurationRepository()
-        {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
-        }
+        #endregion
     }
 }
