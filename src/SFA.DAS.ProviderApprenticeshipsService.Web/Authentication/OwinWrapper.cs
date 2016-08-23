@@ -42,20 +42,18 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Authentication
 
         public ActionResult SignOutUser()
         {
-            if (_configuration.UseFakeIdentity)
-            {
+            //if (_configuration.UseFakeIdentity)
+            //{
                 var authenticationManager = _owinContext.Authentication;
                 authenticationManager.SignOut("Cookies");
                 return new RedirectResult("/");
-            }
+            //}
             //else
             //{
             //    var authenticationManager = _owinContext.Authentication;
             //    authenticationManager.SignOut("Cookies");
             //    return new RedirectResult($"{_configuration.Identity.BaseAddress}/Login/dialog/appl/oidc/wflow/logout?redirecturl={_owinContext.Request.Uri.Scheme}://{_owinContext.Request.Uri.Authority}");
             //}
-
-            return new RedirectResult("/");
         }
 
         public string GetClaimValue(string claimKey)

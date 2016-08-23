@@ -23,6 +23,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
             _homeOrchestrator = homeOrchestrator;
         }
 
+        [Authorize]
         public ActionResult Index()
         {
             return View();
@@ -52,7 +53,6 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
         public ActionResult SignOut()
         {
             return _owinWrapper.SignOutUser();
-
         }
 
         private void LoginUser(string id, string firstName, string lastName)

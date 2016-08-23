@@ -81,7 +81,7 @@
                 @if (HttpContext.Current.User.Identity.IsAuthenticated)
                 {
                     <span>Hi @HttpContext.Current.User.Identity.Name</span>
-                    @*<span><a href="@Url.Action("SignOut","Home")">Log out</a></span>*@
+                    <span><a href="@Url.Action("SignOut","Home")">Log out</a></span>
                 }
                 else
                 {
