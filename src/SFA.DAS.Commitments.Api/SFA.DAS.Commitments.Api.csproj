@@ -255,6 +255,10 @@
       <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
       <Name>SFA.DAS.Commitments.Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Web\SFA.DAS.ProviderApprenticeshipsService.Web.csproj">
+      <Project>{94E473E1-2217-43C3-A228-00B8BE2BE0F1}</Project>
+      <Name>SFA.DAS.ProviderApprenticeshipsService.Web</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

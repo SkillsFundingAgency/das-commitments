@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MediatR, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediatR.2.1.0\lib\net45\MediatR.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,6 +46,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\GetUsers\GetUsersQueryHandler.cs" />
+    <Compile Include="Queries\GetUsers\GetUsersQueryRequest.cs" />
+    <Compile Include="Queries\GetUsers\GetUsersQueryResponse.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Domain\SFA.DAS.ProviderApprenticeshipsService.Domain.csproj">
+      <Project>{B3484618-78A0-411E-BC02-AC84C8694C3D}</Project>
+      <Name>SFA.DAS.ProviderApprenticeshipsService.Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
