@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
-using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -23,7 +21,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             if (response.HasError)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             return Ok(response.Commitments);

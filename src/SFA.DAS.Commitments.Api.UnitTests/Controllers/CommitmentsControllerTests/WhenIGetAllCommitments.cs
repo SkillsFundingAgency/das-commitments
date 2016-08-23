@@ -6,7 +6,6 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 using SFA.DAS.Commitments.Domain;
@@ -55,7 +54,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
 
             var result = await controller.Get(0L);
 
-            result.Should().BeOfType<NotFoundResult>();
+            result.Should().BeOfType<BadRequestResult>();
         }
     }
 }
