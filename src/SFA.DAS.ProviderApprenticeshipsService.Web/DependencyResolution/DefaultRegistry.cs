@@ -16,6 +16,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using MediatR;
+using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
     using StructureMap.Configuration.DSL;
@@ -35,6 +37,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
 
+            For<IUserRepository>().Use<FileSystemUserRepository>();
             //For<IExample>().Use<Example>();
         }
 
