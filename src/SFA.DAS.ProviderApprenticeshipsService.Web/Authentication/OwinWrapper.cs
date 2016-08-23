@@ -25,7 +25,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Authentication
 
         public void SignInUser(string id, string displayName, string email)
         {
-            if (!_configuration.UseFakeIdentity) { throw new NotImplementedException(); }
+            //if (!_configuration.UseFakeIdentity) { throw new NotImplementedException(); }
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, displayName),

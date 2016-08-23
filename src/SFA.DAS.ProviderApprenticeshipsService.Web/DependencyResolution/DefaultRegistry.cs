@@ -15,7 +15,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Net.NetworkInformation;
 using MediatR;
+using SFA.DAS.ProviderApprenticeshipsService.Application;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 
@@ -32,6 +34,11 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
                     scan.TheCallingAssembly();
                     scan.WithDefaultConventions();
 					scan.With(new ControllerConvention());
+                    scan.AssemblyContainingType<InvalidRequestException>(); // Our assembly with requests & handlers
+                    scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
                 });
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
