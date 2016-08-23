@@ -38,7 +38,6 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
             For<IMediator>().Use<Mediator>();
 
             For<IUserRepository>().Use<FileSystemUserRepository>();
-            //For<IExample>().Use<Example>();
         }
 
         #endregion
