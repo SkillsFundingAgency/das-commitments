@@ -22,10 +22,9 @@ using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.ProviderApprenticeshipsService.Web.Authentication;
+using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
-    using StructureMap.Configuration.DSL;
     using StructureMap.Graph;
 	
     public class DefaultRegistry : Registry {
@@ -43,7 +42,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
 
             var config = GetConfiguration();
 
-            For<IOwinWrapper>().Use<OwinWrapper>().Ctor<CommitmentConfiguration>().Is(config);
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<CommitmentConfiguration>().Is(config);
         }
 

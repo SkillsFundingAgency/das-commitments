@@ -15,25 +15,24 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Net.NetworkInformation;
 using MediatR;
 using SFA.DAS.ProviderApprenticeshipsService.Application;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
+using StructureMap;
 
-namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
-    using StructureMap.Configuration.DSL;
+namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
+{
     using StructureMap.Graph;
-	
+
     public class DefaultRegistry : Registry {
-        #region Constructors and Destructors
+        private const string ServiceName = "SFA.DAS.ProviderApprenticeshipsService";
 
         public DefaultRegistry() {
             Scan(
                 scan => {
                     scan.TheCallingAssembly();
                     scan.WithDefaultConventions();
-					scan.With(new ControllerConvention());
                     scan.AssemblyContainingType<InvalidRequestException>(); // Our assembly with requests & handlers
                     scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
@@ -46,7 +45,5 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
 
             For<IUserRepository>().Use<FileSystemUserRepository>();
         }
-
-        #endregion
     }
 }

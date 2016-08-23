@@ -15,13 +15,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
+using StructureMap;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
-    using StructureMap;
 	
     public static class IoC {
         public static IContainer Initialize() {
-            return new Container(c => c.AddRegistry<DefaultRegistry>());
+            return new Container(c =>
+            {
+                c.Policies.Add<ConfigurationPolicy<ProviderApprenticeshipsServiceConfiguration>>();
+                c.AddRegistry<DefaultRegistry>();
+            });
         }
     }
 }
