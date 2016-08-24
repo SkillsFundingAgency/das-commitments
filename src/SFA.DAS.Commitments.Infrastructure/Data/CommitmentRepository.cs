@@ -71,28 +71,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
         {
+            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
+
             return WithConnection<IList<Commitment>>(async c =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var lookup = new Dictionary<long, Commitment>();
-                var results = await c.QueryAsync<Commitment, Apprenticeship, Commitment>(
+                var lookup = new Dictionary<object, Commitment>();
+                var results = await c.QueryAsync(
                     sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.{identifierName} = @id;",
                     param: parameters,
-                    map: (x, y) =>
-                    {
-                        Commitment commitment;
-                        if (!lookup.TryGetValue(x.Id, out commitment))
-                        {
-                            lookup.Add(x.Id, commitment = x);
-                        }
-                        if (commitment.Apprenticeships == null)
-                            commitment.Apprenticeships = new List<Apprenticeship>();
-                        commitment.Apprenticeships.Add(y);
-
-                        return commitment;
-                    });
+                    map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
                 return lookup.Values.ToList();
             });
