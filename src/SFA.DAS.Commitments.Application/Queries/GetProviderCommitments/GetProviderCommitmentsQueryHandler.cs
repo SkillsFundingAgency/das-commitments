@@ -18,14 +18,14 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
 
         public async Task<GetProviderCommitmentsResponse> Handle(GetProviderCommitmentsRequest message)
         {
-            if (_validator.Validate(message).IsValid)
+            if (!_validator.Validate(message).IsValid)
             {
-                var commitments = await _commitmentRepository.GetByProvider(message.ProviderId);
-
-                return new GetProviderCommitmentsResponse { Commitments = commitments };
+                return new GetProviderCommitmentsResponse { HasError = true };
             }
 
-            return new GetProviderCommitmentsResponse { HasError = true };
+            var commitments = await _commitmentRepository.GetByProvider(message.ProviderId);
+
+            return new GetProviderCommitmentsResponse { Data = commitments };
         }
     }
 }

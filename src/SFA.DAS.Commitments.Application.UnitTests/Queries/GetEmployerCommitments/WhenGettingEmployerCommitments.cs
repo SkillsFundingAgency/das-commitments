@@ -13,38 +13,38 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
     [TestFixture]
     public class WhenGettingEmployerCommitments
     {
+        private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private GetEmployerCommitmentsQueryHandler _handler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            _handler = new GetEmployerCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
+        }
+
         [Test]
         public async Task ThenTheCommitmentRepositoryIsCalled()
         {
-            var mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
 
-            var handler = new GetEmployerCommitmentsQueryHandler(mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
-
-            await handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
-
-            mockCommitmentRespository.Verify(x => x.GetByEmployer(It.IsAny<long>()), Times.Once);
+            _mockCommitmentRespository.Verify(x => x.GetByEmployer(It.IsAny<long>()), Times.Once);
         }
 
         [Test, AutoData]
         public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
-            var mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
+            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
 
-            var handler = new GetEmployerCommitmentsQueryHandler(mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
+            var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
 
-            var response = await handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
-
-            response.Commitments.Should().BeSameAs(commitmentsFromRepository);
+            response.Data.Should().BeSameAs(commitmentsFromRepository);
         }
 
         [Test]
         public async Task ThenShouldSetHasErrorIndicatorOnResponseIfValidationFails()
         {
-            var mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            var handler = new GetEmployerCommitmentsQueryHandler(mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
-
-            var response = await handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 }); // 0 will fail validation
+            var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 }); // 0 will fail validation
 
             response.HasError.Should().BeTrue();
         }

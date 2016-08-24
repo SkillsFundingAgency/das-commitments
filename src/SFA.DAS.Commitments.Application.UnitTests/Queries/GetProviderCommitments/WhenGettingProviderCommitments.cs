@@ -13,38 +13,38 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
     [TestFixture]
     public class WhenGettingProviderCommitments
     {
+        private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private GetProviderCommitmentsQueryHandler _handler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            _handler = new GetProviderCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetProviderCommitmentsValidator());
+        }
+
         [Test]
         public async Task ThenTheCommitmentRepositoryIsCalled()
         {
-            var mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
 
-            var handler = new GetProviderCommitmentsQueryHandler(mockCommitmentRespository.Object, new GetProviderCommitmentsValidator());
-
-            await handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
-
-            mockCommitmentRespository.Verify(x => x.GetByProvider(It.IsAny<long>()), Times.Once);
+            _mockCommitmentRespository.Verify(x => x.GetByProvider(It.IsAny<long>()), Times.Once);
         }
 
         [Test, AutoData]
         public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
-            var mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
+            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
 
-            var handler = new GetProviderCommitmentsQueryHandler(mockCommitmentRespository.Object, new GetProviderCommitmentsValidator());
+            var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
 
-            var response = await handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
-
-            response.Commitments.Should().BeSameAs(commitmentsFromRepository);
+            response.Data.Should().BeSameAs(commitmentsFromRepository);
         }
 
         [Test]
         public async Task ThenShouldSetHasErrorIndicatorOnResponseIfValidationFails()
         {
-            var mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            var handler = new GetProviderCommitmentsQueryHandler(mockCommitmentRespository.Object, new GetProviderCommitmentsValidator());
-
-            var response = await handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 0 }); // 0 will fail validation
+            var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 0 }); // 0 will fail validation
 
             response.HasError.Should().BeTrue();
         }

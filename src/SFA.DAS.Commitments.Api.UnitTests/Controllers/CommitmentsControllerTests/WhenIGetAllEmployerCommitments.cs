@@ -15,45 +15,47 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
     [TestFixture]
     public class WhenIGetAllEmployerCommitments
     {
+        private Mock<IMediator> _mockMediator;
+        private CommitmentsController _controller;
+
+        [SetUp]
+        public void Setup()
+        {
+            _mockMediator = new Mock<IMediator>();
+            _controller = new CommitmentsController(_mockMediator.Object);
+        }
+
         [Test]
         public async Task ThenAListOfCommitmentsWillBeReturned()
         {
             var autoDataFixture = new Fixture();
             var mediatorResponse = autoDataFixture.Build<GetEmployerCommitmentsResponse>().With(x => x.HasError, false).Create();
 
-            Mock<IMediator> mockMediator = new Mock<IMediator>();
-            mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
-            var controller = new CommitmentsController(mockMediator.Object);
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
 
-            var result = await controller.Get(1235L) as OkNegotiatedContentResult<IList<Commitment>>;
+            var result = await _controller.Get(1235L) as OkNegotiatedContentResult<IList<Commitment>>;
 
             result.Should().NotBeNull();
-            result.Content.Should().BeSameAs(mediatorResponse.Commitments);
+            result.Content.Should().BeSameAs(mediatorResponse.Data);
         }
 
         [Test]
         public async Task ThenTheMediatorIsCalledWithTheProviderId()
         {
             const long testAccountId = 1235L;
-            Mock<IMediator> mockMediator = new Mock<IMediator>();
-            mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse()));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse()));
 
-            var controller = new CommitmentsController(mockMediator.Object);
+            var result = await _controller.Get(testAccountId);
 
-            var result = await controller.Get(testAccountId);
-
-            mockMediator.Verify(x => x.SendAsync(It.Is<GetEmployerCommitmentsRequest>(arg => arg.AccountId == testAccountId)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<GetEmployerCommitmentsRequest>(arg => arg.AccountId == testAccountId)));
         }
 
         [Test]
         public async Task ThenShouldReturnA404StatusIfProviderIdIsInvalid()
         {
-            Mock<IMediator> mockMediator = new Mock<IMediator>();
-            mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse { HasError = true }));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse { HasError = true }));
 
-            var controller = new CommitmentsController(mockMediator.Object);
-
-            var result = await controller.Get(-1L);
+            var result = await _controller.Get(-1L);
 
             result.Should().BeOfType<BadRequestResult>();
         }

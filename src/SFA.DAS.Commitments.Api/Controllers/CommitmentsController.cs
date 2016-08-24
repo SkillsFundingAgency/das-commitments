@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
 using SFA.DAS.Commitments.Application.Queries;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -19,7 +21,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         // GET: api/commitments/5
         public async Task<IHttpActionResult> Get(long id)
         {
-            GetCommitmentsResponseBase response;
+            QueryResponse<IList<Commitment>> response;
 
             if (id % 2 == 0)
             {
@@ -35,7 +37,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
                 return BadRequest();
             }
 
-            return Ok(response.Commitments);
+            return Ok(response.Data);
         }
     }
 }

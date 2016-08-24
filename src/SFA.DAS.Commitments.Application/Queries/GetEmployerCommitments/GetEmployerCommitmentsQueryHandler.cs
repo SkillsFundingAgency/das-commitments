@@ -18,14 +18,14 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
 
         public async Task<GetEmployerCommitmentsResponse> Handle(GetEmployerCommitmentsRequest message)
         {
-            if (_validator.Validate(message).IsValid)
+            if (!_validator.Validate(message).IsValid)
             {
-                var commitments = await _commitmentRepository.GetByEmployer(message.AccountId);
-
-                return new GetEmployerCommitmentsResponse { Commitments = commitments };
+                return new GetEmployerCommitmentsResponse { HasError = true };
             }
 
-            return new GetEmployerCommitmentsResponse { HasError = true };
+            var commitments = await _commitmentRepository.GetByEmployer(message.AccountId);
+
+            return new GetEmployerCommitmentsResponse { Data = commitments };
         }
     }
 }

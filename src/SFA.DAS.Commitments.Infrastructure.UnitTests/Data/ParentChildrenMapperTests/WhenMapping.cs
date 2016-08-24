@@ -10,12 +10,18 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Data.ParentChildrenMapper
     [TestFixture]
     public class WhenMapping
     {
+        private ParentChildrenMapper<Parent, Child> _mapper;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _mapper = new ParentChildrenMapper<Parent, Child>();
+        }
+
         [Test]
         public void ThenANullLookupParameterThrowsAnArgumentNullException()
         {
-            var mapper = new ParentChildrenMapper<object, object>();
-
-            Action act = () => mapper.Map(null, x => x, x => new List<object>());
+            Action act = () => _mapper.Map(null, x => x, x => new List<Child>());
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -23,12 +29,11 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Data.ParentChildrenMapper
         [Test]
         public void ThenIfLookupIsEmptyShouldAddParentObjectAndWithChild()
         {
-            var mapper = new ParentChildrenMapper<Parent, Child>();
             var lookup = new Dictionary<int, Parent>();
             var parent = new Parent { Id = 2, Children = new List<Child>() };
             var child = new Child();
 
-            var result = mapper.Map(lookup, x => x.Id, x => x.Children)(parent, child);
+            var result = _mapper.Map(lookup, x => x.Id, x => x.Children)(parent, child);
 
             result.Should().Be(parent);
             result.Children.Should().Contain(child);
@@ -38,7 +43,6 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Data.ParentChildrenMapper
         [Test]
         public void ThenIfLookupAlreadyContainsEntryWithIdOfParentShouldAddNewChildToExistingParent()
         {
-            var mapper = new ParentChildrenMapper<Parent, Child>();
             var lookup = new Dictionary<int, Parent>();
             var existingEntry = new Parent { Id = 2, Children = new List<Child> { new Child() } };
             lookup.Add(existingEntry.Id, existingEntry);
@@ -46,7 +50,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Data.ParentChildrenMapper
             var parent = new Parent { Id = 2, Children = new List<Child>() };
             var child = new Child();
 
-            var result = mapper.Map(lookup, x => x.Id, x => x.Children)(parent, child);
+            var result = _mapper.Map(lookup, x => x.Id, x => x.Children)(parent, child);
 
             lookup.Values.Count.Should().Be(1);
             lookup.Values.Single().Children.Count.Should().Be(2);

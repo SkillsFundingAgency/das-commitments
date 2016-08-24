@@ -7,13 +7,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.GetEmployerCommitments
     [TestFixture]
     public class WhenValidatingAccountId
     {
+        private GetEmployerCommitmentsValidator _validator;
+
+        [SetUp]
+        public void Setup()
+        {
+            _validator = new GetEmployerCommitmentsValidator();
+        }
+
         [TestCase(0)]
         [TestCase(-1)]
         public void ThenIfTheAccountIdIsZeroOrLessIsNotValid(long testAccountId)
         {
-            var validator = new GetEmployerCommitmentsValidator();
-
-            var result = validator.Validate(new GetEmployerCommitmentsRequest { AccountId = testAccountId });
+            var result = _validator.Validate(new GetEmployerCommitmentsRequest { AccountId = testAccountId });
 
             result.IsValid.Should().BeFalse();
         }
@@ -22,9 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.GetEmployerCommitments
         [TestCase(99999)]
         public void ThenIfTheAccountIdGreaterThanZeroIsValid(long testProviderId)
         {
-            var validator = new GetEmployerCommitmentsValidator();
-
-            var result = validator.Validate(new GetEmployerCommitmentsRequest { AccountId = testProviderId });
+            var result = _validator.Validate(new GetEmployerCommitmentsRequest { AccountId = testProviderId });
 
             result.IsValid.Should().BeTrue();
         }
