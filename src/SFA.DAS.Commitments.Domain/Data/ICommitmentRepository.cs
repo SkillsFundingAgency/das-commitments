@@ -8,5 +8,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task Create(Commitment commitment);
 
         Task<IList<Commitment>> GetByProvider(long providerId);
+
+        Task<IList<Commitment>> GetByEmployer(long accountId);
     }
 }

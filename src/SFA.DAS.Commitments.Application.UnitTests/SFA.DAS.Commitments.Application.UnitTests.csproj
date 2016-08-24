@@ -68,6 +68,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Queries\GetEmployerCommitments\WhenGettingEmployerCommitments.cs" />
+    <Compile Include="Queries\GetEmployerCommitments\WhenValidatingAccountId.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenGettingProviderCommitments.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenValidatingProviderId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

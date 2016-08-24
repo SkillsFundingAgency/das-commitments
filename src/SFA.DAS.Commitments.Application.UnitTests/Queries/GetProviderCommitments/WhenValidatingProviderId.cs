@@ -2,10 +2,10 @@
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
-namespace SFA.DAS.Commitments.Application.UnitTests
+namespace SFA.DAS.Commitments.Application.UnitTests.GetProviderCommitments
 {
     [TestFixture]
-    public class TestClass
+    public class WhenValidatingProviderId
     {
         [TestCase(0)]
         [TestCase(-1)]

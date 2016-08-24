@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,18 +59,28 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<IList<Commitment>> GetByEmployer(long accountId)
+        {
+            return await GetByIdentifier("EmployerAccountId", accountId);
+        }
+
         public async Task<IList<Commitment>> GetByProvider(long providerId)
         {
-            return await WithConnection<IList<Commitment>>(async c => 
+            return await GetByIdentifier("ProviderId", providerId);
+        }
+
+        private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
+        {
+            return WithConnection<IList<Commitment>>(async c =>
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@providerId", providerId);
+                parameters.Add($"@id", identifierValue);
 
                 var lookup = new Dictionary<long, Commitment>();
                 var results = await c.QueryAsync<Commitment, Apprenticeship, Commitment>(
-                    sql:"SELECT c.*, a.* FROM [dbo].[Commitment] c INNER JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.ProviderId = @providerId;", 
+                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.{identifierName} = @id;",
                     param: parameters,
-                    map: (x, y) => 
+                    map: (x, y) =>
                     {
                         Commitment commitment;
                         if (!lookup.TryGetValue(x.Id, out commitment))

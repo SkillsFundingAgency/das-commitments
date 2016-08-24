@@ -13,7 +13,7 @@ using SFA.DAS.Commitments.Domain;
 namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
 {
     [TestFixture]
-    public class WhenIGetAllCommitments
+    public class WhenIGetAllProviderCommitments
     {
         [Test]
         public async Task ThenAListOfCommitmentsWillBeReturned()
@@ -34,14 +34,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledWithTheProviderId()
         {
+            const long testProviderId = 1234L;
             Mock<IMediator> mockMediator = new Mock<IMediator>();
             mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(new GetProviderCommitmentsResponse()));
 
             var controller = new CommitmentsController(mockMediator.Object);
 
-            var result = await controller.Get(1234L);
+            var result = await controller.Get(testProviderId);
 
-            mockMediator.Verify(x => x.SendAsync(It.Is<GetProviderCommitmentsRequest>(arg => arg.ProviderId == 1234L)));
+            mockMediator.Verify(x => x.SendAsync(It.Is<GetProviderCommitmentsRequest>(arg => arg.ProviderId == testProviderId)));
         }
 
         [Test]

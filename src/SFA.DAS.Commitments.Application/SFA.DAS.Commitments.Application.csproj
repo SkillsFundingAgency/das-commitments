@@ -49,8 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsQueryHandler.cs" />
+    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsRequest.cs" />
+    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsResponse.cs" />
+    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsValidator.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsQueryHandler.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsRequest.cs" />
+    <Compile Include="Queries\GetCommitmentsResponseBase.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsResponse.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsValidator.cs" />
   </ItemGroup>
