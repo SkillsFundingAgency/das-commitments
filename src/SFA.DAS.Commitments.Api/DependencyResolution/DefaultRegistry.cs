@@ -22,9 +22,9 @@ using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
-    using StructureMap.Configuration.DSL;
     using StructureMap.Graph;
 	
     public class DefaultRegistry : Registry {

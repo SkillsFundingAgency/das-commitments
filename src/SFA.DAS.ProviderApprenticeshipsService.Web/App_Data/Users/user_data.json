@@ -1,0 +1,40 @@
+﻿{
+  "UserList": [
+    {
+      "Id": 3, 
+      "UserRef": "DF11DAEB-CA1B-47DC-AAD8-F7F37B7F4EAC",
+      "FirstName": "Daniel",
+      "LastName": "Ashton",
+      "Email": "daniel.ashton@test.local"
+    },
+    {
+      "Id": 2,
+      "UserRef": "A0BBC02B-39A0-4DEC-8018-1A3A98A18A37",
+      "FirstName": "Ian",
+      "LastName": "Russell",
+      "Email": "ian.russell@test.local"
+    },
+    {
+      "Id": 1,
+      "UserRef": "758943A5-86AA-4579-86AF-FB3D4A05850B",
+      "FirstName": "Floyd",
+      "LastName": "Price",
+      "Email": "floyd.price@test.local"
+    },
+    {
+      "Id": 4,
+      "UserRef": "E2A913BC-3AC0-42AE-B1D7-827FEFA76F9A",
+      "FirstName": "Mark",
+      "LastName": "Gwilliam",
+      "Email": "mark.gwilliam@test.local"
+    },
+    {
+      "Id": 5,
+      "UserRef": "1786D990-37FC-45FA-B6F3-D12A1A948704",
+      "FirstName": "Simon",
+      "LastName": "Bull",
+      "Email": "simon.bull@test.local"
+    }
+  ]
+}
+

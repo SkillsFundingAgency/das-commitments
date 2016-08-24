@@ -16,28 +16,34 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using MediatR;
+using SFA.DAS.ProviderApprenticeshipsService.Application;
+using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
+using StructureMap;
 
-namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
-    using StructureMap.Configuration.DSL;
+namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
+{
     using StructureMap.Graph;
-	
+
     public class DefaultRegistry : Registry {
-        #region Constructors and Destructors
+        private const string ServiceName = "SFA.DAS.ProviderApprenticeshipsService";
 
         public DefaultRegistry() {
             Scan(
                 scan => {
                     scan.TheCallingAssembly();
                     scan.WithDefaultConventions();
-					scan.With(new ControllerConvention());
+                    scan.AssemblyContainingType<InvalidRequestException>(); // Our assembly with requests & handlers
+                    scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
                 });
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
 
-            //For<IExample>().Use<Example>();
+            For<IUserRepository>().Use<FileSystemUserRepository>();
         }
-
-        #endregion
     }
 }
