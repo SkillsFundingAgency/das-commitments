@@ -223,6 +223,7 @@
     <Compile Include="App_Start\StructuremapMvc.cs" />
     <Compile Include="Authentication\IOwinWrapper.cs" />
     <Compile Include="Authentication\OwinWrapper.cs" />
+    <Compile Include="Controllers\CommitmentController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="DependencyResolution\ConfigurationPolicy.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
@@ -313,6 +314,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Service References\Application Insights\ConnectedService.json" />
     <Content Include="Views\Home\FakeUserSignIn.cshtml" />
+    <Content Include="Views\Commitment\Index.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
