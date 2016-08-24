@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain;
@@ -54,6 +56,35 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     trans.Commit();
                 }
                 return commitmentId;
+            });
+        }
+
+        public async Task<IList<Commitment>> GetByEmployer(long accountId)
+        {
+            return await GetByIdentifier("EmployerAccountId", accountId);
+        }
+
+        public async Task<IList<Commitment>> GetByProvider(long providerId)
+        {
+            return await GetByIdentifier("ProviderId", providerId);
+        }
+
+        private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
+        {
+            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
+
+            return WithConnection<IList<Commitment>>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@id", identifierValue);
+
+                var lookup = new Dictionary<object, Commitment>();
+                var results = await c.QueryAsync(
+                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.{identifierName} = @id;",
+                    param: parameters,
+                    map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
+
+                return lookup.Values.ToList();
             });
         }
     }

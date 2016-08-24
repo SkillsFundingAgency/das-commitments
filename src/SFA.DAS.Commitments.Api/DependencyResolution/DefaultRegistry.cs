@@ -25,17 +25,20 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
+    using FluentValidation;
     using StructureMap.Graph;
-	
+
     public class DefaultRegistry : Registry {
         private const string ServiceName = "SFA.DAS.Commitments";
 
         public DefaultRegistry() {
             Scan(
                 scan => {
-                    scan.TheCallingAssembly();
-                    scan.WithDefaultConventions();
+                    scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
+                    scan.RegisterConcreteTypesAgainstTheFirstInterface();
+                    scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
                 });
+
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();

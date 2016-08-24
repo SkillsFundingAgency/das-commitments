@@ -48,6 +48,7 @@
     <Compile Include="Configuration\CommitmentConfiguration.cs" />
     <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
+    <Compile Include="Data\ParentChildrenMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
