@@ -2,22 +2,17 @@
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Client;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitments
 {
     public class GetCommitmentsQueryHandler : IAsyncRequestHandler<GetCommitmentsQueryRequest, GetCommitmentsQueryResponse>
     {
-        private readonly ProviderApprenticeshipsServiceConfiguration _configuration;
         private readonly ICommitmentsApi _commitmentsApi;
 
-        public GetCommitmentsQueryHandler(ProviderApprenticeshipsServiceConfiguration configuration, ICommitmentsApi commitmentsApi)
+        public GetCommitmentsQueryHandler(ICommitmentsApi commitmentsApi)
         {
-            if (configuration == null)
-                throw new ArgumentNullException(nameof(configuration));
             if (commitmentsApi == null)
                 throw new ArgumentNullException(nameof(commitmentsApi));
-            _configuration = configuration;
             _commitmentsApi = commitmentsApi;
         }
 

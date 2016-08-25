@@ -31,17 +31,24 @@ namespace SFA.DAS.Commitments.Api.Client
         {
             var content = "";
 
-            using (var client = new HttpClient())
+            try
             {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+                using (var client = new HttpClient())
+                {
+                    var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-                // Add custom headers
-                //requestMessage.Headers.Add("User-Agent", "User-Agent-Here");
+                    // Add custom headers
+                    //requestMessage.Headers.Add("User-Agent", "User-Agent-Here");
 
-                //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("WRAP", "bigAccessToken");
-                var response = await client.SendAsync(requestMessage);
-                content = await response.Content.ReadAsStringAsync();
-                response.EnsureSuccessStatusCode();
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("WRAP", "bigAccessToken");
+                    var response = await client.SendAsync(requestMessage);
+                    content = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw;
             }
 
             return content;
