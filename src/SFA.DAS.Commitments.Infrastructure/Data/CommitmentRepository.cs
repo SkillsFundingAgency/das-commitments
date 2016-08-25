@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var results = await c.QueryAsync<Commitment> (
-                    sql: $"SELECT c.* FROM [dbo].[Commitment] WHERE c.{identifierName} = @id;",
+                    sql: $"SELECT * FROM [dbo].[Commitment] WHERE {identifierName} = @id;",
                     param: parameters);
 
                 return results.ToList();
