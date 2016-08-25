@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
@@ -22,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
         {
             if (!_validator.Validate(message).IsValid)
             {
-                return new GetCommitmentResponse { HasErrors = true };
+                throw new InvalidRequestException();
             }
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
@@ -32,30 +33,53 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                 return new GetCommitmentResponse { Data = null };
             }
 
-            return new GetCommitmentResponse { Data = new Commitment
+            CheckAuthorization(message, commitment);
+
+            return MapResponseFrom(commitment);
+        }
+
+        private static void CheckAuthorization(GetCommitmentRequest message, Domain.Commitment commitment)
+        {
+            if (message.ProviderId.HasValue && commitment.ProviderId != message.ProviderId)
             {
-                Id = commitment.Id,
-                Name = commitment.Name,
-                ProviderId = commitment.ProviderId,
-                ProviderName = "",
-                EmployerAccountId = commitment.EmployerAccountId,
-                EmployerAccountName = "",
-                LegalEntityId = commitment.LegalEntityId,
-                LegalEntityName = "",
-                Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
+                throw new UnauthorizedException($"Provider unauthorized to view commitment: {commitment.Id}");
+            }
+
+            if (message.AccountId.HasValue && commitment.EmployerAccountId != message.AccountId)
+            {
+                throw new UnauthorizedException($"Employer unauthorized to view commitment: {commitment.Id}");
+            }
+        }
+
+        private static GetCommitmentResponse MapResponseFrom(Domain.Commitment commitment)
+        {
+            return new GetCommitmentResponse
+            {
+                Data = new Commitment
                 {
-                    Id = x.Id,
-                    ULN = x.ULN,
-                    ApprenticeName = x.ApprenticeName,
-                    CommitmentId = x.CommitmentId,
-                    TrainingId = x.TrainingId,
-                    Cost = x.Cost,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
-                    AgreementStatus = (AgreementStatus)x.AgreementStatus,
-                    Status = (ApprenticeshipStatus)x.Status
-                }).ToList()
-            } };
+                    Id = commitment.Id,
+                    Name = commitment.Name,
+                    ProviderId = commitment.ProviderId,
+                    ProviderName = "",
+                    EmployerAccountId = commitment.EmployerAccountId,
+                    EmployerAccountName = "",
+                    LegalEntityId = commitment.LegalEntityId,
+                    LegalEntityName = "",
+                    Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
+                    {
+                        Id = x.Id,
+                        ULN = x.ULN,
+                        ApprenticeName = x.ApprenticeName,
+                        CommitmentId = x.CommitmentId,
+                        TrainingId = x.TrainingId,
+                        Cost = x.Cost,
+                        StartDate = x.StartDate,
+                        EndDate = x.EndDate,
+                        AgreementStatus = (AgreementStatus)x.AgreementStatus,
+                        Status = (ApprenticeshipStatus)x.Status
+                    }).ToList()
+                }
+            };
         }
     }
 }

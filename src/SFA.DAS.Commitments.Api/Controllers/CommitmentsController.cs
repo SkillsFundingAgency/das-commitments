@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
@@ -45,21 +47,27 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{id}")]
-        public async Task<IHttpActionResult> Get(long id)
+        public async Task<IHttpActionResult> Get(long id, long? providerId = null, long? accountId = null)
         {
-            var response = await _mediator.SendAsync(new GetCommitmentRequest { CommitmentId = id });
+            try
+            {
+                var response = await _mediator.SendAsync(new GetCommitmentRequest { CommitmentId = id, ProviderId = providerId, AccountId = accountId });
 
-            if (response.HasErrors)
+                if (response.Data == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(response.Data);
+            }
+            catch (InvalidRequestException)
             {
                 return BadRequest();
             }
-
-            if (response.Data == null)
+            catch (UnauthorizedException)
             {
-                return NotFound();
+                return Unauthorized();
             }
-
-            return Ok(response.Data);
         }
     }
 }

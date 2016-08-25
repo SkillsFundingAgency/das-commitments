@@ -8,6 +8,7 @@ using FluentAssertions;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTests
 {
@@ -49,13 +50,23 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         }
 
         [TestCase]
-        public async Task ThenReturnsABadResponseIfMediatorReturnsAnInvlidIdResult()
+        public async Task ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(new GetCommitmentResponse { HasErrors = true }));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Throws<InvalidRequestException>();
 
             var result = await _controller.Get(0L);
 
             result.Should().BeOfType<BadRequestResult>();
+        }
+
+        [TestCase]
+        public async Task ThenReturnsAUnauthorizedResponseIfMediatorThrowsAnNotAuthorizedException()
+        {
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Throws<UnauthorizedException>();
+
+            var result = await _controller.Get(0L);
+
+            result.Should().BeOfType<UnauthorizedResult>();
         }
 
         [TestCase]
