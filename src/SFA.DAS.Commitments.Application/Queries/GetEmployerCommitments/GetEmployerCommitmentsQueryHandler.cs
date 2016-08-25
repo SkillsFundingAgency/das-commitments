@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
         {
             if (!_validator.Validate(message).IsValid)
             {
-                return new GetEmployerCommitmentsResponse { HasError = true };
+                return new GetEmployerCommitmentsResponse { HasErrors = true };
             }
 
             var commitments = await _commitmentRepository.GetByEmployer(message.AccountId);

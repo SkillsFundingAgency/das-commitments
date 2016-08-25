@@ -30,11 +30,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         public async Task ThenAListOfCommitmentsWillBeReturned()
         {
             var autoDataFixture = new Fixture();
-            var mediatorResponse = autoDataFixture.Build<GetEmployerCommitmentsResponse>().With(x => x.HasError, false).Create();
+            var mediatorResponse = autoDataFixture.Build<GetEmployerCommitmentsResponse>().With(x => x.HasErrors, false).Create();
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
 
-            var result = await _controller.Get(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
+            var result = await _controller.GetAll(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
 
             result.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);
@@ -46,17 +46,17 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
             const long testAccountId = 1235L;
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse()));
 
-            var result = await _controller.Get(testAccountId);
+            var result = await _controller.GetAll(testAccountId);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<GetEmployerCommitmentsRequest>(arg => arg.AccountId == testAccountId)));
         }
 
         [Test]
-        public async Task ThenShouldReturnA404StatusIfProviderIdIsInvalid()
+        public async Task ThenShouldReturnBadRequestStatusIfProviderIdIsInvalid()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse { HasError = true }));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Returns(Task.FromResult(new GetEmployerCommitmentsResponse { HasErrors = true }));
 
-            var result = await _controller.Get(-1L);
+            var result = await _controller.GetAll(-1L);
 
             result.Should().BeOfType<BadRequestResult>();
         }

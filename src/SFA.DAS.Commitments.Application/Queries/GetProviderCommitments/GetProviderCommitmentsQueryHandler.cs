@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
         {
             if (!_validator.Validate(message).IsValid)
             {
-                return new GetProviderCommitmentsResponse { HasError = true };
+                return new GetProviderCommitmentsResponse { HasErrors = true };
             }
 
             var commitments = await _commitmentRepository.GetByProvider(message.ProviderId);

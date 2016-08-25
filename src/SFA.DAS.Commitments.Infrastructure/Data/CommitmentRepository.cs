@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,6 +58,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
                 return commitmentId;
             });
+        }
+
+        public async Task<Commitment> GetById(long id)
+        {
+            var result = await GetByIdentifier("Id", id);
+
+            return result.SingleOrDefault();
         }
 
         public async Task<IList<Commitment>> GetByEmployer(long accountId)

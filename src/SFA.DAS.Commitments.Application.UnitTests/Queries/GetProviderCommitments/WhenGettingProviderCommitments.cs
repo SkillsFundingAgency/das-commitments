@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         {
             var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 0 }); // 0 will fail validation
 
-            response.HasError.Should().BeTrue();
+            response.HasErrors.Should().BeTrue();
         }
     }
 }

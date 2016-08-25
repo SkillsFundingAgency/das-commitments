@@ -2,6 +2,6 @@
 {
     public abstract class QueryResponseBase
     {
-        public bool HasError { get; set; }
+        public bool HasErrors { get; set; }
     }
 }

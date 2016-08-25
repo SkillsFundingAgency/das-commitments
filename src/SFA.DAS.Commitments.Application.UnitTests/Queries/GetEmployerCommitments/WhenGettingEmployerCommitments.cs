@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         {
             var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 }); // 0 will fail validation
 
-            response.HasError.Should().BeTrue();
+            response.HasErrors.Should().BeTrue();
         }
     }
 }

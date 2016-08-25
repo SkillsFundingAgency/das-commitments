@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Controllers\CommitmentsControllerTests\WhenIGetAllEmployerCommitments.cs" />
     <Compile Include="Controllers\CommitmentsControllerTests\WhenIGetAllProviderCommitments.cs" />
+    <Compile Include="Controllers\CommitmentsControllerTests\WhenIGetASingleCommitment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
