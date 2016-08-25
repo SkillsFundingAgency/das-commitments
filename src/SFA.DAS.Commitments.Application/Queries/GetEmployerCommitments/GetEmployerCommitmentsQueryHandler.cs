@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
 
             var commitments = await _commitmentRepository.GetByEmployer(message.AccountId);
 
-            return new GetEmployerCommitmentsResponse { Data = commitments.Select(
+            return new GetEmployerCommitmentsResponse { Data = commitments?.Select(
                     x => new CommitmentListItem
                     {
                         Id = x.Id,

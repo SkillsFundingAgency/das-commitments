@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
@@ -26,21 +27,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         [Test]
         public async Task ThenTheCommitmentRepositoryIsCalled()
         {
-            await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
+            await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 124 });
 
             _mockCommitmentRespository.Verify(x => x.GetByProvider(It.IsAny<long>()), Times.Once);
         }
 
-        // TODO: Review test
-        //[Test, AutoData]
-        //public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
-        //{
-        //    _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
+        [Test, AutoData]
+        public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
+        {
+            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
 
-        //    var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
+            var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
 
-        //    response.Data.Should().BeSameAs(commitmentsFromRepository);
-        //}
+            response.Data.Should().HaveSameCount(commitmentsFromRepository);
+            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
+        }
 
         [Test]
         public async Task ThenShouldSetHasErrorIndicatorOnResponseIfValidationFails()
