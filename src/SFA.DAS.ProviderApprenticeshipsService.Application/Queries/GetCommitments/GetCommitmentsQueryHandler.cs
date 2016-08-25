@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using MediatR;
-using Newtonsoft.Json;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.ProviderApprenticeshipsService.Domain;
+using SFA.DAS.Commitments.Api.Client;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitments
@@ -15,35 +9,25 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitme
     public class GetCommitmentsQueryHandler : IAsyncRequestHandler<GetCommitmentsQueryRequest, GetCommitmentsQueryResponse>
     {
         private readonly ProviderApprenticeshipsServiceConfiguration _configuration;
+        private readonly ICommitmentsApi _commitmentsApi;
 
-        public GetCommitmentsQueryHandler(ProviderApprenticeshipsServiceConfiguration configuration)
+        public GetCommitmentsQueryHandler(ProviderApprenticeshipsServiceConfiguration configuration, ICommitmentsApi commitmentsApi)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
+            if (commitmentsApi == null)
+                throw new ArgumentNullException(nameof(commitmentsApi));
             _configuration = configuration;
+            _commitmentsApi = commitmentsApi;
         }
 
         public async Task<GetCommitmentsQueryResponse> Handle(GetCommitmentsQueryRequest message)
         {
-            var content = "";
-            var url = $"{_configuration.Api.BaseUrl}api/commitments/{message.ProviderId}";
-
-            using (var client = new HttpClient())
-            {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-
-                // Add custom headers
-                //requestMessage.Headers.Add("User-Agent", "User-Agent-Here");
-
-                //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("WRAP", "bigAccessToken");
-                var response = await client.SendAsync(requestMessage);
-                content = await response.Content.ReadAsStringAsync();
-                response.EnsureSuccessStatusCode();
-            }
+            var response = await _commitmentsApi.GetForProvider(message.ProviderId);
 
             return new GetCommitmentsQueryResponse
             {
-                Commitments = JsonConvert.DeserializeObject<List<CommitmentListItem>>(content)
+                Commitments = response
             };
         }
     }

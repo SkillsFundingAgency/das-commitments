@@ -330,6 +330,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj">
+      <Project>{1AE4D366-BFAA-4841-8A9C-921B65F51E78}</Project>
+      <Name>SFA.DAS.Commitments.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
       <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
       <Name>SFA.DAS.Commitments.Api.Types</Name>
