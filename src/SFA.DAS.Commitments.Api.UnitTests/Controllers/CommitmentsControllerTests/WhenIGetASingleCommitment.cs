@@ -4,10 +4,10 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Controllers;
 using Moq;
 using System.Web.Http.Results;
-using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTests
 {

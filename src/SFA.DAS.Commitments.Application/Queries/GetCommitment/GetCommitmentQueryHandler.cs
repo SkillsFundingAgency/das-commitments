@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
@@ -25,7 +27,35 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 
-            return new GetCommitmentResponse { Data = commitment };
+            if (commitment == null)
+            {
+                return new GetCommitmentResponse { Data = null };
+            }
+
+            return new GetCommitmentResponse { Data = new Commitment
+            {
+                Id = commitment.Id,
+                Name = commitment.Name,
+                ProviderId = commitment.ProviderId,
+                ProviderName = "",
+                EmployerAccountId = commitment.EmployerAccountId,
+                EmployerAccountName = "",
+                LegalEntityId = commitment.LegalEntityId,
+                LegalEntityName = "",
+                Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
+                {
+                    Id = x.Id,
+                    ULN = x.ULN,
+                    ApprenticeName = x.ApprenticeName,
+                    CommitmentId = x.CommitmentId,
+                    TrainingId = x.TrainingId,
+                    Cost = x.Cost,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    AgreementStatus = (AgreementStatus)x.AgreementStatus,
+                    Status = (ApprenticeshipStatus)x.Status
+                }).ToList()
+            } };
         }
     }
 }

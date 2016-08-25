@@ -37,7 +37,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 
             var response = await _handler.Handle(new GetCommitmentRequest { CommitmentId = 5 });
 
-            response.Data.Should().BeSameAs(commitmentFromRepository);
+            response.Data.Id.Should().Be(commitmentFromRepository.Id);
+            response.Data.Name.Should().Be(commitmentFromRepository.Name);
+            response.Data.Apprenticeships.Should().HaveSameCount(commitmentFromRepository.Apprenticeships);
         }
 
         [Test]
@@ -47,5 +49,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 
             response.HasErrors.Should().BeTrue();
         }
+
+        [Test]
+        public async Task ThenReturnsAResponseWithNullIfTheCommitmentIsNotFound()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).Returns(Task.FromResult(default(Commitment)));
+
+            var response = await _handler.Handle(new GetCommitmentRequest { CommitmentId = 5 });
+
+            response.Data.Should().BeNull();
+        }
+
     }
 }

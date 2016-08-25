@@ -75,7 +75,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
-                return results.SingleOrDefault();
+                return lookup.Values.SingleOrDefault();
             });
         }
 
