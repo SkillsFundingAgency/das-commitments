@@ -9,7 +9,6 @@ using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
-using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
 {

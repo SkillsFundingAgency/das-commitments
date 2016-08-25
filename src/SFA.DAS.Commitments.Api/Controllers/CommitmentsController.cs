@@ -8,7 +8,6 @@ using SFA.DAS.Commitments.Application.Queries;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
-using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
