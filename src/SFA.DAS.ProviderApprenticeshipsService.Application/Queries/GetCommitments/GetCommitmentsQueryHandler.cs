@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.ProviderApprenticeshipsService.Domain;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 
@@ -42,7 +43,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitme
 
             return new GetCommitmentsQueryResponse
             {
-                Commitments = JsonConvert.DeserializeObject<List<CommitmentView>>(content)
+                Commitments = JsonConvert.DeserializeObject<List<CommitmentListItem>>(content)
             };
         }
     }

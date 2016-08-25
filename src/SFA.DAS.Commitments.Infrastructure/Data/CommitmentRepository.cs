@@ -78,13 +78,30 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
+                var results = await c.QueryAsync<Commitment> (
+                    sql: $"SELECT c.* FROM [dbo].[Commitment] WHERE c.{identifierName} = @id;",
+                    param: parameters);
+
+                return results.ToList();
+            });
+        }
+
+        private Task<Commitment> Get(long id)
+        {
+            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
+
+            return WithConnection<Commitment>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@id", id);
+
                 var lookup = new Dictionary<object, Commitment>();
                 var results = await c.QueryAsync(
-                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.{identifierName} = @id;",
+                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.Id = @id;",
                     param: parameters,
                     map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
-                return lookup.Values.ToList();
+                return results.SingleOrDefault();
             });
         }
     }
