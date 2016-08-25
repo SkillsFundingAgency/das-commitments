@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture.NUnit3;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitments

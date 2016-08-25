@@ -47,6 +47,14 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SFA.DAS.Commitments.Api.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SFA.DAS.ProviderApprenticeshipsService.Web\Bin\SFA.DAS.Commitments.Api.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\SFA.DAS.ProviderApprenticeshipsService.Web\Bin\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -70,14 +78,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj">
-      <Project>{1AE4D366-BFAA-4841-8A9C-921B65F51E78}</Project>
-      <Name>SFA.DAS.Commitments.Api.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
-      <Name>SFA.DAS.Commitments.Api.Types</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Domain\SFA.DAS.ProviderApprenticeshipsService.Domain.csproj">
       <Project>{B3484618-78A0-411E-BC02-AC84C8694C3D}</Project>
       <Name>SFA.DAS.ProviderApprenticeshipsService.Domain</Name>
