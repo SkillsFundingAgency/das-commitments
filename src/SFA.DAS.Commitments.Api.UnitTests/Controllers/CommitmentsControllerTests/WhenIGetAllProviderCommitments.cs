@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 using SFA.DAS.Commitments.Domain;
 
@@ -31,7 +32,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
             var controller = new CommitmentsController(_mockMediator.Object);
 
-            var result = await controller.Get(1234L) as OkNegotiatedContentResult<IList<Commitment>>;
+            var result = await controller.Get(1234L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
 
             result.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);
