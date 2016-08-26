@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
+using Ploeh.AutoFixture.NUnit3;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTests
 {
@@ -25,11 +26,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
             _controller = new CommitmentsController(_mockMediator.Object);
         }
 
-        [Test]
-        public async Task ThenReturnsASingleCommitment()
+        [Test, AutoData]
+        public async Task ThenReturnsASingleCommitment(GetCommitmentResponse mediatorResponse)
         {
-            var autoDataFixture = new Fixture();
-            var mediatorResponse = autoDataFixture.Build<GetCommitmentResponse>().With(x => x.HasErrors, false).Create();
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(mediatorResponse));
 
             var result = await _controller.Get(2L) as OkNegotiatedContentResult<Commitment>;
@@ -72,7 +71,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         [TestCase]
         public async Task ThenReturnsANotFoundIfMediatorReturnsANullForTheCommitement()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(new GetCommitmentResponse { HasErrors = false, Data = null }));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(new GetCommitmentResponse { Data = null }));
 
             var result = await _controller.Get(0L);
 

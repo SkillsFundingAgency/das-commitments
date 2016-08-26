@@ -5,9 +5,10 @@ using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
@@ -25,11 +26,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
             _controller = new CommitmentsController(_mockMediator.Object);
         }
 
-        [Test]
-        public async Task ThenAListOfCommitmentsWillBeReturned()
+        [Test, AutoData]
+        public async Task ThenAListOfCommitmentsWillBeReturned(GetProviderCommitmentsResponse mediatorResponse)
         {
-            var autoDataFixture = new Fixture();
-            var mediatorResponse = autoDataFixture.Build<GetProviderCommitmentsResponse>().With(x => x.HasErrors, false).Create();
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
 
             var result = await _controller.GetAll(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
@@ -50,9 +49,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         }
 
         [Test]
-        public async Task ThenShouldReturnBadRequestIfProviderIdIsInvalid()
+        public async Task ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(new GetProviderCommitmentsResponse { HasErrors = true }));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Throws<InvalidRequestException>();
 
             var result = await _controller.GetAll(1L);
 

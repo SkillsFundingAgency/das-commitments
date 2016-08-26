@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
@@ -29,21 +28,23 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             QueryResponse<IList<CommitmentListItem>> response;
 
-            if (id % 2 == 1)
+            try
             {
-                response = await _mediator.SendAsync(new GetProviderCommitmentsRequest { ProviderId = id });
-            }
-            else
-            {
-                response = await _mediator.SendAsync(new GetEmployerCommitmentsRequest { AccountId = id });
-            }
+                if (id % 2 == 1)
+                {
+                    response = await _mediator.SendAsync(new GetProviderCommitmentsRequest { ProviderId = id });
+                }
+                else
+                {
+                    response = await _mediator.SendAsync(new GetEmployerCommitmentsRequest { AccountId = id });
+                }
 
-            if (response.HasErrors)
+                return Ok(response.Data);
+            }
+            catch (InvalidRequestException)
             {
                 return BadRequest();
             }
-
-            return Ok(response.Data);
         }
 
         [Route("{id}")]

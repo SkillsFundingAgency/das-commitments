@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using Moq;
-using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;

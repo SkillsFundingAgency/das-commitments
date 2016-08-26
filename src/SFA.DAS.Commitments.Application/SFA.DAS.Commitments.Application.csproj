@@ -62,7 +62,6 @@
     <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsValidator.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsQueryHandler.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsRequest.cs" />
-    <Compile Include="Queries\QueryResponseBase.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsResponse.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsValidator.cs" />
     <Compile Include="Queries\QueryResponse{T}.cs" />
