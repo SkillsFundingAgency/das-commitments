@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CreateCommitment\CreateCommitmentCommand.cs" />
+    <Compile Include="Commands\CreateCommitment\CreateCommitmentCommandHandler.cs" />
+    <Compile Include="Commands\CreateCommitment\CreateCommitmentValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,6 +86,7 @@
       <Name>SFA.DAS.Commitments.Domain</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

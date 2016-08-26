@@ -57,5 +57,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
                 return Unauthorized();
             }
         }
+
+        public async Task<IHttpActionResult> Create(Commitment commitment)
+        {
+            await _mediator.SendAsync(new CreateCommitmentCommand { Commitment = commitment });
+
+            return CreatedAtRoute("DefaultApi", new { id = 3 }, default(Commitment));
+        }
     }
 }

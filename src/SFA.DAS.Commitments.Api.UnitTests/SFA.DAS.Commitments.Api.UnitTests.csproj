@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\FakeControllerTest.cs" />
+    <Compile Include="Controllers\CommitmentsControllerTests\WhenCreatingACommitment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
