@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         }
 
         [Test]
-        public void ThenAnProviderIdThatDoesntMatchTheCommitmentThrowsAnException()
+        public void ThenAProviderIdThatDoesntMatchTheCommitmentThrowsAnException()
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).Returns(Task.FromResult(_fakeRepositoryCommitment));
 

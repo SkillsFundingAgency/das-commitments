@@ -60,9 +60,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         public async Task<IHttpActionResult> Create(Commitment commitment)
         {
-            await _mediator.SendAsync(new CreateCommitmentCommand { Commitment = commitment });
+            try
+            {
+                await _mediator.SendAsync(new CreateCommitmentCommand { Commitment = commitment });
 
-            return CreatedAtRoute("DefaultApi", new { id = 3 }, default(Commitment));
+                return CreatedAtRoute("DefaultApi", new { id = 3 }, default(Commitment));
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
         }
     }
 }

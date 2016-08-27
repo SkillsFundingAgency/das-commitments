@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
@@ -30,7 +30,29 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         private Domain.Commitment MapFrom(Commitment commitment)
         {
-            throw new NotImplementedException();
+            var domainCommitment = new Domain.Commitment
+            {
+                Id = commitment.Id,
+                Name = commitment.Name,
+                EmployerAccountId = commitment.EmployerAccountId,
+                LegalEntityId = commitment.LegalEntityId,
+                ProviderId = commitment.ProviderId,
+                Apprenticeships = commitment.Apprenticeships.Select(x => new Domain.Apprenticeship
+                {
+                    Id = x.Id,
+                    ApprenticeName = x.ApprenticeName,
+                    ULN = x.ULN,
+                    CommitmentId = x.CommitmentId,
+                    Status = (Domain.ApprenticeshipStatus)x.Status,
+                    AgreementStatus = (Domain.AgreementStatus)x.AgreementStatus,
+                    TrainingId = x.TrainingId,
+                    Cost = x.Cost,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate
+                }).ToList()
+            };
+
+            return domainCommitment;
         }
     }
 }

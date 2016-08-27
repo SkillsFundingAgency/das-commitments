@@ -38,6 +38,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         }
 
         [Test]
+        public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromReqest()
+        {
+            Domain.Commitment argument = null;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Commitment>()))
+                .Returns(Task.Factory.StartNew(() => "something"))
+                .Callback<Domain.Commitment>(x => argument = x);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            argument.Should().NotBeNull();
+            AssertMappingIsCorrect(argument);
+        }
+
+        [Test]
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
         {
             _exampleValidRequest.Commitment.Name = null; // Forces validation failure
@@ -45,6 +59,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<InvalidRequestException>();
+        }
+
+        private void AssertMappingIsCorrect(Domain.Commitment argument)
+        {
+            argument.Id.Should().Be(_exampleValidRequest.Commitment.Id);
+            argument.Name.Should().Be(_exampleValidRequest.Commitment.Name);
+            argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
+            argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
+            argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
+            argument.Apprenticeships.Should().HaveSameCount(_exampleValidRequest.Commitment.Apprenticeships);
+            argument.Apprenticeships[0].Id.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Id);
+            argument.Apprenticeships[0].ULN.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ULN);
+            argument.Apprenticeships[0].ApprenticeName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ApprenticeName);
+            argument.Apprenticeships[0].CommitmentId.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].CommitmentId);
+            argument.Apprenticeships[0].Cost.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Cost);
+            argument.Apprenticeships[0].AgreementStatus.Should().Be((Domain.AgreementStatus)_exampleValidRequest.Commitment.Apprenticeships[0].AgreementStatus);
+            argument.Apprenticeships[0].Status.Should().Be((Domain.ApprenticeshipStatus)_exampleValidRequest.Commitment.Apprenticeships[0].Status);
+            argument.Apprenticeships[0].TrainingId.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingId);
+            argument.Apprenticeships[0].StartDate.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].StartDate);
+            argument.Apprenticeships[0].EndDate.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].EndDate);
         }
     }
 }

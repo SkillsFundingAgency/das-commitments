@@ -22,6 +22,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }
+        
+        [Test]
+        public void ThenIsInvalidIfCommitmentIsNull()
+        {
+            var result = _validator.Validate(new CreateCommitmentCommand { Commitment = null });
+
+            result.IsValid.Should().BeFalse();
+        }
 
         [TestCase(null)]
         [TestCase("")]
