@@ -1,0 +1,44 @@
+﻿@using SFA.DAS.ProviderApprenticeshipsService.Domain
+
+@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.CommitmentViewModel
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge">Commitments</h1>
+        <hr/>
+    </div>
+</div>
+
+<div class="responsive-table">
+    <div class="responsive-thead">
+        <div class="responsive-tr">
+            <div class="responsive-th">Employer</div>
+            <div class="responsive-th">Name</div>
+            <div class="responsive-th"> </div>
+        </div>
+    </div>
+    <div class="responsive-tbody">
+        @foreach (var commitment in Model.Commitments)
+        {
+            <div class="responsive-tr">
+                <div class="responsive-td">
+                    <div>@commitment.LegalEntityName</div>
+                    <div class="responsive-inner-caption"></div>
+                </div>
+                <div class="responsive-td">
+                    <div class="responsive-inner-caption">Role</div>
+                    <div>@commitment.Name</div>
+                </div>
+                <div class="responsive-td">
+                    <div>
+                        <input type="hidden" name="@commitment.Id" value="@commitment.Id" />
+                        <button type="submit" id="commitmentId" value="@commitment.Id" name="commitment" class="button">View</button>
+                    </div>
+                    <div class="responsive-inner-caption"></div>
+                </div>
+            </div>
+        }
+    </div>
+
+
+</div>

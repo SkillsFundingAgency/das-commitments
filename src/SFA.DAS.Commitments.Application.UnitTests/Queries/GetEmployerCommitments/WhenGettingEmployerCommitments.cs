@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -38,15 +41,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
 
             var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
 
-            response.Data.Should().BeSameAs(commitmentsFromRepository);
+            response.Data.Should().HaveSameCount(commitmentsFromRepository);
+            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
         }
 
         [Test]
-        public async Task ThenShouldSetHasErrorIndicatorOnResponseIfValidationFails()
+        public void ThenShouldThrowInvalidRequestExceptionIfValidationFails()
         {
-            var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 }); // 0 will fail validation
+            Func<Task> act = async () => await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 });
 
-            response.HasError.Should().BeTrue();
+            act.ShouldThrow<InvalidRequestException>();
         }
     }
 }

@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Controllers\CommitmentsControllerTests\WhenIGetAllEmployerCommitments.cs" />
     <Compile Include="Controllers\CommitmentsControllerTests\WhenIGetAllProviderCommitments.cs" />
+    <Compile Include="Controllers\CommitmentsControllerTests\WhenIGetASingleCommitment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +91,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj">
       <Project>{3cb1d817-d35a-4efe-8b93-5ff0fab94f82}</Project>
       <Name>SFA.DAS.Commitments.Api</Name>

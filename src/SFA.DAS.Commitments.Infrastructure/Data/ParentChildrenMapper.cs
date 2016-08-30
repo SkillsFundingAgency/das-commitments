@@ -20,12 +20,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     lookup.Add(parentIdentifierProperty.Invoke(x), parent = x);
                 }
 
-                var children = parentChildrenProperty.Invoke(parent);
-                if (children == null)
+                if (y != null)
                 {
-                    children = new List<Child>();
+                    var children = parentChildrenProperty.Invoke(parent);
+                    if (children == null)
+                    {
+                        children = new List<Child>();
+                    }
+                    children.Add(y);
                 }
-                children.Add(y);
 
                 return parent;
             };

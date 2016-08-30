@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -26,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         [Test]
         public async Task ThenTheCommitmentRepositoryIsCalled()
         {
-            await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
+            await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 124 });
 
             _mockCommitmentRespository.Verify(x => x.GetByProvider(It.IsAny<long>()), Times.Once);
         }
@@ -38,15 +41,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
 
             var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
 
-            response.Data.Should().BeSameAs(commitmentsFromRepository);
+            response.Data.Should().HaveSameCount(commitmentsFromRepository);
+            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
         }
 
         [Test]
-        public async Task ThenShouldSetHasErrorIndicatorOnResponseIfValidationFails()
+        public void ThenShouldThrowInvalidRequestExceptionIfValidationFails()
         {
-            var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 0 }); // 0 will fail validation
+            Func<Task> act = async () => await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 0 });
 
-            response.HasError.Should().BeTrue();
+            act.ShouldThrow<InvalidRequestException>();
         }
     }
 }

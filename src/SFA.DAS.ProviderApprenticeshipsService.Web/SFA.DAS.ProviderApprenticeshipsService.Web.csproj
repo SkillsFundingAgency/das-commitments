@@ -223,6 +223,7 @@
     <Compile Include="App_Start\StructuremapMvc.cs" />
     <Compile Include="Authentication\IOwinWrapper.cs" />
     <Compile Include="Authentication\OwinWrapper.cs" />
+    <Compile Include="Controllers\CommitmentController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="DependencyResolution\ConfigurationPolicy.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
@@ -232,8 +233,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CommitmentViewModel.cs" />
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
+    <Compile Include="Orchestrators\CommitmentOrchestrator.cs" />
     <Compile Include="Orchestrators\HomeOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -311,6 +314,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Service References\Application Insights\ConnectedService.json" />
     <Content Include="Views\Home\FakeUserSignIn.cshtml" />
+    <Content Include="Views\Commitment\Index.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -326,6 +330,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Application\SFA.DAS.ProviderApprenticeshipsService.Application.csproj">
       <Project>{849E452B-2B68-445A-980C-995311311AF0}</Project>
       <Name>SFA.DAS.ProviderApprenticeshipsService.Application</Name>

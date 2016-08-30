@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
@@ -20,12 +23,24 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
         {
             if (!_validator.Validate(message).IsValid)
             {
-                return new GetProviderCommitmentsResponse { HasError = true };
+                throw new InvalidRequestException();
             }
 
             var commitments = await _commitmentRepository.GetByProvider(message.ProviderId);
 
-            return new GetProviderCommitmentsResponse { Data = commitments };
+            return new GetProviderCommitmentsResponse { Data = commitments?.Select(
+                    x => new CommitmentListItem
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        ProviderId = x.ProviderId,
+                        ProviderName = "",
+                        EmployerAccountId = x.EmployerAccountId,
+                        EmployerAccountName = "",
+                        LegalEntityId = x.LegalEntityId,
+                        LegalEntityName = ""
+                    }
+                ).ToList() };
         }
     }
 }
