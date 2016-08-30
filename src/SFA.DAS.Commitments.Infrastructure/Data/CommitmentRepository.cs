@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,6 +57,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     trans.Commit();
                 }
                 return commitmentId;
+            });
+        }
+
+        public async Task<Commitment> GetById(long id)
+        {
+            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
+
+            return await WithConnection<Commitment>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@id", id);
+
+                var lookup = new Dictionary<object, Commitment>();
+                var results = await c.QueryAsync(
+                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.Id = @id;",
+                    param: parameters,
+                    map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
+
+                return lookup.Values.SingleOrDefault();
             });
         }
 

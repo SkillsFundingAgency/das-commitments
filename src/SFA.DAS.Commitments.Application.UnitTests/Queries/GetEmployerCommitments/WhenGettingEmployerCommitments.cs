@@ -1,8 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Ploeh.AutoFixture.NUnit3;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitments
@@ -28,24 +33,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
             _mockCommitmentRespository.Verify(x => x.GetByEmployer(It.IsAny<long>()), Times.Once);
         }
 
-        // TODO: LWA - Review test
-        //[Test, AutoData]
-        //public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
-        //{
-        //    _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
+        [Test, AutoData]
+        public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
+        {
+            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
 
-        //    var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
+            var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
 
-            
-        //    response.Data.Should().BeSameAs(commitmentsFromRepository);
-        //}
+            response.Data.Should().HaveSameCount(commitmentsFromRepository);
+            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
+        }
 
         [Test]
-        public async Task ThenShouldSetHasErrorIndicatorOnResponseIfValidationFails()
+        public void ThenShouldThrowInvalidRequestExceptionIfValidationFails()
         {
-            var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 }); // 0 will fail validation
+            Func<Task> act = async () => await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 });
 
-            response.HasError.Should().BeTrue();
+            act.ShouldThrow<InvalidRequestException>();
         }
     }
 }

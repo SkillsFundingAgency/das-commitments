@@ -56,6 +56,19 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Data.ParentChildrenMapper
             lookup.Values.Single().Children.Count.Should().Be(2);
         }
 
+        [Test]
+        public void ThenIfChildIsNullDontAddItToTheParentAsAChild()
+        {
+            var lookup = new Dictionary<int, Parent>();
+
+            var parent = new Parent { Id = 2, Children = new List<Child>() };
+            Child child = null;
+
+            var result = _mapper.Map(lookup, x => x.Id, x => x.Children)(parent, child);
+
+            lookup.Values.Single().Children.Count.Should().Be(0);
+        }
+
         private class Parent
         {
             public int Id { get; set; }

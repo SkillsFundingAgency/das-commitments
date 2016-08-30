@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
@@ -22,12 +23,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
         {
             if (!_validator.Validate(message).IsValid)
             {
-                return new GetEmployerCommitmentsResponse { HasError = true };
+                throw new InvalidRequestException();
             }
 
             var commitments = await _commitmentRepository.GetByEmployer(message.AccountId);
 
-            return new GetEmployerCommitmentsResponse { Data = commitments.Select(
+            return new GetEmployerCommitmentsResponse { Data = commitments?.Select(
                     x => new CommitmentListItem
                     {
                         Id = x.Id,

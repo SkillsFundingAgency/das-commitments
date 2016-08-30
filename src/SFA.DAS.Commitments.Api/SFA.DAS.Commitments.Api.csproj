@@ -255,6 +255,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
       <Project>{880cdaf6-d9ee-481b-b4d8-7de9c215a770}</Project>
       <Name>SFA.DAS.Commitments.Application</Name>
@@ -266,10 +270,6 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
       <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
       <Name>SFA.DAS.Commitments.Infrastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Web\SFA.DAS.ProviderApprenticeshipsService.Web.csproj">
-      <Project>{94E473E1-2217-43C3-A228-00B8BE2BE0F1}</Project>
-      <Name>SFA.DAS.ProviderApprenticeshipsService.Web</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

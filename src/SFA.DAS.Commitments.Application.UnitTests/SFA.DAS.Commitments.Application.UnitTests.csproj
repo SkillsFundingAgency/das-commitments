@@ -72,6 +72,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Queries\GetCommitment\WhenGettingCommitment.cs" />
+    <Compile Include="Queries\GetCommitment\WhenValidatingCommitmentId.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenGettingEmployerCommitments.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenValidatingAccountId.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenGettingProviderCommitments.cs" />
@@ -83,6 +85,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
       <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
       <Name>SFA.DAS.Commitments.Application</Name>

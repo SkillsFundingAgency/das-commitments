@@ -5,9 +5,10 @@ using FluentAssertions;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
+using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
@@ -16,22 +17,21 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
     public class WhenIGetAllProviderCommitments
     {
         private Mock<IMediator> _mockMediator;
+        private CommitmentsController _controller;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
+            _controller = new CommitmentsController(_mockMediator.Object);
         }
 
-        [Test]
-        public async Task ThenAListOfCommitmentsWillBeReturned()
+        [Test, AutoData]
+        public async Task ThenAListOfCommitmentsWillBeReturned(GetProviderCommitmentsResponse mediatorResponse)
         {
-            var autoDataFixture = new Fixture();
-            var mediatorResponse = autoDataFixture.Build<GetProviderCommitmentsResponse>().With(x => x.HasError, false).Create();
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
-            var controller = new CommitmentsController(_mockMediator.Object);
 
-            var result = await controller.Get(1234L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
+            var result = await _controller.GetAll(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
 
             result.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);
@@ -40,22 +40,20 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledWithTheProviderId()
         {
-            const long testProviderId = 1234L;
+            const long testProviderId = 1235L;
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(new GetProviderCommitmentsResponse()));
-            var controller = new CommitmentsController(_mockMediator.Object);
 
-            var result = await controller.Get(testProviderId);
+            var result = await _controller.GetAll(testProviderId);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<GetProviderCommitmentsRequest>(arg => arg.ProviderId == testProviderId)));
         }
 
         [Test]
-        public async Task ThenShouldReturnA404StatusIfProviderIdIsInvalid()
+        public async Task ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(new GetProviderCommitmentsResponse { HasError = true }));
-            var controller = new CommitmentsController(_mockMediator.Object);
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Throws<InvalidRequestException>();
 
-            var result = await controller.Get(0L);
+            var result = await _controller.GetAll(1L);
 
             result.Should().BeOfType<BadRequestResult>();
         }
