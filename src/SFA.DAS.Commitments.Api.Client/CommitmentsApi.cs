@@ -32,6 +32,15 @@ namespace SFA.DAS.Commitments.Api.Client
             return await GetCommitments(url);
         }
 
+        public async Task<Commitment> GetProviderCommitment(long providerId, long commitmentId)
+        {
+            var url = $"{_baseUrl}api/provider/{providerId}/commitments/{commitmentId}";
+
+            var content = await Execute(url);
+
+            return JsonConvert.DeserializeObject<Commitment>(content);
+        }
+
         private async Task<List<CommitmentListItem>> GetCommitments(string url)
         {
             var content = await Execute(url);

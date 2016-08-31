@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
 namespace SFA.DAS.Commitments.Api.Controllers
@@ -25,6 +26,21 @@ namespace SFA.DAS.Commitments.Api.Controllers
             try
             {
                 var response = await _mediator.SendAsync(new GetProviderCommitmentsRequest { ProviderId = id });
+
+                return Ok(response.Data);
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}")]
+        public async Task<IHttpActionResult> GetCommitment(long providerId, long commitmentId)
+        {
+            try
+            {
+                var response = await _mediator.SendAsync(new GetCommitmentRequest { ProviderId = providerId, CommitmentId = commitmentId });
 
                 return Ok(response.Data);
             }
