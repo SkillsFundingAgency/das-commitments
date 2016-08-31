@@ -34,11 +34,16 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\TaskRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\TasksConfiguration.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Data\" />
+    <ProjectReference Include="..\SFA.DAS.Tasks.Domain\SFA.DAS.Tasks.Domain.csproj">
+      <Project>{9BBAB098-4C62-4DFC-AEEA-20A0D9BD1E2C}</Project>
+      <Name>SFA.DAS.Tasks.Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

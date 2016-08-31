@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.Tasks.Domain
+namespace SFA.DAS.Tasks.Domain.Entities
 {
     public enum TaskStatuses
     {

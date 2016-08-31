@@ -36,9 +36,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Task.cs" />
-    <Compile Include="TaskStatuses.cs" />
-    <Compile Include="TaskTemplate.cs" />
+    <Compile Include="Entities\Task.cs" />
+    <Compile Include="Entities\TaskAlert.cs" />
+    <Compile Include="Entities\TaskStatuses.cs" />
+    <Compile Include="Entities\TaskTemplate.cs" />
+    <Compile Include="Repositories\ITaskRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

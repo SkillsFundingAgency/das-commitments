@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskAlert.cs" />
     <Compile Include="TaskTemplate.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="TaskStatuses.cs" />
