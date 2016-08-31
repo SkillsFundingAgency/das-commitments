@@ -2,5 +2,5 @@
 
 namespace SFA.DAS.Tasks.Infrastructure.Configuration
 {
-    public class TasksConfiguration {}
+    public class TaskConfiguration {}
 }

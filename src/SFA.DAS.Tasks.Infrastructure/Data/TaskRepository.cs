@@ -10,7 +10,7 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
 {
     public class TaskRepository : ITaskRepository
     {
-        public TaskRepository(TasksConfiguration configuration) {}
+        public TaskRepository(TaskConfiguration configuration) {}
 
         public Task Create(Task task)
         {
@@ -24,7 +24,12 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
 
         public Task<IList<Task>> GetByAssignee(string assignee)
         {
-            throw new NotImplementedException();
+            return System.Threading.Tasks.Task.Run(() => new[]
+            {
+                new Task {Assignee = assignee, Created = DateTime.UtcNow, Name = "Task 1", Id = 1},
+                new Task {Assignee = assignee, Created = DateTime.UtcNow, Name = "Task 2", Id = 2},
+                new Task {Assignee = assignee, Created = DateTime.UtcNow, Name = "Task 3", Id = 3}
+            } as IList<Task>);
         }
 
         public TaskAlert Create(TaskAlert taskAlert)
