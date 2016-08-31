@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1AE4D366-BFAA-4841-8A9C-921B65F51E78}</ProjectGuid>
+    <ProjectGuid>{DEA2C098-EC17-4485-961D-A7F48720D37D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SFA.DAS.Commitments.Api.Client</RootNamespace>
@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{AA3B3870-F97A-443B-8429-663DE064A8AD}</Project>
+      <Project>{b3d79e6a-7a5e-4b52-9a78-6ae6f1009166}</Project>
       <Name>SFA.DAS.Commitments.Api.Types</Name>
     </ProjectReference>
   </ItemGroup>

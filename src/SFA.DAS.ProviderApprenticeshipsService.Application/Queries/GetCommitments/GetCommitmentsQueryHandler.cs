@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Client;
@@ -22,7 +18,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitme
 
         public async Task<GetCommitmentsQueryResponse> Handle(GetCommitmentsQueryRequest message)
         {
-            var response = await _commitmentsApi.GetForProvider(message.ProviderId);
+            var response = await _commitmentsApi.GetProviderCommitments(message.ProviderId);
 
             return new GetCommitmentsQueryResponse
             {

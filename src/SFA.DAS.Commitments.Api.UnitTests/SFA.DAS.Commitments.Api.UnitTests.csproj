@@ -67,10 +67,6 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.0.0.9250, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.0.0.9250\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -95,8 +91,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{b3d79e6a-7a5e-4b52-9a78-6ae6f1009166}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj">
-      <Project>{3cb1d817-d35a-4efe-8b93-5ff0fab94f82}</Project>
+      <Project>{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}</Project>
       <Name>SFA.DAS.Commitments.Api</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">

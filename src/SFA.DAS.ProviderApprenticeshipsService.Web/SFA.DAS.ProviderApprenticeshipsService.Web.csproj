@@ -142,14 +142,6 @@
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Bin\SFA.DAS.Commitments.Api.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Bin\SFA.DAS.Commitments.Api.Types.dll</HintPath>
-    </Reference>
     <Reference Include="SFA.DAS.Configuration, Version=1.0.0.6634, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.6634\lib\net45\SFA.DAS.Configuration.dll</HintPath>
       <Private>True</Private>
@@ -338,8 +330,12 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj">
+      <Project>{DEA2C098-EC17-4485-961D-A7F48720D37D}</Project>
+      <Name>SFA.DAS.Commitments.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Project>{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}</Project>
       <Name>SFA.DAS.Commitments.Api.Types</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Application\SFA.DAS.ProviderApprenticeshipsService.Application.csproj">

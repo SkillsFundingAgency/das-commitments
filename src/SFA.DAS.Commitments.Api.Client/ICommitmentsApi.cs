@@ -6,6 +6,7 @@ namespace SFA.DAS.Commitments.Api.Client
 {
     public interface ICommitmentsApi
     {
-        Task<List<CommitmentListItem>> GetForProvider(long providerId);
+        Task<List<CommitmentListItem>> GetProviderCommitments(long providerId);
+        Task<List<CommitmentListItem>> GetEmployerCommitments(long employerAccountId);
     }
 }
