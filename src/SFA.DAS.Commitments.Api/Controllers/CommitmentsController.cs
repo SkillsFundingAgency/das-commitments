@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             {
                 var response = await _mediator.SendAsync(new GetCommitmentRequest { CommitmentId = id, ProviderId = providerId, AccountId = accountId });
 
-                if (response.Data == null)
+                if (response?.Data == null)
                 {
                     return NotFound();
                 }

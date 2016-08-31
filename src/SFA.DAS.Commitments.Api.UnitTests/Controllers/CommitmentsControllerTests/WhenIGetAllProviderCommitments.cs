@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
 
-            var result = await _controller.Get(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
+            var result = await _controller.GetAll(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
 
             result.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);
@@ -41,9 +41,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         public async Task ThenTheMediatorIsCalledWithTheProviderId()
         {
             const long testProviderId = 1235L;
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(new GetProviderCommitmentsResponse()));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ReturnsAsync(new GetProviderCommitmentsResponse());
 
-            var result = await _controller.Get(testProviderId);
+            await _controller.GetAll(testProviderId);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<GetProviderCommitmentsRequest>(arg => arg.ProviderId == testProviderId)));
         }
@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.CommitmentsControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Throws<InvalidRequestException>();
 
-            var result = await _controller.Get(1L);
+            var result = await _controller.GetAll(1L);
 
             result.Should().BeOfType<BadRequestResult>();
         }
