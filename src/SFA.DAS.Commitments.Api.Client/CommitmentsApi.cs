@@ -36,9 +36,14 @@ namespace SFA.DAS.Commitments.Api.Client
         {
             var url = $"{_baseUrl}api/provider/{providerId}/commitments/{commitmentId}";
 
-            var content = await Execute(url);
+            return await GetCommitment(url);
+        }
 
-            return JsonConvert.DeserializeObject<Commitment>(content);
+        public async Task<Commitment> GetEmployerCommitment(long employerAccountId, long commitmentId)
+        {
+            var url = $"{_baseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}";
+
+            return await GetCommitment(url);
         }
 
         private async Task<List<CommitmentListItem>> GetCommitments(string url)
@@ -46,6 +51,13 @@ namespace SFA.DAS.Commitments.Api.Client
             var content = await Execute(url);
 
             return JsonConvert.DeserializeObject<List<CommitmentListItem>>(content);
+        }
+
+        private async Task<Commitment> GetCommitment(string url)
+        {
+            var content = await Execute(url);
+
+            return JsonConvert.DeserializeObject<Commitment>(content);
         }
 
         private async Task<string> Execute(string url)
