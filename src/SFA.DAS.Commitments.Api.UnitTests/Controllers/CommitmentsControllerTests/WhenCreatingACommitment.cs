@@ -36,14 +36,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         [Test]
         public async Task ThenTheLocationHeaderIsSetInTheResponseOnSuccessfulCreate()
         {
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ReturnsAsync(5);
             var result = await _controller.Create(new Commitment()) as CreatedAtRouteNegotiatedContentResult<Commitment>;
 
             result.RouteName.Should().Be("DefaultApi");
-            result.RouteValues["id"].Should().Be(3);
+            result.RouteValues["id"].Should().Be(5L);
         }
 
         [Test]
-        public async Task ThenTheMediatorIsCalled()
+        public async Task ThenTheMediatorIsCalledToCreateCommitment()
         {
             var result = await _controller.Create(new Commitment());
 

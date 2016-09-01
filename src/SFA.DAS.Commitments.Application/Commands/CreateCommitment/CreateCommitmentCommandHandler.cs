@@ -7,7 +7,7 @@ using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
-    public sealed class CreateCommitmentCommandHandler : AsyncRequestHandler<CreateCommitmentCommand>
+    public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
         private CreateCommitmentValidator _createCommitmentValidator;
         private ICommitmentRepository _commitmentRepository;
@@ -18,14 +18,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _createCommitmentValidator = createCommitmentValidator;
         }
 
-        protected override async Task HandleCore(CreateCommitmentCommand message)
+        public async Task<long> Handle(CreateCommitmentCommand message)
         {
             if (!_createCommitmentValidator.Validate(message).IsValid)
             {
                 throw new InvalidRequestException();
             }
 
-            await _commitmentRepository.Create(MapFrom(message.Commitment));
+            return await _commitmentRepository.Create(MapFrom(message.Commitment));
         }
 
         private Domain.Commitment MapFrom(Commitment commitment)

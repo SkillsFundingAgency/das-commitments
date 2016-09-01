@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
         }
 
-        public async Task Create(Commitment commitment)
+        public async Task<long> Create(Commitment commitment)
         {
             await WithConnection(async c =>
             {
@@ -65,6 +65,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
                 return commitmentId;
             });
+
+            return 2;
         }
 
         public async Task<Commitment> GetById(long id)

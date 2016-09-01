@@ -3,7 +3,8 @@ using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
-    public sealed class CreateCommitmentCommand : IAsyncRequest
+    // Note: Have currently broken the CQRS pattern here as need to return the Id.
+    public sealed class CreateCommitmentCommand : IAsyncRequest<long>
     {
         public Commitment Commitment { get; set; }
     }
