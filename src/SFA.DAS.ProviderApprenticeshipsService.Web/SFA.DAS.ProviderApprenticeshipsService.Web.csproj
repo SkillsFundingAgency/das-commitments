@@ -233,6 +233,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CommitmentListViewModel.cs" />
     <Compile Include="Models\CommitmentViewModel.cs" />
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
@@ -315,6 +316,7 @@
     <Content Include="Service References\Application Insights\ConnectedService.json" />
     <Content Include="Views\Home\FakeUserSignIn.cshtml" />
     <Content Include="Views\Commitment\Index.cshtml" />
+    <Content Include="Views\Commitment\Details.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

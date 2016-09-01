@@ -1,6 +1,4 @@
-﻿@using SFA.DAS.ProviderApprenticeshipsService.Domain
-
-@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.CommitmentViewModel
+﻿@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.CommitmentListViewModel
 
 <div class="grid-row">
     <div class="column-two-thirds">
@@ -31,8 +29,11 @@
                 </div>
                 <div class="responsive-td">
                     <div>
-                        <input type="hidden" name="@commitment.Id" value="@commitment.Id" />
-                        <button type="submit" id="commitmentId" value="@commitment.Id" name="commitment" class="button">View</button>
+                        <form action="@Url.Action("Details")" method="GET">
+                            <input type="hidden" name="providerId" value="@commitment.ProviderId" />
+                            <input type="hidden" name="commitmentId" value="@commitment.Id" />
+                            <button type="submit" name="commitment" class="button">View</button>
+                        </form>
                     </div>
                     <div class="responsive-inner-caption"></div>
                 </div>
