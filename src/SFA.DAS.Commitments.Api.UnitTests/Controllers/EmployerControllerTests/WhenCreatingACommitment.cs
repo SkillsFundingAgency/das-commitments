@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         [Test]
         public async Task ThenACreateResponseCodeIsReturnedOnSuccess()
         {
-            var result = await _controller.CreateCommitment(new Commitment());
+            var result = await _controller.CreateCommitment(123L, new Commitment());
 
             result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<Commitment>>();
         }
@@ -35,17 +35,20 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         [Test]
         public async Task ThenTheLocationHeaderIsSetInTheResponseOnSuccessfulCreate()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ReturnsAsync(5);
-            var result = await _controller.CreateCommitment(new Commitment()) as CreatedAtRouteNegotiatedContentResult<Commitment>;
+            const long testAccountId = 123L;
+            const long testCommitmentId = 5L;
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ReturnsAsync(testCommitmentId);
+            var result = await _controller.CreateCommitment(testAccountId, new Commitment()) as CreatedAtRouteNegotiatedContentResult<Commitment>;
 
-            result.RouteName.Should().Be("DefaultApi");
-            result.RouteValues["id"].Should().Be(5L);
+            result.RouteName.Should().Be("GetCommitmentForEmployer");
+            result.RouteValues["accountId"].Should().Be(testAccountId);
+            result.RouteValues["commitmentId"].Should().Be(testCommitmentId);
         }
 
         [Test]
         public async Task ThenTheMediatorIsCalledToCreateCommitment()
         {
-            var result = await _controller.CreateCommitment(new Commitment());
+            var result = await _controller.CreateCommitment(123L, new Commitment());
 
             _mockMediator.Verify(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>()));
         }
@@ -55,10 +58,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).Throws<InvalidRequestException>();
 
-            var result = await _controller.CreateCommitment(new Commitment());
+            var result = await _controller.CreateCommitment(123L, new Commitment());
 
             result.Should().BeOfType<BadRequestResult>();
         }
-
     }
 }

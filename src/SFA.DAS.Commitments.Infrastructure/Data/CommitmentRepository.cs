@@ -19,7 +19,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> Create(Commitment commitment)
         {
-            await WithConnection(async c =>
+            return await WithConnection(async c =>
             {
                 long commitmentId;
 
@@ -32,12 +32,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 using (var trans = c.BeginTransaction())
                 {
-                    commitmentId = await c.ExecuteAsync(
+                    commitmentId = (await c.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) VALUES (@name, @legalEntityId, @accountId, @providerId);",
+                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) " +
+                            "VALUES (@name, @legalEntityId, @accountId, @providerId); " +
+                            "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
-                        transaction: trans);
+                        transaction: trans)).Single();
 
                     foreach (var apprenticeship in commitment.Apprenticeships)
                     {
@@ -65,8 +67,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
                 return commitmentId;
             });
-
-            return 2;
         }
 
         public async Task<Commitment> GetById(long id)

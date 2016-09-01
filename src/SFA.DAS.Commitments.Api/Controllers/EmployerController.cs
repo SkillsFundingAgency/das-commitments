@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
-        [Route("{accountId}/commitments/{commitmentId}")]
+        [Route("{accountId}/commitments/{commitmentId}", Name = "GetCommitmentForEmployer")]
         public async Task<IHttpActionResult> GetCommitment(long accountId, long commitmentId)
         {
             try
@@ -62,13 +62,13 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/")]
-        public async Task<IHttpActionResult> CreateCommitment(Commitment commitment)
+        public async Task<IHttpActionResult> CreateCommitment(long accountId, Commitment commitment)
         {
             try
             {
                 var commitmentId = await _mediator.SendAsync(new CreateCommitmentCommand { Commitment = commitment });
 
-                return CreatedAtRoute("DefaultApi", new { id = commitmentId }, default(Commitment));
+                return CreatedAtRoute("GetCommitmentForEmployer", new { accountId = accountId, commitmentId = commitmentId }, default(Commitment));
             }
             catch (InvalidRequestException)
             {
