@@ -9,8 +9,8 @@ namespace SFA.DAS.Tasks.Domain.Entities
         public long TemplateId { get; set; }
         public string Name { get; set; }
         public TaskStatuses TaskStatus { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime? Completed { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime? CompletedOn { get; set; }
         public string CompletedBy { get; set; }
     }
 }

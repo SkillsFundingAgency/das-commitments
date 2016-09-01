@@ -26,9 +26,9 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
         {
             return System.Threading.Tasks.Task.Run(() => new[]
             {
-                new Task {Assignee = assignee, Created = DateTime.UtcNow, Name = "Task 1", Id = 1},
-                new Task {Assignee = assignee, Created = DateTime.UtcNow, Name = "Task 2", Id = 2},
-                new Task {Assignee = assignee, Created = DateTime.UtcNow, Name = "Task 3", Id = 3}
+                new Task {Assignee = assignee, CreatedOn = DateTime.UtcNow, Name = "Task 1", Id = 1},
+                new Task {Assignee = assignee, CreatedOn = DateTime.UtcNow, Name = "Task 2", Id = 2},
+                new Task {Assignee = assignee, CreatedOn = DateTime.UtcNow, Name = "Task 3", Id = 3}
             } as IList<Task>);
         }
 
