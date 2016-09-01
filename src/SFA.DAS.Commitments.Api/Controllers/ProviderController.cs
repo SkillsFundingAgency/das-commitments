@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
@@ -46,6 +48,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
             {
                 var response = await _mediator.SendAsync(new GetCommitmentRequest { ProviderId = providerId, CommitmentId = commitmentId });
 
+                if (response?.Data == null)
+                {
+                    return NotFound();
+                }
+
                 return Ok(response.Data);
             }
             catch (InvalidRequestException)
@@ -55,20 +62,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             catch (UnauthorizedException)
             {
                 return Unauthorized();
-            }
-        }
-
-        public async Task<IHttpActionResult> Create(Commitment commitment)
-        {
-            try
-            {
-                var commitmentId = await _mediator.SendAsync(new CreateCommitmentCommand { Commitment = commitment });
-
-                return CreatedAtRoute("DefaultApi", new { id = commitmentId }, default(Commitment));
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
             }
         }
     }
