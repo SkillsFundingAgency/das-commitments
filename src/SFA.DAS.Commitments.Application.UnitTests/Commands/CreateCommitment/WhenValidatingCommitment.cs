@@ -64,26 +64,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             result.IsValid.Should().BeFalse();
         }
 
-        [Test]
-        public void ThenNullApprenticeshipsIsInvalid()
-        {
-            _exampleCommand.Commitment.Apprenticeships = null;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [Test]
-        public void ThenEmptyApprenticeshipsListIsInvalid()
-        {
-            _exampleCommand.Commitment.Apprenticeships = new List<Apprenticeship>();
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
         [TestCase(0)]
         [TestCase(-3)]
         public void ThenProviderIdLessThanOneIsInvalid(long providerId)

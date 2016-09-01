@@ -61,6 +61,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
+        [Route("{accountId}/commitments/")]
         public async Task<IHttpActionResult> CreateCommitment(Commitment commitment)
         {
             try
