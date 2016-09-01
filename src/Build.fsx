@@ -234,9 +234,9 @@ Target "Build Database project"(fun _ ->
         let properties = 
                         [
                             ("DebugSymbols", "False");
-                            ("TargetDatabaseName", "SFA.DAS.EmployerApprenticeshipsService.Database");
+                            ("TargetDatabaseName", "SFA.DAS.Commitments.Database");
                             ("SqlPublishProfilePath", @".\" + projectName + ".Database.Publish.xml");
-                            ("PublishScriptFileName","SFA.DAS.EmployerApprenticeshipsService.Database.sql");
+                            ("PublishScriptFileName","SFA.DAS.Commitments.Database.sql");
                             ("ToolsVersion","14");
                         ]
 
@@ -263,10 +263,10 @@ Target "Publish Database project"(fun _ ->
         let properties = 
                         [
                             ("DebugSymbols", "False");
-                            ("TargetDatabaseName", "SFA.DAS.EmployerApprenticeshipsService.Database");
+                            ("TargetDatabaseName", "SFA.DAS.Commitments.Database");
                             ("SqlPublishProfilePath", @".\" + projectName + ".Database.Publish.xml");
                             ("TargetConnectionString", "Data Source=.;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Connect Timeout=60;Encrypt=False;TrustServerCertificate=True");
-                            ("PublishScriptFileName","SFA.DAS.EmployerApprenticeshipsService.Database.sql");
+                            ("PublishScriptFileName","SFA.DAS.Commitments.Database.sql");
                             ("ToolsVersion","14");
                             ("PublishToDatabase","true");
                         ]
