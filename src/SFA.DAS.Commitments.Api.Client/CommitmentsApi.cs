@@ -46,21 +46,30 @@ namespace SFA.DAS.Commitments.Api.Client
             return await GetCommitment(url);
         }
 
+        public async Task PostEmployerCommitment(long employerAccountId, Commitment commitment)
+        {
+            var url = $"{_baseUrl}api/employer/{employerAccountId}/commitments";
+
+            var data = JsonConvert.SerializeObject(commitment);
+
+            await PostAsync(url, data);
+        }
+
         private async Task<List<CommitmentListItem>> GetCommitments(string url)
         {
-            var content = await Execute(url);
+            var content = await GetAsync(url);
 
             return JsonConvert.DeserializeObject<List<CommitmentListItem>>(content);
         }
 
         private async Task<Commitment> GetCommitment(string url)
         {
-            var content = await Execute(url);
+            var content = await GetAsync(url);
 
             return JsonConvert.DeserializeObject<Commitment>(content);
         }
 
-        private async Task<string> Execute(string url)
+        private async Task<string> GetAsync(string url)
         {
             var content = "";
 
@@ -69,6 +78,66 @@ namespace SFA.DAS.Commitments.Api.Client
                 using (var client = new HttpClient())
                 {
                     var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+
+                    // Add custom headers
+                    //requestMessage.Headers.Add("User-Agent", "User-Agent-Here");
+
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("WRAP", "bigAccessToken");
+                    var response = await client.SendAsync(requestMessage);
+                    content = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw;
+            }
+
+            return content;
+        }
+
+        private async Task<string> PostAsync(string url, string data)
+        {
+            var content = "";
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
+                    {
+                        Content = new StringContent(data)
+                    };
+
+                    // Add custom headers
+                    //requestMessage.Headers.Add("User-Agent", "User-Agent-Here");
+
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("WRAP", "bigAccessToken");
+                    var response = await client.SendAsync(requestMessage);
+                    content = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw;
+            }
+
+            return content;
+        }
+
+        private async Task<string> PutAsync(string url, string data)
+        {
+            var content = "";
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var requestMessage = new HttpRequestMessage(HttpMethod.Put, url)
+                    {
+                        Content = new StringContent(data)
+                    };
 
                     // Add custom headers
                     //requestMessage.Headers.Add("User-Agent", "User-Agent-Here");
