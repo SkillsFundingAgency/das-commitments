@@ -32,6 +32,10 @@ namespace SFA.DAS.Commitments.Api.Controllers
             {
                 return BadRequest();
             }
+            catch (UnauthorizedException)
+            {
+                return Unauthorized();
+            }
         }
     }
 }

@@ -222,7 +222,6 @@
     <Compile Include="App_Start\StructuremapMvc.cs" />
     <Compile Include="App_Start\StructuremapWebApi.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\CommitmentsController.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />

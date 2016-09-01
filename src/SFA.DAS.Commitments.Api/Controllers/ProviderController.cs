@@ -33,6 +33,10 @@ namespace SFA.DAS.Commitments.Api.Controllers
             {
                 return BadRequest();
             }
+            catch (UnauthorizedException)
+            {
+                return Unauthorized();
+            }
         }
 
         [Route("{providerId}/commitments/{commitmentId}")]
@@ -47,6 +51,10 @@ namespace SFA.DAS.Commitments.Api.Controllers
             catch (InvalidRequestException)
             {
                 return BadRequest();
+            }
+            catch (UnauthorizedException)
+            {
+                return Unauthorized();
             }
         }
     }
