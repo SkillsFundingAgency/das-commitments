@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 {
                     commitmentId = await c.ExecuteAsync(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) OUTPUT Inserted.Id INTO @id VALUES (@name, @legalEntityId, @accountId, @providerId);",
+                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) VALUES (@name, @legalEntityId, @accountId, @providerId);",
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans);
