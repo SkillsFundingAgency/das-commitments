@@ -62,16 +62,25 @@
     <Compile Include="Queries\GetCommitments\GetCommitmentsQueryHandler.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsQueryRequest.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsQueryResponse.cs" />
+    <Compile Include="Queries\GetCommitment\GetCommitmentQueryHandler.cs" />
+    <Compile Include="Queries\GetCommitment\GetCommitmentQueryRequest.cs" />
+    <Compile Include="Queries\GetCommitment\GetCommitmentQueryResponse.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryHandler.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryRequest.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryResponse.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj">
+      <Project>{DEA2C098-EC17-4485-961D-A7F48720D37D}</Project>
+      <Name>SFA.DAS.Commitments.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Project>{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}</Project>
       <Name>SFA.DAS.Commitments.Api.Types</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Domain\SFA.DAS.ProviderApprenticeshipsService.Domain.csproj">

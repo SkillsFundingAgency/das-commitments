@@ -16,8 +16,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using MediatR;
+using Microsoft.Azure;
+using SFA.DAS.Commitments.Api.Client;
+using SFA.DAS.Configuration;
+using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.ProviderApprenticeshipsService.Application;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 using StructureMap;
 
@@ -43,7 +48,26 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
 
+            var config = GetConfiguration();
+
+            For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<string>().Is(config.Api.BaseUrl);
             For<IUserRepository>().Use<FileSystemUserRepository>();
+        }
+
+        private ProviderApprenticeshipsServiceConfiguration GetConfiguration()
+        {
+            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+
+            var configurationRepository = GetConfigurationRepository();
+            var configurationService = new ConfigurationService(configurationRepository,
+                new ConfigurationOptions(ServiceName, environment, "1.0"));
+
+            return configurationService.Get<ProviderApprenticeshipsServiceConfiguration>();
+        }
+
+        private static IConfigurationRepository GetConfigurationRepository()
+        {
+            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
         }
     }
 }

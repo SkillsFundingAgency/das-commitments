@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SFA.DAS.Commitments.Api.Types")]
+[assembly: AssemblyTitle("SFA.DAS.Commitments.Api.Client")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SFA.DAS.Commitments.Api.Types")]
+[assembly: AssemblyProduct("SFA.DAS.Commitments.Api.Client")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b3d79e6a-7a5e-4b52-9a78-6ae6f1009166")]
+[assembly: Guid("dea2c098-ec17-4485-961d-a7f48720d37d")]
 
 // Version information for an assembly consists of the following four values:
 //

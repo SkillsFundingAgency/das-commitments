@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderApprenticeshipsService.Web", "SFA.DAS.ProviderApprenticeshipsService.Web\SFA.DAS.ProviderApprenticeshipsService.Web.csproj", "{94E473E1-2217-43C3-A228-00B8BE2BE0F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
-EndProject
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.CloudService", "SFA.DAS.Commitments.CloudService\SFA.DAS.CloudService.ccproj", "{3AABCD1E-260B-4333-9B7F-014F58D2F656}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Domain", "SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj", "{C4C803AF-747E-4747-A23B-DA43219009A4}"
@@ -37,7 +35,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RunBuild.bat = RunBuild.bat
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Types", "SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj", "{AA3B3870-F97A-443B-8429-663DE064A8AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Types", "SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj", "{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client", "SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj", "{DEA2C098-EC17-4485-961D-A7F48720D37D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,10 +51,6 @@ Global
 		{94E473E1-2217-43C3-A228-00B8BE2BE0F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94E473E1-2217-43C3-A228-00B8BE2BE0F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94E473E1-2217-43C3-A228-00B8BE2BE0F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3AABCD1E-260B-4333-9B7F-014F58D2F656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3AABCD1E-260B-4333-9B7F-014F58D2F656}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AABCD1E-260B-4333-9B7F-014F58D2F656}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -98,10 +96,18 @@ Global
 		{6669C64D-7DAE-47C2-A469-7636C89C0974}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6669C64D-7DAE-47C2-A469-7636C89C0974}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6669C64D-7DAE-47C2-A469-7636C89C0974}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3D79E6A-7A5E-4B52-9A78-6AE6F1009166}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
