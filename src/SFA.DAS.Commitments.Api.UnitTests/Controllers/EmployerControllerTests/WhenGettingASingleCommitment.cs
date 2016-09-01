@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test, AutoData]
         public async Task ThenReturnsASingleCommitment(GetCommitmentResponse mediatorResponse)
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(mediatorResponse));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ReturnsAsync(mediatorResponse);
 
             var result = await _controller.GetCommitment(111L, 3L) as OkNegotiatedContentResult<Commitment>;
 
@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public async Task ThenTheMediatorIsCalledWithTheCommitmentId()
         {
             const long testCommitmentId = 1235L;
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(new GetCommitmentResponse()));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ReturnsAsync(new GetCommitmentResponse());
 
             var result = await _controller.GetCommitment(111L, testCommitmentId);
 
@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [TestCase]
         public async Task ThenReturnsANotFoundIfMediatorReturnsANullForTheCommitement()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Returns(Task.FromResult(new GetCommitmentResponse { Data = null }));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ReturnsAsync(new GetCommitmentResponse { Data = null });
 
             var result = await _controller.GetCommitment(111L, 0L);
 

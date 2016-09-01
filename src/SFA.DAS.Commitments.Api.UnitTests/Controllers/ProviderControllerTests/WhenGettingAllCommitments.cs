@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
         [Test, AutoData]
         public async Task ThenAListOfCommitmentsWillBeReturned(GetProviderCommitmentsResponse mediatorResponse)
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(mediatorResponse));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ReturnsAsync(mediatorResponse);
 
             var result = await _controller.GetCommitments(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
 
@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
         public async Task ThenTheMediatorIsCalledWithTheProviderId()
         {
             const long testProviderId = 1235L;
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Returns(Task.FromResult(new GetProviderCommitmentsResponse()));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ReturnsAsync(new GetProviderCommitmentsResponse());
 
             var result = await _controller.GetCommitments(testProviderId);
 
