@@ -52,9 +52,10 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
                 await c.ExecuteAsync("UPDATE [dbo].[Tasks] SET CompletedOn = @completedOn, CompletedBy = @completedBy, TaskStatus = @taskStatus WHERE Id = @id;", task));
         }
 
-        public TaskAlert Create(TaskAlert taskAlert)
+        public async Task Create(TaskAlert taskAlert)
         {
-            throw new NotImplementedException();
+            await WithConnection(async c =>
+                await c.ExecuteAsync("INSERT INTO [dbo].[TaskAlerts](TaskId, UserId, CreatedOn) VALUES (@taskId, @userId, @createdOn);", taskAlert));
         }
 
         public async Task<IList<TaskAlert>> GetByUser(string userId)

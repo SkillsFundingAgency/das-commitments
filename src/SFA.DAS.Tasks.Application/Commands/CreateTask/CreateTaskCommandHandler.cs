@@ -17,7 +17,7 @@ namespace SFA.DAS.Tasks.Application.Commands.CreateTask
 
         protected override async Task HandleCore(CreateTaskCommand message)
         {
-            //todo: read template, create task based on template attributes
+            //todo: read template, create task based on template attributes (name, etc.)
             var newTask = new Domain.Entities.Task
             {
                 Assignee = message.Assignee,

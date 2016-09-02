@@ -16,7 +16,7 @@ namespace SFA.DAS.Tasks.Domain.Repositories
 
         System.Threading.Tasks.Task SetCompleted(Task task);
 
-        TaskAlert Create(TaskAlert taskAlert);
+        System.Threading.Tasks.Task Create(TaskAlert taskAlert);
 
         Task<IList<TaskAlert>> GetByUser(string userId);
     }

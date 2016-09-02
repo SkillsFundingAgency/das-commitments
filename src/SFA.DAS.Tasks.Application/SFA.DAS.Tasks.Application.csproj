@@ -45,12 +45,14 @@
   <ItemGroup>
     <Compile Include="Commands\CompleteTask\CompleteTaskCommand.cs" />
     <Compile Include="Commands\CompleteTask\CompleteTaskCommandHandler.cs" />
+    <Compile Include="Commands\CreateTaskAlert\CreateTaskAlertCommandHandler.cs" />
     <Compile Include="Commands\CreateTaskAlert\CreateTaskAlertCommand.cs" />
     <Compile Include="Commands\CreateTask\CreateTaskCommand.cs" />
     <Compile Include="Commands\CreateTask\CreateTaskCommandHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\GetTaskAlerts\GetTaskAlertsRequest.cs" />
     <Compile Include="Queries\GetTaskAlerts\GetTaskAlertsResponse.cs" />
+    <Compile Include="Queries\GetTaskAlerts\GetTasksQueryHandler.cs" />
     <Compile Include="Queries\GetTasks\GetTasksQueryHandler.cs" />
     <Compile Include="Queries\GetTasks\GetTasksRequest.cs" />
     <Compile Include="Queries\GetTasks\GetTasksResponse.cs" />
