@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         [Test, AutoData]
         public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
-            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
+            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
             var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
 

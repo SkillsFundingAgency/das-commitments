@@ -17,38 +17,47 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
         }
 
-        public async Task Create(Commitment commitment)
+        public async Task<long> Create(Commitment commitment)
         {
-            await WithConnection(async c =>
+            return await WithConnection(async c =>
             {
-                int commitmentId;
+                long commitmentId;
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@name", commitment.Name, DbType.String);
                 parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.Int64);
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
+                parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
                 using (var trans = c.BeginTransaction())
                 {
-                    commitmentId = await c.ExecuteAsync(
+                    commitmentId = (await c.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) VALUES (@name, @legalEntityId, @accountId, @providerId);",
+                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) " +
+                            "VALUES (@name, @legalEntityId, @accountId, @providerId); " +
+                            "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
-                        transaction: trans);
+                        transaction: trans)).Single();
 
                     foreach (var apprenticeship in commitment.Apprenticeships)
                     {
                         parameters = new DynamicParameters();
                         parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+                        parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
+                        //parameters.Add("@traingingId", apprenticeship.TrainingId, DbType.String); TODO: LWA - Need to decide on datatype
+                        parameters.Add("@uln", apprenticeship.ULN, DbType.String);
                         parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
                         parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);
                         parameters.Add("@endDate", apprenticeship.EndDate, DbType.DateTime);
+                        parameters.Add("@status", apprenticeship.Status, DbType.Int16);
+                        parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
+
 
                         await c.ExecuteAsync(
                             sql:
-                                "INSERT INTO [dbo].[Apprenticeship](CommitmentId, Cost, StartDate, EndDate) VALUES (@commitmentId, @cost, @startDate, @endDate);",
+                                "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus);",
                             param: parameters,
                             commandType: CommandType.Text,
                             transaction: trans);

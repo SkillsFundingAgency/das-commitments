@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [Test]
         public async Task ThenShouldReturnACommitmentInResponse()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).Returns(Task.FromResult(_fakeRepositoryCommitment));
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
             var response = await _handler.Handle(_exampleValidRequest);
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [Test]
         public async Task ThenReturnsAResponseWithNullIfTheCommitmentIsNotFound()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).Returns(Task.FromResult(default(Commitment)));
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(default(Commitment));
 
             var response = await _handler.Handle(_exampleValidRequest);
 
@@ -68,9 +68,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         }
 
         [Test]
-        public void ThenAnProviderIdThatDoesntMatchTheCommitmentThrowsAnException()
+        public void ThenAProviderIdThatDoesntMatchTheCommitmentThrowsAnException()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).Returns(Task.FromResult(_fakeRepositoryCommitment));
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
             Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = _fakeRepositoryCommitment.Id, ProviderId = _fakeRepositoryCommitment.ProviderId++ });
 
@@ -80,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [Test]
         public void ThenAnAccountIdThatDoesntMatchTheCommitmentThrowsAnException()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).Returns(Task.FromResult(_fakeRepositoryCommitment));
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
             Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = 5, AccountId = _fakeRepositoryCommitment.EmployerAccountId++ });
 

@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         [Test, AutoData]
         public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
-            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).Returns(Task.FromResult(commitmentsFromRepository));
+            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
             var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
 

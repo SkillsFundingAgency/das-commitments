@@ -72,6 +72,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
+    <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitment.cs" />
     <Compile Include="Queries\GetCommitment\WhenValidatingCommitmentId.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenGettingEmployerCommitments.cs" />
