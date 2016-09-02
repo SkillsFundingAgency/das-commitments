@@ -70,5 +70,21 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
                 return results.AsList();
             });
         }
+
+        public async Task<IList<TaskTemplate>> GetAll()
+        {
+            return await WithConnection<IList<TaskTemplate>>(async c =>
+            {
+                var results = await c.QueryAsync<TaskTemplate>("SELECT * FROM [dbo].[TaskTemplates];");
+
+                return results.AsList();
+            });
+        }
+
+        public async Task Create(TaskTemplate taskTemplate)
+        {
+            await WithConnection(async c =>
+                await c.ExecuteAsync("INSERT INTO [dbo].[TaskTemplates](Name) VALUES (@name);", taskTemplate));
+        }
     }
 }
