@@ -98,6 +98,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetByIdentifier("ProviderId", providerId);
         }
 
+        public Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
+        {
+            throw new NotImplementedException();
+        }
+
         private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
         {
             var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
