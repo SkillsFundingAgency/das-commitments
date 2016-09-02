@@ -18,10 +18,10 @@ namespace SFA.DAS.Tasks.Api.Controllers
             _mediator = mediator;
         }
 
-        [Route("{userId}")]
+        [Route("{userId}", Name = "GetAllTaskAlerts")]
         public async Task<IHttpActionResult> Get(string userId)
         {
-            var response = await _mediator.SendAsync(new GetTaskAlertsRequest { UserId = userId });
+            var response = await _mediator.SendAsync(new GetTaskAlertsRequest {UserId = userId});
 
             return Ok(response.Data);
         }
@@ -35,7 +35,8 @@ namespace SFA.DAS.Tasks.Api.Controllers
                 TaskId = taskAlert.TaskId
             });
 
-            return Ok(); //todo: should be Created/201
+            // 201 for list of user's alerts (as no need for a specific route to a single alert)
+            return CreatedAtRoute("GetAllTaskAlerts", new {userId}, default(TaskAlert));
         }
     }
 }

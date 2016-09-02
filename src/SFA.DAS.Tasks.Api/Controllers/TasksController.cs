@@ -5,6 +5,7 @@ using MediatR;
 using SFA.DAS.Tasks.Application.Commands.CompleteTask;
 using SFA.DAS.Tasks.Application.Commands.CreateTask;
 using SFA.DAS.Tasks.Application.Queries.GetTasks;
+using Task = SFA.DAS.Tasks.Domain.Entities.Task;
 
 namespace SFA.DAS.Tasks.Api.Controllers
 {
@@ -18,7 +19,7 @@ namespace SFA.DAS.Tasks.Api.Controllers
             _mediator = mediator;
         }
 
-        [Route("{assignee}")]
+        [Route("{assignee}", Name = "GetAllTasks")]
         public async Task<IHttpActionResult> Get(string assignee)
         {
             var response = await _mediator.SendAsync(new GetTasksRequest {Assignee = assignee});
@@ -27,18 +28,19 @@ namespace SFA.DAS.Tasks.Api.Controllers
         }
 
         [Route("")]
-        public async Task<IHttpActionResult> Post(Domain.Entities.Task task)
+        public async Task<IHttpActionResult> Post(Task task)
         {
             await _mediator.SendAsync(new CreateTaskCommand
             {
                 Assignee = task.Assignee, TaskTemplateId = task.TaskTemplateId
             });
 
-            return Ok(); //todo: should be Created/201
+            // 201 for list of assignee's tasks (as no need for a specific route to a single task)
+            return CreatedAtRoute("GetAllTasks", new {task.Assignee}, default(Task));
         }
 
         [Route("{id:long:min(1)}")]
-        public async Task<IHttpActionResult> Put(long id, Domain.Entities.Task task)
+        public async Task<IHttpActionResult> Put(long id, Task task)
         {
             await _mediator.SendAsync(new CompleteTaskCommand
             {
