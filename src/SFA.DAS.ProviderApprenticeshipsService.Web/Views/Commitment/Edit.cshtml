@@ -6,3 +6,25 @@
         <hr />
     </div>
 </div>
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <form method="POST" action="@Url.Action("Update")">
+            <div class="form-group">
+                <label class="form-label" for="ApprenticeName">Apprentice Name</label>
+                <input class="form-control form-control-3-4" id="ApprenticeName" name="ApprenticeName" type="text"
+                       aria-required="true" value="@Model.Apprenticeship.ApprenticeName"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="ULN">ULN</label>
+                <input class="form-control form-control-3-4" id="ULN" name="ULN" type="text"
+                       aria-required="true" value="@Model.Apprenticeship.ULN" />
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="TrainingId">Training</label>
+                <input class="form-control form-control-3-4" id="TrainingId" name="TrainingId" type="text"
+                       aria-required="true" value="@Model.Apprenticeship.TrainingId" />
+            </div>
+            <button type="submit" class="button">Update</button>
+        </form>
+    </div>
+</div>

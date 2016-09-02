@@ -61,5 +61,10 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
                 Apprenticeship = data.Apprenticeship
             };
         }
+
+        public Task UpdateApprenticeship(Apprenticeship apprenticeship)
+        {
+            return Task.FromResult(0);
+        }
     }
 }

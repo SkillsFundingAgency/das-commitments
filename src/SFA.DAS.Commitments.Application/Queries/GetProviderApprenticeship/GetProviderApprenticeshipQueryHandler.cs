@@ -25,7 +25,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProviderApprenticeship
             {
                 Data = new Apprenticeship
                 {
+                    Id = apprenticeship.Id,
                     CommitmentId = apprenticeship.CommitmentId,
+                    ULN = apprenticeship.ULN,
                     ApprenticeName = apprenticeship.ApprenticeName,
                     TrainingId = apprenticeship.TrainingId,
                     StartDate = apprenticeship.StartDate,

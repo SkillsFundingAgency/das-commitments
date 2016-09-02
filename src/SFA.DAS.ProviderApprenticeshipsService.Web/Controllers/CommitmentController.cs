@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
@@ -35,6 +36,14 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
             var model = await _commitmentOrchestrator.GetApprenticeship(providerId, commitmentId, apprenticeshipId);
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Update(Apprenticeship apprenticeship)
+        {
+            await _commitmentOrchestrator.UpdateApprenticeship(apprenticeship);
+
+            return RedirectToAction("Index");
         }
     }
 }
