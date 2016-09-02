@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitment;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitments;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Models;
@@ -42,6 +44,21 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             return new CommitmentViewModel
             {
                 Commitment = data.Commitment
+            };
+        }
+
+        public async Task<ApprenticeshipViewModel> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
+        {
+            var data = await _mediator.SendAsync(new GetApprenticeshipQueryRequest
+            {
+                ProviderId = providerId,
+                CommitmentId = commitmentId,
+                AppenticeshipId = apprenticeshipId
+            });
+
+            return new ApprenticeshipViewModel
+            {
+                Apprenticeship = data.Apprenticeship
             };
         }
     }

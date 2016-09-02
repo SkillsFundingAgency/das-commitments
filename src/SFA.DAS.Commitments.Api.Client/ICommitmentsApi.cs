@@ -9,5 +9,6 @@ namespace SFA.DAS.Commitments.Api.Client
         Task<List<CommitmentListItem>> GetProviderCommitments(long providerId);
         Task<List<CommitmentListItem>> GetEmployerCommitments(long employerAccountId);
         Task<Commitment> GetProviderCommitment(long providerId, long commitmentId);
+        Task<Apprenticeship> GetProviderApprenticeship(long providerId, long commitmentId, long apprenticeshipId);
     }
 }

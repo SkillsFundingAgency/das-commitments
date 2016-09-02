@@ -89,6 +89,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetByIdentifier("ProviderId", providerId);
         }
 
+        public Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
+        {
+            return WithConnection<Apprenticeship>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+
+                var results = await c.QueryAsync<Apprenticeship>(
+                    sql: "SELECT * FROM [dbo].[Apprenticeship] WHERE Id = @id;",
+                    param: parameters);
+
+                return results.SingleOrDefault();
+            });
+        }
+
         private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
         {
             var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();

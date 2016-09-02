@@ -4,6 +4,7 @@ using System.Web.Http;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+using SFA.DAS.Commitments.Application.Queries.GetProviderApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
 namespace SFA.DAS.Commitments.Api.Controllers
@@ -45,6 +46,30 @@ namespace SFA.DAS.Commitments.Api.Controllers
             try
             {
                 var response = await _mediator.SendAsync(new GetCommitmentRequest { ProviderId = providerId, CommitmentId = commitmentId });
+
+                return Ok(response.Data);
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
+            catch (UnauthorizedException)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+        public async Task<IHttpActionResult> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
+        {
+            try
+            {
+                var response = await _mediator.SendAsync(new GetProviderApprenticeshipQueryRequest
+                {
+                    ProviderId = providerId,
+                    CommitmentId = commitmentId,
+                    ApprenticeshipId = apprenticeshipId
+                });
 
                 return Ok(response.Data);
             }

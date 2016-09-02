@@ -29,5 +29,12 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
 
             return View(model);
         }
+
+        public async Task<ActionResult> Edit(long providerId, long commitmentId, long apprenticeshipId)
+        {
+            var model = await _commitmentOrchestrator.GetApprenticeship(providerId, commitmentId, apprenticeshipId);
+
+            return View(model);
+        }
     }
 }
