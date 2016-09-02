@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             Fixture fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
-            _exampleValidRequest = new CreateApprenticeshipCommand { Apprenticeship = populatedApprenticeship };
+            _exampleValidRequest = new CreateApprenticeshipCommand { CommitmentId = 123L, Apprenticeship = populatedApprenticeship };
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         {
             argument.Id.Should().Be(_exampleValidRequest.Apprenticeship.Id);
             argument.ApprenticeName.Should().Be(_exampleValidRequest.Apprenticeship.ApprenticeName);
-            argument.CommitmentId.Should().Be(_exampleValidRequest.Apprenticeship.CommitmentId);
+            argument.CommitmentId.Should().Be(_exampleValidRequest.CommitmentId);
             argument.Cost.Should().Be(_exampleValidRequest.Apprenticeship.Cost);
             argument.StartDate.Should().Be(_exampleValidRequest.Apprenticeship.StartDate);
             argument.EndDate.Should().Be(_exampleValidRequest.Apprenticeship.EndDate);

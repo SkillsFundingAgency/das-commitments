@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         {
             var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, new Apprenticeship());
 
-            _mockMediator.Verify(x => x.SendAsync(It.IsAny<CreateApprenticeshipCommand>()));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.CommitmentId == TestCommitmentId)));
         }
 
         [Test]

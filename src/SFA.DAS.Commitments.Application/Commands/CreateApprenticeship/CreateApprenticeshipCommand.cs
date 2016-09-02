@@ -7,5 +7,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
     public sealed class CreateApprenticeshipCommand : IAsyncRequest<long>
     {
         public Apprenticeship Apprenticeship { get; set; }
+
+        public long CommitmentId { get; set; }
     }
 }

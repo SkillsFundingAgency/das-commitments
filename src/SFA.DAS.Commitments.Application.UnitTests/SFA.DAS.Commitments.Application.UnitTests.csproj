@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
+    <Compile Include="Commands\CreateApprenticeship\WhenValidatingApprenticeship.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenGettingApprenticeship.cs" />

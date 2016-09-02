@@ -24,19 +24,19 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 throw new InvalidRequestException();
             }
 
-            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(message.Apprenticeship));
+            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(message.Apprenticeship, message));
 
             return apprenticeshipId;
         }
 
-        private Domain.Apprenticeship MapFrom(Apprenticeship apprenticeship)
+        private Domain.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
         {
             var domainApprenticeship = new Domain.Apprenticeship
             {
                 Id = apprenticeship.Id,
                 ApprenticeName = apprenticeship.ApprenticeName,
                 ULN = apprenticeship.ULN,
-                CommitmentId = apprenticeship.CommitmentId,
+                CommitmentId = message.CommitmentId,
                 Status = (Domain.ApprenticeshipStatus)apprenticeship.Status,
                 AgreementStatus = (Domain.AgreementStatus)apprenticeship.AgreementStatus,
                 TrainingId = apprenticeship.TrainingId,
