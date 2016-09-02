@@ -250,7 +250,7 @@
       <Name>SFA.DAS.Tasks.Application</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Tasks.Domain\SFA.DAS.Tasks.Domain.csproj">
-      <Project>{9BBAB098-4C62-4DFC-AEEA-20A0D9BD1E2C}</Project>
+      <Project>{9bbab098-4c62-4dfc-aeea-20a0d9bd1e2c}</Project>
       <Name>SFA.DAS.Tasks.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Tasks.Infrastructure\SFA.DAS.Tasks.Infrastructure.csproj">

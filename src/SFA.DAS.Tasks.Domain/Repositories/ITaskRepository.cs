@@ -8,7 +8,7 @@ namespace SFA.DAS.Tasks.Domain.Repositories
 {
     public interface ITaskRepository
     {
-        Task Create(Task task);
+        System.Threading.Tasks.Task Create(Task task);
 
         Task<Task> GetById(long id);
 

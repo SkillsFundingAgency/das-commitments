@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
+using SFA.DAS.Tasks.Application.Commands.CreateTask;
 using SFA.DAS.Tasks.Application.Queries.GetTasks;
 
 namespace SFA.DAS.Tasks.Api.Controllers
@@ -16,11 +17,23 @@ namespace SFA.DAS.Tasks.Api.Controllers
             _mediator = mediator;
         }
 
-        public async Task<IHttpActionResult> GetAll()
+        [Route("{assignee}")]
+        public async Task<IHttpActionResult> Get(string assignee)
         {
-            var response = await _mediator.SendAsync(new GetTasksRequest {Assignee = "TODO"});
+            var response = await _mediator.SendAsync(new GetTasksRequest {Assignee = assignee});
 
             return Ok(response.Data);
+        }
+
+        [Route("")]
+        public async Task<IHttpActionResult> Post(Domain.Entities.Task task)
+        {
+            await _mediator.SendAsync(new CreateTaskCommand
+            {
+                Assignee = task.Assignee, TaskTemplateId = task.TaskTemplateId
+            });
+
+            return Ok();
         }
     }
 }
