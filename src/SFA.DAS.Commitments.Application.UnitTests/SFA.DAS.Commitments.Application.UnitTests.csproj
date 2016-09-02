@@ -74,6 +74,8 @@
   <ItemGroup>
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
+    <Compile Include="Queries\GetApprenticeship\WhenGettingApprenticeship.cs" />
+    <Compile Include="Queries\GetApprenticeship\WhenValidatingCommitmentId.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitment.cs" />
     <Compile Include="Queries\GetCommitment\WhenValidatingCommitmentId.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenGettingEmployerCommitments.cs" />
