@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
+using SFA.DAS.Tasks.Application.Commands.CompleteTask;
 using SFA.DAS.Tasks.Application.Commands.CreateTask;
 using SFA.DAS.Tasks.Application.Queries.GetTasks;
 
@@ -31,6 +32,18 @@ namespace SFA.DAS.Tasks.Api.Controllers
             await _mediator.SendAsync(new CreateTaskCommand
             {
                 Assignee = task.Assignee, TaskTemplateId = task.TaskTemplateId
+            });
+
+            return Ok();
+        }
+
+        [Route("{id:long:min(1)}")]
+        public async Task<IHttpActionResult> Put(long id, Domain.Entities.Task task)
+        {
+            await _mediator.SendAsync(new CompleteTaskCommand
+            {
+                TaskId = id,
+                CompletedBy = task.CompletedBy
             });
 
             return Ok();

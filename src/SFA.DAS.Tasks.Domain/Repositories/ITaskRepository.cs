@@ -14,6 +14,8 @@ namespace SFA.DAS.Tasks.Domain.Repositories
 
         Task<IList<Task>> GetByAssignee(string assignee);
 
+        System.Threading.Tasks.Task SetCompleted(Task task);
+
         TaskAlert Create(TaskAlert taskAlert);
 
         Task<IList<TaskAlert>> GetByUser(string userId);

@@ -46,6 +46,12 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
             });
         }
 
+        public async Task SetCompleted(Domain.Entities.Task task)
+        {
+            await WithConnection(async c =>
+                await c.ExecuteAsync("UPDATE [dbo].[Tasks] SET CompletedOn = @completedOn, CompletedBy = @completedBy, TaskStatus = @taskStatus WHERE Id = @id;", task));
+        }
+
         public TaskAlert Create(TaskAlert taskAlert)
         {
             throw new NotImplementedException();

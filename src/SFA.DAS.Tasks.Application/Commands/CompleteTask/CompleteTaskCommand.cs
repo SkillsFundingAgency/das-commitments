@@ -6,5 +6,6 @@ namespace SFA.DAS.Tasks.Application.Commands.CompleteTask
     public sealed class CompleteTaskCommand : IAsyncRequest
     {
         public long TaskId { get; set; }
+        public string CompletedBy { get; set; }
     }
 }

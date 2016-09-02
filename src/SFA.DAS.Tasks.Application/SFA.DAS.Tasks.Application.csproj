@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CompleteTask\CompleteTaskCommand.cs" />
+    <Compile Include="Commands\CompleteTask\CompleteTaskCommandHandler.cs" />
     <Compile Include="Commands\CreateTaskAlert\CreateTaskAlertCommand.cs" />
     <Compile Include="Commands\CreateTask\CreateTaskCommand.cs" />
     <Compile Include="Commands\CreateTask\CreateTaskCommandHandler.cs" />
