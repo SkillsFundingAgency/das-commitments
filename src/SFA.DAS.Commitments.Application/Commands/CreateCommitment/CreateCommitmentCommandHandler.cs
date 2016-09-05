@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     Id = x.Id,
                     ApprenticeName = x.ApprenticeName,
                     ULN = x.ULN,
-                    CommitmentId = x.CommitmentId,
+                    CommitmentId = commitment.Id,
                     Status = (Domain.ApprenticeshipStatus)x.Status,
                     AgreementStatus = (Domain.AgreementStatus)x.AgreementStatus,
                     TrainingId = x.TrainingId,

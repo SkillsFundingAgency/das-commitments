@@ -66,7 +66,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             {
                 Id = matchingApprenticeship.Id,
                 ApprenticeName = matchingApprenticeship.ApprenticeName,
-                CommitmentId = matchingApprenticeship.CommitmentId,
                 ULN = matchingApprenticeship.ULN,
                 TrainingId = matchingApprenticeship.TrainingId,
                 Cost = matchingApprenticeship.Cost,
