@@ -4,6 +4,7 @@ namespace SFA.DAS.Tasks.Domain.Entities
 {
     public class Task
     {
+        //todo: add payload
         public long Id { get; set; }
         public string Assignee { get; set; }
         public long TaskTemplateId { get; set; }
