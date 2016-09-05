@@ -43,5 +43,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             result.IsValid.Should().BeFalse();
         }
+
+        [TestCase(0)]
+        [TestCase(-2)]
+        public void ThenProviderIdIsLessThanOneIsInvalid(long providerId)
+        {
+            _exampleCommand.ProviderId = providerId;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
     }
 }
