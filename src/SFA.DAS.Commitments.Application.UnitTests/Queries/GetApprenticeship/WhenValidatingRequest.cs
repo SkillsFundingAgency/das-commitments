@@ -2,12 +2,13 @@
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
+namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
 {
     [TestFixture]
     public sealed class WhenValidatingRequest
     {
         private const long ValidAccountId = 1L;
+        private const long ValidProviderId = 1L;
         private const long ValidCommitmentId = 1L;
         private const long ValidApprenticeshipId = 1L;
         private GetApprenticeshipValidator _validator;
@@ -45,18 +46,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
             result.IsValid.Should().BeFalse();
         }
 
-        //[Test]
-        //public void ThenIfBothProviderAndAccountIdsHaveAValueIsNotValid()
-        //{
-        //    var result = _validator.Validate(new GetApprenticeshipRequest { CommitmentId = 1, ProviderId = 2, AccountId = 3 });
-        //    var result = _validator.Validate(new GetApprenticeshipRequest { AccountId = ValidAccountId, CommitmentId = ValidCommitmentId, ApprenticeshipId = ValidApprenticeshipId });
+        [Test]
+        public void ThenIfBothProviderAndAccountIdsHaveAValueIsNotValid()
+        {
+            var result = _validator.Validate(new GetApprenticeshipRequest { AccountId = ValidAccountId, ProviderId = ValidProviderId, CommitmentId = ValidCommitmentId, ApprenticeshipId = ValidApprenticeshipId });
 
-        //    result.IsValid.Should().BeFalse();
-        //}
+            result.IsValid.Should().BeFalse();
+        }
 
-        public void ThenIfTheIdsAreAllGreaterThanZeroItIsValid()
+        public void ThenIfAccountIdICommitmentIdAndApprenticeshipIdAreAllGreaterThanZeroItIsValid()
         {
             var result = _validator.Validate(new GetApprenticeshipRequest { AccountId = ValidAccountId, CommitmentId = ValidCommitmentId, ApprenticeshipId = ValidApprenticeshipId });
+
+            result.IsValid.Should().BeTrue();
+        }
+
+        public void ThenIfProviderIdICommitmentIdAndApprenticeshipIdAreAllGreaterThanZeroItIsValid()
+        {
+            var result = _validator.Validate(new GetApprenticeshipRequest { ProviderId = ValidProviderId, CommitmentId = ValidCommitmentId, ApprenticeshipId = ValidApprenticeshipId });
 
             result.IsValid.Should().BeTrue();
         }

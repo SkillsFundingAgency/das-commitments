@@ -12,6 +12,9 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<Commitment>> GetByEmployer(long accountId);
 
         Task<Commitment> GetById(long id);
+
+        Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
+		
         Task<Apprenticeship> GetApprenticeship(long apprenticeshipId);
     }
 }

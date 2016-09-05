@@ -5,7 +5,7 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 {
     [TestFixture]
-    public class WhenValidatingCommitmentId
+    public class WhenValidatingRequest
     {
         private GetCommitmentValidator _validator;
 
