@@ -76,6 +76,8 @@
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingApprenticeship.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
+    <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
+    <Compile Include="Commands\UpdateApprenticeship\WhenValidatingApprenticeship.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenGettingApprenticeship.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitment.cs" />

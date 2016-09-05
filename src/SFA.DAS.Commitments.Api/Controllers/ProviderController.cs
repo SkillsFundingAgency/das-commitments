@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
@@ -110,7 +112,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
         public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _mediator.SendAsync(new UpdateApprenticeshipCommand { ProviderId = providerId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId, Apprenticeship = apprenticeship });
+
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
         }
     }
 }
