@@ -68,6 +68,9 @@
     <Compile Include="Queries\GetCommitment\GetCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentQueryRequest.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentQueryResponse.cs" />
+    <Compile Include="Queries\GetStandards\GetStandardsQueryHandler.cs" />
+    <Compile Include="Queries\GetStandards\GetStandardsQueryRequest.cs" />
+    <Compile Include="Queries\GetStandards\GetStandardsQueryResponse.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryHandler.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryRequest.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryResponse.cs" />

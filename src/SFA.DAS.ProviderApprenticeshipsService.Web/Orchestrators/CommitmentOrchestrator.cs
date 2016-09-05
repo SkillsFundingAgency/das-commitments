@@ -5,6 +5,7 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitment;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitments;
+using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetStandards;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Models;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
@@ -47,7 +48,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             };
         }
 
-        public async Task<ApprenticeshipViewModel> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
+        public async Task<ExtendedApprenticeshipViewModel> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
         {
             var data = await _mediator.SendAsync(new GetApprenticeshipQueryRequest
             {
@@ -56,15 +57,71 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
                 AppenticeshipId = apprenticeshipId
             });
 
+            var standards = await _mediator.SendAsync(new GetStandardsQueryRequest());
+
+            var model = (ExtendedApprenticeshipViewModel)MapFrom(data.Apprenticeship);
+
+            model.Standards = standards.Standards;
+
+            return model;
+        }
+
+        public Task UpdateApprenticeship(ApprenticeshipViewModel apprenticeship)
+        {
+            return Task.FromResult(0);
+        }
+
+        private ApprenticeshipViewModel MapFrom(Apprenticeship apprenticeship)
+        {
             return new ApprenticeshipViewModel
             {
-                Apprenticeship = data.Apprenticeship
+                Id = apprenticeship.Id,
+                CommitmentId = apprenticeship.CommitmentId,
+                FirstName = SplitName(apprenticeship.ApprenticeName).Item1,
+                LastName = SplitName(apprenticeship.ApprenticeName).Item2,
+                ULN = apprenticeship.ULN,
+                Cost = apprenticeship.Cost,
+                StartMonth = apprenticeship.StartDate?.Month, 
+                StartYear = apprenticeship.StartDate?.Year,
+                EndMonth = apprenticeship.EndDate?.Month,
+                EndYear = apprenticeship.EndDate?.Year,
+                Status = apprenticeship.Status.ToString(),
+                AgreementStatus = apprenticeship.AgreementStatus.ToString()
             };
         }
 
-        public Task UpdateApprenticeship(Apprenticeship apprenticeship)
+        private Apprenticeship MapFrom(ApprenticeshipViewModel viewModel)
         {
-            return Task.FromResult(0);
+            return new Apprenticeship
+            {
+                Id = viewModel.Id,
+                CommitmentId = viewModel.CommitmentId,
+                ApprenticeName = $"{viewModel.FirstName} {viewModel.LastName}",
+                ULN = viewModel.ULN,
+                Cost = viewModel.Cost,
+                StartDate = GetDateTime(viewModel.StartMonth, viewModel.StartYear),
+                EndDate = GetDateTime(viewModel.EndMonth, viewModel.EndYear)
+            };
+        }
+
+        private DateTime? GetDateTime(int? month, int? year)
+        {
+            if (month.HasValue && year.HasValue)
+                return new DateTime(year.Value, month.Value, 1);
+
+            return null;
+        }
+
+        private Tuple<string, string> SplitName(string name)
+        {
+            var items = name.Split(' ');
+
+            if (items.Length == 2)
+            {
+                return new Tuple<string, string>(items[0], items[1]);
+            }
+
+            return new Tuple<string, string>("", name);
         }
     }
 }

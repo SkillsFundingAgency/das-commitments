@@ -12,7 +12,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-        public CommitmentRepository(CommitmentConfiguration configuration) 
+        public CommitmentRepository(CommitmentConfiguration configuration)
             : base(configuration)
         {
         }
@@ -91,8 +91,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private static async Task<long> CreateApprenticeship(IDbConnection connection, long commitmentId, IDbTransaction trans, Apprenticeship apprenticeship)
         {
-            return WithConnection<Apprenticeship>(async c =>
-            {
+            var parameters = new DynamicParameters();
             parameters.Add("@commitmentId", commitmentId, DbType.Int64);
             parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
             //parameters.Add("@traingingId", apprenticeship.TrainingId, DbType.String); TODO: LWA - Need to decide on datatype
@@ -102,11 +101,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@status", apprenticeship.Status, DbType.Int16);
             parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
 
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
-                    "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
-                    "SELECT CAST(SCOPE_IDENTITY() as int);",
-                commandType: CommandType.Text,
-            });
+            var apprenticeshipId = (await connection.QueryAsync<long>(
+            sql:
+                "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
+                "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                "SELECT CAST(SCOPE_IDENTITY() as int);",
+            param: parameters,
+            commandType: CommandType.Text,
+            transaction: trans)).Single();
+
             return apprenticeshipId;
         }
 
@@ -134,7 +137,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var results = await c.QueryAsync<Commitment> (
+                var results = await c.QueryAsync<Commitment>(
                     sql: $"SELECT * FROM [dbo].[Commitment] WHERE {identifierName} = @id;",
                     param: parameters);
 

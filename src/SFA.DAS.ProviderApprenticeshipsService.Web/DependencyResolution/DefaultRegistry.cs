@@ -21,7 +21,9 @@ using SFA.DAS.Commitments.Api.Client;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.ProviderApprenticeshipsService.Application;
+using SFA.DAS.ProviderApprenticeshipsService.Domain.Cache;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Cache;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 using StructureMap;
@@ -50,8 +52,10 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
 
             var config = GetConfiguration();
 
+            For<ICacheProvider>().Use<InProcessCacheProvider>();
             For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<string>().Is(config.Api.BaseUrl);
             For<IUserRepository>().Use<FileSystemUserRepository>();
+            For<IStandardsRepository>().Use<CachingStandardsRepository>().Ctor<IStandardsRepository>().Is<FileSystemStandardsRepository>();
         }
 
         private ProviderApprenticeshipsServiceConfiguration GetConfiguration()

@@ -1,8 +1,8 @@
-﻿@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.ApprenticeshipViewModel
+﻿@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.ExtendedApprenticeshipViewModel
 
 <div class="grid-row">
     <div class="column-two-thirds">
-        <h1 class="heading-xlarge">Apprenticeship - @Model.Apprenticeship.ApprenticeName</h1>
+        <h1 class="heading-xlarge">Apprenticeship - @Model.FirstName @Model.LastName</h1>
         <hr />
     </div>
 </div>
@@ -10,21 +10,69 @@
     <div class="column-two-thirds">
         <form method="POST" action="@Url.Action("Update")">
             <div class="form-group">
-                <label class="form-label" for="ApprenticeName">Apprentice Name</label>
-                <input class="form-control form-control-3-4" id="ApprenticeName" name="ApprenticeName" type="text"
-                       aria-required="true" value="@Model.Apprenticeship.ApprenticeName"/>
+                <label class="form-label" for="FirstName">First Name</label>
+                <input class="form-control form-control-3-4" id="FirstName" name="FirstName" type="text"
+                       aria-required="true" value="@Model.FirstName"/>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="LastName">Last Name</label>
+                <input class="form-control form-control-3-4" id="LastName" name="LastName" type="text"
+                       aria-required="true" value="@Model.LastName" />
             </div>
             <div class="form-group">
                 <label class="form-label" for="ULN">ULN</label>
                 <input class="form-control form-control-3-4" id="ULN" name="ULN" type="text"
-                       aria-required="true" value="@Model.Apprenticeship.ULN" />
+                       aria-required="true" value="@Model.ULN" />
             </div>
             <div class="form-group">
                 <label class="form-label" for="TrainingId">Training</label>
                 <input class="form-control form-control-3-4" id="TrainingId" name="TrainingId" type="text"
-                       aria-required="true" value="@Model.Apprenticeship.TrainingId" />
+                       aria-required="true" value="@Model.TrainingId" />
             </div>
-            <button type="submit" class="button">Update</button>
-        </form>
+            <div class="form-group">
+                <fieldset>
+                    <legend>
+                        <span class="form-label-bold">Projected start date</span>
+                    </legend>
+                    <div class="form-date">
+                        <div class="form-group form-group-month">
+                            <label class="form-label" for="startMonth">Month</label>
+                            <input class="form-control" id="startMonth" name="start-month" type="number" 
+                                   min="1" max="12" placeholder="MM" value="@Model.StartMonth">
+                        </div>
+                        <div class="form-group form-group-year">
+
+                            <label class="form-label" for="startYear">Year</label>
+                            <input class="form-control" id="startYear" name="start-year" type="number" 
+                                   min="2016" max="2030" placeholder="YYYY" value="@Model.StartYear">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="form-group">
+            <fieldset>
+                <legend>
+                    <span class="form-label-bold" style="margin-bottom: 0; padding-bottom: 0">Projected finish date</span>
+                </legend>
+                <div class="form-date">
+                    <div class="form-group form-group-month">
+                        <label class="form-label" for="finishMonth">Month</label>
+                        <input class="form-control" id="finishMonth" name="finish-month" type="number" 
+                               min="1" max="12" placeholder="MM" value="@Model.EndMonth">
+                    </div>
+                    <div class="form-group form-group-year">
+                        <label class="form-label" for="finishYear">Year</label>
+                        <input class="form-control" id="finishYear" name="finish-year" type="number" 
+                               min="2016" max="2030" placeholder="YYYY" value="@Model.EndYear">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <input type="hidden" name="providerId" value="@Model.ProviderId" />
+        <input type="hidden" name="commitmentId" value="@Model.CommitmentId" />
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="button">Update</button>
+    </form>
     </div>
 </div>
