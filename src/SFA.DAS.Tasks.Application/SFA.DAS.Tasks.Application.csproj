@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D6AF078E-2F4B-4FD1-AA25-7564E4D141EF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SFA.DAS.Tasks.Application</RootNamespace>
+    <AssemblyName>SFA.DAS.Tasks.Application</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MediatR, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediatR.2.1.0\lib\net45\MediatR.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\CompleteTask\CompleteTaskCommand.cs" />
+    <Compile Include="Commands\CompleteTask\CompleteTaskCommandHandler.cs" />
+    <Compile Include="Commands\CreateTaskTemplate\CreateTaskTemplateCommand.cs" />
+    <Compile Include="Commands\CreateTaskTemplate\CreateTaskTemplateCommandHandler.cs" />
+    <Compile Include="Commands\CreateTaskAlert\CreateTaskAlertCommandHandler.cs" />
+    <Compile Include="Commands\CreateTaskAlert\CreateTaskAlertCommand.cs" />
+    <Compile Include="Commands\CreateTask\CreateTaskCommand.cs" />
+    <Compile Include="Commands\CreateTask\CreateTaskCommandHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\GetTaskAlerts\GetTaskAlertsRequest.cs" />
+    <Compile Include="Queries\GetTaskAlerts\GetTaskAlertsResponse.cs" />
+    <Compile Include="Queries\GetTaskAlerts\GetTasksQueryHandler.cs" />
+    <Compile Include="Queries\GetTaskTemplates\GetTaskTemplatesQueryHandler.cs" />
+    <Compile Include="Queries\GetTaskTemplates\GetTaskTemplatesRequest.cs" />
+    <Compile Include="Queries\GetTaskTemplates\GetTaskTemplatesResponse.cs" />
+    <Compile Include="Queries\GetTasks\GetTasksQueryHandler.cs" />
+    <Compile Include="Queries\GetTasks\GetTasksRequest.cs" />
+    <Compile Include="Queries\GetTasks\GetTasksResponse.cs" />
+    <Compile Include="Queries\QueryResponse.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Tasks.Domain\SFA.DAS.Tasks.Domain.csproj">
+      <Project>{9bbab098-4c62-4dfc-aeea-20a0d9bd1e2c}</Project>
+      <Name>SFA.DAS.Tasks.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
