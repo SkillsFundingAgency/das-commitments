@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Tasks.Domain", "SFA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Tasks.Infrastructure", "SFA.DAS.Tasks.Infrastructure\SFA.DAS.Tasks.Infrastructure.csproj", "{344511D9-D336-457E-8074-589BAFECB804}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.Tasks.Database", "SFA.DAS.Tasks.Database\SFA.DAS.Tasks.Database.sqlproj", "{C132992E-BC5D-4C0F-89C5-D29B547548B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +128,12 @@ Global
 		{344511D9-D336-457E-8074-589BAFECB804}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{344511D9-D336-457E-8074-589BAFECB804}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{344511D9-D336-457E-8074-589BAFECB804}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
