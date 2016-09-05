@@ -18,7 +18,7 @@ namespace SFA.DAS.Tasks.Api.Controllers
             _mediator = mediator;
         }
 
-        [Route("")]
+        [Route("", Name = "GetAllTaskTemplates")]
         public async Task<IHttpActionResult> Get()
         {
             var response = await _mediator.SendAsync(new GetTaskTemplatesRequest());
@@ -34,7 +34,8 @@ namespace SFA.DAS.Tasks.Api.Controllers
                 Name = taskTemplate.Name
             });
 
-            return Ok(); //todo: should be Created/201
+            // 201 for list of all task templates (as no need for a specific route to a single template)
+            return CreatedAtRoute("GetAllTaskTemplates", new { }, default(TaskTemplate));
         }
     }
 }
