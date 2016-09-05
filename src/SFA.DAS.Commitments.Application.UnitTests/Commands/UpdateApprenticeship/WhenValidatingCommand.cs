@@ -7,7 +7,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
     [TestFixture]
-    public class WhenValidatingApprenticeship
+    public class WhenValidatingCommand
     {
         private UpdateApprenticeshipValidator _validator;
         private UpdateApprenticeshipCommand _exampleCommand;
@@ -62,6 +62,44 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             var result = _validator.Validate(_exampleCommand);
 
             result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        public void ThenIfTheAccountIdIsZeroOrLessIsNotValid(long testAccountId)
+        {
+            _exampleCommand.AccountId = testAccountId;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [Test]
+        public void ThenIfBothProviderAndAccountIdsHaveAValueIsNotValid()
+        {
+            _exampleCommand.AccountId = 123L;
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        public void ThenIfMessageIdPopulatedForAccountIdScenarioThenIsValid()
+        {
+            _exampleCommand.ProviderId = null;
+            _exampleCommand.AccountId = 123L;
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
+        }
+
+        public void ThenIfProviderIdICommitmentIdAndApprenticeshipIdAreAllGreaterThanZeroItIsValid()
+        {
+            _exampleCommand.ProviderId = 321L;
+            _exampleCommand.AccountId = null;
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
         }
     }
 }

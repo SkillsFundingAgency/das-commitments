@@ -42,6 +42,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                     foreach (var apprenticeship in commitment.Apprenticeships)
                     {
+                        apprenticeship.CommitmentId = commitmentId;
                         var appenticeshipId = await CreateApprenticeship(connection, trans, apprenticeship);
                     }
 

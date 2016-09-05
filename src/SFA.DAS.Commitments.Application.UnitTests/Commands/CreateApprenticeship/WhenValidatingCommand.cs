@@ -1,15 +1,13 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
-using System.Collections.Generic;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
     [TestFixture]
-    public class WhenValidatingApprenticeship
+    public class WhenValidatingCommand
     {
         private CreateApprenticeshipValidator _validator;
         private CreateApprenticeshipCommand _exampleCommand;
