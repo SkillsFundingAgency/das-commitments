@@ -33,14 +33,24 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 return new GetApprenticeshipResponse();
             }
 
-            if (commitment.EmployerAccountId != message.AccountId)
-            {
-                throw new UnauthorizedException($"Employer unauthorized to view apprenticeship: {message.ApprenticeshipId}");
-            }
+            CheckAuthorization(message, commitment);
 
             var matchingApprenticeship = commitment.Apprenticeships.SingleOrDefault(x => x.Id == message.ApprenticeshipId);
 
             return MapResponseFrom(matchingApprenticeship);
+        }
+
+        private static void CheckAuthorization(GetApprenticeshipRequest message, Commitment commitment)
+        {
+            if (message.ProviderId.HasValue && commitment.ProviderId != message.ProviderId)
+            {
+                throw new UnauthorizedException($"Provider unauthorized to view apprenticeship: {message.ApprenticeshipId}");
+            }
+
+            if (message.AccountId.HasValue && commitment.EmployerAccountId != message.AccountId)
+            {
+                throw new UnauthorizedException($"Employer unauthorized to view apprenticeship: {message.ApprenticeshipId}");
+            }
         }
 
         private GetApprenticeshipResponse MapResponseFrom(Apprenticeship matchingApprenticeship)

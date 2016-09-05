@@ -43,29 +43,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                     foreach (var apprenticeship in commitment.Apprenticeships)
                     {
-                        parameters = new DynamicParameters();
-                        parameters.Add("@commitmentId", commitmentId, DbType.Int64);
-                        parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
-                        //parameters.Add("@traingingId", apprenticeship.TrainingId, DbType.String); TODO: LWA - Need to decide on datatype
-                        parameters.Add("@uln", apprenticeship.ULN, DbType.String);
-                        parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
-                        parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);
-                        parameters.Add("@endDate", apprenticeship.EndDate, DbType.DateTime);
-                        parameters.Add("@status", apprenticeship.Status, DbType.Int16);
-                        parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
-
-
-                        await c.ExecuteAsync(
-                            sql:
-                                "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus);",
-                            param: parameters,
-                            commandType: CommandType.Text,
-                            transaction: trans);
+                        var appenticeshipId = await CreateApprenticeship(c, commitmentId, trans, apprenticeship);
                     }
 
                     trans.Commit();
                 }
                 return commitmentId;
+            });
+        }
+
+        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
+        {
+            return await WithConnection(async c =>
+            {
+                return await CreateApprenticeship(c, apprenticeship.CommitmentId, null, apprenticeship);
             });
         }
 
@@ -96,6 +87,31 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task<IList<Commitment>> GetByProvider(long providerId)
         {
             return await GetByIdentifier("ProviderId", providerId);
+        }
+
+        private static async Task<long> CreateApprenticeship(IDbConnection connection, long commitmentId, IDbTransaction trans, Apprenticeship apprenticeship)
+        {
+            DynamicParameters parameters = new DynamicParameters();
+            parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+            parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
+            //parameters.Add("@traingingId", apprenticeship.TrainingId, DbType.String); TODO: LWA - Need to decide on datatype
+            parameters.Add("@uln", apprenticeship.ULN, DbType.String);
+            parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
+            parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);
+            parameters.Add("@endDate", apprenticeship.EndDate, DbType.DateTime);
+            parameters.Add("@status", apprenticeship.Status, DbType.Int16);
+            parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
+
+            var apprenticeshipId = (await connection.QueryAsync<long>(
+                sql:
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
+                    "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                    "SELECT CAST(SCOPE_IDENTITY() as int);",
+                param: parameters,
+                commandType: CommandType.Text,
+                transaction: trans)).Single();
+
+            return apprenticeshipId;
         }
 
         private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)

@@ -68,13 +68,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         }
 
         [Test]
-        public void ThenAnAccountIdThatDoesntMatchTheCommitmentThrowsAnException()
+        public void ThenIfAnAccountIdIsProvidedThatDoesntMatchTheCommitmentThrowsAnException()
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
             Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest { AccountId = _fakeRepositoryCommitment.EmployerAccountId++, CommitmentId = _fakeRepositoryCommitment.Id, ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id });
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer unauthorized to view apprenticeship: {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
+        }
+
+        [Test]
+        public void ThenIfAProviderIdIsProvidedThatDoesntMatchTheCommitmentThrowsAnException()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
+
+            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest { ProviderId = _fakeRepositoryCommitment.ProviderId++, CommitmentId = _fakeRepositoryCommitment.Id, ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id });
+
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider unauthorized to view apprenticeship: {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
         }
 
         [Test]
