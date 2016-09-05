@@ -24,16 +24,15 @@ Note that user identifiers and parties are stored as strings are are not validat
 
 To create a new task for a party:
 
-POST http://host:port/api/tasks
+POST http://host:port/api/tasks/{assignee}
 
 	{
-	  "assignee": "Tesco",
 	  "taskTemplateId": 1
 	}
 
 Where:
 
-- **assignee** is the name of the party (can be any value)
+- **assignee** refers to a party (eg. `10123456` or `Sainsburys`)
 - **taskTemplate** refers to an existing task template
 
 ### Retrieving tasks for a party (assignee) ###

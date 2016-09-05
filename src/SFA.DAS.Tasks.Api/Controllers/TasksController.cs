@@ -27,16 +27,16 @@ namespace SFA.DAS.Tasks.Api.Controllers
             return Ok(response.Data);
         }
 
-        [Route("")]
-        public async Task<IHttpActionResult> Post(Task task)
+        [Route("{assignee}")]
+        public async Task<IHttpActionResult> Post(string assignee, Task task)
         {
             await _mediator.SendAsync(new CreateTaskCommand
             {
-                Assignee = task.Assignee, TaskTemplateId = task.TaskTemplateId
+                Assignee = assignee, TaskTemplateId = task.TaskTemplateId
             });
 
             // 201 for list of assignee's tasks (as no need for a specific route to a single task)
-            return CreatedAtRoute("GetAllTasks", new {task.Assignee}, default(Task));
+            return CreatedAtRoute("GetAllTasks", new {assignee}, default(Task));
         }
 
         [Route("{id:long:min(1)}")]
