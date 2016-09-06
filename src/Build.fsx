@@ -89,7 +89,17 @@ Target "Set Solution Name" (fun _ ->
         else
             shouldPublishSite <- false
 
-        sqlPublishFile <- (@"./"+ projectName + ".Database/" + projectName + ".Database.Publish.xml")
+        let subdirs = FileSystemHelper.directoryInfo(currentDirectory).EnumerateDirectories("*.Database")
+        
+        let mutable databaseDir = ""
+
+        for directs in subdirs do
+            trace directs.Name
+            let dirExists = directs.Name.Contains("Database")
+            if(dirExists) then
+                databaseDir <- directs.Name
+
+        let sqlPublishFile = (@"./"+ databaseDir + "/Database.Publish.xml")
         shouldCreateDbProject <- fileExists(sqlPublishFile)
 
         trace ("Will publish: " + (shouldPublishSite.ToString()))
@@ -234,13 +244,11 @@ Target "Build Database project"(fun _ ->
         let properties = 
                         [
                             ("DebugSymbols", "False");
-                            ("TargetDatabaseName", "SFA.DAS.Commitments.Database");
-                            ("SqlPublishProfilePath", @".\" + projectName + ".Database.Publish.xml");
-                            ("PublishScriptFileName","SFA.DAS.Commitments.Database.sql");
+                            ("SqlPublishProfilePath", @".\Database.Publish.xml");
                             ("ToolsVersion","14");
                         ]
 
-        !! (@"./"+ projectName + ".Database/" + projectName + ".Database.sqlproj")
+        !! (@".\**\*.sqlproj")
             |> MSBuildReleaseExt null properties "Build"
             |> Log "Build-Output: "
     else
@@ -263,15 +271,15 @@ Target "Publish Database project"(fun _ ->
         let properties = 
                         [
                             ("DebugSymbols", "False");
-                            ("TargetDatabaseName", "SFA.DAS.Commitments.Database");
-                            ("SqlPublishProfilePath", @".\" + projectName + ".Database.Publish.xml");
+                            ("TargetDatabaseName", "Database");
+                            ("SqlPublishProfilePath", @".\Database.Publish.xml");
                             ("TargetConnectionString", "Data Source=.;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Connect Timeout=60;Encrypt=False;TrustServerCertificate=True");
-                            ("PublishScriptFileName","SFA.DAS.Commitments.Database.sql");
+                            ("PublishScriptFileName","Database.sql");
                             ("ToolsVersion","14");
                             ("PublishToDatabase","true");
                         ]
 
-        !! (@"./"+ projectName + ".Database/" + projectName + ".Database.sqlproj")
+        !! (@".\**\*.sqlproj")
             |> MSBuildReleaseExt null properties "Publish"
             |> Log "Build-Output: "
     else
