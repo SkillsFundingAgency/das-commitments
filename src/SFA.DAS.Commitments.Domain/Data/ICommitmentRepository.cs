@@ -16,5 +16,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
 		
         Task<Apprenticeship> GetApprenticeship(long apprenticeshipId);
+        
+		Task UpdateApprenticeship(Apprenticeship apprenticeship);
     }
 }

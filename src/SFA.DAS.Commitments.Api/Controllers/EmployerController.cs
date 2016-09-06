@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
@@ -98,6 +100,21 @@ namespace SFA.DAS.Commitments.Api.Controllers
             catch (UnauthorizedException)
             {
                 return Unauthorized();
+            }
+        }
+
+        [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+        public async Task<IHttpActionResult> PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateApprenticeshipCommand { AccountId = accountId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId, Apprenticeship = apprenticeship });
+
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
             }
         }
     }

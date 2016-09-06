@@ -8,6 +8,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         {
             RuleFor(x => x.Apprenticeship).NotNull();
             RuleFor(x => x.CommitmentId).GreaterThan(0);
+            RuleFor(x => x.ProviderId).GreaterThan(0);
         }
     }
 }

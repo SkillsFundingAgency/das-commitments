@@ -70,7 +70,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         Id = x.Id,
                         ULN = x.ULN,
                         ApprenticeName = x.ApprenticeName,
-                        CommitmentId = x.CommitmentId,
                         TrainingId = x.TrainingId,
                         Cost = x.Cost,
                         StartDate = x.StartDate,

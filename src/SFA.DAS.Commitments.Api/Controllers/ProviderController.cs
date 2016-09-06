@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
@@ -97,9 +100,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             try
             {
-                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { CommitmentId = commitmentId, Apprenticeship = apprenticeship });
+                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { ProviderId = providerId, CommitmentId = commitmentId, Apprenticeship = apprenticeship });
 
-                return CreatedAtRoute("CreateApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
+                return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
             }
             catch (InvalidRequestException)
             {

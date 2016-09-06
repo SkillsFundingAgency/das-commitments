@@ -1,40 +1,40 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
-namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
+namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
-    public sealed class CreateApprenticeshipCommandHandler : IAsyncRequestHandler<CreateApprenticeshipCommand, long>
+    public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
+        private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
         }
 
-        public async Task<long> Handle(CreateApprenticeshipCommand message)
+        protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
             if (!_validator.Validate(message).IsValid)
             {
                 throw new InvalidRequestException();
             }
 
-            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(message.Apprenticeship, message));
-
-            return apprenticeshipId;
+            await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message));
         }
 
-        private Domain.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
+        private Domain.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
         {
             var domainApprenticeship = new Domain.Apprenticeship
             {
-                Id = apprenticeship.Id,
+                Id = message.ApprenticeshipId,
                 ApprenticeName = apprenticeship.ApprenticeName,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
