@@ -60,9 +60,13 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
 
             var standards = await _mediator.SendAsync(new GetStandardsQueryRequest());
 
+            var apprenticeship = MapFrom(data.Apprenticeship);
+
+            apprenticeship.ProviderId = providerId;
+
             return new ExtendedApprenticeshipViewModel
             {
-                Apprenticeship = MapFrom(data.Apprenticeship),
+                Apprenticeship = apprenticeship,
                 Standards = standards.Standards
             };
         }

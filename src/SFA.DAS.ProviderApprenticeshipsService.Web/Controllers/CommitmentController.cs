@@ -43,7 +43,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
         {
             await _commitmentOrchestrator.UpdateApprenticeship(apprenticeship);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new {providerId = apprenticeship.ProviderId});
         }
     }
 }

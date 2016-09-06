@@ -99,7 +99,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql:
-                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, ApprenticeName = @apprenticeName, ULN = @uln, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
+                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, ApprenticeName = @apprenticeName, ULN = @uln, TrainingId = @trainingId, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
                         "WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
@@ -142,10 +142,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)
         {
-            DynamicParameters parameters = new DynamicParameters();
+            var parameters = new DynamicParameters();
             parameters.Add("@commitmentId", apprenticeship.CommitmentId, DbType.Int64);
             parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
-            //parameters.Add("@traingingId", apprenticeship.TrainingId, DbType.String); TODO: LWA - Need to decide on datatype
+            //TODO: LWA - Need to decide on datatype
+            parameters.Add("@trainingId", apprenticeship.TrainingId, DbType.String); 
             parameters.Add("@uln", apprenticeship.ULN, DbType.String);
             parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
             parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);

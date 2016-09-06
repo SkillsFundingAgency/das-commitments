@@ -111,7 +111,13 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             try
             {
-                await _mediator.SendAsync(new UpdateApprenticeshipCommand { CommitmentId = apprenticeship.CommitmentId, Apprenticeship = apprenticeship });
+                await _mediator.SendAsync(new UpdateApprenticeshipCommand
+                {
+                    ProviderId = providerId,
+                    CommitmentId = apprenticeship.CommitmentId,
+                    ApprenticeshipId = apprenticeship.Id,
+                    Apprenticeship = apprenticeship
+                });
 
                 return CreatedAtRoute("UpdateApprenticeshipForProvider", new { providerId = providerId, commitmentId = apprenticeship.CommitmentId, apprenticeshipId = apprenticeship.Id }, default(Apprenticeship));
             }

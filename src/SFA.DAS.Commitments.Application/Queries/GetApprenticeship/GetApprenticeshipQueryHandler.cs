@@ -65,6 +65,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             response.Data = new Api.Types.Apprenticeship
             {
                 Id = matchingApprenticeship.Id,
+                CommitmentId = matchingApprenticeship.CommitmentId,
                 ApprenticeName = matchingApprenticeship.ApprenticeName,
                 ULN = matchingApprenticeship.ULN,
                 TrainingId = matchingApprenticeship.TrainingId,

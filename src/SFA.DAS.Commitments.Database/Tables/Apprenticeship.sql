@@ -4,7 +4,7 @@
     [CommitmentId] BIGINT NOT NULL, 
     [ApprenticeName] NVARCHAR(100) NULL, 
     [ULN] NVARCHAR(50) NULL, 
-    [TrainingId] INT NULL, 
+    [TrainingId] NVARCHAR(126) NULL, 
     [Cost] DECIMAL NULL, 
     [StartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
