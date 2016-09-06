@@ -50,9 +50,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToCreateApprenticeship()
         {
-            var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, new Apprenticeship());
+            var newApprenticeship = new Apprenticeship();
+            var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, newApprenticeship);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.CommitmentId == TestCommitmentId)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.ProviderId == TestProviderId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship)));
         }
 
         [Test]

@@ -5,28 +5,28 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
     [TestFixture]
-    public sealed class WhenCreatingApprenticeship
+    public sealed class WhenUpdatingApprenticeship
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
-        private CreateApprenticeshipCommandHandler _handler;
-        private CreateApprenticeshipCommand _exampleValidRequest;
+        private UpdateApprenticeshipCommandHandler _handler;
+        private UpdateApprenticeshipCommand _exampleValidRequest;
 
         [SetUp]
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new CreateApprenticeshipValidator());
+            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator());
 
             Fixture fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
-            _exampleValidRequest = new CreateApprenticeshipCommand {ProviderId = 111L, CommitmentId = 123L, Apprenticeship = populatedApprenticeship };
+            _exampleValidRequest = new UpdateApprenticeshipCommand { ProviderId = 111L, CommitmentId = 123L, ApprenticeshipId = populatedApprenticeship.Id, Apprenticeship = populatedApprenticeship };
         }
 
         [Test]
@@ -34,32 +34,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.CreateApprenticeship(It.IsAny<Domain.Apprenticeship>()));
+            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>()));
         }
 
         [Test]
         public async Task ThenShouldCallTheRepositoryWithApprenticeshipMappedFromRequest()
         {
             Domain.Apprenticeship argument = null;
-            _mockCommitmentRespository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Apprenticeship>()))
-                .ReturnsAsync(9)
+            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>()))
+                .Returns(Task.FromResult(default(object))) // Return a fake Task
                 .Callback<Domain.Apprenticeship>(x => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
 
             argument.Should().NotBeNull();
             AssertMappingIsCorrect(argument);
-        }
-
-        [Test]
-        public async Task ThenShouldReturnTheApprenticeshipIdReturnedFromRepository()
-        {
-            const long ExpectedApprenticeshipId = 88;
-            _mockCommitmentRespository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Apprenticeship>())).ReturnsAsync(ExpectedApprenticeshipId);
-
-            var commitmentId = await _handler.Handle(_exampleValidRequest);
-
-            commitmentId.Should().Be(ExpectedApprenticeshipId);
         }
 
         [Test]
@@ -74,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         private void AssertMappingIsCorrect(Domain.Apprenticeship argument)
         {
-            argument.Id.Should().Be(_exampleValidRequest.Apprenticeship.Id);
+            argument.Id.Should().Be(_exampleValidRequest.ApprenticeshipId);
             argument.ApprenticeName.Should().Be(_exampleValidRequest.Apprenticeship.ApprenticeName);
             argument.CommitmentId.Should().Be(_exampleValidRequest.CommitmentId);
             argument.Cost.Should().Be(_exampleValidRequest.Apprenticeship.Cost);

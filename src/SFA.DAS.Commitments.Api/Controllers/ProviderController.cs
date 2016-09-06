@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
@@ -96,9 +99,24 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             try
             {
-                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { CommitmentId = commitmentId, Apprenticeship = apprenticeship });
+                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { ProviderId = providerId, CommitmentId = commitmentId, Apprenticeship = apprenticeship });
 
                 return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+        public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateApprenticeshipCommand { ProviderId = providerId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId, Apprenticeship = apprenticeship });
+
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (InvalidRequestException)
             {

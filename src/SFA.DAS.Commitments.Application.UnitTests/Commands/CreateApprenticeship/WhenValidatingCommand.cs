@@ -1,15 +1,13 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
-using System.Collections.Generic;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
     [TestFixture]
-    public class WhenValidatingApprenticeship
+    public class WhenValidatingCommand
     {
         private CreateApprenticeshipValidator _validator;
         private CreateApprenticeshipCommand _exampleCommand;
@@ -38,6 +36,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public void ThenCommitmentIdIsLessThanOneIsInvalid(long apprenticeshipId)
         {
             _exampleCommand.CommitmentId = apprenticeshipId;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase(0)]
+        [TestCase(-2)]
+        public void ThenProviderIdIsLessThanOneIsInvalid(long providerId)
+        {
+            _exampleCommand.ProviderId = providerId;
 
             var result = _validator.Validate(_exampleCommand);
 

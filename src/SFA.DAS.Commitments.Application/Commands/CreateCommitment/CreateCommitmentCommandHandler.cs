@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -9,18 +10,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
-        private CreateCommitmentValidator _createCommitmentValidator;
+        private AbstractValidator<CreateCommitmentCommand> _validator;
         private ICommitmentRepository _commitmentRepository;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, CreateCommitmentValidator createCommitmentValidator)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateCommitmentCommand> validator)
         {
             _commitmentRepository = commitmentRepository;
-            _createCommitmentValidator = createCommitmentValidator;
+            _validator = validator;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            if (!_createCommitmentValidator.Validate(message).IsValid)
+            if (!_validator.Validate(message).IsValid)
             {
                 throw new InvalidRequestException();
             }
@@ -42,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     Id = x.Id,
                     ApprenticeName = x.ApprenticeName,
                     ULN = x.ULN,
-                    CommitmentId = x.CommitmentId,
+                    CommitmentId = commitment.Id,
                     Status = (Domain.ApprenticeshipStatus)x.Status,
                     AgreementStatus = (Domain.AgreementStatus)x.AgreementStatus,
                     TrainingId = x.TrainingId,
