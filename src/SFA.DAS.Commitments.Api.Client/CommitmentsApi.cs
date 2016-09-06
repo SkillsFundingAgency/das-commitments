@@ -62,13 +62,13 @@ namespace SFA.DAS.Commitments.Api.Client
             return await GetApprenticeship(url);
         }
 
-        public async Task PostProviderApprenticeship(long providerId, Apprenticeship apprenticeship)
+        public async Task UpdateProviderApprenticeship(long providerId, Apprenticeship apprenticeship)
         {
             var url = $"{_baseUrl}api/provider/{providerId}/commitments/{apprenticeship.CommitmentId}/apprenticeships/{apprenticeship.Id}";
 
             var data = JsonConvert.SerializeObject(apprenticeship);
 
-            await PostAsync(url, data);
+            await PutAsync(url, data);
         }
 
         private async Task<List<CommitmentListItem>> GetCommitments(string url)

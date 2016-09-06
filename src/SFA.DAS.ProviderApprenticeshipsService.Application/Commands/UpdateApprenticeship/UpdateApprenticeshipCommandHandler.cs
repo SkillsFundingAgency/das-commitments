@@ -23,7 +23,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Commands.UpdateAppr
             //if (!_validator.Validate(message).IsValid)
             //    throw new InvalidRequestException();
 
-            await _commitmentsApi.PostProviderApprenticeship(message.ProviderId, message.Apprenticeship);
+            await _commitmentsApi.UpdateProviderApprenticeship(message.ProviderId, message.Apprenticeship);
         }
     }
 }

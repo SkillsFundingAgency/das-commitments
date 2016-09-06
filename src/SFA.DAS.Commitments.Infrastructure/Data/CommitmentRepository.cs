@@ -91,10 +91,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeship(Apprenticeship apprenticeship)
         {
-            DynamicParameters parameters = new DynamicParameters();
+            await WithConnection(async connection =>
             {
                 DynamicParameters parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
-            parameters.Add("@uln", apprenticeship.ULN, DbType.String);
+                parameters.Add("@id", apprenticeship.Id, DbType.Int64);
 
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
@@ -108,18 +108,34 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<Apprenticeship> GetApprenticeship(long id)
+        {
+            var results = await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", id);
+
+                return await c.QueryAsync<Apprenticeship>(
+                    sql: $"SELECT * FROM [dbo].[Apprenticeship] WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+
+            return results.SingleOrDefault();
+        }
+
         private static async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
         {
             DynamicParameters parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
-            sql:
-                "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
-                "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
-                "SELECT CAST(SCOPE_IDENTITY() as int);",
-            param: parameters,
-            commandType: CommandType.Text,
-            transaction: trans)).Single();
+                sql:
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
+                    "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                    "SELECT CAST(SCOPE_IDENTITY() as int);",
+                param: parameters,
+                commandType: CommandType.Text,
+                transaction: trans)).Single();
 
             return apprenticeshipId;
         }

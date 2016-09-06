@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Application.Queries.GetProviderApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
 namespace SFA.DAS.Commitments.Api.Controllers
@@ -110,14 +106,14 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "UpdateApprenticeshipForProvider")]
-        public async Task<IHttpActionResult> UpdateApprenticeship(long providerId, Apprenticeship apprenticeship)
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
+        public async Task<IHttpActionResult> PutApprenticeship(long providerId, Apprenticeship apprenticeship)
         {
             try
             {
-                var apprenticeshipId = await _mediator.SendAsync(new UpdateApprenticeshipCommand { CommitmentId = commitmentId, Apprenticeship = apprenticeship });
+                await _mediator.SendAsync(new UpdateApprenticeshipCommand { CommitmentId = apprenticeship.CommitmentId, Apprenticeship = apprenticeship });
 
-                return CreatedAtRoute("UpdateApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
+                return CreatedAtRoute("UpdateApprenticeshipForProvider", new { providerId = providerId, commitmentId = apprenticeship.CommitmentId, apprenticeshipId = apprenticeship.Id }, default(Apprenticeship));
             }
             catch (InvalidRequestException)
             {
