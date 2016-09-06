@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.ProviderApprenticeshipsService.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitment;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitments;
@@ -66,9 +67,13 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             };
         }
 
-        public Task UpdateApprenticeship(ApprenticeshipViewModel apprenticeship)
+        public async Task UpdateApprenticeship(ApprenticeshipViewModel apprenticeship)
         {
-            return Task.FromResult(0);
+            await _mediator.SendAsync(new UpdateApprenticeshipCommand
+            {
+                ProviderId = apprenticeship.ProviderId,
+                Apprenticeship = MapFrom(apprenticeship)
+            });
         }
 
         private ApprenticeshipViewModel MapFrom(Apprenticeship apprenticeship)
@@ -98,6 +103,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
                 CommitmentId = viewModel.CommitmentId,
                 ApprenticeName = $"{viewModel.FirstName} {viewModel.LastName}",
                 ULN = viewModel.ULN,
+                TrainingId = viewModel.TrainingId,
                 Cost = viewModel.Cost,
                 StartDate = GetDateTime(viewModel.StartMonth, viewModel.StartYear),
                 EndDate = GetDateTime(viewModel.EndMonth, viewModel.EndYear)

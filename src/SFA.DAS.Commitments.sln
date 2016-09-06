@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderApprenticeshipsService.Web", "SFA.DAS.ProviderApprenticeshipsService.Web\SFA.DAS.ProviderApprenticeshipsService.Web.csproj", "{94E473E1-2217-43C3-A228-00B8BE2BE0F1}"
 EndProject
@@ -48,6 +48,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Tasks.Infrastructure", "SFA.DAS.Tasks.Infrastructure\SFA.DAS.Tasks.Infrastructure.csproj", "{344511D9-D336-457E-8074-589BAFECB804}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.Tasks.Database", "SFA.DAS.Tasks.Database\SFA.DAS.Tasks.Database.sqlproj", "{C132992E-BC5D-4C0F-89C5-D29B547548B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client", "SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj", "{DEA2C098-EC17-4485-961D-A7F48720D37D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +136,10 @@ Global
 		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C132992E-BC5D-4C0F-89C5-D29B547548B9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

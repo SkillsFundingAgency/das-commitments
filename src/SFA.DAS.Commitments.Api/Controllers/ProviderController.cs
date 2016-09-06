@@ -69,7 +69,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForProvider")]
-
         public async Task<IHttpActionResult> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
         {
             try
@@ -93,14 +92,29 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships")]
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForProvider")]
         public async Task<IHttpActionResult> CreateApprenticeship(long providerId, long commitmentId, Apprenticeship apprenticeship)
         {
             try
             {
                 var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { CommitmentId = commitmentId, Apprenticeship = apprenticeship });
 
-                return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
+                return CreatedAtRoute("CreateApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "UpdateApprenticeshipForProvider")]
+        public async Task<IHttpActionResult> UpdateApprenticeship(long providerId, Apprenticeship apprenticeship)
+        {
+            try
+            {
+                var apprenticeshipId = await _mediator.SendAsync(new UpdateApprenticeshipCommand { CommitmentId = commitmentId, Apprenticeship = apprenticeship });
+
+                return CreatedAtRoute("UpdateApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
             }
             catch (InvalidRequestException)
             {
