@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
+    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
+    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandValidator.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandValidator.cs" />

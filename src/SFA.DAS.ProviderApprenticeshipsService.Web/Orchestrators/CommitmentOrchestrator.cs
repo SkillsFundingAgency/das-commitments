@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.ProviderApprenticeshipsService.Application.Commands.CreateApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitment;
@@ -71,9 +72,35 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             };
         }
 
+        public async Task<ExtendedApprenticeshipViewModel> GetApprenticeship(long providerId, long commitmentId)
+        {
+            var standards = await _mediator.SendAsync(new GetStandardsQueryRequest());
+
+            var apprenticeship = new ApprenticeshipViewModel
+            {
+                ProviderId = providerId,
+                CommitmentId = commitmentId,
+            };
+
+            return new ExtendedApprenticeshipViewModel
+            {
+                Apprenticeship = apprenticeship,
+                Standards = standards.Standards
+            };
+        }
+
         public async Task UpdateApprenticeship(ApprenticeshipViewModel apprenticeship)
         {
             await _mediator.SendAsync(new UpdateApprenticeshipCommand
+            {
+                ProviderId = apprenticeship.ProviderId,
+                Apprenticeship = MapFrom(apprenticeship)
+            });
+        }
+
+        public async Task CreateApprenticeship(ApprenticeshipViewModel apprenticeship)
+        {
+            await _mediator.SendAsync(new CreateApprenticeshipCommand
             {
                 ProviderId = apprenticeship.ProviderId,
                 Apprenticeship = MapFrom(apprenticeship)
@@ -89,6 +116,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
                 FirstName = SplitName(apprenticeship.ApprenticeName).Item1,
                 LastName = SplitName(apprenticeship.ApprenticeName).Item2,
                 ULN = apprenticeship.ULN,
+                TrainingId = apprenticeship.TrainingId,
                 Cost = apprenticeship.Cost,
                 StartMonth = apprenticeship.StartDate?.Month, 
                 StartYear = apprenticeship.StartDate?.Year,

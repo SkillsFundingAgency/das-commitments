@@ -320,6 +320,7 @@
     <Content Include="Views\Commitment\Index.cshtml" />
     <Content Include="Views\Commitment\Details.cshtml" />
     <Content Include="Views\Commitment\Edit.cshtml" />
+    <Content Include="Views\Commitment\Create.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

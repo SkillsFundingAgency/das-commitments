@@ -1,19 +1,18 @@
-﻿@using System.Security.AccessControl
-@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.ExtendedApprenticeshipViewModel
+﻿@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.ExtendedApprenticeshipViewModel
 
 <div class="grid-row">
     <div class="column-two-thirds">
-        <h1 class="heading-xlarge">Update apprenticeship</h1>
+        <h1 class="heading-xlarge">Create apprenticeship</h1>
         <hr />
     </div>
 </div>
 <div class="grid-row">
     <div class="column-two-thirds">
-        <form method="POST" action="@Url.Action("Update")">
+        <form method="POST" action="@Url.Action("Create")">
             <div class="form-group">
                 <label class="form-label" for="FirstName">First Name</label>
                 <input class="form-control form-control-3-4" id="FirstName" name="FirstName" type="text"
-                       aria-required="true" value="@Model.Apprenticeship.FirstName"/>
+                       aria-required="true" value="@Model.Apprenticeship.FirstName" />
             </div>
             <div class="form-group">
                 <label class="form-label" for="LastName">Last Name</label>
@@ -36,9 +35,7 @@
                     <option value=""></option>
                     @foreach (var standard in Model.Standards)
                     {
-                        <option value="@standard.Name" @if (standard.Name == Model.Apprenticeship.TrainingId)
-                                                       {
-                                                           @Html.Raw("selected=''");}>@standard.Name</option>
+                        <option value="@standard.Name">@standard.Name</option>
                     }
                 </select>
             </div>
@@ -50,13 +47,13 @@
                     <div class="form-date">
                         <div class="form-group form-group-month">
                             <label class="form-label" for="startMonth">Month</label>
-                            <input class="form-control" id="startMonth" name="startMonth" type="number" 
+                            <input class="form-control" id="startMonth" name="startMonth" type="number"
                                    min="1" max="12" placeholder="MM" value="@Model.Apprenticeship.StartMonth">
                         </div>
                         <div class="form-group form-group-year">
 
                             <label class="form-label" for="startYear">Year</label>
-                            <input class="form-control" id="startYear" name="startYear" type="number" 
+                            <input class="form-control" id="startYear" name="startYear" type="number"
                                    min="2016" max="2030" placeholder="YYYY" value="@Model.Apprenticeship.StartYear">
                         </div>
                     </div>
@@ -64,30 +61,29 @@
             </div>
 
             <div class="form-group">
-            <fieldset>
-                <legend>
-                    <span class="form-label-bold" style="margin-bottom: 0; padding-bottom: 0">Projected finish date</span>
-                </legend>
-                <div class="form-date">
-                    <div class="form-group form-group-month">
-                        <label class="form-label" for="endMonth">Month</label>
-                        <input class="form-control" id="endMonth" name="endMonth" type="number" 
-                               min="1" max="12" placeholder="MM" value="@Model.Apprenticeship.EndMonth">
+                <fieldset>
+                    <legend>
+                        <span class="form-label-bold" style="margin-bottom: 0; padding-bottom: 0">Projected finish date</span>
+                    </legend>
+                    <div class="form-date">
+                        <div class="form-group form-group-month">
+                            <label class="form-label" for="endMonth">Month</label>
+                            <input class="form-control" id="endMonth" name="endMonth" type="number"
+                                   min="1" max="12" placeholder="MM" value="@Model.Apprenticeship.EndMonth">
+                        </div>
+                        <div class="form-group form-group-year">
+                            <label class="form-label" for="endYear">Year</label>
+                            <input class="form-control" id="endYear" name="endYear" type="number"
+                                   min="2016" max="2030" placeholder="YYYY" value="@Model.Apprenticeship.EndYear">
+                        </div>
                     </div>
-                    <div class="form-group form-group-year">
-                        <label class="form-label" for="endYear">Year</label>
-                        <input class="form-control" id="endYear" name="endYear" type="number" 
-                               min="2016" max="2030" placeholder="YYYY" value="@Model.Apprenticeship.EndYear">
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-        <input type="hidden" id="status" name="status" value="@Model.Apprenticeship.Status" />
-        <input type="hidden" id="agreementStatus" name="agreementStatus" value="@Model.Apprenticeship.AgreementStatus" />
-        <input type="hidden" id="providerId" name="providerId" value="@Model.Apprenticeship.ProviderId" />
-        <input type="hidden" id="commitmentId" name="commitmentId" value="@Model.Apprenticeship.CommitmentId" />
-        <input type="hidden" id="id" name="id" value="@Model.Apprenticeship.Id" />
-        <button type="submit" class="button">Update</button>
-    </form>
+                </fieldset>
+            </div>
+            <input type="hidden" id="status" name="status" value="@Model.Apprenticeship.Status" />
+            <input type="hidden" id="agreementStatus" name="agreementStatus" value="@Model.Apprenticeship.AgreementStatus" />
+            <input type="hidden" id="providerId" name="providerId" value="@Model.Apprenticeship.ProviderId" />
+            <input type="hidden" id="commitmentId" name="commitmentId" value="@Model.Apprenticeship.CommitmentId" />
+            <button type="submit" class="button">Create</button>
+        </form>
     </div>
 </div>

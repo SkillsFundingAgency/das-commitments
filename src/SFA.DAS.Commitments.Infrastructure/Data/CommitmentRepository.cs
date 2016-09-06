@@ -130,8 +130,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
-                    "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, TrainingId, Cost, StartDate, EndDate, Status, AgreementStatus) " +
+                    "VALUES (@commitmentId, @apprenticeName, @uln, @trainingId, @cost, @startDate, @endDate, @status, @agreementStatus); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
