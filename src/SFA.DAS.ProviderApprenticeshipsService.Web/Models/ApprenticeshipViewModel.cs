@@ -3,8 +3,9 @@ using SFA.DAS.ProviderApprenticeshipsService.Domain;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.Models
 {
-    public class ExtendedApprenticeshipViewModel : ApprenticeshipViewModel
+    public class ExtendedApprenticeshipViewModel
     {
+        public ApprenticeshipViewModel Apprenticeship { get; set; }
         public List<Standard> Standards { get; set; }
     }
 
