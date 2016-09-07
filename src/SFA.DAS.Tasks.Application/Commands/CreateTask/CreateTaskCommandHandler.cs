@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentValidation;
 using MediatR;
 using SFA.DAS.Tasks.Domain.Entities;
 using SFA.DAS.Tasks.Domain.Repositories;
@@ -17,12 +18,19 @@ namespace SFA.DAS.Tasks.Application.Commands.CreateTask
 
         protected override async Task HandleCore(CreateTaskCommand message)
         {
-            //todo: read template, create task based on template attributes (name, etc.)
+            if (string.IsNullOrWhiteSpace(message.Assignee))
+                throw new ValidationException("Must specify an assignee");
+
+            var taskTemplate = await _taskRepository.GetTemplateById(message.TaskTemplateId);
+
+            if (taskTemplate == null)
+                throw new ValidationException("Unknown task template");
+
             var newTask = new Domain.Entities.Task
             {
                 Assignee = message.Assignee,
                 TaskTemplateId = message.TaskTemplateId,
-                Name = "New task",
+                Name = taskTemplate.Name,
                 Body = message.Body,
                 TaskStatus = TaskStatuses.Open,
                 CreatedOn = DateTime.UtcNow
