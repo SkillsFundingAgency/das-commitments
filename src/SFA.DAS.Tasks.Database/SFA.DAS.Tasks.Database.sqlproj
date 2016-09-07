@@ -59,11 +59,13 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="SeedData" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Tasks.sql" />
     <Build Include="Tables\TaskTemplates.sql" />
     <Build Include="Tables\TaskAlerts.sql" />
+    <PostDeploy Include="SeedData\SeedData.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Tasks.Database.refactorlog" />
