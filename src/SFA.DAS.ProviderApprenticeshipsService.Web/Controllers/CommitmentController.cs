@@ -6,6 +6,7 @@ using SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
 {
+    [Authorize]
     public class CommitmentController : Controller
     {
         private readonly CommitmentOrchestrator _commitmentOrchestrator;
