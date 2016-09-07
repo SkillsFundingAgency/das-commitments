@@ -23,6 +23,7 @@ namespace SFA.DAS.Tasks.Application.Commands.CreateTask
                 Assignee = message.Assignee,
                 TaskTemplateId = message.TaskTemplateId,
                 Name = "New task",
+                Body = message.Body,
                 TaskStatus = TaskStatuses.Open,
                 CreatedOn = DateTime.UtcNow
             };

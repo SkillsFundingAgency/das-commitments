@@ -9,6 +9,7 @@ namespace SFA.DAS.Tasks.Domain.Entities
         public string Assignee { get; set; }
         public long TaskTemplateId { get; set; }
         public string Name { get; set; }
+        public string Body { get; set; }
         public TaskStatuses TaskStatus { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? CompletedOn { get; set; }

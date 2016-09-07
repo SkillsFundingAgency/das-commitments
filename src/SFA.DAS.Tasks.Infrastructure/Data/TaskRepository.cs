@@ -17,7 +17,7 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
         public async Task Create(Domain.Entities.Task task)
         {
             await WithConnection(async c =>
-                await c.ExecuteAsync("INSERT INTO [dbo].[Tasks](Assignee, TaskTemplateId, Name, CreatedOn) VALUES (@assignee, @taskTemplateId, @name, @createdOn);", task));
+                await c.ExecuteAsync("INSERT INTO [dbo].[Tasks](Assignee, TaskTemplateId, Name, Body, CreatedOn) VALUES (@assignee, @taskTemplateId, @name, @body, @createdOn);", task));
         }
 
         public async Task<Domain.Entities.Task> GetById(long id)
