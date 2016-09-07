@@ -27,13 +27,15 @@ To create a new task for a party:
 POST http://host:port/api/tasks/{assignee}
 
 	{
-	  "taskTemplateId": 1
+	  "taskTemplateId": 1,
+      "body": "some payload"
 	}
 
 Where:
 
 - **assignee** refers to a party (eg. `10123456` or `Sainsburys`)
 - **taskTemplate** refers to an existing task template
+- **body** is an optional payload (eg. message or serialised data)
 
 ### Retrieving tasks for a party (assignee) ###
 
