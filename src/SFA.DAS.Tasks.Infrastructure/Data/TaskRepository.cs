@@ -29,7 +29,7 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
 
                 var result = await c.QueryAsync<Domain.Entities.Task>("SELECT * FROM [dbo].[Tasks] WHERE Id = @id;", parameters);
 
-                return result.FirstOrDefault();
+                return result.SingleOrDefault();
             });
         }
 
@@ -96,7 +96,7 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
 
                 var result = await c.QueryAsync<TaskTemplate>("SELECT * FROM [dbo].[TaskTemplates] WHERE Id = @id;", parameters);
 
-                return result.FirstOrDefault();
+                return result.SingleOrDefault();
             });
         }
     }
