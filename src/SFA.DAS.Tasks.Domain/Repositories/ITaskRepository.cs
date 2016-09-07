@@ -23,5 +23,7 @@ namespace SFA.DAS.Tasks.Domain.Repositories
         Task<IList<TaskTemplate>> GetAll();
 
         System.Threading.Tasks.Task Create(TaskTemplate taskTemplate);
+
+        Task<TaskTemplate> GetTemplateById(long taskTemplateId);
     }
 }

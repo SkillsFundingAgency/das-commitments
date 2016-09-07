@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentValidation;
 using MediatR;
 using SFA.DAS.Tasks.Domain.Entities;
 using SFA.DAS.Tasks.Domain.Repositories;
@@ -17,8 +18,16 @@ namespace SFA.DAS.Tasks.Application.Commands.CompleteTask
 
         protected override async Task HandleCore(CompleteTaskCommand message)
         {
-            //todo: validate status
+            if (string.IsNullOrWhiteSpace(message.CompletedBy))
+                throw new ValidationException("Must specify a user for 'completedBy'");
+
             var task = await _taskRepository.GetById(message.TaskId);
+
+            if (task == null)
+                throw new ValidationException("Unknown task");
+
+            if (task.TaskStatus != TaskStatuses.Open)
+                throw new ValidationException("Task is already completed");
 
             task.TaskStatus = TaskStatuses.Complete;
             task.CompletedOn = DateTime.UtcNow;

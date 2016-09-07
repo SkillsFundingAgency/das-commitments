@@ -29,7 +29,7 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
 
                 var result = await c.QueryAsync<Domain.Entities.Task>("SELECT * FROM [dbo].[Tasks] WHERE Id = @id;", parameters);
 
-                return result.FirstOrDefault();
+                return result.SingleOrDefault();
             });
         }
 
@@ -85,6 +85,19 @@ namespace SFA.DAS.Tasks.Infrastructure.Data
         {
             await WithConnection(async c =>
                 await c.ExecuteAsync("INSERT INTO [dbo].[TaskTemplates](Name) VALUES (@name);", taskTemplate));
+        }
+
+        public async Task<TaskTemplate> GetTemplateById(long taskTemplateId)
+        {
+            return await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", taskTemplateId);
+
+                var result = await c.QueryAsync<TaskTemplate>("SELECT * FROM [dbo].[TaskTemplates] WHERE Id = @id;", parameters);
+
+                return result.SingleOrDefault();
+            });
         }
     }
 }
