@@ -6,8 +6,8 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Commands.CreateAppr
     {
         public CreateApprenticeshipCommandValidator()
         {
-            
+            RuleFor(x => x.ProviderId).GreaterThan(0);
+            RuleFor(x => x.Apprenticeship.CommitmentId).GreaterThan(0);
         }
-
     }
 }
