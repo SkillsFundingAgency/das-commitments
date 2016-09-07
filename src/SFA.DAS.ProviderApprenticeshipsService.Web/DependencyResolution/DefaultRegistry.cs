@@ -55,7 +55,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
             For<ICacheProvider>().Use<InProcessCacheProvider>();
             For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<string>().Is(config.Api.BaseUrl);
             For<IUserRepository>().Use<FileSystemUserRepository>();
-            For<IStandardsRepository>().Use<CachingStandardsRepository>().Ctor<IStandardsRepository>().Is<FileSystemStandardsRepository>();
+            For<IStandardsRepository>().Use<FileSystemStandardsRepository>();
         }
 
         private ProviderApprenticeshipsServiceConfiguration GetConfiguration()

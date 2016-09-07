@@ -45,7 +45,6 @@
   <ItemGroup>
     <Compile Include="Cache\InProcessCacheProvider.cs" />
     <Compile Include="Configuration\ProviderApprenticeshipsServiceConfiguration.cs" />
-    <Compile Include="Data\CachingStandardsRepository.cs" />
     <Compile Include="Data\FileSystemRepository.cs" />
     <Compile Include="Data\FileSystemStandardsRepository.cs" />
     <Compile Include="Data\FileSystemUserRepository.cs" />
