@@ -2,6 +2,7 @@
   "UserList": [
     {
       "Id": 3, 
+      "ProviderId":  1, 
       "UserRef": "DF11DAEB-CA1B-47DC-AAD8-F7F37B7F4EAC",
       "FirstName": "Daniel",
       "LastName": "Ashton",
@@ -9,6 +10,7 @@
     },
     {
       "Id": 2,
+      "ProviderId": 1,
       "UserRef": "A0BBC02B-39A0-4DEC-8018-1A3A98A18A37",
       "FirstName": "Ian",
       "LastName": "Russell",
@@ -16,6 +18,7 @@
     },
     {
       "Id": 1,
+      "ProviderId": 2,
       "UserRef": "758943A5-86AA-4579-86AF-FB3D4A05850B",
       "FirstName": "Floyd",
       "LastName": "Price",
@@ -23,6 +26,7 @@
     },
     {
       "Id": 4,
+      "ProviderId": 2,
       "UserRef": "E2A913BC-3AC0-42AE-B1D7-827FEFA76F9A",
       "FirstName": "Mark",
       "LastName": "Gwilliam",
@@ -30,6 +34,7 @@
     },
     {
       "Id": 5,
+      "ProviderId": 2,
       "UserRef": "1786D990-37FC-45FA-B6F3-D12A1A948704",
       "FirstName": "Simon",
       "LastName": "Bull",

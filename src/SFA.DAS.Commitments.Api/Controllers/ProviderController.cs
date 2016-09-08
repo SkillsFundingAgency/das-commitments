@@ -2,7 +2,6 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
@@ -70,7 +69,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForProvider")]
-
         public async Task<IHttpActionResult> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
         {
             try
@@ -94,7 +92,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships")]
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForProvider")]
         public async Task<IHttpActionResult> CreateApprenticeship(long providerId, long commitmentId, Apprenticeship apprenticeship)
         {
             try
@@ -109,12 +107,18 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
-        public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
+        public async Task<IHttpActionResult> PutApprenticeship(long providerId, Apprenticeship apprenticeship)
         {
             try
             {
-                await _mediator.SendAsync(new UpdateApprenticeshipCommand { ProviderId = providerId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId, Apprenticeship = apprenticeship });
+                await _mediator.SendAsync(new UpdateApprenticeshipCommand
+                {
+                    ProviderId = providerId,
+                    CommitmentId = apprenticeship.CommitmentId,
+                    ApprenticeshipId = apprenticeship.Id,
+                    Apprenticeship = apprenticeship
+                });
 
                 return StatusCode(HttpStatusCode.NoContent);
             }

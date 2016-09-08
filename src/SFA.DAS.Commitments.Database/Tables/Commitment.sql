@@ -4,5 +4,7 @@
     [Name] NVARCHAR(100) NOT NULL, 
     [EmployerAccountId] BIGINT NOT NULL, 
     [LegalEntityId] BIGINT NOT NULL, 
-    [ProviderId] BIGINT NULL
+    [LegalEntityName] NVARCHAR(100) NOT NULL, 
+    [ProviderId] BIGINT NULL,
+    [ProviderName] NVARCHAR(100) NULL 
 )

@@ -52,6 +52,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
 
             For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<string>().Is(config.Api.BaseUrl);
             For<IUserRepository>().Use<FileSystemUserRepository>();
+            For<IStandardsRepository>().Use<FileSystemStandardsRepository>();
         }
 
         private ProviderApprenticeshipsServiceConfiguration GetConfiguration()
