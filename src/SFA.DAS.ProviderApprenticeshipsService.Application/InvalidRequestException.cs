@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using FluentValidation.Results;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Application
 {
@@ -12,6 +14,12 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application
             : base(BuildErrorMessage(errorMessages))
         {
             this.ErrorMessages = errorMessages;
+        }
+
+        public InvalidRequestException(IEnumerable<ValidationFailure> failures)
+            : this(failures.ToDictionary(failure => failure.PropertyName, failure => failure.ErrorMessage))
+        {
+            
         }
 
         private static string BuildErrorMessage(Dictionary<string, string> errorMessages)

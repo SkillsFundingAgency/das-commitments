@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Client;
@@ -20,8 +21,10 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Commands.UpdateAppr
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
-            //if (!_validator.Validate(message).IsValid)
-            //    throw new InvalidRequestException();
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new InvalidRequestException(validationResult.Errors);
 
             await _commitmentsApi.UpdateProviderApprenticeship(message.ProviderId, message.Apprenticeship.CommitmentId, message.Apprenticeship.Id, message.Apprenticeship);
         }

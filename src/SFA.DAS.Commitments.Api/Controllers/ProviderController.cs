@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
@@ -119,7 +120,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
                     Apprenticeship = apprenticeship
                 });
 
-                return CreatedAtRoute("UpdateApprenticeshipForProvider", new { providerId = providerId, commitmentId = apprenticeship.CommitmentId, apprenticeshipId = apprenticeship.Id }, default(Apprenticeship));
+                return StatusCode(HttpStatusCode.NoContent);
             }
             catch (InvalidRequestException)
             {

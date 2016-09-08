@@ -35,7 +35,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cache\ICacheProvider.cs" />
     <Compile Include="CommitmentView.cs" />
     <Compile Include="Data\IStandardsRepository.cs" />
     <Compile Include="Data\IUserRepository.cs" />
