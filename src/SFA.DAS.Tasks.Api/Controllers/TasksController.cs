@@ -32,7 +32,9 @@ namespace SFA.DAS.Tasks.Api.Controllers
         {
             await _mediator.SendAsync(new CreateTaskCommand
             {
-                Assignee = assignee, TaskTemplateId = task.TaskTemplateId
+                Assignee = assignee,
+                TaskTemplateId = task.TaskTemplateId,
+                Body = task.Body
             });
 
             // 201 for list of assignee's tasks (as no need for a specific route to a single task)

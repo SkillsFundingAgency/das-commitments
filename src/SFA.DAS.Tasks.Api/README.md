@@ -27,13 +27,15 @@ To create a new task for a party:
 POST http://host:port/api/tasks/{assignee}
 
 	{
-	  "taskTemplateId": 1
+	  "taskTemplateId": 1,
+      "body": "some payload"
 	}
 
 Where:
 
 - **assignee** refers to a party (eg. `10123456` or `Sainsburys`)
 - **taskTemplate** refers to an existing task template
+- **body** is an optional payload (eg. message or serialised data)
 
 ### Retrieving tasks for a party (assignee) ###
 
@@ -86,9 +88,17 @@ Where:
 - **completedBy** refers to the user that completed the task (can be any value)
 
 
-## Example ##
+## Examples ##
 
-TODO
+A few examples of how tasks can be used:
+
+- When an employer creates a commitment and "submits" it to the provider, a new task is created for the provider. The assignee is the provider (eg. their UKPRN) and the task is based on template "review commitment", for example. 
+
+- When a provider user signs in, they are informed of any open tasks relating to their UKPRN. This is derived from the list of tasks for the provider organisation (ie. the UKPRN denotes the party) to which they belong (ie. from their claims). 
+
+- When a provider has added apprenticeship details to a commitment, they can "submit" it to the employer for approval. The assignee is the employer (eg. employer account identifier) and the task template is "approve apprenticeships", for example. 
+
+Note that task completion is defined by the consuming application. Therefore it is up to the application to call the API when a task is considered complete. 
 
 
 ## Security ##
