@@ -130,8 +130,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, TrainingId, Cost, StartDate, EndDate, Status, AgreementStatus) " +
-                    "VALUES (@commitmentId, @apprenticeName, @uln, @trainingId, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, ULN, TrainingId, Cost, StartDate, EndDate, Status, AgreementStatus) " +
+                    "VALUES (@commitmentId, @firstName, @lastName, @uln, @trainingId, @cost, @startDate, @endDate, @status, @agreementStatus); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
@@ -144,7 +144,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             var parameters = new DynamicParameters();
             parameters.Add("@commitmentId", apprenticeship.CommitmentId, DbType.Int64);
-            parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
+            parameters.Add("@firstName", apprenticeship.FirstName, DbType.String);
+            parameters.Add("@lastName", apprenticeship.LastName, DbType.String);
             //TODO: LWA - Need to decide on datatype
             parameters.Add("@trainingId", apprenticeship.TrainingId, DbType.String); 
             parameters.Add("@uln", apprenticeship.ULN, DbType.String);

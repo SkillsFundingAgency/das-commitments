@@ -113,8 +113,8 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             {
                 Id = apprenticeship.Id,
                 CommitmentId = apprenticeship.CommitmentId,
-                FirstName = SplitName(apprenticeship.ApprenticeName).Item1,
-                LastName = SplitName(apprenticeship.ApprenticeName).Item2,
+                FirstName = apprenticeship.FirstName,
+                LastName = apprenticeship.LastName,
                 ULN = apprenticeship.ULN,
                 TrainingId = apprenticeship.TrainingId,
                 Cost = apprenticeship.Cost,
@@ -133,7 +133,8 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             {
                 Id = viewModel.Id,
                 CommitmentId = viewModel.CommitmentId,
-                ApprenticeName = $"{viewModel.FirstName} {viewModel.LastName}",
+                FirstName = viewModel.FirstName,
+                LastName = viewModel.LastName,
                 ULN = viewModel.ULN,
                 TrainingId = viewModel.TrainingId,
                 Cost = viewModel.Cost,
@@ -148,18 +149,6 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
                 return new DateTime(year.Value, month.Value, 1);
 
             return null;
-        }
-
-        private Tuple<string, string> SplitName(string name)
-        {
-            var items = name.Split(' ');
-
-            if (items.Length == 2)
-            {
-                return new Tuple<string, string>(items[0], items[1]);
-            }
-
-            return new Tuple<string, string>("", name);
         }
     }
 }

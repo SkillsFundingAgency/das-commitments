@@ -2,7 +2,8 @@
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
     [CommitmentId] BIGINT NOT NULL, 
-    [ApprenticeName] NVARCHAR(100) NULL, 
+    [FirstName] NVARCHAR(100) NULL, 
+    [LastName] NVARCHAR(100) NULL, 
     [ULN] NVARCHAR(50) NULL, 
     [TrainingId] NVARCHAR(126) NULL, 
     [Cost] DECIMAL NULL, 

@@ -10,8 +10,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
-        private AbstractValidator<CreateCommitmentCommand> _validator;
-        private ICommitmentRepository _commitmentRepository;
+        private readonly AbstractValidator<CreateCommitmentCommand> _validator;
+        private readonly ICommitmentRepository _commitmentRepository;
 
         public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateCommitmentCommand> validator)
         {
@@ -41,7 +41,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 Apprenticeships = commitment.Apprenticeships.Select(x => new Domain.Apprenticeship
                 {
                     Id = x.Id,
-                    ApprenticeName = x.ApprenticeName,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
                     ULN = x.ULN,
                     CommitmentId = commitment.Id,
                     Status = (Domain.ApprenticeshipStatus)x.Status,

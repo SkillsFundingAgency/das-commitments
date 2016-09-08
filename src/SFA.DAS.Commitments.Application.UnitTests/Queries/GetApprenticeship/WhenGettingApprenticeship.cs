@@ -47,7 +47,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
             var response = await _handler.Handle(_exampleValidRequest);
 
             response.Data.Id.Should().Be(_fakeRepositoryCommitment.Apprenticeships[0].Id);
-            response.Data.ApprenticeName.Should().Be(_fakeRepositoryCommitment.Apprenticeships[0].ApprenticeName);
+            response.Data.FirstName.Should().Be(_fakeRepositoryCommitment.Apprenticeships[0].FirstName);
+            response.Data.LastName.Should().Be(_fakeRepositoryCommitment.Apprenticeships[0].LastName);
         }
 
         [Test]

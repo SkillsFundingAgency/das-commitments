@@ -35,7 +35,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             var domainApprenticeship = new Domain.Apprenticeship
             {
                 Id = message.ApprenticeshipId,
-                ApprenticeName = apprenticeship.ApprenticeName,
+                FirstName = apprenticeship.FirstName,
+                LastName = apprenticeship.LastName,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
                 Status = (Domain.ApprenticeshipStatus)apprenticeship.Status,
