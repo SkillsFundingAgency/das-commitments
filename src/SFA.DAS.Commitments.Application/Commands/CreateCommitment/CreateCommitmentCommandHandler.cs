@@ -37,7 +37,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 Name = commitment.Name,
                 EmployerAccountId = commitment.EmployerAccountId,
                 LegalEntityId = commitment.LegalEntityId,
+                LegalEntityName = commitment.LegalEntityName,
                 ProviderId = commitment.ProviderId,
+                ProviderName = commitment.ProviderName,
                 Apprenticeships = commitment.Apprenticeships.Select(x => new Domain.Apprenticeship
                 {
                     Id = x.Id,

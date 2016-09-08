@@ -34,11 +34,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
                         Id = x.Id,
                         Name = x.Name,
                         ProviderId = x.ProviderId,
-                        ProviderName = "",
+                        ProviderName = x.ProviderName,
                         EmployerAccountId = x.EmployerAccountId,
                         EmployerAccountName = "",
                         LegalEntityId = x.LegalEntityId,
-                        LegalEntityName = ""
+                        LegalEntityName = x.LegalEntityName
                     }
                 ).ToList()
             };
