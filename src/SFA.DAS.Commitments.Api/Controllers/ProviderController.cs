@@ -108,15 +108,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
-        public async Task<IHttpActionResult> PutApprenticeship(long providerId, Apprenticeship apprenticeship)
+        public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
             try
             {
                 await _mediator.SendAsync(new UpdateApprenticeshipCommand
                 {
                     ProviderId = providerId,
-                    CommitmentId = apprenticeship.CommitmentId,
-                    ApprenticeshipId = apprenticeship.Id,
+                    CommitmentId = commitmentId,
+                    ApprenticeshipId = apprenticeshipId,
                     Apprenticeship = apprenticeship
                 });
 
