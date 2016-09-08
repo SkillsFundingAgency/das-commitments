@@ -15,5 +15,7 @@ namespace SFA.DAS.Commitments.Api.Types
         public DateTime? EndDate { get; set; }
         public ApprenticeshipStatus Status { get; set; }
         public AgreementStatus AgreementStatus { get; set; }
+
+        public string ApprenticeshipName => $"{FirstName} {LastName}";
     }
 }
