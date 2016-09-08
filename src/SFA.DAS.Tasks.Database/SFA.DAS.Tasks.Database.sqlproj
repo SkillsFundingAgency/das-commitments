@@ -59,6 +59,7 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="SeedData" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Tasks.sql" />
@@ -67,5 +68,8 @@
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Tasks.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="SeedData\SeedData.sql" />
   </ItemGroup>
 </Project>
