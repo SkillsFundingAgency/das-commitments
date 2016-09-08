@@ -6,5 +6,6 @@
     [LegalEntityId] BIGINT NOT NULL, 
     [LegalEntityName] NVARCHAR(100) NOT NULL, 
     [ProviderId] BIGINT NULL,
-    [ProviderName] NVARCHAR(100) NULL 
+    [ProviderName] NVARCHAR(100) NULL,
+	[Status] SMALLINT NOT NULL DEFAULT 0 
 )

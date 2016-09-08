@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Api.Types
         public string LegalEntityName { get; set; }
         public long? ProviderId { get; set; }
         public string ProviderName { get; set; }
+        public CommitmentStatus Status { get; set; }
 
         public List<Apprenticeship> Apprenticeships { get; set; }
     }

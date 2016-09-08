@@ -29,14 +29,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
                 parameters.Add("@providerName", commitment.ProviderName, DbType.String);
+                parameters.Add("@status", commitment.Status, DbType.Int16);
                 parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
                 using (var trans = connection.BeginTransaction())
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName) " +
-                            "VALUES (@name, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName); " +
+                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, Status) " +
+                            "VALUES (@name, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @status); " +
                             "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,

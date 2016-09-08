@@ -60,11 +60,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     Id = commitment.Id,
                     Name = commitment.Name,
                     ProviderId = commitment.ProviderId,
-                    ProviderName = "",
+                    ProviderName = commitment.ProviderName,
                     EmployerAccountId = commitment.EmployerAccountId,
                     EmployerAccountName = "",
                     LegalEntityId = commitment.LegalEntityId,
-                    LegalEntityName = "",
+                    LegalEntityName = commitment.LegalEntityName,
+                    Status = (CommitmentStatus)commitment.Status,
                     Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,
