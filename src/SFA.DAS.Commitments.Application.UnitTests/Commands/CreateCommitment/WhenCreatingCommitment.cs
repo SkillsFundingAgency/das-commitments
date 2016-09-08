@@ -82,7 +82,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.Apprenticeships.Should().HaveSameCount(_exampleValidRequest.Commitment.Apprenticeships);
             argument.Apprenticeships[0].Id.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Id);
             argument.Apprenticeships[0].ULN.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ULN);
-            argument.Apprenticeships[0].ApprenticeName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ApprenticeName);
+            argument.Apprenticeships[0].FirstName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].FirstName);
+            argument.Apprenticeships[0].LastName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].LastName);
             argument.Apprenticeships[0].CommitmentId.Should().Be(_exampleValidRequest.Commitment.Id);
             argument.Apprenticeships[0].Cost.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Cost);
             argument.Apprenticeships[0].AgreementStatus.Should().Be((Domain.AgreementStatus)_exampleValidRequest.Commitment.Apprenticeships[0].AgreementStatus);

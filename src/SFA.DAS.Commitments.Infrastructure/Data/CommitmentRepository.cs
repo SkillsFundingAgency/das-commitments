@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-        public CommitmentRepository(CommitmentConfiguration configuration) 
+        public CommitmentRepository(CommitmentConfiguration configuration)
             : base(configuration)
         {
         }
@@ -25,16 +25,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@name", commitment.Name, DbType.String);
                 parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.Int64);
+                parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
+                parameters.Add("@providerName", commitment.ProviderName, DbType.String);
                 parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
                 using (var trans = connection.BeginTransaction())
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, EmployerAccountId, ProviderId) " +
-                            "VALUES (@name, @legalEntityId, @accountId, @providerId); " +
+                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName) " +
+                            "VALUES (@name, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName); " +
                             "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
@@ -99,7 +101,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql:
-                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, ApprenticeName = @apprenticeName, ULN = @uln, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
+                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, ULN = @uln, TrainingId = @trainingId, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
                         "WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
@@ -108,14 +110,30 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<Apprenticeship> GetApprenticeship(long id)
+        {
+            var results = await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", id);
+
+                return await c.QueryAsync<Apprenticeship>(
+                    sql: $"SELECT * FROM [dbo].[Apprenticeship] WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+
+            return results.SingleOrDefault();
+        }
+
         private static async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
         {
             DynamicParameters parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, ApprenticeName, ULN, Cost, StartDate, EndDate, Status, AgreementStatus) " +
-                    "VALUES (@commitmentId, @apprenticeName, @uln, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, ULN, TrainingId, Cost, StartDate, EndDate, Status, AgreementStatus) " +
+                    "VALUES (@commitmentId, @firstName, @lastName, @uln, @trainingId, @cost, @startDate, @endDate, @status, @agreementStatus); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
@@ -126,10 +144,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)
         {
-            DynamicParameters parameters = new DynamicParameters();
+            var parameters = new DynamicParameters();
             parameters.Add("@commitmentId", apprenticeship.CommitmentId, DbType.Int64);
-            parameters.Add("@apprenticeName", apprenticeship.ApprenticeName, DbType.String);
-            //parameters.Add("@traingingId", apprenticeship.TrainingId, DbType.String); TODO: LWA - Need to decide on datatype
+            parameters.Add("@firstName", apprenticeship.FirstName, DbType.String);
+            parameters.Add("@lastName", apprenticeship.LastName, DbType.String);
+            //TODO: LWA - Need to decide on datatype
+            parameters.Add("@trainingId", apprenticeship.TrainingId, DbType.String); 
             parameters.Add("@uln", apprenticeship.ULN, DbType.String);
             parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
             parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);
@@ -149,7 +169,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var results = await c.QueryAsync<Commitment> (
+                var results = await c.QueryAsync<Commitment>(
                     sql: $"SELECT * FROM [dbo].[Commitment] WHERE {identifierName} = @id;",
                     param: parameters);
 

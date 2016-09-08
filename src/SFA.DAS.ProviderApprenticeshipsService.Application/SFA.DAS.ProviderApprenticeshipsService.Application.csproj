@@ -39,6 +39,10 @@
       <HintPath>..\packages\FluentAssertions.4.13.0\lib\net45\FluentAssertions.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MediatR, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MediatR.2.1.0\lib\net45\MediatR.dll</HintPath>
       <Private>True</Private>
@@ -57,14 +61,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
+    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
+    <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandValidator.cs" />
+    <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
+    <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandValidator.cs" />
     <Compile Include="InvalidRequestException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\GetApprenticeship\GetApprenticeshipQueryHandler.cs" />
+    <Compile Include="Queries\GetApprenticeship\GetApprenticeshipQueryRequest.cs" />
+    <Compile Include="Queries\GetApprenticeship\GetApprenticeshipQueryResponse.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsQueryHandler.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsQueryRequest.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsQueryResponse.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentQueryRequest.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentQueryResponse.cs" />
+    <Compile Include="Queries\GetStandards\GetStandardsQueryHandler.cs" />
+    <Compile Include="Queries\GetStandards\GetStandardsQueryRequest.cs" />
+    <Compile Include="Queries\GetStandards\GetStandardsQueryResponse.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryHandler.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryRequest.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryResponse.cs" />

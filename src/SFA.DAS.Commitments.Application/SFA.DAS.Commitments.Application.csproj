@@ -77,6 +77,9 @@
     <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsRequest.cs" />
     <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsResponse.cs" />
     <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsValidator.cs" />
+    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryHandler.cs" />
+    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryRequest.cs" />
+    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryResponse.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsQueryHandler.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsRequest.cs" />
     <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsResponse.cs" />

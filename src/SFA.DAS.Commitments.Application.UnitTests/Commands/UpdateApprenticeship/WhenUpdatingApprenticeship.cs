@@ -64,7 +64,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private void AssertMappingIsCorrect(Domain.Apprenticeship argument)
         {
             argument.Id.Should().Be(_exampleValidRequest.ApprenticeshipId);
-            argument.ApprenticeName.Should().Be(_exampleValidRequest.Apprenticeship.ApprenticeName);
+            argument.FirstName.Should().Be(_exampleValidRequest.Apprenticeship.FirstName);
+            argument.LastName.Should().Be(_exampleValidRequest.Apprenticeship.LastName);
             argument.CommitmentId.Should().Be(_exampleValidRequest.CommitmentId);
             argument.Cost.Should().Be(_exampleValidRequest.Apprenticeship.Cost);
             argument.StartDate.Should().Be(_exampleValidRequest.Apprenticeship.StartDate);

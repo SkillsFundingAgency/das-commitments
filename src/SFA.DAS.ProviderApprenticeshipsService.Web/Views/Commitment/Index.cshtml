@@ -1,6 +1,4 @@
-﻿@using SFA.DAS.ProviderApprenticeshipsService.Domain
-
-@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.CommitmentViewModel
+﻿@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.CommitmentListViewModel
 
 <div class="grid-row">
     <div class="column-two-thirds">
@@ -8,37 +6,45 @@
         <hr/>
     </div>
 </div>
-
-<div class="responsive-table">
-    <div class="responsive-thead">
-        <div class="responsive-tr">
-            <div class="responsive-th">Employer</div>
-            <div class="responsive-th">Name</div>
-            <div class="responsive-th"> </div>
-        </div>
-    </div>
-    <div class="responsive-tbody">
-        @foreach (var commitment in Model.Commitments)
-        {
-            <div class="responsive-tr">
-                <div class="responsive-td">
-                    <div>@commitment.LegalEntityName</div>
-                    <div class="responsive-inner-caption"></div>
-                </div>
-                <div class="responsive-td">
-                    <div class="responsive-inner-caption">Role</div>
-                    <div>@commitment.Name</div>
-                </div>
-                <div class="responsive-td">
-                    <div>
-                        <input type="hidden" name="@commitment.Id" value="@commitment.Id" />
-                        <button type="submit" id="commitmentId" value="@commitment.Id" name="commitment" class="button">View</button>
+<div class="grid-row">
+    <div class="column-full">
+        <div class="grid-row">
+            <div class="column-full">
+                <div class="responsive-table">
+                    <div class="responsive-thead">
+                        <div class="responsive-tr">
+                            <div class="responsive-th">Employer</div>
+                            <div class="responsive-th">Name</div>
+                            <div class="responsive-th"> </div>
+                        </div>
                     </div>
-                    <div class="responsive-inner-caption"></div>
+                    <div class="responsive-tbody">
+                        @foreach (var commitment in Model.Commitments)
+                        {
+                            <div class="responsive-tr">
+                                <div class="responsive-td">
+                                    <div>@commitment.LegalEntityName</div>
+                                    <div class="responsive-inner-caption"></div>
+                                </div>
+                                <div class="responsive-td">
+                                    <div class="responsive-inner-caption">Role</div>
+                                    <div>@commitment.Name</div>
+                                </div>
+                                <div class="responsive-td">
+                                    <div>
+                                        <form action="@Url.Action("Details")" method="GET">
+                                            <input type="hidden" name="providerId" value="@commitment.ProviderId" />
+                                            <input type="hidden" name="commitmentId" value="@commitment.Id" />
+                                            <button type="submit" name="commitment" class="button">View</button>
+                                        </form>
+                                    </div>
+                                    <div class="responsive-inner-caption"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
-        }
+        </div>
     </div>
-
-
 </div>

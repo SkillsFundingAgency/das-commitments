@@ -233,6 +233,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ApprenticeshipViewModel.cs" />
+    <Compile Include="Models\CommitmentListViewModel.cs" />
     <Compile Include="Models\CommitmentViewModel.cs" />
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
@@ -288,6 +290,7 @@
     <Content Include="assets\stylesheets\fonts\GDSTransportWebsite-Bold.eot" />
     <Content Include="assets\stylesheets\fonts\GDSTransportWebsite.eot" />
     <Content Include="App_Data\Users\user_data.json" />
+    <Content Include="App_Data\Standards\standards.json" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -315,6 +318,9 @@
     <Content Include="Service References\Application Insights\ConnectedService.json" />
     <Content Include="Views\Home\FakeUserSignIn.cshtml" />
     <Content Include="Views\Commitment\Index.cshtml" />
+    <Content Include="Views\Commitment\Details.cshtml" />
+    <Content Include="Views\Commitment\Edit.cshtml" />
+    <Content Include="Views\Commitment\Create.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
