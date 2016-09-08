@@ -101,7 +101,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql:
-                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, ApprenticeName = @apprenticeName, ULN = @uln, TrainingId = @trainingId, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
+                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, ULN = @uln, TrainingId = @trainingId, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
                         "WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
