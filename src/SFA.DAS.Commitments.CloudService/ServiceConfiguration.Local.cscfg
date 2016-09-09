@@ -4,7 +4,6 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="StorageConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="EnvironmentName" value="LOCAL" />
       <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>
@@ -13,6 +12,8 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="EnvironmentName" value="LOCAL" />
+      <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>
   </Role>
   <Role name="SFA.DAS.Tasks.Api">
