@@ -1,5 +1,6 @@
-﻿@using System.Security.AccessControl
-@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.ExtendedApprenticeshipViewModel
+﻿@using SFA.DAS.ProviderApprenticeshipsService.Web.Models
+
+@model ExtendedApprenticeshipViewModel
 
 <div class="grid-row">
     <div class="column-two-thirds">
@@ -82,7 +83,10 @@
                 </div>
             </fieldset>
         </div>
-        <input type="hidden" id="status" name="status" value="@Model.Apprenticeship.Status" />
+        <div class="form-group">
+            <label class="form-label" for="status">Status</label>
+            <label class="" id="status" name="status" >@Model.Apprenticeship.Status</label>
+        </div>
         <input type="hidden" id="agreementStatus" name="agreementStatus" value="@Model.Apprenticeship.AgreementStatus" />
         <input type="hidden" id="providerId" name="providerId" value="@Model.Apprenticeship.ProviderId" />
         <input type="hidden" id="commitmentId" name="commitmentId" value="@Model.Apprenticeship.CommitmentId" />
