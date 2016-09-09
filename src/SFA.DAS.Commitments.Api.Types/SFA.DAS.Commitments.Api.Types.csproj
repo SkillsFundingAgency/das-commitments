@@ -46,6 +46,7 @@
     <Compile Include="ApprenticeshipStatus.cs" />
     <Compile Include="Commitment.cs" />
     <Compile Include="CommitmentListItem.cs" />
+    <Compile Include="CommitmentStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

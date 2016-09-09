@@ -4,9 +4,9 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, new CreateCommitmentValidator());
 
             Fixture fixture = new Fixture();
-            var populatedCommitment = fixture.Build<Commitment>().Create();
+            var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }
 
@@ -79,6 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
+            argument.Status.Should().Be(CommitmentStatus.Draft);
             argument.Apprenticeships.Should().HaveSameCount(_exampleValidRequest.Commitment.Apprenticeships);
             argument.Apprenticeships[0].Id.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Id);
             argument.Apprenticeships[0].ULN.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ULN);

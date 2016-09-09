@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
@@ -29,9 +29,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             return await _commitmentRepository.Create(MapFrom(message.Commitment));
         }
 
-        private Domain.Commitment MapFrom(Commitment commitment)
+        private Domain.Commitment MapFrom(Api.Types.Commitment commitment)
         {
-            var domainCommitment = new Domain.Commitment
+            var domainCommitment = new Commitment
             {
                 Id = commitment.Id,
                 Name = commitment.Name,
@@ -40,7 +40,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 LegalEntityName = commitment.LegalEntityName,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
-                Apprenticeships = commitment.Apprenticeships.Select(x => new Domain.Apprenticeship
+                Status = CommitmentStatus.Draft,
+                Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
                 {
                     Id = x.Id,
                     FirstName = x.FirstName,

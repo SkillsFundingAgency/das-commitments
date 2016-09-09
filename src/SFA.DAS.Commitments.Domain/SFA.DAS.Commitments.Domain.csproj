@@ -39,6 +39,7 @@
     <Compile Include="Apprenticeship.cs" />
     <Compile Include="ApprenticeshipStatus.cs" />
     <Compile Include="Commitment.cs" />
+    <Compile Include="CommitmentStatus.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

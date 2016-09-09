@@ -38,7 +38,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments
                         EmployerAccountId = x.EmployerAccountId,
                         EmployerAccountName = "",
                         LegalEntityId = x.LegalEntityId,
-                        LegalEntityName = x.LegalEntityName
+                        LegalEntityName = x.LegalEntityName,
+                        Status = (CommitmentStatus)x.Status
                     }
                 ).ToList()
             };
