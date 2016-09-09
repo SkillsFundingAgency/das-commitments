@@ -32,6 +32,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web
                 app.UseCookieAuthentication(new CookieAuthenticationOptions
                 {
                     AuthenticationType = "Cookies",
+                    CookieName = $"{ServiceName}_auth",
                     LoginPath = new PathString("/home/FakeUserSignIn")
                 });
             //}
