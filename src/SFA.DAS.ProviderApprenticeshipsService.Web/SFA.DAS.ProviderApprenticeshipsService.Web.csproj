@@ -236,6 +236,7 @@
     <Compile Include="Models\ApprenticeshipViewModel.cs" />
     <Compile Include="Models\CommitmentListViewModel.cs" />
     <Compile Include="Models\CommitmentViewModel.cs" />
+    <Compile Include="Models\HomeIndexModel.cs" />
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
     <Compile Include="Orchestrators\CommitmentOrchestrator.cs" />

@@ -24,9 +24,25 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
         }
 
         [Authorize]
-        public ActionResult Index()
+        public async Task<ActionResult> Index(long? providerId)
         {
-            return View();
+            if (!providerId.HasValue)
+            {
+                var users = await _homeOrchestrator.GetUsers();
+
+                var userId = _owinWrapper.GetClaimValue("sub");
+
+                var user = users.AvailableUsers.SingleOrDefault(x => x.UserId == userId);
+
+                providerId = user.ProviderId;
+            }
+
+            var model = new HomeIndexModel
+            {
+                ProviderId = providerId.Value
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -40,7 +56,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
                 LoginUser(selected.UserId, selected.FirstName, selected.LastName);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new {providerId = selected.ProviderId});
         }
         
         public async Task<ActionResult> FakeUserSignIn()
