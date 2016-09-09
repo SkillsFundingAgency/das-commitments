@@ -62,6 +62,9 @@
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />
+    <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusCommand.cs" />
+    <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusCommandHandler.cs" />
+    <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

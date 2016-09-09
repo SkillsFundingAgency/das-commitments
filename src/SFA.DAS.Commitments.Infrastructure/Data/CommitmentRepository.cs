@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -90,6 +91,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task<IList<Commitment>> GetByProvider(long providerId)
         {
             return await GetByIdentifier("ProviderId", providerId);
+        }
+
+        public async Task UpdateStatus(long commitmentId, CommitmentStatus commitmentStatus)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitmentId, DbType.Int64);
+                parameters.Add("@status", commitmentStatus, DbType.Int16);
+
+                // TODO: LWA - Do we need to check the return code?
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                        "UPDATE [dbo].[Commitment] SET Status = @status " +
+                        "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
         }
 
         public async Task UpdateApprenticeship(Apprenticeship apprenticeship)
