@@ -1,4 +1,8 @@
-﻿@{
+﻿@using SFA.DAS.ProviderApprenticeshipsService.Web.Models
+
+@model HomeIndexModel
+
+@{
     ViewBag.Title = "Home Page";
 }
 
@@ -13,7 +17,7 @@
 
 <div class="grid-row">
     <div class="column-one-third">
-        <a class="button button-start" href="@Url.Action("Index","Commitment", new { providerId = 1 })">View commitments</a>
+        <a class="button button-start" href="@Url.Action("Index","Commitment", new { providerId = Model.ProviderId })">View commitments</a>
     </div>
 </div>
     

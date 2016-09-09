@@ -17,12 +17,13 @@
 
                     <label class="form-label">
                         <input type="radio" name="SelectedUserId" value="@Model.AvailableUsers[i].UserId" />
-                        @Model.AvailableUsers[i].FirstName @Model.AvailableUsers[i].LastName
+                        @Model.AvailableUsers[i].FirstName @Model.AvailableUsers[i].LastName [@Model.AvailableUsers[i].ProviderId]
                     </label>
                     <input type="hidden" name="AvailableUsers[@i].UserId" value="@Model.AvailableUsers[i].UserId" />
                     <input type="hidden" name="AvailableUsers[@i].FirstName" value=" @Model.AvailableUsers[i].FirstName " />
                     <input type="hidden" name="AvailableUsers[@i].LastName" value="@Model.AvailableUsers[i].LastName" />
                     <input type="hidden" name="AvailableUsers[@i].Email" value="@Model.AvailableUsers[i].Email" />
+                    <input type="hidden" name="AvailableUsers[@i].ProviderId" value="@Model.AvailableUsers[i].ProviderId" />
                 </div>
             }
             <button type="submit" class="button">Sign in</button>

@@ -12,6 +12,15 @@
 </div>
 <div class="grid-row">
     <div class="column-full">
+        <h2 class="heading-medium">Apprenticeships</h2>
+        @if (Model.Commitment.Apprenticeships.Count == 0)
+        {
+            <p class="panel panel-info">
+                No apprenticeships exist for this commitment.
+            </p>
+        }
+        else
+        {
         <div class="responsive-table">
             <div class="responsive-thead">
                 <div class="responsive-tr">
@@ -37,7 +46,7 @@
                             <div class="responsive-inner-caption">Status</div>
                             <div>@apprenticeship.Status</div>
                         </div>
-                       <div class="responsive-td">
+                        <div class="responsive-td">
                             <div>
                                 <form action="@Url.Action("Edit")" method="GET">
                                     <input type="hidden" name="providerId" value="@Model.Commitment.ProviderId"/>
@@ -52,6 +61,7 @@
                 }
             </div>
         </div>
+        }
     </div>
 </div>
 <form action="@Url.Action("Create")" method="GET">
