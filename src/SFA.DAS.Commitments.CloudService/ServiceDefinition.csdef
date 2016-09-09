@@ -15,7 +15,7 @@
       <Setting name="ConfigurationStorageConnectionString" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="8080" />
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
     </Endpoints>
   </WebRole>
   <WebRole name="SFA.DAS.Commitments.Api" vmsize="Small">
@@ -30,7 +30,7 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+      <InputEndpoint name="Endpoint1" protocol="http" port="10090" />
     </Endpoints>
   </WebRole>
   <WebRole name="SFA.DAS.Tasks.Api" vmsize="Small">
@@ -47,7 +47,7 @@
       <Setting name="ConfigurationStorageConnectionString" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="8081" />
+      <InputEndpoint name="Endpoint1" protocol="http" port="10091" />
     </Endpoints>
   </WebRole>
 </ServiceDefinition>
