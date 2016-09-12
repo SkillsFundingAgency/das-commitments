@@ -35,14 +35,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         }
 
         [Test, AutoData]
-        public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
+        public async Task ThenShouldReturnListOfOnlyActiveCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
             _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
             var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
-
-            response.Data.Should().HaveSameCount(commitmentsFromRepository);
-            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
+            var activeCommitments = commitmentsFromRepository.Count(x => x.Status == CommitmentStatus.Active);
+            
+            response.Data.Count.Should().Be(activeCommitments);
+            response.Data.Should().OnlyContain(x => commitmentsFromRepository.Any(y => y.Id == x.Id && y.Name == x.Name));
         }
 
         [Test]
