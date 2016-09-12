@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Api.Client
             return await GetApprenticeship(url);
         }
 
-        public async Task PatchEmployerCommitment(int employerAccountId, int commitmentId, CommitmentStatus status)
+        public async Task PatchEmployerCommitment(long employerAccountId, long commitmentId, CommitmentStatus status)
         {
             var url = $"{_baseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}";
 
