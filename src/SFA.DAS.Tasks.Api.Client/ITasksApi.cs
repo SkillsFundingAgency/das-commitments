@@ -1,0 +1,12 @@
+using System.Collections.Generic;
+using SFA.DAS.Tasks.Domain.Entities;
+
+namespace SFA.DAS.Tasks.Api.Client
+{
+    public interface ITasksApi
+    {
+        System.Threading.Tasks.Task CreateTask(string assignee, Task task);
+        System.Threading.Tasks.Task<List<Task>> GetTasks(string assignee);
+        System.Threading.Tasks.Task UpdateTask(long id, Task task);
+    }
+}
