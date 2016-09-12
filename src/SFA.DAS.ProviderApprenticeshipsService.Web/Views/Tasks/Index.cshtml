@@ -1,0 +1,57 @@
+﻿@using SFA.DAS.ProviderApprenticeshipsService.Web.Models
+
+@model TaskListViewModel
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge">Tasks</h1>
+        <hr />
+    </div>
+</div>
+<div class="grid-row">
+    <div class="column-full">
+        @if (Model.Tasks.Count == 0)
+        {
+            <p class="panel panel-info">
+                You have no tasks to manage.
+            </p>
+        }
+        else
+        {
+            <div class="responsive-table">
+                <div class="responsive-thead">
+                    <div class="responsive-tr">
+                        <div class="responsive-th">CreatedOn</div>
+                        <div class="responsive-th">Name</div>
+                        <div class="responsive-th"> </div>
+                    </div>
+                </div>
+                <div class="responsive-tbody">
+                    @foreach (var task in Model.Tasks)
+                    {
+                        <div class="responsive-tr">
+                            <div class="responsive-td">
+                                <div class="responsive-inner-caption">CreatedOn</div>
+                                <div>@task.CreatedOn</div>
+                            </div>
+                            <div class="responsive-td">
+                                <div class="responsive-inner-caption">Name</div>
+                                <div>@task.Name</div>
+                            </div>
+                            <div class="responsive-td">
+                                <div>
+                                    <form action="@Url.Action("View")" method="GET">
+                                        <input type="hidden" name="providerId" value="@Model.ProviderId" />
+                                        <input type="hidden" name="taskId" value="@task.Id" />
+                                        <button type="submit" name="commitment" class="button">View</button>
+                                    </form>
+                                </div>
+                                <div class="responsive-inner-caption"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

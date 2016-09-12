@@ -225,6 +225,7 @@
     <Compile Include="Authentication\OwinWrapper.cs" />
     <Compile Include="Controllers\CommitmentController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TasksController.cs" />
     <Compile Include="DependencyResolution\ConfigurationPolicy.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
@@ -239,8 +240,11 @@
     <Compile Include="Models\HomeIndexModel.cs" />
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
+    <Compile Include="Models\TaskListViewModel.cs" />
+    <Compile Include="Models\TaskViewModel.cs" />
     <Compile Include="Orchestrators\CommitmentOrchestrator.cs" />
     <Compile Include="Orchestrators\HomeOrchestrator.cs" />
+    <Compile Include="Orchestrators\TaskOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -322,6 +326,8 @@
     <Content Include="Views\Commitment\Details.cshtml" />
     <Content Include="Views\Commitment\Edit.cshtml" />
     <Content Include="Views\Commitment\Create.cshtml" />
+    <Content Include="Views\Tasks\Index.cshtml" />
+    <Content Include="Views\Tasks\View.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -356,6 +362,14 @@
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Infrastructure\SFA.DAS.ProviderApprenticeshipsService.Infrastructure.csproj">
       <Project>{380868c8-fa69-4da7-b054-45ac924ec48e}</Project>
       <Name>SFA.DAS.ProviderApprenticeshipsService.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Tasks.Api.Client\SFA.DAS.Tasks.Api.Client.csproj">
+      <Project>{E442B238-0C69-449E-A2C5-FD890CF6A7DC}</Project>
+      <Name>SFA.DAS.Tasks.Api.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Tasks.Domain\SFA.DAS.Tasks.Domain.csproj">
+      <Project>{9BBAB098-4C62-4DFC-AEEA-20A0D9BD1E2C}</Project>
+      <Name>SFA.DAS.Tasks.Domain</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
