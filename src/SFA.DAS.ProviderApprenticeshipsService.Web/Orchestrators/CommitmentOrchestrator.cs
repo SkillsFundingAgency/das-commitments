@@ -8,6 +8,7 @@ using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetApprenticesh
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitment;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitments;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetStandards;
+using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetTasks;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Models;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
@@ -30,8 +31,14 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
                 ProviderId = providerId
             });
 
+            var tasks = await _mediator.SendAsync(new GetTasksQueryRequest
+            {
+                Assignee = $"PROVIDER-{providerId}"
+            });
+
             return new CommitmentListViewModel
             {
+                NumberOfTasks = tasks.Tasks.Count,
                 Commitments = data.Commitments
             };
         }

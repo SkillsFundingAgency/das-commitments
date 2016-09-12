@@ -24,6 +24,7 @@ using SFA.DAS.ProviderApprenticeshipsService.Application;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
+using SFA.DAS.Tasks.Api.Client;
 using StructureMap;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
@@ -51,6 +52,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
             var config = GetConfiguration();
 
             For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<string>().Is(config.Api.BaseUrl);
+            For<ITasksApi>().Use<TasksApi>().Ctor<string>().Is("http://localhost:21482/");
             For<IUserRepository>().Use<FileSystemUserRepository>();
             For<IStandardsRepository>().Use<FileSystemStandardsRepository>();
         }

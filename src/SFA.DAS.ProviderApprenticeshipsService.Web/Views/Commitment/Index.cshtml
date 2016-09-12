@@ -2,6 +2,23 @@
 
 <div class="grid-row">
     <div class="column-two-thirds">
+
+        <h2 class="heading-medium">Tasks</h2>
+        @if (Model.NumberOfTasks == 1)
+            {
+            <p>You have <span class="bold-small">1</span> task to complete.</p>
+        }
+        else
+        {
+            <p>You have <span class="bold-small">@(Model.NumberOfTasks > 1 ? Model.NumberOfTasks.ToString() : "no")</span> tasks to complete.</p>
+        }
+        @*<a href="@Url.Action("Index", "Task")" class="link">View tasks</a>*@
+
+        <hr />
+    </div>
+</div>
+<div class="grid-row">
+    <div class="column-two-thirds">
         <h1 class="heading-xlarge">Commitments</h1>
         <hr/>
     </div>
