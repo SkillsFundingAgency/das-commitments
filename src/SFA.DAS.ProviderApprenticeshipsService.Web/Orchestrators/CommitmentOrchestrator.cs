@@ -33,11 +33,12 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
 
             var tasks = await _mediator.SendAsync(new GetTasksQueryRequest
             {
-                Assignee = $"PROVIDER-{providerId}"
+                ProviderId = providerId
             });
 
             return new CommitmentListViewModel
             {
+                ProviderId = providerId,
                 NumberOfTasks = tasks.Tasks.Count,
                 Commitments = data.Commitments
             };

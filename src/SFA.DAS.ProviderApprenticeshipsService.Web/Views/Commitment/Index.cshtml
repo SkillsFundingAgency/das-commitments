@@ -12,8 +12,7 @@
         {
             <p>You have <span class="bold-small">@(Model.NumberOfTasks > 1 ? Model.NumberOfTasks.ToString() : "no")</span> tasks to complete.</p>
         }
-        @*<a href="@Url.Action("Index", "Task")" class="link">View tasks</a>*@
-
+        <a href="@Url.Action("Index", "Tasks", new {providerId = Model.ProviderId})" class="link">View tasks</a>
         <hr />
     </div>
 </div>
