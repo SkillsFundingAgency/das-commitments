@@ -19,10 +19,16 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
             _taskOrchestrator = taskOrchestrator;
         }
 
-        // GET: Tasks
         public async Task<ActionResult> Index(long providerId)
         {
             var model = await _taskOrchestrator.GetAll(providerId);
+
+            return View(model);
+        }
+
+        public async Task<ActionResult> View(long taskId, long providerId)
+        {
+            var model = await _taskOrchestrator.GetTask(taskId, providerId);
 
             return View(model);
         }

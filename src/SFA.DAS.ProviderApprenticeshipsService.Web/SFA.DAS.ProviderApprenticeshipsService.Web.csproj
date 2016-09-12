@@ -241,6 +241,7 @@
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
     <Compile Include="Models\TaskListViewModel.cs" />
+    <Compile Include="Models\TaskViewModel.cs" />
     <Compile Include="Orchestrators\CommitmentOrchestrator.cs" />
     <Compile Include="Orchestrators\HomeOrchestrator.cs" />
     <Compile Include="Orchestrators\TaskOrchestrator.cs" />
@@ -326,6 +327,7 @@
     <Content Include="Views\Commitment\Edit.cshtml" />
     <Content Include="Views\Commitment\Create.cshtml" />
     <Content Include="Views\Tasks\Index.cshtml" />
+    <Content Include="Views\Tasks\View.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

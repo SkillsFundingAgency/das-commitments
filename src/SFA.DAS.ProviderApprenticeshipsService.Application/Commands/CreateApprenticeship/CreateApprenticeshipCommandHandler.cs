@@ -20,6 +20,11 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Commands.CreateAppr
 
         protected override async Task HandleCore(CreateApprenticeshipCommand message)
         {
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new InvalidRequestException(validationResult.Errors);
+
             await _commitmentsApi.CreateProviderApprenticeship(message.ProviderId, message.Apprenticeship.CommitmentId, message.Apprenticeship);
         }
     }

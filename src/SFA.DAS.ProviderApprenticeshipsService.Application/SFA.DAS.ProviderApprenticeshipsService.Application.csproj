@@ -61,6 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CompleteTask\CompleteTaskCommand.cs" />
+    <Compile Include="Commands\CompleteTask\CompleteTaskCommandHandler.cs" />
+    <Compile Include="Commands\CompleteTask\CompleteTaskCommandValidator.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandValidator.cs" />
@@ -84,6 +87,9 @@
     <Compile Include="Queries\GetTasks\GetTasksQueryHandler.cs" />
     <Compile Include="Queries\GetTasks\GetTasksQueryRequest.cs" />
     <Compile Include="Queries\GetTasks\GetTasksQueryResponse.cs" />
+    <Compile Include="Queries\GetTask\GetTaskQueryHandler.cs" />
+    <Compile Include="Queries\GetTask\GetTaskQueryRequest.cs" />
+    <Compile Include="Queries\GetTask\GetTaskQueryResponse.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryHandler.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryRequest.cs" />
     <Compile Include="Queries\GetUsers\GetUsersQueryResponse.cs" />

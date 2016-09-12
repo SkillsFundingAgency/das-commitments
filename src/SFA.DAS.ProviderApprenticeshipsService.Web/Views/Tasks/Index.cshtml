@@ -40,11 +40,11 @@
                             </div>
                             <div class="responsive-td">
                                 <div>
-                                    @*<form action="@Url.Action("Details")" method="GET">
-                                        <input type="hidden" name="providerId" value="@task.ProviderId" />
-                                        <input type="hidden" name="commitmentId" value="@task.Id" />
+                                    <form action="@Url.Action("View")" method="GET">
+                                        <input type="hidden" name="providerId" value="@Model.ProviderId" />
+                                        <input type="hidden" name="taskId" value="@task.Id" />
                                         <button type="submit" name="commitment" class="button">View</button>
-                                    </form>*@
+                                    </form>
                                 </div>
                                 <div class="responsive-inner-caption"></div>
                             </div>

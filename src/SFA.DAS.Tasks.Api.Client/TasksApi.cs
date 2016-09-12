@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Task = SFA.DAS.Tasks.Domain.Entities.Task;
@@ -39,6 +40,13 @@ namespace SFA.DAS.Tasks.Api.Client
             var content = JsonConvert.SerializeObject(task);
 
             await PutAsync(url, content);
+        }
+
+        public async Task<Task> GetTask(long id, string assignee)
+        {
+            var tasks = await GetTasks(assignee);
+
+            return tasks.SingleOrDefault(x => x.Id == id);
         }
     }
 }
