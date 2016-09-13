@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderApprenticeshipsService.Web", "SFA.DAS.ProviderApprenticeshipsService.Web\SFA.DAS.ProviderApprenticeshipsService.Web.csproj", "{94E473E1-2217-43C3-A228-00B8BE2BE0F1}"
 EndProject
@@ -52,6 +52,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client", "SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj", "{DEA2C098-EC17-4485-961D-A7F48720D37D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Tasks.Api.Client", "SFA.DAS.Tasks.Api.Client\SFA.DAS.Tasks.Api.Client.csproj", "{E442B238-0C69-449E-A2C5-FD890CF6A7DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Types.UnitTests", "SFA.DAS.Commitments.Api.Types.UnitTests\SFA.DAS.Commitments.Api.Types.UnitTests.csproj", "{8D59B803-2F0F-485A-A5CC-0E8C76D1A8F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -143,6 +145,10 @@ Global
 		{E442B238-0C69-449E-A2C5-FD890CF6A7DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E442B238-0C69-449E-A2C5-FD890CF6A7DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E442B238-0C69-449E-A2C5-FD890CF6A7DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D59B803-2F0F-485A-A5CC-0E8C76D1A8F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D59B803-2F0F-485A-A5CC-0E8C76D1A8F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D59B803-2F0F-485A-A5CC-0E8C76D1A8F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D59B803-2F0F-485A-A5CC-0E8C76D1A8F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,5 +157,6 @@ Global
 		{8EDF4429-251A-416D-BB68-93F227191BCF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{C0C88789-3229-4B47-8081-16D1B5D85D9A} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{6669C64D-7DAE-47C2-A469-7636C89C0974} = {AEF29222-4B94-48CB-9438-78E5A6333438}
+		{8D59B803-2F0F-485A-A5CC-0E8C76D1A8F4} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 EndGlobal

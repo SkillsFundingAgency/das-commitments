@@ -28,7 +28,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
 
             var commitments = await _commitmentRepository.GetByProvider(message.ProviderId);
 
-            return new GetProviderCommitmentsResponse { Data = commitments?.Select(
+            var activeCommitments = commitments?.Where(x => x.Status == Domain.CommitmentStatus.Active);
+
+            return new GetProviderCommitmentsResponse { Data = activeCommitments?.Select(
                     x => new CommitmentListItem
                     {
                         Id = x.Id,
