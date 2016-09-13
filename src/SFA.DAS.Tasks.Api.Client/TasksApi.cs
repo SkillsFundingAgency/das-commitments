@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 using Task = SFA.DAS.Tasks.Domain.Entities.Task;
 
 namespace SFA.DAS.Tasks.Api.Client
@@ -10,9 +12,11 @@ namespace SFA.DAS.Tasks.Api.Client
     {
         private readonly string _baseUrl;
 
-        public TasksApi(string baseUrl)
+        public TasksApi(TasksApiConfiguration configuration)
         {
-            _baseUrl = baseUrl;
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+            _baseUrl = configuration.BaseUrl;
         }
 
         public async System.Threading.Tasks.Task CreateTask(string assignee, Task task)
