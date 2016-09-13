@@ -24,7 +24,9 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution {
         public static IContainer Initialize() {
             return new Container(c =>
             {
-                c.Policies.Add<ConfigurationPolicy<ProviderApprenticeshipsServiceConfiguration>>();
+                c.Policies.Add(new ConfigurationPolicy<ProviderApprenticeshipsServiceConfiguration>("SFA.DAS.ProviderApprenticeshipsService"));
+                c.Policies.Add(new ConfigurationPolicy<CommitmentsApiConfiguration>("SFA.DAS.Commitments"));
+                c.Policies.Add(new ConfigurationPolicy<TasksApiConfiguration>("SFA.DAS.Tasks"));
                 c.AddRegistry<DefaultRegistry>();
             });
         }

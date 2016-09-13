@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
@@ -12,11 +13,11 @@ namespace SFA.DAS.Commitments.Api.Client
     {
         private readonly string _baseUrl;
 
-        public CommitmentsApi(string baseUrl)
+        public CommitmentsApi(CommitmentsApiConfiguration configuration)
         {
-            if (baseUrl == null)
-                throw new ArgumentNullException(nameof(baseUrl));
-            _baseUrl = baseUrl;
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+            _baseUrl = configuration.BaseUrl;
         }
 
         public async Task CreateEmployerCommitment(long employerAccountId, Commitment commitment)

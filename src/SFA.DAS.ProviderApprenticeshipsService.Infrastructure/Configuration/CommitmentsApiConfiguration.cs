@@ -2,9 +2,10 @@
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration
 {
-    public class ProviderApprenticeshipsServiceConfiguration : IConfiguration
+    public class CommitmentsApiConfiguration : IConfiguration
     {
-        public bool UseFakeIdentity { get; set; }
+        public string BaseUrl { get; set; }
+        public string ClientSecret { get; set; }
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
     }

@@ -16,14 +16,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using MediatR;
-using Microsoft.Azure;
 using SFA.DAS.Commitments.Api.Client;
-using SFA.DAS.Configuration;
-using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.ProviderApprenticeshipsService.Application;
-using SFA.DAS.ProviderApprenticeshipsService.Domain.Data;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 using SFA.DAS.Tasks.Api.Client;
 using StructureMap;
 
@@ -33,13 +26,13 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
 
     public class DefaultRegistry : Registry {
         private const string ServiceName = "SFA.DAS.ProviderApprenticeshipsService";
+        private const string ServiceNamespace = "SFA.DAS";
 
         public DefaultRegistry() {
             Scan(
                 scan => {
-                    scan.TheCallingAssembly();
-                    scan.WithDefaultConventions();
-                    scan.AssemblyContainingType<InvalidRequestException>(); // Our assembly with requests & handlers
+                    scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceNamespace));
+                    scan.RegisterConcreteTypesAgainstTheFirstInterface();
                     scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
                     scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
@@ -48,29 +41,11 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
+            For<ICommitmentsApi>().Use<CommitmentsApi>();
+            For<ITasksApi>().Use<TasksApi>();
 
-            var config = GetConfiguration();
-
-            For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<string>().Is(config.Api.BaseUrl);
-            For<ITasksApi>().Use<TasksApi>().Ctor<string>().Is("http://localhost:21482/");
-            For<IUserRepository>().Use<FileSystemUserRepository>();
-            For<IStandardsRepository>().Use<FileSystemStandardsRepository>();
-        }
-
-        private ProviderApprenticeshipsServiceConfiguration GetConfiguration()
-        {
-            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-
-            var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository,
-                new ConfigurationOptions(ServiceName, environment, "1.0"));
-
-            return configurationService.Get<ProviderApprenticeshipsServiceConfiguration>();
-        }
-
-        private static IConfigurationRepository GetConfigurationRepository()
-        {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+            //For<IUserRepository>().Use<FileSystemUserRepository>();
+            //For<IStandardsRepository>().Use<FileSystemStandardsRepository>();
         }
     }
 }

@@ -38,6 +38,7 @@
     <Compile Include="CommitmentView.cs" />
     <Compile Include="Data\IStandardsRepository.cs" />
     <Compile Include="Data\IUserRepository.cs" />
+    <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Standard.cs" />
     <Compile Include="User.cs" />
