@@ -34,21 +34,4 @@
       <InputEndpoint name="Endpoint1" protocol="http" port="10090" />
     </Endpoints>
   </WebRole>
-  <WebRole name="SFA.DAS.Tasks.Api" vmsize="Small">
-    <Sites>
-      <Site name="Web">
-        <Bindings>
-          <Binding name="Endpoint1" endpointName="Endpoint1" />
-        </Bindings>
-      </Site>
-    </Sites>
-    <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
-      <Setting name="EnvironmentName" />
-      <Setting name="ConfigurationStorageConnectionString" />
-    </ConfigurationSettings>
-    <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="10091" />
-    </Endpoints>
-  </WebRole>
 </ServiceDefinition>

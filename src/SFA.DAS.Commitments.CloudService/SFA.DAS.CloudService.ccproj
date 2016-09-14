@@ -53,14 +53,6 @@
       <RoleName>SFA.DAS.ProviderApprenticeshipsService.Web</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Tasks.Api\SFA.DAS.Tasks.Api.csproj">
-      <Name>SFA.DAS.Tasks.Api</Name>
-      <Project>{5382c267-118f-4eee-b2fb-5bab9ba50473}</Project>
-      <Private>True</Private>
-      <RoleType>Web</RoleType>
-      <RoleName>SFA.DAS.Tasks.Api</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SFA.DAS.Commitments.ApiContent\" />
