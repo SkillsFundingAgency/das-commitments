@@ -239,6 +239,8 @@
     <Compile Include="Models\HomeIndexModel.cs" />
     <Compile Include="Models\SignInUserModel.cs" />
     <Compile Include="Models\SignInUserViewModel.cs" />
+    <Compile Include="Models\SubmitCommitmentModel.cs" />
+    <Compile Include="Models\SubmitCommitmentViewModel.cs" />
     <Compile Include="Models\TaskListViewModel.cs" />
     <Compile Include="Models\TaskViewModel.cs" />
     <Compile Include="Orchestrators\CommitmentOrchestrator.cs" />
@@ -327,6 +329,7 @@
     <Content Include="Views\Commitment\Create.cshtml" />
     <Content Include="Views\Tasks\Index.cshtml" />
     <Content Include="Views\Tasks\View.cshtml" />
+    <Content Include="Views\Commitment\Submit.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

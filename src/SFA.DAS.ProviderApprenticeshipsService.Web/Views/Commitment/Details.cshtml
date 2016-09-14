@@ -4,10 +4,14 @@
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">View commitment</h1>
         <hr />
-        <p>Name</p>
-        <p>@Model.Commitment.Name</p>
-        <p>Legal Entity</p>
-        <p>@Model.Commitment.LegalEntityName</p>
+        <div class="form-group">
+            <label class="form-label" for="Name">Name</label>
+            <label class="form-label" id="Name">@Model.Commitment.Name</label>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="LegalEntity">Legal Entity</label>
+            <label class="form-label" id="LegalEntity">@Model.Commitment.LegalEntityName</label>
+        </div>
     </div>
 </div>
 <div class="grid-row">

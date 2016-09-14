@@ -1,0 +1,30 @@
+﻿@using SFA.DAS.ProviderApprenticeshipsService.Web.Models
+
+@model SubmitCommitmentViewModel
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge">Submit commitment</h1>
+        <hr />
+        <form method="POST" action="@Url.Action("Submit")">
+            <div class="form-group">
+                <label class="form-label" for="Name">Name</label>
+                <label class="form-label" id="Name">@Model.Commitment.Name</label>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="LegalEntity">Legal Entity</label>
+                <label class="form-label" id="LegalEntity">@Model.Commitment.LegalEntityName</label>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="Message">Message</label>
+                <textarea class="form-control form-control-3-4" id="Message" name="Message"
+                          cols="40" rows="10"
+                          aria-required="true">@Model.SubmitCommitmentModel.Message</textarea>
+            </div>
+            <input type="hidden" id="providerId" name="providerId" value="@Model.SubmitCommitmentModel.ProviderId" />
+            <input type="hidden" id="commitmentId" name="commitmentId" value="@Model.SubmitCommitmentModel.CommitmentId" />
+            <button type="submit" class="button">Submit</button>
+        </form>
+</div>
+</div>
+

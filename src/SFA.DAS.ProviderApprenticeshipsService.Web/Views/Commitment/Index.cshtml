@@ -59,6 +59,11 @@
                                         <input type="hidden" name="commitmentId" value="@commitment.Id"/>
                                         <button type="submit" name="commitment" class="button">View</button>
                                     </form>
+                                    <form action="@Url.Action("Submit")" method="GET">
+                                        <input type="hidden" name="providerId" value="@commitment.ProviderId" />
+                                        <input type="hidden" name="commitmentId" value="@commitment.Id" />
+                                        <button type="submit" name="commitment" class="button">Submit</button>
+                                    </form>
                                 </div>
                                 <div class="responsive-inner-caption"></div>
                             </div>

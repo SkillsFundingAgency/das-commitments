@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Commands.CreateApprenticeship;
+using SFA.DAS.ProviderApprenticeshipsService.Application.Commands.SubmitCommitment;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetApprenticeship;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Queries.GetCommitment;
@@ -112,6 +113,16 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators
             {
                 ProviderId = apprenticeship.ProviderId,
                 Apprenticeship = MapFrom(apprenticeship)
+            });
+        }
+
+        public async Task SubmitApprenticeship(SubmitCommitmentModel model)
+        {
+            await _mediator.SendAsync(new SubmitCommitmentCommand
+            {
+                ProviderId = model.ProviderId,
+                CommitmentId = model.CommitmentId,
+                Message = model.Message
             });
         }
 

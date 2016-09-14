@@ -52,7 +52,26 @@ namespace SFA.DAS.Commitments.Api.Client
         {
             var url = $"{_baseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}";
 
-            await PatchCommitment(url, status);
+            var change = new CommitmentStatusChange
+            {
+                Status = status,
+                Message = ""
+            };
+
+            await PatchCommitment(url, change);
+        }
+
+        public async Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentStatus status, string message)
+        {
+            var url = $"{_baseUrl}api/provider/{providerId}/commitments/{commitmentId}";
+
+            var change = new CommitmentStatusChange
+            {
+                Status = status,
+                Message = message
+            };
+
+            await PatchCommitment(url, change);
         }
 
         public async Task UpdateEmployerApprenticeship(long employerAccountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
@@ -106,9 +125,9 @@ namespace SFA.DAS.Commitments.Api.Client
             return JsonConvert.DeserializeObject<Commitment>(content);
         }
 
-        private async Task PatchCommitment(string url, CommitmentStatus status)
+        private async Task PatchCommitment(string url, CommitmentStatusChange change)
         {
-            var data = JsonConvert.SerializeObject(status);
+            var data = JsonConvert.SerializeObject(change);
             await PatchAsync(url, data);
         }
 
