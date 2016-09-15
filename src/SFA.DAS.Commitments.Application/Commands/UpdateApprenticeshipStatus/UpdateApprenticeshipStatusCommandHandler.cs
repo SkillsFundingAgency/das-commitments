@@ -24,6 +24,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 throw new InvalidRequestException();
             }
 
+            var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
+
+            if (message.Status == Api.Types.ApprenticeshipStatus.Approved && apprenticeship.Status != ApprenticeshipStatus.ReadyForApproval)
+                throw new InvalidRequestException();
+
             await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, (ApprenticeshipStatus)message.Status);
         }
     }

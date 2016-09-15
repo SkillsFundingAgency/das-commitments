@@ -20,11 +20,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void SetUp()
         {
-            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<ApprenticeshipStatus>())).Returns(Task.FromResult(new object()));
-            _handler = new UpdateApprenticeshipStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipStatusValidator());
-
             _exampleValidRequest = new UpdateApprenticeshipStatusCommand { AccountId = 111L, CommitmentId = 123L, ApprenticeshipId = 444L, Status = Api.Types.ApprenticeshipStatus.Approved };
+
+            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(new Apprenticeship { Status = ApprenticeshipStatus.ReadyForApproval });
+            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<ApprenticeshipStatus>())).Returns(Task.FromResult(new object()));
+
+            _handler = new UpdateApprenticeshipStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipStatusValidator());
         }
 
         [Test]
@@ -42,6 +44,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
         {
             _exampleValidRequest.AccountId = 0; // Forces validation failure
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<InvalidRequestException>();
+        }
+
+        [Test]
+        public void ThenWhenApprenticeshipIsNotInReadyForApprovalStateRequestExceptionIsThrown()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(new Apprenticeship { Status = ApprenticeshipStatus.Created }) ;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
