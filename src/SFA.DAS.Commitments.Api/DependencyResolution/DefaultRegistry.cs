@@ -25,6 +25,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
+    using Application;
     using FluentValidation;
     using StructureMap.Graph;
 
@@ -37,6 +38,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                     scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IValidateStateTransition<>));
                 });
 
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));

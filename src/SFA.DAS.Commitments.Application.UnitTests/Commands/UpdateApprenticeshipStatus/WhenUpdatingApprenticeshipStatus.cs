@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(new Apprenticeship { Status = ApprenticeshipStatus.ReadyForApproval });
             _mockCommitmentRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<ApprenticeshipStatus>())).Returns(Task.FromResult(new object()));
 
-            _handler = new UpdateApprenticeshipStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipStatusValidator());
+            _handler = new UpdateApprenticeshipStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipStatusValidator(), new ApprenticeshipStateTransitionValidator());
         }
 
         [Test]
@@ -53,11 +53,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenWhenApprenticeshipIsNotInReadyForApprovalStateRequestExceptionIsThrown()
         {
-            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(new Apprenticeship { Status = ApprenticeshipStatus.Created }) ;
+            var apprenticeshipFromRepository = new Apprenticeship { Status = ApprenticeshipStatus.Created };
+            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository) ;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<InvalidRequestException>();
+        }
+
+        [Test]
+        public void ThenWhenApprenticeshipIsAlreadyApprovedRequestIsSuccessful()
+        {
+            var apprenticeshipFromRepository = new Apprenticeship { Status = ApprenticeshipStatus.Approved };
+            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository);
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldNotThrow<Exception>();
         }
     }
 }

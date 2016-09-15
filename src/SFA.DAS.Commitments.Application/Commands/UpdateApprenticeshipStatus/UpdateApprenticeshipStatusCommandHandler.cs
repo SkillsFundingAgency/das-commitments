@@ -10,11 +10,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
     {
         private ICommitmentRepository _commitmentRepository;
         private UpdateApprenticeshipStatusValidator _validator;
+        private IValidateStateTransition<ApprenticeshipStatus> _stateTransitionValidator;
 
-        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator)
+        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, IValidateStateTransition<ApprenticeshipStatus> stateTransitionValidator)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _stateTransitionValidator = stateTransitionValidator;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand message)
@@ -26,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
 
-            if (message.Status == Api.Types.ApprenticeshipStatus.Approved && apprenticeship.Status != ApprenticeshipStatus.ReadyForApproval)
+            if (!_stateTransitionValidator.IsStateTransitionValid(apprenticeship.Status, (ApprenticeshipStatus)message.Status))
                 throw new InvalidRequestException();
 
             await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, (ApprenticeshipStatus)message.Status);
