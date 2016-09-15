@@ -59,6 +59,9 @@
     <Compile Include="Commands\CreateCommitment\CreateCommitmentCommand.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentCommandHandler.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentValidator.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusCommandHandler.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusValidator.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />

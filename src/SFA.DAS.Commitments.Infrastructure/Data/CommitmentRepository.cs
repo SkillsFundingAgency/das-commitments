@@ -132,6 +132,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, ApprenticeshipStatus apprenticeshipStatus)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+                parameters.Add("@status", apprenticeshipStatus, DbType.Int16);
+
+                // TODO: LWA - Do we need to check the return code?
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                        "UPDATE [dbo].[Apprenticeship] SET Status = @status " +
+                        "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
         public async Task<Apprenticeship> GetApprenticeship(long id)
         {
             var results = await WithConnection(async c =>
