@@ -12,7 +12,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-        public CommitmentRepository(CommitmentConfiguration configuration)
+        public CommitmentRepository(CommitmentsApiConfiguration configuration)
             : base(configuration)
         {
         }

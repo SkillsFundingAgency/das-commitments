@@ -8,5 +8,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
         public long AccountId { get; set; }
         public long CommitmentId { get; set; }
         public CommitmentStatus? Status { get; set; }
+        public string Message { get; set; }
     }
 }

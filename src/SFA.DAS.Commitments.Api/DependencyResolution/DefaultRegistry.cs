@@ -15,18 +15,22 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using FluentValidation;
+using StructureMap;
+using StructureMap.Graph;
+using System;
+using System.Reflection;
 using MediatR;
 using Microsoft.Azure;
-using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
-using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using StructureMap;
+using SFA.DAS.Tasks.Api.Client;
+using SFA.DAS.Tasks.Api.Client.Configuration;
+
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
-    using FluentValidation;
-    using StructureMap.Graph;
 
     public class DefaultRegistry : Registry {
         private const string ServiceName = "SFA.DAS.Commitments";
@@ -37,31 +41,57 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                     scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
                 });
 
-            For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
-            For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
-            For<IMediator>().Use<Mediator>();
 
             var config = GetConfiguration();
 
-            For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<CommitmentConfiguration>().Is(config);
+            For<ITasksApi>().Use<TasksApi>().Ctor<ITasksApiClientConfiguration>().Is(config.TasksApi);
+
+            RegisterMediator();
         }
 
-        private CommitmentConfiguration GetConfiguration()
+        private CommitmentsApiConfiguration GetConfiguration()
         {
-            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            var environment = Environment.GetEnvironmentVariable("DASENV");
+            if (string.IsNullOrEmpty(environment))
+            {
+                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            }
+            if (environment.Equals("LOCAL") || environment.Equals("AT") || environment.Equals("TEST"))
+            {
+                PopulateSystemDetails(environment);
+            }
 
             var configurationRepository = GetConfigurationRepository();
             var configurationService = new ConfigurationService(configurationRepository,
                 new ConfigurationOptions(ServiceName, environment, "1.0"));
 
-            return configurationService.Get<CommitmentConfiguration>();
+            var result = configurationService.Get<CommitmentsApiConfiguration>();
+
+            return result;
         }
 
         private static IConfigurationRepository GetConfigurationRepository()
         {
             return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+        }
+
+        private void RegisterMediator()
+        {
+            For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
+            For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
+            For<IMediator>().Use<Mediator>();
+        }
+
+        private void PopulateSystemDetails(string envName)
+        {
+            SystemDetails.EnvironmentName = envName;
+            SystemDetails.VersionNumber = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

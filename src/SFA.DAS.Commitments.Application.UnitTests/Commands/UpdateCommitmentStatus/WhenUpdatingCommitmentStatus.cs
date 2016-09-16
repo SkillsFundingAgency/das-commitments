@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Tasks.Api.Client;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
 {
@@ -16,13 +17,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private UpdateCommitmentStatusCommandHandler _handler;
         private UpdateCommitmentStatusCommand _exampleValidRequest;
+        private Mock<ITasksApi> _tasksApi;
 
         [SetUp]
         public void SetUp()
         {
+            _tasksApi = new Mock<ITasksApi>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockCommitmentRespository.Setup(x => x.UpdateStatus(It.IsAny<long>(), It.IsAny<CommitmentStatus>())).Returns(Task.FromResult(new object()));
-            _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator());
+            _handler = new UpdateCommitmentStatusCommandHandler(_tasksApi.Object, _mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator());
 
             _exampleValidRequest = new UpdateCommitmentStatusCommand { AccountId = 111L, CommitmentId = 123L, Status = Api.Types.CommitmentStatus.Active };
         }

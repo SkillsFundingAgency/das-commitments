@@ -26,7 +26,13 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.Commands.SubmitComm
             if (!validationResult.IsValid)
                 throw new InvalidRequestException(validationResult.Errors);
 
-            await _commitmentsApi.PatchProviderCommitment(message.ProviderId, message.CommitmentId, CommitmentStatus.Active, message.Message);
+            var task = new CommitmentTask
+            {
+                Status = CommitmentStatus.Active,
+                Message = message.Message
+            };
+
+            await _commitmentsApi.PostProviderCommitmentTask(message.ProviderId, message.CommitmentId, task);
         }
     }
 }

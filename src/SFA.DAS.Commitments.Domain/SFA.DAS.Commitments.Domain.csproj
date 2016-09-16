@@ -41,6 +41,7 @@
     <Compile Include="Commitment.cs" />
     <Compile Include="CommitmentStatus.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
+    <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

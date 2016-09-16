@@ -121,11 +121,17 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
 
-        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus? status)
+        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatusChange change)
         {
             try
             {
-                await _mediator.SendAsync(new UpdateCommitmentStatusCommand { AccountId = accountId, CommitmentId = commitmentId, Status = status });
+                await _mediator.SendAsync(new UpdateCommitmentStatusCommand
+                {
+                    AccountId = accountId,
+                    CommitmentId = commitmentId,
+                    Status = change.Status,
+                    Message = change.Message
+                });
 
                 return StatusCode(HttpStatusCode.NoContent);
             }

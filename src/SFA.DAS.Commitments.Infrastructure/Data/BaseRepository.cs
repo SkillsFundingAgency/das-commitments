@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly string _connectionString;
 
-        protected BaseRepository(CommitmentConfiguration configuration)
+        protected BaseRepository(CommitmentsApiConfiguration configuration)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));

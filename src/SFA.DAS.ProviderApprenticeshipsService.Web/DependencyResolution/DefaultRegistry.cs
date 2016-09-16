@@ -15,15 +15,23 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Reflection;
 using MediatR;
+using Microsoft.Azure;
 using SFA.DAS.Commitments.Api.Client;
+using SFA.DAS.Commitments.Api.Client.Configuration;
+using SFA.DAS.Configuration;
+using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
+using SFA.DAS.ProviderApprenticeshipsService.Web.Models;
 using SFA.DAS.Tasks.Api.Client;
+using SFA.DAS.Tasks.Api.Client.Configuration;
 using StructureMap;
+using StructureMap.Graph;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
 {
-    using StructureMap.Graph;
-
     public class DefaultRegistry : Registry {
         private const string ServiceName = "SFA.DAS.ProviderApprenticeshipsService";
         private const string ServiceNamespace = "SFA.DAS";
@@ -38,14 +46,52 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.DependencyResolution
                     scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
                 });
+
+            var config = GetConfiguration();
+
+            For<ICommitmentsApi>().Use<CommitmentsApi>().Ctor<ICommitmentsApiClientConfiguration>().Is(config.CommitmentsApi);
+            For<ITasksApi>().Use<TasksApi>().Ctor<ITasksApiClientConfiguration>().Is(config.TasksApi);
+
+            RegisterMediator();
+        }
+
+        private ProviderApprenticeshipsServiceConfiguration GetConfiguration()
+        {
+            var environment = Environment.GetEnvironmentVariable("DASENV");
+            if (string.IsNullOrEmpty(environment))
+            {
+                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            }
+            if (environment.Equals("LOCAL") || environment.Equals("AT") || environment.Equals("TEST"))
+            {
+                PopulateSystemDetails(environment);
+            }
+
+            var configurationRepository = GetConfigurationRepository();
+            var configurationService = new ConfigurationService(configurationRepository,
+                new ConfigurationOptions(ServiceName, environment, "1.0"));
+
+            var result = configurationService.Get<ProviderApprenticeshipsServiceConfiguration>();
+
+            return result;
+        }
+
+        private static IConfigurationRepository GetConfigurationRepository()
+        {
+            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+        }
+
+        private void RegisterMediator()
+        {
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
-            For<ICommitmentsApi>().Use<CommitmentsApi>();
-            For<ITasksApi>().Use<TasksApi>();
+        }
 
-            //For<IUserRepository>().Use<FileSystemUserRepository>();
-            //For<IStandardsRepository>().Use<FileSystemStandardsRepository>();
+        private void PopulateSystemDetails(string envName)
+        {
+            SystemDetails.EnvironmentName = envName;
+            SystemDetails.VersionNumber = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

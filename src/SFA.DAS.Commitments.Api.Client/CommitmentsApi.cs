@@ -4,8 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
@@ -13,7 +13,7 @@ namespace SFA.DAS.Commitments.Api.Client
     {
         private readonly string _baseUrl;
 
-        public CommitmentsApi(CommitmentsApiConfiguration configuration)
+        public CommitmentsApi(ICommitmentsApiClientConfiguration configuration)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
@@ -61,17 +61,11 @@ namespace SFA.DAS.Commitments.Api.Client
             await PatchCommitment(url, change);
         }
 
-        public async Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentStatus status, string message)
+        public async Task PostProviderCommitmentTask(long providerId, long commitmentId, CommitmentTask task)
         {
-            var url = $"{_baseUrl}api/provider/{providerId}/commitments/{commitmentId}";
+            var url = $"{_baseUrl}api/provider/{providerId}/commitments/{commitmentId}/tasks";
 
-            var change = new CommitmentStatusChange
-            {
-                Status = status,
-                Message = message
-            };
-
-            await PatchCommitment(url, change);
+            await PostCommitmentTask(url, task);
         }
 
         public async Task UpdateEmployerApprenticeship(long employerAccountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
@@ -123,6 +117,12 @@ namespace SFA.DAS.Commitments.Api.Client
             var content = await PostAsync(url, data);
 
             return JsonConvert.DeserializeObject<Commitment>(content);
+        }
+
+        private async Task PostCommitmentTask(string url, CommitmentTask task)
+        {
+            var data = JsonConvert.SerializeObject(task);
+            await PostAsync(url, data);
         }
 
         private async Task PatchCommitment(string url, CommitmentStatusChange change)

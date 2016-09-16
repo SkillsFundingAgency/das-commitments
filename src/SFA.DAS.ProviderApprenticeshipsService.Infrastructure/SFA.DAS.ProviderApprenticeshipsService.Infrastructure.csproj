@@ -95,19 +95,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Configuration\ConfigurationPolicy.cs" />
     <Compile Include="Configuration\ProviderApprenticeshipsServiceConfiguration.cs" />
-    <Compile Include="Configuration\TasksApiConfiguration.cs" />
     <Compile Include="Data\FileSystemRepository.cs" />
     <Compile Include="Data\FileSystemStandardsRepository.cs" />
     <Compile Include="Data\FileSystemUserRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj">
+      <Project>{DEA2C098-EC17-4485-961D-A7F48720D37D}</Project>
+      <Name>SFA.DAS.Commitments.Api.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Domain\SFA.DAS.ProviderApprenticeshipsService.Domain.csproj">
       <Project>{B3484618-78A0-411E-BC02-AC84C8694C3D}</Project>
       <Name>SFA.DAS.ProviderApprenticeshipsService.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Tasks.Api.Client\SFA.DAS.Tasks.Api.Client.csproj">
+      <Project>{E442B238-0C69-449E-A2C5-FD890CF6A7DC}</Project>
+      <Name>SFA.DAS.Tasks.Api.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

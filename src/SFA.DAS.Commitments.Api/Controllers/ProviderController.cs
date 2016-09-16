@@ -2,10 +2,13 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 using MediatR;
+using SFA.DAS.Commitments.Api.ModelBinders;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
@@ -118,6 +121,27 @@ namespace SFA.DAS.Commitments.Api.Controllers
                     CommitmentId = commitmentId,
                     ApprenticeshipId = apprenticeshipId,
                     Apprenticeship = apprenticeship
+                });
+
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}/tasks")]
+        public async Task<IHttpActionResult> PostCommitmentTask(long providerId, long commitmentId, CommitmentTask task)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateCommitmentStatusCommand
+                {
+                    AccountId = providerId,
+                    CommitmentId = commitmentId,
+                    Status = task.Status,
+                    Message = task.Message
                 });
 
                 return StatusCode(HttpStatusCode.NoContent);
