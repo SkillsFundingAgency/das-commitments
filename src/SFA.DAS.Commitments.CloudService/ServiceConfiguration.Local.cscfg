@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="SFA.DAS.CloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
-  <Role name="SFA.DAS.ProviderApprenticeshipsService.Web">
-    <Instances count="1" />
-    <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="EnvironmentName" value="LOCAL" />
-      <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true" />
-    </ConfigurationSettings>
-  </Role>
   <Role name="SFA.DAS.Commitments.Api">
     <Instances count="1" />
     <ConfigurationSettings>

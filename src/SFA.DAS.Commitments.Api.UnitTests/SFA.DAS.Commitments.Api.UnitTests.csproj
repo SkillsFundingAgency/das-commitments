@@ -99,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{b3d79e6a-7a5e-4b52-9a78-6ae6f1009166}</Project>
+      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
       <Name>SFA.DAS.Commitments.Api.Types</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj">
