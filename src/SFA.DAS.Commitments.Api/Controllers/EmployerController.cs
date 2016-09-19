@@ -6,6 +6,7 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -132,6 +133,22 @@ namespace SFA.DAS.Commitments.Api.Controllers
                     Status = change.Status,
                     Message = change.Message
                 });
+
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (InvalidRequestException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+
+        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]ApprenticeshipStatus? status)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand { AccountId = accountId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId, Status = status });
 
                 return StatusCode(HttpStatusCode.NoContent);
             }

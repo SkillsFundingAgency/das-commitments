@@ -31,6 +31,9 @@ using SFA.DAS.Tasks.Api.Client.Configuration;
 
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
+    using Application;
+    using FluentValidation;
+    using StructureMap.Graph;
 
     public class DefaultRegistry : Registry {
         private const string ServiceName = "SFA.DAS.Commitments";
@@ -45,6 +48,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
                     scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IValidateStateTransition<>));
                 });
 
 
