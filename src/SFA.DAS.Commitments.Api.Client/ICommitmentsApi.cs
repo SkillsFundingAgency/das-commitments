@@ -13,6 +13,7 @@ namespace SFA.DAS.Commitments.Api.Client
         Task PatchEmployerCommitment(long employerAccountId, long commitmentId, CommitmentStatus status);
         Task<Apprenticeship> GetEmployerApprenticeship(long employerAccountId, long commitmentId, long apprenticeshipId);
         Task UpdateEmployerApprenticeship(long employerAccountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship);
+        Task PatchApprenticeship(long employerAccountId, long commitmentId, long apprenticeshipId, ApprenticeshipStatus status);
 
 
         Task<List<CommitmentListItem>> GetProviderCommitments(long providerId);
