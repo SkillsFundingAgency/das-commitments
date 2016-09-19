@@ -33,6 +33,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         [Test]
         public async Task ThenShouldCallTheRepository()
         {
+            var commitment = new Commitment
+            {
+                Status = CommitmentStatus.Draft
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(commitment);
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.UpdateStatus(
