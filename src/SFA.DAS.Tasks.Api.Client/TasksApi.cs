@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.Tasks.Api.Client.Configuration;
-using Task = SFA.DAS.Tasks.Domain.Entities.Task;
+using Task = SFA.DAS.Tasks.Api.Types.Task;
 
 namespace SFA.DAS.Tasks.Api.Client
 {

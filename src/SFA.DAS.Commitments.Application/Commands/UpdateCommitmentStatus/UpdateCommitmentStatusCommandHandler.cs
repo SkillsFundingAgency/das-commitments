@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             {
                 var assignee = $"EMPLOYER-{commitment.EmployerAccountId}";
 
-                await _tasksApi.CreateTask(assignee, new Tasks.Domain.Entities.Task
+                await _tasksApi.CreateTask(assignee, new Tasks.Api.Types.Task
                 {
                     Assignee = assignee,
                     Body = message.Message,

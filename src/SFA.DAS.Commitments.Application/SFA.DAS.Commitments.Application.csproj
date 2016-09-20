@@ -110,9 +110,9 @@
       <Project>{E442B238-0C69-449E-A2C5-FD890CF6A7DC}</Project>
       <Name>SFA.DAS.Tasks.Api.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Tasks.Domain\SFA.DAS.Tasks.Domain.csproj">
-      <Project>{9BBAB098-4C62-4DFC-AEEA-20A0D9BD1E2C}</Project>
-      <Name>SFA.DAS.Tasks.Domain</Name>
+    <ProjectReference Include="..\SFA.DAS.Tasks.Api.Types\SFA.DAS.Tasks.Api.Types.csproj">
+      <Project>{E1E60BA1-5838-474E-BDA0-810D7A5B126E}</Project>
+      <Name>SFA.DAS.Tasks.Api.Types</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
