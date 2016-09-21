@@ -15,9 +15,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using FluentValidation;
 using StructureMap;
-using StructureMap.Graph;
 using System;
 using System.Reflection;
 using MediatR;
@@ -26,9 +24,6 @@ using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.Tasks.Api.Client;
-using SFA.DAS.Tasks.Api.Client.Configuration;
-
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
     using Application;
@@ -53,8 +48,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
 
 
             var config = GetConfiguration();
-
-            For<ITasksApi>().Use<TasksApi>().Ctor<ITasksApiClientConfiguration>().Is(config.TasksApi);
 
             RegisterMediator();
         }

@@ -110,10 +110,6 @@
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Tasks.Api.Client\SFA.DAS.Tasks.Api.Client.csproj">
-      <Project>{E442B238-0C69-449E-A2C5-FD890CF6A7DC}</Project>
-      <Name>SFA.DAS.Tasks.Api.Client</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
