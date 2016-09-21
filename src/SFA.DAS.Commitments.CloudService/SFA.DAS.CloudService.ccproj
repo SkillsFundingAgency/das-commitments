@@ -45,23 +45,13 @@
       <RoleName>SFA.DAS.Commitments.Api</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Web\SFA.DAS.ProviderApprenticeshipsService.Web.csproj">
-      <Name>SFA.DAS.ProviderApprenticeshipsService.Web</Name>
-      <Project>{94e473e1-2217-43c3-a228-00b8be2be0f1}</Project>
-      <Private>True</Private>
-      <RoleType>Web</RoleType>
-      <RoleName>SFA.DAS.ProviderApprenticeshipsService.Web</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SFA.DAS.Commitments.ApiContent\" />
-    <Folder Include="SFA.DAS.ProviderApprenticeshipsService.WebContent\" />
     <Folder Include="SFA.DAS.Tasks.ApiContent\" />
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="SFA.DAS.Commitments.ApiContent\diagnostics.wadcfgx" />
-    <DiagnosticsConfiguration Include="SFA.DAS.ProviderApprenticeshipsService.WebContent\diagnostics.wadcfgx" />
     <DiagnosticsConfiguration Include="SFA.DAS.Tasks.ApiContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <!-- Import the target files for this project template -->

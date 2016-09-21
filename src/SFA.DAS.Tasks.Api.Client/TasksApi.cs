@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
-using Task = SFA.DAS.Tasks.Domain.Entities.Task;
+using SFA.DAS.Tasks.Api.Client.Configuration;
+using Task = SFA.DAS.Tasks.Api.Types.Task;
 
 namespace SFA.DAS.Tasks.Api.Client
 {
@@ -12,7 +12,7 @@ namespace SFA.DAS.Tasks.Api.Client
     {
         private readonly string _baseUrl;
 
-        public TasksApi(TasksApiConfiguration configuration)
+        public TasksApi(ITasksApiClientConfiguration configuration)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
