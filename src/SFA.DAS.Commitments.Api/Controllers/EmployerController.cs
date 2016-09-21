@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
 
-        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus status)
+        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus? status)
         {
             try
             {
@@ -130,8 +130,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
                 {
                     AccountId = accountId,
                     CommitmentId = commitmentId,
-                    Status = status,
-                    Message = ""
+                    Status = status
                 });
 
                 return StatusCode(HttpStatusCode.NoContent);

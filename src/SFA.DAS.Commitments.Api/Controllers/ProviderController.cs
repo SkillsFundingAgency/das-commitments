@@ -2,9 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
 using MediatR;
-using SFA.DAS.Commitments.Api.ModelBinders;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -131,8 +129,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/tasks")]
-        public async Task<IHttpActionResult> PostCommitmentTask(long providerId, long commitmentId, CommitmentTask task)
+        [Route("{providerId}/commitments/{commitmentId}")]
+
+        public async Task<IHttpActionResult> PatchCommitment(long providerId, long commitmentId, [FromBody]CommitmentStatus? status)
         {
             try
             {
@@ -140,8 +139,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
                 {
                     AccountId = providerId,
                     CommitmentId = commitmentId,
-                    Status = task.Status,
-                    Message = task.Message
+                    Status = status
                 });
 
                 return StatusCode(HttpStatusCode.NoContent);

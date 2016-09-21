@@ -273,10 +273,6 @@
       <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
       <Name>SFA.DAS.Commitments.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SFA.DAS.Tasks.Api.Client\SFA.DAS.Tasks.Api.Client.csproj">
-      <Project>{E442B238-0C69-449E-A2C5-FD890CF6A7DC}</Project>
-      <Name>SFA.DAS.Tasks.Api.Client</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
