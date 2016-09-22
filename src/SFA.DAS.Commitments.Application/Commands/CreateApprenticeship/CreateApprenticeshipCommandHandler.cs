@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 LastName = apprenticeship.LastName,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
-                Status = (Domain.ApprenticeshipStatus)apprenticeship.Status,
+                Status = Domain.ApprenticeshipStatus.ReadyForApproval,
                 AgreementStatus = (Domain.AgreementStatus)apprenticeship.AgreementStatus,
                 TrainingId = apprenticeship.TrainingId,
                 Cost = apprenticeship.Cost,

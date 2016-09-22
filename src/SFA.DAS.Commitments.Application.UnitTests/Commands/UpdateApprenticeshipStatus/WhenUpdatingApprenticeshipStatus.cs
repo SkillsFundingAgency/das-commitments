@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenWhenApprenticeshipIsNotInReadyForApprovalStateRequestExceptionIsThrown()
         {
-            var apprenticeshipFromRepository = new Apprenticeship { Status = ApprenticeshipStatus.Created };
+            var apprenticeshipFromRepository = new Apprenticeship { Status = (ApprenticeshipStatus)50 };
             _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository) ;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);

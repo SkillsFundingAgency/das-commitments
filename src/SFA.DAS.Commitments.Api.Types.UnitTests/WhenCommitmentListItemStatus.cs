@@ -15,7 +15,6 @@ namespace SFA.DAS.Commitments.Api.Types.UnitTests
         }
 
         [TestCase(ApprenticeshipStatus.Approved)]
-        [TestCase(ApprenticeshipStatus.Created)]
         public void IsNotReadyForApprovalItCannotBeApproved(ApprenticeshipStatus status)
         {
             var apprenticeship = new Apprenticeship { Status = status };
