@@ -22,5 +22,15 @@ namespace SFA.DAS.Commitments.Api.Types
         {
             return Status == ApprenticeshipStatus.ReadyForApproval;
         }
+
+        public bool CanBePaused()
+        {
+            return Status == ApprenticeshipStatus.Approved;
+        }
+
+        public bool CanBeResumed()
+        {
+            return Status == ApprenticeshipStatus.Paused;
+        }
     }
 }

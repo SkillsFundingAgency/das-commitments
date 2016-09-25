@@ -7,19 +7,19 @@ namespace SFA.DAS.Commitments.Api.Types.UnitTests
     public sealed class WhenCommitmentListItemStatus
     {
         [Test]
-        public void IsReadyForApprovalItCanBeApproved()
+        public void IsDraftCanBeSubmitted()
         {
-            var apprenticeship = new Apprenticeship { Status = ApprenticeshipStatus.ReadyForApproval };
+            var commitment = new CommitmentListItem { Status = CommitmentStatus.Draft };
 
-            apprenticeship.CanBeApproved().Should().Be(true);
+            commitment.CanBeSubmitted().Should().Be(true);
         }
 
-        [TestCase(ApprenticeshipStatus.Approved)]
-        public void IsNotReadyForApprovalItCannotBeApproved(ApprenticeshipStatus status)
+        [Test]
+        public void IsActiveCannotBeSubmitted()
         {
-            var apprenticeship = new Apprenticeship { Status = status };
+            var commitment = new CommitmentListItem { Status = CommitmentStatus.Active };
 
-            apprenticeship.CanBeApproved().Should().Be(false);
+            commitment.CanBeSubmitted().Should().Be(false);
         }
     }
 }
