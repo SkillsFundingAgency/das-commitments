@@ -50,26 +50,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldThrow<InvalidRequestException>();
         }
 
-        [Test]
-        public void ThenWhenApprenticeshipIsNotInReadyForApprovalStateRequestExceptionIsThrown()
+        [TestCase(ApprenticeshipStatus.ReadyForApproval, Api.Types.ApprenticeshipStatus.Approved)]
+        [TestCase(ApprenticeshipStatus.Approved, Api.Types.ApprenticeshipStatus.Paused)]
+        [TestCase(ApprenticeshipStatus.Paused, Api.Types.ApprenticeshipStatus.Approved)]
+        public void ThenWhenStateTransitionIsValidNoExceptionIsThrown(ApprenticeshipStatus initial, Api.Types.ApprenticeshipStatus target)
         {
-            var apprenticeshipFromRepository = new Apprenticeship { Status = ApprenticeshipStatus.Created };
+            var apprenticeshipFromRepository = new Apprenticeship { Status = initial };
             _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository) ;
+            _exampleValidRequest.Status = target;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldNotThrow<InvalidRequestException>();
         }
 
-        [Test]
-        public void ThenWhenApprenticeshipIsAlreadyApprovedRequestIsSuccessful()
+        [TestCase(ApprenticeshipStatus.ReadyForApproval, Api.Types.ApprenticeshipStatus.Paused)]
+        [TestCase(ApprenticeshipStatus.Paused, Api.Types.ApprenticeshipStatus.ReadyForApproval)]
+        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(ApprenticeshipStatus initial, Api.Types.ApprenticeshipStatus target)
         {
-            var apprenticeshipFromRepository = new Apprenticeship { Status = ApprenticeshipStatus.Approved };
+            var apprenticeshipFromRepository = new Apprenticeship { Status = initial };
             _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository);
+            _exampleValidRequest.Status = target;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
-            act.ShouldNotThrow<Exception>();
+            act.ShouldThrow<Exception>();
         }
     }
 }

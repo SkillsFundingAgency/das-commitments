@@ -11,7 +11,12 @@ namespace SFA.DAS.Commitments.Application
 
             if (target == ApprenticeshipStatus.Approved)
             {
-                return initial == ApprenticeshipStatus.ReadyForApproval;
+                return initial == ApprenticeshipStatus.ReadyForApproval || initial == ApprenticeshipStatus.Paused;
+            }
+
+            if (target == ApprenticeshipStatus.Paused)
+            {
+                return initial == ApprenticeshipStatus.Approved;
             }
 
             return false;

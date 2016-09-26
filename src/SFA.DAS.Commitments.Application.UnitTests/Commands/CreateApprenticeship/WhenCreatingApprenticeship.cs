@@ -83,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             argument.EndDate.Should().Be(_exampleValidRequest.Apprenticeship.EndDate);
             argument.TrainingId.Should().Be(_exampleValidRequest.Apprenticeship.TrainingId);
             argument.ULN.Should().Be(_exampleValidRequest.Apprenticeship.ULN);
-            argument.Status.Should().Be((Domain.ApprenticeshipStatus)_exampleValidRequest.Apprenticeship.Status);
+            argument.Status.Should().Be(Domain.ApprenticeshipStatus.ReadyForApproval);
             argument.AgreementStatus.Should().Be((Domain.AgreementStatus)_exampleValidRequest.Apprenticeship.AgreementStatus);
         }
     }

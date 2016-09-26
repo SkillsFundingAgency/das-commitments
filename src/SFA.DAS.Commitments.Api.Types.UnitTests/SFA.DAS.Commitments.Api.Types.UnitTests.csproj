@@ -52,8 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WhenApprenticeshipStatus.cs" />
     <Compile Include="WhenCommitmentListItemStatus.cs" />
+    <Compile Include="WhenApprenticeshipStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

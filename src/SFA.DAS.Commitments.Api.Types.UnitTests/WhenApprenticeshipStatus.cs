@@ -7,19 +7,54 @@ namespace SFA.DAS.Commitments.Api.Types.UnitTests
     public sealed class WhenApprenticeshipStatus
     {
         [Test]
-        public void IsDraftCanBeSubmitted()
+        public void IsReadyForApprovalItCanBeApproved()
         {
-            var commitment = new CommitmentListItem { Status = CommitmentStatus.Draft };
+            var apprenticeship = new Apprenticeship { Status = ApprenticeshipStatus.ReadyForApproval };
 
-            commitment.CanBeSubmitted().Should().Be(true);
+            apprenticeship.CanBeApproved().Should().Be(true);
+        }
+
+        [TestCase(ApprenticeshipStatus.Approved)]
+        [TestCase(ApprenticeshipStatus.Paused)]
+        public void IsNotReadyForApprovalItCannotBeApproved(ApprenticeshipStatus status)
+        {
+            var apprenticeship = new Apprenticeship { Status = status };
+
+            apprenticeship.CanBeApproved().Should().Be(false);
         }
 
         [Test]
-        public void IsActiveCannotBeSubmitted()
+        public void IsApprovedItCanBePaused()
         {
-            var commitment = new CommitmentListItem { Status = CommitmentStatus.Active };
+            var apprenticeship = new Apprenticeship { Status = ApprenticeshipStatus.Approved };
 
-            commitment.CanBeSubmitted().Should().Be(false);
+            apprenticeship.CanBePaused().Should().Be(true);
+        }
+
+        [TestCase(ApprenticeshipStatus.Paused)]
+        [TestCase(ApprenticeshipStatus.ReadyForApproval)]
+        public void IsNotApprovedItCannotBePaused(ApprenticeshipStatus status)
+        {
+            var apprenticeship = new Apprenticeship { Status = status };
+
+            apprenticeship.CanBePaused().Should().Be(false);
+        }
+
+        [Test]
+        public void IsPausedItCanBeResumed()
+        {
+            var apprenticeship = new Apprenticeship { Status = ApprenticeshipStatus.Paused };
+
+            apprenticeship.CanBeResumed().Should().Be(true);
+        }
+
+        [TestCase(ApprenticeshipStatus.Approved)]
+        [TestCase(ApprenticeshipStatus.ReadyForApproval)]
+        public void IsNotPausedItCannotBePaused(ApprenticeshipStatus status)
+        {
+            var apprenticeship = new Apprenticeship { Status = status };
+
+            apprenticeship.CanBeResumed().Should().Be(false);
         }
     }
 }
