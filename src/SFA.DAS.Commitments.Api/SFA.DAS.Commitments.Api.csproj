@@ -157,6 +157,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=4.0.20622.1351, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IdentityModel.Tokens.Jwt.4.0.2.206221351\lib\net45\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Spatial, Version=5.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Spatial.5.7.0\lib\net40\System.Spatial.dll</HintPath>
@@ -223,11 +228,15 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\ApiKeyHandler.cs" />
     <Compile Include="App_Start\StructuremapMvc.cs" />
     <Compile Include="App_Start\StructuremapWebApi.cs" />
+    <Compile Include="App_Start\ValidationErrorResult.cs" />
+    <Compile Include="App_Start\ValidationExceptionHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
+    <Compile Include="Core\OrchestratorResponse.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
     <Compile Include="DependencyResolution\StructureMapDependencyScope.cs" />
@@ -238,6 +247,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\SystemDetails.cs" />
+    <Compile Include="Orchestrators\EmployerOrchestrator.cs" />
+    <Compile Include="Orchestrators\ProviderOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -269,7 +280,7 @@
       <Name>SFA.DAS.Commitments.Application</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
-      <Project>{c4c803af-747e-4747-a23b-da43219009a4}</Project>
+      <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
