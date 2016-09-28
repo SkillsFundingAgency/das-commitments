@@ -28,9 +28,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+                throw new ValidationException(validationResult.Errors);
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 

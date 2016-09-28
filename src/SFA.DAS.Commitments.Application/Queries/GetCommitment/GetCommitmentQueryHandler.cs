@@ -21,10 +21,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 
         public async Task<GetCommitmentResponse> Handle(GetCommitmentRequest message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 

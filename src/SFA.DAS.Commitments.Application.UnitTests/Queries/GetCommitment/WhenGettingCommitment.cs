@@ -6,6 +6,7 @@ using Moq;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;
+using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using Ploeh.AutoFixture;
 
@@ -54,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         public void ThenIfCommitmentIdIsZeroItThrowsAnInvalidRequestException()
         {
             Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = 0 });
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
         }
 
         [Test]

@@ -5,6 +5,7 @@ using Moq;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;
+using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -55,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         public void ThenIfCommitmentIdIsZeroItThrowsAnInvalidRequestException()
         {
             Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest { CommitmentId = 0 });
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
         }
 
         [Test]

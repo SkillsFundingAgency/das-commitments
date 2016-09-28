@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using MediatR;
+using NLog;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -18,6 +19,8 @@ namespace SFA.DAS.Commitments.Api.Controllers
     [RoutePrefix("api/employer")]
     public class EmployerController : ApiController
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IMediator _mediator;
 
         public EmployerController(IMediator mediator)

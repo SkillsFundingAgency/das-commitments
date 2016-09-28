@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
@@ -50,7 +51,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         {
             Func<Task> act = async () => await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 });
 
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
         }
     }
 }

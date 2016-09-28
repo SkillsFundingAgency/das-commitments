@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
@@ -47,7 +48,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
         }
 
         [TestCase(ApprenticeshipStatus.ReadyForApproval, Api.Types.ApprenticeshipStatus.Approved)]

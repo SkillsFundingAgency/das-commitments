@@ -22,10 +22,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
         public async Task<long> Handle(CreateApprenticeshipCommand message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
             var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(message.Apprenticeship, message));
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -69,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
         }
 
         private void AssertMappingIsCorrect(Domain.Apprenticeship argument)

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
@@ -21,10 +20,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetProviderCommitments
 
         public async Task<GetProviderCommitmentsResponse> Handle(GetProviderCommitmentsRequest message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
             var commitments = await _commitmentRepository.GetByProvider(message.ProviderId);
 

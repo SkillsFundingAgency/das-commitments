@@ -21,10 +21,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
         public async Task<GetApprenticeshipResponse> Handle(GetApprenticeshipRequest message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 

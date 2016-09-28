@@ -22,10 +22,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
 
             await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message));
         }
