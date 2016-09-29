@@ -84,10 +84,10 @@
     <Compile Include="Queries\GetCommitment\GetCommitmentRequest.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentResponse.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentValidator.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsQueryHandler.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsRequest.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsResponse.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsValidator.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsQueryHandler.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsRequest.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsResponse.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsValidator.cs" />
     <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryHandler.cs" />
     <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryRequest.cs" />
     <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryResponse.cs" />

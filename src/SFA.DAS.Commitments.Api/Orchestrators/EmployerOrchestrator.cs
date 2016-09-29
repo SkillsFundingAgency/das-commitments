@@ -10,7 +10,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using ApprenticeshipStatus = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatus;
@@ -31,16 +31,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _mediator = mediator;
         }
 
-        public async Task<OrchestratorResponse<GetEmployerCommitmentsResponse>> GetCommitments(long id)
+        public async Task<OrchestratorResponse<GetCommitmentsResponse>> GetCommitments(long id)
         {
             try
             {
-                var data = await _mediator.SendAsync(new GetEmployerCommitmentsRequest
+                var data = await _mediator.SendAsync(new GetCommitmentsRequest
                 {
-                    AccountId = id
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Employer,
+                        Id = id
+                    }
                 });
 
-                return new OrchestratorResponse<GetEmployerCommitmentsResponse>
+                return new OrchestratorResponse<GetCommitmentsResponse>
                 {
                     Data = data
                 };

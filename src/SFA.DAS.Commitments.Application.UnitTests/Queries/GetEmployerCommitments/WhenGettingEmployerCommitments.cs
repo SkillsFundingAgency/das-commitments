@@ -7,8 +7,7 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
@@ -18,19 +17,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
     public class WhenGettingEmployerCommitments
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
-        private GetEmployerCommitmentsQueryHandler _handler;
+        private GetCommitmentsQueryHandler _handler;
 
         [SetUp]
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetEmployerCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
         }
 
         [Test]
         public async Task ThenTheCommitmentRepositoryIsCalled()
         {
-            await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
+            await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 123
+                }
+            });
 
             _mockCommitmentRespository.Verify(x => x.GetByEmployer(It.IsAny<long>()), Times.Once);
         }
@@ -40,7 +46,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         {
             _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
-            var response = await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 123 });
+            var response = await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 123
+                }
+            });
 
             response.Data.Should().HaveSameCount(commitmentsFromRepository);
             commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
@@ -49,7 +62,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         [Test]
         public void ThenShouldThrowInvalidRequestExceptionIfValidationFails()
         {
-            Func<Task> act = async () => await _handler.Handle(new GetEmployerCommitmentsRequest { AccountId = 0 });
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 0
+                }
+            });
 
             act.ShouldThrow<ValidationException>();
         }

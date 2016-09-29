@@ -62,7 +62,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [Test]
         public void ThenIfCommitmentIdIsZeroItThrowsAnInvalidRequestException()
         {
-            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = 0 });
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
+            {
+                CommitmentId = 0,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 1
+                }
+            });
             act.ShouldThrow<ValidationException>();
         }
 
@@ -101,7 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 
             Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
             {
-                CommitmentId = 5,
+                CommitmentId = _fakeRepositoryCommitment.Id,
                 Caller = new Caller
                 {
                     CallerType = CallerType.Employer,
