@@ -63,7 +63,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 var data = await _mediator.SendAsync(new GetCommitmentRequest
                 {
-                    AccountId = accountId,
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Employer,
+                        Id = accountId
+                    },
                     CommitmentId = commitmentId
                 });
 

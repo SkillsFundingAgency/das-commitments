@@ -60,7 +60,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 var response = await _mediator.SendAsync(new GetCommitmentRequest
                 {
-                    ProviderId = providerId, CommitmentId = commitmentId
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Provider,
+                        Id = providerId
+                    },
+                    CommitmentId = commitmentId
                 });
 
                 return new OrchestratorResponse<GetCommitmentResponse>

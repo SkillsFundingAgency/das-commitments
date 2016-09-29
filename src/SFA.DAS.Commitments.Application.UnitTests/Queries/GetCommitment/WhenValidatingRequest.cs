@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 {
@@ -19,7 +20,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [TestCase(-1)]
         public void ThenIfTheCommitmentIdIsZeroOrLessIsNotValid(long testCommitmentId)
         {
-            var result = _validator.Validate(new GetCommitmentRequest { CommitmentId = testCommitmentId, ProviderId = 1 });
+            var result = _validator.Validate(new GetCommitmentRequest
+            {
+                CommitmentId = testCommitmentId,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 1
+                }
+            });
 
             result.IsValid.Should().BeFalse();
         }
@@ -28,32 +37,32 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [TestCase(99999)]
         public void ThenIfTheAccountIdGreaterThanZeroIsValid(long testProviderId)
         {
-            var result = _validator.Validate(new GetCommitmentRequest { CommitmentId = testProviderId, ProviderId = 1 });
+            var result = _validator.Validate(new GetCommitmentRequest
+            {
+                CommitmentId = testProviderId,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 1
+                }
+            });
 
             result.IsValid.Should().BeTrue();
-        }
-
-        [Test]
-        public void ThenIfBothProviderAndAccountIdsHaveAValueIsNotValid()
-        {
-            var result = _validator.Validate(new GetCommitmentRequest { CommitmentId = 1, ProviderId = 2, AccountId = 3 });
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [Test]
-        public void ThenIfNeitherProviderAndAccountIdsHaveAValueIsNotValid()
-        {
-            var result = _validator.Validate(new GetCommitmentRequest { CommitmentId = 1, ProviderId = null, AccountId = null });
-
-            result.IsValid.Should().BeFalse();
         }
 
         [TestCase(0)]
         [TestCase(-1)]
         public void ThenIfTheAccountIdIsZeroOrLessIsNotValid(long testAccountId)
         {
-            var result = _validator.Validate(new GetCommitmentRequest { CommitmentId = 1, ProviderId = null, AccountId = testAccountId });
+            var result = _validator.Validate(new GetCommitmentRequest
+            {
+                CommitmentId = 1,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = testAccountId
+                }
+            });
 
             result.IsValid.Should().BeFalse();
         }
@@ -62,7 +71,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [TestCase(-1)]
         public void ThenIfTheProviderIdIsZeroOrLessIsNotValid(long testProviderId)
         {
-            var result = _validator.Validate(new GetCommitmentRequest { CommitmentId = 1, ProviderId = testProviderId, AccountId = null });
+            var result = _validator.Validate(new GetCommitmentRequest
+            {
+                CommitmentId = 1,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = testProviderId
+                }
+            });
 
             result.IsValid.Should().BeFalse();
         }

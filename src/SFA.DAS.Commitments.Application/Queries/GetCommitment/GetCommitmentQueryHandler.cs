@@ -2,9 +2,14 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using ApprenticeshipStatus = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatus;
+using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {
@@ -40,14 +45,17 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 
         private static void CheckAuthorization(GetCommitmentRequest message, Domain.Commitment commitment)
         {
-            if (message.ProviderId.HasValue && commitment.ProviderId != message.ProviderId)
+            switch (message.Caller.CallerType)
             {
-                throw new UnauthorizedException($"Provider unauthorized to view commitment: {commitment.Id}");
-            }
-
-            if (message.AccountId.HasValue && commitment.EmployerAccountId != message.AccountId)
-            {
-                throw new UnauthorizedException($"Employer unauthorized to view commitment: {commitment.Id}");
+                case CallerType.Provider:
+                    if (commitment.ProviderId != message.Caller.Id)
+                        throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                default:
+                    if (commitment.EmployerAccountId != message.Caller.Id)
+                        throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                    break;
             }
         }
 
