@@ -5,12 +5,13 @@ using Moq;
 using SFA.DAS.Commitments.Api.Controllers;
 using Ploeh.AutoFixture.NUnit3;
 using System.Web.Http.Results;
-using SFA.DAS.Commitments.Api.Types;
 using FluentAssertions;
 using FluentValidation;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
@@ -53,7 +54,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 
             var result = await _controller.GetApprenticeship(testProviderId, testCommitmentId, testApprenticeshipId);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<GetApprenticeshipRequest>(arg => arg.CommitmentId == testCommitmentId && arg.ApprenticeshipId == testApprenticeshipId && arg.ProviderId == testProviderId)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<GetApprenticeshipRequest>(arg => arg.CommitmentId == testCommitmentId && arg.ApprenticeshipId == testApprenticeshipId && arg.Caller.CallerType == CallerType.Provider && arg.Caller.Id == testProviderId)));
         }
 
         [TestCase]

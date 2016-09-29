@@ -1,18 +1,17 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-using SFA.DAS.Commitments.Api.Controllers;
-using MediatR;
-using Moq;
-using Ploeh.AutoFixture.NUnit3;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+﻿using System.Threading.Tasks;
 using System.Web.Http.Results;
-using SFA.DAS.Commitments.Application.Exceptions;
 using FluentAssertions;
 using FluentValidation;
+using MediatR;
+using Moq;
+using NUnit.Framework;
+using Ploeh.AutoFixture.NUnit3;
+using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 
-namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
+namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
     [TestFixture]
     public class WhenGettingASingleCommitment

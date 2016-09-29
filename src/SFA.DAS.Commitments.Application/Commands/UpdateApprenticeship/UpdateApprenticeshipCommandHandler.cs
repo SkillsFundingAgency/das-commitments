@@ -1,10 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship

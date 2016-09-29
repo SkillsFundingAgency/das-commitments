@@ -42,14 +42,17 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
         private static void CheckAuthorization(GetApprenticeshipRequest message, Commitment commitment)
         {
-            if (message.ProviderId.HasValue && commitment.ProviderId != message.ProviderId)
+            switch (message.Caller.CallerType)
             {
-                throw new UnauthorizedException($"Provider unauthorized to view apprenticeship: {message.ApprenticeshipId}");
-            }
-
-            if (message.AccountId.HasValue && commitment.EmployerAccountId != message.AccountId)
-            {
-                throw new UnauthorizedException($"Employer unauthorized to view apprenticeship: {message.ApprenticeshipId}");
+                case CallerType.Provider:
+                    if (commitment.ProviderId != message.Caller.Id)
+                        throw new UnauthorizedException($"Provider unauthorized to view apprenticeship: {message.ApprenticeshipId}");
+                    break;
+                case CallerType.Employer:
+                default:
+                    if (commitment.EmployerAccountId != message.Caller.Id)
+                        throw new UnauthorizedException($"Employer unauthorized to view apprenticeship: {message.ApprenticeshipId}");
+                    break;
             }
         }
 

@@ -4,13 +4,15 @@ using FluentValidation;
 using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Api.Core;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -82,7 +84,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             try
             {
-                var response = await _mediator.SendAsync(new GetApprenticeshipRequest { ProviderId = providerId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId });
+                var response = await _mediator.SendAsync(new GetApprenticeshipRequest
+                {
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Provider,
+                        Id = providerId
+                    },
+                    CommitmentId = commitmentId,
+                    ApprenticeshipId = apprenticeshipId
+                });
 
                 return new OrchestratorResponse<GetApprenticeshipResponse>
                 {
