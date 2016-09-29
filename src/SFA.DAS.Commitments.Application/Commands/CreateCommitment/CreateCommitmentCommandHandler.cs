@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using Newtonsoft.Json;
 using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -12,7 +11,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
 
@@ -24,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            Logger.Info(CreateLogMessage(message));
+            Logger.Info(BuildInfoMessage(message));
 
             var validationResult = _validator.Validate(message);
 
@@ -67,11 +65,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             return domainCommitment;
         }
 
-        private string CreateLogMessage(CreateCommitmentCommand message)
+        private string BuildInfoMessage(CreateCommitmentCommand cmd)
         {
-            var data = JsonConvert.SerializeObject(message);
-
-            return $"Starting CreateCommitmentCommand with {data}";
+            return $"Employer: {cmd.Commitment.EmployerAccountId} has called CreateCommitmentCommand";
         }
     }
 }

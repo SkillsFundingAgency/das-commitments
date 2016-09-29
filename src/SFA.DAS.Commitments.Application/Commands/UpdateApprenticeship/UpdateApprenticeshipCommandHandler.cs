@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -9,6 +10,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
     public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
 
@@ -20,6 +22,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
+            Logger.Info(BuildInfoMessage(message));
+
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)
@@ -66,6 +70,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                         throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
                     break;
             }
+        }
+
+        private string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
+        {
+            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateApprenticeshipCommand";
         }
     }
 }
