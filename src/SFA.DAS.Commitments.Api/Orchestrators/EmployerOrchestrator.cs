@@ -4,6 +4,7 @@ using FluentValidation;
 using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Api.Core;
+using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
@@ -218,6 +219,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 });
 
                 return new OrchestratorResponse();
+            }
+            catch (ValidationException ex)
+            {
+                Logger.Info(ex, $"Validation error {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<OrchestratorResponse<long>> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
+        {
+            try
+            {
+                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand
+                {
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Employer,
+                        Id = accountId
+                    },
+                    CommitmentId = commitmentId,
+                    Apprenticeship = apprenticeship
+                });
+
+                return new OrchestratorResponse<long>
+                {
+                    Data = apprenticeshipId
+                };
             }
             catch (ValidationException ex)
             {

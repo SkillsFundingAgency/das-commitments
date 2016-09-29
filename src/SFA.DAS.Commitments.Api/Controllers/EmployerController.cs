@@ -46,16 +46,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForEmployer")]
         public async Task<IHttpActionResult> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
         {
-            try
-            {
-                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { AccountId = accountId, CommitmentId = commitmentId, Apprenticeship = apprenticeship });
+            var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeship);
 
-                return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId = accountId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
+            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId = accountId, commitmentId = commitmentId, apprenticeshipId = response.Data }, default(Apprenticeship));
         }
 
         [Route("{accountId}/commitments/")]

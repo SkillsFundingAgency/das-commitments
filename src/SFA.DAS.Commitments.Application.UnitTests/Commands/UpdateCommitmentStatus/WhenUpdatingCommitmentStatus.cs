@@ -5,7 +5,6 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
