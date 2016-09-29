@@ -1,8 +1,9 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -46,7 +47,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [TestCase(-2)]
         public void ThenProviderIdIsLessThanOneIsInvalid(long providerId)
         {
-            _exampleCommand.ProviderId = providerId;
+            _exampleCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Provider,
+                Id = providerId
+            };
 
             var result = _validator.Validate(_exampleCommand);
 

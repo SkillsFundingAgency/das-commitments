@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
     // Note: Have currently broken the CQRS pattern here as need to return the Id.
     public sealed class CreateApprenticeshipCommand : IAsyncRequest<long>
     {
-        public long ProviderId { get; set; }
+        public Caller Caller { get; set; }
 
         public long CommitmentId { get; set; }
 

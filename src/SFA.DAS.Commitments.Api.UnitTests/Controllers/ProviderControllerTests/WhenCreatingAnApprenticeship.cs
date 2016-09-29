@@ -8,9 +8,10 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Core;
 using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
@@ -59,7 +60,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
             var newApprenticeship = new Apprenticeship();
             var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, newApprenticeship);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.ProviderId == TestProviderId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.Caller.CallerType == CallerType.Provider && a.Caller.Id == TestProviderId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship)));
         }
 
         [Test]

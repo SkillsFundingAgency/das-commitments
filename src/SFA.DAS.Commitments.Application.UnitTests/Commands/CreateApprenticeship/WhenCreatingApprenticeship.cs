@@ -5,10 +5,10 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
-using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -27,7 +27,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             Fixture fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
-            _exampleValidRequest = new CreateApprenticeshipCommand {ProviderId = 111L, CommitmentId = 123L, Apprenticeship = populatedApprenticeship };
+            _exampleValidRequest = new CreateApprenticeshipCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 111L
+                },
+                CommitmentId = 123L,
+                Apprenticeship = populatedApprenticeship
+            };
         }
 
         [Test]
