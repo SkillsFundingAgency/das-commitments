@@ -2,10 +2,12 @@
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 using FluentAssertions;
+using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -21,18 +23,20 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private ProviderController _controller;
         private Mock<IMediator> _mockMediator;
         private Apprenticeship _newApprenticeship;
+        private ProviderOrchestrator _providerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new ProviderController(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _controller = new ProviderController(_providerOrchestrator);
+
             _newApprenticeship = new Apprenticeship
             {
                 CommitmentId = TestCommitmentId,
                 Id = TestApprenticeshipId
             };
-
         }
 
         [Test]
@@ -54,13 +58,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         }
 
         [Test]
-        public async Task ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
+        public void ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateApprenticeshipCommand>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateApprenticeshipCommand>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.PutApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId, _newApprenticeship);
-
-            result.Should().BeOfType<BadRequestResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.PutApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId, _newApprenticeship));
         }
     }
 }

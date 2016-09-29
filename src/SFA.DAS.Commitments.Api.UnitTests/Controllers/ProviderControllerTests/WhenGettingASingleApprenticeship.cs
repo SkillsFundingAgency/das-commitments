@@ -7,6 +7,8 @@ using Ploeh.AutoFixture.NUnit3;
 using System.Web.Http.Results;
 using SFA.DAS.Commitments.Api.Types;
 using FluentAssertions;
+using FluentValidation;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 
@@ -20,12 +22,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private const long TestApprenticeshipId = 3L;
         private Mock<IMediator> _mockMediator;
         private ProviderController _controller;
+        private ProviderOrchestrator _providerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new ProviderController(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _controller = new ProviderController(_providerOrchestrator);
         }
 
         [Test, AutoData]
@@ -53,23 +57,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         }
 
         [TestCase]
-        public async Task ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
+        public void ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId);
-
-            result.Should().BeOfType<BadRequestResult>();
-        }
-
-        [TestCase]
-        public async Task ThenReturnsAUnauthorizedResponseIfMediatorThrowsAnNotAuthorizedException()
-        {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).Throws<UnauthorizedException>();
-
-            var result = await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId);
-
-            result.Should().BeOfType<UnauthorizedResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId));
         }
 
         [TestCase]

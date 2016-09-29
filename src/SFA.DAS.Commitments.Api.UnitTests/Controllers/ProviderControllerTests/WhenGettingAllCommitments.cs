@@ -1,29 +1,32 @@
-﻿using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Moq;
-using MediatR;
-using SFA.DAS.Commitments.Api.Controllers;
-using Ploeh.AutoFixture.NUnit3;
-using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
-using SFA.DAS.Commitments.Application.Exceptions;
 using System.Web.Http.Results;
-using SFA.DAS.Commitments.Api.Types;
 using FluentAssertions;
+using FluentValidation;
+using MediatR;
+using Moq;
+using NUnit.Framework;
+using Ploeh.AutoFixture.NUnit3;
+using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
-namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
+namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
     [TestFixture]
     public class WhenIGetAllProviderCommitments
     {
         private Mock<IMediator> _mockMediator;
         private ProviderController _controller;
+        private ProviderOrchestrator _providerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new ProviderController(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _controller = new ProviderController(_providerOrchestrator);
         }
 
         [Test, AutoData]
@@ -49,13 +52,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
         }
 
         [Test]
-        public async Task ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
+        public void ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.GetCommitments(1L);
-
-            result.Should().BeOfType<BadRequestResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetCommitments(1L));
         }
     }
 }

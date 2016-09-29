@@ -16,14 +16,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using StructureMap;
-using System;
-using System.Reflection;
 using MediatR;
-using Microsoft.Azure;
-using SFA.DAS.Commitments.Api.Models;
-using SFA.DAS.Commitments.Infrastructure.Configuration;
-using SFA.DAS.Configuration;
-using SFA.DAS.Configuration.AzureTableStorage;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution {
     using Application;
@@ -47,35 +40,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
                 });
 
 
-            var config = GetConfiguration();
-
             RegisterMediator();
-        }
-
-        private CommitmentsApiConfiguration GetConfiguration()
-        {
-            var environment = Environment.GetEnvironmentVariable("DASENV");
-            if (string.IsNullOrEmpty(environment))
-            {
-                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-            }
-            if (environment.Equals("LOCAL") || environment.Equals("AT") || environment.Equals("TEST"))
-            {
-                PopulateSystemDetails(environment);
-            }
-
-            var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository,
-                new ConfigurationOptions(ServiceName, environment, "1.0"));
-
-            var result = configurationService.Get<CommitmentsApiConfiguration>();
-
-            return result;
-        }
-
-        private static IConfigurationRepository GetConfigurationRepository()
-        {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
         }
 
         private void RegisterMediator()
@@ -83,12 +48,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
-        }
-
-        private void PopulateSystemDetails(string envName)
-        {
-            SystemDetails.EnvironmentName = envName;
-            SystemDetails.VersionNumber = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }
