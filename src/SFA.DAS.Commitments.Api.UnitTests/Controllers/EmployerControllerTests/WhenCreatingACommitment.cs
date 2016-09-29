@@ -1,27 +1,30 @@
-﻿using NUnit.Framework;
-using Moq;
-using MediatR;
-using SFA.DAS.Commitments.Api.Types;
-using FluentAssertions;
+﻿using System.Threading.Tasks;
 using System.Web.Http.Results;
-using System.Threading.Tasks;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Exceptions;
+using FluentAssertions;
+using FluentValidation;
+using MediatR;
+using Moq;
+using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 
-namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTests
+namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
     [TestFixture]
     public class WhenCreatingACommitment
     {
         private EmployerController _controller;
         private Mock<IMediator> _mockMediator;
+        private EmployerOrchestrator _employerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new EmployerController(_mockMediator.Object);
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object);
+            _controller = new EmployerController(_employerOrchestrator);
         }
 
         [Test]
@@ -54,13 +57,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.CommitmentsControllerTes
         }
 
         [Test]
-        public async Task ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
+        public void ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.CreateCommitment(123L, new Commitment());
-
-            result.Should().BeOfType<BadRequestResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.CreateCommitment(123L, new Commitment()));
         }
     }
 }

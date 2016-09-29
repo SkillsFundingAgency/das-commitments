@@ -9,6 +9,8 @@ using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
 using System.Web.Http.Results;
 using SFA.DAS.Commitments.Api.Types;
 using FluentAssertions;
+using FluentValidation;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Exceptions;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
@@ -18,12 +20,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
     {
         private Mock<IMediator> _mockMediator;
         private EmployerController _controller;
+        private EmployerOrchestrator _employerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new EmployerController(_mockMediator.Object);
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object);
+            _controller = new EmployerController(_employerOrchestrator);
         }
 
         [Test, AutoData]
@@ -49,13 +53,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         }
 
         [Test]
-        public async Task ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
+        public void ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerCommitmentsRequest>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.GetCommitments(-1L);
-
-            result.Should().BeOfType<BadRequestResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetCommitments(-1L));
         }
     }
 }

@@ -2,18 +2,9 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
-using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -23,16 +14,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly EmployerOrchestrator _employerOrchestrator;
-        private readonly IMediator _mediator;
 
-        public EmployerController(EmployerOrchestrator employerOrchestrator, IMediator mediator)
+        public EmployerController(EmployerOrchestrator employerOrchestrator)
         {
             if (employerOrchestrator == null)
                 throw new ArgumentNullException(nameof(employerOrchestrator));
-            if (mediator == null)
-                throw new ArgumentNullException(nameof(mediator));
             _employerOrchestrator = employerOrchestrator;
-            _mediator = mediator;
         }
 
         [Route("{id}/commitments")]
@@ -40,7 +27,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitments(id);
 
-            return Ok(response.Data);
+            return Ok(response.Data.Data);
         }
 
         [Route("{accountId}/commitments/{commitmentId}", Name = "GetCommitmentForEmployer")]
@@ -48,12 +35,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitment(accountId, commitmentId);
 
-            if (response.Data == null)
+            if (response.Data.Data == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data);
+            return Ok(response.Data.Data);
         }
 
         [Route("{accountId}/commitments/")]
@@ -89,37 +76,17 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus? status)
         {
-            try
-            {
-                await _mediator.SendAsync(new UpdateCommitmentStatusCommand
-                {
-                    AccountId = accountId,
-                    CommitmentId = commitmentId,
-                    Status = status
-                });
+            await _employerOrchestrator.PatchCommitment(accountId, commitmentId, status);
 
-                return StatusCode(HttpStatusCode.NoContent);
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
-
         public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]ApprenticeshipStatus? status)
         {
-            try
-            {
-                await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand { AccountId = accountId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId, Status = status });
+            await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, status);
 
-                return StatusCode(HttpStatusCode.NoContent);
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
+            return StatusCode(HttpStatusCode.NoContent);
         }
     }
 }

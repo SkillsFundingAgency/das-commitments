@@ -7,6 +7,8 @@ using SFA.DAS.Commitments.Api.Core;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
+using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerCommitments;
@@ -29,7 +31,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             try
             {
-                var data = await _mediator.SendAsync(new GetEmployerCommitmentsRequest {AccountId = id});
+                var data = await _mediator.SendAsync(new GetEmployerCommitmentsRequest
+                {
+                    AccountId = id
+                });
 
                 return new OrchestratorResponse<GetEmployerCommitmentsResponse>
                 {
@@ -79,7 +84,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             try
             {
-                var commitmentId = await _mediator.SendAsync(new CreateCommitmentCommand { Commitment = commitment });
+                var commitmentId = await _mediator.SendAsync(new CreateCommitmentCommand
+                {
+                    Commitment = commitment
+                });
 
                 return new OrchestratorResponse<long>
                 {
@@ -136,6 +144,57 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CommitmentId = commitmentId,
                     ApprenticeshipId = apprenticeshipId,
                     Apprenticeship = apprenticeship
+                });
+
+                return new OrchestratorResponse();
+            }
+            catch (ValidationException ex)
+            {
+                Logger.Info(ex, $"Validation error {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<OrchestratorResponse> PatchCommitment(long accountId, long commitmentId, CommitmentStatus? status)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateCommitmentStatusCommand
+                {
+                    AccountId = accountId,
+                    CommitmentId = commitmentId,
+                    Status = status
+                });
+
+                return new OrchestratorResponse();
+            }
+            catch (ValidationException ex)
+            {
+                Logger.Info(ex, $"Validation error {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<OrchestratorResponse> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStatus? status)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
+                {
+                    AccountId = accountId,
+                    CommitmentId = commitmentId,
+                    ApprenticeshipId = apprenticeshipId,
+                    Status = status
                 });
 
                 return new OrchestratorResponse();
