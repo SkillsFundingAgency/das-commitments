@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             _validator = new CreateApprenticeshipValidator();
             var populatedCommitment = fixture.Build<Apprenticeship>().Create();
-            _exampleCommand = new CreateApprenticeshipCommand { CommitmentId = 123L, Apprenticeship = populatedCommitment };
+            _exampleCommand = new CreateApprenticeshipCommand { ProviderId = 1, AccountId = null, CommitmentId = 123L, Apprenticeship = populatedCommitment };
         }
         
         [Test]
@@ -54,9 +54,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             result.IsValid.Should().BeFalse();
         }
 
+        [Test]
+        public void ThenAccountIdNotSetAndProviderIdIsGreaterThanZeroIsValid()
+        {
+            _exampleCommand.ProviderId = 12;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
+        }
+
         [TestCase(0)]
         [TestCase(-2)]
-        public void ThenProviderIdIsLessThanOneIsInvalid(long providerId)
+        public void ThenIfAccouuntIdNotSetAndProviderIdIsLessThanOneIsInvalid(long providerId)
         {
             _exampleCommand.Caller = new Caller
             {
@@ -67,6 +77,56 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var result = _validator.Validate(_exampleCommand);
 
             result.IsValid.Should().BeFalse();
+        }
+
+        [Test]
+        public void ThenProviderIdNotSetAndAccountIdIsGreaterThanZeroIsValid()
+        {
+            _exampleCommand.ProviderId = null;
+            _exampleCommand.AccountId = 12;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
+        }
+
+        [TestCase(0)]
+        [TestCase(-2)]
+        public void ThenProviderIdNotSetAndAccountIdIsLessThanOneIsInvalid(long accountId)
+        {
+            _exampleCommand.AccountId = accountId;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [Test]
+        public void ThenIfBothProviderAndAccountIdsHaveAValueIsNotValid()
+        {
+            _exampleCommand.AccountId = 123L;
+            _exampleCommand.ProviderId = 233L;
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        public void ThenIfProviderIdICommitmentIdAndApprenticeshipIdAreAllGreaterThanZeroItIsValid()
+        {
+            _exampleCommand.ProviderId = 321L;
+            _exampleCommand.AccountId = null;
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
+        }
+
+        public void ThenIfAccountIdICommitmentIdAndApprenticeshipIdAreAllGreaterThanZeroItIsValid()
+        {
+            _exampleCommand.AccountId = 321L;
+            _exampleCommand.ProviderId = null;
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
         }
     }
 }

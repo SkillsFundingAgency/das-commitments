@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingACommitment.cs" />
+    <Compile Include="Controllers\EmployerControllerTests\WhenCreatingAnApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingAnApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingApprenticeshipStatus.cs" />
