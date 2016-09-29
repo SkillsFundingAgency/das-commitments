@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetEmployerCommitmentsValidator());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator());
         }
 
         [Test]

@@ -8,12 +8,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.GetEmployerCommitments
     [TestFixture]
     public class WhenValidatingAccountId
     {
-        private GetEmployerCommitmentsValidator _validator;
+        private GetCommitmentsValidator _validator;
 
         [SetUp]
         public void Setup()
         {
-            _validator = new GetEmployerCommitmentsValidator();
+            _validator = new GetCommitmentsValidator();
         }
 
         [TestCase(0)]

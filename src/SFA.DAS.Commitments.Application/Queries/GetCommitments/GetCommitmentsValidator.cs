@@ -3,9 +3,9 @@ using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
-    public sealed class GetEmployerCommitmentsValidator : AbstractValidator<GetCommitmentsRequest>
+    public sealed class GetCommitmentsValidator : AbstractValidator<GetCommitmentsRequest>
     {
-        public GetEmployerCommitmentsValidator()
+        public GetCommitmentsValidator()
         {
             Custom(request =>
             {

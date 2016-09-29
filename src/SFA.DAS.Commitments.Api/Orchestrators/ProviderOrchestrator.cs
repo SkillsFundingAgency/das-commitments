@@ -9,7 +9,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
@@ -28,16 +28,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _mediator = mediator;
         }
 
-        public async Task<OrchestratorResponse<GetProviderCommitmentsResponse>> GetCommitments(long id)
+        public async Task<OrchestratorResponse<GetCommitmentsResponse>> GetCommitments(long id)
         {
             try
             {
-                var response = await _mediator.SendAsync(new GetProviderCommitmentsRequest
+                var response = await _mediator.SendAsync(new GetCommitmentsRequest
                 {
-                    ProviderId = id
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Provider,
+                        Id = id
+                    }
                 });
 
-                return new OrchestratorResponse<GetProviderCommitmentsResponse>
+                return new OrchestratorResponse<GetCommitmentsResponse>
                 {
                     Data = response
                 };

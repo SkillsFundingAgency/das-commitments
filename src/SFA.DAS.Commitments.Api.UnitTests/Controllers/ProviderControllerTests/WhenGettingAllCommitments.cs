@@ -10,7 +10,8 @@ using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCommitments;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
@@ -30,9 +31,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         }
 
         [Test, AutoData]
-        public async Task ThenAListOfCommitmentsWillBeReturned(GetProviderCommitmentsResponse mediatorResponse)
+        public async Task ThenAListOfCommitmentsWillBeReturned(GetCommitmentsResponse mediatorResponse)
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ReturnsAsync(mediatorResponse);
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentsRequest>())).ReturnsAsync(mediatorResponse);
 
             var result = await _controller.GetCommitments(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
 
@@ -44,17 +45,17 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public async Task ThenTheMediatorIsCalledWithTheProviderId()
         {
             const long testProviderId = 1235L;
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ReturnsAsync(new GetProviderCommitmentsResponse());
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentsRequest>())).ReturnsAsync(new GetCommitmentsResponse());
 
             var result = await _controller.GetCommitments(testProviderId);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<GetProviderCommitmentsRequest>(arg => arg.ProviderId == testProviderId)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<GetCommitmentsRequest>(arg => arg.Caller.CallerType == CallerType.Provider && arg.Caller.Id == testProviderId)));
         }
 
         [Test]
         public void ThenShouldReturnBadRequestIfThrowsAnInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderCommitmentsRequest>())).ThrowsAsync(new ValidationException(""));
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentsRequest>())).ThrowsAsync(new ValidationException(""));
 
             Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetCommitments(1L));
         }

@@ -88,13 +88,6 @@
     <Compile Include="Queries\GetCommitments\GetCommitmentsRequest.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsResponse.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsValidator.cs" />
-    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryHandler.cs" />
-    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryRequest.cs" />
-    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryResponse.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsQueryHandler.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsRequest.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsResponse.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsValidator.cs" />
     <Compile Include="Queries\QueryResponse{T}.cs" />
   </ItemGroup>
   <ItemGroup>
