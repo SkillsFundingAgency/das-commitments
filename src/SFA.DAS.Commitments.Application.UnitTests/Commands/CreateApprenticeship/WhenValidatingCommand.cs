@@ -27,6 +27,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public void ThenIsInvalidIfApprenticeshipIsNull()
         {
             _exampleCommand.Apprenticeship = null;
+            _exampleCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Employer,
+                Id = 1
+            };
+
             var result = _validator.Validate(_exampleCommand);
 
             result.IsValid.Should().BeFalse();
@@ -37,6 +43,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public void ThenCommitmentIdIsLessThanOneIsInvalid(long apprenticeshipId)
         {
             _exampleCommand.CommitmentId = apprenticeshipId;
+            _exampleCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Employer,
+                Id = 1
+            };
 
             var result = _validator.Validate(_exampleCommand);
 

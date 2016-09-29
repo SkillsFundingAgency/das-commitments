@@ -42,6 +42,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [Test]
         public async Task ThenShouldCallTheRepository()
         {
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id
+            });
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.CreateApprenticeship(It.IsAny<Domain.Apprenticeship>()));
@@ -51,6 +57,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public async Task ThenShouldCallTheRepositoryWithApprenticeshipMappedFromRequest()
         {
             Domain.Apprenticeship argument = null;
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id
+            });
             _mockCommitmentRespository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Apprenticeship>()))
                 .ReturnsAsync(9)
                 .Callback<Domain.Apprenticeship>(x => argument = x);
@@ -65,6 +76,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public async Task ThenShouldReturnTheApprenticeshipIdReturnedFromRepository()
         {
             const long ExpectedApprenticeshipId = 88;
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id
+            });
             _mockCommitmentRespository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Apprenticeship>())).ReturnsAsync(ExpectedApprenticeshipId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
