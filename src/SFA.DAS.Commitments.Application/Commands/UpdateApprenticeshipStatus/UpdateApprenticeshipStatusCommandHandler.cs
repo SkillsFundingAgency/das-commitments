@@ -9,9 +9,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class UpdateApprenticeshipStatusCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
     {
-        private ICommitmentRepository _commitmentRepository;
-        private UpdateApprenticeshipStatusValidator _validator;
-        private IValidateStateTransition<ApprenticeshipStatus> _stateTransitionValidator;
+        private readonly ICommitmentRepository _commitmentRepository;
+        private readonly UpdateApprenticeshipStatusValidator _validator;
+        private readonly IValidateStateTransition<ApprenticeshipStatus> _stateTransitionValidator;
 
         public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, IValidateStateTransition<ApprenticeshipStatus> stateTransitionValidator)
         {
@@ -27,12 +27,22 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            var commitment = await _commitmentRepository.GetById(message.CommitmentId);
+
+            CheckAuthorization(message, commitment);
+
             var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
 
             if (!_stateTransitionValidator.IsStateTransitionValid(apprenticeship.Status, (ApprenticeshipStatus)message.Status))
                 throw new InvalidRequestException();
 
             await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, (ApprenticeshipStatus)message.Status);
+        }
+
+        private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Domain.Commitment commitment)
+        {
+            if (commitment.EmployerAccountId != message.AccountId)
+                throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
         }
     }
 }

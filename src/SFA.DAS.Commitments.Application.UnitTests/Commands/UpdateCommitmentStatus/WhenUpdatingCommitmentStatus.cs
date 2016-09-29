@@ -32,7 +32,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         {
             var commitment = new Commitment
             {
-                Status = CommitmentStatus.Draft
+                Status = CommitmentStatus.Draft,
+                Id = _exampleValidRequest.CommitmentId,
+                EmployerAccountId = _exampleValidRequest.AccountId
             };
 
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(commitment);

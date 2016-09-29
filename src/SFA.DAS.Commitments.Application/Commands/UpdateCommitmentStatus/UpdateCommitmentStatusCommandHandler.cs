@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
@@ -31,10 +32,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 
+            CheckAuthorization(message, commitment);
+
             if (message.Status.HasValue && commitment.Status != (CommitmentStatus) message.Status.Value)
             {
                 await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.Status);
             }
+        }
+
+        private static void CheckAuthorization(UpdateCommitmentStatusCommand message, Domain.Commitment commitment)
+        {
+            if (commitment.EmployerAccountId != message.AccountId)
+                throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
         }
     }
 }

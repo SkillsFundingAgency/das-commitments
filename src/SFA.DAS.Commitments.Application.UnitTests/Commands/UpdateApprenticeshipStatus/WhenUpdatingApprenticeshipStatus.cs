@@ -33,6 +33,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatus()
         {
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                EmployerAccountId = _exampleValidRequest.AccountId
+            });
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.UpdateApprenticeshipStatus(
