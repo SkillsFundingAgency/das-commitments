@@ -1,8 +1,9 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
@@ -15,11 +16,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void Setup()
         {
-            Fixture fixture = new Fixture();
+            var fixture = new Fixture();
 
             _validator = new UpdateApprenticeshipValidator();
             var populatedCommitment = fixture.Build<Apprenticeship>().Create();
-            _exampleCommand = new UpdateApprenticeshipCommand { ProviderId = 1L, CommitmentId = 123L, ApprenticeshipId = 333L, Apprenticeship = populatedCommitment };
+            _exampleCommand = new UpdateApprenticeshipCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 1L
+                },
+                CommitmentId = 123L,
+                ApprenticeshipId = 333L,
+                Apprenticeship = populatedCommitment
+            };
         }
         
         [Test]
@@ -57,7 +68,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [TestCase(-2)]
         public void ThenProviderIdIsLessThanOneIsInvalid(long providerId)
         {
-            _exampleCommand.ProviderId = providerId;
+            _exampleCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Provider,
+                Id = providerId
+            };
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -68,38 +83,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [TestCase(-1)]
         public void ThenIfTheAccountIdIsZeroOrLessIsNotValid(long testAccountId)
         {
-            _exampleCommand.AccountId = testAccountId;
+            _exampleCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Employer,
+                Id = testAccountId
+            };
 
             var result = _validator.Validate(_exampleCommand);
 
             result.IsValid.Should().BeFalse();
-        }
-
-        [Test]
-        public void ThenIfBothProviderAndAccountIdsHaveAValueIsNotValid()
-        {
-            _exampleCommand.AccountId = 123L;
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        public void ThenIfMessageIdPopulatedForAccountIdScenarioThenIsValid()
-        {
-            _exampleCommand.ProviderId = null;
-            _exampleCommand.AccountId = 123L;
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeTrue();
-        }
-
-        public void ThenIfProviderIdICommitmentIdAndApprenticeshipIdAreAllGreaterThanZeroItIsValid()
-        {
-            _exampleCommand.ProviderId = 321L;
-            _exampleCommand.AccountId = null;
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeTrue();
         }
     }
 }

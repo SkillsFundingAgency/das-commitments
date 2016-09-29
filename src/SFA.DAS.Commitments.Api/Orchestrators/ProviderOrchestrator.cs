@@ -159,7 +159,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 await _mediator.SendAsync(new UpdateApprenticeshipCommand
                 {
-                    ProviderId = providerId,
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Provider,
+                        Id = providerId
+                    },
                     CommitmentId = commitmentId,
                     ApprenticeshipId = apprenticeshipId,
                     Apprenticeship = apprenticeship
