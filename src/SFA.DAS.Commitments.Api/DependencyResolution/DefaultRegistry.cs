@@ -39,7 +39,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution {
                     scan.ConnectImplementationsToTypesClosing(typeof(IValidateStateTransition<>));
                 });
 
-
             RegisterMediator();
         }
 
