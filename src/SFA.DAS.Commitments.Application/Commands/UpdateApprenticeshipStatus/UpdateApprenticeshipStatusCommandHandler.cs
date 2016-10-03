@@ -24,6 +24,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand message)
         {
+            Logger.Info(BuildInfoMessage(message));
+
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)

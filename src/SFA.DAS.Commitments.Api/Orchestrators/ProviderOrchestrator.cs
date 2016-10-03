@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Api.Core;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
@@ -146,6 +147,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Logger.Info(ex, $"Validation error {ex.Message}");
                 throw;
             }
+            catch (UnauthorizedException ex)
+            {
+                Logger.Info(ex, $"Unauthorized error {ex.Message}");
+                throw;
+            }
             catch (Exception ex)
             {
                 Logger.Error(ex, ex.Message);
@@ -176,6 +182,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Logger.Info(ex, $"Validation error {ex.Message}");
                 throw;
             }
+            catch (UnauthorizedException ex)
+            {
+                Logger.Info(ex, $"Unauthorized error {ex.Message}");
+                throw;
+            }
             catch (Exception ex)
             {
                 Logger.Error(ex, ex.Message);
@@ -199,6 +210,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             catch (ValidationException ex)
             {
                 Logger.Info(ex, $"Validation error {ex.Message}");
+                throw;
+            }
+            catch (UnauthorizedException ex)
+            {
+                Logger.Info(ex, $"Unauthorized error {ex.Message}");
                 throw;
             }
             catch (Exception ex)

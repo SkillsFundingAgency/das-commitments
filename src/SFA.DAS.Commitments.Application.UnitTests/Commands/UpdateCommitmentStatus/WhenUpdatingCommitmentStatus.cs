@@ -5,6 +5,7 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
@@ -53,6 +54,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenWhenUnauthorisedAnUnauthorizedExceptionIsThrown()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.AccountId++
+            });
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<UnauthorizedException>();
         }
     }
 }

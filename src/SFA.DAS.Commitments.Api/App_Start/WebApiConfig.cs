@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Api
 
             config.MapHttpAttributeRoutes();
 
-            config.Services.Replace(typeof(IExceptionHandler), new ValidationExceptionHandler());
+            config.Services.Replace(typeof(IExceptionHandler), new CustomExceptionHandler());
         }
     }
 }

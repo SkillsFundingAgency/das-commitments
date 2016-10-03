@@ -57,6 +57,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldThrow<ValidationException>();
         }
 
+        [Test]
+        public void ThenWhenUnauthorisedAnUnauthorizedExceptionIsThrown()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.AccountId++
+            });
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<UnauthorizedException>();
+        }
+
         [TestCase(ApprenticeshipStatus.ReadyForApproval, Api.Types.ApprenticeshipStatus.Approved)]
         [TestCase(ApprenticeshipStatus.Approved, Api.Types.ApprenticeshipStatus.Paused)]
         [TestCase(ApprenticeshipStatus.Paused, Api.Types.ApprenticeshipStatus.Approved)]

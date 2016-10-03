@@ -5,11 +5,11 @@ using System.Web.Http;
 
 namespace SFA.DAS.Commitments.Api
 {
-    public class ValidationErrorResult : IHttpActionResult
+    public class CustomErrorResult : IHttpActionResult
     {
         private readonly HttpResponseMessage _httpResponseMessage;
 
-        public ValidationErrorResult(HttpRequestMessage request, HttpResponseMessage httpResponseMessage)
+        public CustomErrorResult(HttpRequestMessage request, HttpResponseMessage httpResponseMessage)
         {
             _httpResponseMessage = httpResponseMessage;
         }
