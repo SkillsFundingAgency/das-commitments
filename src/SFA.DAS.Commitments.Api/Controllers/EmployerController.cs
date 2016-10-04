@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitments(id);
 
-            return Ok(response.Data.Data);
+            return Ok(response.Data);
         }
 
         [Route("{accountId}/commitments/{commitmentId}", Name = "GetCommitmentForEmployer")]
@@ -35,12 +35,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitment(accountId, commitmentId);
 
-            if (response.Data.Data == null)
+            if (response.Data == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data.Data);
+            return Ok(response.Data);
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForEmployer")]
@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeship);
 
-            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId = accountId, commitmentId = commitmentId, apprenticeshipId = response.Data }, default(Apprenticeship));
+            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId = accountId, commitmentId = commitmentId, apprenticeshipId = response }, default(Apprenticeship));
         }
 
         [Route("{accountId}/commitments/")]
@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
 
-            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId = accountId, commitmentId = response.Data }, default(Commitment));
+            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId = accountId, commitmentId = response }, default(Commitment));
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
@@ -64,12 +64,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetApprenticeship(accountId, commitmentId, apprenticeshipId);
 
-            if (response.Data.Data == null)
+            if (response.Data == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data.Data);
+            return Ok(response.Data);
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]

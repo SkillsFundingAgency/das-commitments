@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitments(id);
 
-            var commitments = response.Data.Data;
+            var commitments = response.Data;
 
             return Ok(commitments);
         }
@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitment(providerId, commitmentId);
 
-            var commitment = response.Data.Data;
+            var commitment = response.Data;
 
             if (commitment == null)
             {
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetApprenticeship(providerId, commitmentId, apprenticeshipId);
 
-            var apprenticeship = response.Data.Data;
+            var apprenticeship = response.Data;
 
             if (apprenticeship == null)
             {
@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.CreateApprenticeship(providerId, commitmentId, apprenticeship);
 
-            return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = response.Data }, default(Apprenticeship));
+            return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = response }, default(Apprenticeship));
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]

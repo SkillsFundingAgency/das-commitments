@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
-using SFA.DAS.Commitments.Api.Core;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -33,11 +32,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _mediator = mediator;
         }
 
-        public async Task<OrchestratorResponse<GetCommitmentsResponse>> GetCommitments(long id)
+        public async Task<GetCommitmentsResponse> GetCommitments(long id)
         {
             try
             {
-                var data = await _mediator.SendAsync(new GetCommitmentsRequest
+                return await _mediator.SendAsync(new GetCommitmentsRequest
                 {
                     Caller = new Caller
                     {
@@ -45,11 +44,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         Id = id
                     }
                 });
-
-                return new OrchestratorResponse<GetCommitmentsResponse>
-                {
-                    Data = data
-                };
             }
             catch (ValidationException ex)
             {
@@ -63,11 +57,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse<GetCommitmentResponse>> GetCommitment(long accountId, long commitmentId)
+        public async Task<GetCommitmentResponse> GetCommitment(long accountId, long commitmentId)
         {
             try
             {
-                var data = await _mediator.SendAsync(new GetCommitmentRequest
+                return await _mediator.SendAsync(new GetCommitmentRequest
                 {
                     Caller = new Caller
                     {
@@ -76,11 +70,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     },
                     CommitmentId = commitmentId
                 });
-
-                return new OrchestratorResponse<GetCommitmentResponse>
-                {
-                    Data = data
-                };
             }
             catch (ValidationException ex)
             {
@@ -94,19 +83,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse<long>> CreateCommitment(long accountId, Commitment commitment)
+        public async Task<long> CreateCommitment(long accountId, Commitment commitment)
         {
             try
             {
-                var commitmentId = await _mediator.SendAsync(new CreateCommitmentCommand
+                return await _mediator.SendAsync(new CreateCommitmentCommand
                 {
                     Commitment = commitment
                 });
-
-                return new OrchestratorResponse<long>
-                {
-                    Data = commitmentId
-                };
             }
             catch (ValidationException ex)
             {
@@ -120,11 +104,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse<GetApprenticeshipResponse>> GetApprenticeship(long accountId, long commitmentId, long apprenticeshipId)
+        public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long commitmentId, long apprenticeshipId)
         {
             try
             {
-                var response = await _mediator.SendAsync(new GetApprenticeshipRequest
+                return await _mediator.SendAsync(new GetApprenticeshipRequest
                 {
                     Caller = new Caller
                     {
@@ -134,11 +118,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CommitmentId = commitmentId,
                     ApprenticeshipId = apprenticeshipId
                 });
-
-                return new OrchestratorResponse<GetApprenticeshipResponse>
-                {
-                    Data = response
-                };
             }
             catch (ValidationException ex)
             {
@@ -152,7 +131,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse> PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
+        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
             try
             {
@@ -167,8 +146,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     ApprenticeshipId = apprenticeshipId,
                     Apprenticeship = apprenticeship
                 });
-
-                return new OrchestratorResponse();
             }
             catch (ValidationException ex)
             {
@@ -187,7 +164,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse> PatchCommitment(long accountId, long commitmentId, CommitmentStatus? status)
+        public async Task PatchCommitment(long accountId, long commitmentId, CommitmentStatus? status)
         {
             try
             {
@@ -197,8 +174,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CommitmentId = commitmentId,
                     Status = status
                 });
-
-                return new OrchestratorResponse();
             }
             catch (ValidationException ex)
             {
@@ -217,7 +192,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStatus? status)
+        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStatus? status)
         {
             try
             {
@@ -228,8 +203,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     ApprenticeshipId = apprenticeshipId,
                     Status = status
                 });
-
-                return new OrchestratorResponse();
             }
             catch (ValidationException ex)
             {
@@ -248,11 +221,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task<OrchestratorResponse<long>> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
+        public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
         {
             try
             {
-                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand
+                return await _mediator.SendAsync(new CreateApprenticeshipCommand
                 {
                     Caller = new Caller
                     {
@@ -262,11 +235,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CommitmentId = commitmentId,
                     Apprenticeship = apprenticeship
                 });
-
-                return new OrchestratorResponse<long>
-                {
-                    Data = apprenticeshipId
-                };
             }
             catch (ValidationException ex)
             {
