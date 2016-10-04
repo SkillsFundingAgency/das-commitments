@@ -64,12 +64,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetApprenticeship(accountId, commitmentId, apprenticeshipId);
 
-            if (response.Data == null)
+            if (response.Data.Data == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data);
+            return Ok(response.Data.Data);
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
