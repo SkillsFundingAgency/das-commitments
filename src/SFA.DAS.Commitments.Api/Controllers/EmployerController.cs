@@ -23,6 +23,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{id}/commitments")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitments(long id)
         {
             var response = await _employerOrchestrator.GetCommitments(id);
@@ -31,6 +32,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}", Name = "GetCommitmentForEmployer")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitment(long accountId, long commitmentId)
         {
             var response = await _employerOrchestrator.GetCommitment(accountId, commitmentId);
@@ -44,6 +46,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForEmployer")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
         {
             var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeship);
@@ -52,6 +55,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> CreateCommitment(long accountId, Commitment commitment)
         {
             var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
@@ -60,6 +64,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeship(long accountId, long commitmentId, long apprenticeshipId)
         {
             var response = await _employerOrchestrator.GetApprenticeship(accountId, commitmentId, apprenticeshipId);
@@ -73,6 +78,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
             await _employerOrchestrator.PutApprenticeship(accountId, commitmentId, apprenticeshipId, apprenticeship);
@@ -81,7 +87,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}")]
-
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus? status)
         {
             await _employerOrchestrator.PatchCommitment(accountId, commitmentId, status);
@@ -90,6 +96,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]ApprenticeshipStatus? status)
         {
             await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, status);
