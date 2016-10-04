@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
         public CommitmentRepository(CommitmentsApiConfiguration configuration)
-            : base(configuration)
+            : base(configuration.DatabaseConnectionString)
         {
         }
 

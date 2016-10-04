@@ -8,12 +8,11 @@ namespace SFA.DAS.Commitments.Api
     {
         public static void Register(HttpConfiguration config)
         {
-            //TODO: enable this code
-            //var apiKeySecret = CloudConfigurationManager.GetSetting("ApiTokenSecret");
-            //var apiIssuer = CloudConfigurationManager.GetSetting("ApiIssuer");
-            //var apiAudiences = CloudConfigurationManager.GetSetting("ApiAudiences").Split(' ');
+            var apiKeySecret = CloudConfigurationManager.GetSetting("ApiTokenSecret");
+            var apiIssuer = CloudConfigurationManager.GetSetting("ApiIssuer");
+            var apiAudiences = CloudConfigurationManager.GetSetting("ApiAudiences").Split(' ');
 
-            //config.MessageHandlers.Add(new ApiKeyHandler("Authorization", apiKeySecret, apiIssuer, apiAudiences));
+            config.MessageHandlers.Add(new ApiKeyHandler("Authorization", apiKeySecret, apiIssuer, apiAudiences));
 
             config.MapHttpAttributeRoutes();
 
