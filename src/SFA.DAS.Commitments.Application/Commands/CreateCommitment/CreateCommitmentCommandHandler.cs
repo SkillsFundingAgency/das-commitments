@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 Id = commitment.Id,
                 Name = commitment.Name,
                 EmployerAccountId = commitment.EmployerAccountId,
-                LegalEntityId = commitment.LegalEntityId,
+                LegalEntityCode = commitment.LegalEntityCode,
                 LegalEntityName = commitment.LegalEntityName,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
