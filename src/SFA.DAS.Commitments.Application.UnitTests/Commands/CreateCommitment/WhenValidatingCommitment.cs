@@ -52,11 +52,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             result.IsValid.Should().BeFalse();
         }
 
-        [TestCase(0)]
-        [TestCase(-2)]
-        public void ThenLegalEntityIdLessThanOneIsInvalid(long legalEntityId)
+        [TestCase("")]
+        [TestCase("  ")]
+        public void ThenLegalEntityCodeLessThanOneIsInvalid(string legalEntityCode)
         {
-            _exampleCommand.Commitment.LegalEntityId = legalEntityId;
+            _exampleCommand.Commitment.LegalEntityCode = legalEntityCode;
 
             var result = _validator.Validate(_exampleCommand);
 

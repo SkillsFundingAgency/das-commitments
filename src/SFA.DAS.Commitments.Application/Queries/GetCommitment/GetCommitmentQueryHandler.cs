@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     ProviderName = commitment.ProviderName,
                     EmployerAccountId = commitment.EmployerAccountId,
                     EmployerAccountName = "",
-                    LegalEntityId = commitment.LegalEntityId,
+                    LegalEntityCode = commitment.LegalEntityCode,
                     LegalEntityName = commitment.LegalEntityName,
                     Status = (CommitmentStatus)commitment.Status,
                     Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
