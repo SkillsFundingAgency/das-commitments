@@ -1,12 +1,12 @@
 ﻿using MediatR;
-using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
     public sealed class UpdateApprenticeshipCommand : IAsyncRequest
     {
-        public long? ProviderId { get; set; }
-        public long? AccountId { get; set; }
+        public Caller Caller { get; set; }
         public long CommitmentId { get; set; }
         public long ApprenticeshipId { get; set; }
         public Apprenticeship Apprenticeship { get; set; }

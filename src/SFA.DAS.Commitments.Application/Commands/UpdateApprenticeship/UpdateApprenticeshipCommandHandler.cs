@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
+using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -11,6 +10,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
     public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
 
@@ -22,10 +22,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            Logger.Info(BuildInfoMessage(message));
+
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
+
+            var commitment = await _commitmentRepository.GetById(message.CommitmentId);
+
+            CheckAuthorization(message, commitment);
 
             await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message));
         }
@@ -48,6 +54,27 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             };
 
             return domainApprenticeship;
+        }
+
+        private static void CheckAuthorization(UpdateApprenticeshipCommand message, Domain.Commitment commitment)
+        {
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (commitment.ProviderId != message.Caller.Id)
+                        throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                default:
+                    if (commitment.EmployerAccountId != message.Caller.Id)
+                        throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+            }
+        }
+
+        private string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
+        {
+            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateApprenticeshipCommand";
         }
     }
 }

@@ -1,28 +1,31 @@
-﻿using NUnit.Framework;
-using System.Threading.Tasks;
-using SFA.DAS.Commitments.Api.Controllers;
+﻿using System.Threading.Tasks;
+using System.Web.Http.Results;
+using FluentAssertions;
+using FluentValidation;
 using MediatR;
 using Moq;
+using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using System.Web.Http.Results;
-using SFA.DAS.Commitments.Application.Exceptions;
-using FluentAssertions;
+using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 
-namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
+namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
     [TestFixture]
     public class WhenGettingASingleCommitment
     {
         private Mock<IMediator> _mockMediator;
         private ProviderController _controller;
+        private ProviderOrchestrator _providerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new ProviderController(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _controller = new ProviderController(_providerOrchestrator);
         }
 
         [Test, AutoData]
@@ -48,23 +51,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControlllerTests
         }
 
         [TestCase]
-        public async Task ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
+        public void ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.GetCommitment(111L, 0L);
-
-            result.Should().BeOfType<BadRequestResult>();
-        }
-
-        [TestCase]
-        public async Task ThenReturnsAUnauthorizedResponseIfMediatorThrowsAnNotAuthorizedException()
-        {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Throws<UnauthorizedException>();
-
-            var result = await _controller.GetCommitment(111L, 0L);
-
-            result.Should().BeOfType<UnauthorizedResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetCommitment(111L, 0L));
         }
 
         [TestCase]

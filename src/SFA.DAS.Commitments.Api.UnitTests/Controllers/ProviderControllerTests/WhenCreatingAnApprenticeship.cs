@@ -1,13 +1,16 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http.Results;
 using FluentAssertions;
+using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
-using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
@@ -18,12 +21,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private const long TestCommitmentId = 2L;
         private ProviderController _controller;
         private Mock<IMediator> _mockMediator;
+        private ProviderOrchestrator _providerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new ProviderController(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _controller = new ProviderController(_providerOrchestrator);
         }
 
         [Test]
@@ -38,6 +43,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public async Task ThenTheLocationHeaderIsSetInTheResponseOnSuccessfulCreate()
         {
             const long createdApprenticeshipId = 10L;
+
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(createdApprenticeshipId);
             var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, new Apprenticeship()) as CreatedAtRouteNegotiatedContentResult<Apprenticeship>;
 
@@ -53,17 +59,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
             var newApprenticeship = new Apprenticeship();
             var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, newApprenticeship);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.ProviderId == TestProviderId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.Caller.CallerType == CallerType.Provider && a.Caller.Id == TestProviderId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship)));
         }
 
         [Test]
-        public async Task ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
+        public void ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateApprenticeshipCommand>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateApprenticeshipCommand>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, new Apprenticeship());
-
-            result.Should().BeOfType<BadRequestResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, new Apprenticeship()));
         }
     }
 }

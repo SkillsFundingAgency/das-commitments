@@ -6,6 +6,7 @@ using Moq;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;
+using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using Ploeh.AutoFixture;
 
@@ -27,7 +28,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 
             Fixture dataFixture = new Fixture();
             _fakeRepositoryCommitment = dataFixture.Build<Commitment>().Create();
-            _exampleValidRequest = new GetCommitmentRequest { CommitmentId = _fakeRepositoryCommitment.Id, ProviderId = _fakeRepositoryCommitment.ProviderId, AccountId = null };
+            _exampleValidRequest = new GetCommitmentRequest
+            {
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = _fakeRepositoryCommitment.ProviderId.Value
+                }
+            };
         }
 
         [Test]
@@ -53,8 +62,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         [Test]
         public void ThenIfCommitmentIdIsZeroItThrowsAnInvalidRequestException()
         {
-            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = 0 });
-            act.ShouldThrow<InvalidRequestException>();
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
+            {
+                CommitmentId = 0,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 1
+                }
+            });
+            act.ShouldThrow<ValidationException>();
         }
 
         [Test]
@@ -72,7 +89,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
-            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = _fakeRepositoryCommitment.Id, ProviderId = _fakeRepositoryCommitment.ProviderId++ });
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
+            {
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = _fakeRepositoryCommitment.ProviderId++.Value
+                }
+            });
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider unauthorized to view commitment: {_fakeRepositoryCommitment.Id}");
         }
@@ -82,7 +107,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
-            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest { CommitmentId = 5, AccountId = _fakeRepositoryCommitment.EmployerAccountId++ });
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
+            {
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = _fakeRepositoryCommitment.EmployerAccountId++
+                }
+            });
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer unauthorized to view commitment: {_fakeRepositoryCommitment.Id}"); ;
         }

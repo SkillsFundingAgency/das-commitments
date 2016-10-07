@@ -8,6 +8,8 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using System.Web.Http.Results;
 using SFA.DAS.Commitments.Api.Types;
 using FluentAssertions;
+using FluentValidation;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Exceptions;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
@@ -17,12 +19,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
     {
         private Mock<IMediator> _mockMediator;
         private EmployerController _controller;
+        private EmployerOrchestrator _employerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new EmployerController(_mockMediator.Object);
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object);
+            _controller = new EmployerController(_employerOrchestrator);
         }
 
         [Test, AutoData]
@@ -48,23 +52,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         }
 
         [TestCase]
-        public async Task ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
+        public void ThenReturnsABadResponseIfMediatorThrowsAInvalidRequestException()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.GetCommitment(111L, 0L);
-
-            result.Should().BeOfType<BadRequestResult>();
-        }
-
-        [TestCase]
-        public async Task ThenReturnsAUnauthorizedResponseIfMediatorThrowsAnNotAuthorizedException()
-        {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).Throws<UnauthorizedException>();
-
-            var result = await _controller.GetCommitment(111L, 0L);
-
-            result.Should().BeOfType<UnauthorizedResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetCommitment(111L, 0L));
         }
 
         [TestCase]

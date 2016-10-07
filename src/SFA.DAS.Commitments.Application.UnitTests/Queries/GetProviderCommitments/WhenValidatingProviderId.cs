@@ -1,25 +1,33 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCommitments;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.GetProviderCommitments
 {
     [TestFixture]
     public class WhenValidatingProviderId
     {
-        private GetProviderCommitmentsValidator _validator;
+        private GetCommitmentsValidator _validator;
 
         [SetUp]
         public void Setup()
         {
-            _validator = new GetProviderCommitmentsValidator();
+            _validator = new GetCommitmentsValidator();
         }
 
         [TestCase(0)]
         [TestCase(-1)]
         public void ThenIfTheProviderIdIsZeroOrLessIsNotValid(long testProviderId)
         {
-            var result = _validator.Validate(new GetProviderCommitmentsRequest { ProviderId = testProviderId });
+            var result = _validator.Validate(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = testProviderId
+                }
+            });
 
             result.IsValid.Should().BeFalse();
         }
@@ -28,7 +36,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.GetProviderCommitments
         [TestCase(99999)]
         public void ThenIfTheProviderIdGreaterThanZeroIsValid(long testProviderId)
         {
-            var result = _validator.Validate(new GetProviderCommitmentsRequest { ProviderId = testProviderId });
+            var result = _validator.Validate(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = testProviderId
+                }
+            });
 
             result.IsValid.Should().BeTrue();
         }

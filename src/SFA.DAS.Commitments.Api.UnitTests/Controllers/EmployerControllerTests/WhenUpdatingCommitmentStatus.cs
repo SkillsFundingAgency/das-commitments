@@ -2,10 +2,12 @@
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 using FluentAssertions;
+using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -19,12 +21,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         private const long TestCommitmentId = 2L;
         private EmployerController _controller;
         private Mock<IMediator> _mockMediator;
+        private EmployerOrchestrator _employerOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _controller = new EmployerController(_mockMediator.Object);
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object);
+            _controller = new EmployerController(_employerOrchestrator);
         }
 
         [Test]
@@ -40,19 +44,17 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToUpdateCommitmentStatus()
         {
-            var result = await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
+            await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateCommitmentStatusCommand>(y => y.Status == CommitmentStatus.Active)));
         }
 
         [Test]
-        public async Task ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
+        public void ThenABadResponseIsReturnedWhenAnInvalidRequestExceptionThrown()
         {
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateCommitmentStatusCommand>())).Throws<InvalidRequestException>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateCommitmentStatusCommand>())).ThrowsAsync(new ValidationException(""));
 
-            var result = await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
-
-            result.Should().BeOfType<BadRequestResult>();
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active));
         }
     }
 }

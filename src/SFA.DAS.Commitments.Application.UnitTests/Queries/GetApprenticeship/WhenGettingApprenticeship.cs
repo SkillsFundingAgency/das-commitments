@@ -5,6 +5,7 @@ using Moq;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;
+using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -28,7 +29,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
             Fixture dataFixture = new Fixture();
             _fakeRepositoryCommitment = dataFixture.Build<Commitment>().Create();
             
-            _exampleValidRequest = new GetApprenticeshipRequest { AccountId = _fakeRepositoryCommitment.EmployerAccountId, CommitmentId = _fakeRepositoryCommitment.Id, ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id };
+            _exampleValidRequest = new GetApprenticeshipRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = _fakeRepositoryCommitment.EmployerAccountId
+                },
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id
+            };
         }
 
         [Test]
@@ -54,8 +64,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         [Test]
         public void ThenIfCommitmentIdIsZeroItThrowsAnInvalidRequestException()
         {
-            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest { CommitmentId = 0 });
-            act.ShouldThrow<InvalidRequestException>();
+            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 1
+                },
+                CommitmentId = 0
+            });
+            act.ShouldThrow<ValidationException>();
         }
 
         [Test]
@@ -73,7 +91,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
-            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest { AccountId = _fakeRepositoryCommitment.EmployerAccountId++, CommitmentId = _fakeRepositoryCommitment.Id, ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id });
+            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = _fakeRepositoryCommitment.EmployerAccountId++
+                },
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id
+            });
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer unauthorized to view apprenticeship: {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
         }
@@ -83,7 +110,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
-            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest { ProviderId = _fakeRepositoryCommitment.ProviderId++, CommitmentId = _fakeRepositoryCommitment.Id, ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id });
+            Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = _fakeRepositoryCommitment.ProviderId++.Value
+                },
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id
+            });
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider unauthorized to view apprenticeship: {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
         }
@@ -93,7 +129,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
-            var response =  await _handler.Handle(new GetApprenticeshipRequest { AccountId = _fakeRepositoryCommitment.EmployerAccountId, CommitmentId = _fakeRepositoryCommitment.Id, ApprenticeshipId = 999999 });
+            var response =  await _handler.Handle(new GetApprenticeshipRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = _fakeRepositoryCommitment.EmployerAccountId
+                },
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                ApprenticeshipId = 999999
+            });
 
             response.Data.Should().BeNull();
         }

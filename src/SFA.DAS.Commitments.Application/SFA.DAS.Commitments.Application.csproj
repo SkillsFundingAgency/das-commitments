@@ -43,6 +43,13 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.2.0.12349, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.2.0.12349\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -81,27 +88,16 @@
     <Compile Include="Queries\GetCommitment\GetCommitmentRequest.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentResponse.cs" />
     <Compile Include="Queries\GetCommitment\GetCommitmentValidator.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsQueryHandler.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsRequest.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsResponse.cs" />
-    <Compile Include="Queries\GetEmployerCommitments\GetEmployerCommitmentsValidator.cs" />
-    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryHandler.cs" />
-    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryRequest.cs" />
-    <Compile Include="Queries\GetProviderApprenticeship\GetProviderApprenticeshipQueryResponse.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsQueryHandler.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsRequest.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsResponse.cs" />
-    <Compile Include="Queries\GetProviderCommitments\GetProviderCommitmentsValidator.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsQueryHandler.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsRequest.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsResponse.cs" />
+    <Compile Include="Queries\GetCommitments\GetCommitmentsValidator.cs" />
     <Compile Include="Queries\QueryResponse{T}.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
-      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
-      <Name>SFA.DAS.Commitments.Api.Types</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{c4c803af-747e-4747-a23b-da43219009a4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
@@ -26,12 +28,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             Fixture fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
-            _exampleValidRequest = new UpdateApprenticeshipCommand { ProviderId = 111L, CommitmentId = 123L, ApprenticeshipId = populatedApprenticeship.Id, Apprenticeship = populatedApprenticeship };
+            _exampleValidRequest = new UpdateApprenticeshipCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 111L
+                },
+                CommitmentId = 123L,
+                ApprenticeshipId = populatedApprenticeship.Id,
+                Apprenticeship = populatedApprenticeship
+            };
         }
 
         [Test]
         public async Task ThenShouldCallTheRepository()
         {
+            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id
+            });
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>()));
@@ -41,6 +59,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         public async Task ThenShouldCallTheRepositoryWithApprenticeshipMappedFromRequest()
         {
             Domain.Apprenticeship argument = null;
+            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id
+            });
+
             _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>()))
                 .Returns(Task.FromResult(default(object))) // Return a fake Task
                 .Callback<Domain.Apprenticeship>(x => argument = x);
@@ -58,7 +82,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenWhenUnauthorisedAnUnauthorizedExceptionIsThrown()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id++
+            });
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<UnauthorizedException>();
         }
 
         private void AssertMappingIsCorrect(Domain.Apprenticeship argument)

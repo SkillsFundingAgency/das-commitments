@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Exceptions;
+using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
 
@@ -21,12 +22,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            if (!_validator.Validate(message).IsValid)
-            {
-                throw new InvalidRequestException();
-            }
+            Logger.Info(BuildInfoMessage(message));
 
-            return await _commitmentRepository.Create(MapFrom(message.Commitment));
+            var validationResult = _validator.Validate(message);
+
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
+
+            var newCommitment = MapFrom(message.Commitment);
+
+            return await _commitmentRepository.Create(newCommitment);
         }
 
         private Domain.Commitment MapFrom(Api.Types.Commitment commitment)
@@ -58,6 +63,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             };
 
             return domainCommitment;
+        }
+
+        private string BuildInfoMessage(CreateCommitmentCommand cmd)
+        {
+            return $"Employer: {cmd.Commitment.EmployerAccountId} has called CreateCommitmentCommand";
         }
     }
 }

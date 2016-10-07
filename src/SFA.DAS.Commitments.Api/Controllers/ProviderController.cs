@@ -2,152 +2,91 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using MediatR;
+using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
-using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
     [RoutePrefix("api/provider")]
     public class ProviderController : ApiController
     {
-        private readonly IMediator _mediator;
+        private readonly ProviderOrchestrator _providerOrchestrator;
 
-        public ProviderController(IMediator mediator)
+        public ProviderController(ProviderOrchestrator providerOrchestrator)
         {
-            if (mediator == null)
-                throw new ArgumentNullException(nameof(mediator));
-            _mediator = mediator;
+            if (providerOrchestrator == null)
+                throw new ArgumentNullException(nameof(providerOrchestrator));
+            _providerOrchestrator = providerOrchestrator;
         }
 
         [Route("{id}/commitments")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitments(long id)
         {
-            try
-            {
-                var response = await _mediator.SendAsync(new GetProviderCommitmentsRequest { ProviderId = id });
+            var response = await _providerOrchestrator.GetCommitments(id);
 
-                return Ok(response.Data);
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
-            catch (UnauthorizedException)
-            {
-                return Unauthorized();
-            }
+            var commitments = response.Data;
+
+            return Ok(commitments);
         }
 
         [Route("{providerId}/commitments/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitment(long providerId, long commitmentId)
         {
-            try
-            {
-                var response = await _mediator.SendAsync(new GetCommitmentRequest { ProviderId = providerId, CommitmentId = commitmentId });
+            var response = await _providerOrchestrator.GetCommitment(providerId, commitmentId);
 
-                if (response?.Data == null)
-                {
-                    return NotFound();
-                }
+            var commitment = response.Data;
 
-                return Ok(response.Data);
-            }
-            catch (InvalidRequestException)
+            if (commitment == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-            catch (UnauthorizedException)
-            {
-                return Unauthorized();
-            }
+
+            return Ok(commitment);
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForProvider")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeship(long providerId, long commitmentId, long apprenticeshipId)
         {
-            try
-            {
-                var response = await _mediator.SendAsync(new GetApprenticeshipRequest { ProviderId = providerId, CommitmentId = commitmentId, ApprenticeshipId = apprenticeshipId });
+            var response = await _providerOrchestrator.GetApprenticeship(providerId, commitmentId, apprenticeshipId);
 
-                if (response.Data == null)
-                {
-                    return NotFound();
-                }
+            var apprenticeship = response.Data;
 
-                return Ok(response.Data);
-            }
-            catch (InvalidRequestException)
+            if (apprenticeship == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-            catch (UnauthorizedException)
-            {
-                return Unauthorized();
-            }
+
+            return Ok(apprenticeship);
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForProvider")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> CreateApprenticeship(long providerId, long commitmentId, Apprenticeship apprenticeship)
         {
-            try
-            {
-                var apprenticeshipId = await _mediator.SendAsync(new CreateApprenticeshipCommand { ProviderId = providerId, CommitmentId = commitmentId, Apprenticeship = apprenticeship });
+            var response = await _providerOrchestrator.CreateApprenticeship(providerId, commitmentId, apprenticeship);
 
-                return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = apprenticeshipId }, default(Apprenticeship));
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
+            return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = response }, default(Apprenticeship));
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
-            try
-            {
-                await _mediator.SendAsync(new UpdateApprenticeshipCommand
-                {
-                    ProviderId = providerId,
-                    CommitmentId = commitmentId,
-                    ApprenticeshipId = apprenticeshipId,
-                    Apprenticeship = apprenticeship
-                });
+            await _providerOrchestrator.PutApprenticeship(providerId, commitmentId, apprenticeshipId, apprenticeship);
 
-                return StatusCode(HttpStatusCode.NoContent);
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         [Route("{providerId}/commitments/{commitmentId}")]
-
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchCommitment(long providerId, long commitmentId, [FromBody]CommitmentStatus? status)
         {
-            try
-            {
-                await _mediator.SendAsync(new UpdateCommitmentStatusCommand
-                {
-                    AccountId = providerId,
-                    CommitmentId = commitmentId,
-                    Status = status
-                });
+            await _providerOrchestrator.PatchCommitment(providerId, commitmentId, status);
 
-                return StatusCode(HttpStatusCode.NoContent);
-            }
-            catch (InvalidRequestException)
-            {
-                return BadRequest();
-            }
+            return StatusCode(HttpStatusCode.NoContent);
         }
     }
 }

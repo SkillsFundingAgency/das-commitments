@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetProviderCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
@@ -17,19 +17,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
     public class WhenGettingProviderCommitments
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
-        private GetProviderCommitmentsQueryHandler _handler;
+        private GetCommitmentsQueryHandler _handler;
 
         [SetUp]
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetProviderCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetProviderCommitmentsValidator());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator());
         }
 
         [Test]
         public async Task ThenTheCommitmentRepositoryIsCalled()
         {
-            await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 124 });
+            await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 124
+                }
+            });
 
             _mockCommitmentRespository.Verify(x => x.GetByProvider(It.IsAny<long>()), Times.Once);
         }
@@ -37,21 +44,35 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         [Test, AutoData]
         public async Task ThenShouldReturnListOfOnlyActiveCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
-            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
+            var activeCommitments = commitmentsFromRepository.Where(x => x.Status == CommitmentStatus.Active).ToList();
+            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(activeCommitments);
 
-            var response = await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 123 });
-            var activeCommitments = commitmentsFromRepository.Count(x => x.Status == CommitmentStatus.Active);
+            var response = await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 123
+                }
+            });
             
-            response.Data.Count.Should().Be(activeCommitments);
+            response.Data.Count.Should().Be(activeCommitments.Count());
             response.Data.Should().OnlyContain(x => commitmentsFromRepository.Any(y => y.Id == x.Id && y.Name == x.Name));
         }
 
         [Test]
         public void ThenShouldThrowInvalidRequestExceptionIfValidationFails()
         {
-            Func<Task> act = async () => await _handler.Handle(new GetProviderCommitmentsRequest { ProviderId = 0 });
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = 0
+                }
+            });
 
-            act.ShouldThrow<InvalidRequestException>();
+            act.ShouldThrow<ValidationException>();
         }
     }
 }

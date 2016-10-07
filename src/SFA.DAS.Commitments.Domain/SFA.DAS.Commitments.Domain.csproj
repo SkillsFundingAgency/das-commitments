@@ -38,6 +38,8 @@
     <Compile Include="AgreementStatus.cs" />
     <Compile Include="Apprenticeship.cs" />
     <Compile Include="ApprenticeshipStatus.cs" />
+    <Compile Include="Caller.cs" />
+    <Compile Include="CallerType.cs" />
     <Compile Include="Commitment.cs" />
     <Compile Include="CommitmentStatus.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
