@@ -177,7 +177,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 await _mediator.SendAsync(new UpdateCommitmentStatusCommand
                 {
-                    AccountId = providerId,
+                    
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Provider,
+                        Id = providerId
+                    },
                     CommitmentId = commitmentId,
                     Status = status
                 });

@@ -1,11 +1,12 @@
 ﻿using MediatR;
-using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Domain;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 {
     public sealed class UpdateCommitmentStatusCommand : IAsyncRequest
     {
-        public long AccountId { get; set; }
+        public Caller Caller { get; set; }
         public long CommitmentId { get; set; }
         public CommitmentStatus? Status { get; set; }
     }

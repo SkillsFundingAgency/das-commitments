@@ -24,7 +24,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
             _mockCommitmentRespository.Setup(x => x.UpdateStatus(It.IsAny<long>(), It.IsAny<CommitmentStatus>())).Returns(Task.FromResult(new object()));
             _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator());
 
-            _exampleValidRequest = new UpdateCommitmentStatusCommand { AccountId = 111L, CommitmentId = 123L, Status = Api.Types.CommitmentStatus.Active };
+            _exampleValidRequest = new UpdateCommitmentStatusCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 111L
+                },
+                CommitmentId = 123L,
+                Status = Api.Types.CommitmentStatus.Active
+            };
         }
 
         [Test]
@@ -34,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
             {
                 Status = CommitmentStatus.Draft,
                 Id = _exampleValidRequest.CommitmentId,
-                EmployerAccountId = _exampleValidRequest.AccountId
+                EmployerAccountId = _exampleValidRequest.Caller.Id
             };
 
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -49,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         [Test]
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
         {
-            _exampleValidRequest.AccountId = 0; // Forces validation failure
+            _exampleValidRequest.Caller = new Caller {CallerType = CallerType.Employer, Id = 0}; // Forces validation failure
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
@@ -62,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
             _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
-                ProviderId = _exampleValidRequest.AccountId++
+                ProviderId = _exampleValidRequest.Caller.Id++
             });
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
