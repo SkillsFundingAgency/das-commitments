@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
+using SFA.DAS.Commitments.Domain;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
 {
@@ -16,14 +17,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         {
 
             _validator = new UpdateCommitmentStatusValidator();
-            _exampleCommand = new UpdateCommitmentStatusCommand { AccountId = 1L, CommitmentId = 123L, Status = Api.Types.CommitmentStatus.Active };
+            _exampleCommand = new UpdateCommitmentStatusCommand { Caller = new Caller {CallerType = CallerType.Employer, Id = 1L}, CommitmentId = 123L, Status = Api.Types.CommitmentStatus.Active };
         }
 
         [TestCase(0)]
         [TestCase(-2)]
         public void ThenAccountIsLessThanOneIsInvalid(long accountId)
         {
-            _exampleCommand.AccountId = accountId;
+            _exampleCommand.Caller.Id = accountId;
 
             var result = _validator.Validate(_exampleCommand);
 

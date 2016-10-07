@@ -46,13 +46,23 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 
         private static void CheckAuthorization(UpdateCommitmentStatusCommand message, Domain.Commitment commitment)
         {
-            if (commitment.EmployerAccountId != message.AccountId)
-                throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (commitment.ProviderId != message.Caller.Id)
+                        throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                default:
+                    if (commitment.EmployerAccountId != message.Caller.Id)
+                        throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+            }
         }
 
         private string BuildInfoMessage(UpdateCommitmentStatusCommand cmd)
         {
-            return $"Employer: {cmd.AccountId} has called UpdateCommitmentStatusCommand";
+            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called CreateApprenticeshipCommand";
         }
     }
 }
