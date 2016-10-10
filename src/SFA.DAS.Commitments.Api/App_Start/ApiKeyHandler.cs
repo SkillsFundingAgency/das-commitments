@@ -39,25 +39,12 @@ namespace SFA.DAS.Commitments.Api
 
                 var headerValue = request.Headers.GetValues(_apiKeyHeaderName).First();
 
-                Logger.Debug($"Selected header value: {headerValue}, Total Header count: {request.Headers.GetValues(_apiKeyHeaderName).Count()}");
-
-                foreach (var item in request.Headers.GetValues(_apiKeyHeaderName))
-                {
-                    Logger.Debug($"Auth Header Value: {item}");
-                }
-
-                Logger.Debug($"Secret: {_apiKeySecret}");
-                Logger.Debug($"HeaderName: {_apiKeyHeaderName}");
-                Logger.Debug($"ApiIssuer: {_apiIssuer}");
-                Logger.Debug($"_apiAudiences: {string.Join(",", _apiAudiences)}");
-
                 ValidateKeyAndSetPrincipal(headerValue);
 
                 return base.SendAsync(request, cancellationToken);
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Failed authentication");
                 var invalidResponse = new HttpResponseMessage(HttpStatusCode.BadRequest) { ReasonPhrase = ex.GetType().Name };
                 var invalidTsc = new TaskCompletionSource<HttpResponseMessage>();
                 invalidTsc.SetResult(invalidResponse);
