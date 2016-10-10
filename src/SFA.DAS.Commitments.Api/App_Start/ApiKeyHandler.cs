@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using NLog;
 
 namespace SFA.DAS.Commitments.Api
 {
@@ -18,6 +19,9 @@ namespace SFA.DAS.Commitments.Api
         private readonly string _apiKeySecret;
         private readonly string _apiIssuer;
         private readonly IEnumerable<string> _apiAudiences;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
 
         public ApiKeyHandler(string apiKeyHeaderName, string apiKeySecret, string apiIssuer, IEnumerable<string> apiAudiences)
         {
@@ -41,6 +45,7 @@ namespace SFA.DAS.Commitments.Api
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "Failed authentication");
                 var invalidResponse = new HttpResponseMessage(HttpStatusCode.BadRequest) { ReasonPhrase = ex.GetType().Name };
                 var invalidTsc = new TaskCompletionSource<HttpResponseMessage>();
                 invalidTsc.SetResult(invalidResponse);
