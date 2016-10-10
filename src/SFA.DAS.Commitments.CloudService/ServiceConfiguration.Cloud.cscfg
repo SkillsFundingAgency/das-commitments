@@ -9,6 +9,9 @@
       <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
       <Setting name="EventHubConnectionString" value="__EventHubConnectionString__" />
       <Setting name="EventHubName" value="__EventHubName__" />
+      <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
+      <Setting name="ApiIssuer" value="__ApiIssuer__"/>
+      <Setting name="ApiAudiences" value="__ApiAudiences__"/>
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
