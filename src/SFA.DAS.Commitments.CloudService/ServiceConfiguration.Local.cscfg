@@ -9,9 +9,9 @@
       <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="EventHubConnectionString" value="" />
       <Setting name="EventHubName" value="" />
-      <Setting name="ApiTokenSecret" value=""/>
-      <Setting name="ApiIssuer" value=""/>
-      <Setting name="ApiAudiences" value=""/>
+      <Setting name="ApiTokenSecret" value="Some Super Secret"/>
+      <Setting name="ApiIssuer" value="http://localhost:62596"/>
+      <Setting name="ApiAudiences" value="http://localhost:62571 https://localhost"/>
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
