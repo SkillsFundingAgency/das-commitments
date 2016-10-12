@@ -19,7 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var fixture = new Fixture();
 
             _validator = new CreateApprenticeshipValidator();
-            var populatedCommitment = fixture.Build<Apprenticeship>().Create();
+            var emptyApprenticeship = new Apprenticeship();
             _exampleCommand = new CreateApprenticeshipCommand
             {
                 Caller = new Caller
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     Id = 1
                 },
                 CommitmentId = 123L,
-                Apprenticeship = populatedCommitment
+                Apprenticeship = emptyApprenticeship
             };
         }
         
@@ -49,9 +49,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         [TestCase(0)]
         [TestCase(-2)]
-        public void ThenCommitmentIdIsLessThanOneIsInvalid(long apprenticeshipId)
+        public void ThenCommitmentIdIsLessThanOneIsInvalid(long commitmentId)
         {
-            _exampleCommand.CommitmentId = apprenticeshipId;
+            _exampleCommand.CommitmentId = commitmentId;
             _exampleCommand.Caller = new Caller
             {
                 CallerType = CallerType.Employer,
@@ -115,6 +115,78 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 CallerType = CallerType.Employer,
                 Id = accountId
             };
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [Test]
+        public void ThenULNThatIsNumericAnd10DigitsInLengthIsValid()
+        {
+            _exampleCommand.Apprenticeship.ULN = "0001234567";
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
+        }
+
+        [TestCase("abc123")]
+        [TestCase("123456789")]
+        [TestCase(" ")]
+        [TestCase("")]
+        public void ThenULNThatIsNotNumericAnd10DigitsInLengthIsInvalid(string uln)
+        {
+            _exampleCommand.Apprenticeship.ULN = uln;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        public void ThenULNThatStartsWithAZeroIsInvalid()
+        {
+            _exampleCommand.Apprenticeship.ULN = "0123456789";
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase(123.12)]
+        [TestCase(123.1)]
+        [TestCase(123.0)]
+        [TestCase(123)]
+        [TestCase(123.000)]
+        public void ThenCostThatIsNumericAndHas2DecimalPlacesIsValid(decimal cost)
+        {
+            _exampleCommand.Apprenticeship.Cost = cost;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeTrue();
+        }
+
+        [TestCase(123.1232)]
+        [TestCase(0.001)]
+        public void ThenCostThatIsNotAMax2DecimalPlacesIsInvalid(decimal cost)
+        {
+            _exampleCommand.Apprenticeship.Cost = cost;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase(0)]
+        [TestCase(-0)]
+        [TestCase(-123.12)]
+        [TestCase(-123)]
+        [TestCase(-123.1232)]
+        [TestCase(-0.001)]
+        public void ThenCostThatIsZeroOrNegativeNumberIsInvalid(decimal cost)
+        {
+            _exampleCommand.Apprenticeship.Cost = cost;
 
             var result = _validator.Validate(_exampleCommand);
 

@@ -26,7 +26,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new CreateApprenticeshipValidator());
 
             Fixture fixture = new Fixture();
-            var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
+            var populatedApprenticeship = fixture.Build<Apprenticeship>()
+                .With(x => x.ULN, "1234567890")
+                .Create();
+
             _exampleValidRequest = new CreateApprenticeshipCommand
             {
                 Caller = new Caller

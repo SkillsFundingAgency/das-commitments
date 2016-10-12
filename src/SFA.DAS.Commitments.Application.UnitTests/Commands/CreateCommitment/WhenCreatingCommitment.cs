@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 
@@ -26,6 +25,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, new CreateCommitmentValidator());
 
             Fixture fixture = new Fixture();
+            fixture.Customize<Api.Types.Apprenticeship>(ob => ob
+                .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
+            );
             var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
@@ -13,6 +14,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 y.RuleFor(x => x.Commitment.EmployerAccountId).GreaterThan(0);
                 y.RuleFor(x => x.Commitment.LegalEntityCode).NotEmpty();
                 y.RuleFor(x => x.Commitment.ProviderId).Must(x => !x.HasValue || x.Value > 0);
+                y.RuleFor(x => x.Commitment.Apprenticeships).SetCollectionValidator(new ApprenticeshipValidator());
             });
         }
     }
