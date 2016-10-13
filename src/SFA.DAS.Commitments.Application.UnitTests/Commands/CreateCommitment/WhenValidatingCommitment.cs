@@ -16,12 +16,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public void Setup()
         {
             Fixture fixture = new Fixture();
-
+            fixture.Customize<Api.Types.Apprenticeship>(ob => ob
+                .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
+            );
             _validator = new CreateCommitmentValidator();
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }
-        
+
         [Test]
         public void ThenIsInvalidIfCommitmentIsNull()
         {

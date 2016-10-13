@@ -76,9 +76,11 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApprenticeshipTestDataHelper.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
+    <Compile Include="Commands\CreateCommitment\WhenValidatingApprenticeships.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenUpdatingApprenticeshipStatus.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingCommand.cs" />

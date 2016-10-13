@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
     {
         public CreateApprenticeshipValidator()
         {
-            RuleFor(x => x.Apprenticeship).NotNull();
+            RuleFor(x => x.Apprenticeship).NotNull().SetValidator(new ApprenticeshipValidator());
             RuleFor(x => x.CommitmentId).GreaterThan(0);
             Custom(request =>
             {
