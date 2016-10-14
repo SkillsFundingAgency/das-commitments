@@ -179,14 +179,14 @@ foreach ($CloudService1 in $Cloudservicearray)
     If ($details.Count -ge 1)
     {
     write-host -ForegroundColor Red "Cant Delete Resource Group Default-Storage-NorthEurope"
-    
      
      }
-     else {
-      write-host -ForegroundColor Yellow "Deleting Resource Group Default-Storage-NorthEurope"
-     Remove-AzureRmResourceGroup -Name Default-Storage-NorthEurope -Force
-       }
-     
+    elseif ([string]::IsNullorEmpty($details))
+    {
+     write-host -ForegroundColor Yellow "Resource Group is being removed"
+     Remove-AzureRmResourceGroup -Name Default-Storage-NorthEurope -Force -ErrorAction SilentlyContinue
+    }
+  
 
 #Azure SQL Server
 #Task SQL Server & Database
