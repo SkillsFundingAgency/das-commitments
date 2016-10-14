@@ -1,4 +1,4 @@
-#One Click Enviroment Build for Commitments including Config DB
+﻿#One Click Enviroment Build for Commitments including Config DB
 
 #SPI Details
 
@@ -150,29 +150,39 @@ else
 #Delete the created Cloud Service RG
 foreach ($CloudService1 in $Cloudservicearray)
     {
-    $details= @(find-AzureRmResource -ResourceGroupNameContains $CloudService1)
-    If ($details.Count -eq 0)
-    {
-
-    write-host -ForegroundColor Yellow "Deleting Resource Group $Cloudservice1"
-    Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
+    $details= find-AzureRmResource -ResourceGroupNameContains $CloudService1
      
+    if ($details -like "*$env:enviroment-pas*")
+    {
+      write-host -ForegroundColor Yellow "Moving Cloud Service $Details "
+      Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
+     } 
+     elseif ($details -like "*$env:enirvoment-comt*") 
+     {
+     write-host -ForegroundColor Yellow "Moving Cloud Service $Details"
+       Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
      }
-     else {
-     write-host -ForegroundColor Red "Cant Delete Resource Group $Cloudservice1"  }
+     elseif ($details -like "*$env:enviroment-task*") 
+     {
+     write-host -ForegroundColor Yellow "Moving Cloud Service $Details"
+       Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
+     }
+     else { write-host -ForegroundColor Yellow "Resource Group isnt available"}
      }
 
 #Delete the Default Storage Area
-   $details= @(find-AzureRmResource -ResourceGroupNameContains Default-Storage-NorthEurope)
-    If ($details.Count -eq 0)
-    {
+    $details= @(find-AzureRmResource -ResourceGroupNameContains Default-Storage-NorthEurope)
 
-     write-host -ForegroundColor Yellow "Deleting Resource Group Default-Storage-NorthEurope"
-     Remove-AzureRmResourceGroup -Name Default-Storage-NorthEurope -Force
+    If ($details.Count -ge 1)
+    {
+    write-host -ForegroundColor Red "Cant Delete Resource Group Default-Storage-NorthEurope"
+    
      
      }
      else {
-     write-host -ForegroundColor Red "Cant Delete Resource Group Default-Storage-NorthEurope"  }
+      write-host -ForegroundColor Yellow "Deleting Resource Group Default-Storage-NorthEurope"
+     Remove-AzureRmResourceGroup -Name Default-Storage-NorthEurope -Force
+       }
      
 
 #Azure SQL Server
