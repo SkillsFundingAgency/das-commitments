@@ -6,15 +6,15 @@ Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051
  
  foreach ($CloudService1 in $Cloudservicearray)
     {
-    $details= @(Get-AzureService -ServiceName $CloudService1 -ErrorAction SilentlyContinue)
+    $details= @(Get-AzureService -ServiceName $CloudService1)
     If ($details.count -eq 1)
     {
-    write-host "Cloud Service Already exist"$details.Servicename
+    write-host "Cloud Service Already exist"
     }
     else 
     {
     Write-Host "Creating $cloudservice1 Service"
-    New-AzureService -ServiceName "$cloudservice1" -Label "$Cloudservice1"-Location "North Europe" 
+    New-AzureService -ServiceName "$cloudservice1" -Label "$Cloudservice1" -Location "North Europe" 
     }
     }
     
