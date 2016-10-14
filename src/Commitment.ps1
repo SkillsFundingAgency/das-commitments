@@ -66,15 +66,15 @@ else
 #Cloud Service Build
  foreach ($CloudService1 in $Cloudservicearray)
     {
-    $details= @(Get-AzureService -ServiceName $CloudService1)
+    $details= @(Get-AzureService -ServiceName $CloudService1 -ErrorAction SilentlyContinue)
     If ($details.count -eq 1)
     {
     write-host "Cloud Service Already exist"$details.Servicename
     }
     else 
     {
-    Write-Host "Creating $result1 Service"
-    New-AzureService -ServiceName "$result1" -Location "North Europe"
+    Write-Host "Creating $cloudservice1 Service"
+    New-AzureService -ServiceName "$cloudservice1" -Location "North Europe"
     }
     }
 
@@ -83,7 +83,7 @@ else
 
     
 foreach ($result2 in $StorageArray){
-$details =@(Get-AzureStorageAccount -StorageAccountName $result2)
+$details =@(Get-AzureStorageAccount -StorageAccountName $result2 -ErrorAction SilentlyContinue)
 
 if ($details.count -eq 1)
 {
@@ -174,7 +174,7 @@ foreach ($CloudService1 in $Cloudservicearray)
      }
 
 #Delete the Default Storage Area
-    $details= @(find-AzureRmResource -ResourceGroupNameContains Default-Storage-NorthEurope)
+    $details= @(find-AzureRmResource -ResourceGroupNameContains Default-Storage-NorthEurope )
 
     If ($details.Count -ge 1)
     {
