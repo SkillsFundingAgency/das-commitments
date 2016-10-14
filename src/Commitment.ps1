@@ -95,6 +95,7 @@ else
 {
      Write-Host -ForegroundColor Yellow "Creating $result2 Storage"
     New-AzureStorageAccount -StorageAccountName $result2 -Location "North Europe" 
+    Start-Sleep -Seconds 120
 }
 }
 
@@ -107,22 +108,23 @@ else
     foreach ($result2 in $find)
 {
     if ($result2.ResourceName -like "*$env:enviroment$storagetask") 
-{   Start-Sleep -s 30
-    write-host -ForegroundColor Yellow "Moving Storage Resource"
-    Move-AzureRmResource -DestinationResourceGroupName $task  -ResourceId $result2.ResourceId -Force
+
+{   
+    write-host -ForegroundColor Yellow "Moving Storage Resource" $result2.ResourceId
+    Move-AzureRmResource -DestinationResourceGroupName $task -ResourceId $result2.ResourceId -Force
 
 }
 
     elseif ($result2.ResourceName -like "*$env:enviroment$storagepas") 
 {
-    write-host -ForegroundColor Yellow "Moving Storage Resource"
-    Move-AzureRmResource -DestinationResourceGroupName $pas  -ResourceId $result2.ResourceId -Force
+    write-host -ForegroundColor Yellow "Moving Storage Resource" $result2.ResourceId
+    Move-AzureRmResource -DestinationResourceGroupName $pas -ResourceId $result2.ResourceId -Force
 }
 
     elseif ($result2.ResourceName -like "*$env:enviroment$storagecomt") 
 {
     write-host -ForegroundColor Yellow "Moving Storage Resource"
-    Move-AzureRmResource -DestinationResourceGroupName $comt  -ResourceId $result2.ResourceId -Force
+    Move-AzureRmResource -DestinationResourceGroupName $comt -ResourceId $result2.ResourceId -Force
 
 }
 }
@@ -135,7 +137,7 @@ else
     {
     $details= find-AzureRmResource -ResourceGroupNameContains $CloudService1
     
-    if ($details.ResourceName -like "*$env:enviroment-pas*"){
+     elseif ($details.ResourceName -like "*$env:enviroment-pas*"){
     write-host -ForegroundColor Yellow "Moving Cloud Service $Details "
     Move-AzureRmResource -DestinationResourceGroupName $pas  -ResourceId $details.ResourceId -force
      }
@@ -153,21 +155,21 @@ else
 #Delete the created Cloud Service RG
 foreach ($CloudService1 in $Cloudservicearray)
     {
-    $details= find-AzureRmResource -ResourceGroupNameContains $CloudService1
-     
-    if ($details -like "*$env:enviroment-pas*")
+    $details= Get-AzureRmResourceGroup -Name $CloudService1
+   
+    if ($details.ResourceGroupName -like "*$env:enviroment-pas*")
     {
-      write-host -ForegroundColor Yellow "Moving Cloud Service $Details "
+      write-host -ForegroundColor Yellow "Deleting Cloud Service" $Details.Resourcegroupname
       Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
      } 
-     elseif ($details -like "*$env:enirvoment-comt*") 
+     elseif ($details.ResourceGroupName -like "*$env:enviroment-comt*") 
      {
-     write-host -ForegroundColor Yellow "Moving Cloud Service $Details"
-       Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
+     write-host -ForegroundColor Yellow "Deleteing Cloud Service" $Details.Resourcegroupname
+      Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
      }
-     elseif ($details -like "*$env:enviroment-task*") 
+     elseif ($details.ResourceGroupName -like "*$env:enviroment-task*") 
      {
-     write-host -ForegroundColor Yellow "Moving Cloud Service $Details"
+     write-host -ForegroundColor Yellow "Deleting Cloud Service" $Details.Resourcegroupname
        Remove-AzureRmResourceGroup -Name "$cloudservice1" -Force
      }
      else { write-host -ForegroundColor Yellow "Resource Group isnt available"}
