@@ -64,34 +64,37 @@ else
 }
 
 #Cloud Service Build
-foreach ($result1 in $CloudServiceArray){
-Get-AzureService -ServiceName $result1 -ev notPresent -ea 0
-
-if ($notPresent)
-{
+ foreach ($CloudService1 in $Cloudservicearray)
+    {
+    $details= @(Get-AzureService -ServiceName $CloudService1)
+    If ($details.count -eq 1)
+    {
+    write-host "Cloud Service Already exist"$details.Servicename
+    }
+    else 
+    {
     Write-Host "Creating $result1 Service"
     New-AzureService -ServiceName "$result1" -Location "North Europe"
     }
-else {
- Write-Host -ForegroundColor Yellow "Cloud Service $result1 already deployed"
-}
-}
+    }
 
 
 #Storage Build
 
+    
 foreach ($result2 in $StorageArray){
-Get-AzureStorageAccount -StorageAccountName $result2 -ev notPresent -ea 0
+$details =@(Get-AzureStorageAccount -StorageAccountName $result2)
 
-if ($notPresent)
+if ($details.count -eq 1)
 {
-    Write-Host -ForegroundColor Yellow "Creating $result2 Storage"
-    New-AzureStorageAccount -StorageAccountName $result2 -Location "North Europe" 
+    Write-Host -ForegroundColor Yellow "Storage Group $Result2 already deployed"
+   
     
 }
 else
 {
-    Write-Host -ForegroundColor Yellow "Storage Group $Result2 already deployed"
+     Write-Host -ForegroundColor Yellow "Creating $result2 Storage"
+    New-AzureStorageAccount -StorageAccountName $result2 -Location "North Europe" 
 }
 }
 
