@@ -74,7 +74,7 @@ else
     else 
     {
     Write-Host "Creating $cloudservice1 Service"
-    New-AzureService -ServiceName "$cloudservice1" -Location "North Europe"
+    New-AzureService -ServiceName "$cloudservice1" -Label "$Cloudservice1"-Location "North Europe" 
     }
     }
 
@@ -94,7 +94,7 @@ if ($details.count -eq 1)
 else
 {
      Write-Host -ForegroundColor Yellow "Creating $result2 Storage"
-    New-AzureStorageAccount -StorageAccountName $result2 -Location "North Europe" 
+    New-AzureStorageAccount -StorageAccountName $result2 -label $result2 -Location "North Europe" 
     Start-Sleep -Seconds 120
 }
 }
@@ -137,7 +137,7 @@ else
     {
     $details= find-AzureRmResource -ResourceGroupNameContains $CloudService1
     
-     elseif ($details.ResourceName -like "*$env:enviroment-pas*"){
+     if ($details.ResourceName -like "*$env:enviroment-pas*"){
     write-host -ForegroundColor Yellow "Moving Cloud Service $Details "
     Move-AzureRmResource -DestinationResourceGroupName $pas  -ResourceId $details.ResourceId -force
      }
