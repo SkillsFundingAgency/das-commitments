@@ -1,4 +1,4 @@
-﻿#One Click Enviroment Build for Commitments including Config DB
+#One Click Enviroment Build for Commitments including Config DB
 
 #SPI Details
 
