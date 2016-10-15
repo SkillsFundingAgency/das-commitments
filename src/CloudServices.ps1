@@ -8,8 +8,12 @@ Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051
   Compare-Object -ReferenceObject $detailarray.ServiceName  -DifferenceObject $CloudServiceArray | 
     Where-Object { $_.SideIndicator -eq '=>' } | 
     ForEach-Object  { 
-       
+    try {   
     New-AzureService -ServiceName $_.InputObject -Label $_.InputObject -Location "North Europe"
+    }
+     catch {
+    write-host $_.Exception.Message
+    }
     }
 
 
