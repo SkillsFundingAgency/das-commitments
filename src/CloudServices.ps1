@@ -5,7 +5,7 @@ Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051
  $CloudServiceArray= @("das-$env:enviroment-task-cs","das-$env:enviroment-comt-cs","das-$env:enviroment-pas-cs")
  $detailarray= @(Get-AzureService)
 
-  Compare-Object -ReferenceObject $detailarray.ServiceName  -DifferenceObject $CloudServiceArray | 
+  Compare-Object -ReferenceObject $detailarray.ServiceName -IncludeEqual $CloudServiceArray | 
     Where-Object { $_.SideIndicator -eq '=>' } | 
     ForEach-Object  { 
     try {   
