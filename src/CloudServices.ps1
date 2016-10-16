@@ -9,7 +9,7 @@ Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051
     Where-Object { $_.SideIndicator -eq '=>' } | 
     ForEach-Object  { 
     try {   
-    New-AzureService -ServiceName $_.InputObject -Label $_.InputObject -Location "North Europe"
+    New-AzureService -ServiceName $_.InputObject -Label $_.InputObject -Location "North Europe" -ErrorAction Stop
     }
      catch {
     write-host $_.Exception.Message
