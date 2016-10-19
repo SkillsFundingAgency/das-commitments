@@ -1,8 +1,8 @@
-﻿$ServiceName= "das-$env:EnvironmentName-$env:type-cs"
+﻿$ServiceName= "das-$env:environment-$env:type-cs"
 
 $Location= "North Europe"
 
-$ResourceGroupName = "das-$env:EnvironmentName-$env:type-rg"
+$ResourceGroupName = "das-$env:environment-$env:type-rg"
 
 #Login
 $secpasswd = ConvertTo-SecureString "$env:spipwd" -AsPlainText -Force
@@ -10,8 +10,8 @@ $mycreds = New-Object System.Management.Automation.PSCredential ("e8d34963-8a5c-
 Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051567 -Credential $mycreds
 
 
-Set-AzureRmContext -SubscriptionName SFA-Das-comt-dev
-Set-AzureSubscription –SubscriptionName SFA-Das-comt-dev
+Set-AzureRmContext -SubscriptionName $env:subscription
+Set-AzureSubscription –SubscriptionName $env:subscription
 
 Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
 
@@ -45,15 +45,15 @@ Function WaitForService {
 $service =  Get-AzureService -ServiceName "$ServiceName" -ErrorAction SilentlyContinue
 if($service)
 {
-	Write-Host "Using existing service '$ServiceName'";
+	Write-Host "Service Already Exists'$ServiceName'";
 
 }
 else
 {
     
     Write-Host "No service exists, creating new..."
-    Set-AzureRmContext -SubscriptionName SFA-Das-comt-dev
-    Set-AzureSubscription –SubscriptionName SFA-Das-comt-dev
+    Set-AzureRmContext -SubscriptionName $env:subscription
+    Set-AzureSubscription –SubscriptionName $env:subscription
 
     New-AzureService -ServiceName $ServiceName -Location "$Location"
     
