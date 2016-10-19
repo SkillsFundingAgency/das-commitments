@@ -43,9 +43,11 @@ Function WaitForService {
 }
 
 $service =  Get-AzureService -ServiceName "$ServiceName" -ErrorAction SilentlyContinue
-if($service)
+write-host $service.Label
+
+if($service.count -eq 1)
 {
-	Write-Host "Service Already Exists'$ServiceName'";
+	Write-Host -ForegroundColor Yellow "Service Already Exists'$ServiceName'";
 
 }
 else
