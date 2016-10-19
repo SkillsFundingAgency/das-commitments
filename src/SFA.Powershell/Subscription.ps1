@@ -1,0 +1,2 @@
+﻿
+Find-AzureRmResource -ResourceNameContains das
