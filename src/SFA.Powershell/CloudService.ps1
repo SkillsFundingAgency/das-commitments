@@ -1,11 +1,7 @@
 ﻿param(
-[Parameter(Mandatory=$False)]
- [string]
- $EnvironmentName = "testdan",
-
  [Parameter(Mandatory=$False)]
  [string]
- $ServiceName= "das-$env:EnvironmentName-comt-cs",
+ $ServiceName= "das-$env:EnvironmentName-$env:type-cs",
  
  [Parameter(Mandatory=$False)]
  [string]
@@ -13,7 +9,7 @@
  
  [Parameter(Mandatory=$False)]
  [string]
- $ResourceGroupName = "das-$env:EnvironmentName-comt-rg"
+ $ResourceGroupName = "das-$env:EnvironmentName-$env:type-rg"
 )
 
 #Login
