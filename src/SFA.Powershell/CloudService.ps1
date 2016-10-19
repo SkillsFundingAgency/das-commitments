@@ -11,6 +11,7 @@ Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051
 
 
 Set-AzureRmContext -SubscriptionName SFA-Das-comt-dev
+Set-AzureSubscription –SubscriptionName SFA-Das-comt-dev
 
 Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
 
@@ -52,6 +53,8 @@ else
     
     Write-Host "No service exists, creating new..."
     Set-AzureRmContext -SubscriptionName SFA-Das-comt-dev
+    Set-AzureSubscription –SubscriptionName SFA-Das-comt-dev
+
     New-AzureService -ServiceName $ServiceName -Location "$Location"
     
     Write-Host "Looking for the new cloud service..."
@@ -68,3 +71,4 @@ else
 }
 
 Write-Host "[service online]" -ForegroundColor Green
+
