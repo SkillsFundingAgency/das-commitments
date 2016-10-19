@@ -5,7 +5,7 @@ Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051
 Set-AzureRmContext -SubscriptionName $env:subscription
 Set-AzureSubscription –SubscriptionName $env:subscription
  
- $CloudServiceArray= @("das-$env:enviromentname-task-cs","das-$env:enviromentname-comt-cs","das-$env:enviromentname-pas-cs")
+ $CloudServiceArray= @("das-$env:environmentname-task-cs","das-$env:environmentname-comt-cs","das-$env:environmentname-pas-cs")
  
  foreach ($CloudService1 in $Cloudservicearray)
     {
@@ -17,6 +17,8 @@ Set-AzureSubscription –SubscriptionName $env:subscription
     else 
     {
     Write-Host "Creating $cloudservice1 Service"
+    Set-AzureRmContext -SubscriptionName $env:subscription
+    Set-AzureSubscription –SubscriptionName $env:subscription
     New-AzureService -ServiceName "$cloudservice1" -Label "$Cloudservice1"-Location "North Europe" 
     }
     }
