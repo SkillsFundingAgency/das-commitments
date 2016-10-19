@@ -57,7 +57,7 @@ else
     Set-AzureRmContext -SubscriptionName $env:subscription
     Set-AzureSubscription –SubscriptionName $env:subscription
 
-    New-AzureService -ServiceName $ServiceName -Location "$Location"
+    #New-AzureService -ServiceName $ServiceName -Location "$Location"
     
     Write-Host "Looking for the new cloud service..."
     
@@ -66,10 +66,10 @@ else
 
     
     Write-Host "Moving '$ServiceName' ($cloudServiceId) to resource group '$ResourceGroupName'..."
-    Move-AzureRmResource -DestinationResourceGroupName "$ResourceGroupName" -ResourceId $cloudService.ResourceId -Force
+    #Move-AzureRmResource -DestinationResourceGroupName "$ResourceGroupName" -ResourceId $cloudService.ResourceId -Force
     
     Write-Host "Removing resoure group '$ServiceName'..."
-    Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
+    #Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
 }
 
 Write-Host "[service online]" -ForegroundColor Green
