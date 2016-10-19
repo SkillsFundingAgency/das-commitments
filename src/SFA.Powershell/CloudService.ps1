@@ -1,16 +1,8 @@
-﻿param(
- [Parameter(Mandatory=$False)]
- [string]
- $ServiceName= "das-$env:EnvironmentName-$env:type-cs",
- 
- [Parameter(Mandatory=$False)]
- [string]
- $Location= "North Europe",
- 
- [Parameter(Mandatory=$False)]
- [string]
- $ResourceGroupName = "das-$env:EnvironmentName-$env:type-rg"
-)
+﻿$ServiceName= "das-$env:EnvironmentName-$env:type-cs"
+
+$Location= "North Europe"
+
+$ResourceGroupName = "das-$env:EnvironmentName-$env:type-rg"
 
 #Login
 $secpasswd = ConvertTo-SecureString "$env:spipwd" -AsPlainText -Force
