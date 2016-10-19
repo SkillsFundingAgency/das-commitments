@@ -1,8 +1,8 @@
-﻿$ServiceName= "das-$env:environment-$env:type-cs"
+﻿$ServiceName= "das-$env:environmentname-$env:type-cs"
 
 $Location= "North Europe"
 
-$ResourceGroupName = "das-$env:environment-$env:type-rg"
+$ResourceGroupName = "das-$env:environmentname-$env:type-rg"
 
 #Login
 $secpasswd = ConvertTo-SecureString "$env:spipwd" -AsPlainText -Force
