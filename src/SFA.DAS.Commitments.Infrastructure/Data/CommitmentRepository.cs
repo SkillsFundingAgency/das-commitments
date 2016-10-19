@@ -189,8 +189,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@commitmentId", apprenticeship.CommitmentId, DbType.Int64);
             parameters.Add("@firstName", apprenticeship.FirstName, DbType.String);
             parameters.Add("@lastName", apprenticeship.LastName, DbType.String);
-            //TODO: LWA - Need to decide on datatype
-            parameters.Add("@trainingId", apprenticeship.TrainingId, DbType.String); 
+            parameters.Add("@trainingType", apprenticeship.TrainingType, DbType.Int32);
+            parameters.Add("@trainingCode", apprenticeship.TrainingCode, DbType.String);
+            parameters.Add("@trainingName", apprenticeship.TrainingName, DbType.String);
             parameters.Add("@uln", apprenticeship.ULN, DbType.String);
             parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
             parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);

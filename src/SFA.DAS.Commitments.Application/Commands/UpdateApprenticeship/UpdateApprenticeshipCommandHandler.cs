@@ -47,7 +47,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 CommitmentId = message.CommitmentId,
                 Status = (Domain.ApprenticeshipStatus)apprenticeship.Status,
                 AgreementStatus = (Domain.AgreementStatus)apprenticeship.AgreementStatus,
-                TrainingId = apprenticeship.TrainingId,
+                TrainingType = (Domain.TrainingType)apprenticeship.TrainingType,
+                TrainingCode = apprenticeship.TrainingCode,
+                TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
                 EndDate = apprenticeship.EndDate

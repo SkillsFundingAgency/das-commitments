@@ -92,7 +92,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.Apprenticeships[0].Cost.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Cost);
             argument.Apprenticeships[0].AgreementStatus.Should().Be((Domain.AgreementStatus)_exampleValidRequest.Commitment.Apprenticeships[0].AgreementStatus);
             argument.Apprenticeships[0].Status.Should().Be((Domain.ApprenticeshipStatus)_exampleValidRequest.Commitment.Apprenticeships[0].Status);
-            argument.Apprenticeships[0].TrainingId.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingId);
+            argument.Apprenticeships[0].TrainingType.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingType);
+            argument.Apprenticeships[0].TrainingCode.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingCode);
+            argument.Apprenticeships[0].TrainingName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingName);
             argument.Apprenticeships[0].StartDate.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].StartDate);
             argument.Apprenticeships[0].EndDate.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].EndDate);
         }
