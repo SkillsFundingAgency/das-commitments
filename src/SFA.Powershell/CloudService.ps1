@@ -61,10 +61,10 @@ else
     
     $cloudService = WaitForService($ServiceName, 50); 
     $cloudServiceId = $cloudService.ResourceId;
-    write-host $cloudServiceId
+
     
     Write-Host "Moving '$ServiceName' ($cloudServiceId) to resource group '$ResourceGroupName'..."
-    Move-AzureRmResource -DestinationResourceGroupName "$ResourceGroupName" -ResourceId $cloudServiceID -Force
+    Move-AzureRmResource -DestinationResourceGroupName "$ResourceGroupName" -ResourceId $cloudService.ResourceId -Force
     
     Write-Host "Removing resoure group '$ServiceName'..."
     Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
