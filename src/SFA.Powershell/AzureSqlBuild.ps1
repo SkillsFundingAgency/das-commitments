@@ -44,7 +44,7 @@ If ($env:SQL -eq 'True'){
 If($Default.IsCurrent -eq 'True'){
 
 #Azure SQL Server
-
+$resourcegroupName= "das-$env:enviroment-$env:type-rg"
 Get-AzureRmSqlDatabase -ResourceGroupName $resourcegroupName -ServerName $sqlServerName -ev notPresent -ea 0
 
 if ($notPresent)
@@ -59,7 +59,7 @@ else
 {
   write-host -ForegroundColor Yellow  "Azure SQL Server das-$env:enviroment-$env:type-sql already deployed "
 }
-
+$resourcegroupName= "das-$env:enviroment-$env:type-rg"
 Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -DatabaseName $databaseName  -ev notPresent -ea 0
 
 if ($notPresent)
