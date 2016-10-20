@@ -49,7 +49,7 @@ else
     $built= Get-AzureRmResource -ResourceGroupName Default-Storage-NorthEurope -ResourceName $storagename -ResourceType Microsoft.ClassicStorage/storageAccounts -ErrorAction SilentlyContinue
     write-host $built.ResourceName
     
-    Move-AzureRmResource -DestinationResourceGroupName Das-demo-comt-rg -ResourceId $built.ResourceId -Force
+    Move-AzureRmResource -DestinationResourceGroupName $ResourceGroupName -ResourceId $built.ResourceId -Force
     
 }
 
