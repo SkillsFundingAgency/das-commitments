@@ -18,6 +18,7 @@ $sqlServerLocation = "North Europe"
 $databaseEdition = "Standard"
 $databaseServiceLevel = "S0"
 $resourcegroupName= "das-$env:enviroment-$env:type-rg"
+write-host $resourcegroupName
 
 
 if ($env:type -eq 'comt')
@@ -44,7 +45,7 @@ If($Default.IsCurrent -eq 'True'){
 
 #Azure SQL Server
 
-Get-AzureRmSqlDatabase -ResourceGroupName das-$env:enviroment-$env:type-rg -ServerName $sqlServerName -ev notPresent -ea 0
+Get-AzureRmSqlDatabase -ResourceGroupName $resourcegroupName -ServerName $sqlServerName -ev notPresent -ea 0
 
 if ($notPresent)
 {
@@ -58,8 +59,6 @@ else
 {
   write-host -ForegroundColor Yellow  "Azure SQL Server das-$env:enviroment-$env:type-sql already deployed "
 }
-
-
 
 Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -DatabaseName $databaseName  -ev notPresent -ea 0
 
