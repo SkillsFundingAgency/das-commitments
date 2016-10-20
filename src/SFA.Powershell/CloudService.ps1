@@ -39,6 +39,7 @@ else
 {
     
     Write-Host "No service exists, creating new..."
+    Get-AzureService
     Set-AzureRmContext -SubscriptionName $env:subscription
     Set-AzureSubscription –SubscriptionName $env:subscription
 
