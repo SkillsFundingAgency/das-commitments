@@ -6,7 +6,6 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
