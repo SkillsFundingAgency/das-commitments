@@ -17,25 +17,25 @@ $sqlServerVersion = "12.0"
 $sqlServerLocation = "North Europe"
 $databaseEdition = "Standard"
 $databaseServiceLevel = "S0"
+$resourcegroupName= "das-$env:enviroment-$env:type-rg"
 
-#Comt DB
 
 if ($env:type -eq 'comt')
 {
-$serverAdmincomt="comt-admsq"
+$serverAdmin="comt-admsq"
 
 }
 else
 {
-$serverAdmincomt="sqlt4sk4dm"
+$serverAdmin="sqlt4sk4dm"
 } 
 
 write-host $serverAdmincomt
 
-$securePasswordcomt = ConvertTo-SecureString "$env:SQLServerPassworddb" -AsPlainText -Force
-$serverCredscomt = New-Object System.Management.Automation.PSCredential ($serverAdmincomt, $securePasswordcomt)
-$sqlServerNamecomt = "das-$env:enviroment-$env:type-sql"
-$databaseNamecomt = "das-$env:enviroment-$env:type-db"
+$securePassword = ConvertTo-SecureString "$env:SQLServerPassworddb" -AsPlainText -Force
+$serverCreds = New-Object System.Management.Automation.PSCredential ($serverAdmin, $securePassword)
+$sqlServerName = "das-$env:enviroment-$env:type-sql"
+$databaseName = "das-$env:enviroment-$env:type-db"
 
 
 
@@ -43,18 +43,16 @@ If ($env:SQL -eq 'True'){
 If($Default.IsCurrent -eq 'True'){
 
 #Azure SQL Server
-#Task SQL Server & Database
-Get-AzureRmSqlDatabase -ResourceGroupName das-$env:enviroment-$env:type-rg -ServerName das-$env:enviroment-$env:type-sql -ev notPresent -ea 0
-$resourcegroupName= "das-$env:enviroment-$env:type-rg"
+
+Get-AzureRmSqlDatabase -ResourceGroupName das-$env:enviroment-$env:type-rg -ServerName $sqlServerName -ev notPresent -ea 0
+
 if ($notPresent)
 {
   write-host -ForegroundColor Yellow  "Creating Azure SQL Server das-$env:enviroment-$env:type-sql"
     $sqlServer = New-AzureRmSqlServer -ServerName $sqlServerName -SqlAdministratorCredentials $ServerCreds `
     -Location $sqlServerLocation -ResourceGroupName $resourceGroupName -ServerVersion $sqlServerVersion
 
-    $currentDatabase = New-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName `
-     -ServerName $sqlServerName -DatabaseName $databaseName `
-     -Edition $databaseEdition -RequestedServiceObjectiveName $databaseServiceLevel
+    $currentDatabase = New-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -DatabaseName $databaseName -Edition $databaseEdition -RequestedServiceObjectiveName $databaseServiceLevel
 }
 else
 {
@@ -62,9 +60,9 @@ else
 }
 
 
-#Task DB
-Get-AzureRmSqlDatabase -ResourceGroupName das-$env:enviroment-$env:type-rg -ServerName das-$env:enviroment-$env:type-sql -DatabaseName das-$env:enviroment-$env:type-db  -ev notPresent -ea 0
-$resourcegroupName= "das-$env:enviroment-$env:type-rg"
+
+Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -DatabaseName $databaseName  -ev notPresent -ea 0
+
 if ($notPresent)
 {
   write-host -ForegroundColor Yellow  "Creating Azure SQL Server Database das-$env:enviroment-$env:type-db"
