@@ -17,7 +17,7 @@ $sqlServerVersion = "12.0"
 $sqlServerLocation = "North Europe"
 $databaseEdition = "Standard"
 $databaseServiceLevel = "S0"
-$resourcegroupName= "das-$env:environment-$env:type-rg"
+$resourcegroupName= "das-$env:EnvironmentName-$env:type-rg"
 write-host $resourcegroupName
 
 
@@ -35,8 +35,8 @@ write-host $serverAdmincomt
 
 $securePassword = ConvertTo-SecureString "$env:SQLServerPassworddb" -AsPlainText -Force
 $serverCreds = New-Object System.Management.Automation.PSCredential ($serverAdmin, $securePassword)
-$sqlServerName = "das-$env:environment-$env:type-sql"
-$databaseName = "das-$env:environment-$env:type-db"
+$sqlServerName = "das-$env:EnvironmentName-$env:type-sql"
+$databaseName = "das-$env:EnvironmentName-$env:type-db"
 
 
 
@@ -49,7 +49,7 @@ Get-AzureRmSqlDatabase -ResourceGroupName $resourcegroupName -ServerName $sqlSer
 
 if ($notPresent)
 {
-  write-host -ForegroundColor Yellow  "Creating Azure SQL Server das-$env:environment-$env:type-sql"
+  write-host -ForegroundColor Yellow  "Creating Azure SQL Server das-$env:EnvironmentName-$env:type-sql"
     $sqlServer = New-AzureRmSqlServer -ServerName $sqlServerName -SqlAdministratorCredentials $ServerCreds `
     -Location $sqlServerLocation -ResourceGroupName $resourceGroupName -ServerVersion $sqlServerVersion
 
@@ -57,14 +57,14 @@ if ($notPresent)
 }
 else
 {
-  write-host -ForegroundColor Yellow  "Azure SQL Server das-$env:environment-$env:type-sql already deployed "
+  write-host -ForegroundColor Yellow  "Azure SQL Server das-$env:EnvironmentName-$env:type-sql already deployed "
 }
 
 Get-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -DatabaseName $databaseName  -ev notPresent -ea 0
 
 if ($notPresent)
 {
-  write-host -ForegroundColor Yellow  "Creating Azure SQL Server Database das-$env:environment-$env:type-db"
+  write-host -ForegroundColor Yellow  "Creating Azure SQL Server Database das-$env:EnvironmentName-$env:type-db"
     
 $currentDatabase = New-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName `
  -ServerName $sqlServerName -DatabaseName $databaseName `
@@ -73,7 +73,7 @@ $currentDatabase = New-AzureRmSqlDatabase -ResourceGroupName $resourceGroupName 
 }
 else
 {
-  write-host -ForegroundColor Yellow  "Azure SQL Database das-$env:environment-$env:type-db already deployed"
+  write-host -ForegroundColor Yellow  "Azure SQL Database das-$env:EnvironmentName-$env:type-db already deployed"
 }
 }
 else 
