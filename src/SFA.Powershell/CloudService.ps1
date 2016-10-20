@@ -43,15 +43,16 @@ else
 
     Start-sleep -s 120
     
-    $built= Get-AzureRmResource -ResourceGroupName $ServiceName -ResourceName $ServiceName -ResourceType Microsoft.ClassicStorage/storageAccounts -ErrorAction SilentlyContinue
+    $built= Get-AzureRmResource -ResourceGroupName $ServiceName -ResourceName $ServiceName  -ErrorAction SilentlyContinue
     write-host $built.ResourceName
+     write-host $built.ResourceId
     
     Move-AzureRmResource -DestinationResourceGroupName $ResourceGroupName -ResourceId $built.ResourceId -Force
    
     Start-sleep -s 25
     
     Write-Host "Removing resoure group '$ServiceName'..."
-    Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
+    #Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
 }
 
 Write-Host "[service online]" -ForegroundColor Green
