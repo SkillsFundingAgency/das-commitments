@@ -20,34 +20,6 @@ write-host $Default.IsCurrent
 
 
 
-Function WaitForService {
-    Param(
-        [string]$ResourceGroupName,
-        
-        [int]$Retries = 10
-    )
-
-    $tried = 0;
-    
-    while($tried -le $Retries)
-    {
-        try
-        {
-            $cloudService = Get-AzurermResource -ResourceName "$ServiceName" -ResourceGroupName "$ServiceName"
-            Write-Host "[service ready]" -ForegroundColor Green
-            return $cloudService
-            write-host $cloudservice.resourceid
-        }
-        catch
-        {
-            Write-Host "[service not ready yet]" -ForegroundColor Red
-            Start-Sleep 5
-        }
-    }
-}
-
-
-
 If($Default.IsCurrent -eq 'True'){
 
 Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
@@ -68,13 +40,15 @@ else
     New-AzureService -ServiceName $ServiceName -Location "$Location"
     
     Write-Host "Looking for the new cloud service..."
-    
-    $cloudService = WaitForService($ServiceName, 50); 
-    $cloudServiceId = $cloudService.ResourceId;
 
+    Start-sleep -s 120
     
-    Write-Host "Moving '$ServiceName' ($cloudServiceId) to resource group '$ResourceGroupName'..."
-    Move-AzureRmResource -DestinationResourceGroupName "$ResourceGroupName" -ResourceId $cloudService.ResourceId -Force
+    $built= Get-AzureRmResource -ResourceGroupName $ServiceName -ResourceName $ServiceName -ResourceType Microsoft.ClassicStorage/storageAccounts -ErrorAction SilentlyContinue
+    write-host $built.ResourceName
+    
+    Move-AzureRmResource -DestinationResourceGroupName $ResourceGroupName -ResourceId $built.ResourceId -Force
+   
+    Start-sleep -s 25
     
     Write-Host "Removing resoure group '$ServiceName'..."
     Remove-AzureRmResourceGroup -Name "$ServiceName" -Force

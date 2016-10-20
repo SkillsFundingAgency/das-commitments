@@ -23,11 +23,24 @@ $databaseServiceLevel = "S0"
 #Comt DB
 
 #$serverPasswordcomt = $env:SQLServerPasswordcomtdb
-$serverAdmincomt = "comt-admsq"
+
 $securePasswordcomt = ConvertTo-SecureString "$env:SQLServerPassworddb" -AsPlainText -Force
 $serverCredscomt = New-Object System.Management.Automation.PSCredential ($serverAdmincomt, $securePasswordcomt)
-$sqlServerNamecomt = "das-$env:enviroment-comt-sql"
-$databaseNamecomt = "das-$env:enviroment-comt-db"
+$sqlServerNamecomt = "das-$env:enviroment-$env:type-sql"
+$databaseNamecomt = "das-$env:enviroment-$env:type-db"
+
+if ($env:type -eq 'comt')
+{
+$serverAdmincomt="comt-admsq"
+
+}
+else
+{
+$serverAdmincomt="sqlt4sk4dm"
+
+} 
+
+write-host $serverAdmincomt
 
 If ($env:SQL -eq 'True'){
 If($Default.IsCurrent -eq 'True'){
