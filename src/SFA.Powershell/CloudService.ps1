@@ -13,10 +13,10 @@ $ResourceGroupName = "das-$env:environmentname-$env:type-rg"
 $uid = "e8d34963-8a5c-4d62-8778-0d47ee0f22fa"
 $pwd = $env:spipwd
 $tenantId = "1a92889b-8ea1-4a16-8132-347814051567"
-$secPwd = ConvertTo-SecureString $pwd -AsPlainText -Force;
-$credentials = New-Object System.Management.Automation.PSCredential ($uid, $secPwd);
+$secPwd = ConvertTo-SecureString $pwd -AsPlainText -Force
+$credentials = New-Object System.Management.Automation.PSCredential ($uid, $secPwd)
 
-Add-AzureRmAccount -ServicePrincipal -Tenant $tenantId -Credential $credentials;
+Add-AzureRmAccount -ServicePrincipal -Tenant $tenantId -Credential $credentials
 
 
 Set-AzureRmContext -SubscriptionName $env:subscription
@@ -43,7 +43,8 @@ else
     Set-AzureRmContext -SubscriptionName $env:subscription
     Set-AzureSubscription –SubscriptionName $env:subscription
     
-    Get-AzureService
+    Get-AzureSubscription
+    #Get-AzureService
 
     #New-AzureService -ServiceName $ServiceName -Location "$Location"
     
