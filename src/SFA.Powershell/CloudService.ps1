@@ -4,32 +4,24 @@ $Location= "North Europe"
 
 $ResourceGroupName = "das-$env:environmentname-$env:type-rg"
 
-#Login
-#$secpasswd = ConvertTo-SecureString "$env:spipwd" -AsPlainText -Force
-#$mycreds = New-Object System.Management.Automation.PSCredential ("e8d34963-8a5c-4d62-8778-0d47ee0f22fa",$secpasswd)
-#Login-AzureRmAccount -ServicePrincipal -Tenant 1a92889b-8ea1-4a16-8132-347814051567 -Credential $mycreds
-
-
+##Login to Subscription##
 $uid = "e8d34963-8a5c-4d62-8778-0d47ee0f22fa"
 $pwd = $env:spipwd
 $tenantId = "1a92889b-8ea1-4a16-8132-347814051567"
 $secPwd = ConvertTo-SecureString $pwd -AsPlainText -Force
 $credentials = New-Object System.Management.Automation.PSCredential ($uid, $secPwd)
 
-Add-AzureRmAccount -ServicePrincipal -Tenant $tenantId -Credential $credentials
-  
-    Set-AzureRmContext -SubscriptionName $env:subscription
-    Set-AzureSubscription –SubscriptionName $env:subscription
-    Select-AzureSubscription -Default -SubscriptionName $env:subscription
+Add-AzurermAccount -ServicePrincipal -Tenant $tenantId -Credential $credentials
+#Set-AzureSubscription –SubscriptionName $env:subscription
+Select-AzureSubscription -Default -SubscriptionName $env:subscription
     
-    Get-AzureSubscription
+$Default= Get-AzureSubscription -SubscriptionName $env:subscription
+write-host $Default.IsCurrent
 
-
-Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
-            
-            
-            
-            
+#If($Default.IsCurrent -eq True){
+#
+#Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
+#             
 #$service =  Get-AzureService -ServiceName "$ServiceName" -ErrorAction SilentlyContinue
 #write-host $service.Label
 #
@@ -40,15 +32,8 @@ Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceG
 #}
 #else
 #{
-    
+#   
 #    Write-Host "No service exists, creating new..."
-    
-    Set-AzureRmContext -SubscriptionName $env:subscription
-    Set-AzureSubscription –SubscriptionName $env:subscription
-    Select-AzureSubscription -Default -SubscriptionName $env:subscription
-    
-    Get-AzureSubscription
-#    #Get-AzureService
 #
 #    #New-AzureService -ServiceName $ServiceName -Location "$Location"
 #    
@@ -67,7 +52,7 @@ Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceG
 #
 #Write-Host "[service online]" -ForegroundColor Green
 #
-#
+#}
 #
 #
 #Function WaitForService {
