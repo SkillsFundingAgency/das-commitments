@@ -42,7 +42,7 @@ else
     
     Write-Host "Waiting for storage to become available..."
     
-    Start-sleep -s 30
+    Start-sleep -s 60
 
     Write-Host "Moving '$StorageName' to resource group '$ResourceGroupName'..."
 
@@ -50,6 +50,10 @@ else
     write-host $built.ResourceName
     
     Move-AzureRmResource -DestinationResourceGroupName $ResourceGroupName -ResourceId $built.ResourceId -Force
+
+    Start-sleep -s 25
+
+    Write-Host "Storage Moved."
     
 }
 
