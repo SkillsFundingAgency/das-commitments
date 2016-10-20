@@ -11,8 +11,6 @@ Select-AzureSubscription -Default -SubscriptionName $env:subscription
 $Default= Get-AzureSubscription -SubscriptionName $env:subscription
 write-host $Default.IsCurrent
 
-
-
 #SQL Variables
 
 $sqlServerVersion = "12.0"
@@ -22,13 +20,6 @@ $databaseServiceLevel = "S0"
 
 #Comt DB
 
-#$serverPasswordcomt = $env:SQLServerPasswordcomtdb
-
-$securePasswordcomt = ConvertTo-SecureString "$env:SQLServerPassworddb" -AsPlainText -Force
-$serverCredscomt = New-Object System.Management.Automation.PSCredential ($serverAdmincomt, $securePasswordcomt)
-$sqlServerNamecomt = "das-$env:enviroment-$env:type-sql"
-$databaseNamecomt = "das-$env:enviroment-$env:type-db"
-
 if ($env:type -eq 'comt')
 {
 $serverAdmincomt="comt-admsq"
@@ -37,10 +28,16 @@ $serverAdmincomt="comt-admsq"
 else
 {
 $serverAdmincomt="sqlt4sk4dm"
-
 } 
 
 write-host $serverAdmincomt
+
+$securePasswordcomt = ConvertTo-SecureString "$env:SQLServerPassworddb" -AsPlainText -Force
+$serverCredscomt = New-Object System.Management.Automation.PSCredential ($serverAdmincomt, $securePasswordcomt)
+$sqlServerNamecomt = "das-$env:enviroment-$env:type-sql"
+$databaseNamecomt = "das-$env:enviroment-$env:type-db"
+
+
 
 If ($env:SQL -eq 'True'){
 If($Default.IsCurrent -eq 'True'){
