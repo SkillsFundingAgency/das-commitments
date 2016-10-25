@@ -52,7 +52,7 @@ else
     Start-sleep -s 25
     
     Write-Host "Removing resoure group '$ServiceName'..."
-    #Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
+    Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
 }
 
 Write-Host "[service online]" -ForegroundColor Green
