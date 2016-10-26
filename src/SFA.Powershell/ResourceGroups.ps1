@@ -15,6 +15,8 @@ $credentials = New-Object System.Management.Automation.PSCredential ($uid, $secP
 Add-AzurermAccount -ServicePrincipal -Tenant $tenantId -Credential $credentials
 Select-AzureSubscription -Default -SubscriptionName $env:subscription
     
+Get-AzureSubscription 
+
 $Default= Get-AzureSubscription -SubscriptionName $env:subscription
 write-host $Default.IsCurrent
 
