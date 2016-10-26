@@ -13,9 +13,10 @@ $secPwd = ConvertTo-SecureString $pwd -AsPlainText -Force
 $credentials = New-Object System.Management.Automation.PSCredential ($uid, $secPwd)
 
 Add-AzurermAccount -ServicePrincipal -Tenant $tenantId -Credential $credentials
-Select-AzureSubscription -Default -SubscriptionName $env:subscription
-    
+
 Get-AzureSubscription 
+
+Select-AzureSubscription -Default -SubscriptionName $env:subscription
 
 $Default= Get-AzureSubscription -SubscriptionName $env:subscription
 write-host $Default.IsCurrent
