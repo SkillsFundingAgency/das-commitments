@@ -19,13 +19,15 @@ $Default= Get-AzureSubscription -SubscriptionName $env:subscription
 write-host $Default.IsCurrent
 
 
-
+If ($env:ServiceBus -eq 'True'){
 If($Default.IsCurrent -eq 'True'){
 
-Write-Host "Preparing cloud service '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
+Write-Host "Preparing service bus '$ServiceName' in resource group '$ResourceGroupName' in '$Location'..."
              
-$service =  Get-AzureService -ServiceName "$ServiceName" -ErrorAction SilentlyContinue
-write-host $service.Label
+
+            
+
+$service =  Get-AzureSBNamespace -Name "$ServiceName" -ErrorAction SilentlyContinue
 
 if($service)
 {
@@ -35,24 +37,22 @@ if($service)
 else
 {
    
-    Write-Host "No service exists, creating new..."
+    Write-Host "No service bus exists, creating new..."
 
-    New-AzureService -ServiceName $ServiceName -Location "$Location"
+    New-AzureSBNamespace -name $ServiceName -Location $Location -NamespaceType Messaging
     
-    Write-Host "Looking for the new cloud service..."
+    Write-Host "Looking for the new service bus..."
 
     Start-sleep -s 120
+
+
     
-    $built= Get-AzureRmResource -ResourceGroupName $ServiceName -ResourceName $ServiceName  -ErrorAction SilentlyContinue
-    write-host $built.ResourceName
-     write-host $built.ResourceId
-    
-    Move-AzureRmResource -DestinationResourceGroupName $ResourceGroupName -ResourceId $built.ResourceId -Force
-   
+$res = Find-AzureRmResource -ResourceNameContains $ServiceName -ResourceType 'Microsoft.ServiceBus/namespaces' -ErrorAction SilentlyContinue
+Move-AzureRmResource -DestinationResourceGroupName $ResourceGroupName -ResourceId $res.ResourceId
+
+
     Start-sleep -s 25
     
-    Write-Host "Removing resoure group '$ServiceName'..."
-    Remove-AzureRmResourceGroup -Name "$ServiceName" -Force
 }
 
 Write-Host "[service online]" -ForegroundColor Green
@@ -63,3 +63,7 @@ else
 write-host "Not in Correct Subscription"
 }
 
+}
+else{
+
+write-host "Service bus not needed for this deployment"}
