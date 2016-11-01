@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
 
-            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId = accountId, commitmentId = response }, default(Commitment));
+            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId = accountId, commitmentId = response }, new Commitment {Id = response});
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]

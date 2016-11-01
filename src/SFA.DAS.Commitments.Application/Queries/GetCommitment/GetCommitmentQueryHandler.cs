@@ -10,6 +10,7 @@ using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using ApprenticeshipStatus = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatus;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
+using TrainingType = SFA.DAS.Commitments.Api.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {
@@ -80,7 +81,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         ULN = x.ULN,
                         FirstName = x.FirstName,
                         LastName = x.LastName,
-                        TrainingId = x.TrainingId,
+                        TrainingType = (TrainingType) x.TrainingType,
+                        TrainingCode = x.TrainingCode,
+                        TrainingName = x.TrainingName,
                         Cost = x.Cost,
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,

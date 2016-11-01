@@ -6,7 +6,6 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
@@ -49,9 +48,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 LastName = apprenticeship.LastName,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
-                Status = Domain.ApprenticeshipStatus.ReadyForApproval,
-                AgreementStatus = (Domain.AgreementStatus)apprenticeship.AgreementStatus,
-                TrainingId = apprenticeship.TrainingId,
+                Status = ApprenticeshipStatus.ReadyForApproval,
+                AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
+                TrainingType = (TrainingType)apprenticeship.TrainingType,
+                TrainingCode = apprenticeship.TrainingCode,
+                TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
                 EndDate = apprenticeship.EndDate
