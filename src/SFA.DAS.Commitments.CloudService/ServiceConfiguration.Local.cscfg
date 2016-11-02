@@ -11,7 +11,7 @@
       <Setting name="EventHubName" value="" />
       <Setting name="ApiTokenSecret" value="Some Super Secret"/>
       <Setting name="ApiIssuer" value="http://localhost:62596"/>
-      <Setting name="ApiAudiences" value="http://localhost:62571 http://localhost:57196"/>
+      <Setting name="ApiAudiences" value="http://localhost:62571 http://localhost:57196 https://localhost"/>
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
