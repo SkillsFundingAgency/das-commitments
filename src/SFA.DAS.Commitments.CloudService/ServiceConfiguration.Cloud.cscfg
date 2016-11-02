@@ -13,5 +13,8 @@
       <Setting name="ApiIssuer" value="__ApiIssuer__"/>
       <Setting name="ApiAudiences" value="__ApiAudiences__"/>
     </ConfigurationSettings>
+     <Certificates>
+      <Certificate name="WebSslCert" thumbprint="87A28DF77BBA73983918DF4288A132588AE820F4" thumbprintAlgorithm="sha1" />
+    </Certificates>
   </Role>
 </ServiceConfiguration>
