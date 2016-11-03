@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="SFA.DAS.CloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="SFA.DAS.Commitments.Api">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="__StorageConnectionString__" />
+      <Setting name="EnvironmentName" value="__EnvironmentName__" />
+      <Setting name="StorageConnectionString" value="__ConfigurationStorageConnectionString__" />
+      <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
+      <Setting name="EventHubConnectionString" value="__EventHubConnectionString__" />
+      <Setting name="EventHubName" value="__EventHubName__" />
+      <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
+      <Setting name="ApiIssuer" value="__ApiIssuer__"/>
+      <Setting name="ApiAudiences" value="__ApiAudiences__"/>
+    </ConfigurationSettings>
+     <Certificates>
+      <Certificate name="WebSslCert" thumbprint="87A28DF77BBA73983918DF4288A132588AE820F4" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>
