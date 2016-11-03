@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="SFA.DAS.CloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
+  <WebRole name="SFA.DAS.Commitments.Api" vmsize="Small">
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="httpsin" endpointName="httpsin" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+      <Setting name="EnvironmentName" />
+      <Setting name="StorageConnectionString" />
+      <Setting name="ConfigurationStorageConnectionString" />
+      <Setting name="EventHubConnectionString" />
+      <Setting name="EventHubName" />
+      <Setting name="ApiTokenSecret" />
+      <Setting name="ApiIssuer" />
+      <Setting name="ApiAudiences" />
+    </ConfigurationSettings>
+    <Endpoints>
+      <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert"/>
+    </Endpoints>
+        <Certificates>
+      <Certificate name="WebSslCert" storeLocation="LocalMachine" storeName="My" />
+    </Certificates>
+  </WebRole>
+</ServiceDefinition>
