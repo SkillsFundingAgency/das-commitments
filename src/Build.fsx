@@ -170,10 +170,12 @@ Target "Build DNX Project"(fun _ ->
     if result <> 0 then failwith "Failed to build DNX project"
 
 )
-
+  
 let buildSolution() = 
 
- for file in !! ("./**/ServiceConfiguration.*.cscfg") do
+    if solutionFilePresent then
+        
+        for file in !! ("./**/ServiceConfiguration.*.cscfg") do
             let configurationName = FileSystemHelper.fileInfo(file).Name.Replace("ServiceConfiguration.","").Replace(".cscfg","")
 
             let directory = FileSystemHelper.fileInfo(file).DirectoryName
@@ -199,7 +201,7 @@ let buildSolution() =
                 !! (@"./" + projectName + ".sln")
                     |> MSBuildReleaseExt null properties "Publish"
                     |> Log "Build-Output: "
-        
+                           
 
 Target "Build Acceptance Solution"(fun _ ->
     buildSolution()
@@ -236,7 +238,7 @@ Target "Publish Solution"(fun _ ->
                             ("ToolsVersion","14");
                         ]
 
-        !! (@"./" + projectName + ".sln")
+        !! (@"./" + projectName + ".Web/" + projectName + ".Web.csproj")
             |> MSBuildReleaseExt null properties "Build"
             |> Log "Build-Output: "
     else
@@ -301,28 +303,24 @@ Target "Publish Database project"(fun _ ->
         trace "Skipping Publish Database project"
 )
 
-Target "Clean Projects" (fun _ ->
-    trace "Clean Projects"
-    !! (".\**\*.csproj")
-        |> myBuildConfig "" "Clean"
-        |> Log "AppBuild-Output: "
-)
+Target "Clean Build Directories" (fun _ ->
+    
+    let mutable files = !! ("./**/bin/*.*")
+    files <- files.And("./**/**/debug/*.*")
+    files <- files.And("./**/**/release/*.*")
+    files <- files.And("./**/obj/*.*") 
+    
+    let directoryNames = [| for file in files -> fileInfo(file).Directory.FullName |]
 
+    FileHelper.DeleteDirs(Seq.distinct(directoryNames)) |> ignore
+
+)
 
 Target "Build Projects" (fun _ ->
     trace "Build Projects"
     !! (".\**\*.csproj")
         |> myBuildConfig "" "Rebuild"
         |> Log "AppBuild-Output: "
-)
-
-Target "Cleaning Unit Tests" (fun _ ->
-
-    trace "Cleaning Unit Tests"
-    !! (".\**\*.UnitTests.csproj")
-      |> myBuildConfig "" "Clean"
-      |> Log "AppBuild-Output: "
-
 )
 
 Target "Building Unit Tests" (fun _ ->
@@ -332,6 +330,26 @@ Target "Building Unit Tests" (fun _ ->
       |> myBuildConfig "" "Rebuild"
       |> Log "AppBuild-Output: "
 
+)
+
+Target "Build WebJob Project" ( fun _ ->
+    
+    let directoryinfo = FileSystemHelper.directoryInfo(@".\" @@ publishDirectory @@ "\..\WebJob")
+    let directory = directoryinfo.FullName
+    traceImportant directory
+    let properties = 
+                    [
+                        ("DeployOnBuild", "True");
+                        ("WebPublishMethod", "Package");
+                        ("SkipInvalidConfigurations", "true");
+                        ("PackageLocation", directory);
+                        ("ToolsVersion","14");
+                    ]
+
+    !! (@".\**\*.WebJob.csproj")
+        |> MSBuildReleaseExt null properties "Build"
+        |> Log "Build-Output: "
+    
 )
 
 Target "Run NUnit Tests" (fun _ ->
@@ -518,21 +536,23 @@ Target "Create Nuget Package" (fun _ ->
                     })
 )
 
-"Set Solution Name"
+"Set version number"
+   ==>"Set Solution Name"
     ==>"Build Acceptance Solution"
     ==>"Cleaning Integration Tests"
     ==>"Building Integration Tests"
     //==>"Run Acceptance Tests"
 
-"Set Solution Name"
+"Set version number"
+   ==>"Set Solution Name"
    ==>"Update Assembly Info Version Numbers"
    ==>"Clean Publish Directory"
-   ==>"Clean Projects"
+   ==>"Clean Build Directories" 
+   ==>"Publish Solution"
    ==>"Build Projects"
    ==>"Build Solution"
    ==>"Build Database project"
-   ==>"Publish Solution"
-   ==>"Cleaning Unit Tests"
+   ==>"Build WebJob Project" 
    ==>"Building Unit Tests"
    ==>"Run NUnit Tests"
    ==>"Compile Views"
