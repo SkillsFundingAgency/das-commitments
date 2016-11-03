@@ -4,7 +4,8 @@
     <Sites>
       <Site name="Web">
         <Bindings>
-          <Binding name="httpsin" endpointName="httpsin" />
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+          <Binding name="Endpoint2" endpointName="Endpoint2" />
         </Bindings>
       </Site>
     </Sites>
@@ -20,7 +21,8 @@
       <Setting name="ApiAudiences" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert"/>
+      <InputEndpoint name="Endpoint1" protocol="http" port="10090" />
+      <InputEndpoint name="Endpoint2" protocol="https" port="443" certificate="WebSslCert"/>
     </Endpoints>
         <Certificates>
       <Certificate name="WebSslCert" storeLocation="LocalMachine" storeName="My" />
