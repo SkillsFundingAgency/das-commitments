@@ -151,6 +151,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task UpdateReference(long commitmentId, string hashValue)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitmentId, DbType.Int64);
+                parameters.Add("@name", hashValue, DbType.String);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                        "UPDATE [dbo].[Commitment] SET Name = @name " +
+                        "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
         public async Task<Apprenticeship> GetApprenticeship(long id)
         {
             var results = await WithConnection(async c =>

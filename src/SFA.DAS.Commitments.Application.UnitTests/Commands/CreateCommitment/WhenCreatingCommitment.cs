@@ -8,6 +8,7 @@ using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -17,12 +18,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private CreateCommitmentCommandHandler _handler;
         private CreateCommitmentCommand _exampleValidRequest;
+        private Mock<IHashingService> _mockHashingService;
 
         [SetUp]
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, new CreateCommitmentValidator());
+            _mockHashingService = new Mock<IHashingService>();
+            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator());
 
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
