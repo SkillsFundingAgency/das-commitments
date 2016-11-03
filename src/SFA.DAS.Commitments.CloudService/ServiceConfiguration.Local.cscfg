@@ -13,5 +13,8 @@
       <Setting name="ApiIssuer" value="http://localhost:62596"/>
       <Setting name="ApiAudiences" value="http://localhost:62571 http://localhost:57196 https://localhost"/>
     </ConfigurationSettings>
+     <Certificates>
+      <Certificate name="WebSslCert" thumbprint="87A28DF77BBA73983918DF4288A132588AE820F4" thumbprintAlgorithm="sha1" />
+    </Certificates>
   </Role>
 </ServiceConfiguration>
