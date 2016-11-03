@@ -57,7 +57,7 @@
     <DiagnosticsConfiguration Include="SFA.DAS.Tasks.ApiContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Configuration\ServiceDefinition.csdef">
+    <Content Include="Configuration\ServiceDefinition.Release.csdef">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>
