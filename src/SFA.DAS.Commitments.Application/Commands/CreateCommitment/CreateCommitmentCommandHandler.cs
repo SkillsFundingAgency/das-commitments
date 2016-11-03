@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
@@ -13,10 +15,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IHashingService _hashingService;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateCommitmentCommand> validator)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator)
         {
+            if (commitmentRepository == null)
+                throw new ArgumentNullException(nameof(commitmentRepository));
+            if (hashingService == null)
+                throw new ArgumentNullException(nameof(hashingService));
             _commitmentRepository = commitmentRepository;
+            _hashingService = hashingService;
             _validator = validator;
         }
 
@@ -31,7 +39,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             var newCommitment = MapFrom(message.Commitment);
 
-            return await _commitmentRepository.Create(newCommitment);
+            var commitmentId = await _commitmentRepository.Create(newCommitment);
+
+            await _commitmentRepository.UpdateReference(commitmentId, _hashingService.HashValue(commitmentId));
+
+            return commitmentId;
         }
 
         private Domain.Commitment MapFrom(Api.Types.Commitment commitment)
