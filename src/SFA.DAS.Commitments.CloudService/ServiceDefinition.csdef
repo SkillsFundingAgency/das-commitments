@@ -24,5 +24,8 @@
       <InputEndpoint name="Endpoint1" protocol="http" port="10090" />
       <InputEndpoint name="Endpoint2" protocol="https" port="443" certificate="WebSslCert"/>
     </Endpoints>
+        <Certificates>
+      <Certificate name="WebSslCert" storeLocation="LocalMachine" storeName="My" />
+    </Certificates>
   </WebRole>
 </ServiceDefinition>
