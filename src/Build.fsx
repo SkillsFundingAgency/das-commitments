@@ -173,18 +173,33 @@ Target "Build DNX Project"(fun _ ->
 
 let buildSolution() = 
 
-    if solutionFilePresent then
-        let buildMode = getBuildParamOrDefault "buildMode" "Debug"
+ for file in !! ("./**/ServiceConfiguration.*.cscfg") do
+            let configurationName = FileSystemHelper.fileInfo(file).Name.Replace("ServiceConfiguration.","").Replace(".cscfg","")
 
-        let properties = 
+            let directory = FileSystemHelper.fileInfo(file).DirectoryName
+
+            let configFile = FileSystemHelper.fileInfo(directory @@ (@"./Configuration/ServiceDefinition." + configurationName + ".csdef"))
+
+            let targetFile = FileSystemHelper.fileInfo(directory @@ (@"ServiceDefinition.csdef"))
+
+            let fileExists = FileSystemHelper.fileExists configFile.FullName
+
+            if fileExists && testDirectory.ToLower() = "release" then
+                let fileRename = FileSystemHelper.fileInfo((configFile.DirectoryName @@ "./ServiceDefinition.csdef")).FullName
+                FileHelper.CopyFile fileRename configFile.FullName
+                FileHelper.MoveFile targetFile.DirectoryName fileRename
+
+            if configurationName.ToUpper() <> "LOCAL" then
+                let properties = 
                         [
-                            ("TargetProfile","cloud")
-                        ]
-
-        !! (@"./" + projectName + ".sln")
-            |> MSBuildReleaseExt null properties "Publish"
-            |> Log "Build-Output: "
-
+                            ("TargetProfile",configurationName);
+                            ("OutputPath",@"bin/" @@ configurationName);
+                        ]    
+            
+                !! (@"./" + projectName + ".sln")
+                    |> MSBuildReleaseExt null properties "Publish"
+                    |> Log "Build-Output: "
+        
 
 Target "Build Acceptance Solution"(fun _ ->
     buildSolution()
