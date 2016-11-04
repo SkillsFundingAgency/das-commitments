@@ -20,7 +20,7 @@
   <NetworkConfiguration>
     <VirtualNetworkSite name="__vnet__" />
     <AddressAssignments>
-      <InstanceAddress roleName="SFA.DAS.Events.Api">
+      <InstanceAddress roleName="SFA.DAS.Commitments.Api>
         <Subnets>
           <Subnet name="__subnet__" />
         </Subnets>
