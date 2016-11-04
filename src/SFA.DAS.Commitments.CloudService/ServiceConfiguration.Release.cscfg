@@ -14,7 +14,25 @@
       <Setting name="ApiAudiences" value="__ApiAudiences__"/>
     </ConfigurationSettings>
      <Certificates>
-      <Certificate name="WebSslCert" thumbprint="87A28DF77BBA73983918DF4288A132588AE820F4" thumbprintAlgorithm="sha1" />
+      <Certificate name="WebSslCert" thumbprint="8C6F8627DF589E85CC6D3F6E5AE13099782E4048" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
+  <NetworkConfiguration>
+    <VirtualNetworkSite name="__vnet__" />
+    <AddressAssignments>
+      <InstanceAddress roleName="SFA.DAS.Events.Api">
+        <Subnets>
+          <Subnet name="__subnet__" />
+        </Subnets>
+      </InstanceAddress>
+      <ReservedIPs>
+        <ReservedIP name="__rip__" />
+      </ReservedIPs>
+    </AddressAssignments>
+    <LoadBalancers>
+      <LoadBalancer name="__ilbname__">
+        <FrontendIPConfiguration type="private" subnet="__subnet__" staticVirtualNetworkIPAddress="10.78.125.25" />
+      </LoadBalancer>
+    </LoadBalancers>
+  </NetworkConfiguration>
 </ServiceConfiguration>
