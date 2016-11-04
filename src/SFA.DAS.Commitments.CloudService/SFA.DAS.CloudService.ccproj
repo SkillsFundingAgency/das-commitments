@@ -33,7 +33,9 @@
   <!-- Items for the project -->
   <ItemGroup>
     <ServiceDefinition Include="ServiceDefinition.csdef" />
-    <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" /> 
+    <None Include="Configuration\ServiceDefinition.Release.csdef" />
+    <ServiceConfiguration Include="ServiceConfiguration.Release.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +49,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Configuration" />
     <Folder Include="SFA.DAS.Commitments.ApiContent\" />
     <Folder Include="SFA.DAS.Tasks.ApiContent\" />
   </ItemGroup>
