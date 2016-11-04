@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition name="SFA.DAS.CloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
-  <WebRole name="SFA.DAS.Commitments.Api" vmsize="Small">
+  <WebRole name="SFA.DAS.Commitments.Api" vmsize="Standard_D1_v2">
     <Sites>
       <Site name="Web">
         <Bindings>
