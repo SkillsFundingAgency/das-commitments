@@ -9,8 +9,8 @@
       <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
       <Setting name="ApiIssuer" value="__ApiIssuer__"/>
       <Setting name="ApiAudiences" value="__ApiAudiences__"/>
-      <Setting name="Logging.Redis.ConnnectionString" value="__LoggingRedisConnectionString__" />
-      <Setting name="Logging.Redis.Key" value="__LoggingRedisKey__" />
+      <Setting name="LoggingRedisConnnectionString" value="__LoggingRedisConnectionString__" />
+      <Setting name="LoggingRedisKey" value="__LoggingRedisKey__" />
     </ConfigurationSettings>
      <Certificates>
       <Certificate name="WebSslCert" thumbprint="8C6F8627DF589E85CC6D3F6E5AE13099782E4048" thumbprintAlgorithm="sha1" />
