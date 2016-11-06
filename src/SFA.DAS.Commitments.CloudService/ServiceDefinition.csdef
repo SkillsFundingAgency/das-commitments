@@ -16,7 +16,6 @@
       <Setting name="ApiIssuer" />
       <Setting name="ApiAudiences" />
       <Setting name="Logging.Redis.ConnnectionString"/>
-      <Setting name="Logging.Redis.Db"/>
       <Setting name="Logging.Redis.Key"/>
     </ConfigurationSettings>
     <Endpoints>

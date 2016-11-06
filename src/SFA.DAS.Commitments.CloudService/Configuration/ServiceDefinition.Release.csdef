@@ -11,13 +11,12 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="EnvironmentName" />
-      <Setting name="StorageConnectionString" />
       <Setting name="ConfigurationStorageConnectionString" />
-      <Setting name="EventHubConnectionString" />
-      <Setting name="EventHubName" />
       <Setting name="ApiTokenSecret" />
       <Setting name="ApiIssuer" />
       <Setting name="ApiAudiences" />
+      <Setting name="Logging.Redis.ConnnectionString"/>
+      <Setting name="Logging.Redis.Key"/>
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert" loadBalancer="das-prd-comt-lb"/>

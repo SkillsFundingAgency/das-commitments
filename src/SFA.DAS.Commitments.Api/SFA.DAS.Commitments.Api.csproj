@@ -17,7 +17,7 @@
     <AssemblyName>SFA.DAS.Commitments.Api</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort />
+    <IISExpressSSLPort>44380</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -160,12 +160,8 @@
       <HintPath>..\packages\SFA.DAS.Configuration.FileStorage.1.0.0.6634\lib\net45\SFA.DAS.Configuration.FileStorage.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.NLog.Targets.AzureEventHub, Version=1.0.0.12237, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.NLog.Targets.AzureEventHub.1.0.0.12237\lib\net45\SFA.DAS.NLog.Targets.AzureEventHub.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SFA.DAS.NLog.Targets.Redis, Version=1.0.0.15048, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.NLog.Targets.Redis.1.0.0.15048\lib\net45\SFA.DAS.NLog.Targets.Redis.dll</HintPath>
+    <Reference Include="SFA.DAS.NLog.Targets.Redis, Version=1.0.0.15106, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.NLog.Targets.Redis.1.0.0.15106\lib\net45\SFA.DAS.NLog.Targets.Redis.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="StackExchange.Redis, Version=1.1.608.0, Culture=neutral, processorArchitecture=MSIL">

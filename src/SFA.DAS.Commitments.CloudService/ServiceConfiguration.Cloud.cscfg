@@ -10,7 +10,6 @@
       <Setting name="ApiIssuer" value="__ApiIssuer__"/>
       <Setting name="ApiAudiences" value="__ApiAudiences__"/>
       <Setting name="Logging.Redis.ConnnectionString" value="__LoggingRedisConnectionString__" />
-      <Setting name="Logging.Redis.Db" value="__LoggingRedisDb__" />
       <Setting name="Logging.Redis.Key" value="__LoggingRedisKey__" />
     </ConfigurationSettings>
      <Certificates>
