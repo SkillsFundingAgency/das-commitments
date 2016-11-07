@@ -5,7 +5,7 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="__StorageConnectionString__" />
       <Setting name="EnvironmentName" value="__EnvironmentName__" />
-      <Setting name="StorageConnectionString" value="__ConfigurationStorageConnectionString__" />
+      <Setting name="StorageConnectionString" value="__StorageConnectionString__" />
       <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
       <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
       <Setting name="ApiIssuer" value="__ApiIssuer__"/>
