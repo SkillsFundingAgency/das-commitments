@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>()));
+            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>(), It.Is<Caller>(m => m.CallerType == CallerType.Provider)));
         }
 
         [Test]
@@ -65,9 +65,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 ProviderId = _exampleValidRequest.Caller.Id
             });
 
-            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>()))
+            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>(), It.IsAny<Caller>()))
                 .Returns(Task.FromResult(default(object))) // Return a fake Task
-                .Callback<Domain.Apprenticeship>(x => argument = x);
+                .Callback<Domain.Apprenticeship, Caller>((x, y) => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
 

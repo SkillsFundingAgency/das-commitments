@@ -112,23 +112,30 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateApprenticeship(Apprenticeship apprenticeship)
+        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
         {
             await WithConnection(async connection =>
             {
                 DynamicParameters parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
                 parameters.Add("@id", apprenticeship.Id, DbType.Int64);
 
+                var sql = GetUpdateApprenticeshipSql(caller.CallerType);
+
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
-                    sql:
-                        "UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus " +
-                        "WHERE Id = @id;",
+                    sql: sql,
                     param: parameters,
                     commandType: CommandType.Text);
 
                 return returnCode;
             });
+        }
+
+        private string GetUpdateApprenticeshipSql(CallerType callerType)
+        {
+            var refItem = callerType == CallerType.Employer ? "EmployerRef = @employerRef": "ProviderRef = @providerRef";
+
+            return $"UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus, {refItem} WHERE Id = @id;";
         }
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, ApprenticeshipStatus apprenticeshipStatus)
@@ -192,8 +199,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, Status, AgreementStatus) " +
-                    "VALUES (@commitmentId, @firstName, @lastName, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @status, @agreementStatus); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, Status, AgreementStatus, EmployerRef) " +
+                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @status, @agreementStatus, @employerRef); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
@@ -208,6 +215,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@commitmentId", apprenticeship.CommitmentId, DbType.Int64);
             parameters.Add("@firstName", apprenticeship.FirstName, DbType.String);
             parameters.Add("@lastName", apprenticeship.LastName, DbType.String);
+            parameters.Add("@dateOfBirth", apprenticeship.DateOfBirth, DbType.DateTime);
+            parameters.Add("@niNumber", apprenticeship.NINumber, DbType.String);
             parameters.Add("@trainingType", apprenticeship.TrainingType, DbType.Int32);
             parameters.Add("@trainingCode", apprenticeship.TrainingCode, DbType.String);
             parameters.Add("@trainingName", apprenticeship.TrainingName, DbType.String);
@@ -217,6 +226,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@endDate", apprenticeship.EndDate, DbType.DateTime);
             parameters.Add("@status", apprenticeship.Status, DbType.Int16);
             parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
+            parameters.Add("@employerRef", apprenticeship.EmployerRef, DbType.String);
+            parameters.Add("@providerRef", apprenticeship.ProviderRef, DbType.String);
 
             return parameters;
         }

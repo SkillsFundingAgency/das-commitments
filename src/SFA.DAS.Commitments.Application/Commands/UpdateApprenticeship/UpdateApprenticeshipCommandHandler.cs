@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             CheckAuthorization(message, commitment);
 
-            await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message));
+            await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message), message.Caller);
         }
 
         private Domain.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
@@ -43,6 +43,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 Id = message.ApprenticeshipId,
                 FirstName = apprenticeship.FirstName,
                 LastName = apprenticeship.LastName,
+                DateOfBirth = apprenticeship.DateOfBirth,
+                NINumber = apprenticeship.NINumber,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
                 Status = (Domain.ApprenticeshipStatus)apprenticeship.Status,
@@ -52,7 +54,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate
+                EndDate = apprenticeship.EndDate,
+                EmployerRef = apprenticeship.EmployerRef,
+                ProviderRef = apprenticeship.ProviderRef
             };
 
             return domainApprenticeship;
