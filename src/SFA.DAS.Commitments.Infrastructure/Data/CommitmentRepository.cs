@@ -131,13 +131,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        private string GetUpdateApprenticeshipSql(CallerType callerType)
-        {
-            var refItem = callerType == CallerType.Employer ? "EmployerRef = @employerRef": "ProviderRef = @providerRef";
-
-            return $"UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus, {refItem} WHERE Id = @id;";
-        }
-
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, ApprenticeshipStatus apprenticeshipStatus)
         {
             await WithConnection(async connection =>
@@ -199,8 +192,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, Status, AgreementStatus, EmployerRef) " +
-                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @status, @agreementStatus, @employerRef); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, Status, AgreementStatus, EmployerRef, ProviderRef) " +
+                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @status, @agreementStatus, @employerRef, @providerRef); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
@@ -247,6 +240,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 return results.ToList();
             });
+        }
+
+        private static string GetUpdateApprenticeshipSql(CallerType callerType)
+        {
+            var refItem = callerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
+
+            return $"UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus, {refItem} WHERE Id = @id;";
         }
     }
 }

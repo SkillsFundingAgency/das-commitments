@@ -46,6 +46,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 Id = apprenticeship.Id,
                 FirstName = apprenticeship.FirstName,
                 LastName = apprenticeship.LastName,
+                DateOfBirth = apprenticeship.DateOfBirth,
+                NINumber = apprenticeship.NINumber,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
                 Status = ApprenticeshipStatus.ReadyForApproval,
@@ -55,7 +57,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate
+                EndDate = apprenticeship.EndDate,
+                EmployerRef = apprenticeship.EmployerRef
             };
 
             return domainApprenticeship;
