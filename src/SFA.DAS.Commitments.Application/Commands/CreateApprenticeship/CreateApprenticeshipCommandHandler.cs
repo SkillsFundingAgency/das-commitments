@@ -58,7 +58,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
                 EndDate = apprenticeship.EndDate,
-                EmployerRef = apprenticeship.EmployerRef
+                EmployerRef = apprenticeship.EmployerRef,
+                ProviderRef = apprenticeship.ProviderRef
             };
 
             return domainApprenticeship;
