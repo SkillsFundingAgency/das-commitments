@@ -10,7 +10,7 @@
       <Setting name="ApiTokenSecret" value="Some Super Secret"/>
       <Setting name="ApiIssuer" value="http://localhost:62596"/>
       <Setting name="ApiAudiences" value="http://localhost:62571 http://localhost:57196 https://localhost"/>
-      <Setting name="LoggingRedisConnnectionString" value="" />
+      <Setting name="LoggingRedisConnectionString" value="" />
       <Setting name="LoggingRedisKey" value="" />
     </ConfigurationSettings>
      <Certificates>

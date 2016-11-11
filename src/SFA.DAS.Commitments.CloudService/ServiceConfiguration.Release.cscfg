@@ -10,7 +10,7 @@
       <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
       <Setting name="ApiIssuer" value="__ApiIssuer__"/>
       <Setting name="ApiAudiences" value="__ApiAudiences__"/>
-      <Setting name="LoggingRedisConnnectionString" value="__LoggingRedisConnectionString__" />
+      <Setting name="LoggingRedisConnectionString" value="__LoggingRedisConnectionString__" />
       <Setting name="LoggingRedisKey" value="__LoggingRedisKey__" />
     </ConfigurationSettings>
      <Certificates>
