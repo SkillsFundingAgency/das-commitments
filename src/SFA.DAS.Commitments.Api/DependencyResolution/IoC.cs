@@ -15,19 +15,16 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using StructureMap;
 
-using SFA.DAS.Commitments.Infrastructure.Configuration;
-
-namespace SFA.DAS.Commitments.Api.DependencyResolution {
-    using StructureMap;
-	
-    public static class IoC {
-        public static IContainer Initialize() {
-            return new Container(c =>
-            {
-                c.Policies.Add(new ConfigurationPolicy<CommitmentsApiConfiguration>("SFA.DAS.Commitments"));
-                c.AddRegistry<DefaultRegistry>();
-            });
+namespace SFA.DAS.Commitments.Api.DependencyResolution
+{
+    public static class IoC
+    {
+        public static IContainer Initialize()
+        {
+            return new Container(c => { c.AddRegistry<DefaultRegistry>(); });
         }
     }
 }

@@ -67,16 +67,12 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Configuration, Version=1.0.0.6634, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.6634\lib\net45\SFA.DAS.Configuration.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.5.0.15438\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Configuration.AzureTableStorage, Version=1.0.0.6634, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Configuration.AzureTableStorage.1.0.0.6634\lib\net45\SFA.DAS.Configuration.AzureTableStorage.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SFA.DAS.Configuration.FileStorage, Version=1.0.0.6634, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Configuration.FileStorage.1.0.0.6634\lib\net45\SFA.DAS.Configuration.FileStorage.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.5.0.15438\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="StructureMap, Version=4.2.0.402, Culture=neutral, processorArchitecture=MSIL">
@@ -103,7 +99,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
-    <Compile Include="Configuration\ConfigurationPolicy.cs" />
     <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
     <Compile Include="Data\ParentChildrenMapper.cs" />

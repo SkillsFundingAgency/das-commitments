@@ -15,38 +15,66 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using StructureMap;
+using System;
+using FluentValidation;
 using MediatR;
+using Microsoft.Azure;
+using SFA.DAS.Commitments.Application;
+using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Commitments.Infrastructure.Data;
+using SFA.DAS.Configuration;
+using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Events.Api.Client.Configuration;
+using StructureMap;
+using StructureMap.Graph;
 
-namespace SFA.DAS.Commitments.Api.DependencyResolution {
-    using Application;
-    using FluentValidation;
-    using StructureMap.Graph;
-
-    public class DefaultRegistry : Registry {
+namespace SFA.DAS.Commitments.Api.DependencyResolution
+{
+    public class DefaultRegistry : Registry
+    {
         private const string ServiceName = "SFA.DAS.Commitments";
+        private const string Version = "1.0";
 
-        public DefaultRegistry() {
+        public DefaultRegistry()
+        {
             Scan(
-                scan => {
+                scan =>
+                {
                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
-                    scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
-                    scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
-                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
-                    scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
-                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
-                    scan.ConnectImplementationsToTypesClosing(typeof(IValidateStateTransition<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof (AbstractValidator<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof (IRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof (IAsyncRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof (INotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof (IAsyncNotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof (IValidateStateTransition<>));
                 });
 
-            RegisterMediator();
-        }
+            var config = GetConfiguration();
 
-        private void RegisterMediator()
-        {
+            For<IEventsApi>().Use<EventsApi>().Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi);
+            For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
+        }
+
+        private static CommitmentsApiConfiguration GetConfiguration()
+        {
+            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+
+            var configurationRepository = GetConfigurationRepository();
+            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(ServiceName, environment, Version));
+
+            return configurationService.Get<CommitmentsApiConfiguration>();
+        }
+
+        private static IConfigurationRepository GetConfigurationRepository()
+        {
+            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
         }
     }
 }

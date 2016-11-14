@@ -6,6 +6,8 @@ using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 {
@@ -13,9 +15,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly AbstractValidator<UpdateCommitmentStatusCommand> _validator;
+        private readonly IEventsApi _eventsApi;
         private readonly ICommitmentRepository _commitmentRepository;
 
-        public UpdateCommitmentStatusCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateCommitmentStatusCommand> validator)
+        public UpdateCommitmentStatusCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateCommitmentStatusCommand> validator, IEventsApi eventsApi)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -23,6 +26,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
                 throw new ArgumentNullException(nameof(validator));
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _eventsApi = eventsApi;
         }
 
         protected override async Task HandleCore(UpdateCommitmentStatusCommand message)
@@ -41,7 +45,21 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             if (message.Status.HasValue && commitment.Status != (CommitmentStatus) message.Status.Value)
             {
                 await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.Status);
+
+                //PublishEvent(commitment, "AGREED");
             }
+        }
+
+        private async void PublishEvent(Commitment commitment, string @event)
+        {
+            //todo: create event for each apprenticeship in commitment
+            var apprenticeshipEvent = new ApprenticeshipEvent
+            {
+                //AgreementStatus = commitment.
+                Event = @event
+            };
+
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
 
         private static void CheckAuthorization(UpdateCommitmentStatusCommand message, Domain.Commitment commitment)

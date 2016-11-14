@@ -8,11 +8,14 @@ using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Events.Api.Client;
+
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
 {
     [TestFixture]
     public sealed class WhenUpdatingCommitmentStatus
     {
+        private Mock<IEventsApi> _mockEventsApi;
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private UpdateCommitmentStatusCommandHandler _handler;
         private UpdateCommitmentStatusCommand _exampleValidRequest;
@@ -20,9 +23,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         [SetUp]
         public void SetUp()
         {
+            _mockEventsApi = new Mock<IEventsApi>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockCommitmentRespository.Setup(x => x.UpdateStatus(It.IsAny<long>(), It.IsAny<CommitmentStatus>())).Returns(Task.FromResult(new object()));
-            _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator());
+            _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator(), _mockEventsApi.Object);
 
             _exampleValidRequest = new UpdateCommitmentStatusCommand
             {
@@ -78,5 +82,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
 
             act.ShouldThrow<UnauthorizedException>();
         }
+
+        //todo: add unit test for events api call
     }
 }
