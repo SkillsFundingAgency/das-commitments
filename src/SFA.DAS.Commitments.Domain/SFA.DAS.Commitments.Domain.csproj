@@ -31,6 +31,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.5.0.15438\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.5.0.15438\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -42,11 +54,15 @@
     <Compile Include="CallerType.cs" />
     <Compile Include="Commitment.cs" />
     <Compile Include="CommitmentStatus.cs" />
+    <Compile Include="Configuration\EventsApiClientConfiguration.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IHashingService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrainingType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

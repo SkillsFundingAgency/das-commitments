@@ -160,6 +160,14 @@
       <HintPath>..\packages\SFA.DAS.Configuration.FileStorage.1.0.0.6634\lib\net45\SFA.DAS.Configuration.FileStorage.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.5.0.15438\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.5.0.15438\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SFA.DAS.NLog.Targets.Redis, Version=1.0.0.15124, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Targets.Redis.1.0.0.15124\lib\net45\SFA.DAS.NLog.Targets.Redis.dll</HintPath>
       <Private>True</Private>
@@ -326,7 +334,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>62596</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:62596/</IISUrl>
+          <IISUrl>https://127.0.0.1:44380/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

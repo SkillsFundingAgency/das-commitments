@@ -1,20 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-        public CommitmentRepository(CommitmentsApiConfiguration configuration)
-            : base(configuration.DatabaseConnectionString)
-        {
-        }
+         public CommitmentRepository(string databaseConnectionString) : base(databaseConnectionString) {}
 
         public async Task<long> Create(Commitment commitment)
         {
@@ -57,10 +54,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
         {
-            return await WithConnection(async connection =>
-            {
-                return await CreateApprenticeship(connection, null, apprenticeship);
-            });
+            return await WithConnection(async connection => { return await CreateApprenticeship(connection, null, apprenticeship); });
         }
 
         public async Task<Commitment> GetById(long id)
@@ -116,7 +110,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             await WithConnection(async connection =>
             {
-                DynamicParameters parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
+                var parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
                 parameters.Add("@id", apprenticeship.Id, DbType.Int64);
 
                 // TODO: LWA - Do we need to check the return code?
@@ -188,7 +182,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private static async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
         {
-            DynamicParameters parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
+            var parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
