@@ -8,6 +8,8 @@ namespace SFA.DAS.Commitments.Domain
         public long CommitmentId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string NINumber { get; set; }
         public string ULN { get; set; }
         public TrainingType TrainingType { get; set; }
         public string TrainingCode { get; set; }
@@ -17,5 +19,7 @@ namespace SFA.DAS.Commitments.Domain
         public DateTime? EndDate { get; set; }
         public ApprenticeshipStatus Status { get; set; }
         public AgreementStatus AgreementStatus { get; set; }
+        public string EmployerRef { get; set; }
+        public string ProviderRef { get; set; }
     }
 }
