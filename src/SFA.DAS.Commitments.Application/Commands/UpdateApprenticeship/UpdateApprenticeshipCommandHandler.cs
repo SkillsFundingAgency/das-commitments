@@ -96,7 +96,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 LearnerId = apprentice.ULN ?? "NULL",
                 TrainingId = apprentice.TrainingCode,
                 Event = @event,
-                PaymentStatus = apprentice.Status.ToString(),
+                PaymentStatus = apprentice.PaymentStatus.ToString(),
                 ProviderId = commitment.ProviderId.ToString(),
                 TrainingEndDate = apprentice.EndDate ?? DateTime.MaxValue,
                 TrainingStartDate = apprentice.StartDate ?? DateTime.MaxValue,

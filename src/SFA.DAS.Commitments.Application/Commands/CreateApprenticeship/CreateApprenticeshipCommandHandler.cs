@@ -16,11 +16,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
     public sealed class CreateApprenticeshipCommandHandler : IAsyncRequestHandler<CreateApprenticeshipCommand, long>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly EventsApi _eventsApi;
+        private readonly IEventsApi _eventsApi;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
 
-        public CreateApprenticeshipCommandHandler(EventsApi eventsApi,ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator)
+        public CreateApprenticeshipCommandHandler(IEventsApi eventsApi,ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator)
         {
             _eventsApi = eventsApi;
             _commitmentRepository = commitmentRepository;
@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called CreateApprenticeshipCommand";
         }
 
-        public async Task PublishEvent(Commitment commitment, Domain.Apprenticeship apprentice, string @event)
+        public async Task PublishEvent(Commitment commitment, Domain.Entities.Apprenticeship apprentice, string @event)
         {
             var apprenticeshipEvent = new ApprenticeshipEvent
             {
@@ -103,7 +103,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 LearnerId = apprentice.ULN ?? "NULL",
                 TrainingId = apprentice.TrainingCode,
                 Event = @event,
-                PaymentStatus = apprentice.Status.ToString(),
+                PaymentStatus = apprentice.PaymentStatus.ToString(),
                 ProviderId = commitment.ProviderId.ToString(),
                 TrainingEndDate = apprentice.EndDate ?? DateTime.MaxValue,
                 TrainingStartDate = apprentice.StartDate ?? DateTime.MaxValue,

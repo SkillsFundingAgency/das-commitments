@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
                     LearnerId = a.ULN ?? "NULL",
                     TrainingId = a.TrainingCode,
                     Event = @event,
-                    PaymentStatus = a.Status.ToString(),
+                    PaymentStatus = a.PaymentStatus.ToString(),
                     ProviderId = commitment.ProviderId.ToString(),
                     TrainingEndDate = a.EndDate ?? DateTime.MaxValue,
                     TrainingStartDate = a.StartDate ?? DateTime.MaxValue,
