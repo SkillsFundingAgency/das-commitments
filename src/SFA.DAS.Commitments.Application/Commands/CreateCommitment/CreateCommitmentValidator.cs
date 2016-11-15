@@ -10,9 +10,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             RuleFor(x => x.Commitment).NotNull().DependentRules(y =>
             {
-                y.RuleFor(x => x.Commitment.Name).NotNull().NotEmpty();
+                y.RuleFor(x => x.Commitment.Reference).NotNull().NotEmpty();
                 y.RuleFor(x => x.Commitment.EmployerAccountId).GreaterThan(0);
-                y.RuleFor(x => x.Commitment.LegalEntityCode).NotEmpty();
+                y.RuleFor(x => x.Commitment.LegalEntityId).NotEmpty();
                 y.RuleFor(x => x.Commitment.ProviderId).Must(x => !x.HasValue || x.Value > 0);
                 y.RuleFor(x => x.Commitment.Apprenticeships).SetCollectionValidator(new ApprenticeshipValidator());
             });

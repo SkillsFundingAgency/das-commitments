@@ -8,6 +8,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
     {
         public Caller Caller { get; set; }
         public long CommitmentId { get; set; }
-        public CommitmentStatus? Status { get; set; }
+        public CommitmentStatus? CommitmentStatus { get; set; }
     }
 }

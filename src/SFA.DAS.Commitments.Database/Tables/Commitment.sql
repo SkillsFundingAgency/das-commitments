@@ -1,11 +1,11 @@
 ﻿CREATE TABLE [dbo].[Commitment]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
-    [Name] NVARCHAR(100) NOT NULL, 
+    [Reference] NVARCHAR(100) NOT NULL, 
     [EmployerAccountId] BIGINT NOT NULL, 
-    [LegalEntityCode] NVARCHAR(50) NOT NULL, 
+    [LegalEntityId] NVARCHAR(50) NOT NULL, 
     [LegalEntityName] NVARCHAR(100) NOT NULL, 
     [ProviderId] BIGINT NULL,
     [ProviderName] NVARCHAR(100) NULL,
-	[Status] SMALLINT NOT NULL DEFAULT 0 
+	[CommitmentStatus] SMALLINT NOT NULL DEFAULT 0 
 )

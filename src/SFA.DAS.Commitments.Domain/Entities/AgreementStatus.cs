@@ -1,10 +1,12 @@
-﻿namespace SFA.DAS.Commitments.Domain
+﻿using System;
+
+namespace SFA.DAS.Commitments.Domain.Entities
 {
     public enum AgreementStatus : short
     {
         NotAgreed = 0,
         EmployerAgreed = 1,
         ProviderAgreed = 2,
-        Agreed = 3
+        BothAgreed = 3
     }
 }

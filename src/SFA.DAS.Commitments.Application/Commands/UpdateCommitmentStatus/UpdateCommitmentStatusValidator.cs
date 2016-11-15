@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentValidation;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 {
@@ -10,8 +11,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
         {
             RuleFor(x => x.Caller.Id).GreaterThan(0);
             RuleFor(x => x.CommitmentId).GreaterThan(0);
-            RuleFor(x => x.Status).NotNull()
-                .DependentRules(y => y.RuleFor(z => z.Status).Must(a => Enum.IsDefined(typeof(CommitmentStatus), (short)a)));
+            RuleFor(x => x.CommitmentStatus).NotNull()
+                .DependentRules(y => y.RuleFor(z => z.CommitmentStatus).Must(a => Enum.IsDefined(typeof(CommitmentStatus), (short)a)));
         }
     }
 }

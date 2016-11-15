@@ -14,4 +14,32 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="LegalEntityCode" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="e580ef26-c42c-4f7b-bc57-e5c47f3bca6c" ChangeDateTime="11/15/2016 14:38:01">
+    <Property Name="ElementName" Value="[dbo].[Apprenticeship].[Status]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Apprenticeship]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="AgreementStatus" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="6511e8bd-a71e-4c5d-a633-edf1cfcbf2ba" ChangeDateTime="11/15/2016 14:42:35">
+    <Property Name="ElementName" Value="[dbo].[Commitment].[LegalEntityCode]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Commitment]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LegalEntityId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="4d2d2afd-7af7-40df-a735-7b99688e79ee" ChangeDateTime="11/15/2016 14:43:02">
+    <Property Name="ElementName" Value="[dbo].[Commitment].[Name]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Commitment]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Reference" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3e45e524-fae3-433f-a959-9ff9d84bab3b" ChangeDateTime="11/15/2016 15:14:06">
+    <Property Name="ElementName" Value="[dbo].[Commitment].[Status]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Commitment]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CommitmentStatus" />
+  </Operation>
 </Operations>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -20,21 +21,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 long commitmentId;
 
                 var parameters = new DynamicParameters();
-                parameters.Add("@name", commitment.Name, DbType.String);
-                parameters.Add("@legalEntityCode", commitment.LegalEntityCode, DbType.Int64);
+                parameters.Add("@reference", commitment.Reference, DbType.String);
+                parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.Int64);
                 parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
                 parameters.Add("@providerName", commitment.ProviderName, DbType.String);
-                parameters.Add("@status", commitment.Status, DbType.Int16);
+                parameters.Add("@status", commitment.CommitmentStatus, DbType.Int16);
                 parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
 
                 using (var trans = connection.BeginTransaction())
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Name, LegalEntityCode, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, Status) " +
-                            "VALUES (@name, @legalEntityCode, @legalEntityName, @accountId, @providerId, @providerName, @status); " +
+                            "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, Status) " +
+                            "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @status); " +
                             "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
@@ -92,13 +93,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", commitmentId, DbType.Int64);
-                parameters.Add("@status", commitmentStatus, DbType.Int16);
+                parameters.Add("@commitmentStatus", commitmentStatus, DbType.Int16);
 
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
-                    sql:
-                        "UPDATE [dbo].[Commitment] SET Status = @status " +
-                        "WHERE Id = @id;",
+                    sql: "UPDATE [dbo].[Commitment] SET CommitmentStatus = @commitmentStatus WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
 
@@ -125,18 +124,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, ApprenticeshipStatus apprenticeshipStatus)
+        public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
             await WithConnection(async connection =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
-                parameters.Add("@status", apprenticeshipStatus, DbType.Int16);
+                parameters.Add("@paymentStatus", paymentStatus, DbType.Int16);
 
                 // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql:
-                        "UPDATE [dbo].[Apprenticeship] SET Status = @status " +
+                        "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
                         "WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
@@ -154,9 +153,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@name", hashValue, DbType.String);
 
                 var returnCode = await connection.ExecuteAsync(
-                    sql:
-                        "UPDATE [dbo].[Commitment] SET Name = @name " +
-                        "WHERE Id = @id;",
+                    sql: "UPDATE [dbo].[Commitment] SET Reference = @reference WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
 
@@ -186,8 +183,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, Status, AgreementStatus, EmployerRef, ProviderRef) " +
-                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @status, @agreementStatus, @employerRef, @providerRef); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef) " +
+                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
@@ -211,7 +208,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@cost", apprenticeship.Cost, DbType.Decimal);
             parameters.Add("@startDate", apprenticeship.StartDate, DbType.DateTime);
             parameters.Add("@endDate", apprenticeship.EndDate, DbType.DateTime);
-            parameters.Add("@status", apprenticeship.Status, DbType.Int16);
+            parameters.Add("@paymentStatus", apprenticeship.PaymentStatus, DbType.Int16);
             parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
             parameters.Add("@employerRef", apprenticeship.EmployerRef, DbType.String);
             parameters.Add("@providerRef", apprenticeship.ProviderRef, DbType.String);
@@ -240,7 +237,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             var refItem = callerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
 
-            return $"UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, Status = @status, AgreementStatus = @agreementStatus, {refItem} WHERE Id = @id;";
+            return $"UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, {refItem} WHERE Id = @id;";
         }
     }
 }

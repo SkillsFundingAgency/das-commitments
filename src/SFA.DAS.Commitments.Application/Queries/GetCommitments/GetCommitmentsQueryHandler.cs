@@ -6,6 +6,7 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
@@ -34,20 +35,20 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                     x => new CommitmentListItem
                     {
                         Id = x.Id,
-                        Name = x.Name,
+                        Reference = x.Reference,
                         ProviderId = x.ProviderId,
                         ProviderName = x.ProviderName,
                         EmployerAccountId = x.EmployerAccountId,
                         EmployerAccountName = "",
-                        LegalEntityCode = x.LegalEntityCode,
+                        LegalEntityId = x.LegalEntityId,
                         LegalEntityName = x.LegalEntityName,
-                        Status = (CommitmentStatus)x.Status
+                        CommitmentStatus = (CommitmentStatus)x.CommitmentStatus
                     }
                 ).ToList()
             };
         }
 
-        private async Task<IList<Domain.Commitment>> GetCommitments(Caller caller)
+        private async Task<IList<Commitment>> GetCommitments(Caller caller)
         {
             switch (caller.CallerType)
             {

@@ -1,22 +1,23 @@
 ﻿using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application
 {
-    public sealed class ApprenticeshipStateTransitionValidator : IValidateStateTransition<ApprenticeshipStatus>
+    public sealed class ApprenticeshipStateTransitionValidator : IValidateStateTransition<PaymentStatus>
     {
-        public bool IsStateTransitionValid(ApprenticeshipStatus initial, ApprenticeshipStatus target)
+        public bool IsStateTransitionValid(PaymentStatus initial, PaymentStatus target)
         {
             if (initial == target)
                 return true;
 
-            if (target == ApprenticeshipStatus.Approved)
+            if (target == PaymentStatus.Active)
             {
-                return initial == ApprenticeshipStatus.ReadyForApproval || initial == ApprenticeshipStatus.Paused;
+                return initial == PaymentStatus.PendingApproval || initial == PaymentStatus.Paused;
             }
 
-            if (target == ApprenticeshipStatus.Paused)
+            if (target == PaymentStatus.Paused)
             {
-                return initial == ApprenticeshipStatus.Approved;
+                return initial == PaymentStatus.Active;
             }
 
             return false;

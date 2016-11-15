@@ -5,6 +5,7 @@ using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
@@ -13,9 +14,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly UpdateApprenticeshipStatusValidator _validator;
-        private readonly IValidateStateTransition<ApprenticeshipStatus> _stateTransitionValidator;
+        private readonly IValidateStateTransition<PaymentStatus> _stateTransitionValidator;
 
-        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, IValidateStateTransition<ApprenticeshipStatus> stateTransitionValidator)
+        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, IValidateStateTransition<PaymentStatus> stateTransitionValidator)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
@@ -37,13 +38,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
 
-            if (!_stateTransitionValidator.IsStateTransitionValid(apprenticeship.Status, (ApprenticeshipStatus)message.Status))
+            if (!_stateTransitionValidator.IsStateTransitionValid(apprenticeship.PaymentStatus, (PaymentStatus)message.PaymentStatus))
                 throw new InvalidRequestException();
 
-            await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, (ApprenticeshipStatus)message.Status);
+            await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, (PaymentStatus)message.PaymentStatus);
         }
 
-        private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Domain.Commitment commitment)
+        private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
                 throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
