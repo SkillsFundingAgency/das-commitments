@@ -20,7 +20,7 @@
       <Setting name="LoggingRedisKey"/>
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert" loadBalancer="das-prd-comt-lb"/>
+      <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert" loadBalancer="das-pp-comt-lb"/>
     </Endpoints>
     <Certificates>
       <Certificate name="WebSslCert" storeLocation="LocalMachine" storeName="My" />
