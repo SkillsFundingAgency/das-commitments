@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -14,7 +15,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using ApprenticeshipStatus = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatus;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
@@ -176,7 +176,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         Id = accountId
                     },
                     CommitmentId = commitmentId,
-                    Status = status
+                    CommitmentStatus = status
                 });
             }
             catch (ValidationException ex)
@@ -196,7 +196,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStatus? status)
+        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, PaymentStatus? paymentStatus)
         {
             try
             {
@@ -205,7 +205,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     AccountId = accountId,
                     CommitmentId = commitmentId,
                     ApprenticeshipId = apprenticeshipId,
-                    Status = status
+                    PaymentStatus = paymentStatus
                 });
             }
             catch (ValidationException ex)

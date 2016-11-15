@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Commitments.Domain
+﻿using System;
+
+namespace SFA.DAS.Commitments.Domain.Entities
 {
     public enum TrainingType
     {

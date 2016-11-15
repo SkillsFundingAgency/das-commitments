@@ -9,6 +9,7 @@ using System;
 using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 {
@@ -55,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
             var response = await _handler.Handle(_exampleValidRequest);
 
             response.Data.Id.Should().Be(_fakeRepositoryCommitment.Id);
-            response.Data.Name.Should().Be(_fakeRepositoryCommitment.Name);
+            response.Data.Reference.Should().Be(_fakeRepositoryCommitment.Reference);
             response.Data.Apprenticeships.Should().HaveSameCount(_fakeRepositoryCommitment.Apprenticeships);
         }
 

@@ -97,7 +97,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]ApprenticeshipStatus? status)
+        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]PaymentStatus? status)
         {
             await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, status);
 

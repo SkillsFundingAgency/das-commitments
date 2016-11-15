@@ -9,6 +9,7 @@ using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
 {

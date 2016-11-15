@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
@@ -52,22 +53,22 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>(), It.Is<Caller>(m => m.CallerType == CallerType.Provider)));
+            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.Is<Caller>(m => m.CallerType == CallerType.Provider)));
         }
 
         [Test]
         public async Task ThenShouldCallTheRepositoryWithApprenticeshipMappedFromRequest()
         {
-            Domain.Apprenticeship argument = null;
+            Domain.Entities.Apprenticeship argument = null;
             _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.Caller.Id
             });
 
-            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Apprenticeship>(), It.IsAny<Caller>()))
+            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<Caller>()))
                 .Returns(Task.FromResult(default(object))) // Return a fake Task
-                .Callback<Domain.Apprenticeship, Caller>((x, y) => argument = x);
+                .Callback<Domain.Entities.Apprenticeship, Caller>((x, y) => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -99,7 +100,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldThrow<UnauthorizedException>();
         }
 
-        private void AssertMappingIsCorrect(Domain.Apprenticeship argument)
+        private void AssertMappingIsCorrect(Domain.Entities.Apprenticeship argument)
         {
             argument.Id.Should().Be(_exampleValidRequest.ApprenticeshipId);
             argument.FirstName.Should().Be(_exampleValidRequest.Apprenticeship.FirstName);
@@ -112,8 +113,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             argument.TrainingCode.Should().Be(_exampleValidRequest.Apprenticeship.TrainingCode);
             argument.TrainingName.Should().Be(_exampleValidRequest.Apprenticeship.TrainingName);
             argument.ULN.Should().Be(_exampleValidRequest.Apprenticeship.ULN);
-            argument.Status.Should().Be((Domain.ApprenticeshipStatus)_exampleValidRequest.Apprenticeship.Status);
-            argument.AgreementStatus.Should().Be((Domain.AgreementStatus)_exampleValidRequest.Apprenticeship.AgreementStatus);
+            argument.PaymentStatus.Should().Be((PaymentStatus)_exampleValidRequest.Apprenticeship.PaymentStatus);
+            argument.AgreementStatus.Should().Be((AgreementStatus)_exampleValidRequest.Apprenticeship.AgreementStatus);
         }
     }
 }

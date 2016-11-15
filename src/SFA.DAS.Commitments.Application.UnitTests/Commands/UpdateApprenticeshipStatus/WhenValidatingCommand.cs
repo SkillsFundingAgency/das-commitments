@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
 
             _validator = new UpdateApprenticeshipStatusValidator();
-            _exampleCommand = new UpdateApprenticeshipStatusCommand { AccountId = 1L, CommitmentId = 123L, ApprenticeshipId = 444L, Status = Api.Types.ApprenticeshipStatus.Approved };
+            _exampleCommand = new UpdateApprenticeshipStatusCommand {AccountId = 1L, CommitmentId = 123L, ApprenticeshipId = 444L, PaymentStatus = PaymentStatus.Active};
         }
 
         [TestCase(0)]
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenStatusCodeIsNullIsInvalid()
         {
-            _exampleCommand.Status = null;
+            _exampleCommand.PaymentStatus = null;
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -63,10 +63,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [TestCase(-1)]
-        [TestCase(3)]
+        [TestCase(6)]
         public void ThenIfStatusCodeIsNotValidValueIsNotValid(short statusCode)
         {
-            _exampleCommand.Status = (ApprenticeshipStatus)statusCode;
+            _exampleCommand.PaymentStatus = (PaymentStatus)statusCode;
 
             var result = _validator.Validate(_exampleCommand);
 

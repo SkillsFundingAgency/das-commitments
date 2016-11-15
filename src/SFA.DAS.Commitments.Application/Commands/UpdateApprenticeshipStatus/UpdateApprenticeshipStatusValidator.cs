@@ -11,8 +11,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             RuleFor(x => x.AccountId).GreaterThan(0);
             RuleFor(x => x.CommitmentId).GreaterThan(0);
             RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
-            RuleFor(x => x.Status).NotNull()
-                .DependentRules(y => y.RuleFor(z => z.Status).Must(a => Enum.IsDefined(typeof(ApprenticeshipStatus), (short)a)));
+            RuleFor(x => x.PaymentStatus).NotNull()
+                .DependentRules(y => y.RuleFor(z => z.PaymentStatus).Must(a => Enum.IsDefined(typeof(PaymentStatus), (short)a)));
         }
     }
 }

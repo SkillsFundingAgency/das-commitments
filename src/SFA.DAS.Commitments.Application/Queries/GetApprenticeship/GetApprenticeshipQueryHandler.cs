@@ -5,6 +5,7 @@ using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 {
@@ -78,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 Cost = matchingApprenticeship.Cost,
                 StartDate = matchingApprenticeship.StartDate,
                 EndDate = matchingApprenticeship.EndDate,
-                Status = (Api.Types.ApprenticeshipStatus)matchingApprenticeship.Status,
+                PaymentStatus = (Api.Types.PaymentStatus)matchingApprenticeship.PaymentStatus,
                 AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus
             };
 

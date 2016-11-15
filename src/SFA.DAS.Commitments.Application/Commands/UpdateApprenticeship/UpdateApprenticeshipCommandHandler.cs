@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
@@ -43,9 +44,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
         }
 
-        private Domain.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
+        private Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
         {
-            var domainApprenticeship = new Domain.Apprenticeship
+            var domainApprenticeship = new Apprenticeship
             {
                 Id = message.ApprenticeshipId,
                 FirstName = apprenticeship.FirstName,
@@ -54,9 +55,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 NINumber = apprenticeship.NINumber,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
-                Status = (Domain.ApprenticeshipStatus)apprenticeship.Status,
-                AgreementStatus = (Domain.AgreementStatus)apprenticeship.AgreementStatus,
-                TrainingType = (Domain.TrainingType)apprenticeship.TrainingType,
+                PaymentStatus = (PaymentStatus)apprenticeship.PaymentStatus,
+                AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
+                TrainingType = (TrainingType)apprenticeship.TrainingType,
                 TrainingCode = apprenticeship.TrainingCode,
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
@@ -69,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             return domainApprenticeship;
         }
 
-        private static void CheckAuthorization(UpdateApprenticeshipCommand message, Domain.Commitment commitment)
+        private static void CheckAuthorization(UpdateApprenticeshipCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)
             {

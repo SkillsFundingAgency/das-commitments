@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Events.Api.Types;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
@@ -45,9 +46,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             return apprenticeshipId;
         }
 
-        private Domain.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
+        private Domain.Entities.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
         {
-            var domainApprenticeship = new Domain.Apprenticeship
+            var domainApprenticeship = new Domain.Entities.Apprenticeship
             {
                 Id = apprenticeship.Id,
                 FirstName = apprenticeship.FirstName,
@@ -56,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 NINumber = apprenticeship.NINumber,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
-                Status = ApprenticeshipStatus.ReadyForApproval,
+                PaymentStatus = PaymentStatus.PendingApproval,
                 AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
                 TrainingType = (TrainingType)apprenticeship.TrainingType,
                 TrainingCode = apprenticeship.TrainingCode,
@@ -71,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             return domainApprenticeship;
         }
 
-        private static void CheckAuthorization(CreateApprenticeshipCommand message, Domain.Commitment commitment)
+        private static void CheckAuthorization(CreateApprenticeshipCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)
             {

@@ -8,6 +8,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         public long AccountId { get; set; }
         public long CommitmentId { get; set; }
         public long ApprenticeshipId { get; set; }
-        public ApprenticeshipStatus? Status { get; set; }
+        public PaymentStatus? PaymentStatus { get; set; }
     }
 }

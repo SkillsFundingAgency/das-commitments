@@ -171,7 +171,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task PatchCommitment(long providerId, long commitmentId, CommitmentStatus? status)
+        public async Task PatchCommitment(long providerId, long commitmentId, CommitmentStatus? commitmentStatus)
         {
             try
             {
@@ -184,7 +184,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         Id = providerId
                     },
                     CommitmentId = commitmentId,
-                    Status = status
+                    CommitmentStatus = commitmentStatus
                 });
             }
             catch (ValidationException ex)
