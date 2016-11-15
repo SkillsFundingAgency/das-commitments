@@ -1,10 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
@@ -13,11 +16,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
+        private readonly IEventsApi _eventsApi;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IEventsApi eventsApi)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _eventsApi = eventsApi;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
@@ -34,6 +39,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             CheckAuthorization(message, commitment);
 
             await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message), message.Caller);
+
+            await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
         }
 
         private Domain.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
@@ -77,6 +84,29 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                     break;
             }
         }
+
+        public async Task PublishEvent(Commitment commitment, Apprenticeship apprentice, string @event)
+        {
+            var apprenticeshipEvent = new ApprenticeshipEvent
+            {
+                AgreementStatus = apprentice.AgreementStatus.ToString(),
+                ApprenticeshipId = apprentice.Id,
+                EmployerAccountId = commitment.EmployerAccountId.ToString(),
+                LearnerId = apprentice.ULN ?? "NULL",
+                TrainingId = apprentice.TrainingCode,
+                Event = @event,
+                PaymentStatus = apprentice.Status.ToString(),
+                ProviderId = commitment.ProviderId.ToString(),
+                TrainingEndDate = apprentice.EndDate ?? DateTime.MaxValue,
+                TrainingStartDate = apprentice.StartDate ?? DateTime.MaxValue,
+                TrainingTotalCost = apprentice.Cost ?? Decimal.MinValue,
+                TrainingType =  apprentice.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
+
+            };
+
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+        }
+
 
         private string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
         {
