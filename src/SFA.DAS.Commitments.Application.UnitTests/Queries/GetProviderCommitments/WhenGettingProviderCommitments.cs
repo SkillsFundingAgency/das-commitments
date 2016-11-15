@@ -10,6 +10,7 @@ using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitments
 {
@@ -44,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         [Test, AutoData]
         public async Task ThenShouldReturnListOfOnlyActiveCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
         {
-            var activeCommitments = commitmentsFromRepository.Where(x => x.Status == CommitmentStatus.Active).ToList();
+            var activeCommitments = commitmentsFromRepository.Where(x => x.CommitmentStatus == CommitmentStatus.Active).ToList();
             _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(activeCommitments);
 
             var response = await _handler.Handle(new GetCommitmentsRequest
@@ -57,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
             });
             
             response.Data.Count.Should().Be(activeCommitments.Count());
-            response.Data.Should().OnlyContain(x => commitmentsFromRepository.Any(y => y.Id == x.Id && y.Name == x.Name));
+            response.Data.Should().OnlyContain(x => commitmentsFromRepository.Any(y => y.Id == x.Id && y.Reference == x.Reference));
         }
 
         [Test]

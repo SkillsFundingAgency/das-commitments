@@ -46,7 +46,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateCommitmentStatusCommand>(y => y.Status == CommitmentStatus.Active)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateCommitmentStatusCommand>(y => y.CommitmentStatus == CommitmentStatus.Active)));
         }
 
         [Test]

@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [TestCase("")]
         public void ThenNameBeingNullOrEmptyIsInvalid(string commitmentName)
         {
-            _exampleCommand.Commitment.Name = commitmentName;
+            _exampleCommand.Commitment.Reference = commitmentName;
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -56,9 +56,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 
         [TestCase("")]
         [TestCase("  ")]
-        public void ThenLegalEntityCodeLessThanOneIsInvalid(string legalEntityCode)
+        public void ThenLegalEntityCodeLessThanOneIsInvalid(string legalEntityId)
         {
-            _exampleCommand.Commitment.LegalEntityCode = legalEntityCode;
+            _exampleCommand.Commitment.LegalEntityId = legalEntityId;
 
             var result = _validator.Validate(_exampleCommand);
 

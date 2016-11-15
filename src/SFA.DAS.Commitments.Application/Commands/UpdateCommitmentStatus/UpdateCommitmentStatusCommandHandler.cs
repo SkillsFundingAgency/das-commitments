@@ -6,6 +6,7 @@ using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Types;
 
@@ -42,9 +43,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 
             CheckAuthorization(message, commitment);
 
-            if (message.Status.HasValue && commitment.Status != (CommitmentStatus) message.Status.Value)
+            if (message.CommitmentStatus.HasValue && commitment.CommitmentStatus != (CommitmentStatus) message.CommitmentStatus.Value)
             {
-                await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.Status);
+                await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.CommitmentStatus);
 
                 //PublishEvent(commitment, "AGREED");
             }
@@ -62,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
 
-        private static void CheckAuthorization(UpdateCommitmentStatusCommand message, Domain.Commitment commitment)
+        private static void CheckAuthorization(UpdateCommitmentStatusCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)
             {

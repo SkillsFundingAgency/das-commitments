@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.Commitments.Domain
+namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class Apprenticeship
     {
@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Domain
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public ApprenticeshipStatus Status { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public AgreementStatus AgreementStatus { get; set; }
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }

@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using ApprenticeshipStatus = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatus;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 using TrainingType = SFA.DAS.Commitments.Api.Types.TrainingType;
@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
             return MapResponseFrom(commitment);
         }
 
-        private static void CheckAuthorization(GetCommitmentRequest message, Domain.Commitment commitment)
+        private static void CheckAuthorization(GetCommitmentRequest message, Domain.Entities.Commitment commitment)
         {
             switch (message.Caller.CallerType)
             {
@@ -60,21 +60,21 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
             }
         }
 
-        private static GetCommitmentResponse MapResponseFrom(Domain.Commitment commitment)
+        private static GetCommitmentResponse MapResponseFrom(Domain.Entities.Commitment commitment)
         {
             return new GetCommitmentResponse
             {
                 Data = new Commitment
                 {
                     Id = commitment.Id,
-                    Name = commitment.Name,
+                    Reference = commitment.Reference,
                     ProviderId = commitment.ProviderId,
                     ProviderName = commitment.ProviderName,
                     EmployerAccountId = commitment.EmployerAccountId,
                     EmployerAccountName = "",
-                    LegalEntityCode = commitment.LegalEntityCode,
+                    LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
-                    Status = (CommitmentStatus)commitment.Status,
+                    CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
                     Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,
@@ -88,7 +88,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,
                         AgreementStatus = (AgreementStatus)x.AgreementStatus,
-                        Status = (ApprenticeshipStatus)x.Status
+                        PaymentStatus = (PaymentStatus)x.PaymentStatus
                     }).ToList()
                 }
             };

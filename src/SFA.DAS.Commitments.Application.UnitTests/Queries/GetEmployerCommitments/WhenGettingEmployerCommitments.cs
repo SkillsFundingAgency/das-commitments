@@ -10,6 +10,7 @@ using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitments
 {
@@ -56,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
             });
 
             response.Data.Should().HaveSameCount(commitmentsFromRepository);
-            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Name == x.Name));
+            commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Reference == x.Reference));
         }
 
         [Test]

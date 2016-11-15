@@ -6,6 +6,7 @@ using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
@@ -46,18 +47,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             return commitmentId;
         }
 
-        private Domain.Commitment MapFrom(Api.Types.Commitment commitment)
+        private Commitment MapFrom(Api.Types.Commitment commitment)
         {
             var domainCommitment = new Commitment
             {
                 Id = commitment.Id,
-                Name = commitment.Name,
+                Reference = commitment.Reference,
                 EmployerAccountId = commitment.EmployerAccountId,
-                LegalEntityCode = commitment.LegalEntityCode,
+                LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
-                Status = CommitmentStatus.Draft,
+                CommitmentStatus = CommitmentStatus.New,
                 Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
                 {
                     Id = x.Id,
@@ -65,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     LastName = x.LastName,
                     ULN = x.ULN,
                     CommitmentId = commitment.Id,
-                    Status = (ApprenticeshipStatus)x.Status,
+                    PaymentStatus = (PaymentStatus)x.PaymentStatus,
                     AgreementStatus = (AgreementStatus)x.AgreementStatus,
                     TrainingType = (TrainingType)x.TrainingType,
                     TrainingCode = x.TrainingCode,

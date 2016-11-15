@@ -8,6 +8,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Events.Api.Client;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
@@ -36,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
                     Id = 111L
                 },
                 CommitmentId = 123L,
-                Status = Api.Types.CommitmentStatus.Active
+                CommitmentStatus = Api.Types.CommitmentStatus.Active
             };
         }
 
@@ -45,7 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         {
             var commitment = new Commitment
             {
-                Status = CommitmentStatus.Draft,
+                CommitmentStatus = CommitmentStatus.New,
                 Id = _exampleValidRequest.CommitmentId,
                 EmployerAccountId = _exampleValidRequest.Caller.Id
             };
@@ -56,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
 
             _mockCommitmentRespository.Verify(x => x.UpdateStatus(
                 It.Is<long>(a => a == _exampleValidRequest.CommitmentId), 
-                It.Is<CommitmentStatus>(a => a == (CommitmentStatus)_exampleValidRequest.Status)));
+                It.Is<CommitmentStatus>(a => a == (CommitmentStatus)_exampleValidRequest.CommitmentStatus)));
         }
 
         [Test]
