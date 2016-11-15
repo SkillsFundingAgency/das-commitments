@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Events.Api.Client;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
@@ -20,12 +21,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private UpdateApprenticeshipCommandHandler _handler;
         private UpdateApprenticeshipCommand _exampleValidRequest;
+        private Mock<IEventsApi> _mockEventsApi;
 
         [SetUp]
         public void SetUp()
         {
+            _mockEventsApi = new Mock<IEventsApi>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator());
+            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), _mockEventsApi.Object);
 
             Fixture fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
