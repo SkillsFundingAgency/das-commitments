@@ -151,7 +151,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", commitmentId, DbType.Int64);
-                parameters.Add("@name", hashValue, DbType.String);
+                parameters.Add("@reference", hashValue, DbType.String);
 
                 var returnCode = await connection.ExecuteAsync(
                     sql: "UPDATE [dbo].[Commitment] SET Reference = @reference WHERE Id = @id;",
