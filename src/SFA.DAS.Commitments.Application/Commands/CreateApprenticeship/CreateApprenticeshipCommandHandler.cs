@@ -98,7 +98,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
         public async Task PublishEvent(Commitment commitment, Domain.Entities.Apprenticeship apprentice, string @event)
         {
-            var trainingTypes = apprentice.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard;
 
             if (apprentice.EndDate != null &&
                 apprentice.StartDate != null &&
@@ -106,6 +105,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 commitment.ProviderId != null &&
                 apprentice.TrainingCode != null)
             {
+                var trainingTypes = apprentice.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard;
                 var apprenticeshipEvent = new ApprenticeshipEvent
                 {
                     AgreementStatus = apprentice.AgreementStatus.ToString(),
