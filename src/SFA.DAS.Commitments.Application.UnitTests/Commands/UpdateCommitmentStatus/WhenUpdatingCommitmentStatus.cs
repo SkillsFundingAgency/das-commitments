@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         {
             _mockEventsApi = new Mock<IEventsApi>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _mockCommitmentRespository.Setup(x => x.UpdateStatus(It.IsAny<long>(), It.IsAny<CommitmentStatus>())).Returns(Task.FromResult(new object()));
+            _mockCommitmentRespository.Setup(x => x.UpdateCommitmentStatus(It.IsAny<long>(), It.IsAny<CommitmentStatus>())).Returns(Task.FromResult(new object()));
             _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator(), _mockEventsApi.Object);
 
             _exampleValidRequest = new UpdateCommitmentStatusCommand
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.UpdateStatus(
+            _mockCommitmentRespository.Verify(x => x.UpdateCommitmentStatus(
                 It.Is<long>(a => a == _exampleValidRequest.CommitmentId), 
                 It.Is<CommitmentStatus>(a => a == (CommitmentStatus)_exampleValidRequest.CommitmentStatus)));
         }

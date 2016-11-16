@@ -43,16 +43,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 
             CheckAuthorization(message, commitment);
 
-            if (message.CommitmentStatus.HasValue && commitment.CommitmentStatus != (CommitmentStatus) message.CommitmentStatus.Value)
+            if (commitment.CommitmentStatus != (CommitmentStatus) message.CommitmentStatus)
             {
-                await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.CommitmentStatus);
+                await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, (CommitmentStatus)message.CommitmentStatus);
 
                 // Not pushing to events API for 2b.1
                 // await PublishEvent(commitment, "COMMITMENT-STATUS-UPDATED");
             }
         }
 
-        public async Task PublishEvent(Commitment commitment, string @event)
+        private async Task PublishEvent(Commitment commitment, string @event)
         {
             foreach (var a in commitment.Apprenticeships)
             {
@@ -96,7 +96,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
 
         private string BuildInfoMessage(UpdateCommitmentStatusCommand cmd)
         {
-            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called CreateApprenticeshipCommand";
+            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateCommitmentStatusCommand";
         }
     }
 }

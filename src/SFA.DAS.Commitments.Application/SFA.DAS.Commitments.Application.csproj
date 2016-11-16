@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.7.0.15731, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.7.0.15731\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.8.0.15818, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.8.0.15818\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
@@ -82,6 +82,8 @@
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />
+    <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
+    <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusValidator.cs" />

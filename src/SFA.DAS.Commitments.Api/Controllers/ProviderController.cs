@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
+    //todo: use route values for account ID and provider ID, etc.
     [RoutePrefix("api/provider")]
     public class ProviderController : ApiController
     {
@@ -82,7 +83,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{providerId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchCommitment(long providerId, long commitmentId, [FromBody] CommitmentStatus? status)
+        public async Task<IHttpActionResult> PutCommitment(long providerId, long commitmentId, [FromBody] CommitmentStatus status)
+        {
+            await _providerOrchestrator.PutCommitment(providerId, commitmentId, status);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchCommitment(long providerId, long commitmentId, [FromBody] AgreementStatus status)
         {
             await _providerOrchestrator.PatchCommitment(providerId, commitmentId, status);
 
