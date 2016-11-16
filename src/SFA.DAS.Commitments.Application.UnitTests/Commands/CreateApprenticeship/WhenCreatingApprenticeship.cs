@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Events.Api.Client;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
@@ -19,12 +20,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private CreateApprenticeshipCommandHandler _handler;
         private CreateApprenticeshipCommand _exampleValidRequest;
+        private Mock<IEventsApi> _mockEventsApi;
 
         [SetUp]
         public void SetUp()
         {
+            _mockEventsApi = new Mock<IEventsApi>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new CreateApprenticeshipValidator());
+            _handler = new CreateApprenticeshipCommandHandler(_mockEventsApi.Object, _mockCommitmentRespository.Object, new CreateApprenticeshipValidator());
 
             Fixture fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()

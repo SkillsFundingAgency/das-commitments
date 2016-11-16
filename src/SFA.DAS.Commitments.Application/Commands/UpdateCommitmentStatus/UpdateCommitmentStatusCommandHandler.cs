@@ -46,21 +46,34 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             if (message.CommitmentStatus.HasValue && commitment.CommitmentStatus != (CommitmentStatus) message.CommitmentStatus.Value)
             {
                 await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.CommitmentStatus);
-
-                //PublishEvent(commitment, "AGREED");
+                await PublishEvent(commitment, "COMMITMENT-STATUS-UPDATED");
             }
         }
 
-        private async void PublishEvent(Commitment commitment, string @event)
+        public async Task PublishEvent(Commitment commitment, string @event)
         {
-            //todo: create event for each apprenticeship in commitment
-            var apprenticeshipEvent = new ApprenticeshipEvent
+            foreach (var a in commitment.Apprenticeships)
             {
-                //AgreementStatus = commitment.
-                Event = @event
-            };
+        
+                var apprenticeshipEvent = new ApprenticeshipEvent
+                {
+                    AgreementStatus = a.AgreementStatus.ToString(),
+                    ApprenticeshipId = a.Id,
+                    EmployerAccountId = commitment.EmployerAccountId.ToString(),
+                    LearnerId = a.ULN ?? "NULL",
+                    TrainingId = a.TrainingCode,
+                    Event = @event,
+                    PaymentStatus = a.PaymentStatus.ToString(),
+                    ProviderId = commitment.ProviderId.ToString(),
+                    TrainingEndDate = a.EndDate ?? DateTime.MaxValue,
+                    TrainingStartDate = a.StartDate ?? DateTime.MaxValue,
+                    TrainingTotalCost = a.Cost ?? Decimal.MinValue,
+                    TrainingType =  a.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
 
-            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+                };
+
+                await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+            }
         }
 
         private static void CheckAuthorization(UpdateCommitmentStatusCommand message, Commitment commitment)
