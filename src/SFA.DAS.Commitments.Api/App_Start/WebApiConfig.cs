@@ -9,6 +9,8 @@ namespace SFA.DAS.Commitments.Api
     {
         public static void Register(HttpConfiguration config)
         {
+            GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new StrictEnumConverter());
+
             var apiKeySecret = CloudConfigurationManager.GetSetting("ApiTokenSecret");
             var apiIssuer = CloudConfigurationManager.GetSetting("ApiIssuer");
             var apiAudiences = CloudConfigurationManager.GetSetting("ApiAudiences").Split(' ');
