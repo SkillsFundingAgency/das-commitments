@@ -42,7 +42,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
             var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(message.Apprenticeship, message));
 
-            await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
+            message.Apprenticeship.Id = apprenticeshipId;
+
+            // Not pushing to events API for 2b.1
+            // await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
+
             return apprenticeshipId;
         }
 

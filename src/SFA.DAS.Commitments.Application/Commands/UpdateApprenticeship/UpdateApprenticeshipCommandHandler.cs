@@ -41,7 +41,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message), message.Caller);
 
-            await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
+            // Not pushing to events API for 2b.1 
+            //await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
         }
 
         private Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)

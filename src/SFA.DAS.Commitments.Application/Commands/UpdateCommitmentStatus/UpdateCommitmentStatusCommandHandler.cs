@@ -46,7 +46,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             if (message.CommitmentStatus.HasValue && commitment.CommitmentStatus != (CommitmentStatus) message.CommitmentStatus.Value)
             {
                 await _commitmentRepository.UpdateStatus(message.CommitmentId, (CommitmentStatus)message.CommitmentStatus);
-                await PublishEvent(commitment, "COMMITMENT-STATUS-UPDATED");
+
+                // Not pushing to events API for 2b.1
+                // await PublishEvent(commitment, "COMMITMENT-STATUS-UPDATED");
             }
         }
 
