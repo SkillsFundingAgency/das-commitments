@@ -41,8 +41,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message), message.Caller);
 
-            // Not pushing to events API for 2b.1 
-            //await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
+            await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
         }
 
         private Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
@@ -89,24 +88,35 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
         public async Task PublishEvent(Commitment commitment, Apprenticeship apprentice, string @event)
         {
-            var apprenticeshipEvent = new ApprenticeshipEvent
+            if (apprentice.EndDate != null &&
+                apprentice.StartDate != null &&
+                apprentice.Cost != null &&
+                commitment.ProviderId != null &&
+                apprentice.TrainingCode != null)
             {
-                AgreementStatus = apprentice.AgreementStatus.ToString(),
-                ApprenticeshipId = apprentice.Id,
-                EmployerAccountId = commitment.EmployerAccountId.ToString(),
-                LearnerId = apprentice.ULN ?? "NULL",
-                TrainingId = apprentice.TrainingCode,
-                Event = @event,
-                PaymentStatus = apprentice.PaymentStatus.ToString(),
-                ProviderId = commitment.ProviderId.ToString(),
-                TrainingEndDate = apprentice.EndDate ?? DateTime.MaxValue,
-                TrainingStartDate = apprentice.StartDate ?? DateTime.MaxValue,
-                TrainingTotalCost = apprentice.Cost ?? Decimal.MinValue,
-                TrainingType =  apprentice.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
+                var trainingTypes = apprentice.TrainingType == TrainingType.Framework
+                    ? TrainingTypes.Framework
+                    : TrainingTypes.Standard;
 
-            };
+                var apprenticeshipEvent = new ApprenticeshipEvent
+                {
+                    AgreementStatus = apprentice.AgreementStatus.ToString(),
+                    ApprenticeshipId = apprentice.Id,
+                    EmployerAccountId = commitment.EmployerAccountId.ToString(),
+                    LearnerId = apprentice.ULN ?? "NULL",
+                    TrainingId = apprentice.TrainingCode,
+                    Event = @event,
+                    PaymentStatus = apprentice.PaymentStatus.ToString(),
+                    ProviderId = commitment.ProviderId.ToString(),
+                    TrainingEndDate = (DateTime) apprentice.EndDate ,
+                    TrainingStartDate = (DateTime) apprentice.StartDate ,
+                    TrainingTotalCost = (decimal) apprentice.Cost,
+                    TrainingType =  trainingTypes
 
-            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+                };
+
+                await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+            }
         }
 
 
