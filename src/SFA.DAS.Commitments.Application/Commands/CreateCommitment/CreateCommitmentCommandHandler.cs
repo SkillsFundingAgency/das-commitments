@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             return commitmentId;
         }
 
-        private Commitment MapFrom(Api.Types.Commitment commitment)
+        private static Commitment MapFrom(Api.Types.Commitment commitment)
         {
             var domainCommitment = new Commitment
             {
@@ -59,6 +59,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
                 CommitmentStatus = CommitmentStatus.New,
+                EditStatus = EditStatus.EmployerOnly,
                 Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
                 {
                     Id = x.Id,
@@ -80,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             return domainCommitment;
         }
 
-        private string BuildInfoMessage(CreateCommitmentCommand cmd)
+        private static string BuildInfoMessage(CreateCommitmentCommand cmd)
         {
             return $"Employer: {cmd.Commitment.EmployerAccountId} has called CreateCommitmentCommand";
         }
