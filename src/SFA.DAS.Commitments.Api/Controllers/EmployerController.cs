@@ -2,7 +2,6 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
-using NLog;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 
@@ -11,8 +10,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
     [RoutePrefix("api/employer")]
     public class EmployerController : ApiController
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly EmployerOrchestrator _employerOrchestrator;
 
         public EmployerController(EmployerOrchestrator employerOrchestrator)
@@ -51,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeship);
 
-            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId = accountId, commitmentId = commitmentId, apprenticeshipId = response }, default(Apprenticeship));
+            return CreatedAtRoute("GetApprenticeshipForEmployer", new {accountId, commitmentId, apprenticeshipId = response }, default(Apprenticeship));
         }
 
         [Route("{accountId}/commitments/")]
@@ -60,7 +57,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
 
-            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId = accountId, commitmentId = response }, new Commitment {Id = response});
+            return CreatedAtRoute("GetCommitmentForEmployer", new {accountId, commitmentId = response }, new Commitment {Id = response});
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
