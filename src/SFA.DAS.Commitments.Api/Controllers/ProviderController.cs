@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.CreateApprenticeship(providerId, commitmentId, apprenticeship);
 
-            return CreatedAtRoute("GetApprenticeshipForProvider", new { providerId = providerId, commitmentId = commitmentId, apprenticeshipId = response }, default(Apprenticeship));
+            return CreatedAtRoute("GetApprenticeshipForProvider", new {providerId, commitmentId, apprenticeshipId = response}, default(Apprenticeship));
         }
 
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{providerId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchCommitment(long providerId, long commitmentId, [FromBody]CommitmentStatus? status)
+        public async Task<IHttpActionResult> PatchCommitment(long providerId, long commitmentId, [FromBody] CommitmentStatus? status)
         {
             await _providerOrchestrator.PatchCommitment(providerId, commitmentId, status);
 

@@ -74,7 +74,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     EmployerAccountName = "",
                     LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
-                    CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
+                    CommitmentStatus = (CommitmentStatus) commitment.CommitmentStatus,
+                    EditStatus = (EditStatus) commitment.EditStatus,
                     Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,
@@ -87,8 +88,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         Cost = x.Cost,
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,
-                        AgreementStatus = (AgreementStatus)x.AgreementStatus,
-                        PaymentStatus = (PaymentStatus)x.PaymentStatus
+                        AgreementStatus = (AgreementStatus) x.AgreementStatus,
+                        PaymentStatus = (PaymentStatus) x.PaymentStatus
                     }).ToList()
                 }
             };

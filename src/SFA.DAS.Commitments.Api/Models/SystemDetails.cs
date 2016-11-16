@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Commitments.Api.Models
+﻿using System;
+
+namespace SFA.DAS.Commitments.Api.Models
 {
     public static class SystemDetails
     {
