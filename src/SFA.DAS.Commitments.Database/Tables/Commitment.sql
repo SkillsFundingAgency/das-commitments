@@ -7,5 +7,6 @@
     [LegalEntityName] NVARCHAR(100) NOT NULL, 
     [ProviderId] BIGINT NULL,
     [ProviderName] NVARCHAR(100) NULL,
-	[CommitmentStatus] SMALLINT NOT NULL DEFAULT 0 
+	[CommitmentStatus] SMALLINT NOT NULL DEFAULT 0, 
+    [EditStatus] SMALLINT NOT NULL DEFAULT 0 
 )
