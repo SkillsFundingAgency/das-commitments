@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 ProviderId = _exampleValidRequest.Caller.Id
             });
             _mockCommitmentRespository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()))
-                .ReturnsAsync(9)
+                .ReturnsAsync(_exampleValidRequest.Apprenticeship.Id)
                 .Callback<Domain.Entities.Apprenticeship>(x => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
