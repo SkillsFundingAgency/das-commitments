@@ -73,7 +73,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var lookup = new Dictionary<object, Commitment>();
                 var results = await c.QueryAsync(
-                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.Id = @id;",
+                    sql: $"SELECT c.*, a.* FROM [dbo].[Commitment] c LEFT JOIN [dbo].Apprenticeship a ON a.CommitmentId = c.Id WHERE c.Id = @id AND c.CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
                     param: parameters,
                     map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
@@ -271,7 +271,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var results = await c.QueryAsync<Commitment>(
-                    sql: $"SELECT * FROM [dbo].[Commitment] WHERE {identifierName} = @id;",
+                    sql: $"SELECT * FROM [dbo].[Commitment] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
                     param: parameters);
 
                 return results.ToList();
