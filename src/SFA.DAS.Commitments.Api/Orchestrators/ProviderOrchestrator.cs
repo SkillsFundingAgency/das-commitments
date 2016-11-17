@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -171,7 +173,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }
         }
 
-        public async Task PatchCommitment(long providerId, long commitmentId, CommitmentStatus? commitmentStatus)
+        public async Task PutCommitment(long providerId, long commitmentId, CommitmentStatus commitmentStatus)
         {
             try
             {
@@ -185,6 +187,39 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     },
                     CommitmentId = commitmentId,
                     CommitmentStatus = commitmentStatus
+                });
+            }
+            catch (ValidationException ex)
+            {
+                Logger.Info(ex, $"Validation error {ex.Message}");
+                throw;
+            }
+            catch (UnauthorizedException ex)
+            {
+                Logger.Info(ex, $"Unauthorized error {ex.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, ex.Message);
+                throw;
+            }
+        }
+
+        public async Task PatchCommitment(long providerId, long commitmentId, AgreementStatus agreementStatus)
+        {
+            try
+            {
+                await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
+                {
+
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Provider,
+                        Id = providerId
+                    },
+                    CommitmentId = commitmentId,
+                    AgreementStatus = agreementStatus
                 });
             }
             catch (ValidationException ex)

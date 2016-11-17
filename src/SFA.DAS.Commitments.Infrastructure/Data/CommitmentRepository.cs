@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -12,7 +13,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-         public CommitmentRepository(string databaseConnectionString) : base(databaseConnectionString) {}
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        public CommitmentRepository(string databaseConnectionString) : base(databaseConnectionString) {}
 
         public async Task<long> Create(Commitment commitment)
         {
@@ -88,17 +91,37 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetByIdentifier("ProviderId", providerId);
         }
 
-        public async Task UpdateStatus(long commitmentId, CommitmentStatus commitmentStatus)
+        public async Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus)
         {
+            Logger.Debug($"Updating commitment {commitmentId} status to {commitmentStatus}");
+
             await WithConnection(async connection =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", commitmentId, DbType.Int64);
                 parameters.Add("@commitmentStatus", commitmentStatus, DbType.Int16);
 
-                // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql: "UPDATE [dbo].[Commitment] SET CommitmentStatus = @commitmentStatus WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
+        public async Task UpdateCommitmentStatus(long commitmentId, EditStatus editStatus)
+        {
+            Logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}");
+
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitmentId, DbType.Int64);
+                parameters.Add("@editStatus", editStatus, DbType.Int16);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql: "UPDATE [dbo].[Commitment] SET EditStatus = @editStatus WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
 
@@ -115,7 +138,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var sql = GetUpdateApprenticeshipSql(caller.CallerType);
 
-                // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql: sql,
                     param: parameters,
@@ -127,16 +149,38 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
+            Logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}");
+
             await WithConnection(async connection =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@paymentStatus", paymentStatus, DbType.Int16);
 
-                // TODO: LWA - Do we need to check the return code?
                 var returnCode = await connection.ExecuteAsync(
                     sql:
                         "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
+                        "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
+        public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus)
+        {
+            Logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}");
+
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+                parameters.Add("@agreementStatus", agreementStatus, DbType.Int16);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                        "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
                         "WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);

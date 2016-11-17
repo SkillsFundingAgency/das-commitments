@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenANoContentCodeIsReturnedOnSuccess()
         {
-            var result = await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
+            var result = await _controller.PutCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
 
             result.Should().BeOfType<StatusCodeResult>();
 
@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToUpdateCommitmentStatus()
         {
-            await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
+            await _controller.PutCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateCommitmentStatusCommand>(y => y.CommitmentStatus == CommitmentStatus.Active)));
         }
@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateCommitmentStatusCommand>())).ThrowsAsync(new ValidationException(""));
 
-            Assert.ThrowsAsync<ValidationException>(async () => await _controller.PatchCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active));
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.PutCommitment(TestProviderId, TestCommitmentId, CommitmentStatus.Active));
         }
     }
 }

@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
+    //todo: use route values for account ID and provider ID, etc.
     [RoutePrefix("api/employer")]
     public class EmployerController : ApiController
     {
@@ -85,8 +86,19 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus? status)
+        public async Task<IHttpActionResult> PutCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus status)
         {
+            //todo: MG
+            await _employerOrchestrator.PutCommitment(accountId, commitmentId, status);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{accountId}/commitments/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]AgreementStatus status)
+        {
+            //todo: MG
             await _employerOrchestrator.PatchCommitment(accountId, commitmentId, status);
 
             return StatusCode(HttpStatusCode.NoContent);
@@ -96,6 +108,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]PaymentStatus? status)
         {
+            //todo: MG
             await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, status);
 
             return StatusCode(HttpStatusCode.NoContent);

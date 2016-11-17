@@ -48,16 +48,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
             result.IsValid.Should().BeFalse();
         }
 
-        [Test]
-        public void ThenStatusCodeIsNullIsInvalid()
-        {
-            _exampleCommand.CommitmentStatus = null;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
         [TestCase(-1)]
         [TestCase(3)]
         public void ThenIfStatusCodeIsNotValidValueIsNotValid(short statusCode)
