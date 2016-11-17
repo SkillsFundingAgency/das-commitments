@@ -70,7 +70,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             // update commitment statuses
             await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, DetermineNewEditStatus(message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement));
-            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, CommitmentStatus.Active);
+            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
+        }
+
+        private static CommitmentStatus DetermineNewCommmitmentStatus(bool areAnyApprenticeshipsPendingAgreement)
+        {
+            //todo: commitment status will be set to "deleted" if all apprenticeships are agreed (after private beta wave 2b.1)
+            return areAnyApprenticeshipsPendingAgreement ? CommitmentStatus.Active : CommitmentStatus.Active;
         }
 
         private PaymentStatus DetermineNewPaymentStatus(PaymentStatus currentPaymentStatus, AgreementStatus newApprenticeshipAgreementStatus)
