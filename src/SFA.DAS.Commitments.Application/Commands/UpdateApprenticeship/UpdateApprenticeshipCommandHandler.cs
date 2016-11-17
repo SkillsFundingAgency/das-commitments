@@ -37,15 +37,53 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 
+            CheckEditStatus(message, commitment);
             CheckAuthorization(message, commitment);
 
-            await _commitmentRepository.UpdateApprenticeship(MapFrom(message.Apprenticeship, message), message.Caller);
+            var submittedApprenticeship = MapFrom(message.Apprenticeship, message);
+            var existingApprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
 
-            //todo: publish event (temporarily disabled)
-            //await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-UPDATED");
+            var hasChanged = false;
+            var doChangesRequireAgreement = DetermineWhetherChangeRequireAgreement(existingApprenticeship, submittedApprenticeship);
+            submittedApprenticeship.AgreementStatus = DetermineNewAgreementStatus(existingApprenticeship.AgreementStatus, message.Caller.CallerType, doChangesRequireAgreement);
+            submittedApprenticeship.PaymentStatus = DetermineNewPaymentStatus(existingApprenticeship.PaymentStatus, submittedApprenticeship.AgreementStatus);
+
+            if (existingApprenticeship.AgreementStatus != submittedApprenticeship.AgreementStatus)
+            {
+                hasChanged = true;
+            }
+
+            if (existingApprenticeship.PaymentStatus != submittedApprenticeship.PaymentStatus)
+            {
+                hasChanged = true;
+            }
+
+            if (hasChanged)
+            {
+                await _commitmentRepository.UpdateApprenticeship(submittedApprenticeship, message.Caller);
+
+                //todo: publish event (temporarily disabled)
+                //var updatedApprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
+                //await PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
+            }
         }
 
-        private Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
+        private static AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, bool doChangesRequireAgreement)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static PaymentStatus DetermineNewPaymentStatus(PaymentStatus paymentStatus, AgreementStatus newAgreementStatus)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool DetermineWhetherChangeRequireAgreement(Apprenticeship existingApprenticeship, Apprenticeship submittedApprenticeship)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
         {
             var domainApprenticeship = new Apprenticeship
             {
@@ -71,6 +109,21 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             return domainApprenticeship;
         }
 
+        private static void CheckEditStatus(UpdateApprenticeshipCommand message, Commitment commitment)
+        {
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
+                        throw new UnauthorizedException($"Provider unauthorized to edit apprenticeship {message.ApprenticeshipId} in commitment {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
+                        throw new UnauthorizedException($"Employer unauthorized to edit apprenticeship {message.ApprenticeshipId} in commitment {message.CommitmentId}");
+                    break;
+            }
+        }
+
         private static void CheckAuthorization(UpdateApprenticeshipCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)
@@ -87,7 +140,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             }
         }
 
-        public async Task PublishEvent(Commitment commitment, Apprenticeship apprentice, string @event)
+        private async Task PublishEvent(Commitment commitment, Apprenticeship apprentice, string @event)
         {
             var apprenticeshipEvent = new ApprenticeshipEvent
             {
@@ -110,7 +163,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         }
 
 
-        private string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
+        private static string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
         {
             return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateApprenticeshipCommand";
         }
