@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -36,77 +37,29 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 throw new ValidationException(validationResult.Errors);
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
+            var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
 
+            CheckCommitmentStatus(message, commitment);
             CheckEditStatus(message, commitment);
+            CheckPaymentStatus(apprenticeship);
             CheckAuthorization(message, commitment);
 
-            var submittedApprenticeship = MapFrom(message.Apprenticeship, message);
-            var existingApprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
+            var updatedApprenticeship = MapFrom(message.Apprenticeship, message);
 
-            var hasChanged = false;
-            var doChangesRequireAgreement = DetermineWhetherChangeRequireAgreement(existingApprenticeship, submittedApprenticeship);
-            submittedApprenticeship.AgreementStatus = DetermineNewAgreementStatus(existingApprenticeship.AgreementStatus, message.Caller.CallerType, doChangesRequireAgreement);
-            submittedApprenticeship.PaymentStatus = DetermineNewPaymentStatus(existingApprenticeship.PaymentStatus, submittedApprenticeship.AgreementStatus);
+            var doChangesRequireAgreement = DetermineWhetherChangeRequireAgreement(apprenticeship, updatedApprenticeship);
 
-            if (existingApprenticeship.AgreementStatus != submittedApprenticeship.AgreementStatus)
-            {
-                hasChanged = true;
-            }
+            updatedApprenticeship.AgreementStatus = DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, doChangesRequireAgreement);
+            updatedApprenticeship.PaymentStatus = DetermineNewPaymentStatus(apprenticeship.PaymentStatus, doChangesRequireAgreement);
 
-            if (existingApprenticeship.PaymentStatus != submittedApprenticeship.PaymentStatus)
-            {
-                hasChanged = true;
-            }
+            await _commitmentRepository.UpdateApprenticeship(updatedApprenticeship, message.Caller);
 
-            if (hasChanged)
-            {
-                await _commitmentRepository.UpdateApprenticeship(submittedApprenticeship, message.Caller);
-
-                //todo: publish event (temporarily disabled)
-                //var updatedApprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
-                //await PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
-            }
+            await PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
         }
 
-        private static AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, bool doChangesRequireAgreement)
+        private static void CheckCommitmentStatus(UpdateApprenticeshipCommand message, Commitment commitment)
         {
-            throw new NotImplementedException();
-        }
-
-        private static PaymentStatus DetermineNewPaymentStatus(PaymentStatus paymentStatus, AgreementStatus newAgreementStatus)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static bool DetermineWhetherChangeRequireAgreement(Apprenticeship existingApprenticeship, Apprenticeship submittedApprenticeship)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
-        {
-            var domainApprenticeship = new Apprenticeship
-            {
-                Id = message.ApprenticeshipId,
-                FirstName = apprenticeship.FirstName,
-                LastName = apprenticeship.LastName,
-                DateOfBirth = apprenticeship.DateOfBirth,
-                NINumber = apprenticeship.NINumber,
-                ULN = apprenticeship.ULN,
-                CommitmentId = message.CommitmentId,
-                PaymentStatus = (PaymentStatus)apprenticeship.PaymentStatus,
-                AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
-                TrainingType = (TrainingType)apprenticeship.TrainingType,
-                TrainingCode = apprenticeship.TrainingCode,
-                TrainingName = apprenticeship.TrainingName,
-                Cost = apprenticeship.Cost,
-                StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate,
-                EmployerRef = apprenticeship.EmployerRef,
-                ProviderRef = apprenticeship.ProviderRef
-            };
-
-            return domainApprenticeship;
+            if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
+                throw new InvalidOperationException($"Apprenticeship {message.ApprenticeshipId} in commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
         }
 
         private static void CheckEditStatus(UpdateApprenticeshipCommand message, Commitment commitment)
@@ -122,6 +75,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                         throw new UnauthorizedException($"Employer unauthorized to edit apprenticeship {message.ApprenticeshipId} in commitment {message.CommitmentId}");
                     break;
             }
+        }
+
+        private static void CheckPaymentStatus(Apprenticeship apprenticeship)
+        {
+            var allowedPaymentStatusesForUpdating = new[] {PaymentStatus.Active, PaymentStatus.PendingApproval, PaymentStatus.Paused};
+
+            if (!allowedPaymentStatusesForUpdating.Contains(apprenticeship.PaymentStatus))
+                throw new UnauthorizedException($"Apprenticeship {apprenticeship.Id} cannot be updated when payment status is {apprenticeship.PaymentStatus}");
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipCommand message, Commitment commitment)
@@ -140,28 +101,65 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             }
         }
 
-        private async Task PublishEvent(Commitment commitment, Apprenticeship apprentice, string @event)
+        private static AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, bool doChangesRequireAgreement)
+        {
+            if (!doChangesRequireAgreement) return currentAgreementStatus;
+
+            return caller == CallerType.Employer ? AgreementStatus.EmployerAgreed : AgreementStatus.ProviderAgreed;
+        }
+
+        private static PaymentStatus DetermineNewPaymentStatus(PaymentStatus currentPaymentStatus, bool doChangesRequireAgreement)
+        {
+            return doChangesRequireAgreement ? PaymentStatus.PendingApproval : currentPaymentStatus;
+        }
+
+        private static bool DetermineWhetherChangeRequireAgreement(Apprenticeship existingApprenticeship, Apprenticeship updatedApprenticeship)
+        {
+            if (existingApprenticeship.Cost != updatedApprenticeship.Cost) return true;
+            if (existingApprenticeship.DateOfBirth != updatedApprenticeship.DateOfBirth) return true;
+            if (existingApprenticeship.FirstName != updatedApprenticeship.FirstName) return true;
+            if (existingApprenticeship.LastName != updatedApprenticeship.LastName) return true;
+            if (existingApprenticeship.NINumber != updatedApprenticeship.NINumber) return true;
+            if (existingApprenticeship.StartDate != updatedApprenticeship.StartDate) return true;
+            if (existingApprenticeship.EndDate != updatedApprenticeship.EndDate) return true;
+            if (existingApprenticeship.TrainingCode != updatedApprenticeship.TrainingCode) return true;
+            if (existingApprenticeship.TrainingType != updatedApprenticeship.TrainingType) return true;
+            if (existingApprenticeship.TrainingName != updatedApprenticeship.TrainingName) return true;
+
+            return false;
+        }
+
+        private static Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
+        {
+            var domainApprenticeship = new Apprenticeship
+            {
+                Id = message.ApprenticeshipId, FirstName = apprenticeship.FirstName, LastName = apprenticeship.LastName, DateOfBirth = apprenticeship.DateOfBirth, NINumber = apprenticeship.NINumber, ULN = apprenticeship.ULN, CommitmentId = message.CommitmentId, PaymentStatus = (PaymentStatus) apprenticeship.PaymentStatus, AgreementStatus = (AgreementStatus) apprenticeship.AgreementStatus, TrainingType = (TrainingType) apprenticeship.TrainingType, TrainingCode = apprenticeship.TrainingCode, TrainingName = apprenticeship.TrainingName, Cost = apprenticeship.Cost, StartDate = apprenticeship.StartDate, EndDate = apprenticeship.EndDate, EmployerRef = apprenticeship.EmployerRef, ProviderRef = apprenticeship.ProviderRef
+            };
+
+            return domainApprenticeship;
+        }
+
+        private async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
         {
             var apprenticeshipEvent = new ApprenticeshipEvent
             {
-                AgreementStatus = apprentice.AgreementStatus.ToString(),
-                ApprenticeshipId = apprentice.Id,
+                AgreementStatus = apprenticeship.AgreementStatus.ToString(),
+                ApprenticeshipId = apprenticeship.Id,
                 EmployerAccountId = commitment.EmployerAccountId.ToString(),
-                LearnerId = apprentice.ULN ?? "NULL",
-                TrainingId = apprentice.TrainingCode,
+                LearnerId = apprenticeship.ULN ?? "NULL",
+                TrainingId = apprenticeship.TrainingCode,
                 Event = @event,
-                PaymentStatus = apprentice.PaymentStatus.ToString(),
+                PaymentStatus = apprenticeship.PaymentStatus.ToString(),
                 ProviderId = commitment.ProviderId.ToString(),
-                TrainingEndDate = apprentice.EndDate ?? DateTime.MaxValue,
-                TrainingStartDate = apprentice.StartDate ?? DateTime.MaxValue,
-                TrainingTotalCost = apprentice.Cost ?? Decimal.MinValue,
-                TrainingType =  apprentice.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
-
+                TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
+                TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
+                TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
+                TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
             };
 
-            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+            //todo: publish event (temporarily disabled)
+            //await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
-
 
         private static string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
         {

@@ -32,6 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 
+            CheckCommitmentStatus(commitment);
             CheckEditStatus(message, commitment);
             CheckAuthorization(message, commitment);
 
@@ -71,6 +72,42 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             // update commitment statuses
             await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, DetermineNewEditStatus(message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement));
             await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
+        }
+
+        private static void CheckCommitmentStatus(Commitment commitment)
+        {
+            if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
+                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
+        }
+
+        private static void CheckEditStatus(UpdateCommitmentAgreementCommand message, Commitment commitment)
+        {
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
+                        throw new UnauthorizedException($"Provider unauthorized to edit commitment: {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
+                        throw new UnauthorizedException($"Employer unauthorized to edit commitment: {message.CommitmentId}");
+                    break;
+            }
+        }
+
+        private static void CheckAuthorization(UpdateCommitmentAgreementCommand message, Commitment commitment)
+        {
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (commitment.ProviderId != message.Caller.Id)
+                        throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                    if (commitment.EmployerAccountId != message.Caller.Id)
+                        throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+            }
         }
 
         private static CommitmentStatus DetermineNewCommmitmentStatus(bool areAnyApprenticeshipsPendingAgreement)
@@ -130,36 +167,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newAgreementStatus), newAgreementStatus, null);
-            }
-        }
-
-        private static void CheckEditStatus(UpdateCommitmentAgreementCommand message, Commitment commitment)
-        {
-            switch (message.Caller.CallerType)
-            {
-                case CallerType.Provider:
-                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider unauthorized to edit commitment: {message.CommitmentId}");
-                    break;
-                case CallerType.Employer:
-                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer unauthorized to edit commitment: {message.CommitmentId}");
-                    break;
-            }
-        }
-
-        private static void CheckAuthorization(UpdateCommitmentAgreementCommand message, Commitment commitment)
-        {
-            switch (message.Caller.CallerType)
-            {
-                case CallerType.Provider:
-                    if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
-                    break;
-                case CallerType.Employer:
-                    if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
-                    break;
             }
         }
 
