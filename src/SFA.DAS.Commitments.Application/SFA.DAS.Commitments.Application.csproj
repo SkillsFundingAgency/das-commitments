@@ -68,7 +68,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApprenticeshipStateTransitionValidator.cs" />
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
@@ -89,7 +88,7 @@
     <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
-    <Compile Include="IValidateStateTransition.cs" />
+    <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\GetApprenticeship\GetApprenticeshipQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeship\GetApprenticeshipRequest.cs" />
@@ -104,6 +103,7 @@
     <Compile Include="Queries\GetCommitments\GetCommitmentsResponse.cs" />
     <Compile Include="Queries\GetCommitments\GetCommitmentsValidator.cs" />
     <Compile Include="Queries\QueryResponse{T}.cs" />
+    <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

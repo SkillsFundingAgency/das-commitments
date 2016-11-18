@@ -7,11 +7,11 @@ using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Events.Api.Client;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
@@ -28,10 +28,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             _mockEventsApi = new Mock<IEventsApi>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), _mockEventsApi.Object);
+            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), _mockEventsApi.Object, new ApprenticeshipUpdateRules());
 
-            Fixture fixture = new Fixture();
-            var populatedApprenticeship = fixture.Build<Apprenticeship>().Create();
+            var fixture = new Fixture();
+            var populatedApprenticeship = fixture.Build<Api.Types.Apprenticeship>().Create();
+
             _exampleValidRequest = new UpdateApprenticeshipCommand
             {
                 Caller = new Caller
@@ -41,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 },
                 CommitmentId = 123L,
                 ApprenticeshipId = populatedApprenticeship.Id,
-                Apprenticeship = populatedApprenticeship
+                Apprenticeship = populatedApprenticeship,
             };
         }
 
@@ -54,29 +55,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 ProviderId = _exampleValidRequest.Caller.Id
             });
 
+            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(new Apprenticeship
+            {
+                Id = _exampleValidRequest.ApprenticeshipId,
+                PaymentStatus = PaymentStatus.PendingApproval
+            });
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.Is<Caller>(m => m.CallerType == CallerType.Provider)));
-        }
-
-        [Test]
-        public async Task ThenShouldCallTheRepositoryWithApprenticeshipMappedFromRequest()
-        {
-            Domain.Entities.Apprenticeship argument = null;
-            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
-            {
-                Id = _exampleValidRequest.CommitmentId,
-                ProviderId = _exampleValidRequest.Caller.Id
-            });
-
-            _mockCommitmentRespository.Setup(x => x.UpdateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<Caller>()))
-                .Returns(Task.FromResult(default(object))) // Return a fake Task
-                .Callback<Domain.Entities.Apprenticeship, Caller>((x, y) => argument = x);
-
-            await _handler.Handle(_exampleValidRequest);
-
-            argument.Should().NotBeNull();
-            AssertMappingIsCorrect(argument);
         }
 
         [Test]
@@ -112,12 +99,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             argument.Cost.Should().Be(_exampleValidRequest.Apprenticeship.Cost);
             argument.StartDate.Should().Be(_exampleValidRequest.Apprenticeship.StartDate);
             argument.EndDate.Should().Be(_exampleValidRequest.Apprenticeship.EndDate);
-            argument.TrainingType.Should().Be((TrainingType)_exampleValidRequest.Apprenticeship.TrainingType);
+            argument.TrainingType.Should().Be((TrainingType) _exampleValidRequest.Apprenticeship.TrainingType);
             argument.TrainingCode.Should().Be(_exampleValidRequest.Apprenticeship.TrainingCode);
             argument.TrainingName.Should().Be(_exampleValidRequest.Apprenticeship.TrainingName);
             argument.ULN.Should().Be(_exampleValidRequest.Apprenticeship.ULN);
-            argument.PaymentStatus.Should().Be((PaymentStatus)_exampleValidRequest.Apprenticeship.PaymentStatus);
-            argument.AgreementStatus.Should().Be((AgreementStatus)_exampleValidRequest.Apprenticeship.AgreementStatus);
+            argument.PaymentStatus.Should().Be((PaymentStatus) _exampleValidRequest.Apprenticeship.PaymentStatus);
+            argument.AgreementStatus.Should().Be((AgreementStatus) _exampleValidRequest.Apprenticeship.AgreementStatus);
         }
     }
 }

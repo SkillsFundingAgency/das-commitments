@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -16,14 +17,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IEventsApi _eventsApi;
+        private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly ICommitmentRepository _commitmentRepository;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IEventsApi eventsApi)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IEventsApi eventsApi, IApprenticeshipUpdateRules apprenticeshipUpdateRules)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
             _commitmentRepository = commitmentRepository;
             _eventsApi = eventsApi;
+            _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand message)
@@ -42,8 +45,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
                 var hasChanged = false;
-                var newApprenticeshipAgreementStatus = DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, newAgreementStatus);
-                var newApprenticeshipPaymentStatus = DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
+                var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, newAgreementStatus);
+                var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
 
                 if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
                 {
@@ -59,9 +62,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
                 if (hasChanged)
                 {
-                    //todo: publish event (temporarily disabled)
-                    //var updatedApprenticeship = await _commitmentRepository.GetApprenticeship(apprenticeship.Id);
-                    //await PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
+                    await PublishEvent(commitment, apprenticeship.Id, "APPRENTICESHIP-AGREEMENT-UPDATED");
                 }
             }
 
@@ -70,8 +71,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
             // update commitment statuses
-            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, DetermineNewEditStatus(message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement));
-            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
+            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement));
+            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
         }
 
         private static void CheckCommitmentStatus(Commitment commitment)
@@ -110,79 +111,22 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             }
         }
 
-        private static CommitmentStatus DetermineNewCommmitmentStatus(bool areAnyApprenticeshipsPendingAgreement)
-        {
-            //todo: commitment status will be set to "deleted" if all apprenticeships are agreed (after private beta wave 2b.1)
-            return areAnyApprenticeshipsPendingAgreement ? CommitmentStatus.Active : CommitmentStatus.Active;
-        }
-
-        private PaymentStatus DetermineNewPaymentStatus(PaymentStatus currentPaymentStatus, AgreementStatus newApprenticeshipAgreementStatus)
-        {
-            switch (currentPaymentStatus)
-            {
-                case PaymentStatus.PendingApproval:
-                case PaymentStatus.Active:
-                case PaymentStatus.Paused:
-                    return newApprenticeshipAgreementStatus == AgreementStatus.BothAgreed ? PaymentStatus.Active : PaymentStatus.PendingApproval;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(currentPaymentStatus), currentPaymentStatus, null);
-            }
-        }
-
-        private static EditStatus DetermineNewEditStatus(CallerType caller, bool areAnyApprenticeshipsPendingAgreement)
-        {
-            //todo: extract and unit test
-            if (areAnyApprenticeshipsPendingAgreement)
-                return caller == CallerType.Provider ? EditStatus.EmployerOnly : EditStatus.ProviderOnly;
-
-            return EditStatus.Both;
-        }
-
-        private static AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, AgreementStatus newAgreementStatus)
-        {
-            //todo: extract and unit test
-            switch (newAgreementStatus)
-            {
-                case AgreementStatus.NotAgreed:
-                    return AgreementStatus.NotAgreed;
-
-                case AgreementStatus.EmployerAgreed:
-                case AgreementStatus.ProviderAgreed:
-                    switch (currentAgreementStatus)
-                    {
-                        case AgreementStatus.NotAgreed:
-                        case AgreementStatus.BothAgreed:
-                            return newAgreementStatus;
-
-                        case AgreementStatus.EmployerAgreed:
-                            return caller == CallerType.Employer ? AgreementStatus.EmployerAgreed : AgreementStatus.BothAgreed;
-
-                        case AgreementStatus.ProviderAgreed:
-                            return caller == CallerType.Employer ? AgreementStatus.BothAgreed : AgreementStatus.ProviderAgreed;
-
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(currentAgreementStatus), currentAgreementStatus, null);
-                    }
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(newAgreementStatus), newAgreementStatus, null);
-            }
-        }
-
         private static string BuildInfoMessage(UpdateCommitmentAgreementCommand cmd)
         {
             return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateCommitmentAgreement for commitment {cmd.CommitmentId} with agreement status: {cmd.AgreementStatus}";
         }
 
-        private async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
+        private async Task PublishEvent(Commitment commitment, long apprenticeshipId, string @event)
         {
+            var apprenticeship = await _commitmentRepository.GetApprenticeship(apprenticeshipId);
+
             var apprenticeshipEvent = new ApprenticeshipEvent
             {
                 AgreementStatus = apprenticeship.AgreementStatus.ToString(), ApprenticeshipId = apprenticeship.Id, EmployerAccountId = commitment.EmployerAccountId.ToString(), LearnerId = apprenticeship.ULN ?? "NULL", TrainingId = apprenticeship.TrainingCode, Event = @event, PaymentStatus = apprenticeship.PaymentStatus.ToString(), ProviderId = commitment.ProviderId.ToString(), TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue, TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue, TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue, TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
             };
 
-            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+            //todo: publish event (temporarily disabled)
+            //await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
     }
 }
