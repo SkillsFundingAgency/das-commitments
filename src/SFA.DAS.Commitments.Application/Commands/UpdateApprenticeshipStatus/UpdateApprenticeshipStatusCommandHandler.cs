@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand message)
         {
-            Logger.Info(BuildInfoMessage(message));
+            Logger.Info($"Employer: {message.AccountId} has called UpdateApprenticeshipStatusCommand");
 
             var validationResult = _validator.Validate(message);
 
@@ -33,22 +33,17 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             var commitment = await _commitmentRepository.GetById(message.CommitmentId);
 
             CheckAuthorization(message, commitment);
-            //todo: mg check status
 
             var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
+            var newPaymentStatus = (PaymentStatus) message.PaymentStatus.GetValueOrDefault((Api.Types.PaymentStatus) apprenticeship.PaymentStatus);
 
-            await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, (PaymentStatus) message.PaymentStatus);
+            await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, newPaymentStatus);
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
                 throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
-        }
-
-        private string BuildInfoMessage(UpdateApprenticeshipStatusCommand cmd)
-        {
-            return $"Employer: {cmd.AccountId} has called UpdateApprenticeshipStatusCommand";
         }
     }
 }
