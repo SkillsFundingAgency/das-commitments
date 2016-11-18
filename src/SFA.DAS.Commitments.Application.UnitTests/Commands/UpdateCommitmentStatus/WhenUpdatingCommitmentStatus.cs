@@ -9,14 +9,14 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Events.Api.Client;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentStatus
 {
     [TestFixture]
     public sealed class WhenUpdatingCommitmentStatus
     {
-        private Mock<IEventsApi> _mockEventsApi;
+        private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private UpdateCommitmentStatusCommandHandler _handler;
         private UpdateCommitmentStatusCommand _exampleValidRequest;
@@ -24,10 +24,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
         [SetUp]
         public void SetUp()
         {
-            _mockEventsApi = new Mock<IEventsApi>();
+            _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockCommitmentRespository.Setup(x => x.UpdateCommitmentStatus(It.IsAny<long>(), It.IsAny<CommitmentStatus>())).Returns(Task.FromResult(new object()));
-            _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator(), _mockEventsApi.Object);
+            _handler = new UpdateCommitmentStatusCommandHandler(_mockCommitmentRespository.Object, new UpdateCommitmentStatusValidator(), _mockApprenticeshipEvents.Object);
 
             _exampleValidRequest = new UpdateCommitmentStatusCommand
             {
@@ -56,8 +56,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentSta
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.UpdateCommitmentStatus(
-                It.Is<long>(a => a == _exampleValidRequest.CommitmentId), 
-                It.Is<CommitmentStatus>(a => a == (CommitmentStatus)_exampleValidRequest.CommitmentStatus)));
+                It.Is<long>(a => a == _exampleValidRequest.CommitmentId),
+                It.Is<CommitmentStatus>(a => a == (CommitmentStatus) _exampleValidRequest.CommitmentStatus)));
         }
 
         [Test]

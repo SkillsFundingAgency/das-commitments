@@ -3,28 +3,28 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Events.Api.Client;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Events.Api.Types;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Domain.Interfaces;
+using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
     public sealed class CreateApprenticeshipCommandHandler : IAsyncRequestHandler<CreateApprenticeshipCommand, long>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly IEventsApi _eventsApi;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
+        private readonly IApprenticeshipEvents _apprenticeshipEvents;
 
-        public CreateApprenticeshipCommandHandler(IEventsApi eventsApi,ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator)
+        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents)
         {
-            _eventsApi = eventsApi;
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _apprenticeshipEvents = apprenticeshipEvents;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand message)
@@ -44,8 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
             message.Apprenticeship.Id = apprenticeshipId;
 
-            // Not pushing to events API for 2b.1
-            // await PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
+            await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
 
             return apprenticeshipId;
         }
@@ -62,8 +61,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
                 PaymentStatus = PaymentStatus.PendingApproval,
-                AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
-                TrainingType = (TrainingType)apprenticeship.TrainingType,
+                AgreementStatus = (Domain.Entities.AgreementStatus) apprenticeship.AgreementStatus,
+                TrainingType = (Domain.Entities.TrainingType) apprenticeship.TrainingType,
                 TrainingCode = apprenticeship.TrainingCode,
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
@@ -96,27 +95,5 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         {
             return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called CreateApprenticeshipCommand";
         }
-
-        public async Task PublishEvent(Commitment commitment, Domain.Entities.Apprenticeship apprentice, string @event)
-        {
-            var apprenticeshipEvent = new ApprenticeshipEvent
-            {
-                AgreementStatus = apprentice.AgreementStatus.ToString(),
-                ApprenticeshipId = apprentice.Id,
-                EmployerAccountId = commitment.EmployerAccountId.ToString(),
-                LearnerId = apprentice.ULN ?? "NULL",
-                TrainingId = apprentice.TrainingCode,
-                Event = @event,
-                PaymentStatus = apprentice.PaymentStatus.ToString(),
-                ProviderId = commitment.ProviderId.ToString(),
-                TrainingEndDate = apprentice.EndDate ?? DateTime.MaxValue,
-                TrainingStartDate = apprentice.StartDate ?? DateTime.MaxValue,
-                TrainingTotalCost = apprentice.Cost ?? Decimal.MinValue,
-                TrainingType = apprentice.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
-            };
-
-            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
-        }
-
     }
 }

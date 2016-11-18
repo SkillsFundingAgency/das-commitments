@@ -57,6 +57,7 @@
     <Compile Include="Entities\CommitmentStatus.cs" />
     <Compile Include="Configuration\EventsApiClientConfiguration.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
+    <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IHashingService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

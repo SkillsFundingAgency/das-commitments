@@ -8,25 +8,24 @@ using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Events.Api.Client;
-using SFA.DAS.Events.Api.Types;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
     public sealed class UpdateCommitmentAgreementCommandHandler : AsyncRequestHandler<UpdateCommitmentAgreementCommand>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly IEventsApi _eventsApi;
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
+        private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentRepository _commitmentRepository;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IEventsApi eventsApi, IApprenticeshipUpdateRules apprenticeshipUpdateRules)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
             _commitmentRepository = commitmentRepository;
-            _eventsApi = eventsApi;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
+            _apprenticeshipEvents = apprenticeshipEvents;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand message)
@@ -62,11 +61,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
                 if (hasChanged)
                 {
-                    await PublishEvent(commitment, apprenticeship.Id, "APPRENTICESHIP-AGREEMENT-UPDATED");
+                    var updatedApprenticeship = await _commitmentRepository.GetApprenticeship(apprenticeship.Id);
+                    await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
                 }
             }
 
-            //todo: reduce db calls
             var updatedCommitment = await _commitmentRepository.GetById(message.CommitmentId);
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
@@ -114,19 +113,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private static string BuildInfoMessage(UpdateCommitmentAgreementCommand cmd)
         {
             return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateCommitmentAgreement for commitment {cmd.CommitmentId} with agreement status: {cmd.AgreementStatus}";
-        }
-
-        private async Task PublishEvent(Commitment commitment, long apprenticeshipId, string @event)
-        {
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(apprenticeshipId);
-
-            var apprenticeshipEvent = new ApprenticeshipEvent
-            {
-                AgreementStatus = apprenticeship.AgreementStatus.ToString(), ApprenticeshipId = apprenticeship.Id, EmployerAccountId = commitment.EmployerAccountId.ToString(), LearnerId = apprenticeship.ULN ?? "NULL", TrainingId = apprenticeship.TrainingCode, Event = @event, PaymentStatus = apprenticeship.PaymentStatus.ToString(), ProviderId = commitment.ProviderId.ToString(), TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue, TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue, TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue, TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
-            };
-
-            //todo: publish event (temporarily disabled)
-            //await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
     }
 }

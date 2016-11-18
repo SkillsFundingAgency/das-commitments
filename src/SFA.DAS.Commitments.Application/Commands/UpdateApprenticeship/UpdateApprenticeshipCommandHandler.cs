@@ -8,9 +8,8 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Events.Api.Types;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
@@ -19,20 +18,20 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
-        private readonly IEventsApi _eventsApi;
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
+        private readonly IApprenticeshipEvents _apprenticeshipEvents;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IEventsApi eventsApi, IApprenticeshipUpdateRules apprenticeshipUpdateRules)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
-            _eventsApi = eventsApi;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
+            _apprenticeshipEvents = apprenticeshipEvents;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
-            Logger.Info(BuildInfoMessage(message));
+            Logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateApprenticeshipCommand");
 
             var validationResult = _validator.Validate(message);
 
@@ -56,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             await _commitmentRepository.UpdateApprenticeship(updatedApprenticeship, message.Caller);
 
-            await PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
+            await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
         }
 
         private static void CheckCommitmentStatus(UpdateApprenticeshipCommand message, Commitment commitment)
@@ -112,33 +111,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             };
 
             return domainApprenticeship;
-        }
-
-        private async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
-        {
-            var apprenticeshipEvent = new ApprenticeshipEvent
-            {
-                AgreementStatus = apprenticeship.AgreementStatus.ToString(),
-                ApprenticeshipId = apprenticeship.Id,
-                EmployerAccountId = commitment.EmployerAccountId.ToString(),
-                LearnerId = apprenticeship.ULN ?? "NULL",
-                TrainingId = apprenticeship.TrainingCode,
-                Event = @event,
-                PaymentStatus = apprenticeship.PaymentStatus.ToString(),
-                ProviderId = commitment.ProviderId.ToString(),
-                TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
-                TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
-                TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
-                TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
-            };
-
-            //todo: publish event (temporarily disabled)
-            //await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
-        }
-
-        private static string BuildInfoMessage(UpdateApprenticeshipCommand cmd)
-        {
-            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateApprenticeshipCommand";
         }
     }
 }

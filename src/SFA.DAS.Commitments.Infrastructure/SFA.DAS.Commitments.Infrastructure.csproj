@@ -107,6 +107,7 @@
     <Compile Include="Data\CommitmentRepository.cs" />
     <Compile Include="Data\ParentChildrenMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ApprenticeshipEvents.cs" />
     <Compile Include="Services\HashingService.cs" />
   </ItemGroup>
   <ItemGroup>
