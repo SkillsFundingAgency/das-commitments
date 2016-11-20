@@ -20,6 +20,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Azure;
 using SFA.DAS.Commitments.Application;
+using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
@@ -49,7 +50,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                     scan.ConnectImplementationsToTypesClosing(typeof (IAsyncRequestHandler<,>));
                     scan.ConnectImplementationsToTypesClosing(typeof (INotificationHandler<>));
                     scan.ConnectImplementationsToTypesClosing(typeof (IAsyncNotificationHandler<>));
-                    scan.ConnectImplementationsToTypesClosing(typeof (IValidateStateTransition<>));
                 });
 
             var config = GetConfiguration();

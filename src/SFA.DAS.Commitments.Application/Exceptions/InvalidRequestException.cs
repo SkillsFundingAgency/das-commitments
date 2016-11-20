@@ -10,10 +10,7 @@ namespace SFA.DAS.Commitments.Application.Exceptions
         public Dictionary<string, string> ErrorMessages { get; private set; }
 
         public InvalidRequestException()
-            : this(new Dictionary<string, string>())
-        {
-            
-        }
+            : this(new Dictionary<string, string>()) {}
 
         public InvalidRequestException(Dictionary<string, string> errorMessages)
             : base(BuildErrorMessage(errorMessages))
@@ -22,10 +19,7 @@ namespace SFA.DAS.Commitments.Application.Exceptions
         }
 
         public InvalidRequestException(IEnumerable<ValidationFailure> failures)
-            : this(failures.ToDictionary(failure => failure.PropertyName, failure => failure.ErrorMessage))
-        {
-
-        }
+            : this(failures.ToDictionary(failure => failure.PropertyName, failure => failure.ErrorMessage)) {}
 
         private static string BuildErrorMessage(Dictionary<string, string> errorMessages)
         {

@@ -88,7 +88,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PutCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus status)
         {
-            //todo: MG
             await _employerOrchestrator.PutCommitment(accountId, commitmentId, status);
 
             return StatusCode(HttpStatusCode.NoContent);
@@ -98,7 +97,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]AgreementStatus status)
         {
-            //todo: MG
             await _employerOrchestrator.PatchCommitment(accountId, commitmentId, status);
 
             return StatusCode(HttpStatusCode.NoContent);
@@ -108,7 +106,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]PaymentStatus? status)
         {
-            //todo: MG
             await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, status);
 
             return StatusCode(HttpStatusCode.NoContent);
