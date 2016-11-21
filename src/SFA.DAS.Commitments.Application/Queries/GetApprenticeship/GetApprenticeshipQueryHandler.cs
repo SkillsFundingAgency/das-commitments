@@ -80,7 +80,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 StartDate = matchingApprenticeship.StartDate,
                 EndDate = matchingApprenticeship.EndDate,
                 PaymentStatus = (Api.Types.PaymentStatus)matchingApprenticeship.PaymentStatus,
-                AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus
+                AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus,
+                DateOfBirth = matchingApprenticeship.DateOfBirth,
+                NINumber = matchingApprenticeship.NINumber,
+                EmployerRef = matchingApprenticeship.EmployerRef,
+                ProviderRef = matchingApprenticeship.ProviderRef
             };
 
             return response;

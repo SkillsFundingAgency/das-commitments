@@ -89,7 +89,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,
                         AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                        PaymentStatus = (PaymentStatus) x.PaymentStatus
+                        PaymentStatus = (PaymentStatus) x.PaymentStatus,
+                        DateOfBirth = x.DateOfBirth,
+                        NINumber = x.NINumber,
+                        EmployerRef = x.EmployerRef,
+                        ProviderRef = x.ProviderRef
                     }).ToList()
                 }
             };
