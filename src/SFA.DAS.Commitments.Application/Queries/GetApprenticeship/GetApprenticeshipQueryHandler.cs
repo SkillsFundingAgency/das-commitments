@@ -72,6 +72,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 CommitmentId = matchingApprenticeship.CommitmentId,
                 FirstName = matchingApprenticeship.FirstName,
                 LastName = matchingApprenticeship.LastName,
+                DateOfBirth = matchingApprenticeship.DateOfBirth, 
+                NINumber = matchingApprenticeship.NINumber,
                 ULN = matchingApprenticeship.ULN,
                 TrainingType = (Api.Types.TrainingType)matchingApprenticeship.TrainingType,
                 TrainingCode = matchingApprenticeship.TrainingCode,
@@ -80,7 +82,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 StartDate = matchingApprenticeship.StartDate,
                 EndDate = matchingApprenticeship.EndDate,
                 PaymentStatus = (Api.Types.PaymentStatus)matchingApprenticeship.PaymentStatus,
-                AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus
+                AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus,
+                EmployerRef = matchingApprenticeship.EmployerRef,
+                ProviderRef = matchingApprenticeship.ProviderRef
             };
 
             return response;
