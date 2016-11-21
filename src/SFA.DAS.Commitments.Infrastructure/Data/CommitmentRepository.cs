@@ -263,8 +263,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
         {
-            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
-
             return WithConnection<IList<Commitment>>(async c =>
             {
                 var parameters = new DynamicParameters();
@@ -282,7 +280,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             var refItem = callerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
 
-            return $"UPDATE [dbo].[Apprenticeship] SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, {refItem} WHERE Id = @id;";
+            return "UPDATE [dbo].[Apprenticeship] " +
+                   "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
+                   "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
+                   "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
+                   $"{refItem} WHERE Id = @id;";
         }
     }
 }
