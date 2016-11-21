@@ -4,7 +4,6 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Rules
 {
-    //todo: add unit tests for all updates rules
     public class ApprenticeshipUpdateRules : IApprenticeshipUpdateRules
     {
         public AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, bool doChangesRequireAgreement)
@@ -92,6 +91,5 @@ namespace SFA.DAS.Commitments.Application.Rules
                     throw new ArgumentOutOfRangeException(nameof(newAgreementStatus), newAgreementStatus, null);
             }
         }
-
     }
 }
