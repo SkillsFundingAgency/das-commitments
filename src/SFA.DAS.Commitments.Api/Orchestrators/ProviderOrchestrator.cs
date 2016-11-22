@@ -75,6 +75,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             Logger.Info($"Creating apprenticeship for commitment {commitmentId} for provider {providerId}");
 
+            apprenticeship.CommitmentId = commitmentId;
+
             return await _mediator.SendAsync(new CreateApprenticeshipCommand
             {
                 Caller = new Caller
@@ -90,6 +92,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         public async Task PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
             Logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}");
+
+            apprenticeship.CommitmentId = commitmentId;
 
             await _mediator.SendAsync(new UpdateApprenticeshipCommand
             {
