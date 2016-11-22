@@ -96,7 +96,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
                 TrainingType = TrainingType.Framework,
                 TrainingName = "TRAINING",
                 TrainingCode = "CODE",
-                StartDate = DateTime.Now,
+                StartDate = DateTime.Now.AddMonths(1),
                 EndDate = DateTime.Now.AddMonths(6),
                 EmployerRef = "EMPLOYER REF",
                 ProviderRef = "PROVIDER REF",
