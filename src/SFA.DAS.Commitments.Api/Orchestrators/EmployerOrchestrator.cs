@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using FluentValidation;
 using MediatR;
 using NLog;
 using SFA.DAS.Commitments.Api.Types;
@@ -10,14 +9,10 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -33,261 +28,137 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _mediator = mediator;
         }
 
-        public async Task<GetCommitmentsResponse> GetCommitments(long id)
+        public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
         {
-            try
+            Logger.Info($"Getting commitments for employer account {accountId}");
+
+            return await _mediator.SendAsync(new GetCommitmentsRequest
             {
-                return await _mediator.SendAsync(new GetCommitmentsRequest
+                Caller = new Caller
                 {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = id
-                    }
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                }
+            });
         }
 
         public async Task<GetCommitmentResponse> GetCommitment(long accountId, long commitmentId)
         {
-            try
+            Logger.Info($"Getting commitment {commitmentId} for employer account {accountId}");
+
+            return await _mediator.SendAsync(new GetCommitmentRequest
             {
-                return await _mediator.SendAsync(new GetCommitmentRequest
+                Caller = new Caller
                 {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = accountId
-                    },
-                    CommitmentId = commitmentId
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId
+            });
         }
 
         public async Task<long> CreateCommitment(long accountId, Commitment commitment)
         {
-            try
+            Logger.Info($"Creating commitment for employer account {accountId}");
+
+            return await _mediator.SendAsync(new CreateCommitmentCommand
             {
-                return await _mediator.SendAsync(new CreateCommitmentCommand
-                {
-                    Commitment = commitment
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
+                Commitment = commitment
+            });
         }
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long commitmentId, long apprenticeshipId)
         {
-            try
-            {
-                return await _mediator.SendAsync(new GetApprenticeshipRequest
-                {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = accountId
-                    },
-                    CommitmentId = commitmentId,
-                    ApprenticeshipId = apprenticeshipId
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
-        }
+            Logger.Info($"Getting apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}");
 
-        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
-        {
-            try
+            return await _mediator.SendAsync(new GetApprenticeshipRequest
             {
-                await _mediator.SendAsync(new UpdateApprenticeshipCommand
+                Caller = new Caller
                 {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = accountId
-                    },
-                    CommitmentId = commitmentId,
-                    ApprenticeshipId = apprenticeshipId,
-                    Apprenticeship = apprenticeship
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (UnauthorizedException ex)
-            {
-                Logger.Info(ex, $"Unauthorized error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
-        }
-
-        public async Task PutCommitment(long accountId, long commitmentId, CommitmentStatus status)
-        {
-            try
-            {
-                await _mediator.SendAsync(new UpdateCommitmentStatusCommand
-                {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = accountId
-                    },
-                    CommitmentId = commitmentId,
-                    CommitmentStatus = status
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (UnauthorizedException ex)
-            {
-                Logger.Info(ex, $"Unauthorized error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
-        }
-
-        public async Task PatchCommitment(long accountId, long commitmentId, AgreementStatus status)
-        {
-            try
-            {
-                await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
-                {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = accountId
-                    },
-                    CommitmentId = commitmentId,
-                    AgreementStatus = status
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (UnauthorizedException ex)
-            {
-                Logger.Info(ex, $"Unauthorized error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
-        }
-
-        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, PaymentStatus? paymentStatus)
-        {
-            try
-            {
-                await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
-                {
-                    AccountId = accountId,
-                    CommitmentId = commitmentId,
-                    ApprenticeshipId = apprenticeshipId,
-                    PaymentStatus = paymentStatus
-                });
-            }
-            catch (ValidationException ex)
-            {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (UnauthorizedException ex)
-            {
-                Logger.Info(ex, $"Unauthorized error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId,
+                ApprenticeshipId = apprenticeshipId
+            });
         }
 
         public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
         {
-            try
+            Logger.Info($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}");
+
+            return await _mediator.SendAsync(new CreateApprenticeshipCommand
             {
-                return await _mediator.SendAsync(new CreateApprenticeshipCommand
+                Caller = new Caller
                 {
-                    Caller = new Caller
-                    {
-                        CallerType = CallerType.Employer,
-                        Id = accountId
-                    },
-                    CommitmentId = commitmentId,
-                    Apprenticeship = apprenticeship
-                });
-            }
-            catch (ValidationException ex)
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId,
+                Apprenticeship = apprenticeship
+            });
+        }
+
+        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
+        {
+            Logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}");
+
+            await _mediator.SendAsync(new UpdateApprenticeshipCommand
             {
-                Logger.Info(ex, $"Validation error {ex.Message}");
-                throw;
-            }
-            catch (UnauthorizedException ex)
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId,
+                ApprenticeshipId = apprenticeshipId,
+                Apprenticeship = apprenticeship
+            });
+        }
+
+        public async Task PutCommitment(long accountId, long commitmentId, CommitmentStatus status)
+        {
+            Logger.Info($"Updating commitment {commitmentId} for employer account {accountId}");
+
+            await _mediator.SendAsync(new UpdateCommitmentStatusCommand
             {
-                Logger.Info(ex, $"Unauthorized error {ex.Message}");
-                throw;
-            }
-            catch (Exception ex)
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId,
+                CommitmentStatus = status
+            });
+        }
+
+        public async Task PatchCommitment(long accountId, long commitmentId, AgreementStatus agreementStatus)
+        {
+            Logger.Info($"Updating agreement status to {agreementStatus} for commitment {commitmentId} for employer account {accountId}");
+
+            await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
-                Logger.Error(ex, ex.Message);
-                throw;
-            }
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId,
+                AgreementStatus = agreementStatus
+            });
+        }
+
+        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, PaymentStatus? paymentStatus)
+        {
+            Logger.Info($"Updating payment status to {paymentStatus} for commitment {commitmentId} for employer account {accountId}");
+
+            await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
+            {
+                AccountId = accountId,
+                CommitmentId = commitmentId,
+                ApprenticeshipId = apprenticeshipId,
+                PaymentStatus = paymentStatus
+            });
         }
     }
 }
