@@ -20,11 +20,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
             _employerOrchestrator = employerOrchestrator;
         }
 
-        [Route("{id}/commitments")]
+        [Route("{accountId}/commitments")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetCommitments(long id)
+        public async Task<IHttpActionResult> GetCommitments(long accountId)
         {
-            var response = await _employerOrchestrator.GetCommitments(id);
+            var response = await _employerOrchestrator.GetCommitments(accountId);
 
             return Ok(response.Data);
         }
