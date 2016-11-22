@@ -58,12 +58,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus
             if (message.Caller.CallerType == CallerType.Provider)
             {
                 if (commitment.ProviderId != message.Caller.Id)
-                    throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
+                    throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view commitment {message.CommitmentId}");
             }
             else
             {
                 if (commitment.EmployerAccountId != message.Caller.Id)
-                    throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                    throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment {message.CommitmentId}");
             }
         }
     }

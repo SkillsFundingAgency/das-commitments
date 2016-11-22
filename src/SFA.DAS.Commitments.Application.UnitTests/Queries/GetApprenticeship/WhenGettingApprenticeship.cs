@@ -92,18 +92,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
+            var providerId = _fakeRepositoryCommitment.ProviderId++.Value;
+
             Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest
             {
                 Caller = new Caller
                 {
                     CallerType = CallerType.Employer,
-                    Id = _fakeRepositoryCommitment.EmployerAccountId++
+                    Id = providerId
                 },
                 CommitmentId = _fakeRepositoryCommitment.Id,
                 ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer unauthorized to view apprenticeship: {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {providerId} unauthorized to view apprenticeship {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
         }
 
         [Test]
@@ -111,18 +113,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
+            var providerId = _fakeRepositoryCommitment.ProviderId++.Value;
+
             Func<Task> act = async () => await _handler.Handle(new GetApprenticeshipRequest
             {
                 Caller = new Caller
                 {
                     CallerType = CallerType.Provider,
-                    Id = _fakeRepositoryCommitment.ProviderId++.Value
+                    Id = providerId
                 },
                 CommitmentId = _fakeRepositoryCommitment.Id,
                 ApprenticeshipId = _fakeRepositoryCommitment.Apprenticeships[0].Id
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider unauthorized to view apprenticeship: {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} unauthorized to view apprenticeship {_fakeRepositoryCommitment.Apprenticeships[0].Id}");
         }
 
         [Test]

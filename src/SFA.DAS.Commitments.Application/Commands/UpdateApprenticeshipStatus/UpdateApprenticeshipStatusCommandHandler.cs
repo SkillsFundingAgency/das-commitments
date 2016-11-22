@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
-                throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                throw new UnauthorizedException($"Employer {message.AccountId} unauthorized to view commitment {message.CommitmentId}");
         }
     }
 }

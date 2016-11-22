@@ -90,17 +90,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
+            var providerId = _fakeRepositoryCommitment.ProviderId++.Value;
+
             Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
             {
                 CommitmentId = _fakeRepositoryCommitment.Id,
                 Caller = new Caller
                 {
                     CallerType = CallerType.Provider,
-                    Id = _fakeRepositoryCommitment.ProviderId++.Value
+                    Id = providerId
                 }
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider unauthorized to view commitment: {_fakeRepositoryCommitment.Id}");
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} unauthorized to view commitment {_fakeRepositoryCommitment.Id}");
         }
 
         [Test]
@@ -108,17 +110,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         {
             _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
 
+            var employerAccountId = _fakeRepositoryCommitment.EmployerAccountId++;
+
             Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
             {
                 CommitmentId = _fakeRepositoryCommitment.Id,
                 Caller = new Caller
                 {
                     CallerType = CallerType.Employer,
-                    Id = _fakeRepositoryCommitment.EmployerAccountId++
+                    Id = employerAccountId
                 }
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer unauthorized to view commitment: {_fakeRepositoryCommitment.Id}"); ;
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerAccountId} unauthorized to view commitment {_fakeRepositoryCommitment.Id}"); ;
         }
     }
 }
