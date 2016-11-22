@@ -86,11 +86,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider unauthorized to edit commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to edit commitment: {message.CommitmentId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer unauthorized to edit commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to edit commitment: {message.CommitmentId}");
                     break;
             }
         }
@@ -101,11 +101,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             {
                 case CallerType.Provider:
                     if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
                     break;
             }
         }
