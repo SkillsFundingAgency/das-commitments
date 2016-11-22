@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
-                parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.Int64);
+                parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.String);
                 parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
