@@ -12,14 +12,20 @@ namespace SFA.DAS.Commitments.Api
 
         protected void Application_Start()
         {
+            Logger.Info("Starting Commitments Api Application");
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
 
-        protected void Application_Error(object sender, EventArgs e)
+        protected void Application_End()
         {
-            var exception = Server.GetLastError();
+            Logger.Info("Stopping Events Api Application");
+        }
 
-            Logger.Error(exception);
+        protected void Application_Error()
+        {
+            var ex = Server.GetLastError().GetBaseException();
+
+            Logger.Error(ex, "Unhandled exception");
         }
     }
 }
