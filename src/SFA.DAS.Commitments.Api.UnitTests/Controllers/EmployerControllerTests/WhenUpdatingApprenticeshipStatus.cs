@@ -10,8 +10,6 @@ using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
-using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
-using SFA.DAS.Commitments.Application.Exceptions;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
@@ -46,7 +44,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToUpdateApprenticeshipStatus()
         {
-            var result = await _controller.PatchApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId, PaymentStatus.Active);
+            await _controller.PatchApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId, PaymentStatus.Active);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateApprenticeshipStatusCommand>(y => y.PaymentStatus == PaymentStatus.Active)));
         }

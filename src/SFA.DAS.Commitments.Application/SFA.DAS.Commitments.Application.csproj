@@ -79,9 +79,6 @@
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
-    <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusCommand.cs" />
-    <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusCommandHandler.cs" />
-    <Compile Include="Commands\UpdateCommitmentStatus\UpdateCommitmentStatusValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />

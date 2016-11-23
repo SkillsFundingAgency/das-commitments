@@ -8,7 +8,6 @@ using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
-using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentStatus;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
@@ -119,22 +118,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
                 Apprenticeship = apprenticeship
-            });
-        }
-
-        public async Task PutCommitment(long accountId, long commitmentId, CommitmentStatus status)
-        {
-            Logger.Info($"Updating commitment {commitmentId} for employer account {accountId}");
-
-            await _mediator.SendAsync(new UpdateCommitmentStatusCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                },
-                CommitmentId = commitmentId,
-                CommitmentStatus = status
             });
         }
 
