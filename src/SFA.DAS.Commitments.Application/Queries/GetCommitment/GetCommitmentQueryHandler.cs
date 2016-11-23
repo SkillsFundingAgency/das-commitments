@@ -71,7 +71,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     ProviderId = commitment.ProviderId,
                     ProviderName = commitment.ProviderName,
                     EmployerAccountId = commitment.EmployerAccountId,
-                    EmployerAccountName = "",
                     LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
                     CommitmentStatus = (CommitmentStatus) commitment.CommitmentStatus,
