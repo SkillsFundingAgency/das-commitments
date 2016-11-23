@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -31,7 +30,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            Logger.Info(BuildInfoMessage(message));
+            Logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand");
 
             var validationResult = _validator.Validate(message);
 
@@ -58,8 +57,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 LegalEntityName = commitment.LegalEntityName,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
-                CommitmentStatus = CommitmentStatus.New,
-                EditStatus = EditStatus.EmployerOnly,
+                CommitmentStatus = (CommitmentStatus) commitment.CommitmentStatus,
+                EditStatus = (EditStatus) commitment.EditStatus,
                 Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
                 {
                     Id = x.Id,
@@ -67,9 +66,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     LastName = x.LastName,
                     ULN = x.ULN,
                     CommitmentId = commitment.Id,
-                    PaymentStatus = (PaymentStatus)x.PaymentStatus,
-                    AgreementStatus = (AgreementStatus)x.AgreementStatus,
-                    TrainingType = (TrainingType)x.TrainingType,
+                    PaymentStatus = (PaymentStatus) x.PaymentStatus,
+                    AgreementStatus = (AgreementStatus) x.AgreementStatus,
+                    TrainingType = (TrainingType) x.TrainingType,
                     TrainingCode = x.TrainingCode,
                     TrainingName = x.TrainingName,
                     Cost = x.Cost,
@@ -79,11 +78,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             };
 
             return domainCommitment;
-        }
-
-        private static string BuildInfoMessage(CreateCommitmentCommand cmd)
-        {
-            return $"Employer: {cmd.Commitment.EmployerAccountId} has called CreateCommitmentCommand";
         }
     }
 }
