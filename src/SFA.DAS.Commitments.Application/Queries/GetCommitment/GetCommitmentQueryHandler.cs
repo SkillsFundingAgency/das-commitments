@@ -41,6 +41,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 
             CheckAuthorization(message, commitment);
 
+
             return MapResponseFrom(commitment);
         }
 

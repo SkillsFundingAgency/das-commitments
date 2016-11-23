@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus)
         {
-            Logger.Debug($"Updating commitment {commitmentId} status to {commitmentStatus}");
+            Logger.Debug($"Updating commitment {commitmentId} commitment status to {commitmentStatus}");
 
             await WithConnection(async connection =>
             {

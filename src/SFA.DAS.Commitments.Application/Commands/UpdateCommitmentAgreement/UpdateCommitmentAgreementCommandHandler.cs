@@ -44,6 +44,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
                 var hasChanged = false;
+
+                //todo: extract status stuff outside loop and set all apprenticeships to same agreement status
                 var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, newAgreementStatus);
                 var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
 
@@ -70,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
             // update commitment statuses
-            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement));
+            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count));
             await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
         }
 
