@@ -7,19 +7,31 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
+    using SFA.DAS.Commitments.Application.Rules;
+    using SFA.DAS.Commitments.Domain.Entities;
+
+    using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+    using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
+    using EditStatus = SFA.DAS.Commitments.Api.Types.EditStatus;
+
     public sealed class GetCommitmentsQueryHandler : IAsyncRequestHandler<GetCommitmentsRequest, GetCommitmentsResponse>
     {
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<GetCommitmentsRequest> _validator;
 
-        public GetCommitmentsQueryHandler(ICommitmentRepository commitmentRepository, AbstractValidator<GetCommitmentsRequest> validator)
+        private readonly ICommitmentRules _commitmentRules;
+
+        public GetCommitmentsQueryHandler(
+            ICommitmentRepository commitmentRepository, 
+            AbstractValidator<GetCommitmentsRequest> validator,
+            ICommitmentRules commitmentRules)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _commitmentRules = commitmentRules;
         }
 
         public async Task<GetCommitmentsResponse> Handle(GetCommitmentsRequest message)
@@ -42,7 +54,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         LegalEntityId = x.LegalEntityId,
                         LegalEntityName = x.LegalEntityName,
                         CommitmentStatus = (CommitmentStatus)x.CommitmentStatus,
-                        EditStatus = (EditStatus)x.EditStatus
+                        EditStatus = (EditStatus)x.EditStatus,
+                        ApprenticeshipCount  = x.Apprenticeships.Count,
+                        AgreementStatus = _commitmentRules.DetermineAgreementStatus(x.Apprenticeships)
                     }
                 ).ToList()
             };

@@ -13,6 +13,12 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using SFA.DAS.Commitments.Application.Queries.GetCommitments;
+    using SFA.DAS.Commitments.Application.Rules;
+
     [TestFixture]
     public class WhenGettingCommitment
     {
@@ -25,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentValidator());
+            _handler = new GetCommitmentQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentValidator(), new CommitmentRules());
 
             Fixture dataFixture = new Fixture();
             _fakeRepositoryCommitment = dataFixture.Build<Commitment>().Create();
@@ -123,6 +129,44 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
             });
 
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerAccountId} unauthorized to view commitment {_fakeRepositoryCommitment.Id}"); ;
+        }
+
+        [TestCase(AgreementStatus.NotAgreed)]
+        [TestCase(AgreementStatus.BothAgreed)]
+        [TestCase(AgreementStatus.ProviderAgreed)]
+        [TestCase(AgreementStatus.EmployerAgreed)]
+        public async Task ThenShouldReturnListOfCommitmentsInResponseWithAgreementStatusAndCount(AgreementStatus agreementStatus)
+        {
+            var fixture = new Fixture();
+
+            fixture.Customize<Apprenticeship>(ob => ob
+                .With(x => x.AgreementStatus, agreementStatus));
+
+            var commitment = fixture.Create<Commitment>();
+            commitment.EmployerAccountId = 123L;
+
+            commitment.Apprenticeships = new List<Apprenticeship>
+            {
+                fixture.Create<Apprenticeship>(),
+                fixture.Create<Apprenticeship>(),
+                fixture.Create<Apprenticeship>()
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            var response = await _handler.Handle(new GetCommitmentRequest
+            {
+                CommitmentId = 123L,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 123
+                }
+            });
+
+            commitment.Apprenticeships.Should()
+                .OnlyContain(x => response.Data.Apprenticeships.All(y =>
+                   y.AgreementStatus == (Api.Types.AgreementStatus)agreementStatus ));
         }
     }
 }

@@ -14,15 +14,23 @@ using TrainingType = SFA.DAS.Commitments.Api.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {
+    using SFA.DAS.Commitments.Application.Rules;
+
     public sealed class GetCommitmentQueryHandler : IAsyncRequestHandler<GetCommitmentRequest, GetCommitmentResponse>
     {
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<GetCommitmentRequest> _validator;
 
-        public GetCommitmentQueryHandler(ICommitmentRepository commitmentRepository, AbstractValidator<GetCommitmentRequest> validator)
+        private readonly ICommitmentRules _commitmentRules;
+
+        public GetCommitmentQueryHandler(
+            ICommitmentRepository commitmentRepository, 
+            AbstractValidator<GetCommitmentRequest> validator,
+            ICommitmentRules commitmentRules)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _commitmentRules = commitmentRules;
         }
 
         public async Task<GetCommitmentResponse> Handle(GetCommitmentRequest message)
@@ -45,6 +53,45 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
             return MapResponseFrom(commitment);
         }
 
+        private GetCommitmentResponse MapResponseFrom(Domain.Entities.Commitment commitment)
+        {
+            return new GetCommitmentResponse
+            {
+                Data = new Commitment
+                {
+                    Id = commitment.Id,
+                    Reference = commitment.Reference,
+                    ProviderId = commitment.ProviderId,
+                    ProviderName = commitment.ProviderName,
+                    EmployerAccountId = commitment.EmployerAccountId,
+                    LegalEntityId = commitment.LegalEntityId,
+                    LegalEntityName = commitment.LegalEntityName,
+                    CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
+                    EditStatus = (EditStatus)commitment.EditStatus,
+                    Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
+                    {
+                        Id = x.Id,
+                        ULN = x.ULN,
+                        FirstName = x.FirstName,
+                        LastName = x.LastName,
+                        TrainingType = (TrainingType)x.TrainingType,
+                        TrainingCode = x.TrainingCode,
+                        TrainingName = x.TrainingName,
+                        Cost = x.Cost,
+                        StartDate = x.StartDate,
+                        EndDate = x.EndDate,
+                        AgreementStatus = (AgreementStatus)x.AgreementStatus,
+                        PaymentStatus = (PaymentStatus)x.PaymentStatus,
+                        DateOfBirth = x.DateOfBirth,
+                        NINumber = x.NINumber,
+                        EmployerRef = x.EmployerRef,
+                        ProviderRef = x.ProviderRef
+                    }).ToList(),
+                    AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment?.Apprenticeships)
+                }
+            };
+        }
+
         private static void CheckAuthorization(GetCommitmentRequest message, Domain.Entities.Commitment commitment)
         {
             switch (message.Caller.CallerType)
@@ -59,44 +106,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment {message.CommitmentId}");
                     break;
             }
-        }
-
-        private static GetCommitmentResponse MapResponseFrom(Domain.Entities.Commitment commitment)
-        {
-            return new GetCommitmentResponse
-            {
-                Data = new Commitment
-                {
-                    Id = commitment.Id,
-                    Reference = commitment.Reference,
-                    ProviderId = commitment.ProviderId,
-                    ProviderName = commitment.ProviderName,
-                    EmployerAccountId = commitment.EmployerAccountId,
-                    LegalEntityId = commitment.LegalEntityId,
-                    LegalEntityName = commitment.LegalEntityName,
-                    CommitmentStatus = (CommitmentStatus) commitment.CommitmentStatus,
-                    EditStatus = (EditStatus) commitment.EditStatus,
-                    Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
-                    {
-                        Id = x.Id,
-                        ULN = x.ULN,
-                        FirstName = x.FirstName,
-                        LastName = x.LastName,
-                        TrainingType = (TrainingType) x.TrainingType,
-                        TrainingCode = x.TrainingCode,
-                        TrainingName = x.TrainingName,
-                        Cost = x.Cost,
-                        StartDate = x.StartDate,
-                        EndDate = x.EndDate,
-                        AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                        PaymentStatus = (PaymentStatus) x.PaymentStatus,
-                        DateOfBirth = x.DateOfBirth,
-                        NINumber = x.NINumber,
-                        EmployerRef = x.EmployerRef,
-                        ProviderRef = x.ProviderRef
-                    }).ToList()
-                }
-            };
         }
     }
 }

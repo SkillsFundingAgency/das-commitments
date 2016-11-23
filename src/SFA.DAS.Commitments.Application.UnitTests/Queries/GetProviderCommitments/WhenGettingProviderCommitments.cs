@@ -14,6 +14,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitments
 {
+    using SFA.DAS.Commitments.Application.Rules;
+
     [TestFixture]
     public class WhenGettingProviderCommitments
     {
@@ -24,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator(), new CommitmentRules());
         }
 
         [Test]
