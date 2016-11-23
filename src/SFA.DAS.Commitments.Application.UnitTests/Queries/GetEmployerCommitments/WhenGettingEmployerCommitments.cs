@@ -14,6 +14,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitments
 {
+    using Ploeh.AutoFixture;
+
     [TestFixture]
     public class WhenGettingEmployerCommitments
     {
@@ -58,6 +60,44 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
 
             response.Data.Should().HaveSameCount(commitmentsFromRepository);
             commitmentsFromRepository.Should().OnlyContain(x => response.Data.Any(y => y.Id == x.Id && y.Reference == x.Reference));
+        }
+
+        [TestCase(AgreementStatus.NotAgreed)]
+        [TestCase(AgreementStatus.BothAgreed)]
+        [TestCase(AgreementStatus.ProviderAgreed)]
+        [TestCase(AgreementStatus.EmployerAgreed)]
+        public async Task ThenShouldReturnListOfCommitmentsInResponseWithAgreementStatusAndCount(AgreementStatus agreementStatus)
+        {
+            var fixture = new Fixture();
+
+            fixture.Customize<Apprenticeship>(ob => ob
+                .With(x => x.AgreementStatus, agreementStatus));
+
+            var commitment = fixture.Create<Commitment>();
+            commitment.Apprenticeships = new List<Apprenticeship>
+            {
+                fixture.Create<Apprenticeship>(),
+                fixture.Create<Apprenticeship>(),
+                fixture.Create<Apprenticeship>()
+            };
+            IList<Commitment> commitmentsFromRepository = new List<Commitment> { commitment };
+
+            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
+
+            var response = await _handler.Handle(new GetCommitmentsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = 123
+                }
+            });
+
+            response.Data.Should().HaveSameCount(commitmentsFromRepository);
+            commitmentsFromRepository.Should()
+                .OnlyContain(x => response.Data.All(y =>
+                   y.AgreementStatus == (Api.Types.AgreementStatus)agreementStatus
+                && y.ApprenticeshipCount== x.Apprenticeships.Count ));
         }
 
         [Test]

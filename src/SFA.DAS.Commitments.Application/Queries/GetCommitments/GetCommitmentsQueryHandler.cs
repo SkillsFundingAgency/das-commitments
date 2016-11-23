@@ -7,10 +7,15 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
+    using SFA.DAS.Commitments.Domain.Entities;
+
+    using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+    using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
+    using EditStatus = SFA.DAS.Commitments.Api.Types.EditStatus;
+
     public sealed class GetCommitmentsQueryHandler : IAsyncRequestHandler<GetCommitmentsRequest, GetCommitmentsResponse>
     {
         private readonly ICommitmentRepository _commitmentRepository;
@@ -42,10 +47,22 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         LegalEntityId = x.LegalEntityId,
                         LegalEntityName = x.LegalEntityName,
                         CommitmentStatus = (CommitmentStatus)x.CommitmentStatus,
-                        EditStatus = (EditStatus)x.EditStatus
+                        EditStatus = (EditStatus)x.EditStatus,
+                        ApprenticeshipCount  = x.Apprenticeships.Count,
+                        AgreementStatus = DetermineAgreementStatus(x.Apprenticeships)
                     }
                 ).ToList()
             };
+        }
+
+        private AgreementStatus DetermineAgreementStatus(List<Apprenticeship> apprenticeships)
+        {
+            var first = apprenticeships?.FirstOrDefault();
+            if (first == null)
+            {
+                return AgreementStatus.NotAgreed;
+            }
+            return (AgreementStatus) first.AgreementStatus;
         }
 
         private async Task<IList<Commitment>> GetCommitments(Caller caller)

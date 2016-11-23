@@ -71,8 +71,8 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.9.0.16259, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.9.0.16259\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.10.0.16326, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.10.0.16326\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=1.5.0.15438, Culture=neutral, processorArchitecture=MSIL">
