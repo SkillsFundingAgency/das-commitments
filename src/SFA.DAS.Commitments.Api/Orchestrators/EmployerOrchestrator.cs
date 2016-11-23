@@ -61,6 +61,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             Logger.Info($"Creating commitment for employer account {accountId}");
 
+            commitment.EmployerAccountId = accountId;
+
             return await _mediator.SendAsync(new CreateCommitmentCommand
             {
                 Commitment = commitment
@@ -87,6 +89,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             Logger.Info($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}");
 
+            apprenticeship.CommitmentId = commitmentId;
+
             return await _mediator.SendAsync(new CreateApprenticeshipCommand
             {
                 Caller = new Caller
@@ -102,6 +106,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
             Logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}");
+
+            apprenticeship.CommitmentId = commitmentId;
 
             await _mediator.SendAsync(new UpdateApprenticeshipCommand
             {

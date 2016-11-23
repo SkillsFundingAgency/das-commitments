@@ -7,7 +7,6 @@ using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
-    //todo: use route values for account ID and provider ID, etc.
     [RoutePrefix("api/employer")]
     public class EmployerController : ApiController
     {
@@ -49,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeship);
 
-            return CreatedAtRoute("GetApprenticeshipForEmployer", new {accountId, commitmentId, apprenticeshipId = response }, default(Apprenticeship));
+            return CreatedAtRoute("GetApprenticeshipForEmployer", new {accountId, commitmentId, apprenticeshipId = response}, default(Apprenticeship));
         }
 
         [Route("{accountId}/commitments/")]
@@ -58,7 +57,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
 
-            return CreatedAtRoute("GetCommitmentForEmployer", new {accountId, commitmentId = response }, new Commitment {Id = response});
+            return CreatedAtRoute("GetCommitmentForEmployer", new {accountId, commitmentId = response}, new Commitment {Id = response});
         }
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
@@ -86,7 +85,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PutCommitment(long accountId, long commitmentId, [FromBody]CommitmentStatus status)
+        public async Task<IHttpActionResult> PutCommitment(long accountId, long commitmentId, [FromBody] CommitmentStatus status)
         {
             await _employerOrchestrator.PutCommitment(accountId, commitmentId, status);
 
@@ -95,7 +94,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody]AgreementStatus status)
+        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] AgreementStatus status)
         {
             await _employerOrchestrator.PatchCommitment(accountId, commitmentId, status);
 
@@ -104,7 +103,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody]PaymentStatus? status)
+        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody] PaymentStatus? status)
         {
             await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, status);
 
