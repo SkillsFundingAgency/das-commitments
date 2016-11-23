@@ -16,6 +16,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
 {
     using Ploeh.AutoFixture;
 
+    using SFA.DAS.Commitments.Application.Rules;
+
     [TestFixture]
     public class WhenGettingEmployerCommitments
     {
@@ -26,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator(), new CommitmentRules());
         }
 
         [Test]

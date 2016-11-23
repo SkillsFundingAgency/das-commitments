@@ -13,6 +13,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 {
+    using SFA.DAS.Commitments.Application.Rules;
+
     [TestFixture]
     public class WhenGettingCommitment
     {
@@ -25,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentValidator());
+            _handler = new GetCommitmentQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentValidator(), new CommitmentRules());
 
             Fixture dataFixture = new Fixture();
             _fakeRepositoryCommitment = dataFixture.Build<Commitment>().Create();

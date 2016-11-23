@@ -10,6 +10,7 @@ using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
+    using SFA.DAS.Commitments.Application.Rules;
     using SFA.DAS.Commitments.Domain.Entities;
 
     using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
@@ -21,10 +22,16 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<GetCommitmentsRequest> _validator;
 
-        public GetCommitmentsQueryHandler(ICommitmentRepository commitmentRepository, AbstractValidator<GetCommitmentsRequest> validator)
+        private readonly ICommitmentRules _commitmentRules;
+
+        public GetCommitmentsQueryHandler(
+            ICommitmentRepository commitmentRepository, 
+            AbstractValidator<GetCommitmentsRequest> validator,
+            ICommitmentRules commitmentRules)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _commitmentRules = commitmentRules;
         }
 
         public async Task<GetCommitmentsResponse> Handle(GetCommitmentsRequest message)
@@ -49,20 +56,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         CommitmentStatus = (CommitmentStatus)x.CommitmentStatus,
                         EditStatus = (EditStatus)x.EditStatus,
                         ApprenticeshipCount  = x.Apprenticeships.Count,
-                        AgreementStatus = DetermineAgreementStatus(x.Apprenticeships)
+                        AgreementStatus = _commitmentRules.DetermineAgreementStatus(x.Apprenticeships)
                     }
                 ).ToList()
             };
-        }
-
-        private AgreementStatus DetermineAgreementStatus(List<Apprenticeship> apprenticeships)
-        {
-            var first = apprenticeships?.FirstOrDefault();
-            if (first == null)
-            {
-                return AgreementStatus.NotAgreed;
-            }
-            return (AgreementStatus) first.AgreementStatus;
         }
 
         private async Task<IList<Commitment>> GetCommitments(Caller caller)
