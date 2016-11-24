@@ -95,7 +95,6 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingAnApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingApprenticeshipStatus.cs" />
-    <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingCommitmentStatus.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenUpdatingAnApprenticeship.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenCreatingAnApprenticeship.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleApprenticeship.cs" />
