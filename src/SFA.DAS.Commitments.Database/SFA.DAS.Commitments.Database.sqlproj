@@ -58,10 +58,12 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="Views" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
     <Build Include="Tables\Apprenticeship.sql" />
+    <Build Include="Views\CommitmentSummary.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

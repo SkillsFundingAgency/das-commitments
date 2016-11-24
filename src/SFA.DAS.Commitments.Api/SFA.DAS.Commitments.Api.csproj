@@ -141,10 +141,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AzureTableStorageNLogTarget.1.0.9\lib\NLog.Extensions.AzureTableStorage.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.ApiTokens.Client, Version=1.3.0.12902, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.ApiTokens.Client.1.3.0.12902\lib\net45\SFA.DAS.ApiTokens.Client.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.11.0.16373, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.11.0.16373\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
@@ -298,6 +294,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Service References\Application Insights\ConnectedService.json" />
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

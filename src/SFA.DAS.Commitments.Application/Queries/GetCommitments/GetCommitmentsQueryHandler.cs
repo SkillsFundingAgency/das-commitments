@@ -55,14 +55,14 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         LegalEntityName = x.LegalEntityName,
                         CommitmentStatus = (CommitmentStatus)x.CommitmentStatus,
                         EditStatus = (EditStatus)x.EditStatus,
-                        ApprenticeshipCount  = x.Apprenticeships.Count,
-                        AgreementStatus = _commitmentRules.DetermineAgreementStatus(x.Apprenticeships)
+                        ApprenticeshipCount  = x.ApprenticeshipCount,
+                        AgreementStatus = (AgreementStatus)x.AgreementStatus
                     }
                 ).ToList()
             };
         }
 
-        private async Task<IList<Commitment>> GetCommitments(Caller caller)
+        private async Task<IList<CommitmentSummary>> GetCommitments(Caller caller)
         {
             switch (caller.CallerType)
             {
