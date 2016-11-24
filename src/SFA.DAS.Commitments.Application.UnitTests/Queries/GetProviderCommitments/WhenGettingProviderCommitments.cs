@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         }
 
         [Test, AutoData]
-        public async Task ThenShouldReturnListOfOnlyActiveCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
+        public async Task ThenShouldReturnListOfOnlyActiveCommitmentsInResponse(IList<CommitmentSummary> commitmentsFromRepository)
         {
             var activeCommitments = commitmentsFromRepository.Where(x => x.CommitmentStatus == CommitmentStatus.Active).ToList();
             _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(activeCommitments);

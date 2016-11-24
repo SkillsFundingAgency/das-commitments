@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         }
 
         [Test, AutoData]
-        public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<Commitment> commitmentsFromRepository)
+        public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<CommitmentSummary> commitmentsFromRepository)
         {
             _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
@@ -72,17 +72,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         {
             var fixture = new Fixture();
 
-            fixture.Customize<Apprenticeship>(ob => ob
+            fixture.Customize<CommitmentSummary>(ob => ob
                 .With(x => x.AgreementStatus, agreementStatus));
 
-            var commitment = fixture.Create<Commitment>();
-            commitment.Apprenticeships = new List<Apprenticeship>
-            {
-                fixture.Create<Apprenticeship>(),
-                fixture.Create<Apprenticeship>(),
-                fixture.Create<Apprenticeship>()
-            };
-            IList<Commitment> commitmentsFromRepository = new List<Commitment> { commitment };
+            var commitment = fixture.Create<CommitmentSummary>();
+            commitment.ApprenticeshipCount = 3;
+
+            IList<CommitmentSummary> commitmentsFromRepository = new List<CommitmentSummary> { commitment };
 
             _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
@@ -99,7 +95,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
             commitmentsFromRepository.Should()
                 .OnlyContain(x => response.Data.All(y =>
                    y.AgreementStatus == (Api.Types.AgreementStatus)agreementStatus
-                && y.ApprenticeshipCount== x.Apprenticeships.Count ));
+                && y.ApprenticeshipCount == x.ApprenticeshipCount ));
         }
 
         [Test]

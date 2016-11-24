@@ -81,12 +81,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<IList<Commitment>> GetByEmployer(long accountId)
+        public async Task<IList<CommitmentSummary>> GetByEmployer(long accountId)
         {
             return await GetByIdentifier("EmployerAccountId", accountId);
         }
 
-        public async Task<IList<Commitment>> GetByProvider(long providerId)
+        public async Task<IList<CommitmentSummary>> GetByProvider(long providerId)
         {
             return await GetByIdentifier("ProviderId", providerId);
         }
@@ -261,15 +261,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return parameters;
         }
 
-        private Task<IList<Commitment>> GetByIdentifier(string identifierName, long identifierValue)
+        private Task<IList<CommitmentSummary>> GetByIdentifier(string identifierName, long identifierValue)
         {
-            return WithConnection<IList<Commitment>>(async c =>
+            return WithConnection<IList<CommitmentSummary>>(async c =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var results = await c.QueryAsync<Commitment>(
-                    sql: $"SELECT * FROM [dbo].[Commitment] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
+                var results = await c.QueryAsync<CommitmentSummary>(
+                    sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
                     param: parameters);
 
                 return results.ToList();

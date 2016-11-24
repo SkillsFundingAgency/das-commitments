@@ -8,8 +8,8 @@ namespace SFA.DAS.Commitments.Domain.Data
     public interface ICommitmentRepository
     {
         Task<long> Create(Commitment commitment);
-        Task<IList<Commitment>> GetByProvider(long providerId);
-        Task<IList<Commitment>> GetByEmployer(long accountId);
+        Task<IList<CommitmentSummary>> GetByProvider(long providerId);
+        Task<IList<CommitmentSummary>> GetByEmployer(long accountId);
         Task<Commitment> GetById(long id);
         Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
