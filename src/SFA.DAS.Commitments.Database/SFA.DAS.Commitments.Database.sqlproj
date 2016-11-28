@@ -71,4 +71,7 @@
   <ItemGroup>
     <None Include="SFA.DAS.Commitments.Database.publish.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Script.AddDefaultCreateDates.sql" />
+  </ItemGroup>
 </Project>
