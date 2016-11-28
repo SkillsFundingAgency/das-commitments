@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var commitment = await _commitmentRepository.GetById(message.CommitmentId);
+            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
 
             CheckAuthorization(message, commitment);
 

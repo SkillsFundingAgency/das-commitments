@@ -8,9 +8,11 @@ namespace SFA.DAS.Commitments.Domain.Data
     public interface ICommitmentRepository
     {
         Task<long> Create(Commitment commitment);
-        Task<IList<CommitmentSummary>> GetByProvider(long providerId);
-        Task<IList<CommitmentSummary>> GetByEmployer(long accountId);
-        Task<Commitment> GetById(long id);
+        Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
+        Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
+        Task<Commitment> GetCommitmentById(long id);
+        Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId);
+        Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId);
         Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
         Task<Apprenticeship> GetApprenticeship(long id);
@@ -18,6 +20,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateCommitmentStatus(long commitmentId, EditStatus editStatus);
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus);
-        Task UpdateReference(long commitmentId, string hashValue);
+        Task UpdateCommitmentReference(long commitmentId, string hashValue);
     }
 }

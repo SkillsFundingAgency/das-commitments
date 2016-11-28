@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             Logger.Info(BuildInfoMessage(message));
 
-            var commitment = await _commitmentRepository.GetById(message.CommitmentId);
+            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
 
             CheckCommitmentStatus(commitment);
             CheckEditStatus(message, commitment);
@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 }
             }
 
-            var updatedCommitment = await _commitmentRepository.GetById(message.CommitmentId);
+            var updatedCommitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
             // update commitment statuses

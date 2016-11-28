@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator(), new CommitmentRules());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator());
         }
 
         [Test]
@@ -43,13 +43,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
                 }
             });
 
-            _mockCommitmentRespository.Verify(x => x.GetByEmployer(It.IsAny<long>()), Times.Once);
+            _mockCommitmentRespository.Verify(x => x.GetCommitmentsByEmployer(It.IsAny<long>()), Times.Once);
         }
 
         [Test, AutoData]
         public async Task ThenShouldReturnListOfCommitmentsInResponse(IList<CommitmentSummary> commitmentsFromRepository)
         {
-            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentsByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
             var response = await _handler.Handle(new GetCommitmentsRequest
             {
@@ -80,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
 
             IList<CommitmentSummary> commitmentsFromRepository = new List<CommitmentSummary> { commitment };
 
-            _mockCommitmentRespository.Setup(x => x.GetByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentsByEmployer(It.IsAny<long>())).ReturnsAsync(commitmentsFromRepository);
 
             var response = await _handler.Handle(new GetCommitmentsRequest
             {

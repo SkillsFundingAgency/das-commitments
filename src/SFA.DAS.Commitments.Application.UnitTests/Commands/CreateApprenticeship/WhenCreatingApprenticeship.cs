@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [Test]
         public async Task ThenShouldCallTheRepository()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.Caller.Id
@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public async Task ThenShouldCallTheRepositoryWithApprenticeshipMappedFromRequest()
         {
             Domain.Entities.Apprenticeship argument = null;
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.Caller.Id
@@ -87,7 +87,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         {
             const long expectedApprenticeshipId = 88;
 
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.Caller.Id

@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     foreach (var apprenticeship in commitment.Apprenticeships)
                     {
                         apprenticeship.CommitmentId = commitmentId;
-                        var appenticeshipId = await CreateApprenticeship(connection, trans, apprenticeship);
+                        await CreateApprenticeship(connection, trans, apprenticeship);
                     }
 
                     trans.Commit();
@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await WithConnection(async connection => { return await CreateApprenticeship(connection, null, apprenticeship); });
         }
 
-        public async Task<Commitment> GetById(long id)
+        public async Task<Commitment> GetCommitmentById(long id)
         {
             var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
 
@@ -82,14 +82,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<IList<CommitmentSummary>> GetByEmployer(long accountId)
+        public async Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId)
         {
-            return await GetByIdentifier("EmployerAccountId", accountId);
+            return await GetApprenticeshipsByIdentifier("EmployerAccountId", accountId);
         }
 
-        public async Task<IList<CommitmentSummary>> GetByProvider(long providerId)
+        public async Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId)
         {
-            return await GetByIdentifier("ProviderId", providerId);
+            return await GetApprenticeshipsByIdentifier("ProviderId", providerId);
+        }
+
+        public async Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId)
+        {
+            return await GetCommitmentsByIdentifier("EmployerAccountId", accountId);
+        }
+
+        public async Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId)
+        {
+            return await GetCommitmentsByIdentifier("ProviderId", providerId);
         }
 
         public async Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus)
@@ -190,7 +200,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateReference(long commitmentId, string hashValue)
+        public async Task UpdateCommitmentReference(long commitmentId, string hashValue)
         {
             await WithConnection(async connection =>
             {
@@ -262,7 +272,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return parameters;
         }
 
-        private Task<IList<CommitmentSummary>> GetByIdentifier(string identifierName, long identifierValue)
+        private Task<IList<CommitmentSummary>> GetCommitmentsByIdentifier(string identifierName, long identifierValue)
         {
             return WithConnection<IList<CommitmentSummary>>(async c =>
             {
@@ -271,6 +281,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var results = await c.QueryAsync<CommitmentSummary>(
                     sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
+                    param: parameters);
+
+                return results.ToList();
+            });
+        }
+
+        private Task<IList<Apprenticeship>> GetApprenticeshipsByIdentifier(string identifierName, long identifierValue)
+        {
+            return WithConnection<IList<Apprenticeship>>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@id", identifierValue);
+
+                var results = await c.QueryAsync<Apprenticeship>(
+                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE {identifierName} = @id AND PaymentStatus <> {(int)PaymentStatus.Deleted};",
                     param: parameters);
 
                 return results.ToList();

@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             var commitmentId = await _commitmentRepository.Create(newCommitment);
 
-            await _commitmentRepository.UpdateReference(commitmentId, _hashingService.HashValue(commitmentId));
+            await _commitmentRepository.UpdateCommitmentReference(commitmentId, _hashingService.HashValue(commitmentId));
 
             return commitmentId;
         }
