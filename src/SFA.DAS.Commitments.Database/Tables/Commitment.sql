@@ -9,5 +9,5 @@
     [ProviderName] NVARCHAR(100) NULL,
     [CommitmentStatus] SMALLINT NOT NULL DEFAULT 0, 
     [EditStatus] SMALLINT NOT NULL DEFAULT 0,
-    [CreatedOn] DATETIME NOT NULL
+    [CreatedOn] DATETIME NULL
 )
