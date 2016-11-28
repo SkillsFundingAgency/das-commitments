@@ -33,13 +33,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@commitmentStatus", commitment.CommitmentStatus, DbType.Int16);
                 parameters.Add("@editStatus", commitment.EditStatus, DbType.Int16);
                 parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
+                parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
 
                 using (var trans = connection.BeginTransaction())
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus) " +
-                            "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus); " +
+                            "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn) " +
+                            "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn); " +
                             "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
@@ -238,8 +239,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef) " +
-                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef); " +
+                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn) " +
+                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef, @createdOn); " +
                     "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
@@ -267,7 +268,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
             parameters.Add("@employerRef", apprenticeship.EmployerRef, DbType.String);
             parameters.Add("@providerRef", apprenticeship.ProviderRef, DbType.String);
-
+            parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
             return parameters;
         }
 

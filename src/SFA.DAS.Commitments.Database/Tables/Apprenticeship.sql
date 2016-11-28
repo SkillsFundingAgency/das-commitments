@@ -17,5 +17,6 @@
     [NINumber] NVARCHAR(10) NULL, 
     [EmployerRef] NVARCHAR(50) NULL, 
     [ProviderRef] NVARCHAR(50) NULL, 
+    [CreatedOn] DATETIME NOT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 )
