@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             message.Apprenticeship.Id = apprenticeshipId;
 
             await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
-
+            
             return apprenticeshipId;
         }
 

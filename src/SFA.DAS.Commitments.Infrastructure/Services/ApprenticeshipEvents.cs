@@ -7,9 +7,16 @@ using SFA.DAS.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
+    using NLog;
+
+    using AgreementStatus = SFA.DAS.Events.Api.Types.AgreementStatus;
+    using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
+
     public class ApprenticeshipEvents : IApprenticeshipEvents
     {
         private readonly IEventsApi _eventsApi;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         public ApprenticeshipEvents(IEventsApi eventsApi)
         {
@@ -23,13 +30,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             {
                 var apprenticeshipEvent = new ApprenticeshipEvent
                 {
-                    AgreementStatus = apprenticeship.AgreementStatus.ToString(),
+                    AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
                     ApprenticeshipId = apprenticeship.Id,
                     EmployerAccountId = commitment.EmployerAccountId.ToString(),
                     LearnerId = apprenticeship.ULN ?? "NULL",
                     TrainingId = apprenticeship.TrainingCode ?? string.Empty,
                     Event = @event,
-                    PaymentStatus = apprenticeship.PaymentStatus.ToString(),
+                    PaymentStatus = (PaymentStatus)apprenticeship.PaymentStatus,
                     ProviderId = commitment.ProviderId.ToString(),
                     TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
                     TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
@@ -37,6 +44,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
                 };
 
+                Logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}");
                 await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
             }
         }
