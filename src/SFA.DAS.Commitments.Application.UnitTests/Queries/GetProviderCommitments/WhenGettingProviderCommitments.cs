@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator(), new CommitmentRules());
+            _handler = new GetCommitmentsQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentsValidator());
         }
 
         [Test]
@@ -41,14 +41,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
                 }
             });
 
-            _mockCommitmentRespository.Verify(x => x.GetByProvider(It.IsAny<long>()), Times.Once);
+            _mockCommitmentRespository.Verify(x => x.GetCommitmentsByProvider(It.IsAny<long>()), Times.Once);
         }
 
         [Test, AutoData]
         public async Task ThenShouldReturnListOfOnlyActiveCommitmentsInResponse(IList<CommitmentSummary> commitmentsFromRepository)
         {
             var activeCommitments = commitmentsFromRepository.Where(x => x.CommitmentStatus == CommitmentStatus.Active).ToList();
-            _mockCommitmentRespository.Setup(x => x.GetByProvider(It.IsAny<long>())).ReturnsAsync(activeCommitments);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentsByProvider(It.IsAny<long>())).ReturnsAsync(activeCommitments);
 
             var response = await _handler.Handle(new GetCommitmentsRequest
             {

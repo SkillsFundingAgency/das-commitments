@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
+using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
@@ -51,6 +52,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = providerId
                 },
                 CommitmentId = commitmentId
+            });
+        }
+
+        public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId)
+        {
+            Logger.Info($"Getting apprenticeships for provider {providerId}");
+
+            return await _mediator.SendAsync(new GetApprenticeshipsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = providerId
+                }
             });
         }
 

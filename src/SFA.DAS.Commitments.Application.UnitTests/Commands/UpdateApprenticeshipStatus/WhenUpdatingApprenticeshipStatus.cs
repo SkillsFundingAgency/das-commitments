@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatus()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
                 EmployerAccountId = _exampleValidRequest.AccountId
@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenWhenUnauthorisedAnUnauthorizedExceptionIsThrown()
         {
-            _mockCommitmentRespository.Setup(x => x.GetById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.AccountId++

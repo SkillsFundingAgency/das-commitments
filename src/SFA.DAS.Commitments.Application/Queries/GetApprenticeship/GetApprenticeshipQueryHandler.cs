@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var commitment = await _commitmentRepository.GetById(message.CommitmentId);
+            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
 
             if (commitment == null)
             {

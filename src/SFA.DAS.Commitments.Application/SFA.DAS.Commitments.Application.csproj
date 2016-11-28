@@ -81,6 +81,9 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
+    <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
+    <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
     <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

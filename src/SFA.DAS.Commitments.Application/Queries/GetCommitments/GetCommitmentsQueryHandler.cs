@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -6,32 +7,22 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
+using SFA.DAS.Commitments.Domain.Entities;
+using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Api.Types.EditStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
-    using SFA.DAS.Commitments.Application.Rules;
-    using SFA.DAS.Commitments.Domain.Entities;
-
-    using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
-    using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
-    using EditStatus = SFA.DAS.Commitments.Api.Types.EditStatus;
-
     public sealed class GetCommitmentsQueryHandler : IAsyncRequestHandler<GetCommitmentsRequest, GetCommitmentsResponse>
     {
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<GetCommitmentsRequest> _validator;
 
-        private readonly ICommitmentRules _commitmentRules;
-
-        public GetCommitmentsQueryHandler(
-            ICommitmentRepository commitmentRepository, 
-            AbstractValidator<GetCommitmentsRequest> validator,
-            ICommitmentRules commitmentRules)
+        public GetCommitmentsQueryHandler(ICommitmentRepository commitmentRepository, AbstractValidator<GetCommitmentsRequest> validator)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
-            _commitmentRules = commitmentRules;
         }
 
         public async Task<GetCommitmentsResponse> Handle(GetCommitmentsRequest message)
@@ -43,7 +34,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 
             var commitments = await GetCommitments(message.Caller);
 
-            return new GetCommitmentsResponse { Data = commitments?.Select(
+            return new GetCommitmentsResponse
+            {
+                Data = commitments?.Select(
                     x => new CommitmentListItem
                     {
                         Id = x.Id,
@@ -53,12 +46,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         EmployerAccountId = x.EmployerAccountId,
                         LegalEntityId = x.LegalEntityId,
                         LegalEntityName = x.LegalEntityName,
-                        CommitmentStatus = (CommitmentStatus)x.CommitmentStatus,
-                        EditStatus = (EditStatus)x.EditStatus,
-                        ApprenticeshipCount  = x.ApprenticeshipCount,
-                        AgreementStatus = (AgreementStatus)x.AgreementStatus
+                        CommitmentStatus = (CommitmentStatus) x.CommitmentStatus,
+                        EditStatus = (EditStatus) x.EditStatus,
+                        ApprenticeshipCount = x.ApprenticeshipCount,
+                        AgreementStatus = (AgreementStatus) x.AgreementStatus
                     }
-                ).ToList()
+                    ).ToList()
             };
         }
 
@@ -66,11 +59,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
         {
             switch (caller.CallerType)
             {
-                case CallerType.Provider:
-                    return await _commitmentRepository.GetByProvider(caller.Id);
                 case CallerType.Employer:
+                    return await _commitmentRepository.GetCommitmentsByEmployer(caller.Id);
+                case CallerType.Provider:
+                    return await _commitmentRepository.GetCommitmentsByProvider(caller.Id);
                 default:
-                    return await _commitmentRepository.GetByEmployer(caller.Id);
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
