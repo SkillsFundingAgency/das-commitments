@@ -6,5 +6,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
     public sealed class GetApprenticeshipsRequest : IAsyncRequest<GetApprenticeshipsResponse>
     {
         public Caller Caller { get; set; }
+
+        //todo: add paging
     }
 }
