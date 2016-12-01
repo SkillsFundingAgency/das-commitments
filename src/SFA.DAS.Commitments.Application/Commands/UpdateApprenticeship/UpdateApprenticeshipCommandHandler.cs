@@ -17,23 +17,24 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
     public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
+        private readonly ILog _logger;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ILog logger)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
+            _logger = logger;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand message)
         {
-            Logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateApprenticeshipCommand");
+            _logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateApprenticeshipCommand");
 
             var validationResult = _validator.Validate(message);
 

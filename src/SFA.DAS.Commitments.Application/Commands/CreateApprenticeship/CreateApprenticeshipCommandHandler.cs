@@ -16,12 +16,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
     public sealed class CreateApprenticeshipCommandHandler : IAsyncRequestHandler<CreateApprenticeshipCommand, long>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
+        private readonly ILog _logger;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents)
+        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ILog logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -33,11 +33,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
+            _logger = logger;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand message)
         {
-            Logger.Info(BuildInfoMessage(message));
+            _logger.Info(BuildInfoMessage(message));
 
             var validationResult = _validator.Validate(message);
 

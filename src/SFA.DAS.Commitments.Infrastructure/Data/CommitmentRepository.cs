@@ -8,14 +8,21 @@ using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ILog _logger;
 
-        public CommitmentRepository(string databaseConnectionString) : base(databaseConnectionString) {}
+        public CommitmentRepository(string databaseConnectionString, ILog logger) : base(databaseConnectionString)
+        {
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
+            _logger = logger;
+        }
 
         public async Task<long> Create(Commitment commitment)
         {
@@ -105,7 +112,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus)
         {
-            Logger.Debug($"Updating commitment {commitmentId} commitment status to {commitmentStatus}");
+            _logger.Debug($"Updating commitment {commitmentId} commitment status to {commitmentStatus}");
 
             await WithConnection(async connection =>
             {
@@ -124,7 +131,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateEditStatus(long commitmentId, EditStatus editStatus)
         {
-            Logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}");
+            _logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}");
 
             await WithConnection(async connection =>
             {
@@ -180,7 +187,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
-            Logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}");
+            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}");
 
             await WithConnection(async connection =>
             {
@@ -201,7 +208,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus)
         {
-            Logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}");
+            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}");
 
             await WithConnection(async connection =>
             {

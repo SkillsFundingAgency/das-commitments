@@ -17,6 +17,13 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
         void Info(string message, IDictionary<string, object> properties);
         void Info(string message, ILogEntry logEntry);
 
+        void Warn(string message);
+        void Warn(string message, IDictionary<string, object> properties);
+        void Warn(string message, ILogEntry logEntry);
+        void Warn(Exception ex, string message);
+        void Warn(Exception ex, string message, IDictionary<string, object> properties);
+        void Warn(Exception ex, string message, ILogEntry logEntry);
+
         void Error(Exception ex, string message);
         void Error(Exception ex, string message, IDictionary<string, object> properties);
         void Error(Exception ex, string message, ILogEntry logEntry);

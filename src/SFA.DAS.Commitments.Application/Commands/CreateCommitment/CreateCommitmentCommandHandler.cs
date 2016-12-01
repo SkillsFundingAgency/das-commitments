@@ -12,25 +12,29 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHashingService _hashingService;
+        private readonly ILog _logger;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ILog logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
             if (hashingService == null)
                 throw new ArgumentNullException(nameof(hashingService));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
             _validator = validator;
+            _logger = logger;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            Logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand");
+            _logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand");
 
             var validationResult = _validator.Validate(message);
 

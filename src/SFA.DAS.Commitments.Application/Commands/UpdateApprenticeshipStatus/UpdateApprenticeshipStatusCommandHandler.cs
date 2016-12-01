@@ -6,24 +6,26 @@ using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class UpdateApprenticeshipStatusCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly UpdateApprenticeshipStatusValidator _validator;
+        private readonly ILog _logger;
 
-        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator)
+        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, ILog logger)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _logger = logger;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand message)
         {
-            Logger.Info($"Employer: {message.AccountId} has called UpdateApprenticeshipStatusCommand");
+            _logger.Info($"Employer: {message.AccountId} has called UpdateApprenticeshipStatusCommand");
 
             var validationResult = _validator.Validate(message);
 

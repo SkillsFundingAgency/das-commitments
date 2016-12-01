@@ -20,6 +20,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
             _version = GetVersion();
         }
 
+        public void Trace(string message)
+        {
+            SendLog(message, LogLevel.Trace);
+        }
+
+        public void Trace(string message, ILogEntry logEntry)
+        {
+            SendLog(message, LogLevel.Trace, new Dictionary<string, object> { { GetLogEntryName(logEntry), logEntry } });
+        }
+
+        public void Trace(string message, IDictionary<string, object> properties)
+        {
+            SendLog(message, LogLevel.Trace, properties);
+        }
+
         public void Debug(string message)
         {
             SendLog(message, LogLevel.Debug);
@@ -33,6 +48,51 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
         public void Debug(string message, IDictionary<string, object> properties)
         {
             SendLog(message, LogLevel.Debug, properties);
+        }
+
+        public void Info(string message)
+        {
+            SendLog(message, LogLevel.Info);
+        }
+
+        public void Info(string message, ILogEntry logEntry)
+        {
+            SendLog(message, LogLevel.Info, new Dictionary<string, object> { { GetLogEntryName(logEntry), logEntry } });
+        }
+
+        public void Info(string message, IDictionary<string, object> properties)
+        {
+            SendLog(message, LogLevel.Info, properties);
+        }
+
+        public void Warn(string message)
+        {
+            SendLog(message, LogLevel.Warn);
+        }
+
+        public void Warn(string message, ILogEntry logEntry)
+        {
+            SendLog(message, LogLevel.Warn, new Dictionary<string, object> { { GetLogEntryName(logEntry), logEntry } });
+        }
+
+        public void Warn(string message, IDictionary<string, object> properties)
+        {
+            SendLog(message, LogLevel.Warn, properties);
+        }
+
+        public void Warn(Exception ex, string message)
+        {
+            SendLog(message, LogLevel.Warn, ex);
+        }
+
+        public void Warn(Exception ex, string message, ILogEntry logEntry)
+        {
+            SendLog(message, LogLevel.Warn, new Dictionary<string, object> { { GetLogEntryName(logEntry), logEntry } }, ex);
+        }
+
+        public void Warn(Exception ex, string message, IDictionary<string, object> properties)
+        {
+            SendLog(message, LogLevel.Warn, properties, ex);
         }
 
         public void Error(Exception ex, string message)
@@ -63,36 +123,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
         public void Fatal(Exception ex, string message, IDictionary<string, object> properties)
         {
             SendLog(message, LogLevel.Fatal, properties, ex);
-        }
-
-        public void Info(string message)
-        {
-            SendLog(message, LogLevel.Info);
-        }
-
-        public void Info(string message, ILogEntry logEntry)
-        {
-            SendLog(message, LogLevel.Info, new Dictionary<string, object> { { GetLogEntryName(logEntry), logEntry } });
-        }
-
-        public void Info(string message, IDictionary<string, object> properties)
-        {
-            SendLog(message, LogLevel.Info, properties);
-        }
-
-        public void Trace(string message)
-        {
-            SendLog(message, LogLevel.Trace);
-        }
-
-        public void Trace(string message, ILogEntry logEntry)
-        {
-            SendLog(message, LogLevel.Trace, new Dictionary<string, object> { { GetLogEntryName(logEntry), logEntry } });
-        }
-
-        public void Trace(string message, IDictionary<string, object> properties)
-        {
-            SendLog(message, LogLevel.Trace, properties);
         }
 
         private string GetVersion()

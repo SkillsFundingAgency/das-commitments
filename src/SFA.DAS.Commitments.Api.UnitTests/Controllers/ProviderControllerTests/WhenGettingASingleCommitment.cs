@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
@@ -24,7 +25,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ILog>());
             _controller = new ProviderController(_providerOrchestrator);
         }
 

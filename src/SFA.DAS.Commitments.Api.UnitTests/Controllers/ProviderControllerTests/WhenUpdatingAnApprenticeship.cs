@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
@@ -30,7 +31,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ILog>());
             _controller = new ProviderController(_providerOrchestrator);
 
             _newApprenticeship = new Apprenticeship

@@ -15,12 +15,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
     //todo: add test for UpdateCommitmentAgreementCommandHandler various scenarios
     public sealed class UpdateCommitmentAgreementCommandHandler : AsyncRequestHandler<UpdateCommitmentAgreementCommand>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly ILog _logger;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ILog logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -28,10 +28,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
             if (apprenticeshipEvents == null)
                 throw new ArgumentNullException(nameof(apprenticeshipEvents));
-
+            if (_logger == null)
+                throw new ArgumentNullException(nameof(logger));
             _commitmentRepository = commitmentRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
+            _logger = logger;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand message)

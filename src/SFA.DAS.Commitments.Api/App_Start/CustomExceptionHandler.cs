@@ -1,15 +1,16 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http.ExceptionHandling;
+using System.Web.Mvc;
 using FluentValidation;
-using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api
 {
     public class CustomExceptionHandler : ExceptionHandler
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog _logger = DependencyResolver.Current.GetService<ILog>();
 
         public override void Handle(ExceptionHandlerContext context)
         {
