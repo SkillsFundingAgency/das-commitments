@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Application.Rules;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
@@ -14,8 +15,6 @@ using TrainingType = SFA.DAS.Commitments.Api.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {
-    using SFA.DAS.Commitments.Application.Rules;
-
     public sealed class GetCommitmentQueryHandler : IAsyncRequestHandler<GetCommitmentRequest, GetCommitmentResponse>
     {
         private readonly ICommitmentRepository _commitmentRepository;
@@ -68,6 +67,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     LegalEntityName = commitment.LegalEntityName,
                     CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
                     EditStatus = (EditStatus)commitment.EditStatus,
+                    AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment?.Apprenticeships),
+                    LastAction = (LastAction)commitment.LastAction,
                     Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,
@@ -86,8 +87,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         NINumber = x.NINumber,
                         EmployerRef = x.EmployerRef,
                         ProviderRef = x.ProviderRef
-                    }).ToList(),
-                    AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment?.Apprenticeships)
+                    }).ToList()
                 }
             };
         }
