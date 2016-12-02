@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Application.Rules
         {
             if (!doChangesRequireAgreement) return currentAgreementStatus;
 
-            return caller == CallerType.Employer ? AgreementStatus.EmployerAgreed : AgreementStatus.ProviderAgreed;
+            return AgreementStatus.NotAgreed;
         }
 
         public PaymentStatus DetermineNewPaymentStatus(PaymentStatus currentPaymentStatus, bool doChangesRequireAgreement)

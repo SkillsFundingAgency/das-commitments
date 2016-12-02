@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public async Task ThenShouldCallTheRepository()
+        public async Task ThenShouldCallTheRepositoryToCreateApprenticeship()
         {
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
@@ -61,6 +61,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()));
+        }
+
+        [Test]
+        public async Task ThenShouldCallTheRepositoryToUpdateTheStatusOfTheApprenticeshipsToNotAgreed()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id,
+                Apprenticeships = new System.Collections.Generic.List<Domain.Entities.Apprenticeship>
+                {
+                    new Domain.Entities.Apprenticeship { AgreementStatus = AgreementStatus.EmployerAgreed },
+                    new Domain.Entities.Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed },
+                    new Domain.Entities.Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed },
+                }
+            });
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Domain.Entities.AgreementStatus>()), Times.Exactly(2));
         }
 
         [Test]

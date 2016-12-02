@@ -30,18 +30,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
         [TestCase(AgreementStatus.EmployerAgreed)]
         [TestCase(AgreementStatus.ProviderAgreed)]
         [TestCase(AgreementStatus.BothAgreed)]
-        public void ThenSetToEmployerAgreedIfTheCallerIsTheEmployer(AgreementStatus employerAgreementStatus)
+        public void ThenSetAsNotAgreedIfChangesThatRequireAgreementWereMade(AgreementStatus agreementStatus)
         {
-            Assert.AreEqual(AgreementStatus.EmployerAgreed, _rules.DetermineNewAgreementStatus(employerAgreementStatus, CallerType.Employer, true));
-        }
-
-        [TestCase(AgreementStatus.NotAgreed)]
-        [TestCase(AgreementStatus.EmployerAgreed)]
-        [TestCase(AgreementStatus.ProviderAgreed)]
-        [TestCase(AgreementStatus.BothAgreed)]
-        public void ThenSetToProviderAgreedIfTheCallerIsTheProvider(AgreementStatus providerAgreementStatus)
-        {
-            Assert.AreEqual(AgreementStatus.ProviderAgreed, _rules.DetermineNewAgreementStatus(providerAgreementStatus, CallerType.Provider, true));
+            Assert.AreEqual(AgreementStatus.NotAgreed, _rules.DetermineNewAgreementStatus(agreementStatus, CallerType.Employer, true));
         }
 
         [TestCase(AgreementStatus.EmployerAgreed, CallerType.Provider, LastAction.Approve)]

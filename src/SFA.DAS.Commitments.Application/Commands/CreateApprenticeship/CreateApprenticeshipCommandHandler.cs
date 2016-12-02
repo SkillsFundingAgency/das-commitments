@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using NLog;
@@ -21,6 +23,13 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
         public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents)
         {
+            if (commitmentRepository == null)
+                throw new ArgumentNullException(nameof(commitmentRepository));
+            if (validator == null)
+                throw new ArgumentNullException(nameof(_validator));
+            if (apprenticeshipEvents == null)
+                throw new ArgumentNullException(nameof(_apprenticeshipEvents));
+
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
@@ -44,8 +53,22 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             message.Apprenticeship.Id = apprenticeshipId;
 
             await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
-            
+
+            await UpdateStatusOfApprenticeship(commitment);
+
             return apprenticeshipId;
+        }
+
+        private async Task UpdateStatusOfApprenticeship(Commitment commitment)
+        {
+            // TODO: Should we do just a blanket update accross all apprenticeships in the Commitment?
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                if (apprenticeship.AgreementStatus != Domain.Entities.AgreementStatus.NotAgreed)
+                {
+                    await _commitmentRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, Domain.Entities.AgreementStatus.NotAgreed);
+                }
+            }
         }
 
         private Domain.Entities.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
