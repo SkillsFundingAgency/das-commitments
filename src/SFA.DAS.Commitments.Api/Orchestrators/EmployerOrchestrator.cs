@@ -135,9 +135,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task PatchCommitment(long accountId, long commitmentId, AgreementStatus agreementStatus)
+        public async Task PatchCommitment(long accountId, long commitmentId, LastAction latestAction)
         {
-            Logger.Info($"Updating agreement status to {agreementStatus} for commitment {commitmentId} for employer account {accountId}");
+            Logger.Info($"Updating agreement status to {latestAction} for commitment {commitmentId} for employer account {accountId}");
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
@@ -147,7 +147,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = accountId
                 },
                 CommitmentId = commitmentId,
-                AgreementStatus = agreementStatus
+                LatestAction = latestAction
             });
         }
 

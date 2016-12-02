@@ -59,36 +59,52 @@ namespace SFA.DAS.Commitments.Application.Rules
             if (areAnyApprenticeshipsPendingAgreement)
                 return caller == CallerType.Provider ? EditStatus.EmployerOnly : EditStatus.ProviderOnly;
 
-            return apprenticeshipsInCommitment>0 ? EditStatus.Both : currentEditStatus;
+            return apprenticeshipsInCommitment > 0 ? EditStatus.Both : currentEditStatus;
         }
 
-        public AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, AgreementStatus newAgreementStatus)
+        public AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, LastAction action)
         {
-            switch (newAgreementStatus)
+            if (action == LastAction.Amend)
             {
-                case AgreementStatus.NotAgreed:
+                if (!CallerApproved(currentAgreementStatus, caller))
+                {
                     return AgreementStatus.NotAgreed;
+                }
 
-                case AgreementStatus.EmployerAgreed:
-                case AgreementStatus.ProviderAgreed:
-                    switch (currentAgreementStatus)
-                    {
-                        case AgreementStatus.NotAgreed:
-                        case AgreementStatus.BothAgreed:
-                            return newAgreementStatus;
+                return currentAgreementStatus;
+            }
 
-                        case AgreementStatus.EmployerAgreed:
-                            return caller == CallerType.Employer ? AgreementStatus.EmployerAgreed : AgreementStatus.BothAgreed;
-
-                        case AgreementStatus.ProviderAgreed:
-                            return caller == CallerType.Employer ? AgreementStatus.BothAgreed : AgreementStatus.ProviderAgreed;
-
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(currentAgreementStatus), currentAgreementStatus, null);
-                    }
-
+            switch (caller)
+            {
+                case CallerType.Employer:
+                    if (currentAgreementStatus == AgreementStatus.ProviderAgreed)
+                        return AgreementStatus.BothAgreed;
+                    if (currentAgreementStatus == AgreementStatus.NotAgreed)
+                        return AgreementStatus.EmployerAgreed;
+                    break;
+                case CallerType.Provider:
+                    if (currentAgreementStatus == AgreementStatus.EmployerAgreed)
+                        return AgreementStatus.BothAgreed;
+                    if (currentAgreementStatus == AgreementStatus.NotAgreed)
+                        return AgreementStatus.ProviderAgreed;
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(newAgreementStatus), newAgreementStatus, null);
+                    throw new ArgumentOutOfRangeException(nameof(action), action, null);
+            }
+
+            throw new ArgumentException($"Invalid combination of values - CurrentAgreementStatus:{currentAgreementStatus}, Caller:{caller}, Action:{action}");
+        }
+
+        private bool CallerApproved(AgreementStatus currentAgreementStatus, CallerType caller)
+        {
+            switch (caller)
+            {
+                case CallerType.Employer:
+                    return currentAgreementStatus == AgreementStatus.EmployerAgreed;
+                case CallerType.Provider:
+                    return currentAgreementStatus == AgreementStatus.ProviderAgreed;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(caller), caller, null);
             }
         }
     }

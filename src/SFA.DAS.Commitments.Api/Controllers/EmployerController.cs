@@ -94,9 +94,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] AgreementStatus status)
+        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] LastAction lastAction)
         {
-            await _employerOrchestrator.PatchCommitment(accountId, commitmentId, status);
+            await _employerOrchestrator.PatchCommitment(accountId, commitmentId, lastAction);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

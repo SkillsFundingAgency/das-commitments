@@ -23,6 +23,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
+            if (_apprenticeshipUpdateRules == null)
+                throw new ArgumentNullException(nameof(_apprenticeshipUpdateRules));
+            if (_apprenticeshipEvents == null)
+                throw new ArgumentNullException(nameof(_apprenticeshipEvents));
+
             _commitmentRepository = commitmentRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
@@ -38,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(message, commitment);
             CheckAuthorization(message, commitment);
 
-            var newAgreementStatus = (AgreementStatus) message.AgreementStatus;
+            var latestAction = (LastAction) message.LatestAction;
 
             // update apprenticeship agreement statuses
             foreach (var apprenticeship in commitment.Apprenticeships)
@@ -46,7 +51,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 var hasChanged = false;
 
                 //todo: extract status stuff outside loop and set all apprenticeships to same agreement status
-                var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, newAgreementStatus);
+                var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, latestAction);
                 var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
 
                 if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
@@ -114,7 +119,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private static string BuildInfoMessage(UpdateCommitmentAgreementCommand cmd)
         {
-            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateCommitmentAgreement for commitment {cmd.CommitmentId} with agreement status: {cmd.AgreementStatus}";
+            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateCommitmentAgreement for commitment {cmd.CommitmentId} with agreement status: {cmd.LatestAction}";
         }
     }
 }

@@ -9,6 +9,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
     {
         public Caller Caller { get; set; }
         public long CommitmentId { get; set; }
-        public AgreementStatus AgreementStatus { get; set; }
+        public LastAction LatestAction { get; set; }
     }
 }
