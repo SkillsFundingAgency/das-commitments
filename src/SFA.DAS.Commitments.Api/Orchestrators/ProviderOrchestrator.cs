@@ -123,7 +123,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchCommitment(long providerId, long commitmentId, LastAction latestAction)
         {
-            Logger.Info($"Updating agreement status to {latestAction} for commitment {commitmentId} for provider {providerId}");
+            Logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for provider {providerId}");
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {

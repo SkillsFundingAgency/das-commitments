@@ -137,7 +137,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchCommitment(long accountId, long commitmentId, LastAction latestAction)
         {
-            Logger.Info($"Updating agreement status to {latestAction} for commitment {commitmentId} for employer account {accountId}");
+            Logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}");
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
