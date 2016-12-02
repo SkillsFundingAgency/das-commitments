@@ -22,8 +22,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
         public async Task<GetApprenticeshipResponse> Handle(GetApprenticeshipRequest message)
         {
-            //todo: refactor
-
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)
