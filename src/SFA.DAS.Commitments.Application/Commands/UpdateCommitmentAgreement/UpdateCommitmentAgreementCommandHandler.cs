@@ -23,10 +23,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
-            if (_apprenticeshipUpdateRules == null)
-                throw new ArgumentNullException(nameof(_apprenticeshipUpdateRules));
-            if (_apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(_apprenticeshipEvents));
+            if (apprenticeshipUpdateRules == null)
+                throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
+            if (apprenticeshipEvents == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEvents));
 
             _commitmentRepository = commitmentRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
@@ -77,8 +77,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
             // update commitment statuses
-            await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count));
+            // TODO: Should we combine these into a single update?
+            await _commitmentRepository.UpdateEditStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, message.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count));
             await _commitmentRepository.UpdateCommitmentStatus(message.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
+            await _commitmentRepository.UpdateLastAction(message.CommitmentId, latestAction);
         }
 
         private static void CheckCommitmentStatus(Commitment commitment)
