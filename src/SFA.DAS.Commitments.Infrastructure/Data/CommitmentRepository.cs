@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateCommitmentStatus(long commitmentId, EditStatus editStatus)
+        public async Task UpdateEditStatus(long commitmentId, EditStatus editStatus)
         {
             Logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}");
 
@@ -134,6 +134,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var returnCode = await connection.ExecuteAsync(
                     sql: "UPDATE [dbo].[Commitment] SET EditStatus = @editStatus WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
+        public async Task UpdateLastAction(long commitmentId, LastAction lastAction)
+        {
+            Logger.Debug($"Updating commitment {commitmentId} last action to {lastAction}");
+
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitmentId, DbType.Int64);
+                parameters.Add("@lastAction", lastAction, DbType.Int16);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql: "UPDATE [dbo].[Commitment] SET LastAction = @lastAction WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
 
