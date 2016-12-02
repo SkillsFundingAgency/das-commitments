@@ -42,4 +42,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="CommitmentStatus" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="dc1a8c9b-8f08-4075-9206-a0a5d42d40d5" ChangeDateTime="12/01/2016 11:46:13">
+    <Property Name="ElementName" Value="[dbo].[Commitment].[LastActoin]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Commitment]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LastAction" />
+  </Operation>
 </Operations>

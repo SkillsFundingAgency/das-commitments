@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Api.Types.EditStatus;
+using LastAction = SFA.DAS.Commitments.Api.Types.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
@@ -49,7 +50,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         CommitmentStatus = (CommitmentStatus) x.CommitmentStatus,
                         EditStatus = (EditStatus) x.EditStatus,
                         ApprenticeshipCount = x.ApprenticeshipCount,
-                        AgreementStatus = (AgreementStatus) x.AgreementStatus
+                        AgreementStatus = (AgreementStatus) x.AgreementStatus,
+                        LastAction = (LastAction) x.LastAction
                     }
                     ).ToList()
             };

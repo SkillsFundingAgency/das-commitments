@@ -19,7 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var fixture = new Fixture();
 
             _validator = new CreateApprenticeshipValidator();
-            var emptyApprenticeship = new Apprenticeship();
+            var exampleValidApprenticeship = new Apprenticeship { FirstName = "Bob", LastName = "Smith" };
             _exampleCommand = new CreateApprenticeshipCommand
             {
                 Caller = new Caller
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     Id = 1
                 },
                 CommitmentId = 123L,
-                Apprenticeship = emptyApprenticeship
+                Apprenticeship = exampleValidApprenticeship
             };
         }
         
@@ -187,6 +187,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public void ThenCostThatIsZeroOrNegativeNumberIsInvalid(decimal cost)
         {
             _exampleCommand.Apprenticeship.Cost = cost;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase("")]
+        [TestCase(null)]
+        public void ThenApprenticeshipWithoutFirstNameIsNotSet(string firstName)
+        {
+            _exampleCommand.Apprenticeship.FirstName = firstName;
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [TestCase("")]
+        [TestCase(null)]
+        public void ThenApprenticeshipWithoutLastNameIsNotSet(string lastName)
+        {
+            _exampleCommand.Apprenticeship.LastName = lastName;
 
             var result = _validator.Validate(_exampleCommand);
 

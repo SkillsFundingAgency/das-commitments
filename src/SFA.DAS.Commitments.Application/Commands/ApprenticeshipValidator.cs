@@ -9,6 +9,8 @@ namespace SFA.DAS.Commitments.Application.Commands
         {
             RuleFor(x => x.ULN).Must(ULNIsValid);
             RuleFor(x => x.Cost).Must(CostIsValid);
+            RuleFor(x => x.FirstName).NotEmpty();
+            RuleFor(x => x.LastName).NotEmpty();
         }
 
         private bool CostIsValid(decimal? cost)
