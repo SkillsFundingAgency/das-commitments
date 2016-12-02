@@ -22,42 +22,42 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
         public async Task<GetApprenticeshipResponse> Handle(GetApprenticeshipRequest message)
         {
+            //todo: refactor
+
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
+            var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
 
-            if (commitment == null)
+            if (apprenticeship== null)
             {
                 return new GetApprenticeshipResponse();
             }
 
-            CheckAuthorization(message, commitment);
+            CheckAuthorization(message, apprenticeship);
 
-            var matchingApprenticeship = commitment.Apprenticeships.SingleOrDefault(x => x.Id == message.ApprenticeshipId);
-
-            return MapResponseFrom(matchingApprenticeship);
+            return MapResponseFrom(apprenticeship);
         }
 
-        private static void CheckAuthorization(GetApprenticeshipRequest message, Commitment commitment)
+        private static void CheckAuthorization(GetApprenticeshipRequest message, Apprenticeship apprenticeship)
         {
             switch (message.Caller.CallerType)
             {
                 case CallerType.Provider:
-                    if (commitment.ProviderId != message.Caller.Id)
+                    if (apprenticeship.ProviderId != message.Caller.Id)
                         throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view apprenticeship {message.ApprenticeshipId}");
                     break;
                 case CallerType.Employer:
                 default:
-                    if (commitment.EmployerAccountId != message.Caller.Id)
+                    if (apprenticeship.EmployerAccountId != message.Caller.Id)
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view apprenticeship {message.ApprenticeshipId}");
                     break;
             }
         }
 
-        private GetApprenticeshipResponse MapResponseFrom(Apprenticeship matchingApprenticeship)
+        private static GetApprenticeshipResponse MapResponseFrom(Apprenticeship matchingApprenticeship)
         {
             var response = new GetApprenticeshipResponse();
 
@@ -70,6 +70,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             {
                 Id = matchingApprenticeship.Id,
                 CommitmentId = matchingApprenticeship.CommitmentId,
+                EmployerAccountId = matchingApprenticeship.EmployerAccountId,
+                ProviderId = matchingApprenticeship.ProviderId,
+                Reference = matchingApprenticeship.Reference,
                 FirstName = matchingApprenticeship.FirstName,
                 LastName = matchingApprenticeship.LastName,
                 ULN = matchingApprenticeship.ULN,

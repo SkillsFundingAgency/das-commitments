@@ -7,6 +7,5 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
     {
         public Caller Caller { get; set; }
         public long ApprenticeshipId { get; set; }
-        public long CommitmentId { get; set; }
     }
 }

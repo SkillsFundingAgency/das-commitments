@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
                 return null;
             });
-            RuleFor(x => x.CommitmentId).GreaterThan(0);
+
             RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
         }
     }

@@ -83,9 +83,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long commitmentId, long apprenticeshipId)
+        public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
         {
-            Logger.Info($"Getting apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}");
+            Logger.Info($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}");
 
             return await _mediator.SendAsync(new GetApprenticeshipRequest
             {
@@ -94,7 +94,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CallerType = CallerType.Employer,
                     Id = accountId
                 },
-                CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId
             });
         }
