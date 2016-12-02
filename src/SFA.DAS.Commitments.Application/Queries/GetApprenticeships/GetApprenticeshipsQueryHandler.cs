@@ -34,6 +34,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                     {
                         Id = x.Id,
                         CommitmentId = x.CommitmentId,
+                        EmployerAccountId = x.EmployerAccountId,
+                        ProviderId = x.ProviderId,
+                        Reference = x.Reference,
                         FirstName = x.FirstName,
                         LastName = x.LastName,
                         ULN = x.ULN,

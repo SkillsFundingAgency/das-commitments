@@ -6,6 +6,9 @@ namespace SFA.DAS.Commitments.Domain.Entities
     {
         public long Id { get; set; }
         public long CommitmentId { get; set; }
+        public long EmployerAccountId { get; set; }
+        public long ProviderId { get; set; }
+        public string Reference { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }

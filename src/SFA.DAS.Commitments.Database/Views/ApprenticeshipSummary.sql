@@ -2,7 +2,7 @@
 AS 
 
 SELECT 
-	c.EmployerAccountId, c.ProviderId, 
+	c.EmployerAccountId, c.ProviderId, c.Reference, 
 	a.* 
 FROM Apprenticeship a
 INNER JOIN 

@@ -69,13 +69,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
-        //todo: discuss: change route as we'll need to retrieve apprenticeships from outside the commitment containers too (when "on programme")
-        //[Route("{accountId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
-        [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetApprenticeship(long accountId, long commitmentId, long apprenticeshipId)
+        public async Task<IHttpActionResult> GetApprenticeship(long accountId, long apprenticeshipId)
         {
-            var response = await _employerOrchestrator.GetApprenticeship(accountId, commitmentId, apprenticeshipId);
+            var response = await _employerOrchestrator.GetApprenticeship(accountId, apprenticeshipId);
 
             if (response.Data == null)
             {

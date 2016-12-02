@@ -225,7 +225,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@id", id);
 
                 return await c.QueryAsync<Apprenticeship>(
-                    sql: $"SELECT * FROM [dbo].[Apprenticeship] WHERE Id = @id;",
+                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
             });

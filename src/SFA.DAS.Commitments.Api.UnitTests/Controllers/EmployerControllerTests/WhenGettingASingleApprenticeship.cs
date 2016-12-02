@@ -17,7 +17,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
     public class WhenGettingASingleApprenticeship
     {
         private const long TestProviderId = 1L;
-        private const long TestCommitmentId = 2L;
         private const long TestApprenticeshipId = 3L;
         private Mock<IMediator> _mockMediator;
         private EmployerController _controller;
@@ -36,7 +35,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
 
-            var result = await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship>;
+            var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship>;
 
             result.Content.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);
@@ -47,9 +46,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(new GetApprenticeshipResponse());
 
-            var result = await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId);
+            var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<GetApprenticeshipRequest>(arg => arg.CommitmentId == TestCommitmentId && arg.ApprenticeshipId == TestApprenticeshipId && arg.Caller.CallerType == CallerType.Employer && arg.Caller.Id == TestProviderId)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<GetApprenticeshipRequest>(arg => arg.ApprenticeshipId == TestApprenticeshipId && arg.Caller.CallerType == CallerType.Employer && arg.Caller.Id == TestProviderId)));
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ThrowsAsync(new ValidationException(errorMessage));
 
-            var validationException = Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId));
+            var validationException = Assert.ThrowsAsync<ValidationException>(async () => await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId));
 
             Assert.That(validationException.Message, Is.EqualTo(errorMessage));
         }
@@ -69,7 +68,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(new GetApprenticeshipResponse { Data = null });
 
-            var result = await _controller.GetApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId);
+            var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId);
 
             result.Should().BeOfType<NotFoundResult>();
         }
