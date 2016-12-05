@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ILog>());
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator);
         }
 

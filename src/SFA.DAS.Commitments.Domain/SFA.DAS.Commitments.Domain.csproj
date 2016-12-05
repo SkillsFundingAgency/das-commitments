@@ -60,6 +60,7 @@
     <Compile Include="Configuration\EventsApiClientConfiguration.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
+    <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\IHashingService.cs" />
     <Compile Include="Interfaces\ILog.cs" />
