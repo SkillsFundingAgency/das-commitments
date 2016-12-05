@@ -13,6 +13,8 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
+    //todo: add test for UpdateApprenticeshipCommandHandler various scenarios
+
     public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

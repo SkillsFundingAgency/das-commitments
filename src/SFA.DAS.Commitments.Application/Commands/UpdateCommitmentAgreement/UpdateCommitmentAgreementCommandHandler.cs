@@ -12,6 +12,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
+    //todo: add test for UpdateCommitmentAgreementCommandHandler various scenarios
     public sealed class UpdateCommitmentAgreementCommandHandler : AsyncRequestHandler<UpdateCommitmentAgreementCommand>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -35,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand message)
         {
-            Logger.Info(BuildInfoMessage(message));
+            Logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateCommitmentAgreement for commitment {message.CommitmentId} with agreement status: {message.LatestAction}");
 
             var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
 
@@ -117,11 +118,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
                     break;
             }
-        }
-
-        private static string BuildInfoMessage(UpdateCommitmentAgreementCommand cmd)
-        {
-            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called UpdateCommitmentAgreement for commitment {cmd.CommitmentId} with agreement status: {cmd.LatestAction}";
         }
     }
 }
