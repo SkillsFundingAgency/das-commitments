@@ -150,7 +150,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateLastAction(long commitmentId, LastAction lastAction)
         {
-            Logger.Debug($"Updating commitment {commitmentId} last action to {lastAction}");
+            _logger.Debug($"Updating commitment {commitmentId} last action to {lastAction}");
 
             await WithConnection(async connection =>
             {

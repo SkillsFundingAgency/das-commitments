@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand message)
         {
-            Logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateCommitmentAgreement for commitment {message.CommitmentId} with agreement status: {message.LatestAction}");
+            _logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateCommitmentAgreement for commitment {message.CommitmentId} with agreement status: {message.LatestAction}");
 
             var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
 

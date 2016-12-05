@@ -48,7 +48,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public async Task ThenTheMediatorIsCalledWithTheCommitmentIdApprenticeshipIdProviderId()
         {
             const long testProviderId = 2222L;
-            const long testCommitmentId = 1235L;
             const long testApprenticeshipId = 4321L;
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(new GetApprenticeshipResponse());
 

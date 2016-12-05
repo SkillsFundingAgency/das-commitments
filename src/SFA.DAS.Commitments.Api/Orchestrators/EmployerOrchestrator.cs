@@ -91,7 +91,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
         {
-            Logger.Info($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}");
+            _logger.Info($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}");
 
             return await _mediator.SendAsync(new GetApprenticeshipRequest
             {
@@ -143,7 +143,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchCommitment(long accountId, long commitmentId, LastAction latestAction)
         {
-            Logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}");
+            _logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}");
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
