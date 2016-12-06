@@ -141,7 +141,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchCommitment(long accountId, long commitmentId, LastAction latestAction)
         {
-            _logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, lastAction: latestAction.ToString());
+            _logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
@@ -157,7 +157,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, PaymentStatus? paymentStatus)
         {
-            _logger.Info($"Updating payment status to {paymentStatus} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, paymentStatus: paymentStatus.ToString());
+            _logger.Info($"Updating payment status to {paymentStatus} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
             {

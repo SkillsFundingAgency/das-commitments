@@ -92,9 +92,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called UpdateCommitmentAgreement for commitment {command.CommitmentId} with agreement status: {command.LatestAction}";
 
             if (command.Caller.CallerType == CallerType.Employer)
-                _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId, lastAction: command.LatestAction.ToString());
+                _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);
             else
-                _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId, lastAction: command.LatestAction.ToString());
+                _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId);
         }
 
         private static void CheckCommitmentStatus(Commitment commitment)
