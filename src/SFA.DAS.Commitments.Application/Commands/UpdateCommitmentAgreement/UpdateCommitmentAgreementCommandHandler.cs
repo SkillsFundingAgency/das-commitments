@@ -28,8 +28,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
             if (apprenticeshipEvents == null)
                 throw new ArgumentNullException(nameof(apprenticeshipEvents));
-            if (_logger == null)
+            if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+
             _commitmentRepository = commitmentRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
