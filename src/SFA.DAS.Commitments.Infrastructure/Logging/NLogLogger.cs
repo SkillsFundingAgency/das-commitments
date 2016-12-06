@@ -141,7 +141,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
         {
             if (entry == null) return null;
 
-            var entryProperties = entry.GetType().GetProperties(BindingFlags.Public);
+            var entryProperties = entry.GetType().GetProperties();
             var properties = new Dictionary<string, object>(entryProperties.Length);
 
             foreach (var property in entryProperties)
