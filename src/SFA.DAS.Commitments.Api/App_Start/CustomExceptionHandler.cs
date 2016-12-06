@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Api
 {
     public class CustomExceptionHandler : ExceptionHandler
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         public override void Handle(ExceptionHandlerContext context)
         {
@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Api
                 response.Content = new StringContent(message);
                 context.Result = new CustomErrorResult(context.Request, response);
 
-                Logger.Warn(context.Exception, "Validation error");
+                _logger.Warn(context.Exception, "Validation error");
 
                 return;
             }
@@ -32,10 +32,12 @@ namespace SFA.DAS.Commitments.Api
                 response.Content = new StringContent(message);
                 context.Result = new CustomErrorResult(context.Request, response);
 
-                Logger.Warn(context.Exception, "Authorisation error");
+                _logger.Warn(context.Exception, "Authorisation error");
 
                 return;
             }
+
+            _logger.Error(context.Exception, "Unhandled exception");
 
             base.Handle(context);
         }
