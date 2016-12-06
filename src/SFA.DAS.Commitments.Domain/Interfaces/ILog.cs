@@ -32,14 +32,4 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
         void Fatal(Exception ex, string message, IDictionary<string, object> properties);
         void Fatal(Exception ex, string message, ILogEntry logEntry);
     }
-
-    public interface ILogEntry
-    {
-    }
-
-    public interface IRequestContext
-    {
-        string Url { get; }
-        string IpAddress { get; }
-    }
 }
