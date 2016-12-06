@@ -14,9 +14,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
-        private readonly ILog _logger;
+        private readonly ICommitmentsLogger _logger;
 
-        public CommitmentRepository(string databaseConnectionString, ILog logger) : base(databaseConnectionString)
+        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -112,7 +112,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus)
         {
-            _logger.Debug($"Updating commitment {commitmentId} commitment status to {commitmentStatus}");
+            _logger.Debug($"Updating commitment {commitmentId} commitment status to {commitmentStatus}", commitmentId: commitmentId);
 
             await WithConnection(async connection =>
             {
@@ -131,7 +131,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateEditStatus(long commitmentId, EditStatus editStatus)
         {
-            _logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}");
+            _logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}", commitmentId: commitmentId);
 
             await WithConnection(async connection =>
             {
@@ -150,7 +150,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateLastAction(long commitmentId, LastAction lastAction)
         {
-            _logger.Debug($"Updating commitment {commitmentId} last action to {lastAction}");
+            _logger.Debug($"Updating commitment {commitmentId} last action to {lastAction}", commitmentId: commitmentId);
 
             await WithConnection(async connection =>
             {
@@ -187,7 +187,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
-            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}");
+            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithConnection(async connection =>
             {
@@ -208,7 +208,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus)
         {
-            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}");
+            _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} agreement status to {agreementStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithConnection(async connection =>
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -19,9 +18,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
-        private readonly ILog _logger;
+        private readonly ICommitmentsLogger _logger;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ILog logger)
+        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -36,24 +35,24 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             _logger = logger;
         }
 
-        public async Task<long> Handle(CreateApprenticeshipCommand message)
+        public async Task<long> Handle(CreateApprenticeshipCommand command)
         {
-            _logger.Info(BuildInfoMessage(message));
+            LogMessage(command);
 
-            var validationResult = _validator.Validate(message);
+            var validationResult = _validator.Validate(command);
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
+            var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
-            CheckAuthorization(message, commitment);
+            CheckAuthorization(command, commitment);
 
-            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(message.Apprenticeship, message));
+            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command));
 
-            message.Apprenticeship.Id = apprenticeshipId;
+            command.Apprenticeship.Id = apprenticeshipId;
 
-            await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(message.Apprenticeship, message), "APPRENTICESHIP-CREATED");
+            await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
 
             await UpdateStatusOfApprenticeship(commitment);
 
@@ -112,6 +111,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
                     break;
             }
+        }
+
+        private void LogMessage(CreateApprenticeshipCommand command)
+        {
+            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called CreateApprenticeshipCommand";
+
+            if (command.Caller.CallerType == CallerType.Employer)
+                _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);
+            else
+                _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId);
         }
 
         private string BuildInfoMessage(CreateApprenticeshipCommand cmd)

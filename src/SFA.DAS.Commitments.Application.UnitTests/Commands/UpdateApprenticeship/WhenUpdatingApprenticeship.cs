@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), new ApprenticeshipUpdateRules(), _mockApprenticeshipEvents.Object, Mock.Of<ILog>());
+            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), new ApprenticeshipUpdateRules(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Api.Types.Apprenticeship>().Create();

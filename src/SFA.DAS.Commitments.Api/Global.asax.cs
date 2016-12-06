@@ -1,15 +1,13 @@
-﻿using System;
-using System.Web.Http;
-using System.Web.Mvc;
-using NLog;
+﻿using System.Web.Http;
 using NLog.Targets;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Logging;
 
 namespace SFA.DAS.Commitments.Api
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
-        private static ILog _logger = DependencyResolver.Current.GetService<ILog>();
+        private static ILog _logger = new NLogLogger();
         private static RedisTarget _redisTarget; // Required to ensure assembly is copied to output.
 
         protected void Application_Start()

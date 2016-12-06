@@ -13,9 +13,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
         private readonly string _loggerType;
         private readonly string _version;
 
+        public NLogLogger()
+        {
+            _loggerType = "DefaultLogger";
+            _version = GetVersion();
+        }
+
         public NLogLogger(Type loggerType, IRequestContext context)
         {
-            _loggerType = loggerType?.ToString() ?? "DefaultWebLogger";
+            _loggerType = loggerType?.ToString() ?? "DefaultLogger";
             _context = context;
             _version = GetVersion();
         }
@@ -161,8 +167,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
 
             propertiesLocal = (properties == null) ? new Dictionary<string, object>() : properties;
 
+            if (_context != null)
+                propertiesLocal.Add("RequestCtx", _context);
+
             propertiesLocal.Add("LoggerType", _loggerType);
-            propertiesLocal.Add("RequestCtx", _context);
             propertiesLocal.Add("Version", _version);
 
             var logEvent = new LogEventInfo(level, _loggerType, message.ToString());

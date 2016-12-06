@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -15,9 +14,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHashingService _hashingService;
-        private readonly ILog _logger;
+        private readonly ICommitmentsLogger _logger;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ILog logger)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -34,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            _logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand");
+            _logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand", accountId: message.Commitment.EmployerAccountId);
 
             var validationResult = _validator.Validate(message);
 
