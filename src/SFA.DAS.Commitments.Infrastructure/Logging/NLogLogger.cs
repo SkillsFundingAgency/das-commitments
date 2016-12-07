@@ -172,6 +172,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
 
             propertiesLocal.Add("LoggerType", _loggerType);
             propertiesLocal.Add("Version", _version);
+            propertiesLocal.Add("LogTimestamp", DateTime.UtcNow.ToString("o"));
 
             var logEvent = new LogEventInfo(level, _loggerType, message.ToString());
             logEvent.Exception = exception;
