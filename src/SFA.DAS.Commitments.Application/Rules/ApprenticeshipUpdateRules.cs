@@ -56,10 +56,10 @@ namespace SFA.DAS.Commitments.Application.Rules
 
         public EditStatus DetermineNewEditStatus(EditStatus currentEditStatus, CallerType caller, bool areAnyApprenticeshipsPendingAgreement, int apprenticeshipsInCommitment)
         {
-            if (areAnyApprenticeshipsPendingAgreement)
+            if (areAnyApprenticeshipsPendingAgreement || apprenticeshipsInCommitment == 0)
                 return caller == CallerType.Provider ? EditStatus.EmployerOnly : EditStatus.ProviderOnly;
 
-            return apprenticeshipsInCommitment > 0 ? EditStatus.Both : currentEditStatus;
+            return EditStatus.Both;
         }
 
         public AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, LastAction action)

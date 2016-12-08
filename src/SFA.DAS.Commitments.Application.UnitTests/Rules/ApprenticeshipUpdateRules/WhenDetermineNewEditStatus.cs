@@ -32,11 +32,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             Assert.AreEqual(expectedEditStatus, _rules.DetermineNewEditStatus(EditStatus.Both, caller, true, 10));
         }
 
-        [TestCase(EditStatus.EmployerOnly, CallerType.Employer)]
-        [TestCase(EditStatus.ProviderOnly, CallerType.Provider)]
-        public void ThenLeaveAsIsIfThereAreNoApprenticeshipsInTheCommitment(EditStatus existingEditStatus, CallerType caller)
+        [TestCase(EditStatus.EmployerOnly, CallerType.Employer, EditStatus.ProviderOnly)]
+        [TestCase(EditStatus.ProviderOnly, CallerType.Provider, EditStatus.EmployerOnly)]
+        public void ThenSetToOtherPartyCanEditIfThereAreNoApprenticeshipsInTheCommitment(EditStatus existingEditStatus, CallerType caller, EditStatus expectedStatus)
         {
-            Assert.AreEqual(existingEditStatus, _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 0));
+            Assert.AreEqual(expectedStatus, _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 0));
         }
     }
 }
