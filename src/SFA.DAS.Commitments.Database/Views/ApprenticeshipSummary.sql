@@ -2,8 +2,8 @@
 AS 
 
 SELECT 
-	c.EmployerAccountId, c.ProviderId, c.Reference, 
 	a.*,
+	c.EmployerAccountId, c.ProviderId, c.Reference, 
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
