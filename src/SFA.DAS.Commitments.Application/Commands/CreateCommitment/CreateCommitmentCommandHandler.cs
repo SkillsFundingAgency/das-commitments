@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -12,25 +11,29 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHashingService _hashingService;
+        private readonly ICommitmentsLogger _logger;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
             if (hashingService == null)
                 throw new ArgumentNullException(nameof(hashingService));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
             _validator = validator;
+            _logger = logger;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            Logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand");
+            _logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand", accountId: message.Commitment.EmployerAccountId);
 
             var validationResult = _validator.Validate(message);
 

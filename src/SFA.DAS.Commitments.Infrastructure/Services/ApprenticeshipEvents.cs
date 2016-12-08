@@ -15,12 +15,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
     public class ApprenticeshipEvents : IApprenticeshipEvents
     {
         private readonly IEventsApi _eventsApi;
+        private readonly ICommitmentsLogger _logger;
 
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
-        public ApprenticeshipEvents(IEventsApi eventsApi)
+        public ApprenticeshipEvents(IEventsApi eventsApi, ICommitmentsLogger logger)
         {
             _eventsApi = eventsApi;
+            _logger = logger;
         }
 
         public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
                 };
 
-                Logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}");
+                _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
                 await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
             }
         }

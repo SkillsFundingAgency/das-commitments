@@ -17,47 +17,59 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
     public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
+        private readonly ICommitmentsLogger _logger;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
+            _logger = logger;
         }
 
-        protected override async Task HandleCore(UpdateApprenticeshipCommand message)
-        {
-            Logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called UpdateApprenticeshipCommand");
 
-            var validationResult = _validator.Validate(message);
+        protected override async Task HandleCore(UpdateApprenticeshipCommand command)
+        {
+            LogMessage(command);
+
+            var validationResult = _validator.Validate(command);
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
+            var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            var apprenticeship = await _commitmentRepository.GetApprenticeship(command.ApprenticeshipId);
 
-            CheckAuthorization(message, commitment);
-            CheckCommitmentStatus(message, commitment);
-            CheckEditStatus(message, commitment);
+            CheckAuthorization(command, commitment);
+            CheckCommitmentStatus(command, commitment);
+            CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
-            var updatedApprenticeship = MapFrom(message.Apprenticeship, message);
+            var updatedApprenticeship = MapFrom(command.Apprenticeship, command);
 
             var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequireAgreement(apprenticeship, updatedApprenticeship);
 
-            updatedApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, message.Caller.CallerType, doChangesRequireAgreement);
+            updatedApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, doChangesRequireAgreement);
             updatedApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, doChangesRequireAgreement);
 
-            await _commitmentRepository.UpdateApprenticeship(updatedApprenticeship, message.Caller);
+            await _commitmentRepository.UpdateApprenticeship(updatedApprenticeship, command.Caller);
 
             await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
+        }
+
+        private void LogMessage(UpdateApprenticeshipCommand command)
+        {
+            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called UpdateApprenticeshipCommand";
+
+            if (command.Caller.CallerType == CallerType.Employer)
+                _logger.Info(messageTemplate, accountId: command.Caller.Id, apprenticeshipId: command.ApprenticeshipId);
+            else
+                _logger.Info(messageTemplate, providerId: command.Caller.Id, apprenticeshipId: command.ApprenticeshipId);
         }
 
         private static void CheckCommitmentStatus(UpdateApprenticeshipCommand message, Commitment commitment)

@@ -12,6 +12,7 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 {
@@ -28,7 +29,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object);
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator);
         }
 
@@ -47,7 +48,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public async Task ThenTheMediatorIsCalledWithTheCommitmentIdApprenticeshipIdProviderId()
         {
             const long testProviderId = 2222L;
-            const long testCommitmentId = 1235L;
             const long testApprenticeshipId = 4321L;
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(new GetApprenticeshipResponse());
 

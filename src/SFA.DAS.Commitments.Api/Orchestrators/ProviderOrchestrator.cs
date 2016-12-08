@@ -11,24 +11,29 @@ using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
     public class ProviderOrchestrator
     {
         private readonly IMediator _mediator;
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ICommitmentsLogger _logger;
 
-        public ProviderOrchestrator(IMediator mediator)
+        public ProviderOrchestrator(IMediator mediator, ICommitmentsLogger logger)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long providerId)
         {
-            Logger.Info($"Getting commitments for provider {providerId}");
+            _logger.Info($"Getting commitments for provider {providerId}", providerId: providerId);
 
             return await _mediator.SendAsync(new GetCommitmentsRequest
             {
@@ -42,7 +47,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetCommitmentResponse> GetCommitment(long providerId, long commitmentId)
         {
-            Logger.Info($"Getting commitment {commitmentId} for provider {providerId}");
+            _logger.Info($"Getting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             return await _mediator.SendAsync(new GetCommitmentRequest
             {
@@ -57,7 +62,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId)
         {
-            Logger.Info($"Getting apprenticeships for provider {providerId}");
+            _logger.Info($"Getting apprenticeships for provider {providerId}", providerId: providerId);
 
             return await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
@@ -71,7 +76,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)
         {
-            Logger.Info($"Getting apprenticeship {apprenticeshipId} for provider {providerId}");
+            _logger.Info($"Getting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
             return await _mediator.SendAsync(new GetApprenticeshipRequest
             {
@@ -86,7 +91,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<long> CreateApprenticeship(long providerId, long commitmentId, Apprenticeship apprenticeship)
         {
-            Logger.Info($"Creating apprenticeship for commitment {commitmentId} for provider {providerId}");
+            _logger.Info($"Creating apprenticeship for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             apprenticeship.CommitmentId = commitmentId;
 
@@ -104,7 +109,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
-            Logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}");
+            _logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             apprenticeship.CommitmentId = commitmentId;
 
@@ -123,7 +128,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchCommitment(long providerId, long commitmentId, LastAction latestAction)
         {
-            Logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for provider {providerId}");
+            _logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {

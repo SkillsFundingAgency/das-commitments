@@ -16,14 +16,17 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Web;
 using FluentValidation;
 using MediatR;
 using Microsoft.Azure;
 using SFA.DAS.Commitments.Application;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
+using SFA.DAS.Commitments.Infrastructure.Logging;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Events.Api.Client;
@@ -45,11 +48,11 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 {
                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
-                    scan.ConnectImplementationsToTypesClosing(typeof (AbstractValidator<>));
-                    scan.ConnectImplementationsToTypesClosing(typeof (IRequestHandler<,>));
-                    scan.ConnectImplementationsToTypesClosing(typeof (IAsyncRequestHandler<,>));
-                    scan.ConnectImplementationsToTypesClosing(typeof (INotificationHandler<>));
-                    scan.ConnectImplementationsToTypesClosing(typeof (IAsyncNotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
+                    scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
                 });
 
             var config = GetConfiguration();
@@ -60,6 +63,16 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
+
+            ConfigureLogging();
+        }
+
+        private void ConfigureLogging()
+        {
+            For<IRequestContext>().Use(x => new RequestContext(new HttpContextWrapper(HttpContext.Current)));
+            For<ILog>().Use(x => new NLogLogger(
+                x.ParentType,
+                x.GetInstance<IRequestContext>())).AlwaysUnique();
         }
 
         private static CommitmentsApiConfiguration GetConfiguration()

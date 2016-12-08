@@ -11,6 +11,7 @@ using FluentAssertions;
 using FluentValidation;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
@@ -25,7 +26,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object);
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new EmployerController(_employerOrchestrator);
         }
 

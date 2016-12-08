@@ -6,38 +6,40 @@ using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class UpdateApprenticeshipStatusCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly UpdateApprenticeshipStatusValidator _validator;
+        private readonly ICommitmentsLogger _logger;
 
-        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator)
+        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, ICommitmentsLogger logger)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _logger = logger;
         }
 
-        protected override async Task HandleCore(UpdateApprenticeshipStatusCommand message)
+        protected override async Task HandleCore(UpdateApprenticeshipStatusCommand command)
         {
-            Logger.Info($"Employer: {message.AccountId} has called UpdateApprenticeshipStatusCommand");
+            _logger.Info($"Employer: {command.AccountId} has called UpdateApprenticeshipStatusCommand", accountId: command.AccountId, commitmentId: command.CommitmentId, apprenticeshipId: command.ApprenticeshipId);
 
-            var validationResult = _validator.Validate(message);
+            var validationResult = _validator.Validate(command);
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
+            var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
-            CheckAuthorization(message, commitment);
+            CheckAuthorization(command, commitment);
 
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
-            var newPaymentStatus = (PaymentStatus) message.PaymentStatus.GetValueOrDefault((Api.Types.PaymentStatus) apprenticeship.PaymentStatus);
+            var apprenticeship = await _commitmentRepository.GetApprenticeship(command.ApprenticeshipId);
+            var newPaymentStatus = (PaymentStatus) command.PaymentStatus.GetValueOrDefault((Api.Types.PaymentStatus) apprenticeship.PaymentStatus);
 
-            await _commitmentRepository.UpdateApprenticeshipStatus(message.CommitmentId, message.ApprenticeshipId, newPaymentStatus);
+            await _commitmentRepository.UpdateApprenticeshipStatus(command.CommitmentId, command.ApprenticeshipId, newPaymentStatus);
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)

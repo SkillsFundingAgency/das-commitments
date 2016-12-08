@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
@@ -13,24 +12,29 @@ using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
     public class EmployerOrchestrator
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IMediator _mediator;
+        private readonly ICommitmentsLogger _logger;
 
-        public EmployerOrchestrator(IMediator mediator)
+        public EmployerOrchestrator(IMediator mediator, ICommitmentsLogger logger)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
         {
-            Logger.Info($"Getting commitments for employer account {accountId}");
+            _logger.Info($"Getting commitments for employer account {accountId}", accountId: accountId);
 
             return await _mediator.SendAsync(new GetCommitmentsRequest
             {
@@ -44,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetCommitmentResponse> GetCommitment(long accountId, long commitmentId)
         {
-            Logger.Info($"Getting commitment {commitmentId} for employer account {accountId}");
+            _logger.Info($"Getting commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
             return await _mediator.SendAsync(new GetCommitmentRequest
             {
@@ -59,7 +63,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<long> CreateCommitment(long accountId, Commitment commitment)
         {
-            Logger.Info($"Creating commitment for employer account {accountId}");
+            _logger.Info($"Creating commitment for employer account {accountId}", accountId: accountId);
 
             commitment.EmployerAccountId = accountId;
 
@@ -71,7 +75,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetApprenticeshipsResponse> GetApprenticeships(long accountId)
         {
-            Logger.Info($"Getting apprenticeships for employer account {accountId}");
+            _logger.Info($"Getting apprenticeships for employer account {accountId}", accountId: accountId);
 
             return await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
@@ -85,7 +89,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
         {
-            Logger.Info($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}");
+            _logger.Info($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
             return await _mediator.SendAsync(new GetApprenticeshipRequest
             {
@@ -100,7 +104,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship apprenticeship)
         {
-            Logger.Info($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}");
+            _logger.Info($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
             apprenticeship.CommitmentId = commitmentId;
 
@@ -118,7 +122,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
         {
-            Logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}");
+            _logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             apprenticeship.CommitmentId = commitmentId;
 
@@ -137,7 +141,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchCommitment(long accountId, long commitmentId, LastAction latestAction)
         {
-            Logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}");
+            _logger.Info($"Updating latest action to {latestAction} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
@@ -153,7 +157,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, PaymentStatus? paymentStatus)
         {
-            Logger.Info($"Updating payment status to {paymentStatus} for commitment {commitmentId} for employer account {accountId}");
+            _logger.Info($"Updating payment status to {paymentStatus} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
             {

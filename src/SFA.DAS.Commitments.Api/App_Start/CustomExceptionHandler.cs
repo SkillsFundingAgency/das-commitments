@@ -1,15 +1,16 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http.ExceptionHandling;
+using System.Web.Mvc;
 using FluentValidation;
-using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api
 {
     public class CustomExceptionHandler : ExceptionHandler
     {
-        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Logger = DependencyResolver.Current.GetService<ILog>();
 
         public override void Handle(ExceptionHandlerContext context)
         {
@@ -20,7 +21,7 @@ namespace SFA.DAS.Commitments.Api
                 response.Content = new StringContent(message);
                 context.Result = new CustomErrorResult(context.Request, response);
 
-                _logger.Warn(context.Exception, "Validation error");
+                Logger.Warn(context.Exception, "Validation error");
 
                 return;
             }
@@ -32,12 +33,12 @@ namespace SFA.DAS.Commitments.Api
                 response.Content = new StringContent(message);
                 context.Result = new CustomErrorResult(context.Request, response);
 
-                _logger.Warn(context.Exception, "Authorisation error");
+                Logger.Warn(context.Exception, "Authorisation error");
 
                 return;
             }
 
-            _logger.Error(context.Exception, "Unhandled exception");
+            Logger.Error(context.Exception, "Unhandled exception");
 
             base.Handle(context);
         }
