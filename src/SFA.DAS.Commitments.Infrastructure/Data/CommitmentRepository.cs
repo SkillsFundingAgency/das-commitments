@@ -78,12 +78,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await WithConnection<Commitment>(async c =>
             {
                 var parameters = new DynamicParameters();
-                parameters.Add($"@id", id);
+                parameters.Add("@commitmentId", id);
 
                 var lookup = new Dictionary<object, Commitment>();
                 var results = await c.QueryAsync(
-                    sql: $"SELECT c.*, a.* FROM [dbo].[CommitmentSummary] c LEFT JOIN [dbo].[ApprenticeshipSummary] a ON a.CommitmentId = c.Id WHERE c.Id = @id AND c.CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
+                    sql: $"[dbo].[GetCommitment]",
                     param: parameters,
+                    commandType:CommandType.StoredProcedure,
                     map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
                 return lookup.Values.SingleOrDefault();
