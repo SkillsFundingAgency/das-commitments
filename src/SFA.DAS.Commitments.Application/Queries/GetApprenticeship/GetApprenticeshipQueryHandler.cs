@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
             CheckAuthorization(message, apprenticeship);
 
-            return MapResponseFrom(apprenticeship);
+            return MapResponseFrom(apprenticeship, message.Caller.CallerType);
         }
 
         private static void CheckAuthorization(GetApprenticeshipRequest message, Apprenticeship apprenticeship)
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             }
         }
 
-        private static GetApprenticeshipResponse MapResponseFrom(Apprenticeship matchingApprenticeship)
+        private static GetApprenticeshipResponse MapResponseFrom(Apprenticeship matchingApprenticeship, CallerType callerType)
         {
             var response = new GetApprenticeshipResponse();
 
@@ -85,7 +85,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 DateOfBirth = matchingApprenticeship.DateOfBirth,
                 NINumber = matchingApprenticeship.NINumber,
                 EmployerRef = matchingApprenticeship.EmployerRef,
-                ProviderRef = matchingApprenticeship.ProviderRef
+                ProviderRef = matchingApprenticeship.ProviderRef,
+                CanBeApproved = callerType == CallerType.Employer ? matchingApprenticeship.EmployerCanApproveApprenticeship : matchingApprenticeship.ProviderCanApproveApprenticeship
             };
 
             return response;

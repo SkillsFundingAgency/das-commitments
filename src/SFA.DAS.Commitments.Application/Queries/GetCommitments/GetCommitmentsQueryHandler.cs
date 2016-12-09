@@ -51,7 +51,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         EditStatus = (EditStatus) x.EditStatus,
                         ApprenticeshipCount = x.ApprenticeshipCount,
                         AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                        LastAction = (LastAction) x.LastAction
+                        LastAction = (LastAction) x.LastAction,
+                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveCommitment : x.ProviderCanApproveCommitment
                     }
                     ).ToList()
             };

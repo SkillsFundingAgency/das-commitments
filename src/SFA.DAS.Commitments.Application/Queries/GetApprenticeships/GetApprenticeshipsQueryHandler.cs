@@ -51,7 +51,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         DateOfBirth = x.DateOfBirth,
                         NINumber = x.NINumber,
                         EmployerRef = x.EmployerRef,
-                        ProviderRef = x.ProviderRef
+                        ProviderRef = x.ProviderRef,
+                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
                     }
                     ).ToList()
             };
