@@ -5,12 +5,14 @@ using System.Web.Mvc;
 using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Logging;
 
 namespace SFA.DAS.Commitments.Api
 {
     public class CustomExceptionHandler : ExceptionHandler
     {
-        private static readonly ILog Logger = DependencyResolver.Current.GetService<ILog>();
+        //private static readonly ILog Logger = DependencyResolver.Current.GetService<ILog>();
+        private static readonly ILog Logger = new NLogLogger();
 
         public override void Handle(ExceptionHandlerContext context)
         {
