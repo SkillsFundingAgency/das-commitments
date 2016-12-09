@@ -67,10 +67,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     LegalEntityName = commitment.LegalEntityName,
                     CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
                     EditStatus = (EditStatus)commitment.EditStatus,
-                    AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment?.Apprenticeships),
+                    AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
                     LastAction = (LastAction)commitment.LastAction,
                     CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
-                    Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
+                    Apprenticeships = commitment.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,
                         ULN = x.ULN,
