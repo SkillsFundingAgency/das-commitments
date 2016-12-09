@@ -24,5 +24,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public AgreementStatus AgreementStatus { get; set; }
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }
+        public bool EmployerCanApproveApprenticeship { get; set; }
+        public bool ProviderCanApproveApprenticeship { get; set; }
     }
 }

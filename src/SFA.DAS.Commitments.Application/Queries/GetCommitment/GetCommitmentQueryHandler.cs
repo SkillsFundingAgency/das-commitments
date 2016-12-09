@@ -49,10 +49,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
             CheckAuthorization(message, commitment);
 
 
-            return MapResponseFrom(commitment);
+            return MapResponseFrom(commitment, message.Caller.CallerType);
         }
 
-        private GetCommitmentResponse MapResponseFrom(Domain.Entities.Commitment commitment)
+        private GetCommitmentResponse MapResponseFrom(Domain.Entities.Commitment commitment, CallerType callerType)
         {
             return new GetCommitmentResponse
             {
@@ -69,10 +69,15 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     EditStatus = (EditStatus)commitment.EditStatus,
                     AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment?.Apprenticeships),
                     LastAction = (LastAction)commitment.LastAction,
+                    CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
                     Apprenticeships = commitment?.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,
                         ULN = x.ULN,
+                        CommitmentId = x.CommitmentId,
+                        EmployerAccountId = x.EmployerAccountId,
+                        ProviderId = x.ProviderId,
+                        Reference = x.Reference,
                         FirstName = x.FirstName,
                         LastName = x.LastName,
                         TrainingType = (TrainingType)x.TrainingType,
@@ -86,7 +91,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         DateOfBirth = x.DateOfBirth,
                         NINumber = x.NINumber,
                         EmployerRef = x.EmployerRef,
-                        ProviderRef = x.ProviderRef
+                        ProviderRef = x.ProviderRef,
+                        CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
                     }).ToList()
                 }
             };

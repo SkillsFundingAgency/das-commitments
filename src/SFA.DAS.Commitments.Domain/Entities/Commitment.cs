@@ -20,6 +20,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public CommitmentStatus CommitmentStatus { get; set; }
         public EditStatus EditStatus { get; set; }
         public LastAction LastAction { get; set; }
+        public bool EmployerCanApproveCommitment { get; set; }
+        public bool ProviderCanApproveCommitment { get; set; }
 
         public List<Apprenticeship> Apprenticeships { get; set; }
     }
