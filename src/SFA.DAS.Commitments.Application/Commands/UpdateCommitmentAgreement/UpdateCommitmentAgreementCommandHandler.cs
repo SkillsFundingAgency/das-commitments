@@ -47,6 +47,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
 
+            if (command.LatestAction == Api.Types.LastAction.Approve)
+                CheckStateForApproval(commitment, command.Caller, command.LatestAction);
+
             var latestAction = (LastAction) command.LatestAction;
 
             // update apprenticeship agreement statuses
@@ -101,6 +104,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
                 throw new InvalidOperationException($"Commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
+
         }
 
         private static void CheckEditStatus(UpdateCommitmentAgreementCommand message, Commitment commitment)
@@ -131,6 +135,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
                     break;
             }
+        }
+
+        private void CheckStateForApproval(Commitment commitment, Caller caller, Api.Types.LastAction latestAction)
+        {
+            var canBeApprovedByParty = caller.CallerType == CallerType.Employer
+                ? commitment.EmployerCanApproveCommitment
+                : commitment.ProviderCanApproveCommitment;
+
+            if (!canBeApprovedByParty)
+                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be approved because apprentice information is incomplete");
         }
     }
 }
