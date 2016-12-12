@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
@@ -48,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
             CheckAuthorization(command, commitment);
             CheckEditStatus(command, commitment);
-            CheckCommitmentStatus(command, commitment);
+            CheckCommitmentStatus(commitment);
 
             var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command));
 
@@ -59,27 +58,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             await UpdateStatusOfApprenticeship(commitment);
 
             return apprenticeshipId;
-        }
-
-        private static void CheckCommitmentStatus(CreateApprenticeshipCommand message, Commitment commitment)
-        {
-            if (commitment.CommitmentStatus != Domain.Entities.CommitmentStatus.New && commitment.CommitmentStatus != Domain.Entities.CommitmentStatus.Active)
-                throw new InvalidOperationException($"Apprenticeship {message.Apprenticeship.Id} in commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
-        }
-
-        private static void CheckEditStatus(CreateApprenticeshipCommand message, Commitment commitment)
-        {
-            switch (message.Caller.CallerType)
-            {
-                case CallerType.Provider:
-                    if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to edit apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
-                    break;
-                case CallerType.Employer:
-                    if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to edit apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
-                    break;
-            }
         }
 
         private async Task UpdateStatusOfApprenticeship(Commitment commitment)
@@ -132,6 +110,27 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 default:
                     if (commitment.EmployerAccountId != message.Caller.Id)
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                    break;
+            }
+        }
+
+        private static void CheckCommitmentStatus(Commitment commitment)
+        {
+            if (commitment.CommitmentStatus != Domain.Entities.CommitmentStatus.New && commitment.CommitmentStatus != Domain.Entities.CommitmentStatus.Active)
+                throw new InvalidOperationException($"Cannot add apprenticeship in commitment {commitment.Id} because status is {commitment.CommitmentStatus}");
+        }
+
+        private static void CheckEditStatus(CreateApprenticeshipCommand message, Commitment commitment)
+        {
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.ProviderOnly)
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to add apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
+                    break;
+                case CallerType.Employer:
+                    if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.EmployerOnly)
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to add apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
                     break;
             }
         }

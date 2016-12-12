@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;

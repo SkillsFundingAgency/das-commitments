@@ -7,11 +7,14 @@ using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 
@@ -127,6 +130,57 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
+        }
+
+        [TestCase(EditStatus.ProviderOnly, CallerType.Provider)]
+        [TestCase(EditStatus.Both, CallerType.Provider)]
+        [TestCase(EditStatus.EmployerOnly, CallerType.Employer)]
+        [TestCase(EditStatus.Both, CallerType.Employer)]
+        public void ThenWhenEditStatusIsCorrectNoExceptionIsThrown(EditStatus editStatus, CallerType callerType)
+        {
+            var c = new Commitment { EditStatus = editStatus, ProviderId = 5L, EmployerAccountId = 5L };
+            _exampleValidRequest.Caller = new Caller { Id = 5L, CallerType = callerType };
+            _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldNotThrow<UnauthorizedException>();
+        }
+
+        [TestCase(EditStatus.EmployerOnly, CallerType.Provider)]
+        [TestCase(EditStatus.Neither, CallerType.Provider)]
+        [TestCase(EditStatus.ProviderOnly, CallerType.Employer)]
+        [TestCase(EditStatus.Neither, CallerType.Employer)]
+        public void ThenWhenEditStatusIsIncorrectAnInvalidRequestExceptionIsThrown(EditStatus editStatus, CallerType callerType)
+        {
+            var c = new Commitment { EditStatus = editStatus, ProviderId = 5L, EmployerAccountId = 5L, CommitmentStatus = CommitmentStatus.Active};
+            _exampleValidRequest.Caller = new Caller { Id = 5L, CallerType = callerType };
+            _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<UnauthorizedException>();
+        }
+
+        [TestCase(CommitmentStatus.Active)]
+        [TestCase(CommitmentStatus.New)]
+        public void ThenWhenCommitmentStatusIsCorrectNoExceptionIsThrown(CommitmentStatus commitmentStatus)
+        {
+            var c = new Commitment { EditStatus = EditStatus.EmployerOnly, ProviderId = 5L, EmployerAccountId = 5L, CommitmentStatus = commitmentStatus };
+            _exampleValidRequest.Caller = new Caller { Id = 5L, CallerType = CallerType.Employer };
+            _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldNotThrow<InvalidOperationException>();
+        }
+
+        [TestCase(CommitmentStatus.Deleted)]
+        public void ThenWhenCommitmentStatusIsIncorrectAnInvalidRequestExceptionIsThrown(CommitmentStatus commitmentStatus)
+        {
+            var c = new Commitment { EditStatus = EditStatus.EmployerOnly, ProviderId = 5L, EmployerAccountId = 5L, CommitmentStatus = commitmentStatus };
+            _exampleValidRequest.Caller = new Caller { Id = 5L, CallerType = CallerType.Employer };
+            _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<InvalidOperationException>();
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Apprenticeship argument)
