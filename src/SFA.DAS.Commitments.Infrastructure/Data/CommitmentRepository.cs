@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -275,6 +274,16 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 transaction: trans)).Single();
 
             return apprenticeshipId;
+        }
+
+        public async Task CreateApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
+        {
+            var sql = "INSERT INTO [dbo].[Apprenticeship] (CommitmentId, FirstName, LastName, DateOfBirth, NINumber" +
+                ",ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn)" +
+                " VALUES (@CommitmentId, @FirstName, @LastName, @DateOfBirth, @NINumber" +
+                ", @ULN, @TrainingType, @TrainingCode, @TrainingName, @Cost, @StartDate, @EndDate, @PaymentStatus, @AgreementStatus, @EmployerRef, @ProviderRef, @CreatedOn)";
+
+            await WithConnection(x => x.ExecuteAsync(sql, apprenticeships));
         }
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)

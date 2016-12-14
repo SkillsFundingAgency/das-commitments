@@ -24,9 +24,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
             if (validator == null)
-                throw new ArgumentNullException(nameof(_validator));
+                throw new ArgumentNullException(nameof(validator));
             if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(_apprenticeshipEvents));
+                throw new ArgumentNullException(nameof(apprenticeshipEvents));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
             _validator = validator;
@@ -43,6 +45,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            // TODO: Throw Exception if commitment doesn't exist
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
             CheckAuthorization(command, commitment);
@@ -143,11 +146,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);
             else
                 _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId);
-        }
-
-        private string BuildInfoMessage(CreateApprenticeshipCommand cmd)
-        {
-            return $"{cmd.Caller.CallerType}: {cmd.Caller.Id} has called CreateApprenticeshipCommand";
         }
     }
 }

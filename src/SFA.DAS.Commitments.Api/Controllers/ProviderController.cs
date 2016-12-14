@@ -100,9 +100,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/apprenticehi")]
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/bulk")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> BulkUpload(long providerId, long commitmentId, IList<Apprenticeship> apprenticeships)
+        public async Task<IHttpActionResult> PostBulkUpload(long providerId, long commitmentId, IList<Apprenticeship> apprenticeships)
         {
             // TODO: What should we return to the caller? list of urls?
             await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, apprenticeships);

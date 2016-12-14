@@ -83,6 +83,7 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
+    <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />

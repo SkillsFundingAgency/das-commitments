@@ -38,6 +38,18 @@ namespace SFA.DAS.Commitments.Api
                 return;
             }
 
+            if (context.Exception is ResourceNotFoundException)
+            {
+                var response = new HttpResponseMessage(HttpStatusCode.NotFound);
+                var message = ((ResourceNotFoundException)context.Exception).Message;
+                response.Content = new StringContent(message);
+                context.Result = new CustomErrorResult(context.Request, response);
+
+                Logger.Warn(context.Exception, "Unable to locate resource error");
+
+                return;
+            }
+
             Logger.Error(context.Exception, "Unhandled exception");
 
             base.Handle(context);

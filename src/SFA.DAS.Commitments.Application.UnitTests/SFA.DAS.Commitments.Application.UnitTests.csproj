@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApprenticeshipTestDataHelper.cs" />
+    <Compile Include="Commands\BulkUploadApprenticeships\WhenCreatingApprenticeships.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
