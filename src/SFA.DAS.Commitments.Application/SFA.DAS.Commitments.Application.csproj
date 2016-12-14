@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
+    <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
+    <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommandHandler.cs" />
+    <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsValidator.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipValidator.cs" />

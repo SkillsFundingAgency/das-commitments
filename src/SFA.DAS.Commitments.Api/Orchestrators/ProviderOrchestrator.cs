@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
@@ -123,6 +124,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
                 Apprenticeship = apprenticeship
+            });
+        }
+
+        public async Task CreateApprenticeships(long providerId, long commitmentId, IList<Apprenticeship> apprenticeships)
+        {
+            _logger.Info($"Bulk uploading {apprenticeships?.Count ?? 0} apprenticeships for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+
+            await _mediator.SendAsync(new BulkUploadApprenticeshipsCommand
+            {
+                Caller = new Caller(providerId, CallerType.Provider),
+                CommitmentId = commitmentId,
+                Apprenticeships = apprenticeships
             });
         }
 

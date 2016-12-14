@@ -8,7 +8,6 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
