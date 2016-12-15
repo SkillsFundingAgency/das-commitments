@@ -22,6 +22,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus);
         Task UpdateCommitmentReference(long commitmentId, string hashValue);
-        Task CreateApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships);
+        Task BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships);
     }
 }

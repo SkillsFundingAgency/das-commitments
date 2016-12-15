@@ -276,14 +276,60 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeshipId;
         }
 
-        public async Task CreateApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
+        public async Task BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
         {
-            var sql = "INSERT INTO [dbo].[Apprenticeship] (CommitmentId, FirstName, LastName, DateOfBirth, NINumber" +
-                ",ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn)" +
-                " VALUES (@CommitmentId, @FirstName, @LastName, @DateOfBirth, @NINumber" +
-                ", @ULN, @TrainingType, @TrainingCode, @TrainingName, @Cost, @StartDate, @EndDate, @PaymentStatus, @AgreementStatus, @EmployerRef, @ProviderRef, @CreatedOn)";
+            var table = BuildApprenticeshipDataTable(apprenticeships);
 
-            await WithConnection(x => x.ExecuteAsync(sql, apprenticeships));
+            await WithConnection(x => x.ExecuteAsync(
+                    sql: "[dbo].[BulkUploadApprenticships]", 
+                    commandType: CommandType.StoredProcedure, 
+                    param: new { @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
+                ));
+        }
+
+        private DataTable BuildApprenticeshipDataTable(IEnumerable<Apprenticeship> apprenticeships)
+        {
+            DataTable apprenticeshipsTable = CreateApprenticeshipsDataTable();
+
+            foreach (var apprenticeship in apprenticeships)
+            {
+                AddApprenticeshipToTable(apprenticeshipsTable, apprenticeship);
+            }
+
+            return apprenticeshipsTable;
+        }
+
+        private static DataTable CreateApprenticeshipsDataTable()
+        {
+            var apprenticeshipsTable = new DataTable();
+
+            apprenticeshipsTable.Columns.Add("CommitmentId", typeof(long));
+            apprenticeshipsTable.Columns.Add("FirstName", typeof(string));
+            apprenticeshipsTable.Columns.Add("LastName", typeof(string));
+            apprenticeshipsTable.Columns.Add("ULN", typeof(string));
+            apprenticeshipsTable.Columns.Add("TrainingType", typeof(int));
+            apprenticeshipsTable.Columns.Add("TrainingCode", typeof(string));
+            apprenticeshipsTable.Columns.Add("TrainingName", typeof(string));
+            apprenticeshipsTable.Columns.Add("Cost", typeof(decimal));
+            apprenticeshipsTable.Columns.Add("StartDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("EndDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("AgreementStatus", typeof(short));
+            apprenticeshipsTable.Columns.Add("PaymentStatus", typeof(short));
+            apprenticeshipsTable.Columns.Add("DateOfBirth", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("NINumber", typeof(string));
+            apprenticeshipsTable.Columns.Add("EmployerRef", typeof(string));
+            apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
+            apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
+            return apprenticeshipsTable;
+        }
+
+        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, Apprenticeship apprenticeship)
+        {
+            var a = apprenticeship;
+
+            return apprenticeshipsTable.Rows.Add(a.CommitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
+                                a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
+                                a.EmployerRef, a.ProviderRef, a.CreatedOn);
         }
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)

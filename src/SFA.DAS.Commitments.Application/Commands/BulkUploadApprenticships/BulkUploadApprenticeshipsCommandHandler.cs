@@ -56,11 +56,10 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
             // Need to return ids or do another select to get them all
-            await _commitmentRepository.CreateApprenticeships(command.CommitmentId, apprenticeships);
+            await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
 
             // TODO: Need to publish Created events
             //await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
-            //await UpdateStatusOfApprenticeship(commitment);
         }
 
         //TODO: Can this mapping be shared with CreateApprenticeshipCommand
@@ -75,16 +74,16 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 NINumber = apprenticeship.NINumber,
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
-                PaymentStatus = PaymentStatus.PendingApproval, // TODO: Should we allow these to be set?
-                AgreementStatus = AgreementStatus.NotAgreed, // TODO: Should we allow these to be set?
+                PaymentStatus = PaymentStatus.PendingApproval,
+                AgreementStatus = AgreementStatus.NotAgreed,
                 TrainingType = (TrainingType)apprenticeship.TrainingType,
                 TrainingCode = apprenticeship.TrainingCode,
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
                 EndDate = apprenticeship.EndDate,
-                EmployerRef = apprenticeship.EmployerRef,
-                ProviderRef = apprenticeship.ProviderRef,
+                EmployerRef = apprenticeship.EmployerRef, // TODO: Set this based on caller
+                ProviderRef = apprenticeship.ProviderRef, // TODO: Set this based on caller
                 CreatedOn = DateTime.UtcNow // TODO: Should this be done in the repository?
             };
 
