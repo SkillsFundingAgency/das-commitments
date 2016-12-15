@@ -31,6 +31,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Client.Configuration;
+using SFA.DAS.NLog.Logger;
 using StructureMap;
 using StructureMap.Graph;
 
