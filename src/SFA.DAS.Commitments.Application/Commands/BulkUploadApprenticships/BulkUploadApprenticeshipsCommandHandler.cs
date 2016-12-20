@@ -58,8 +58,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             var insertedApprenticeships = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
 
             // TODO: Need better way to publish all these events
-
-            //await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
+            await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
         }
 
         //TODO: Can this mapping be shared with CreateApprenticeshipCommand
