@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
     {
         public BulkUploadApprenticeshipsValidator()
         {
-            RuleFor(x => x.Apprenticeships).NotNull().SetCollectionValidator(new ApprenticeshipValidator());
+            RuleFor(x => x.Apprenticeships).NotEmpty().SetCollectionValidator(new ApprenticeshipValidator());
             RuleFor(x => x.CommitmentId).GreaterThan(0);
             Custom(request =>
             {

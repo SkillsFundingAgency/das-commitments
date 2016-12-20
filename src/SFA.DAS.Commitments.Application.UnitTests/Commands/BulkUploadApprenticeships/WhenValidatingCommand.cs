@@ -52,6 +52,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             result.IsValid.Should().BeFalse();
         }
 
+        public void ThenIsInvalidIfApprenticeshipsIsEmpty()
+        {
+            _exampleCommand.Apprenticeships = new List<Apprenticeship>();
+            _exampleCommand.Caller = new Caller
+            {
+                CallerType = CallerType.Employer,
+                Id = 1
+            };
+
+            var result = _validator.Validate(_exampleCommand);
+
+            result.IsValid.Should().BeFalse();
+        }
+
         [TestCase(0)]
         [TestCase(-2)]
         public void ThenCommitmentIdIsLessThanOneIsInvalid(long commitmentId)

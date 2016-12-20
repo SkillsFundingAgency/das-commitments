@@ -61,7 +61,6 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
         }
 
-        //TODO: Can this mapping be shared with CreateApprenticeshipCommand
         private Domain.Entities.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
         {
             var domainApprenticeship = new Apprenticeship
@@ -98,7 +97,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
         private void LogMessage(BulkUploadApprenticeshipsCommand command)
         {
-            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called BulkUploadApprenticeshipsCommand";
+            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called BulkUploadApprenticeshipsCommand with {command.Apprenticeships?.Count ?? 0} apprenticeships";
 
             if (command.Caller.CallerType == CallerType.Employer)
                 _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);

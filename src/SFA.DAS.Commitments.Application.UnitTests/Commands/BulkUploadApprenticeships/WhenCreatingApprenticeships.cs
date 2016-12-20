@@ -53,6 +53,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldCallCommitmentRepository()
         {
+            _mockCommitmentRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>()), Times.Once);
