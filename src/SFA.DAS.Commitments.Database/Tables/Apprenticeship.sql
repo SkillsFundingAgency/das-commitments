@@ -18,5 +18,7 @@
     [EmployerRef] NVARCHAR(50) NULL, 
     [ProviderRef] NVARCHAR(50) NULL, 
     [CreatedOn] DATETIME NULL, 
+    [AgreedOn] DATETIME NULL, 
+    [PaymentOrder] INT NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 )
