@@ -48,15 +48,14 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             if (commitment == null)
                 throw new ResourceNotFoundException($"Provider { command.Caller.Id } specified a non-existant Commitment { command.CommitmentId}");
 
-            // TODO: Can we share this accross handlers?
+            // TODO: This logic can be shared between handlers.
             CheckAuthorization(command, commitment);
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
-            // Need to return ids or do another select to get them all
-            await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
+            var insertedIds = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
 
             // TODO: Need to publish Created events
             //await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");

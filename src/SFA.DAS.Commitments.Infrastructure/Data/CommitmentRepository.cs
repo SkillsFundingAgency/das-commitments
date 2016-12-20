@@ -276,15 +276,39 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeshipId;
         }
 
-        public async Task BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
+        public async Task<IList<long>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
         {
             var table = BuildApprenticeshipDataTable(apprenticeships);
 
-            await WithConnection(x => x.ExecuteAsync(
-                    sql: "[dbo].[BulkUploadApprenticships]", 
-                    commandType: CommandType.StoredProcedure, 
-                    param: new { @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
-                ));
+            var ids = await WithConnection(x => UploadApprenticeshipsAndGetIds(commitmentId, x, table));
+
+            return ids;
+        }
+
+        private async static Task<IList<long>> UploadApprenticeshipsAndGetIds(long commitmentId, IDbConnection x, DataTable table)
+        {
+            IEnumerable<long> ids;
+
+            using (var tran = x.BeginTransaction()) // TODO: Set Isolation Level
+            {
+                await x.ExecuteAsync(
+                            sql: "[dbo].[BulkUploadApprenticships]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: new { @commitmentId = commitmentId, @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
+                        );
+
+                ids = await x.QueryAsync<long>(
+                            sql: "SELECT Id FROM [dbo].[Apprenticeship] WHERE CommitmentId = @commitmentId",
+                            transaction: tran,
+                            commandType: CommandType.Text,
+                            param: new { @commitmentId = commitmentId }
+                        );
+
+                tran.Commit();
+            }
+
+            return ids.ToList();
         }
 
         private DataTable BuildApprenticeshipDataTable(IEnumerable<Apprenticeship> apprenticeships)
@@ -303,7 +327,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             var apprenticeshipsTable = new DataTable();
 
-            apprenticeshipsTable.Columns.Add("CommitmentId", typeof(long));
             apprenticeshipsTable.Columns.Add("FirstName", typeof(string));
             apprenticeshipsTable.Columns.Add("LastName", typeof(string));
             apprenticeshipsTable.Columns.Add("ULN", typeof(string));
@@ -327,7 +350,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             var a = apprenticeship;
 
-            return apprenticeshipsTable.Rows.Add(a.CommitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
+            return apprenticeshipsTable.Rows.Add(a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
                                 a.EmployerRef, a.ProviderRef, a.CreatedOn);
         }
