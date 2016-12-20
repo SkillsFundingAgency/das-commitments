@@ -72,22 +72,28 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<Commitment> GetCommitmentById(long id)
         {
+            return await WithConnection(c =>
+            {
+                return GetCommitment(id, c);
+            });
+        }
+
+        private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
+        {
+            var lookup = new Dictionary<object, Commitment>();
             var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
 
-            return await WithConnection<Commitment>(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@commitmentId", id);
+            var parameters = new DynamicParameters();
+            parameters.Add("@commitmentId", commitmentId);
 
-                var lookup = new Dictionary<object, Commitment>();
-                var results = await c.QueryAsync(
-                    sql: $"[dbo].[GetCommitment]",
-                    param: parameters,
-                    commandType:CommandType.StoredProcedure,
-                    map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
+            var results = await connection.QueryAsync(
+                sql: $"[dbo].[GetCommitment]",
+                param: parameters,
+                transaction: transation,
+                commandType: CommandType.StoredProcedure,
+                map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
-                return lookup.Values.SingleOrDefault();
-            });
+            return lookup.Values.SingleOrDefault();
         }
 
         public async Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId)
@@ -276,18 +282,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeshipId;
         }
 
-        public async Task<IList<long>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
+        public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
         {
             var table = BuildApprenticeshipDataTable(apprenticeships);
 
-            var ids = await WithConnection(x => UploadApprenticeshipsAndGetIds(commitmentId, x, table));
+            var insertedApprenticeships = await WithConnection(x => UploadApprenticeshipsAndGetIds(commitmentId, x, table));
 
-            return ids;
+            return insertedApprenticeships;
         }
 
-        private async static Task<IList<long>> UploadApprenticeshipsAndGetIds(long commitmentId, IDbConnection x, DataTable table)
+        private async static Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, IDbConnection x, DataTable table)
         {
-            IEnumerable<long> ids;
+            IList<Apprenticeship> apprenticeships;
 
             using (var tran = x.BeginTransaction()) // TODO: Set Isolation Level
             {
@@ -298,17 +304,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                             param: new { @commitmentId = commitmentId, @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
                         );
 
-                ids = await x.QueryAsync<long>(
-                            sql: "SELECT Id FROM [dbo].[Apprenticeship] WHERE CommitmentId = @commitmentId",
-                            transaction: tran,
-                            commandType: CommandType.Text,
-                            param: new { @commitmentId = commitmentId }
-                        );
+                var commitment = await GetCommitment(commitmentId, x, tran);
+                apprenticeships = commitment.Apprenticeships;
 
                 tran.Commit();
             }
 
-            return ids.ToList();
+            return apprenticeships.ToList();
         }
 
         private DataTable BuildApprenticeshipDataTable(IEnumerable<Apprenticeship> apprenticeships)

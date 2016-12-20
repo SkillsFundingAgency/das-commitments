@@ -55,9 +55,10 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
-            var insertedIds = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
+            var insertedApprenticeships = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
 
-            // TODO: Need to publish Created events
+            // TODO: Need better way to publish all these events
+
             //await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
         }
 
