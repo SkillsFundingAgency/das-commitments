@@ -47,6 +47,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\CommitmentSummary.cs" />

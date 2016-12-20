@@ -81,13 +81,20 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate,
-                EmployerRef = apprenticeship.EmployerRef, // TODO: Set this based on caller
-                ProviderRef = apprenticeship.ProviderRef, // TODO: Set this based on caller
-                CreatedOn = DateTime.UtcNow // TODO: Should this be done in the repository?
+                EndDate = apprenticeship.EndDate
             };
 
+            SetCallerSpecificReference(domainApprenticeship, apprenticeship, message.Caller.CallerType);
+
             return domainApprenticeship;
+        }
+
+        private static void SetCallerSpecificReference(Apprenticeship domainApprenticeship, Api.Types.Apprenticeship apiApprenticeship, CallerType callerType)
+        {
+            if (callerType.IsEmployer())
+                domainApprenticeship.EmployerRef = apiApprenticeship.EmployerRef;
+            else
+                domainApprenticeship.ProviderRef = apiApprenticeship.ProviderRef;
         }
 
         private void LogMessage(BulkUploadApprenticeshipsCommand command)

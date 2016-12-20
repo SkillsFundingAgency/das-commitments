@@ -354,7 +354,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return apprenticeshipsTable.Rows.Add(a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                                a.EmployerRef, a.ProviderRef, a.CreatedOn);
+                                a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
         }
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)
