@@ -67,6 +67,7 @@
     <Build Include="Views\CommitmentSummary.sql" />
     <Build Include="Views\ApprenticeshipSummary.sql" />
     <Build Include="StoredProcedures\GetCommitment.sql" />
+    <Build Include="StoredProcedures\SetPaymentOrder.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
