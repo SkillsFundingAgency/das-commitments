@@ -26,5 +26,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string ProviderRef { get; set; }
         public bool EmployerCanApproveApprenticeship { get; set; }
         public bool ProviderCanApproveApprenticeship { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

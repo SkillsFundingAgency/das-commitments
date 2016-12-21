@@ -60,6 +60,7 @@
     <Folder Include="Tables" />
     <Folder Include="Views" />
     <Folder Include="StoredProcedures" />
+    <Folder Include="UserDefinedTypes" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -67,6 +68,8 @@
     <Build Include="Views\CommitmentSummary.sql" />
     <Build Include="Views\ApprenticeshipSummary.sql" />
     <Build Include="StoredProcedures\GetCommitment.sql" />
+    <Build Include="UserDefinedTypes\ApprenticeshipTable.sql" />
+    <Build Include="StoredProcedures\BulkUploadApprenticships.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
   </ItemGroup>
   <ItemGroup>

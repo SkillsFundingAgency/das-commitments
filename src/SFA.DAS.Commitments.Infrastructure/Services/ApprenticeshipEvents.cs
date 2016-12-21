@@ -7,8 +7,6 @@ using SFA.DAS.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    using NLog;
-
     using AgreementStatus = SFA.DAS.Events.Api.Types.AgreementStatus;
     using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 

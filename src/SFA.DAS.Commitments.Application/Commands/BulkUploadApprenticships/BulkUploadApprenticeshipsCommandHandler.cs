@@ -1,25 +1,24 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
-namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
+namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 {
-    public sealed class CreateApprenticeshipCommandHandler : IAsyncRequestHandler<CreateApprenticeshipCommand, long>
+    public sealed class BulkUploadApprenticeshipsCommandHandler : AsyncRequestHandler<BulkUploadApprenticeshipsCommand>
     {
-        private readonly ICommitmentRepository _commitmentRepository;
-        private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
-        private readonly IApprenticeshipEvents _apprenticeshipEvents;
-        private readonly ICommitmentsLogger _logger;
+        private BulkUploadApprenticeshipsValidator _validator;
+        private ICommitmentsLogger _logger;
+        private ICommitmentRepository _commitmentRepository;
+        private IApprenticeshipEvents _apprenticeshipEvents;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository, BulkUploadApprenticeshipsValidator validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -36,7 +35,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             _logger = logger;
         }
 
-        public async Task<long> Handle(CreateApprenticeshipCommand command)
+        protected override async Task HandleCore(BulkUploadApprenticeshipsCommand command)
         {
             LogMessage(command);
 
@@ -45,39 +44,26 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            // TODO: Throw Exception if commitment doesn't exist
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            if (commitment == null)
+                throw new ResourceNotFoundException($"Provider { command.Caller.Id } specified a non-existant Commitment { command.CommitmentId}");
 
+            // TODO: This logic can be shared between handlers.
             CheckAuthorization(command, commitment);
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
-            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command));
+            var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
-            command.Apprenticeship.Id = apprenticeshipId;
+            var insertedApprenticeships = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
 
-            await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
-
-            await UpdateStatusOfApprenticeship(commitment);
-
-            return apprenticeshipId;
+            // TODO: Need better way to publish all these events
+            await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
         }
 
-        private async Task UpdateStatusOfApprenticeship(Commitment commitment)
+        private Domain.Entities.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
         {
-            // TODO: Should we do just a blanket update accross all apprenticeships in the Commitment?
-            foreach (var apprenticeship in commitment.Apprenticeships)
-            {
-                if (apprenticeship.AgreementStatus != Domain.Entities.AgreementStatus.NotAgreed)
-                {
-                    await _commitmentRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, Domain.Entities.AgreementStatus.NotAgreed);
-                }
-            }
-        }
-
-        private Domain.Entities.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
-        {
-            var domainApprenticeship = new Domain.Entities.Apprenticeship
+            var domainApprenticeship = new Apprenticeship
             {
                 Id = apprenticeship.Id,
                 FirstName = apprenticeship.FirstName,
@@ -87,21 +73,39 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
                 PaymentStatus = PaymentStatus.PendingApproval,
-                AgreementStatus = (Domain.Entities.AgreementStatus) apprenticeship.AgreementStatus,
-                TrainingType = (Domain.Entities.TrainingType) apprenticeship.TrainingType,
+                AgreementStatus = AgreementStatus.NotAgreed,
+                TrainingType = (TrainingType)apprenticeship.TrainingType,
                 TrainingCode = apprenticeship.TrainingCode,
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate,
-                EmployerRef = apprenticeship.EmployerRef,
-                ProviderRef = apprenticeship.ProviderRef
+                EndDate = apprenticeship.EndDate
             };
+
+            SetCallerSpecificReference(domainApprenticeship, apprenticeship, message.Caller.CallerType);
 
             return domainApprenticeship;
         }
 
-        private static void CheckAuthorization(CreateApprenticeshipCommand message, Commitment commitment)
+        private static void SetCallerSpecificReference(Apprenticeship domainApprenticeship, Api.Types.Apprenticeship apiApprenticeship, CallerType callerType)
+        {
+            if (callerType.IsEmployer())
+                domainApprenticeship.EmployerRef = apiApprenticeship.EmployerRef;
+            else
+                domainApprenticeship.ProviderRef = apiApprenticeship.ProviderRef;
+        }
+
+        private void LogMessage(BulkUploadApprenticeshipsCommand command)
+        {
+            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called BulkUploadApprenticeshipsCommand with {command.Apprenticeships?.Count ?? 0} apprenticeships";
+
+            if (command.Caller.CallerType == CallerType.Employer)
+                _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);
+            else
+                _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId);
+        }
+
+        private static void CheckAuthorization(BulkUploadApprenticeshipsCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)
             {
@@ -123,29 +127,19 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 throw new InvalidOperationException($"Cannot add apprenticeship in commitment {commitment.Id} because status is {commitment.CommitmentStatus}");
         }
 
-        private static void CheckEditStatus(CreateApprenticeshipCommand message, Commitment commitment)
+        private static void CheckEditStatus(BulkUploadApprenticeshipsCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to add apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to add apprenticeships to commitment {message.CommitmentId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to add apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to add apprenticeship to commitment {message.CommitmentId}");
                     break;
             }
-        }
-
-        private void LogMessage(CreateApprenticeshipCommand command)
-        {
-            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called CreateApprenticeshipCommand";
-
-            if (command.Caller.CallerType == CallerType.Employer)
-                _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);
-            else
-                _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId);
         }
     }
 }

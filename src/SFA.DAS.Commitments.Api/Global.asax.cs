@@ -1,7 +1,6 @@
 ﻿using System.Web.Http;
 using NLog.Targets;
-using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Logging;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Api
 {

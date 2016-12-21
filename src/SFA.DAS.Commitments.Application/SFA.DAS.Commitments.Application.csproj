@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
+    <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
+    <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommandHandler.cs" />
+    <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsValidator.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommand.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\CreateApprenticeship\CreateApprenticeshipValidator.cs" />
@@ -80,6 +83,7 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
+    <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />

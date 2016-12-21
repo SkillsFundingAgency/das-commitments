@@ -1,17 +1,14 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http.ExceptionHandling;
-using System.Web.Mvc;
 using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Logging;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Api
 {
     public class CustomExceptionHandler : ExceptionHandler
     {
-        //private static readonly ILog Logger = DependencyResolver.Current.GetService<ILog>();
         private static readonly ILog Logger = new NLogLogger();
 
         public override void Handle(ExceptionHandlerContext context)
@@ -36,6 +33,18 @@ namespace SFA.DAS.Commitments.Api
                 context.Result = new CustomErrorResult(context.Request, response);
 
                 Logger.Warn(context.Exception, "Authorisation error");
+
+                return;
+            }
+
+            if (context.Exception is ResourceNotFoundException)
+            {
+                var response = new HttpResponseMessage(HttpStatusCode.NotFound);
+                var message = ((ResourceNotFoundException)context.Exception).Message;
+                response.Content = new StringContent(message);
+                context.Result = new CustomErrorResult(context.Request, response);
+
+                Logger.Warn(context.Exception, "Unable to locate resource error");
 
                 return;
             }

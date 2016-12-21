@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenAccountIdNotSetAndProviderIdIsGreaterThanZeroIsValid()
+        public void ThenIdIsGreaterThanZeroIsValid()
         {
             _exampleCommand.Caller = new Caller
             {
@@ -79,41 +79,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         [TestCase(0)]
         [TestCase(-2)]
-        public void ThenIfAccouuntIdNotSetAndProviderIdIsLessThanOneIsInvalid(long providerId)
+        public void ThenIfIdIsLessThanOneIsInvalid(long id)
         {
             _exampleCommand.Caller = new Caller
             {
                 CallerType = CallerType.Provider,
-                Id = providerId
-            };
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [Test]
-        public void ThenProviderIdNotSetAndAccountIdIsGreaterThanZeroIsValid()
-        {
-            _exampleCommand.Caller = new Caller
-            {
-                CallerType = CallerType.Employer,
-                Id = 12
-            };
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeTrue();
-        }
-
-        [TestCase(0)]
-        [TestCase(-2)]
-        public void ThenProviderIdNotSetAndAccountIdIsLessThanOneIsInvalid(long accountId)
-        {
-            _exampleCommand.Caller = new Caller
-            {
-                CallerType = CallerType.Employer,
-                Id = accountId
+                Id = id
             };
 
             var result = _validator.Validate(_exampleCommand);

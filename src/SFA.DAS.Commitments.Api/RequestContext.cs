@@ -1,5 +1,5 @@
 ﻿using System.Web;
-using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Api
 {

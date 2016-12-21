@@ -4,7 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using NLog;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -26,6 +25,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> Create(Commitment commitment)
         {
+            _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
+
             return await WithConnection(async connection =>
             {
                 long commitmentId;
@@ -56,6 +57,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                     foreach (var apprenticeship in commitment.Apprenticeships)
                     {
+                        _logger.Debug($"Creating apprenticeship in new commitment - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId, commitmentId: commitmentId);
                         apprenticeship.CommitmentId = commitmentId;
                         await CreateApprenticeship(connection, trans, apprenticeship);
                     }
@@ -68,26 +70,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
         {
+            _logger.Debug($"Creating apprenticeship - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId);
             return await WithConnection(async connection => { return await CreateApprenticeship(connection, null, apprenticeship); });
         }
 
         public async Task<Commitment> GetCommitmentById(long id)
         {
-            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
-
-            return await WithConnection<Commitment>(async c =>
+            return await WithConnection(c =>
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("@commitmentId", id);
-
-                var lookup = new Dictionary<object, Commitment>();
-                var results = await c.QueryAsync(
-                    sql: $"[dbo].[GetCommitment]",
-                    param: parameters,
-                    commandType:CommandType.StoredProcedure,
-                    map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
-
-                return lookup.Values.SingleOrDefault();
+                return GetCommitment(id, c);
             });
         }
 
@@ -170,6 +161,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
         {
+            _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
+
             await WithConnection(async connection =>
             {
                 var parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
@@ -230,6 +223,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateCommitmentReference(long commitmentId, string hashValue)
         {
+            _logger.Debug($"Updating Commitment Reference {hashValue} for commitment {commitmentId}", commitmentId: commitmentId);
+
             await WithConnection(async connection =>
             {
                 var parameters = new DynamicParameters();
@@ -277,7 +272,36 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return results.SingleOrDefault();
         }
 
-        private static async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
+        public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
+        {
+            _logger.Debug($"Bulk upload {apprenticeships.Count()} apprenticeships for commitment {commitmentId}", commitmentId: commitmentId);
+
+            var table = BuildApprenticeshipDataTable(apprenticeships);
+
+            var insertedApprenticeships = await WithConnection(x => UploadApprenticeshipsAndGetIds(commitmentId, x, table));
+
+            return insertedApprenticeships;
+        }
+
+        private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
+        {
+            var lookup = new Dictionary<object, Commitment>();
+            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@commitmentId", commitmentId);
+
+            var results = await connection.QueryAsync(
+                sql: $"[dbo].[GetCommitment]",
+                param: parameters,
+                transaction: transation,
+                commandType: CommandType.StoredProcedure,
+                map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
+
+            return lookup.Values.SingleOrDefault();
+        }
+
+        private async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
         {
             var parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
 
@@ -291,6 +315,72 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 transaction: trans)).Single();
 
             return apprenticeshipId;
+        }
+
+        private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, IDbConnection x, DataTable table)
+        {
+            IList<Apprenticeship> apprenticeships;
+
+            using (var tran = x.BeginTransaction()) // TODO: Set Isolation Level
+            {
+                await x.ExecuteAsync(
+                            sql: "[dbo].[BulkUploadApprenticships]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: new { @commitmentId = commitmentId, @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
+                        );
+
+                var commitment = await GetCommitment(commitmentId, x, tran);
+                apprenticeships = commitment.Apprenticeships;
+
+                tran.Commit();
+            }
+
+            return apprenticeships.ToList();
+        }
+
+        private DataTable BuildApprenticeshipDataTable(IEnumerable<Apprenticeship> apprenticeships)
+        {
+            DataTable apprenticeshipsTable = CreateApprenticeshipsDataTable();
+
+            foreach (var apprenticeship in apprenticeships)
+            {
+                AddApprenticeshipToTable(apprenticeshipsTable, apprenticeship);
+            }
+
+            return apprenticeshipsTable;
+        }
+
+        private static DataTable CreateApprenticeshipsDataTable()
+        {
+            var apprenticeshipsTable = new DataTable();
+
+            apprenticeshipsTable.Columns.Add("FirstName", typeof(string));
+            apprenticeshipsTable.Columns.Add("LastName", typeof(string));
+            apprenticeshipsTable.Columns.Add("ULN", typeof(string));
+            apprenticeshipsTable.Columns.Add("TrainingType", typeof(int));
+            apprenticeshipsTable.Columns.Add("TrainingCode", typeof(string));
+            apprenticeshipsTable.Columns.Add("TrainingName", typeof(string));
+            apprenticeshipsTable.Columns.Add("Cost", typeof(decimal));
+            apprenticeshipsTable.Columns.Add("StartDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("EndDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("AgreementStatus", typeof(short));
+            apprenticeshipsTable.Columns.Add("PaymentStatus", typeof(short));
+            apprenticeshipsTable.Columns.Add("DateOfBirth", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("NINumber", typeof(string));
+            apprenticeshipsTable.Columns.Add("EmployerRef", typeof(string));
+            apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
+            apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
+            return apprenticeshipsTable;
+        }
+
+        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, Apprenticeship apprenticeship)
+        {
+            var a = apprenticeship;
+
+            return apprenticeshipsTable.Rows.Add(a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
+                                a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
+                                a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
         }
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)
