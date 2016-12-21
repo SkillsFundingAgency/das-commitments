@@ -71,9 +71,14 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         private void ConfigureLogging()
         {
             For<IRequestContext>().Use(x => new RequestContext(new HttpContextWrapper(HttpContext.Current)));
-            For<ILog>().Use(x => new NLogLogger(
-                x.ParentType,
-                x.GetInstance<IRequestContext>())).AlwaysUnique();
+
+            For<ICommitmentsLogger>().Use(x => GetBaseLogger(x)).AlwaysUnique();
+        }
+
+        private ICommitmentsLogger GetBaseLogger(IContext x)
+        {
+            var parentType = x.ParentType;
+            return new CommitmentsLogger(new NLogLogger(parentType, x.GetInstance<IRequestContext>()));
         }
 
         private static CommitmentsApiConfiguration GetConfiguration()
