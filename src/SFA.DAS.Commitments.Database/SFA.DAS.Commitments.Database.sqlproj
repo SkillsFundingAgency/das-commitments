@@ -70,6 +70,7 @@
     <Build Include="StoredProcedures\GetCommitment.sql" />
     <Build Include="UserDefinedTypes\ApprenticeshipTable.sql" />
     <Build Include="StoredProcedures\BulkUploadApprenticships.sql" />
+    <Build Include="StoredProcedures\SetPaymentOrder.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

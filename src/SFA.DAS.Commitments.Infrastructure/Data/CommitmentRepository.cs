@@ -240,6 +240,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task SetPaymentOrder(long accountId)
+        {
+            await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@employerAccountId", accountId);
+
+                var returnCode = await c.QueryAsync(
+                    sql: "[dbo].[SetPaymentOrder]", 
+                    param: parameters, 
+                    commandType: CommandType.StoredProcedure);
+
+                return returnCode;
+            });
+        }
+
         public async Task<Apprenticeship> GetApprenticeship(long id)
         {
             var results = await WithConnection(async c =>

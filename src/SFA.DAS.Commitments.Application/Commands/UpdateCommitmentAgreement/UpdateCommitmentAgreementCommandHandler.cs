@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
-using NLog;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -48,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckAuthorization(command, commitment);
 
             if (command.LatestAction == Api.Types.LastAction.Approve)
-                CheckStateForApproval(commitment, command.Caller, command.LatestAction);
+                CheckStateForApproval(commitment, command.Caller);
 
             var latestAction = (LastAction) command.LatestAction;
 
@@ -57,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             {
                 var hasChanged = false;
 
-                //todo: extract status stuff outside loop and set all apprenticeships to same agreement status
+                //todo: extract status stuff outside loop and set all apprenticeships to same agreement status?
                 var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
                 var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
 
@@ -88,6 +87,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             await _commitmentRepository.UpdateEditStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count));
             await _commitmentRepository.UpdateCommitmentStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
             await _commitmentRepository.UpdateLastAction(command.CommitmentId, latestAction);
+            ;
         }
 
         private void LogMessage(UpdateCommitmentAgreementCommand command)
@@ -137,7 +137,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             }
         }
 
-        private void CheckStateForApproval(Commitment commitment, Caller caller, Api.Types.LastAction latestAction)
+        private static void CheckStateForApproval(Commitment commitment, Caller caller)
         {
             var canBeApprovedByParty = caller.CallerType == CallerType.Employer
                 ? commitment.EmployerCanApproveCommitment
