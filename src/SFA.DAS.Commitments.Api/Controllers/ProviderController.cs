@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(commitments);
         }
 
-        [Route("{providerId}/commitments/{commitmentId}")]
+        [Route("{providerId}/commitments/{commitmentId}", Name = "GetCommitmentForProvider")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitment(long providerId, long commitmentId)
         {
@@ -107,7 +107,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             // TODO: What should we return to the caller? list of urls?
             await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, apprenticeships);
 
-            return StatusCode(HttpStatusCode.Created);
+            return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = commitmentId }, default(Commitment));
         }
     }
 }
