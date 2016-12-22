@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             var updatedApprenticeship = MapFrom(command.Apprenticeship, command);
 
-            var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequireAgreement(apprenticeship, updatedApprenticeship);
+            var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(apprenticeship, updatedApprenticeship);
 
             updatedApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, doChangesRequireAgreement);
             updatedApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, doChangesRequireAgreement);

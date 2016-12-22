@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -18,8 +19,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICommitmentsLogger _logger;
+        private readonly IMediator _mediator;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IMediator mediator)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -34,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
+            _mediator = mediator;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand command)
@@ -75,7 +78,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 if (hasChanged)
                 {
                     var updatedApprenticeship = await _commitmentRepository.GetApprenticeship(apprenticeship.Id);
-                    await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
+                    await _apprenticeshipEvents.PublishEvent(updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
                 }
             }
 
@@ -83,11 +86,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
             // update commitment statuses
-            // TODO: Should we combine these into a single update?
             await _commitmentRepository.UpdateEditStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count));
             await _commitmentRepository.UpdateCommitmentStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
             await _commitmentRepository.UpdateLastAction(command.CommitmentId, latestAction);
-            ;
+
+            // recalculate payment order for all the employer account's apprenticeships if necessary
+            await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
         }
 
         private void LogMessage(UpdateCommitmentAgreementCommand command)
@@ -104,7 +108,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
                 throw new InvalidOperationException($"Commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
-
         }
 
         private static void CheckEditStatus(UpdateCommitmentAgreementCommand message, Commitment commitment)
@@ -145,6 +148,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             if (!canBeApprovedByParty)
                 throw new InvalidOperationException($"Commitment {commitment.Id} cannot be approved because apprentice information is incomplete");
+        }
+
+        private async Task SetPaymentOrderIfNeeded(Caller caller, long employerAccountId, int apprenticeshipsCount, LastAction latestAction, bool areAnyApprenticeshipsPendingAgreement)
+        {
+            if (latestAction == LastAction.Approve && apprenticeshipsCount > 0 && !areAnyApprenticeshipsPendingAgreement)
+            {
+                await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = employerAccountId});
+            }
         }
     }
 }

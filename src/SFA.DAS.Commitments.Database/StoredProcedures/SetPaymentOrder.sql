@@ -10,7 +10,7 @@ SET
 	PaymentOrder = npo.NewPaymentOrder
 FROM
     (
-		SELECT TOP 100000
+		SELECT TOP 1000000
 			a.Id AS ApprenticeshipId,
 			ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS [NewPaymentOrder]
 		FROM (
@@ -26,8 +26,6 @@ FROM
 				c.Id = a.CommitmentId
 			WHERE 
 				c.EmployerAccountId = @employerAccountId
-			AND
-				a.AgreementStatus = 3 
 			AND 
 				a.AgreedOn IS NOT NULL
 			GROUP BY 

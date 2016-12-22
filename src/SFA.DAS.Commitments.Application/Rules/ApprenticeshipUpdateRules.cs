@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Application.Rules
             return doChangesRequireAgreement ? PaymentStatus.PendingApproval : currentPaymentStatus;
         }
 
-        public bool DetermineWhetherChangeRequireAgreement(Apprenticeship existingApprenticeship, Apprenticeship updatedApprenticeship)
+        public bool DetermineWhetherChangeRequiresAgreement(Apprenticeship existingApprenticeship, Apprenticeship updatedApprenticeship)
         {
             if (existingApprenticeship.Cost != updatedApprenticeship.Cost) return true;
             if (existingApprenticeship.DateOfBirth != updatedApprenticeship.DateOfBirth) return true;

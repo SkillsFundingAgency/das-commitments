@@ -22,45 +22,45 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             var updatedApprenticeship = CreateApprenticeship();
 
             // both the same initially
-            Assert.IsFalse(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.Cost *= 2;
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.DateOfBirth = DateTime.Now;
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.FirstName += "X";
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.LastName += "X";
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.NINumber += "X";
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.StartDate = DateTime.Now;
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.EndDate = DateTime.Now;
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.TrainingCode += "X";
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
 
             updatedApprenticeship.TrainingType = TrainingType.Standard;
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.TrainingName += "X";
-            Assert.IsTrue(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApprenticeship();
         }
 
@@ -70,16 +70,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             var existingApprenticeship = CreateApprenticeship();
             var updatedApprenticeship = CreateApprenticeship();
 
-            Assert.IsFalse(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.EmployerRef += "X";
-            Assert.IsFalse(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.ProviderRef += "X";
-            Assert.IsFalse(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.ULN += "X";
-            Assert.IsFalse(_rules.DetermineWhetherChangeRequireAgreement(existingApprenticeship, updatedApprenticeship));
+            Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
         }
 
         private static Apprenticeship CreateApprenticeship()
