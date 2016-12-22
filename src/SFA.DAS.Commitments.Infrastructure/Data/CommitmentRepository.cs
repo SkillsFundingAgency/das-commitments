@@ -48,9 +48,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                            "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction) " +
-                            "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction); " +
-                            "SELECT CAST(SCOPE_IDENTITY() as int);",
+                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction) " +
+                        "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction); " +
+                        "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
@@ -76,10 +76,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<Commitment> GetCommitmentById(long id)
         {
-            return await WithConnection(c =>
-            {
-                return GetCommitment(id, c);
-            });
+            return await WithConnection(c => { return GetCommitment(id, c); });
         }
 
         public async Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId)
@@ -191,8 +188,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var returnCode = await connection.ExecuteAsync(
                     sql:
-                        "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
-                        "WHERE Id = @id;",
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
+                    "WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
 
@@ -209,13 +206,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@agreementStatus", agreementStatus, DbType.Int16);
+                parameters.Add("@agreedOn", DateTime.UtcNow, DbType.DateTime);
 
                 var returnCode = await connection.ExecuteAsync(
-                    sql:
-                        "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
-                        "WHERE Id = @id;",
-                    param: parameters,
+                    "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
+                    "WHERE Id = @id;",
+                    parameters,
                     commandType: CommandType.Text);
+
+                if (agreementStatus == AgreementStatus.BothAgreed)
+                {
+                    returnCode = await connection.ExecuteAsync(
+                        "UPDATE [dbo].[Apprenticeship] SET AgreedOn = @agreedOn " +
+                        "WHERE Id = @id AND AgreedOn IS NULL;",
+                        parameters,
+                        commandType: CommandType.Text);
+                }
 
                 return returnCode;
             });
@@ -247,9 +253,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@employerAccountId", accountId);
 
-                var returnCode = await c.QueryAsync(
-                    sql: "[dbo].[SetPaymentOrder]", 
-                    param: parameters, 
+                var returnCode = await c.ExecuteAsync(
+                    sql: "[dbo].[SetPaymentOrder]",
+                    param: parameters,
                     commandType: CommandType.StoredProcedure);
 
                 return returnCode;
@@ -307,9 +313,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             var apprenticeshipId = (await connection.QueryAsync<long>(
                 sql:
-                    "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn) " +
-                    "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef, @createdOn); " +
-                    "SELECT CAST(SCOPE_IDENTITY() as int);",
+                "INSERT INTO [dbo].[Apprenticeship](CommitmentId, FirstName, LastName, DateOfBirth, NINumber, ULN, TrainingType, TrainingCode, TrainingName, Cost, StartDate, EndDate, PaymentStatus, AgreementStatus, EmployerRef, ProviderRef, CreatedOn) " +
+                "VALUES (@commitmentId, @firstName, @lastName, @dateOfBirth, @niNumber, @uln, @trainingType, @trainingCode, @trainingName, @cost, @startDate, @endDate, @paymentStatus, @agreementStatus, @employerRef, @providerRef, @createdOn); " +
+                "SELECT CAST(SCOPE_IDENTITY() as int);",
                 param: parameters,
                 commandType: CommandType.Text,
                 transaction: trans)).Single();
@@ -324,11 +330,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             using (var tran = x.BeginTransaction()) // TODO: Set Isolation Level
             {
                 await x.ExecuteAsync(
-                            sql: "[dbo].[BulkUploadApprenticships]",
-                            transaction: tran,
-                            commandType: CommandType.StoredProcedure,
-                            param: new { @commitmentId = commitmentId, @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
-                        );
+                    sql: "[dbo].[BulkUploadApprenticships]",
+                    transaction: tran,
+                    commandType: CommandType.StoredProcedure,
+                    param: new {@commitmentId = commitmentId, @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable")}
+                );
 
                 var commitment = await GetCommitment(commitmentId, x, tran);
                 apprenticeships = commitment.Apprenticeships;
@@ -341,7 +347,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private DataTable BuildApprenticeshipDataTable(IEnumerable<Apprenticeship> apprenticeships)
         {
-            DataTable apprenticeshipsTable = CreateApprenticeshipsDataTable();
+            var apprenticeshipsTable = CreateApprenticeshipsDataTable();
 
             foreach (var apprenticeship in apprenticeships)
             {
@@ -379,8 +385,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             var a = apprenticeship;
 
             return apprenticeshipsTable.Rows.Add(a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
-                                a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                                a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
+                a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
+                a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
         }
 
         private static DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship)
@@ -414,7 +420,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var results = await c.QueryAsync<CommitmentSummary>(
-                    sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
+                    sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int) CommitmentStatus.Deleted};",
                     param: parameters);
 
                 return results.ToList();
@@ -429,7 +435,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var results = await c.QueryAsync<Apprenticeship>(
-                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE {identifierName} = @id AND PaymentStatus <> {(int)PaymentStatus.Deleted};",
+                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE {identifierName} = @id AND PaymentStatus <> {(int) PaymentStatus.Deleted};",
                     param: parameters);
 
                 return results.ToList();

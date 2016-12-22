@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
@@ -21,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public void Setup()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new UpdateCommitmentAgreementCommandHandler(_mockCommitmentRespository.Object, new ApprenticeshipUpdateRules(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<ICommitmentsLogger>());
+            _handler = new UpdateCommitmentAgreementCommandHandler(_mockCommitmentRespository.Object, new ApprenticeshipUpdateRules(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<ICommitmentsLogger>(), Mock.Of<IMediator>());
         }
 
         [Test]
