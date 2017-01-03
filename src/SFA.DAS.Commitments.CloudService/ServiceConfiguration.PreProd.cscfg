@@ -11,6 +11,7 @@
       <Setting name="ApiAudiences" value="__ApiAudiences__"/>
       <Setting name="LoggingRedisConnectionString" value="__LoggingRedisConnectionString__" />
       <Setting name="LoggingRedisKey" value="__LoggingRedisKey__" />
+      <Setting name="InstrumentationKey" value="__InstrumentationKey__"/>
     </ConfigurationSettings>
      <Certificates>
       <Certificate name="WebSslCert" thumbprint="371D59F807751FB2EA73C84E7374BDE88AD7A6E0" thumbprintAlgorithm="sha1" />
