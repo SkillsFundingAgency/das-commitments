@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
 
         private async Task PublishEventsForApprenticeshipsWithNewPaymentOrder(long employerAccountId, IEnumerable<Apprenticeship> existingApprenticeships, IEnumerable<Apprenticeship> updatedApprenticeships)
         {
-            var changedApprenticeships = existingApprenticeships.Except(updatedApprenticeships, new ComparerPaymentOrder()).ToList();
+            var changedApprenticeships = updatedApprenticeships.Except(existingApprenticeships, new ComparerPaymentOrder()).ToList();
 
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
 
