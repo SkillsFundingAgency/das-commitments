@@ -71,12 +71,12 @@
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.7.0.16714, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.7.0.16714\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.8.0.18501, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.8.0.18501\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.7.0.16714, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.7.0.16714\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.8.0.18486, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.8.0.18486\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.17615, Culture=neutral, processorArchitecture=MSIL">

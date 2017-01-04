@@ -38,8 +38,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
                     TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
                     TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
-                    TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
-                    //todo: map payment order
+                    TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard,
+                    PaymentOrder = apprenticeship.PaymentOrder
                 };
 
                 _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", apprenticeshipId: apprenticeship.Id);
@@ -66,8 +66,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
                     TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
                     TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
-                    TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard
-                    //todo: map payment order
+                    TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard,
+                    PaymentOrder = apprenticeship.PaymentOrder
                 };
 
                 _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
