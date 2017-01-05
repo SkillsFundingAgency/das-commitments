@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Api
 
         protected void Application_End()
         {
-            Logger.Info("Stopping Events Api Application");
+            Logger.Info("Stopping Commitments Api Application");
         }
 
         protected void Application_Error()
