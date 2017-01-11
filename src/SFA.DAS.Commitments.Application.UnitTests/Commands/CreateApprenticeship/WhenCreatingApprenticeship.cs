@@ -38,6 +38,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
                 .With(x => x.ULN, "1234567890")
+                .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
+                .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
+                .With(x => x.FirstName, "First name")
+                .With(x => x.FirstName, "Last name")
+                .With(x => x.ProviderRef, "Provider ref")
+                .With(x => x.EmployerRef, null)
+                .With(x => x.StartDate, DateTime.Now.AddYears(5))
+                .With(x => x.EndDate, DateTime.Now.AddYears(7))
                 .Create();
 
             _exampleValidRequest = new CreateApprenticeshipCommand

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System;
+
+using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
@@ -20,6 +22,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );
             _validator = new CreateCommitmentValidator();
+            fixture.Customize<Api.Types.Apprenticeship>(ob => ob
+                .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
+                .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
+                .With(x => x.FirstName, "First name")
+                .With(x => x.FirstName, "Last name")
+                .With(x => x.ProviderRef, "Provider ref")
+                .With(x => x.EmployerRef, null)
+                .With(x => x.StartDate, DateTime.Now.AddYears(5))
+                .With(x => x.EndDate, DateTime.Now.AddYears(7))
+            );
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }

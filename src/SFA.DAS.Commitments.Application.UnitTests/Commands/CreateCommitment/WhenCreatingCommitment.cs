@@ -31,6 +31,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
+                .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
+                .With(x => x.FirstName, "First name")
+                .With(x => x.FirstName, "Last name")
+                .With(x => x.ProviderRef, "Provider ref")
+                .With(x => x.EmployerRef, null)
+                .With(x => x.StartDate, DateTime.Now.AddYears(5))
+                .With(x => x.EndDate, DateTime.Now.AddYears(7))
             );
             var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };
