@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using Ploeh.AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
@@ -16,10 +17,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [SetUp]
         public void Setup()
         {
-            var fixture = new Fixture();
-
             _validator = new CreateApprenticeshipValidator();
-            var exampleValidApprenticeship = new Apprenticeship { FirstName = "Bob", LastName = "Smith" };
+            var exampleValidApprenticeship = new Apprenticeship
+            {
+                FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),
+                ULN = ApprenticeshipTestDataHelper.CreateValidULN(),
+                ProviderRef = "Provider ref", EmployerRef = null,
+                StartDate = DateTime.Now.AddYears(5),
+                EndDate = DateTime.Now.AddYears(7)
+            };
+
             _exampleCommand = new CreateApprenticeshipCommand
             {
                 Caller = new Caller
@@ -95,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [Test]
         public void ThenULNThatIsNumericAnd10DigitsInLengthIsValid()
         {
-            _exampleCommand.Apprenticeship.ULN = "0001234567";
+            _exampleCommand.Apprenticeship.ULN = "1001234567";
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -105,7 +112,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [TestCase("abc123")]
         [TestCase("123456789")]
         [TestCase(" ")]
-        [TestCase("")]
+        [TestCase("12345678900")]
+        [TestCase("0123456789")]
         public void ThenULNThatIsNotNumericAnd10DigitsInLengthIsInvalid(string uln)
         {
             _exampleCommand.Apprenticeship.ULN = uln;
@@ -117,7 +125,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         public void ThenULNThatStartsWithAZeroIsInvalid()
         {
-            _exampleCommand.Apprenticeship.ULN = "0123456789";
+            _exampleCommand.Apprenticeship.ULN = "1023456789";
 
             var result = _validator.Validate(_exampleCommand);
 

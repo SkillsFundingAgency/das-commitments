@@ -10,5 +10,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests
         {
             return "1" + _rnd.Next(1000, 99999).ToString("D9");
         }
+
+        public static string CreateValidNino()
+        {
+            return "AB" + _rnd.Next(100000, 999999).ToString("D6") + "A";
+        }
     }
 }
