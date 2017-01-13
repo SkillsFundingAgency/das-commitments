@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -55,10 +56,14 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
+            Stopwatch watch = Stopwatch.StartNew();
             var insertedApprenticeships = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
+            _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
             // TODO: Need better way to publish all these events
+            watch = Stopwatch.StartNew();
             await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
+            _logger.Trace($"Publishing {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
         private Domain.Entities.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
