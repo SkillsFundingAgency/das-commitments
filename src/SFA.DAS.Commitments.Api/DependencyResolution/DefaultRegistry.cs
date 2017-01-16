@@ -15,13 +15,10 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
 using System.Web;
 using FluentValidation;
 using MediatR;
 using Microsoft.Azure;
-using SFA.DAS.Commitments.Application;
-using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
@@ -58,7 +55,10 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
             var config = GetConfiguration();
 
-            For<IEventsApi>().Use<EventsApi>().Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi);
+            For<IEventsApi>().Use<EventsApi>()
+                .Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi)
+                .SelectConstructor(() => new EventsApi(null)); // The default one isn't the one we want to use.
+
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
