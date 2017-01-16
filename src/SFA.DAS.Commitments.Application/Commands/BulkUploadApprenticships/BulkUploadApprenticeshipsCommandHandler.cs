@@ -62,7 +62,8 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             // TODO: Need better way to publish all these events
             watch = Stopwatch.StartNew();
-            await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
+            await _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED");
+            //await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
             _logger.Trace($"Publishing {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
