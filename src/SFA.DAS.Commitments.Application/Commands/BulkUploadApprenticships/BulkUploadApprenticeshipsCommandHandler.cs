@@ -60,14 +60,12 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             var insertedApprenticeships = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
-            // TODO: Need better way to publish all these events
             watch = Stopwatch.StartNew();
             await _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED");
-            //await Task.WhenAll(insertedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(commitment, a, "APPRENTICESHIP-CREATED")));
-            _logger.Trace($"Publishing {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
+            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
-        private Domain.Entities.Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
+        private Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
         {
             var domainApprenticeship = new Apprenticeship
             {
@@ -129,7 +127,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
         private static void CheckCommitmentStatus(Commitment commitment)
         {
-            if (commitment.CommitmentStatus != Domain.Entities.CommitmentStatus.New && commitment.CommitmentStatus != Domain.Entities.CommitmentStatus.Active)
+            if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
                 throw new InvalidOperationException($"Cannot add apprenticeship in commitment {commitment.Id} because status is {commitment.CommitmentStatus}");
         }
 
@@ -138,11 +136,11 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             switch (message.Caller.CallerType)
             {
                 case CallerType.Provider:
-                    if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.ProviderOnly)
+                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
                         throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to add apprenticeships to commitment {message.CommitmentId}");
                     break;
                 case CallerType.Employer:
-                    if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.EmployerOnly)
+                    if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
                         throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to add apprenticeship to commitment {message.CommitmentId}");
                     break;
             }
