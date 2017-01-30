@@ -165,7 +165,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Caller = new Caller
                 {
-                    CallerType = CallerType.Employer,
+                    CallerType = CallerType.Provider,
                     Id = providerId
                 },
                 ApprenticeshipId = apprenticeshipId
@@ -180,7 +180,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Caller = new Caller
                 {
-                    CallerType = CallerType.Employer,
+                    CallerType = CallerType.Provider,
                     Id = providerId
                 },
                 CommitmentId = commitmentId
