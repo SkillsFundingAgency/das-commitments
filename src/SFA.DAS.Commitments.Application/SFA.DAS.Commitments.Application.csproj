@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
+    <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
