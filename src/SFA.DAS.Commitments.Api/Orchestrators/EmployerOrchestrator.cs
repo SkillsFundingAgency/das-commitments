@@ -4,6 +4,8 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
@@ -165,6 +167,36 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
                 PaymentStatus = paymentStatus
+            });
+        }
+
+        public async Task DeleteApprenticeship(long accountId, long apprenticeshipId)
+        {
+            _logger.Info($"Deleting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
+
+            await _mediator.SendAsync(new DeleteApprenticeshipCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                ApprenticeshipId = apprenticeshipId
+            });
+        }
+
+        public async Task DeleteCommitment(long accountId, long commitmentId)
+        {
+            _logger.Info($"Deleting commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
+
+            await _mediator.SendAsync(new DeleteCommitmentCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                CommitmentId = commitmentId
             });
         }
     }
