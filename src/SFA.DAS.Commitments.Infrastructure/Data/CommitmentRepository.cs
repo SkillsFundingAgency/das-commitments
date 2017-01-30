@@ -262,12 +262,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<Apprenticeship> GetApprenticeship(long id)
+        public async Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
         {
             var results = await WithConnection(async c =>
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@id", id);
+                parameters.Add("@id", apprenticeshipId);
 
                 return await c.QueryAsync<Apprenticeship>(
                     sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE Id = @id;",
@@ -276,6 +276,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
 
             return results.SingleOrDefault();
+        }
+
+        public async Task DeleteApprenticeship(long apprenticeshipId)
+        {
+            _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
+
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                    "DELETE FROM [dbo].[Apprenticeship] " +
+                    "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
         }
 
         public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)

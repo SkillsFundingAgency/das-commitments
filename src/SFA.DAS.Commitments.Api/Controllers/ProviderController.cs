@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -108,6 +107,24 @@ namespace SFA.DAS.Commitments.Api.Controllers
             await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, apprenticeships);
 
             return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = commitmentId }, default(Commitment));
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> DeleteApprenticeship(long providerId, long apprenticeshipId)
+        {
+            await _providerOrchestrator.DeleteApprenticeship(providerId, apprenticeshipId);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> DeleteCommitment(long providerId, long commitmentId)
+        {
+            await _providerOrchestrator.DeleteCommitment(providerId, commitmentId);
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
     }
 }

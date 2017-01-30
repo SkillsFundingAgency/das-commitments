@@ -109,5 +109,23 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> DeleteApprenticeship(long accountId, long apprenticeshipId)
+        {
+            await _employerOrchestrator.DeleteApprenticeship(accountId, apprenticeshipId);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{accountId}/commitments/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> DeleteCommitment(long accountId, long commitmentId)
+        {
+            await _employerOrchestrator.DeleteCommitment(accountId, commitmentId);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
     }
 }
