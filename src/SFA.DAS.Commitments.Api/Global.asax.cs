@@ -9,7 +9,10 @@ namespace SFA.DAS.Commitments.Api
     public class WebApiApplication : System.Web.HttpApplication
     {
         private static ILog Logger = new NLogLogger();
+        
+#pragma warning disable 0169
         private static RedisTarget _redisTarget; // Required to ensure assembly is copied to output.
+#pragma warning disable 0169
 
         protected void Application_Start()
         {

@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             _logger = logger;
         }
 
-        protected override async Task HandleCore(DeleteCommitmentCommand command)
+        protected override Task HandleCore(DeleteCommitmentCommand command)
         {
             LogMessage(command);
 

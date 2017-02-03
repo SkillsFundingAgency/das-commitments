@@ -58,4 +58,4 @@ FROM
 INNER JOIN
 	Apprenticeship a
 ON 
-	a.id = npo.ApprenticeshipId
+	a.Id = npo.ApprenticeshipId

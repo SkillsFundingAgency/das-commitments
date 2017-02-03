@@ -10,6 +10,8 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-UPDATE [Commitment] SET [LastUpdatedByEmployerEmail] = 'noreply@sfa.gov.uk' WHERE LastUpdatedByEmployerEmail IS NULL;
+UPDATE [Commitment] SET [LastUpdatedByEmployerEmail] = 'noreply@sfa.gov.uk', [LastUpdatedByEmployerName] = 'Dummy User' WHERE LastUpdatedByEmployerEmail IS NULL;
 
+-- TODO: This can be moved into the table definition once deployed to all Environments
+ALTER TABLE [Commitment] ALTER COLUMN [LastUpdatedByEmployerName] VARCHAR(255) NOT NULL;
 ALTER TABLE [Commitment] ALTER COLUMN [LastUpdatedByEmployerEmail] VARCHAR(255) NOT NULL;

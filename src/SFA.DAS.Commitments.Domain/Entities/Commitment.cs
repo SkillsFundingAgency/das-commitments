@@ -8,6 +8,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Commitment()
         {
             Apprenticeships = new List<Apprenticeship>();
+            EmployerLastUpdateInfo = new LastUpdateInfo();
+            ProviderLastUpdateInfo = new LastUpdateInfo();
         }
 
         public long Id { get; set; }
@@ -22,6 +24,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public LastAction LastAction { get; set; }
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
+        public LastUpdateInfo EmployerLastUpdateInfo { get; set; }
+        public LastUpdateInfo ProviderLastUpdateInfo { get; set; }
 
         public List<Apprenticeship> Apprenticeships { get; set; }
     }
