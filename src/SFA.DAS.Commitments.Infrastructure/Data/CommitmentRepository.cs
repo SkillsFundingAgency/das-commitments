@@ -43,8 +43,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
                 parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
                 parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
-                parameters.Add("@lastUpdateByEmployerName", commitment.EmployerLastUpdateInfo.Name, DbType.String);
-                parameters.Add("@lastUpdateByEmployerEmail", commitment.EmployerLastUpdateInfo.EmailAddress, DbType.String);
+                parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
+                parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
 
                 using (var trans = connection.BeginTransaction())
                 {
