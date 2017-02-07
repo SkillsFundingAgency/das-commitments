@@ -12,8 +12,7 @@ SELECT
 			a.StartDate IS NOT NULL AND 
 			a.EndDate IS NOT NULL AND 
 			a.TrainingCode IS NOT NULL AND 
-			a.DateOfBirth IS NOT NULL AND 
-			a.NINumber IS NOT NULL
+			a.DateOfBirth IS NOT NULL
 		THEN
 			1
 		ELSE
@@ -28,8 +27,7 @@ SELECT
 			a.StartDate IS NOT NULL AND 
 			a.EndDate IS NOT NULL AND 
 			a.TrainingCode IS NOT NULL AND 
-			a.DateOfBirth IS NOT NULL AND 
-			a.NINumber IS NOT NULL
+			a.DateOfBirth IS NOT NULL
 		THEN
 			1
 		ELSE
