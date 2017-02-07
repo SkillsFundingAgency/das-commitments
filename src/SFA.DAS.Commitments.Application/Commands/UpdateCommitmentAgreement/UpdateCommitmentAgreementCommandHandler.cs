@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -20,8 +21,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICommitmentsLogger _logger;
         private readonly IMediator _mediator;
+        private readonly AbstractValidator<UpdateCommitmentAgreementCommand> _validator;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IMediator mediator)
+        public UpdateCommitmentAgreementCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules, 
+            IApprenticeshipEvents apprenticeshipEvents, 
+            ICommitmentsLogger logger, 
+            IMediator mediator,
+            AbstractValidator<UpdateCommitmentAgreementCommand> validator)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -29,6 +37,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
             if (apprenticeshipEvents == null)
                 throw new ArgumentNullException(nameof(apprenticeshipEvents));
+            if (validator == null)
+                throw new ArgumentNullException(nameof(validator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
@@ -37,10 +47,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
             _mediator = mediator;
+            _validator = validator;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand command)
         {
+            _validator.ValidateAndThrow(command);
+
             LogMessage(command);
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
@@ -88,7 +101,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             // update commitment statuses
             await _commitmentRepository.UpdateEditStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count));
             await _commitmentRepository.UpdateCommitmentStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
-            await _commitmentRepository.UpdateLastAction(command.CommitmentId, latestAction);
+            await _commitmentRepository.UpdateLastAction(command.CommitmentId, latestAction, command.Caller, command.LastUpdatedByName, command.LastUpdatedByEmail);
 
             // recalculate payment order for all the employer account's apprenticeships if necessary
             await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);

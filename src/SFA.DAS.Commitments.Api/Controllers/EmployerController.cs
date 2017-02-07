@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeship);
 
-            return CreatedAtRoute("GetApprenticeshipForEmployer", new {accountId, commitmentId, apprenticeshipId = response}, default(Apprenticeship));
+            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId, commitmentId, apprenticeshipId = response }, default(Apprenticeship));
         }
 
         [Route("{accountId}/commitments/")]
@@ -57,7 +57,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
 
-            return CreatedAtRoute("GetCommitmentForEmployer", new {accountId, commitmentId = response}, new Commitment {Id = response});
+            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId, commitmentId = response }, new Commitment { Id = response });
         }
 
         [Route("{accountId}/apprenticeships")]
@@ -94,9 +94,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] LastAction lastAction)
+        public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
         {
-            await _employerOrchestrator.PatchCommitment(accountId, commitmentId, lastAction);
+            await _employerOrchestrator.PatchCommitment(accountId, commitmentId, values);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

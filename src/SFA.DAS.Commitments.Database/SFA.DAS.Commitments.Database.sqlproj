@@ -61,6 +61,7 @@
     <Folder Include="Views" />
     <Folder Include="StoredProcedures" />
     <Folder Include="UserDefinedTypes" />
+    <Folder Include="PostDeployment" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -77,5 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SFA.DAS.Commitments.Database.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="PostDeployment\UpdateLastUpdatedByEmployerColumn.sql" />
   </ItemGroup>
 </Project>

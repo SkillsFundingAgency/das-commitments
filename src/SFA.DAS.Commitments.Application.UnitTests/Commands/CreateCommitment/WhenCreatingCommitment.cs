@@ -95,6 +95,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);
+            argument.LastUpdatedByEmployerName.Should().Be(_exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name);
+            argument.LastUpdatedByEmployerEmail.Should().Be(_exampleValidRequest.Commitment.EmployerLastUpdateInfo.EmailAddress);
             argument.Apprenticeships.Should().HaveSameCount(_exampleValidRequest.Commitment.Apprenticeships);
             argument.Apprenticeships[0].Id.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Id);
             argument.Apprenticeships[0].ULN.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ULN);

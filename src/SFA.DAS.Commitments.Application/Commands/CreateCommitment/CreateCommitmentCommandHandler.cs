@@ -63,6 +63,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 CommitmentStatus = (CommitmentStatus) commitment.CommitmentStatus,
                 EditStatus = (EditStatus) commitment.EditStatus,
                 LastAction = LastAction.None,
+                LastUpdatedByEmployerName = commitment.EmployerLastUpdateInfo.Name,
+                LastUpdatedByEmployerEmail = commitment.EmployerLastUpdateInfo.EmailAddress,
                 Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
                 {
                     Id = x.Id,

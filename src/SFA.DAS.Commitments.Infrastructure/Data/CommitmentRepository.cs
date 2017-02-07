@@ -43,13 +43,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@id", dbType: DbType.Int64, direction: ParameterDirection.Output);
                 parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
                 parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
+                parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
+                parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
 
                 using (var trans = connection.BeginTransaction())
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction) " +
-                        "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction); " +
+                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, LastUpdatedByEmployerEmail) " +
+                        "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, @lastUpdateByEmployerEmail); " +
                         "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
@@ -137,7 +139,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateLastAction(long commitmentId, LastAction lastAction)
+        public async Task UpdateLastAction(long commitmentId, LastAction lastAction, Caller caller, string updatedByName, string updatedByEmailAddress)
         {
             _logger.Debug($"Updating commitment {commitmentId} last action to {lastAction}", commitmentId: commitmentId);
 
@@ -146,14 +148,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", commitmentId, DbType.Int64);
                 parameters.Add("@lastAction", lastAction, DbType.Int16);
+                parameters.Add("@lastUpdatedByName", updatedByName, DbType.String);
+                parameters.Add("@lastUpdatedByEmail", updatedByEmailAddress, DbType.String);
 
                 var returnCode = await connection.ExecuteAsync(
-                    sql: "UPDATE [dbo].[Commitment] SET LastAction = @lastAction WHERE Id = @id;",
+                    sql: GetUpdateLastActionSql(caller),
                     param: parameters,
                     commandType: CommandType.Text);
 
                 return returnCode;
             });
+        }
+
+        private static string GetUpdateLastActionSql(Caller caller)
+        {
+            if (caller.CallerType == CallerType.Employer)
+                return @"UPDATE [dbo].[Commitment] SET LastAction = @lastAction, LastUpdatedByEmployerName = @lastUpdatedByName, LastUpdatedByEmployerEmail = @lastUpdatedByEmail WHERE Id = @id;";
+
+            return @"UPDATE [dbo].[Commitment] SET LastAction = @lastAction, LastUpdatedByProviderName = @lastUpdatedByName, LastUpdatedByProviderEmail = @lastUpdatedByEmail WHERE Id = @id;";
         }
 
         public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)

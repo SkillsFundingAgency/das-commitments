@@ -70,6 +70,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
                     LastAction = (LastAction)commitment.LastAction,
                     CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
+                    EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
+                    ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
                     Apprenticeships = commitment.Apprenticeships?.Select(x => new Apprenticeship
                     {
                         Id = x.Id,

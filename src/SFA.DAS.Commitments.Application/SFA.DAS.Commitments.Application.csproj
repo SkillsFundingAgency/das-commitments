@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.15.0.17420, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.15.0.17420\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.20.0.21715, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.20.0.21715\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.11.0.19990, Culture=neutral, processorArchitecture=MSIL">
@@ -90,6 +90,7 @@
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
+    <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Domain.Entities
 {
@@ -22,6 +21,11 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public LastAction LastAction { get; set; }
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
+
+        public string LastUpdatedByEmployerName { get; set; }
+        public string LastUpdatedByEmployerEmail { get; set; }
+        public string LastUpdatedByProviderName { get; set; }
+        public string LastUpdatedByProviderEmail { get; set; }
 
         public List<Apprenticeship> Apprenticeships { get; set; }
     }

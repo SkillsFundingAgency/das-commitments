@@ -10,5 +10,9 @@
     [CommitmentStatus] SMALLINT NOT NULL DEFAULT 0, 
     [EditStatus] SMALLINT NOT NULL DEFAULT 0,
     [CreatedOn] DATETIME NULL, 
-    [LastAction] SMALLINT NOT NULL DEFAULT 0
+    [LastAction] SMALLINT NOT NULL DEFAULT 0, 
+	[LastUpdatedByEmployerName] NVARCHAR(255) NULL,
+    [LastUpdatedByEmployerEmail] NVARCHAR(255) NULL, 
+    [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
+    [LastUpdatedByProviderEmail] NVARCHAR(255) NULL
 )
