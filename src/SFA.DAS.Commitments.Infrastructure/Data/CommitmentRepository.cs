@@ -319,7 +319,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 using (var tran = connection.BeginTransaction())
                 {
                     var returnCode = await connection.ExecuteAsync(
-                        sql: "[dbo].[DeleteCohort]",
+                        sql: "[dbo].[DeleteCommitment]",
                         transaction: tran,
                         commandType: CommandType.StoredProcedure,
                         param: new { @commitmentId = commitmentId }

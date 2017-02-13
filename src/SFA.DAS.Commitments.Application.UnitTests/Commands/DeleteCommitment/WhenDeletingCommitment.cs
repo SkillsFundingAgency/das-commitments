@@ -40,8 +40,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                 Apprenticeships = new List<Apprenticeship>
                 {
                     new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                    new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                    new Apprenticeship { PaymentStatus = PaymentStatus.Active }
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval }
                 }
             };
 
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
-            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Cannot be deleted");
+            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Commitment cannot be deleted");
         }
 
         [Test]

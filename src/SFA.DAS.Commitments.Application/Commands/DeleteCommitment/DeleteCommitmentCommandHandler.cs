@@ -99,11 +99,12 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         {
             var notPendingApprovalApprenticeships =
                 apprenticeships
-                .Select(apprenticeship => apprenticeship.PaymentStatus != PaymentStatus.PendingApproval)
+                .Where(apprenticeship => apprenticeship.PaymentStatus != PaymentStatus.PendingApproval)
+                .Select(apprenticeship => apprenticeship.Id)
                 .ToList();
 
             if (notPendingApprovalApprenticeships.Any())
-                throw new UnauthorizedException($"Cannot be deleted commitment when payment status is not PendingApproval for any apprenticeship {string.Join(",", notPendingApprovalApprenticeships) }");
+                throw new UnauthorizedException($"Commitment cannot be deleted it contains an apprenticeship with payment status that is not PendingApproval: {string.Join(",", notPendingApprovalApprenticeships) }");
         }
 
         private void LogMessage(DeleteCommitmentCommand command)

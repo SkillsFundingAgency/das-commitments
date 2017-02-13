@@ -72,7 +72,7 @@
     <Build Include="UserDefinedTypes\ApprenticeshipTable.sql" />
     <Build Include="StoredProcedures\BulkUploadApprenticships.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
-    <Build Include="StoredProcedures\DeleteCohort.sql" />
+    <Build Include="StoredProcedures\DeleteCommitment.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

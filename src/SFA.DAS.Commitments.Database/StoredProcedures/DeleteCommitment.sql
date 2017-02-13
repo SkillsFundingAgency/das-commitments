@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[DeleteCohort]
+﻿CREATE PROCEDURE [dbo].[DeleteCommitment]
 	@commitmentId BIGINT
 AS
 	BEGIN 
