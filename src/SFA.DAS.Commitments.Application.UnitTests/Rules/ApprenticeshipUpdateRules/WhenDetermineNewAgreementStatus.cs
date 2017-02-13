@@ -79,5 +79,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             act.ShouldThrow<ArgumentException>()
                 .WithMessage($"Invalid combination of values - CurrentAgreementStatus:{AgreementStatus.BothAgreed}, Caller:{caller}, Action:{LastAction.Approve}");
         }
+
+
+        [TestCase(AgreementStatus.EmployerAgreed, CallerType.Provider)]
+        [TestCase(AgreementStatus.ProviderAgreed, CallerType.Provider)]
+        [TestCase(AgreementStatus.EmployerAgreed, CallerType.Employer)]
+        [TestCase(AgreementStatus.ProviderAgreed, CallerType.Employer)]
+        public void ThenIfNoActionWasTakenThenTheAgreementStatusIsNotChanged(AgreementStatus currentAgreementStatus, CallerType callerType)
+        {
+            //Act
+            var result = _rules.DetermineNewAgreementStatus(currentAgreementStatus, callerType, LastAction.None);
+
+            //Assert
+            Assert.AreEqual(currentAgreementStatus, result);
+
+        }
     }
 }

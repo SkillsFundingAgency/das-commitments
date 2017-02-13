@@ -52,7 +52,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         ApprenticeshipCount = x.ApprenticeshipCount,
                         AgreementStatus = (AgreementStatus) x.AgreementStatus,
                         LastAction = (LastAction) x.LastAction,
-                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveCommitment : x.ProviderCanApproveCommitment
+                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveCommitment : x.ProviderCanApproveCommitment,
+                        EmployerLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByEmployerName, EmailAddress = x.LastUpdatedByEmployerEmail },
+                        ProviderLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByProviderName, EmailAddress = x.LastUpdatedByProviderEmail },
                     }
                     ).ToList()
             };

@@ -54,8 +54,13 @@ namespace SFA.DAS.Commitments.Application.Rules
             }
         }
 
-        public EditStatus DetermineNewEditStatus(EditStatus currentEditStatus, CallerType caller, bool areAnyApprenticeshipsPendingAgreement, int apprenticeshipsInCommitment)
+        public EditStatus DetermineNewEditStatus(EditStatus currentEditStatus, CallerType caller, bool areAnyApprenticeshipsPendingAgreement, int apprenticeshipsInCommitment, LastAction lastAction)
         {
+            if (lastAction == LastAction.None)
+            {
+                return currentEditStatus;
+            }
+
             if (areAnyApprenticeshipsPendingAgreement || apprenticeshipsInCommitment == 0)
                 return caller == CallerType.Provider ? EditStatus.EmployerOnly : EditStatus.ProviderOnly;
 
@@ -64,6 +69,11 @@ namespace SFA.DAS.Commitments.Application.Rules
 
         public AgreementStatus DetermineNewAgreementStatus(AgreementStatus currentAgreementStatus, CallerType caller, LastAction action)
         {
+            if (action == LastAction.None)
+            {
+                return currentAgreementStatus;
+            }
+
             if (action == LastAction.Amend)
             {
                 if (!CallerApproved(currentAgreementStatus, caller))
