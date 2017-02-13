@@ -97,6 +97,8 @@
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingApprenticeships.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
+    <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
+    <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenUpdatingApprenticeshipStatus.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />

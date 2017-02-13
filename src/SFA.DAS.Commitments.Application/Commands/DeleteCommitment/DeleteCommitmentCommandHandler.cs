@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 
-using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -23,6 +22,13 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         public DeleteCommitmentCommandHandler(
             ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger)
         {
+            if (commitmentRepository == null)
+                throw new ArgumentNullException(nameof(commitmentRepository));
+            if (validator == null)
+                throw new ArgumentNullException(nameof(validator));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
@@ -30,12 +36,12 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
 
         protected override async Task HandleCore(DeleteCommitmentCommand command)
         {
-            LogMessage(command);
-
             var validationResult = _validator.Validate(command);
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
+
+            LogMessage(command);
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
@@ -73,6 +79,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
                 throw new InvalidOperationException($"Commitment {commitment.Id} cannot be delete because status is {commitment.CommitmentStatus}");
         }
+
         private static void CheckEditStatus(DeleteCommitmentCommand message, Commitment commitment)
         {
             switch (message.Caller.CallerType)

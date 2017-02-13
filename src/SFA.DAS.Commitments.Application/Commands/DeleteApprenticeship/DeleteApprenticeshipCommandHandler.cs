@@ -19,6 +19,13 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
 
         public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger)
         {
+            if (commitmentRepository == null)
+                throw new ArgumentNullException(nameof(commitmentRepository));
+            if (validator == null)
+                throw new ArgumentNullException(nameof(validator));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;

@@ -1,5 +1,4 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
@@ -9,23 +8,27 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         public DeleteCommitmentValidator()
         {
             RuleFor(x => x.CommitmentId).GreaterThan(0);
+            RuleFor(x => x.Caller).NotNull();
 
-            Custom(request =>
+            When(x => x.Caller != null, () =>
             {
-                switch (request.Caller.CallerType)
+                Custom(request =>
                 {
-                    case CallerType.Provider:
-                        if (request.Caller.Id <= 0)
-                            return new FluentValidation.Results.ValidationFailure("ProviderId", "ProviderId must be greater than zero.");
-                        break;
-                    case CallerType.Employer:
-                    default:
-                        if (request.Caller.Id <= 0)
-                            return new FluentValidation.Results.ValidationFailure("AccountId", "AccountId must be greater than zero.");
-                        break;
-                }
+                    switch (request.Caller.CallerType)
+                    {
+                        case CallerType.Provider:
+                            if (request.Caller.Id <= 0)
+                                return new FluentValidation.Results.ValidationFailure("ProviderId", "ProviderId must be greater than zero.");
+                            break;
+                        case CallerType.Employer:
+                        default:
+                            if (request.Caller.Id <= 0)
+                                return new FluentValidation.Results.ValidationFailure("AccountId", "AccountId must be greater than zero.");
+                            break;
+                    }
 
-                return null;
+                    return null;
+                });
             });
         }
     }
