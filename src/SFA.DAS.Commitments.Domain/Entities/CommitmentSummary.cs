@@ -16,5 +16,9 @@
         public LastAction LastAction { get; set; }
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
+        public string LastUpdatedByEmployerName { get; set; }
+        public string LastUpdatedByEmployerEmail { get; set; }
+        public string LastUpdatedByProviderName { get; set; }
+        public string LastUpdatedByProviderEmail { get; set; }
     }
 }

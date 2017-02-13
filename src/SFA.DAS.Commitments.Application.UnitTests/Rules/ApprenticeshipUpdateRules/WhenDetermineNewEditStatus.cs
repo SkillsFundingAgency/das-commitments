@@ -22,21 +22,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
         [TestCase(EditStatus.Both, CallerType.Provider)]
         public void ThenSetToBothPartiesCanEditIfNoApprenticeshipsArePendingAgreement(EditStatus existingEditStatus, CallerType caller)
         {
-            Assert.AreEqual(EditStatus.Both, _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 10));
+            Assert.AreEqual(EditStatus.Both, _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 10, LastAction.Amend));
         }
 
         [TestCase(CallerType.Employer, EditStatus.ProviderOnly)]
         [TestCase(CallerType.Provider, EditStatus.EmployerOnly)]
         public void ThenSetToOtherPartyCanEditIfApprenticeshipsArePendingAgreement(CallerType caller, EditStatus expectedEditStatus)
         {
-            Assert.AreEqual(expectedEditStatus, _rules.DetermineNewEditStatus(EditStatus.Both, caller, true, 10));
+            Assert.AreEqual(expectedEditStatus, _rules.DetermineNewEditStatus(EditStatus.Both, caller, true, 10, LastAction.Amend));
         }
 
         [TestCase(EditStatus.EmployerOnly, CallerType.Employer, EditStatus.ProviderOnly)]
         [TestCase(EditStatus.ProviderOnly, CallerType.Provider, EditStatus.EmployerOnly)]
         public void ThenSetToOtherPartyCanEditIfThereAreNoApprenticeshipsInTheCommitment(EditStatus existingEditStatus, CallerType caller, EditStatus expectedStatus)
         {
-            Assert.AreEqual(expectedStatus, _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 0));
+            Assert.AreEqual(expectedStatus, _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 0, LastAction.Amend));
+        }
+
+        [TestCase(EditStatus.EmployerOnly, CallerType.Employer)]
+        [TestCase(EditStatus.ProviderOnly, CallerType.Provider)]
+        [TestCase(EditStatus.EmployerOnly, CallerType.Employer)]
+        [TestCase(EditStatus.ProviderOnly, CallerType.Provider)]
+        public void WhenLastActionTakenIsNoneEditStatusIsNotChanged(EditStatus existingEditStatus, CallerType caller)
+        {
+            var result = _rules.DetermineNewEditStatus(existingEditStatus, caller, false, 0, LastAction.None);
+            Assert.AreEqual(existingEditStatus, result);
         }
     }
 }
