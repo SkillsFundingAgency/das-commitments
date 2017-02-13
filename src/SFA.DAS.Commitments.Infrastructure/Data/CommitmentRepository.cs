@@ -310,6 +310,27 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task DeleteCommitment(long commitmentId)
+        {
+            _logger.Debug($"Deleting commitment {commitmentId}", commitmentId: commitmentId);
+
+            await WithConnection(async connection =>
+            {
+                using (var tran = connection.BeginTransaction())
+                {
+                    var returnCode = await connection.ExecuteAsync(
+                        sql: "[dbo].[DeleteCohort]",
+                        transaction: tran,
+                        commandType: CommandType.StoredProcedure,
+                        param: new { @commitmentId = commitmentId }
+                    );
+
+                    tran.Commit();
+                    return returnCode;
+                }
+            });
+        }
+
         public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
         {
             _logger.Debug($"Bulk upload {apprenticeships.Count()} apprenticeships for commitment {commitmentId}", commitmentId: commitmentId);

@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
         Task<Apprenticeship> GetApprenticeship(long apprenticeshipId);
         Task DeleteApprenticeship(long apprenticeshipId);
+        Task DeleteCommitment(long commitmentId);
         Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus);
         Task UpdateEditStatus(long commitmentId, EditStatus editStatus);
         Task UpdateLastAction(long commitmentId, LastAction lastAction, Caller caller, string updatedByName, string updatedByEmailAddress);
