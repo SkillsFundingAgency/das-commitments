@@ -47,6 +47,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
                 .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))
+                .With(x => x.TrainingCode, string.Empty)
+                .With(x => x.TrainingName, string.Empty)
                 .Create();
 
             _exampleValidRequest = new CreateApprenticeshipCommand

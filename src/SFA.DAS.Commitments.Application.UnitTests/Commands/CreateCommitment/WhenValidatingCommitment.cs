@@ -32,6 +32,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
                 .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))
+                .With(x => x.TrainingCode, string.Empty)
+                .With(x => x.TrainingName, string.Empty)
             );
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };

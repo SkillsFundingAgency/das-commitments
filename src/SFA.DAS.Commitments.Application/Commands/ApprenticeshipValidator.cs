@@ -21,13 +21,15 @@ namespace SFA.DAS.Commitments.Application.Commands
             {
                 RuleFor(x => x.DateOfBirth).Must((apprenticship, dob) =>
                 {
-                    DateTime startDate = apprenticship.StartDate.Value;
-                    DateTime dobDate = dob.Value;
-                    int age = startDate.Year - dobDate.Year;
-                    if (startDate < dobDate.AddYears(age)) age--;
-
-                    return age >= 15;
+                    return WillApprenticeBeAtLeast15AtStartOfTraining(apprenticship, dob);
                 });
+            });
+
+            When(x => !string.IsNullOrWhiteSpace(x.TrainingCode) || !string.IsNullOrWhiteSpace(x.TrainingName), () =>
+            {
+                RuleFor(x => x.TrainingType).IsInEnum();
+                RuleFor(x => x.TrainingCode).NotEmpty();
+                RuleFor(x => x.TrainingName).NotEmpty();
             });
 
             RuleFor(x => x.Cost).Must(CostIsValid);
@@ -42,6 +44,16 @@ namespace SFA.DAS.Commitments.Application.Commands
             RuleFor(r => r.EndDate)
                     .Must(BeGreaterThenStartDate)
                     .Must(m => m > now).Unless(m => m.EndDate == null);
+        }
+
+        private static bool WillApprenticeBeAtLeast15AtStartOfTraining(Api.Types.Apprenticeship apprenticship, DateTime? dob)
+        {
+            DateTime startDate = apprenticship.StartDate.Value;
+            DateTime dobDate = dob.Value;
+            int age = startDate.Year - dobDate.Year;
+            if (startDate < dobDate.AddYears(age)) age--;
+
+            return age >= 15;
         }
 
         private bool CostIsValid(decimal? cost)
