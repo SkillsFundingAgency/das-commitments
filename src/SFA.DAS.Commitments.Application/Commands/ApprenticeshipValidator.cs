@@ -17,20 +17,9 @@ namespace SFA.DAS.Commitments.Application.Commands
             RuleFor(x => x.LastName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
             RuleFor(x => x.FirstName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
 
-            When(x => x.DateOfBirth != null && x.StartDate != null, () =>
-            {
-                RuleFor(x => x.DateOfBirth).Must((apprenticship, dob) =>
-                {
-                    return WillApprenticeBeAtLeast15AtStartOfTraining(apprenticship, dob);
-                });
-            });
+            ValidateDateOfBirth();
 
-            When(x => !string.IsNullOrWhiteSpace(x.TrainingCode) || !string.IsNullOrWhiteSpace(x.TrainingName), () =>
-            {
-                RuleFor(x => x.TrainingType).IsInEnum();
-                RuleFor(x => x.TrainingCode).NotEmpty();
-                RuleFor(x => x.TrainingName).NotEmpty();
-            });
+            ValidateTrainingCodes();
 
             RuleFor(x => x.Cost).Must(CostIsValid);
 
@@ -44,6 +33,44 @@ namespace SFA.DAS.Commitments.Application.Commands
             RuleFor(r => r.EndDate)
                     .Must(BeGreaterThenStartDate)
                     .Must(m => m > now).Unless(m => m.EndDate == null);
+        }
+
+        private void ValidateTrainingCodes()
+        {
+            When(x => !string.IsNullOrWhiteSpace(x.TrainingCode) || !string.IsNullOrWhiteSpace(x.TrainingName), () =>
+            {
+                RuleFor(x => x.TrainingType).IsInEnum();
+                RuleFor(x => x.TrainingCode).NotEmpty();
+                RuleFor(x => x.TrainingName).NotEmpty();
+
+                When(x => x.TrainingType == Api.Types.TrainingType.Framework, () =>
+                {
+                    RuleFor(x => x.TrainingCode).Matches(@"^[1-9]\d{0,2}-[1-9]\d{0,1}-[1-9]\d{0,2}$");
+                });
+
+                When(x => x.TrainingType == Api.Types.TrainingType.Standard, () =>
+                {
+                    RuleFor(x => x.TrainingCode).Must(x =>
+                    {
+                        int code;
+                        if (!int.TryParse(x, out code))
+                            return false;
+
+                        return code > 0;
+                    });
+                });
+            });
+        }
+
+        private void ValidateDateOfBirth()
+        {
+            When(x => x.DateOfBirth != null && x.StartDate != null, () =>
+            {
+                RuleFor(x => x.DateOfBirth).Must((apprenticship, dob) =>
+                {
+                    return WillApprenticeBeAtLeast15AtStartOfTraining(apprenticship, dob);
+                });
+            });
         }
 
         private static bool WillApprenticeBeAtLeast15AtStartOfTraining(Api.Types.Apprenticeship apprenticship, DateTime? dob)
