@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -41,8 +42,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 
             var result = _validator.Validate(_exampleCommand);
 
-            result.Errors[0].ErrorMessage.Should().Be("'First Name' should not be empty.");
-            result.Errors[1].ErrorMessage.Should().Be("'Last Name' should not be empty.");
+            result.Errors.Any(x => x.ErrorMessage == "'First Name' should not be empty.").Should().BeTrue();
+            result.Errors.Any(x => x.ErrorMessage == "'Last Name' should not be empty.").Should().BeTrue();
             result.Errors.Count.Should().Be(2);
             result.IsValid.Should().BeFalse();
         }
@@ -58,9 +59,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             };
 
             var result = _validator.Validate(_exampleCommand);
-
-            result.Errors[0].ErrorMessage.Should().Be("The specified condition was not met for 'First Name'.");
-            result.Errors[1].ErrorMessage.Should().Be("The specified condition was not met for 'Last Name'.");
+            result.Errors.Any(x => x.ErrorMessage == "The specified condition was not met for 'First Name'.").Should().BeTrue();
+            result.Errors.Any(x => x.ErrorMessage == "The specified condition was not met for 'Last Name'.").Should().BeTrue();
             result.Errors.Count.Should().Be(2);
             result.IsValid.Should().BeFalse();
         }

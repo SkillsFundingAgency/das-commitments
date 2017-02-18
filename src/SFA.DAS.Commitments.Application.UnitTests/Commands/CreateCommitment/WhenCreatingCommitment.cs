@@ -38,6 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.EmployerRef, null)
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
+                .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))
             );
             var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };

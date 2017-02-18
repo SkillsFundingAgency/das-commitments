@@ -5,16 +5,31 @@ using FluentValidation;
 
 namespace SFA.DAS.Commitments.Application.Commands
 {
-    internal sealed class ApprenticeshipValidator : AbstractValidator<Api.Types.Apprenticeship>
+    public sealed class ApprenticeshipValidator : AbstractValidator<Api.Types.Apprenticeship>
     {
+        private static Func<string, int, bool> _lengthLessThanFunc = (str, length) => (str?.Length ?? length) < length;
+
         public ApprenticeshipValidator()
         {
             var now = DateTime.Now;
-            Func<string, int, bool> lengthLessThan = (str, length) => (str?.Length ?? length) < length;
 
-            RuleFor(x => x.FirstName).NotEmpty().Must(m => lengthLessThan(m, 100));
-            RuleFor(x => x.LastName).NotEmpty().Must(m => lengthLessThan(m, 100));
             RuleFor(x => x.ULN).Matches("^$|^[1-9]{1}[0-9]{9}$").Must(m => m != "9999999999");
+            RuleFor(x => x.LastName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
+            RuleFor(x => x.FirstName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
+
+            When(x => x.DateOfBirth != null && x.StartDate != null, () =>
+            {
+                RuleFor(x => x.DateOfBirth).Must((apprenticship, dob) =>
+                {
+                    DateTime startDate = apprenticship.StartDate.Value;
+                    DateTime dobDate = dob.Value;
+                    int age = startDate.Year - dobDate.Year;
+                    if (startDate < dobDate.AddYears(age)) age--;
+
+                    return age >= 15;
+                });
+            });
+
             RuleFor(x => x.Cost).Must(CostIsValid);
 
             RuleFor(x => x.NINumber)

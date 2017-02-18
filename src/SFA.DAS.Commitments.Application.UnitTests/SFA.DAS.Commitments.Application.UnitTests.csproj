@@ -99,6 +99,16 @@
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ApprenticeshipValidationTestBase.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingEmployerReference.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingTotalCost.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingProviderReference.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingTrainingDates.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingTrainingCode.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingDateOfBirth.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingGivenName.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingFamilyName.cs" />
+    <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingUln.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenUpdatingApprenticeshipStatus.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
