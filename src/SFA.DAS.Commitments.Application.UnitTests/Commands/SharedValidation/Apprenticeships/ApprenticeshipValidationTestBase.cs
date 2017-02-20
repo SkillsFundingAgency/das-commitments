@@ -1,4 +1,5 @@
 ﻿using System;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands;
@@ -9,11 +10,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
     {
         protected ApprenticeshipValidator Validator;
         protected Apprenticeship ExampleValidApprenticeship;
+        protected Mock<ICurrentDateTime> MockCurrentDateTime;
 
         [SetUp]
         public void BaseSetup()
         {
-            Validator = new ApprenticeshipValidator();
+            MockCurrentDateTime = new Mock<ICurrentDateTime>();
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 10));
+
+            Validator = new ApprenticeshipValidator(MockCurrentDateTime.Object);
 
             ExampleValidApprenticeship = new Apprenticeship
             {

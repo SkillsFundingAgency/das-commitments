@@ -5,21 +5,33 @@ using FluentValidation;
 
 namespace SFA.DAS.Commitments.Application.Commands
 {
+    public interface ICurrentDateTime
+    {
+        DateTime Now { get; }
+    }
+
+    public class CurrentDateTime : ICurrentDateTime
+    {
+        public DateTime Now => DateTime.UtcNow;
+    }
+
     public sealed class ApprenticeshipValidator : AbstractValidator<Api.Types.Apprenticeship>
     {
         private static Func<string, int, bool> _lengthLessThanFunc = (str, length) => (str?.Length ?? length) < length;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public ApprenticeshipValidator()
+        public ApprenticeshipValidator(ICurrentDateTime currentDate)
         {
-            var now = DateTime.Now;
+            _currentDateTime = currentDate;
 
             RuleFor(x => x.ULN).Matches("^$|^[1-9]{1}[0-9]{9}$").Must(m => m != "9999999999");
             RuleFor(x => x.LastName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
             RuleFor(x => x.FirstName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
 
             ValidateDateOfBirth();
-
             ValidateTrainingCodes();
+
+            RuleFor(x => x.StartDate).GreaterThan(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null);
 
             RuleFor(x => x.Cost).Must(CostIsValid);
 
@@ -32,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands
 
             RuleFor(r => r.EndDate)
                     .Must(BeGreaterThenStartDate)
-                    .Must(m => m > now).Unless(m => m.EndDate == null);
+                    .Must(m => m > _currentDateTime.Now).Unless(m => m.EndDate == null);
         }
 
         private void ValidateTrainingCodes()

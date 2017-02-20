@@ -10,19 +10,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [Test]
         public void ShouldBeInvalidIfYoungerThan15OnStartDate()
         {
-            ExampleValidApprenticeship.StartDate = DateTime.Now.AddDays(30);
-            ExampleValidApprenticeship.DateOfBirth = DateTime.Now.AddYears(-13);
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 06, 10));
+            ExampleValidApprenticeship.StartDate = new DateTime(2017, 08, 01);
+            ExampleValidApprenticeship.DateOfBirth = new DateTime(2003, 04, 01);
 
             var result = Validator.Validate(ExampleValidApprenticeship);
 
             result.IsValid.Should().BeFalse();
         }
 
-        [Test]
-        public void ShouldBeValidIfOlderThan15OnStartDate()
+        [TestCase(2000, 4, 1)]
+        [TestCase(2002, 8, 1)]
+        [TestCase(2002, 7, 31)]
+        public void ShouldBeValidIfOlderThan15OnStartDate(int year, int month, int day)
         {
-            ExampleValidApprenticeship.StartDate = DateTime.Now.AddDays(30);
-            ExampleValidApprenticeship.DateOfBirth = DateTime.Now.AddYears(-15);
+            var dob = new DateTime(year, month, day);
+
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 10));
+            ExampleValidApprenticeship.StartDate = new DateTime(2017, 8, 1);
+            ExampleValidApprenticeship.DateOfBirth = dob;
 
             var result = Validator.Validate(ExampleValidApprenticeship);
 

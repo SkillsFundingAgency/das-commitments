@@ -5,6 +5,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
+using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );
-            _validator = new CreateCommitmentValidator();
+            _validator = new CreateCommitmentValidator(new ApprenticeshipValidator(new CurrentDateTime()));
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())

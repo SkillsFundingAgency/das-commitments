@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
@@ -33,7 +34,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new CreateApprenticeshipValidator(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
+            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, validator, _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()

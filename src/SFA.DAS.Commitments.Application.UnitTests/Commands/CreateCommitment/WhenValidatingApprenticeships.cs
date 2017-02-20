@@ -7,6 +7,8 @@ using Ploeh.AutoFixture;
 using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
+using SFA.DAS.Commitments.Application.Commands;
+using Moq;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -16,13 +18,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private CreateCommitmentValidator _validator;
         private CreateCommitmentCommand _exampleCommand;
         private Apprenticeship _validApprenticeship;
+        private Mock<ICurrentDateTime> _mockCurrentDateTime;
 
         [SetUp]
         public void Setup()
         {
             Fixture fixture = new Fixture();
+            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
 
-            _validator = new CreateCommitmentValidator();
+            _validator = new CreateCommitmentValidator(new ApprenticeshipValidator(_mockCurrentDateTime.Object));
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
             
@@ -179,8 +183,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [Test]
         public void EndDateIsInPast()
         {
-            _validApprenticeship.StartDate = DateTime.Now.AddYears(-7);
-            _validApprenticeship.EndDate = DateTime.Now.AddYears(-5);
+            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 06, 1));
+            _validApprenticeship.StartDate = new DateTime(2017, 5, 15);
+            _validApprenticeship.EndDate = new DateTime(2017, 5, 25); // End date is before current date
+
             _exampleCommand.Commitment.Apprenticeships = new List<Apprenticeship>
             {
                 _validApprenticeship

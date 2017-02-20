@@ -4,6 +4,7 @@ using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -16,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [SetUp]
         public void Setup()
         {
-            _validator = new CreateApprenticeshipValidator();
+            _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new CurrentDateTime()));
             var exampleValidApprenticeship = new Apprenticeship
             {
                 FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),

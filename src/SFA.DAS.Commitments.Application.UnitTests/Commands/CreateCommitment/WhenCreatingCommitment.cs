@@ -5,6 +5,7 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -26,7 +27,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator(), Mock.Of<ICommitmentsLogger>());
+            var commandValidator = new CreateCommitmentValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, commandValidator, Mock.Of<ICommitmentsLogger>());
 
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
