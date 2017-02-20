@@ -1,13 +1,14 @@
 ﻿using FluentValidation;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
     public sealed class UpdateApprenticeshipValidator : AbstractValidator<UpdateApprenticeshipCommand>
     {
-        public UpdateApprenticeshipValidator()
+        public UpdateApprenticeshipValidator(AbstractValidator<Apprenticeship> apprenticeshipValidator)
         {
-            RuleFor(x => x.Apprenticeship).NotNull();
+            RuleFor(x => x.Apprenticeship).NotNull().SetValidator(apprenticeshipValidator);
             RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
             RuleFor(x => x.CommitmentId).GreaterThan(0);
 

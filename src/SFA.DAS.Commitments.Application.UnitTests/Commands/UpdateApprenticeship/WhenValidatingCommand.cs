@@ -4,6 +4,7 @@ using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
@@ -18,7 +19,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             var fixture = new Fixture();
 
-            _validator = new UpdateApprenticeshipValidator();
+            _validator = new UpdateApprenticeshipValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+
             var populatedCommitment = fixture.Build<Apprenticeship>().Create();
             _exampleCommand = new UpdateApprenticeshipCommand
             {
