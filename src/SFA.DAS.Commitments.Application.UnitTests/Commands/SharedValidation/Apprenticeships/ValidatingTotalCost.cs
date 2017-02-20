@@ -45,5 +45,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
 
             result.IsValid.Should().BeFalse();
         }
+
+        [Test]
+        public void ThenCostGreaterThan100000IsInvalid()
+        {
+            ExampleValidApprenticeship.Cost = 100001;
+
+            var result = Validator.Validate(ExampleValidApprenticeship);
+
+            result.IsValid.Should().BeFalse();
+        }
+
+        [Test]
+        public void ThenCostEqualTo100000IsValid()
+        {
+            ExampleValidApprenticeship.Cost = 100000;
+
+            var result = Validator.Validate(ExampleValidApprenticeship);
+
+            result.IsValid.Should().BeTrue();
+        }
     }
 }

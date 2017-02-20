@@ -99,7 +99,7 @@ namespace SFA.DAS.Commitments.Application.Commands
         {
             if (cost.HasValue)
             {
-                if (cost <= 0 || HasGreaterThan2DecimalPlaces(cost.Value))
+                if (cost <= 0 || HasGreaterThan2DecimalPlaces(cost.Value) || cost.Value > 100000)
                     return false;
             }
 
