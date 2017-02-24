@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentValidation;
-using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Types;
@@ -29,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
 
             _handler = new BulkUploadApprenticeshipsCommandHandler(_mockCommitmentRespository.Object, validator, _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 

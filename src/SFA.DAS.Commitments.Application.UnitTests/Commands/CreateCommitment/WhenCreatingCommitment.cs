@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
-            var commandValidator = new CreateCommitmentValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            var commandValidator = new CreateCommitmentValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, commandValidator, Mock.Of<ICommitmentsLogger>());
 
             Fixture fixture = new Fixture();

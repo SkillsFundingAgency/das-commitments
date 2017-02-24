@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [SetUp]
         public void Setup()
         {
-            _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             var exampleValidApprenticeship = new Apprenticeship
             {
                 FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),

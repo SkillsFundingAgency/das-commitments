@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             var fixture = new Fixture();
             var mockApprenticeshipValidator = new Mock<AbstractValidator<Apprenticeship>>();
 
-            _validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            _validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
 
             var exampleValidApprenticeships = new List<Apprenticeship>
             {

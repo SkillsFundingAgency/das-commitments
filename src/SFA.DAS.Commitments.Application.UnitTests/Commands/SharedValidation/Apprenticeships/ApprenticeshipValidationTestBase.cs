@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Apprenticeships
 {

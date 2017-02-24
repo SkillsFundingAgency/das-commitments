@@ -1,14 +1,14 @@
 ﻿using System;
-
-using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Api.Types;
-using Ploeh.AutoFixture;
-using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.Commitments.Application.Commands;
+using FluentAssertions;
 using Moq;
+using NUnit.Framework;
+using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands;
+using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {

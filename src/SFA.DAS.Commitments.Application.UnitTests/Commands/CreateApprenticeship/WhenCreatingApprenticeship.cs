@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, validator, _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 
             var fixture = new Fixture();

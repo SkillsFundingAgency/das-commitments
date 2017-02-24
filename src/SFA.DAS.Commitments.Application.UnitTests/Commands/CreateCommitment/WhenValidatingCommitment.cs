@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );
-            _validator = new CreateCommitmentValidator(new ApprenticeshipValidator(new CurrentDateTime()));
+            _validator = new CreateCommitmentValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
