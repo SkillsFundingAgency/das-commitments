@@ -7,8 +7,10 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
@@ -21,14 +23,49 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         private DeleteCommitmentCommandHandler _handler;
         private DeleteCommitmentCommand _validCommand;
 
+        private Mock<IHistoryRepository> _historyRepository;
+
         [SetUp]
         public void Setup()
         {
             _mockCommitmentRepository = new Mock<ICommitmentRepository>();
             _validator = new DeleteCommitmentValidator();
-            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>());
+            _historyRepository = new Mock<IHistoryRepository>();
+            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _historyRepository.Object);
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
+        }
+
+        [TestCase(CallerType.Employer, UserRole.Employer, EditStatus.EmployerOnly)]
+        [TestCase(CallerType.Provider, UserRole.Provider, EditStatus.ProviderOnly)]
+        public async Task ShouldCallHistoryRepository(CallerType callerType, UserRole userRole, EditStatus editStatus)
+        {
+            var callerId = 123456L;
+            var commitmentId = 654321L;
+            _mockCommitmentRepository.Setup(m => m.GetCommitmentById(commitmentId))
+                .ReturnsAsync(
+                    new Commitment
+                        {
+                            Id = commitmentId,
+                            EditStatus = editStatus,
+                            EmployerAccountId = callerId,
+                            ProviderId = callerId
+                        });
+            await _handler.Handle(
+                new DeleteCommitmentCommand
+                    {
+                        Caller = new Caller { CallerType = callerType, Id = callerId },
+                        CommitmentId = commitmentId
+                    });
+
+            _historyRepository.Verify(x => x.CreateCommitmentHistory(
+                It.Is<CommitmentHistoryDbItem>(arg 
+                    => arg.ChangeType == CommitmentChangeType.Delete
+                    && arg.UserId == callerId
+                    && arg.UpdatedByRole == userRole
+                    && arg.CommitmentId == commitmentId
+                    )
+                ));
         }
 
         [Test]

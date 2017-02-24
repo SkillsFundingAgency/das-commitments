@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
@@ -28,12 +29,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private CreateApprenticeshipCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
 
+        private Mock<IHistoryRepository> _mockHistoryRepository;
+
         [SetUp]
         public void SetUp()
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new CreateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new CreateApprenticeshipValidator(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
+            _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _handler = new CreateApprenticeshipCommandHandler(
+                _mockCommitmentRespository.Object, 
+                new CreateApprenticeshipValidator(), 
+                _mockApprenticeshipEvents.Object, 
+                Mock.Of<ICommitmentsLogger>(), 
+                _mockHistoryRepository.Object);
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
@@ -72,6 +81,35 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentRespository.Verify(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()));
+        }
+
+        [TestCase(CallerType.Employer, UserRole.Employer)]
+        [TestCase(CallerType.Provider, UserRole.Provider)]
+        public async Task ThenShouldCallTheHistoryRepository(CallerType callerType, UserRole expectedUserRole)
+        {
+            _exampleValidRequest.Caller.CallerType = callerType;
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id,
+                EmployerAccountId = _exampleValidRequest.Caller.Id
+            });
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockHistoryRepository.Verify(x => x.CreateApprenticeship(
+                It.Is<ApprenticeshipHistoryDbItem>(arg 
+                    => arg.ChangeType == ApprenticeshipChangeType.Created
+                    && arg.UpdatedByRole == expectedUserRole
+                    && arg.UserId == _exampleValidRequest.Caller.Id)
+                ), Times.Once);
+
+            _mockHistoryRepository.Verify(x => x.CreateCommitmentHistory(
+                It.Is<CommitmentHistoryDbItem>(arg 
+                    => arg.ChangeType == CommitmentChangeType.CreateApprenticeship
+                    && arg.UpdatedByRole == expectedUserRole
+                    && arg.UserId == _exampleValidRequest.Caller.Id)
+                ), Times.Once);
         }
 
         [Test]

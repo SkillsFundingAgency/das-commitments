@@ -74,6 +74,8 @@
     <Build Include="StoredProcedures\BulkUploadApprenticships.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
     <Build Include="StoredProcedures\DeleteCommitment.sql" />
+    <Build Include="Tables\ApprenticeshipHistory.sql" />
+    <Build Include="Tables\CommitmentHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

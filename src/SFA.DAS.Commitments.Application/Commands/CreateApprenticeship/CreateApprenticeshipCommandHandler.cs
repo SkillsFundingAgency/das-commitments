@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
@@ -19,7 +20,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        private readonly IHistoryRepository _historyRepository;
+
+        public CreateApprenticeshipCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            AbstractValidator<CreateApprenticeshipCommand> validator, 
+            IApprenticeshipEvents apprenticeshipEvents, 
+            ICommitmentsLogger logger,
+            IHistoryRepository historyRepository)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -29,11 +37,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 throw new ArgumentNullException(nameof(apprenticeshipEvents));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if(historyRepository == null)
+                throw new ArgumentException(nameof(historyRepository));
 
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
+            _historyRepository = historyRepository;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand command)
@@ -59,6 +70,26 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
 
             await UpdateStatusOfApprenticeship(commitment);
+
+            await _historyRepository.CreateApprenticeship(
+                new ApprenticeshipHistoryDbItem
+                    {
+                        ApprenticeshipId = command.Apprenticeship.Id,
+                        ChangeType = ApprenticeshipChangeType.Created,
+                        CreatedOn = DateTime.UtcNow,
+                        UserId = command.Caller.Id,
+                        UpdatedByRole = command.Caller.CallerType == CallerType.Employer ? UserRole.Employer : UserRole.Provider,
+                    });
+
+            await _historyRepository.CreateCommitmentHistory(
+                new CommitmentHistoryDbItem
+                {
+                    CommitmentId = command.CommitmentId,
+                    ChangeType = CommitmentChangeType.CreateApprenticeship,
+                    CreatedOn = DateTime.UtcNow,
+                    UserId = command.Caller.Id,
+                    UpdatedByRole = command.Caller.CallerType == CallerType.Employer ? UserRole.Employer : UserRole.Provider,
+                });
 
             return apprenticeshipId;
         }
