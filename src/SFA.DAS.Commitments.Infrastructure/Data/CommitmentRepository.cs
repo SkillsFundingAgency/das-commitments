@@ -342,6 +342,46 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return insertedApprenticeships;
         }
 
+        public async Task<long> CreateRelationship(Relationship relationship)
+        {
+            _logger.Debug(
+                $"Creating relationship between Provider {relationship.ProviderId}, Employer {relationship.EmployerAccountId}, Legal Entity: {relationship.LegalEntityId}");
+
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@ProviderId", relationship.ProviderId, DbType.Int64);
+                parameters.Add("@ProviderName", relationship.ProviderName, DbType.String);
+                parameters.Add("@LegalEntityId", relationship.LegalEntityId, DbType.String);
+                parameters.Add("@LegalEntityName", relationship.LegalEntityName, DbType.String);
+                parameters.Add("@EmployerAccountId", relationship.EmployerAccountId, DbType.String);
+                parameters.Add("@Verified", relationship.Verified, DbType.Boolean);
+
+                return await connection.ExecuteAsync(
+                    sql: "[dbo].[CreateRelationship]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+            });
+        }
+
+        public async Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode)
+        {
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EmployerAccountId", employerAccountId);
+                parameters.Add("@ProviderId", providerId);
+                parameters.Add("@LegalEntityId", legalEntityCode);
+
+                var results = await connection.QueryAsync<Relationship>(
+                    sql: $"[dbo].[GetRelationship]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return results.FirstOrDefault();
+            });
+    }
+
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
         {
             var lookup = new Dictionary<object, Commitment>();
@@ -505,5 +545,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
                    $"{refItem} WHERE Id = @id;";
         }
+
     }
 }

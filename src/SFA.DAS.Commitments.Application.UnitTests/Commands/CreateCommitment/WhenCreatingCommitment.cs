@@ -2,10 +2,13 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
+using MediatR;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
+using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -20,13 +23,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private CreateCommitmentCommandHandler _handler;
         private CreateCommitmentCommand _exampleValidRequest;
         private Mock<IHashingService> _mockHashingService;
+        private Mock<IMediator> _mockMediator;
 
         [SetUp]
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator(), Mock.Of<ICommitmentsLogger>());
+            _mockMediator = new Mock<IMediator>();
+            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator(), Mock.Of<ICommitmentsLogger>(), _mockMediator.Object);
 
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
@@ -41,6 +46,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             );
             var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };
+
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
+               .ReturnsAsync(new GetRelationshipResponse
+               {
+                   Data = new Relationship()
+               });
+
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateRelationshipCommand>()))
+                .ReturnsAsync(new Unit());
         }
 
         [Test]
@@ -85,6 +99,62 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 
             act.ShouldThrow<ValidationException>();
         }
+
+        [Test]
+        public async Task ThenShouldGetProviderLegalEntityRelationship()
+        {
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockMediator.Verify(x=> x.SendAsync(It.Is<GetRelationshipRequest>
+                (r=> r.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId
+                && r.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value
+                && r.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId
+                )));
+        }
+
+        [Test]
+        public async Task ThenIfProviderLegalEntityRelationshipDoesNotExistThenShouldCreateIt()
+        {
+            //Arrange
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
+               .ReturnsAsync(new GetRelationshipResponse
+               {
+                   Data = null
+               });
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateRelationshipCommand>(
+                r=> r.Relationship != null
+                && r.Relationship.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value
+                && r.Relationship.ProviderName == _exampleValidRequest.Commitment.ProviderName
+                && r.Relationship.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId
+                && r.Relationship.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId
+                && r.Relationship.LegalEntityName == _exampleValidRequest.Commitment.LegalEntityName
+                )), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfProviderLegalEntityRelationshipExistsThenShouldNotCreateAnother()
+        {
+            //Arrange
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
+               .ReturnsAsync(new GetRelationshipResponse
+               {
+                   Data = new Relationship()
+               });
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockMediator.Verify(x=> x.SendAsync(It.IsAny<CreateRelationshipCommand>()), Times.Never);
+        }
+
 
         private void AssertMappingIsCorrect(Commitment argument)
         {

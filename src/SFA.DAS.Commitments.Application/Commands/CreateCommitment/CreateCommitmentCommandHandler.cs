@@ -3,9 +3,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
+using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
+using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
+using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
@@ -15,8 +26,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
+        private readonly IMediator _mediator;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger, IMediator mediator)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -24,11 +36,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 throw new ArgumentNullException(nameof(hashingService));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if(mediator==null)
+                throw new ArgumentException(nameof(mediator));
 
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
             _validator = validator;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
@@ -39,6 +54,32 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
+
+            var relationship = await _mediator.SendAsync(new GetRelationshipRequest
+            {
+                EmployerAccountId = message.Commitment.EmployerAccountId,
+                ProviderId = message.Commitment.ProviderId.Value,
+                LegalEntityId = message.Commitment.LegalEntityId
+            });
+
+            if (relationship.Data == null)
+            {
+                _logger.Info($"Creating relationship between employer account {message.Commitment.EmployerAccountId}," +
+                             $" legal entity {message.Commitment.LegalEntityId}," +
+                             $" and provider {message.Commitment.ProviderId}");
+
+                await _mediator.SendAsync(new CreateRelationshipCommand
+                {
+                    Relationship = new Relationship
+                    {
+                        EmployerAccountId = message.Commitment.EmployerAccountId,
+                        LegalEntityId = message.Commitment.LegalEntityId,
+                        LegalEntityName = message.Commitment.LegalEntityName,
+                        ProviderId = message.Commitment.ProviderId.Value,
+                        ProviderName = message.Commitment.ProviderName
+                    }
+                });
+            }
 
             var newCommitment = MapFrom(message.Commitment);
 

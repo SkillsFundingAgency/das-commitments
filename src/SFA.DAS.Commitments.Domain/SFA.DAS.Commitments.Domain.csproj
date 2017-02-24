@@ -60,6 +60,7 @@
     <Compile Include="Entities\CommitmentStatus.cs" />
     <Compile Include="Configuration\EventsApiClientConfiguration.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
+    <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />

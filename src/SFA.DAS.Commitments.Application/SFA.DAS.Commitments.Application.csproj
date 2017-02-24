@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.20.0.21715, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.20.0.21715\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.21.0.23652, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.21.0.23652\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.11.0.19990, Culture=neutral, processorArchitecture=MSIL">
@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
+    <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
+    <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
+    <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommand.cs" />
@@ -97,6 +100,10 @@
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipQueryHandler.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
     <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
