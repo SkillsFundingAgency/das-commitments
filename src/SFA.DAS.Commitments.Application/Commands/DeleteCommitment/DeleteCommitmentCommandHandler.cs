@@ -63,13 +63,13 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             await _commitmentRepository.DeleteCommitment(command.CommitmentId);
 
             await _historyRepository.CreateCommitmentHistory(
-                new CommitmentHistoryDbItem
+                new CommitmentHistoryItem
                     {
                         ChangeType = CommitmentChangeType.Delete,
                         CommitmentId = commitment.Id,
                         CreatedOn = DateTime.UtcNow,
                         UserId = command.Caller.Id,
-                        UpdatedByRole = command.Caller.CallerType == CallerType.Employer ? UserRole.Employer : UserRole.Provider
+                        UpdatedByRole = command.Caller.CallerType
                     });
         }
 

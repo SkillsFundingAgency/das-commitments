@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Dapper;
 
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -23,9 +24,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _logger = logger;
         }
 
-        public async Task CreateCommitmentHistory(CommitmentHistoryDbItem item)
+        public async Task CreateCommitmentHistory(CommitmentHistoryItem item)
         {
-            if(item.UpdatedByRole == UserRole.Employer)
+            if(item.UpdatedByRole == CallerType.Employer )
                 _logger.Debug($"Creating history item for commitment: {item.CommitmentId}", commitmentId: item.CommitmentId, accountId: item.UserId);
             else
                 _logger.Debug($"Creating history item for commitment: {item.CommitmentId}", commitmentId: item.CommitmentId, providerId: item.UserId);
@@ -55,9 +56,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task CreateApprenticeship(ApprenticeshipHistoryDbItem item)
+        public async Task CreateApprenticeship(ApprenticeshipHistoryItem item)
         {
-            if (item.UpdatedByRole == UserRole.Employer)
+            if (item.UpdatedByRole == CallerType.Employer)
                 _logger.Debug($"Creating history item for apprenticehsip: {item.ApprenticeshipId}", apprenticeshipId: item.ApprenticeshipId, accountId: item.UserId);
             else
                 _logger.Debug($"Creating history item for apprenticehsip: {item.ApprenticeshipId}", apprenticeshipId: item.ApprenticeshipId, providerId: item.UserId);

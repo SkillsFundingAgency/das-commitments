@@ -72,23 +72,23 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             await UpdateStatusOfApprenticeship(commitment);
 
             await _historyRepository.CreateApprenticeship(
-                new ApprenticeshipHistoryDbItem
+                new ApprenticeshipHistoryItem
                     {
                         ApprenticeshipId = command.Apprenticeship.Id,
                         ChangeType = ApprenticeshipChangeType.Created,
                         CreatedOn = DateTime.UtcNow,
                         UserId = command.Caller.Id,
-                        UpdatedByRole = command.Caller.CallerType == CallerType.Employer ? UserRole.Employer : UserRole.Provider,
+                        UpdatedByRole = command.Caller.CallerType
                     });
 
             await _historyRepository.CreateCommitmentHistory(
-                new CommitmentHistoryDbItem
+                new CommitmentHistoryItem
                 {
                     CommitmentId = command.CommitmentId,
                     ChangeType = CommitmentChangeType.CreateApprenticeship,
                     CreatedOn = DateTime.UtcNow,
                     UserId = command.Caller.Id,
-                    UpdatedByRole = command.Caller.CallerType == CallerType.Employer ? UserRole.Employer : UserRole.Provider,
+                    UpdatedByRole = command.Caller.CallerType
                 });
 
             return apprenticeshipId;

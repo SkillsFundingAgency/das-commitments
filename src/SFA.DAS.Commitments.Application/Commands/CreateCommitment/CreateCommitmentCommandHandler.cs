@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
@@ -58,13 +60,13 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             await _commitmentRepository.UpdateCommitmentReference(commitmentId, _hashingService.HashValue(commitmentId));
 
             await _historyRepository.CreateCommitmentHistory(
-                new CommitmentHistoryDbItem
+                new CommitmentHistoryItem
                 {
                     CommitmentId = commitmentId,
                     ChangeType = CommitmentChangeType.Create,
                     CreatedOn = DateTime.UtcNow,
                     UserId = message.Commitment.EmployerAccountId,
-                    UpdatedByRole = UserRole.Employer
+                    UpdatedByRole = CallerType.Employer
                 });
 
             return commitmentId;

@@ -52,12 +52,11 @@
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\History\ApprenticeshipChangeType.cs" />
-    <Compile Include="Entities\History\ApprenticeshipHistoryDbItem.cs" />
+    <Compile Include="Entities\History\ApprenticeshipHistoryItem.cs" />
     <Compile Include="Entities\History\CommitmentChangeType.cs" />
-    <Compile Include="Entities\History\CommitmentHistoryDbItem.cs" />
+    <Compile Include="Entities\History\CommitmentHistoryItem.cs" />
     <Compile Include="Entities\CommitmentSummary.cs" />
     <Compile Include="Entities\EditStatus.cs" />
-    <Compile Include="Entities\History\UserRole.cs" />
     <Compile Include="Entities\LastAction.cs" />
     <Compile Include="Entities\PaymentStatus.cs" />
     <Compile Include="Caller.cs" />

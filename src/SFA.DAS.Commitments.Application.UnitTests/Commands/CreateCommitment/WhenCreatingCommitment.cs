@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _historyRepository.Verify(x => x.CreateCommitmentHistory(It.IsAny<CommitmentHistoryDbItem>()), Times.Once);
+            _historyRepository.Verify(x => x.CreateCommitmentHistory(It.IsAny<CommitmentHistoryItem>()), Times.Once);
         }
 
         [Test]

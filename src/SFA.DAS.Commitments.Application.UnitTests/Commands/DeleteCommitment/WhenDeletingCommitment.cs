@@ -36,9 +36,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }
 
-        [TestCase(CallerType.Employer, UserRole.Employer, EditStatus.EmployerOnly)]
-        [TestCase(CallerType.Provider, UserRole.Provider, EditStatus.ProviderOnly)]
-        public async Task ShouldCallHistoryRepository(CallerType callerType, UserRole userRole, EditStatus editStatus)
+        [TestCase(CallerType.Employer, EditStatus.EmployerOnly)]
+        [TestCase(CallerType.Provider, EditStatus.ProviderOnly)]
+        public async Task ShouldCallHistoryRepository(CallerType callerType, EditStatus editStatus)
         {
             var callerId = 123456L;
             var commitmentId = 654321L;
@@ -59,10 +59,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                     });
 
             _historyRepository.Verify(x => x.CreateCommitmentHistory(
-                It.Is<CommitmentHistoryDbItem>(arg 
+                It.Is<CommitmentHistoryItem>(arg 
                     => arg.ChangeType == CommitmentChangeType.Delete
                     && arg.UserId == callerId
-                    && arg.UpdatedByRole == userRole
+                    && arg.UpdatedByRole == callerType
                     && arg.CommitmentId == commitmentId
                     )
                 ));

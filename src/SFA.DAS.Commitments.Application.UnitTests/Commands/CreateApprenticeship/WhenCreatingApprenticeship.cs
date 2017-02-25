@@ -83,9 +83,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockCommitmentRespository.Verify(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()));
         }
 
-        [TestCase(CallerType.Employer, UserRole.Employer)]
-        [TestCase(CallerType.Provider, UserRole.Provider)]
-        public async Task ThenShouldCallTheHistoryRepository(CallerType callerType, UserRole expectedUserRole)
+        [TestCase(CallerType.Employer)]
+        [TestCase(CallerType.Provider)]
+        public async Task ThenShouldCallTheHistoryRepository(CallerType callerType)
         {
             _exampleValidRequest.Caller.CallerType = callerType;
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
@@ -98,16 +98,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             await _handler.Handle(_exampleValidRequest);
 
             _mockHistoryRepository.Verify(x => x.CreateApprenticeship(
-                It.Is<ApprenticeshipHistoryDbItem>(arg 
+                It.Is<ApprenticeshipHistoryItem>(arg 
                     => arg.ChangeType == ApprenticeshipChangeType.Created
-                    && arg.UpdatedByRole == expectedUserRole
+                    && arg.UpdatedByRole == callerType
                     && arg.UserId == _exampleValidRequest.Caller.Id)
                 ), Times.Once);
 
             _mockHistoryRepository.Verify(x => x.CreateCommitmentHistory(
-                It.Is<CommitmentHistoryDbItem>(arg 
+                It.Is<CommitmentHistoryItem>(arg 
                     => arg.ChangeType == CommitmentChangeType.CreateApprenticeship
-                    && arg.UpdatedByRole == expectedUserRole
+                    && arg.UpdatedByRole == callerType
                     && arg.UserId == _exampleValidRequest.Caller.Id)
                 ), Times.Once);
         }
