@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -13,20 +12,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
     {
         private readonly AbstractValidator<CreateRelationshipCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
 
-        public CreateRelationshipCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateRelationshipCommand> validator, ICommitmentsLogger logger)
+        public CreateRelationshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateRelationshipCommand> validator, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
-            if (hashingService == null)
-                throw new ArgumentNullException(nameof(hashingService));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
-            _hashingService = hashingService;
             _validator = validator;
             _logger = logger;
         }
