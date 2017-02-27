@@ -65,9 +65,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             await _historyRepository.CreateCommitmentHistory(
                 new CommitmentHistoryItem
                     {
-                        ChangeType = CommitmentChangeType.Delete,
                         CommitmentId = commitment.Id,
-                        CreatedOn = DateTime.UtcNow,
                         UserId = command.UserId,
                         UpdatedByRole = command.Caller.CallerType
                     });

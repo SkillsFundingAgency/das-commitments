@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.Commitments.Domain.Entities.History
+﻿namespace SFA.DAS.Commitments.Domain.Entities.History
 {
     public class CommitmentHistoryItem
     {
@@ -9,9 +7,5 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
         public string UserId { get; set; }
 
         public CallerType UpdatedByRole { get; set; }
-
-        public CommitmentChangeType ChangeType { get; set; }
-
-        public DateTime CreatedOn { get; set; }
     }
 }

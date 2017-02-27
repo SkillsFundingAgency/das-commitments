@@ -7,6 +7,7 @@ using Dapper;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
@@ -15,15 +16,23 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
 
-        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString)
+        private readonly IHistoryTransactions _historyTransactions;
+
+        public CommitmentRepository(
+            string databaseConnectionString, 
+            ICommitmentsLogger logger,
+            IHistoryTransactions historyTransactions) : base(databaseConnectionString)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (historyTransactions == null)
+                throw new ArgumentNullException(nameof(historyTransactions));
 
             _logger = logger;
+            _historyTransactions = historyTransactions;
         }
 
-        public async Task<long> Create(Commitment commitment)
+        public async Task<long> Create(Commitment commitment, string userId)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
@@ -64,16 +73,36 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         await CreateApprenticeship(connection, trans, apprenticeship);
                     }
 
+                    await _historyTransactions.CreateCommitment(
+                        connection, trans,
+                        new CommitmentHistoryItem
+                        {
+                            CommitmentId = commitmentId,
+                            UserId = userId,
+                            UpdatedByRole = CallerType.Employer
+                        });
+
                     trans.Commit();
                 }
                 return commitmentId;
             });
         }
 
-        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
+        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship, string userId)
         {
             _logger.Debug($"Creating apprenticeship - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId);
-            return await WithConnection(async connection => { return await CreateApprenticeship(connection, null, apprenticeship); });
+            return await WithConnection(
+                async connection =>
+                    {
+                        using (var trans = connection.BeginTransaction())
+                        {
+                            var resturnValue = await CreateApprenticeship(connection, trans, apprenticeship);
+                            await _historyTransactions.CreateApprenticeship(connection, trans, new ApprenticeshipHistoryItem());
+
+                            trans.Commit();
+                            return resturnValue;
+                        }
+                    });
         }
 
         public async Task<Commitment> GetCommitmentById(long id)

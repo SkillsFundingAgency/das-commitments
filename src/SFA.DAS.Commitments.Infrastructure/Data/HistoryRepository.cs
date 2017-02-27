@@ -37,8 +37,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@commitmentId", item.CommitmentId, DbType.Int64);
                 parameters.Add("@userId", item.UserId, DbType.Int64);
                 parameters.Add("@updatedByRole", item.UpdatedByRole, DbType.Int16);
-                parameters.Add("@changeType", item.ChangeType, DbType.Int16);
-                parameters.Add("@createdOn", item.CreatedOn, DbType.DateTime);
+                parameters.Add("@changeType", CommitmentChangeType.Create, DbType.Int16);
+                parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
 
                 using (var trans = connection.BeginTransaction())
                 {
@@ -69,8 +69,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@apprenticeshipId", item.ApprenticeshipId, DbType.Int64);
                 parameters.Add("@userId", item.UserId, DbType.Int64);
                 parameters.Add("@updatedByRole", item.UpdatedByRole, DbType.Int16);
-                parameters.Add("@changeType", item.ChangeType, DbType.Int16);
-                parameters.Add("@createdOn", item.CreatedOn, DbType.DateTime);
+                parameters.Add("@changeType", ApprenticeshipChangeType.Created, DbType.Int16);
+                parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
 
                 using (var trans = connection.BeginTransaction())
                 {

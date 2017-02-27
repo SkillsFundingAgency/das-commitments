@@ -1,5 +1,3 @@
-using System;
-
 namespace SFA.DAS.Commitments.Domain.Entities.History
 {
     public class ApprenticeshipHistoryItem
@@ -9,9 +7,5 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
         public string UserId { get; set; }
 
         public CallerType UpdatedByRole { get; set; }
-
-        public ApprenticeshipChangeType ChangeType { get; set; }
-
-        public DateTime CreatedOn { get; set; }
     }
 }

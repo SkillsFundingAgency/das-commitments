@@ -7,13 +7,13 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface ICommitmentRepository
     {
-        Task<long> Create(Commitment commitment);
+        Task<long> Create(Commitment commitment, string userId);
         Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
         Task<Commitment> GetCommitmentById(long id);
         Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId);
         Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId);
-        Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
+        Task<long> CreateApprenticeship(Apprenticeship apprenticeship, string userId);
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
         Task<Apprenticeship> GetApprenticeship(long apprenticeshipId);
         Task DeleteApprenticeship(long apprenticeshipId);

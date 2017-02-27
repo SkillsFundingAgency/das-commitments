@@ -109,6 +109,7 @@
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
+    <Compile Include="Data\HistoryTransactions.cs" />
     <Compile Include="Data\HistoryRepository.cs" />
     <Compile Include="Data\ParentChildrenMapper.cs" />
     <Compile Include="Logging\CommitmentsLogger.cs" />

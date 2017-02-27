@@ -63,33 +63,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
-            var apprenticeshipId = await _commitmentRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command));
+            var apprenticeshipId = await 
+                _commitmentRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command), command.UserId);
 
             command.Apprenticeship.Id = apprenticeshipId;
 
             await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
 
             await UpdateStatusOfApprenticeship(commitment);
-
-            await _historyRepository.CreateApprenticeship(
-                new ApprenticeshipHistoryItem
-                    {
-                        ApprenticeshipId = command.Apprenticeship.Id,
-                        ChangeType = ApprenticeshipChangeType.Created,
-                        CreatedOn = DateTime.UtcNow,
-                        UserId = command.UserId,
-                        UpdatedByRole = command.Caller.CallerType
-                    });
-
-            await _historyRepository.CreateCommitmentHistory(
-                new CommitmentHistoryItem
-                {
-                    CommitmentId = command.CommitmentId,
-                    ChangeType = CommitmentChangeType.CreateApprenticeship,
-                    CreatedOn = DateTime.UtcNow,
-                    UserId = command.UserId,
-                    UpdatedByRole = command.Caller.CallerType
-                });
 
             return apprenticeshipId;
         }
