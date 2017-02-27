@@ -6,7 +6,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
     {
         public long ApprenticeshipId { get; set; }
 
-        public long UserId { get; set; }
+        public string UserId { get; set; }
 
         public CallerType UpdatedByRole { get; set; }
 

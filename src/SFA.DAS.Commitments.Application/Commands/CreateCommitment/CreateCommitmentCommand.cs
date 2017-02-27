@@ -7,5 +7,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
     public sealed class CreateCommitmentCommand : IAsyncRequest<long>
     {
         public Commitment Commitment { get; set; }
+
+        public string UserId { get; set; }
     }
 }

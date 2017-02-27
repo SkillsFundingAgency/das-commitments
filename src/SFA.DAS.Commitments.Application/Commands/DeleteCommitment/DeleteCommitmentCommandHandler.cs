@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
                         ChangeType = CommitmentChangeType.Delete,
                         CommitmentId = commitment.Id,
                         CreatedOn = DateTime.UtcNow,
-                        UserId = command.Caller.Id,
+                        UserId = command.UserId,
                         UpdatedByRole = command.Caller.CallerType
                     });
         }

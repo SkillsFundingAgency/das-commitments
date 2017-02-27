@@ -65,7 +65,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     Id = 111L
                 },
                 CommitmentId = 123L,
-                Apprenticeship = populatedApprenticeship
+                Apprenticeship = populatedApprenticeship,
+                UserId = "ABBA123"
             };
         }
 
@@ -101,14 +102,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 It.Is<ApprenticeshipHistoryItem>(arg 
                     => arg.ChangeType == ApprenticeshipChangeType.Created
                     && arg.UpdatedByRole == callerType
-                    && arg.UserId == _exampleValidRequest.Caller.Id)
+                    && arg.UserId == _exampleValidRequest.UserId)
                 ), Times.Once);
 
             _mockHistoryRepository.Verify(x => x.CreateCommitmentHistory(
                 It.Is<CommitmentHistoryItem>(arg 
                     => arg.ChangeType == CommitmentChangeType.CreateApprenticeship
                     && arg.UpdatedByRole == callerType
-                    && arg.UserId == _exampleValidRequest.Caller.Id)
+                    && arg.UserId == _exampleValidRequest.UserId)
                 ), Times.Once);
         }
 

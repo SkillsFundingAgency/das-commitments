@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                         ApprenticeshipId = command.Apprenticeship.Id,
                         ChangeType = ApprenticeshipChangeType.Created,
                         CreatedOn = DateTime.UtcNow,
-                        UserId = command.Caller.Id,
+                        UserId = command.UserId,
                         UpdatedByRole = command.Caller.CallerType
                     });
 
@@ -87,7 +87,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                     CommitmentId = command.CommitmentId,
                     ChangeType = CommitmentChangeType.CreateApprenticeship,
                     CreatedOn = DateTime.UtcNow,
-                    UserId = command.Caller.Id,
+                    UserId = command.UserId,
                     UpdatedByRole = command.Caller.CallerType
                 });
 

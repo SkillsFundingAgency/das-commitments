@@ -65,7 +65,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     CommitmentId = commitmentId,
                     ChangeType = CommitmentChangeType.Create,
                     CreatedOn = DateTime.UtcNow,
-                    UserId = message.Commitment.EmployerAccountId,
+                    UserId = message.UserId,
                     UpdatedByRole = CallerType.Employer
                 });
 

@@ -36,38 +36,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }
 
-        [TestCase(CallerType.Employer, EditStatus.EmployerOnly)]
-        [TestCase(CallerType.Provider, EditStatus.ProviderOnly)]
-        public async Task ShouldCallHistoryRepository(CallerType callerType, EditStatus editStatus)
-        {
-            var callerId = 123456L;
-            var commitmentId = 654321L;
-            _mockCommitmentRepository.Setup(m => m.GetCommitmentById(commitmentId))
-                .ReturnsAsync(
-                    new Commitment
-                        {
-                            Id = commitmentId,
-                            EditStatus = editStatus,
-                            EmployerAccountId = callerId,
-                            ProviderId = callerId
-                        });
-            await _handler.Handle(
-                new DeleteCommitmentCommand
-                    {
-                        Caller = new Caller { CallerType = callerType, Id = callerId },
-                        CommitmentId = commitmentId
-                    });
-
-            _historyRepository.Verify(x => x.CreateCommitmentHistory(
-                It.Is<CommitmentHistoryItem>(arg 
-                    => arg.ChangeType == CommitmentChangeType.Delete
-                    && arg.UserId == callerId
-                    && arg.UpdatedByRole == callerType
-                    && arg.CommitmentId == commitmentId
-                    )
-                ));
-        }
-
         [Test]
         public void ShouldNotAllowDeleteIfApprenticesAreNotPreApprovedState()
         {

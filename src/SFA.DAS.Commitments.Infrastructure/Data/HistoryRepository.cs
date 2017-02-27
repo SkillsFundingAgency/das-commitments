@@ -27,9 +27,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task CreateCommitmentHistory(CommitmentHistoryItem item)
         {
             if(item.UpdatedByRole == CallerType.Employer )
-                _logger.Debug($"Creating history item for commitment: {item.CommitmentId}", commitmentId: item.CommitmentId, accountId: item.UserId);
+                _logger.Debug($"Creating history item for commitment: {item.CommitmentId}", commitmentId: item.CommitmentId);
             else
-                _logger.Debug($"Creating history item for commitment: {item.CommitmentId}", commitmentId: item.CommitmentId, providerId: item.UserId);
+                _logger.Debug($"Creating history item for commitment: {item.CommitmentId}", commitmentId: item.CommitmentId);
 
             await WithConnection(async connection =>
             {
@@ -59,9 +59,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task CreateApprenticeship(ApprenticeshipHistoryItem item)
         {
             if (item.UpdatedByRole == CallerType.Employer)
-                _logger.Debug($"Creating history item for apprenticehsip: {item.ApprenticeshipId}", apprenticeshipId: item.ApprenticeshipId, accountId: item.UserId);
+                _logger.Debug($"Creating history item for apprenticehsip: {item.ApprenticeshipId}", apprenticeshipId: item.ApprenticeshipId);
             else
-                _logger.Debug($"Creating history item for apprenticehsip: {item.ApprenticeshipId}", apprenticeshipId: item.ApprenticeshipId, providerId: item.UserId);
+                _logger.Debug($"Creating history item for apprenticehsip: {item.ApprenticeshipId}", apprenticeshipId: item.ApprenticeshipId);
 
             await WithConnection(async connection =>
             {

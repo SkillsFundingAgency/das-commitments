@@ -8,5 +8,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
     {
         public Caller Caller { get; set; }
         public long ApprenticeshipId { get; set; }
+
+        public string UserId { get; set; }
     }
 }
