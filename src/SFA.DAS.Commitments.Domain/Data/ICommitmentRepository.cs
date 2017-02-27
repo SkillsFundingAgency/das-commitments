@@ -28,5 +28,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task SetPaymentOrder(long accountId);
         Task<long> CreateRelationship(Relationship relationship);
         Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode);
+        Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode);
     }
 }

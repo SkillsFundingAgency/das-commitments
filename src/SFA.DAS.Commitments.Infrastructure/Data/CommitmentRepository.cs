@@ -380,7 +380,23 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 return results.FirstOrDefault();
             });
-    }
+        }
+
+        public async Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EmployerAccountId", employerAccountId);
+                parameters.Add("@ProviderId", providerId);
+                parameters.Add("@LegalEntityId", legalEntityCode);
+
+                return await connection.ExecuteAsync(
+                    sql: $"[dbo].[VerifyRelationship]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+            });
+        }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
         {
@@ -545,6 +561,5 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
                    $"{refItem} WHERE Id = @id;";
         }
-
     }
 }
