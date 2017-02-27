@@ -380,7 +380,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             IList<Apprenticeship> apprenticeships;
 
-            using (var tran = x.BeginTransaction()) // TODO: Set Isolation Level
+            using (var tran = x.BeginTransaction())
             {
                 await x.ExecuteAsync(
                     sql: "[dbo].[BulkUploadApprenticships]",
