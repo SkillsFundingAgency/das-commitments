@@ -6,7 +6,6 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
@@ -16,35 +15,36 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
     public sealed class CreateApprenticeshipCommandHandler : IAsyncRequestHandler<CreateApprenticeshipCommand, long>
     {
         private readonly ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
 
-        private readonly IHistoryRepository _historyRepository;
-
         public CreateApprenticeshipCommandHandler(
-            ICommitmentRepository commitmentRepository, 
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository, 
             AbstractValidator<CreateApprenticeshipCommand> validator, 
             IApprenticeshipEvents apprenticeshipEvents, 
-            ICommitmentsLogger logger,
-            IHistoryRepository historyRepository)
+            ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
+            if (apprenticeshipRepository == null)
+                throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
             if (apprenticeshipEvents == null)
                 throw new ArgumentNullException(nameof(apprenticeshipEvents));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if(historyRepository == null)
-                throw new ArgumentException(nameof(historyRepository));
 
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
-            _historyRepository = historyRepository;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand command)
@@ -63,9 +63,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
-            var apprenticeshipId = await 
-                _commitmentRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command), command.UserId);
-
+            var apprenticeshipId = await
+                _apprenticeshipRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command), command.Caller.CallerType, command.UserId);
+            
             command.Apprenticeship.Id = apprenticeshipId;
 
             await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             {
                 if (apprenticeship.AgreementStatus != Domain.Entities.AgreementStatus.NotAgreed)
                 {
-                    await _commitmentRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, Domain.Entities.AgreementStatus.NotAgreed);
+                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, Domain.Entities.AgreementStatus.NotAgreed);
                 }
             }
         }

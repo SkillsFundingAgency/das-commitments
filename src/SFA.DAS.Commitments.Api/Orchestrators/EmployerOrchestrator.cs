@@ -72,7 +72,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return await _mediator.SendAsync(new CreateCommitmentCommand
             {
                 Commitment = commitmentRequest.Commitment,
-                UserId = commitmentRequest.UserId
+                UserId = commitmentRequest.UserId,
+                CallerType = CallerType.Employer
             });
         }
 
@@ -158,7 +159,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 CommitmentId = commitmentId,
                 LatestAction = submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
-                LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress
+                LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
+                UserId = submission.UserId
             });
         }
 

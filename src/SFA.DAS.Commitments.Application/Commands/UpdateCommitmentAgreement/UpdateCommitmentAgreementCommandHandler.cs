@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Rules;
@@ -10,6 +12,12 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
@@ -19,12 +27,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly ICommitmentsLogger _logger;
         private readonly IMediator _mediator;
         private readonly AbstractValidator<UpdateCommitmentAgreementCommand> _validator;
 
         public UpdateCommitmentAgreementCommandHandler(
-            ICommitmentRepository commitmentRepository, 
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipUpdateRules apprenticeshipUpdateRules, 
             IApprenticeshipEvents apprenticeshipEvents, 
             ICommitmentsLogger logger, 
@@ -33,6 +45,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
+            if (apprenticeshipRepository == null)
+                throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (apprenticeshipUpdateRules == null)
                 throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
             if (apprenticeshipEvents == null)
@@ -43,6 +57,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
@@ -78,19 +93,19 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
                 if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
                 {
-                    await _commitmentRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipAgreementStatus);
+                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipAgreementStatus);
                     hasChanged = true;
                 }
 
                 if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
                 {
-                    await _commitmentRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipPaymentStatus);
+                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipPaymentStatus);
                     hasChanged = true;
                 }
 
                 if (hasChanged)
                 {
-                    var updatedApprenticeship = await _commitmentRepository.GetApprenticeship(apprenticeship.Id);
+                    var updatedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeship.Id);
                     await _apprenticeshipEvents.PublishEvent(updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
                 }
             }
@@ -99,9 +114,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
 
             // update commitment statuses
-            await _commitmentRepository.UpdateEditStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count, latestAction));
-            await _commitmentRepository.UpdateCommitmentStatus(command.CommitmentId, _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement));
-            await _commitmentRepository.UpdateLastAction(command.CommitmentId, latestAction, command.Caller, command.LastUpdatedByName, command.LastUpdatedByEmail);
+            var newEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count, latestAction);
+            var newCommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+
+            var lastUpdateAction = new LastUpdateAction
+                         {
+                             LastUpdaterName = command.LastUpdatedByName,
+                             LastUpdaterEmail = command.LastUpdatedByEmail,
+                             Caller = command.Caller,
+                             LastAction = latestAction,
+                             UserId = command.UserId
+                         };
+            await _commitmentRepository.UpdateCommitment(command.CommitmentId, newCommitmentStatus, newEditStatus, lastUpdateAction);
 
             // recalculate payment order for all the employer account's apprenticeships if necessary
             await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);

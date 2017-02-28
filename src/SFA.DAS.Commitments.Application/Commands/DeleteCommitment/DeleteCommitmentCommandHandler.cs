@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(commitment.Apprenticeships);
 
-            await _commitmentRepository.DeleteCommitment(command.CommitmentId);
+            await _commitmentRepository.DeleteCommitment(command.CommitmentId, command.Caller.CallerType, command.UserId);
 
             await _historyRepository.CreateCommitmentHistory(
                 new CommitmentHistoryItem

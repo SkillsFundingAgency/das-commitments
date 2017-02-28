@@ -17,14 +17,24 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
     public sealed class UpdateApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly AbstractValidator<UpdateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public UpdateApprenticeshipCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            IApprenticeshipRepository apprenticeshipRepository,
+            AbstractValidator<UpdateApprenticeshipCommand> validator, 
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules, 
+            IApprenticeshipEvents apprenticeshipEvents, 
+            ICommitmentsLogger logger)
         {
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
@@ -42,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 throw new ValidationException(validationResult.Errors);
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(command.ApprenticeshipId);
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
 
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(command, commitment);
@@ -56,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             updatedApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, doChangesRequireAgreement);
             updatedApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, doChangesRequireAgreement);
 
-            await _commitmentRepository.UpdateApprenticeship(updatedApprenticeship, command.Caller);
+            await _apprenticeshipRepository.UpdateApprenticeship(updatedApprenticeship, command.Caller);
 
             await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
         }

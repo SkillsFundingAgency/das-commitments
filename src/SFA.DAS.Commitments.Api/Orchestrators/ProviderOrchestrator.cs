@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
@@ -158,7 +157,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 CommitmentId = commitmentId,
                 LatestAction = submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
-                LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress
+                LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
+                UserId = submission.UserId
             });
         }
 

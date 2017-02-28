@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
     public sealed class WhenCreatingApprenticeships
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private BulkUploadApprenticeshipsCommandHandler _handler;
         private BulkUploadApprenticeshipsCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
@@ -26,7 +27,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new BulkUploadApprenticeshipsCommandHandler(_mockCommitmentRespository.Object, new BulkUploadApprenticeshipsValidator(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
+            _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
+
+            _handler = new BulkUploadApprenticeshipsCommandHandler(_mockCommitmentRespository.Object,
+                _mockApprenticeshipRespository.Object, new BulkUploadApprenticeshipsValidator(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 
             var exampleApprenticships = new List<Apprenticeship>
             {
@@ -53,11 +57,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldCallCommitmentRepository()
         {
-            _mockCommitmentRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>()), Times.Once);
+            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>()), Times.Once);
         }
 
         [Test]

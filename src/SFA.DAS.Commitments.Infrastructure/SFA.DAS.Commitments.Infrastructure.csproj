@@ -107,11 +107,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
+    <Compile Include="Data\ApprenticeshipRepository.cs" />
+    <Compile Include="Data\Transactions\ApprenticeshipTransactions.cs" />
     <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
     <Compile Include="Data\HistoryTransactions.cs" />
     <Compile Include="Data\HistoryRepository.cs" />
     <Compile Include="Data\ParentChildrenMapper.cs" />
+    <Compile Include="Data\Transactions\IApprenticeshipTransactions.cs" />
     <Compile Include="Logging\CommitmentsLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ApprenticeshipEvents.cs" />

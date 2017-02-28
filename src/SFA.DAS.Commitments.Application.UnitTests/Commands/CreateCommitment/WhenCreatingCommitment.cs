@@ -6,9 +6,9 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
@@ -51,14 +51,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>(), It.IsAny<string>()));
+            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>()));
         }
 
         [Test]
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
             const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<string>())).ReturnsAsync(ExpectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(ExpectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 

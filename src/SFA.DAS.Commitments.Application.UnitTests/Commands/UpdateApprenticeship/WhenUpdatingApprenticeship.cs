@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     public sealed class WhenUpdatingApprenticeship
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
         private UpdateApprenticeshipCommandHandler _handler;
         private UpdateApprenticeshipCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
@@ -28,7 +29,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), new ApprenticeshipUpdateRules(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
+            _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, _mockApprenticeshipRepository.Object, new UpdateApprenticeshipValidator(), new ApprenticeshipUpdateRules(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Api.Types.Apprenticeship>().Create();
@@ -55,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 ProviderId = _exampleValidRequest.Caller.Id
             });
 
-            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(new Apprenticeship
+            _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(new Apprenticeship
             {
                 Id = _exampleValidRequest.ApprenticeshipId,
                 PaymentStatus = PaymentStatus.PendingApproval
@@ -63,7 +65,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.Is<Caller>(m => m.CallerType == CallerType.Provider)));
+            _mockApprenticeshipRepository.Verify(x => x.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.Is<Caller>(m => m.CallerType == CallerType.Provider)));
         }
 
         [Test]

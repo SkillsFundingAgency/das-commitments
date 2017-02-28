@@ -25,24 +25,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
     public sealed class WhenCreatingApprenticeship
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
         private CreateApprenticeshipCommandHandler _handler;
         private CreateApprenticeshipCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
 
-        private Mock<IHistoryRepository> _mockHistoryRepository;
 
         [SetUp]
         public void SetUp()
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _handler = new CreateApprenticeshipCommandHandler(
-                _mockCommitmentRespository.Object, 
+                _mockCommitmentRespository.Object,
+                _mockApprenticeshipRepository.Object,
                 new CreateApprenticeshipValidator(), 
                 _mockApprenticeshipEvents.Object, 
-                Mock.Of<ICommitmentsLogger>(), 
-                _mockHistoryRepository.Object);
+                Mock.Of<ICommitmentsLogger>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
@@ -81,8 +81,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => 
-                x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<string>()));
+            _mockApprenticeshipRepository.Verify(x => 
+                x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>()));
         }
 
         //[TestCase(CallerType.Employer)]
@@ -131,7 +131,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Domain.Entities.AgreementStatus>()), Times.Exactly(2));
+            _mockApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Domain.Entities.AgreementStatus>()), Times.Exactly(2));
         }
 
         [Test]
@@ -144,10 +144,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 ProviderId = _exampleValidRequest.Caller.Id
             });
 
-            _mockCommitmentRespository
-                .Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<string>()))
+            _mockApprenticeshipRepository
+                .Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>()))
                 .ReturnsAsync(_exampleValidRequest.Apprenticeship.Id)
-                .Callback<Domain.Entities.Apprenticeship, string>((x,y) => argument = x);
+                .Callback<Domain.Entities.Apprenticeship, CallerType, string>((x, c,y) => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -165,9 +165,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.Caller.Id
             });
-            _mockCommitmentRespository.Setup(x => 
+            _mockApprenticeshipRepository.Setup(x => 
                 x.CreateApprenticeship(
                     It.IsAny<Domain.Entities.Apprenticeship>(), 
+                    It.IsAny<CallerType>(),
                     It.IsAny<string>())).ReturnsAsync(expectedApprenticeshipId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);

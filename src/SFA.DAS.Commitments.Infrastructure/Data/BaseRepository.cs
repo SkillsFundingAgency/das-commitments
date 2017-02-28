@@ -40,5 +40,37 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     $"{GetType().FullName}.WithConnection() experienced an exception (not a SQL Exception)", ex);
             }
         }
+
+        protected async Task<T> WithTransaction<T>(Func<IDbConnection, IDbTransaction, Task<T>> getData)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync(); // Asynchronously open a connection to the database
+                    using (var trans = connection.BeginTransaction())
+                    {
+                        var data = await getData(connection, trans);
+                        trans.Commit();
+                        return data;
+                    }
+                    // Asynchronously execute getData, which has been passed in as a Func<IDBConnection, Task<T>>
+                }
+            }
+            catch (TimeoutException ex)
+            {
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL timeout", ex);
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception(
+                    $"{GetType().FullName}.WithConnection() experienced a SQL exception (not a timeout)", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"{GetType().FullName}.WithConnection() experienced an exception (not a SQL Exception)", ex);
+            }
+        }
     }
 }
