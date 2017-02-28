@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
@@ -34,8 +35,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
-            _mockMediator = new Mock<IMediator>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator(), Mock.Of<ICommitmentsLogger>(), _mockMediator.Object);
+			var commandValidator = new CreateCommitmentValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
+			_mockMediator = new Mock<IMediator>();
+            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, commandValidator, Mock.Of<ICommitmentsLogger>(), _mockMediator.Object);
 
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
@@ -47,6 +49,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.EmployerRef, null)
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
+                .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))
+                .With(x => x.TrainingCode, string.Empty)
+                .With(x => x.TrainingName, string.Empty)
             );
             var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };

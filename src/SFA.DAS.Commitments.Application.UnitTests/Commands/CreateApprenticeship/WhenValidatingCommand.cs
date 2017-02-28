@@ -1,10 +1,10 @@
 ﻿using System;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [SetUp]
         public void Setup()
         {
-            _validator = new CreateApprenticeshipValidator();
+            _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             var exampleValidApprenticeship = new Apprenticeship
             {
                 FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),
@@ -100,94 +100,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenULNThatIsNumericAnd10DigitsInLengthIsValid()
+        public void ShouldValidateApprenticeship()
         {
-            _exampleCommand.Apprenticeship.ULN = "1001234567";
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeTrue();
-        }
-
-        [TestCase("abc123")]
-        [TestCase("123456789")]
-        [TestCase(" ")]
-        [TestCase("12345678900")]
-        [TestCase("0123456789")]
-        public void ThenULNThatIsNotNumericAnd10DigitsInLengthIsInvalid(string uln)
-        {
-            _exampleCommand.Apprenticeship.ULN = uln;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        public void ThenULNThatStartsWithAZeroIsInvalid()
-        {
-            _exampleCommand.Apprenticeship.ULN = "1023456789";
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [TestCase(123.12)]
-        [TestCase(123.1)]
-        [TestCase(123.0)]
-        [TestCase(123)]
-        [TestCase(123.000)]
-        public void ThenCostThatIsNumericAndHas2DecimalPlacesIsValid(decimal cost)
-        {
-            _exampleCommand.Apprenticeship.Cost = cost;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeTrue();
-        }
-
-        [TestCase(123.1232)]
-        [TestCase(0.001)]
-        public void ThenCostThatIsNotAMax2DecimalPlacesIsInvalid(decimal cost)
-        {
-            _exampleCommand.Apprenticeship.Cost = cost;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [TestCase(0)]
-        [TestCase(-0)]
-        [TestCase(-123.12)]
-        [TestCase(-123)]
-        [TestCase(-123.1232)]
-        [TestCase(-0.001)]
-        public void ThenCostThatIsZeroOrNegativeNumberIsInvalid(decimal cost)
-        {
-            _exampleCommand.Apprenticeship.Cost = cost;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [TestCase("")]
-        [TestCase(null)]
-        public void ThenApprenticeshipWithoutFirstNameIsNotSet(string firstName)
-        {
-            _exampleCommand.Apprenticeship.FirstName = firstName;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [TestCase("")]
-        [TestCase(null)]
-        public void ThenApprenticeshipWithoutLastNameIsNotSet(string lastName)
-        {
-            _exampleCommand.Apprenticeship.LastName = lastName;
+            _exampleCommand.Apprenticeship = new Apprenticeship(); // Empty apprenticeship has invalid fields
 
             var result = _validator.Validate(_exampleCommand);
 

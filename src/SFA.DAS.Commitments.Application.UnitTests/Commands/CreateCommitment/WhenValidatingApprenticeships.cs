@@ -1,11 +1,14 @@
 ﻿using System;
-
-using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Api.Types;
-using Ploeh.AutoFixture;
-using FluentAssertions;
 using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands;
+using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -15,13 +18,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private CreateCommitmentValidator _validator;
         private CreateCommitmentCommand _exampleCommand;
         private Apprenticeship _validApprenticeship;
+        private Mock<ICurrentDateTime> _mockCurrentDateTime;
 
         [SetUp]
         public void Setup()
         {
             Fixture fixture = new Fixture();
+            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
 
-            _validator = new CreateCommitmentValidator();
+            _validator = new CreateCommitmentValidator(new ApprenticeshipValidator(_mockCurrentDateTime.Object));
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
             
@@ -41,8 +46,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 
             var result = _validator.Validate(_exampleCommand);
 
-            result.Errors[0].ErrorMessage.Should().Be("'First Name' should not be empty.");
-            result.Errors[1].ErrorMessage.Should().Be("'Last Name' should not be empty.");
+            result.Errors.Any(x => x.ErrorMessage == "'First Name' should not be empty.").Should().BeTrue();
+            result.Errors.Any(x => x.ErrorMessage == "'Last Name' should not be empty.").Should().BeTrue();
             result.Errors.Count.Should().Be(2);
             result.IsValid.Should().BeFalse();
         }
@@ -58,9 +63,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             };
 
             var result = _validator.Validate(_exampleCommand);
-
-            result.Errors[0].ErrorMessage.Should().Be("The specified condition was not met for 'First Name'.");
-            result.Errors[1].ErrorMessage.Should().Be("The specified condition was not met for 'Last Name'.");
+            result.Errors.Any(x => x.ErrorMessage == "The specified condition was not met for 'First Name'.").Should().BeTrue();
+            result.Errors.Any(x => x.ErrorMessage == "The specified condition was not met for 'Last Name'.").Should().BeTrue();
             result.Errors.Count.Should().Be(2);
             result.IsValid.Should().BeFalse();
         }
@@ -179,8 +183,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [Test]
         public void EndDateIsInPast()
         {
-            _validApprenticeship.StartDate = DateTime.Now.AddYears(-7);
-            _validApprenticeship.EndDate = DateTime.Now.AddYears(-5);
+            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 06, 1));
+            _validApprenticeship.StartDate = new DateTime(2017, 5, 15);
+            _validApprenticeship.EndDate = new DateTime(2017, 5, 25); // End date is before current date
+
             _exampleCommand.Commitment.Apprenticeships = new List<Apprenticeship>
             {
                 _validApprenticeship

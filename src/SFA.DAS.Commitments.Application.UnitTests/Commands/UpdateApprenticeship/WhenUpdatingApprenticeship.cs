@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
+using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -22,13 +24,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private UpdateApprenticeshipCommandHandler _handler;
         private UpdateApprenticeshipCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
+        private Mock<AbstractValidator<UpdateApprenticeshipCommand>> _mockValidator;
 
         [SetUp]
         public void SetUp()
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, new UpdateApprenticeshipValidator(), new ApprenticeshipUpdateRules(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
+            _mockValidator = new Mock<AbstractValidator<UpdateApprenticeshipCommand>>();
+            _mockValidator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipCommand>())).Returns(new ValidationResult());
+
+            _handler = new UpdateApprenticeshipCommandHandler(_mockCommitmentRespository.Object, _mockValidator.Object, new ApprenticeshipUpdateRules(), _mockApprenticeshipEvents.Object, Mock.Of<ICommitmentsLogger>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Api.Types.Apprenticeship>().Create();
@@ -69,7 +75,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
         {
-            _exampleValidRequest.Apprenticeship = null; // Forces validation failure
+            var validationFailureResult = new ValidationResult(new List<ValidationFailure>() { new ValidationFailure("test", "error text") });
+            _mockValidator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipCommand>())).Returns(validationFailureResult);
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
