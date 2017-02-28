@@ -40,6 +40,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment
             var entity = await _commitmentRepository.GetRelationship(commitment.EmployerAccountId,
                 commitment.ProviderId.Value, commitment.LegalEntityId);
 
+            if (entity == null)
+            {
+                return new GetRelationshipByCommitmentResponse();
+            }
+
             return new GetRelationshipByCommitmentResponse
             {
                 Data = new Relationship

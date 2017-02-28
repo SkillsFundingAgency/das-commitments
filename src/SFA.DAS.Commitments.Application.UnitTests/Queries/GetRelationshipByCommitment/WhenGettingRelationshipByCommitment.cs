@@ -25,9 +25,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
 
             _repositoryRecord = new Relationship
             {
+                Id = 101,
                 EmployerAccountId = 1,
                 ProviderId = 1,
-                LegalEntityId = "L3"
+                LegalEntityId = "L3",
+                LegalEntityName = "Test Legal Entity",
+                ProviderName = "Test Provider Name",
+                Verified = true
             };
 
             _commitmentRecord = new Commitment
@@ -95,6 +99,46 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
 
             //Assert
             _validator.Verify(x => x.Validate(It.IsAny<GetRelationshipByCommitmentRequest>()), Times.Once);
+        }
+
+
+        [Test]
+        public async Task ThenTheEntityIsMappedToTheModel()
+        {
+            //Act
+            var result = await _handler.Handle(new GetRelationshipByCommitmentRequest
+            {
+                ProviderId = 1,
+                CommitmentId = 2
+            });
+
+            //Assert
+            Assert.AreEqual(_repositoryRecord.LegalEntityId, result.Data.LegalEntityId);
+            Assert.AreEqual(_repositoryRecord.EmployerAccountId, result.Data.EmployerAccountId);
+            Assert.AreEqual(_repositoryRecord.LegalEntityName, result.Data.LegalEntityName);
+            Assert.AreEqual(_repositoryRecord.ProviderName, result.Data.ProviderName);
+            Assert.AreEqual(_repositoryRecord.Verified, result.Data.Verified);
+            Assert.AreEqual(_repositoryRecord.Id, result.Data.Id);
+            Assert.AreEqual(_repositoryRecord.ProviderId, result.Data.ProviderId);
+        }
+
+        [Test]
+        public async Task ThenIfTheRelationshipIsNotFoundThenTheModelWillBeNull()
+        {
+            //Arrange
+            _mockCommitmentRespository.Setup(
+                x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                .ReturnsAsync(null);
+
+            //Act
+            var result = await _handler.Handle(new GetRelationshipByCommitmentRequest
+            {
+                ProviderId = 1,
+                CommitmentId = 2
+            });
+
+            //Assert
+            Assert.IsNull(result.Data);
         }
     }
 }
