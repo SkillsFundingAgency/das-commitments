@@ -6,13 +6,17 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
+using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -50,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
                .ReturnsAsync(new GetRelationshipResponse
                {
-                   Data = new Relationship()
+                   Data = new Api.Types.Relationship()
                });
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateRelationshipCommand>()))
@@ -62,16 +66,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>()));
+            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>()));
         }
 
         [Test]
         public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromRequest()
         {
-            Commitment argument = null;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>()))
+            Domain.Entities.Commitment argument = null;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>()))
                 .ReturnsAsync(4)
-                .Callback<Commitment>(x => argument = x);
+                .Callback<Domain.Entities.Commitment>(x => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -83,7 +87,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
             const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(ExpectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>())).ReturnsAsync(ExpectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 
@@ -156,7 +160,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         }
 
 
-        private void AssertMappingIsCorrect(Commitment argument)
+        private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
         {
             argument.Id.Should().Be(_exampleValidRequest.Commitment.Id);
             argument.Reference.Should().Be(_exampleValidRequest.Commitment.Reference);

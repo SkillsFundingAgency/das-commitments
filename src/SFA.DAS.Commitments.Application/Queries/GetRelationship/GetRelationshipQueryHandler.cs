@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Queries.GetCommitments;
-using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
@@ -29,11 +24,26 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            var entity = await _commitmentRepository.GetRelationship(message.EmployerAccountId, message.ProviderId,
+                message.LegalEntityId);
+
+            if (entity == null)
+            {
+                return new GetRelationshipResponse();
+            }
+
             var result = new GetRelationshipResponse
             {
-                Data =
-                    await _commitmentRepository.GetRelationship(message.EmployerAccountId, message.ProviderId,
-                        message.LegalEntityId)
+                Data = new Relationship
+                {
+                    EmployerAccountId = entity.EmployerAccountId,
+                    Id = entity.Id,
+                    LegalEntityId = entity.LegalEntityId,
+                    LegalEntityName = entity.LegalEntityName,
+                    ProviderId = entity.ProviderId,
+                    ProviderName = entity.ProviderName,
+                    Verified = entity.Verified,
+                }
             };
 
             return result;

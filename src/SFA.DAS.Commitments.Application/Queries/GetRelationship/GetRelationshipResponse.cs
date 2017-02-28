@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SFA.DAS.Commitments.Domain.Entities;
+﻿using SFA.DAS.Commitments.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
 {

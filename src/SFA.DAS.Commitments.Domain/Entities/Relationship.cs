@@ -8,6 +8,6 @@
         public string LegalEntityName { get; set; }
         public long ProviderId { get; set; }
         public string ProviderName { get; set; }
-        public bool Verified { get; set; }
+        public bool? Verified { get; set; }
     }
 }

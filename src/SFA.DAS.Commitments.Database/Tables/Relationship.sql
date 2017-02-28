@@ -6,7 +6,7 @@
 	[EmployerAccountId] BIGINT NOT NULL,
 	[LegalEntityId] NVARCHAR(50) NOT NULL,
 	[LegalEntityName] NVARCHAR(100) NOT NULL,
-	[Verified] BIT NOT NULL,
+	[Verified] BIT NULL,
 	[CreatedOn] DATETIME NULL,
 	CONSTRAINT UQ_Relationship UNIQUE (EmployerAccountId,ProviderId,LegalEntityId)
 )

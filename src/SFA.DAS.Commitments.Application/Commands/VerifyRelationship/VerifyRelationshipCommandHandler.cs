@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Data.Odbc;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
@@ -28,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            await _commitmentRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId, message.LegalEntityId);
+            await _commitmentRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId, message.LegalEntityId, message.Verified);
         }
     }
 }

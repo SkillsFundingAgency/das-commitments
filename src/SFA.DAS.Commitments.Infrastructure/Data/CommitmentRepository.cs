@@ -382,7 +382,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode)
+        public async Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified)
         {
             await WithConnection(async connection =>
             {
@@ -390,6 +390,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@EmployerAccountId", employerAccountId);
                 parameters.Add("@ProviderId", providerId);
                 parameters.Add("@LegalEntityId", legalEntityCode);
+                parameters.Add("@Verified", verified);
 
                 return await connection.ExecuteAsync(
                     sql: $"[dbo].[VerifyRelationship]",

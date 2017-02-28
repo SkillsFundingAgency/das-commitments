@@ -135,6 +135,14 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
+        [Route("{providerId}/relationships/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetRelationshipByCommitment(long providerId, long commitmentId)
+        {
+            var response = await _providerOrchestrator.GetRelationship(providerId, commitmentId);
+            return Ok(response.Data);
+        }
+
         [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchRelationship(long providerId, long employerAccountId, string legalEntityId, [FromBody] RelationshipRequest request)
