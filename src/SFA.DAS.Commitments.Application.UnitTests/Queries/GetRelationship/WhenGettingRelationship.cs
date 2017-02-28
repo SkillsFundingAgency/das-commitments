@@ -26,7 +26,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
             {
                 EmployerAccountId = 1,
                 ProviderId = 2,
-                LegalEntityId = "L3"
+                LegalEntityId = "L3",
+                ProviderName = "Test Provider",
+                Id = 101,
+                LegalEntityName = "Test Legal Entity",
+                Verified = false
             };
 
             _mockCommitmentRespository.Setup(
@@ -70,6 +74,48 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
 
             //Assert
             _validator.Verify(x=> x.Validate(It.IsAny<GetRelationshipRequest>()));
+        }
+
+
+        [Test]
+        public async Task ThenTheEntityIsMappedToTheModel()
+        {
+            //Act
+            var result = await _handler.Handle(new GetRelationshipRequest
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                LegalEntityId = "L3"
+            });
+
+            //Assert
+            Assert.AreEqual(_repositoryRecord.LegalEntityId, result.Data.LegalEntityId);
+            Assert.AreEqual(_repositoryRecord.EmployerAccountId, result.Data.EmployerAccountId);
+            Assert.AreEqual(_repositoryRecord.LegalEntityName, result.Data.LegalEntityName);
+            Assert.AreEqual(_repositoryRecord.ProviderName, result.Data.ProviderName);
+            Assert.AreEqual(_repositoryRecord.Verified, result.Data.Verified);
+            Assert.AreEqual(_repositoryRecord.Id, result.Data.Id);
+            Assert.AreEqual(_repositoryRecord.ProviderId, result.Data.ProviderId);
+        }
+
+        [Test]
+        public async Task ThenIfTheRelationshipIsNotFoundThenTheModelWillBeNull()
+        {
+            //Arrange
+            _mockCommitmentRespository.Setup(
+                x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+                .ReturnsAsync(null);
+
+            //Act
+            var result = await _handler.Handle(new GetRelationshipRequest
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                LegalEntityId = "L3"
+            });
+
+            //Assert
+            Assert.IsNull(result.Data);
         }
     }
 }
