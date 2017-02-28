@@ -1,13 +1,14 @@
 ﻿using FluentValidation;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 {
     public sealed class BulkUploadApprenticeshipsValidator : AbstractValidator<BulkUploadApprenticeshipsCommand>
     {
-        public BulkUploadApprenticeshipsValidator()
+        public BulkUploadApprenticeshipsValidator(AbstractValidator<Apprenticeship> apprenticeshipValidator)
         {
-            RuleFor(x => x.Apprenticeships).NotEmpty().SetCollectionValidator(new ApprenticeshipValidator());
+            RuleFor(x => x.Apprenticeships).NotEmpty().SetCollectionValidator(apprenticeshipValidator);
             RuleFor(x => x.CommitmentId).GreaterThan(0);
             Custom(request =>
             {
