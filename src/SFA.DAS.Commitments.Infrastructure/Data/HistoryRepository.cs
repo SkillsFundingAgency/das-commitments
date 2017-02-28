@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@commitmentId", item.CommitmentId, DbType.Int64);
-                parameters.Add("@userId", item.UserId, DbType.Int64);
+                parameters.Add("@userId", item.UserId, DbType.String);
                 parameters.Add("@updatedByRole", item.UpdatedByRole, DbType.Int16);
                 parameters.Add("@changeType", CommitmentChangeType.Create, DbType.Int16);
                 parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@apprenticeshipId", item.ApprenticeshipId, DbType.Int64);
-                parameters.Add("@userId", item.UserId, DbType.Int64);
+                parameters.Add("@userId", item.UserId, DbType.String);
                 parameters.Add("@updatedByRole", item.UpdatedByRole, DbType.Int16);
                 parameters.Add("@changeType", ApprenticeshipChangeType.Created, DbType.Int16);
                 parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
