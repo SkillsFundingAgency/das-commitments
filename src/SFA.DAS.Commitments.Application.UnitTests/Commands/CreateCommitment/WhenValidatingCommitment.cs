@@ -5,6 +5,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Api.Types;
 using Ploeh.AutoFixture;
 using FluentAssertions;
+using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );
-            _validator = new CreateCommitmentValidator();
+            _validator = new CreateCommitmentValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
@@ -31,6 +32,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.EmployerRef, null)
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
+                .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))
+                .With(x => x.TrainingCode, string.Empty)
+                .With(x => x.TrainingName, string.Empty)
             );
             var populatedCommitment = fixture.Build<Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };

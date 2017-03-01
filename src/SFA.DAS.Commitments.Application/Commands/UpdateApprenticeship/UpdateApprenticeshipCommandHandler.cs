@@ -41,7 +41,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             _logger = logger;
         }
 
-
         protected override async Task HandleCore(UpdateApprenticeshipCommand command)
         {
             LogMessage(command);

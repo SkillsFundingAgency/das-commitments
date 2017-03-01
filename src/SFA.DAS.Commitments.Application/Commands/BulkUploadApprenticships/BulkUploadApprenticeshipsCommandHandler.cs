@@ -22,8 +22,12 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
         private IApprenticeshipEvents _apprenticeshipEvents;
 
-        public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository,
-            IApprenticeshipRepository apprenticeshipRepository, BulkUploadApprenticeshipsValidator validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public BulkUploadApprenticeshipsCommandHandler(
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository, 
+            BulkUploadApprenticeshipsValidator validator, 
+            IApprenticeshipEvents apprenticeshipEvents, 
+            ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));

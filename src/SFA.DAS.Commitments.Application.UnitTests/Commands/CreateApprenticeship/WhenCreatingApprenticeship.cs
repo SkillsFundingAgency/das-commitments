@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
@@ -36,11 +37,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             _handler = new CreateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRepository.Object,
-                new CreateApprenticeshipValidator(), 
+                validator, 
                 _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>());
 
@@ -55,6 +58,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .With(x => x.EmployerRef, null)
                 .With(x => x.StartDate, DateTime.Now.AddYears(5))
                 .With(x => x.EndDate, DateTime.Now.AddYears(7))
+                .With(x => x.DateOfBirth, DateTime.Now.AddYears(-16))
+                .With(x => x.TrainingCode, string.Empty)
+                .With(x => x.TrainingName, string.Empty)
                 .Create();
 
             _exampleValidRequest = new CreateApprenticeshipCommand
