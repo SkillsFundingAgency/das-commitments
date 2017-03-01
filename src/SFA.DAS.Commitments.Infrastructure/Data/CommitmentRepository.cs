@@ -86,6 +86,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                             UserId = userId,
                             UpdatedByRole = callerType
                         });
+                    trans.Commit();
                     return commitmentId;
                 }
             });
@@ -105,8 +106,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return await GetCommitmentsByIdentifier("EmployerAccountId", accountId);
         }
-
-        
 
         public async Task UpdateCommitment(
             long commitmentId,

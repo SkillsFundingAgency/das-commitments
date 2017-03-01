@@ -4,11 +4,10 @@ using System.Threading.Tasks;
 
 using Dapper;
 
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Commitments.Infrastructure.Data
+namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
     public class HistoryTransactions : IHistoryTransactions
     {
@@ -81,6 +80,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.Created);
         }
 
+        public async Task UpdateApprenticeship(
+            IDbConnection connection,
+            IDbTransaction trans,
+            ApprenticeshipHistoryItem apprenticeshipHistoryItem)
+        {
+            _logger.Debug($"Creating history item for updating apprenticehsip: {apprenticeshipHistoryItem.ApprenticeshipId}",
+                    apprenticeshipId: apprenticeshipHistoryItem.ApprenticeshipId);
+
+            await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.Updated);
+        }
+
         private async Task WriteCommitmentHistory(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem, CommitmentChangeType changeType)
         {
             if(string.IsNullOrEmpty(commitmentHistoryItem.UserId))
@@ -123,16 +133,5 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 commandType: CommandType.Text,
                 transaction: trans);
         }
-    }
-
-    public interface IHistoryTransactions
-    {
-        Task CreateCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem);
-        Task DeleteCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem);
-        Task UpdateCommitment(IDbConnection connection, IDbTransaction trans, CommitmentChangeType changeType, CommitmentHistoryItem commitmentHistoryItem);
-        Task AddApprenticeshipForCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem);
-        Task DeleteApprenticeshipForCommitment(IDbConnection connection, IDbTransaction transactions, CommitmentHistoryItem apprenticeshipHistoryItem);
-
-        Task CreateApprenticeship(IDbConnection connection, IDbTransaction trans, ApprenticeshipHistoryItem apprenticeshipHistoryItem);
     }
 }

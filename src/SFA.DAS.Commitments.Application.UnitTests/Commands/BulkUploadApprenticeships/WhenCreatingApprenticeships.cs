@@ -57,11 +57,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldCallCommitmentRepository()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>()), Times.Once);
+            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(
+                It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>()), Times.Once);
         }
 
         [Test]

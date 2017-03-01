@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Domain.Data
     {
         Task<long> CreateApprenticeship(Apprenticeship apprenticeship, CallerType callerType, string userId);
 
-        Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
+        Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 
@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId);
 
-        Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships);
+        Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships, CallerType caller, string userId);
 
         Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId);
 

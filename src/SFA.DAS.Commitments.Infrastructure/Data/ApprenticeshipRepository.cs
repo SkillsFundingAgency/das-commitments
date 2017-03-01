@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using Dapper;
@@ -12,6 +13,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
+
+using StructureMap;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -48,11 +51,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return await WithTransaction(async (connection, trans)=>
                 {
-                    var resturnValue = await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
+                    var apprenticeshipId = await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
                     await _historyTransactions.CreateApprenticeship(connection, trans,
                         new ApprenticeshipHistoryItem
                         {
-                            ApprenticeshipId = apprenticeship.Id,
+                            ApprenticeshipId = apprenticeshipId,
                             UpdatedByRole = callerType,
                             UserId = userId
                         });
@@ -65,25 +68,38 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                             UserId = userId
                         });
 
-                    return resturnValue;
+                    return apprenticeshipId;
                 });
         }
 
-        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
+        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
 
-            await WithConnection(async connection =>
+            await WithTransaction(async (connection, trans) =>
             {
                 var parameters = _apprenticeshipTransactions.GetApprenticeshipUpdateCreateParameters(apprenticeship);
                 parameters.Add("@id", apprenticeship.Id, DbType.Int64);
 
-                var sql = GetUpdateApprenticeshipSql(caller.CallerType);
+                var refItem = caller.CallerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
 
                 var returnCode = await connection.ExecuteAsync(
-                    sql: sql,
+                    sql: "UPDATE [dbo].[Apprenticeship] " +
+                        "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
+                        "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
+                        "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
+                        $"{refItem} WHERE Id = @id;",
                     param: parameters,
+                    transaction: trans,
                     commandType: CommandType.Text);
+
+                await _historyTransactions.UpdateApprenticeship(connection, trans, 
+                    new ApprenticeshipHistoryItem
+                        {
+                            ApprenticeshipId = apprenticeship.Id,
+                            UpdatedByRole = caller.CallerType,
+                            UserId = userId
+                        });
 
                 return returnCode;
             });
@@ -169,7 +185,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
+        public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships, CallerType caller, string userId)
         {
             _logger.Debug($"Bulk upload {apprenticeships.Count()} apprenticeships for commitment {commitmentId}", commitmentId: commitmentId);
 
@@ -264,24 +280,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeshipsTable;
         }
 
-        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, Apprenticeship apprenticeship)
+        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, Apprenticeship a)
         {
-            var a = apprenticeship;
-
             return apprenticeshipsTable.Rows.Add(a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
                 a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
-        }
-
-        private static string GetUpdateApprenticeshipSql(CallerType callerType)
-        {
-            var refItem = callerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
-
-            return "UPDATE [dbo].[Apprenticeship] " +
-                   "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
-                   "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
-                   "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
-                   $"{refItem} WHERE Id = @id;";
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)

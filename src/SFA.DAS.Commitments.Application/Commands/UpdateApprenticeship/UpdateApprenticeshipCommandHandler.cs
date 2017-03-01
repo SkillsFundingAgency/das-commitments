@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             updatedApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, doChangesRequireAgreement);
             updatedApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, doChangesRequireAgreement);
 
-            await _apprenticeshipRepository.UpdateApprenticeship(updatedApprenticeship, command.Caller);
+            await _apprenticeshipRepository.UpdateApprenticeship(updatedApprenticeship, command.Caller, command.UserId);
 
             await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
         }

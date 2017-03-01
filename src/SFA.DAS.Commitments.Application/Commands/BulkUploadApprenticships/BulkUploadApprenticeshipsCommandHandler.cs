@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
             Stopwatch watch = Stopwatch.StartNew();
-            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
+            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
             watch = Stopwatch.StartNew();
