@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
@@ -19,14 +17,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
 
-        private readonly IHistoryRepository _historyRepository;
-
         public CreateCommitmentCommandHandler(
             ICommitmentRepository commitmentRepository, 
             IHashingService hashingService, 
             AbstractValidator<CreateCommitmentCommand> validator, 
-            ICommitmentsLogger logger,
-            IHistoryRepository historyRepository)
+            ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -34,14 +29,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 throw new ArgumentNullException(nameof(hashingService));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if (historyRepository== null)
-                throw new ArgumentNullException(nameof(historyRepository));
 
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
             _validator = validator;
             _logger = logger;
-            _historyRepository = historyRepository;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)

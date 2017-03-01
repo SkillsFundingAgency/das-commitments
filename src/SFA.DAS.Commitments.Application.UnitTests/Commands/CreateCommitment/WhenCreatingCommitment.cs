@@ -21,15 +21,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private CreateCommitmentCommand _exampleValidRequest;
         private Mock<IHashingService> _mockHashingService;
 
-        private Mock<IHistoryRepository> _historyRepository;
-
         [SetUp]
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
-            _historyRepository = new Mock<IHistoryRepository>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator(), Mock.Of<ICommitmentsLogger>(), _historyRepository.Object);
+            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, new CreateCommitmentValidator(), Mock.Of<ICommitmentsLogger>());
 
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
