@@ -38,7 +38,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockHashingService = new Mock<IHashingService>();
 			var commandValidator = new CreateCommitmentValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
 			_mockMediator = new Mock<IMediator>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, _mockHashingService.Object, commandValidator, Mock.Of<ICommitmentsLogger>(), _mockMediator.Object);
+            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, 
+                _mockHashingService.Object,
+                commandValidator,
+                Mock.Of<ICommitmentsLogger>(),
+                _mockMediator.Object);
 
             Fixture fixture = new Fixture();
             fixture.Customize<Api.Types.Apprenticeship>(ob => ob
@@ -55,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.TrainingName, string.Empty)
             );
             var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
-            _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment };
+            _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment, CallerType = CallerType.Employer, UserId = "UserId"};
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
                .ReturnsAsync(new GetRelationshipResponse
@@ -79,9 +83,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromRequest()
         {
             Domain.Entities.Commitment argument = null;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>(),It.IsAny<CallerType>(), It.IsAny<string>()))
+            _mockCommitmentRespository.Setup(
+                    x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>()))
                 .ReturnsAsync(4)
-                .Callback<Domain.Entities.Commitment>(x => argument = x);
+                .Callback<Domain.Entities.Commitment, CallerType, string>(
+                    ((commitment, callerType, userId) => argument = commitment));
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -172,6 +178,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.Reference.Should().Be(_exampleValidRequest.Commitment.Reference);
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
+            argument.LegalEntityAddress.Should().Be(_exampleValidRequest.Commitment.LegalEntityAddress);
+            argument.LegalEntityOrganisationType.Should().Be((Domain.Entities.OrganisationType)_exampleValidRequest.Commitment.LegalEntityOrganisationType);
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);
