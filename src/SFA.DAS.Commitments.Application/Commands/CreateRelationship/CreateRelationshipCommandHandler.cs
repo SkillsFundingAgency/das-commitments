@@ -48,6 +48,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
                 EmployerAccountId  = source.EmployerAccountId,
                 LegalEntityId  = source.LegalEntityId,
                 LegalEntityName  = source.LegalEntityName,
+                LegalEntityAddress = source.LegalEntityAddress,
+                LegalEntityOrganisationType = (OrganisationType) source.LegalEntityOrganisationType,
                 ProviderId = source.ProviderId,
                 ProviderName  = source.ProviderName,
                 Verified = source.Verified

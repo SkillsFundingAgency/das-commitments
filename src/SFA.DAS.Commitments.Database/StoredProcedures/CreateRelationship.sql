@@ -5,6 +5,8 @@
 	@EmployerAccountId BIGINT,
 	@LegalEntityId NVARCHAR(50),
 	@LegalEntityName NVARCHAR(100),
+	@LegalEntityAddress NVARCHAR(256),
+	@LegalEntityOrganisationType TINYINT,
 	@Verified BIT
 )
 as
@@ -16,6 +18,8 @@ insert into [dbo].[Relationship]
 	EmployerAccountId,
 	LegalEntityId,
 	LegalEntityName,
+	LegalEntityAddress,
+	LegalEntityOrganisationType,
 	Verified,
 	CreatedOn
 )

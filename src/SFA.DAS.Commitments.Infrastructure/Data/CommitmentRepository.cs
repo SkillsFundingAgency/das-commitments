@@ -35,6 +35,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@reference", commitment.Reference, DbType.String);
                 parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.String);
                 parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
+                parameters.Add("@LegalEntityAddress", commitment.LegalEntityAddress, DbType.String);
+                parameters.Add("@legalEntityOrganisationType", commitment.LegalEntityOrganisationType, DbType.String);
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
                 parameters.Add("@providerName", commitment.ProviderName, DbType.String);
@@ -50,8 +52,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, LastUpdatedByEmployerEmail) " +
-                        "VALUES (@reference, @legalEntityId, @legalEntityName, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, @lastUpdateByEmployerEmail); " +
+                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, LastUpdatedByEmployerEmail) " +
+                        "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, @lastUpdateByEmployerEmail); " +
                         "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,

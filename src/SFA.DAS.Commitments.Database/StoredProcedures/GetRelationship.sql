@@ -11,6 +11,8 @@ AS
 	EmployerAccountId,
 	LegalEntityId,
 	LegalEntityName,
+	LegalEntityAddress,
+	LegalEntityOrganisationType,
 	Verified
 	from
 	[dbo].[Relationship]

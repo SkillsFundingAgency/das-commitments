@@ -3,11 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
@@ -16,6 +16,7 @@ using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
+using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
 using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
@@ -75,6 +76,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                         EmployerAccountId = message.Commitment.EmployerAccountId,
                         LegalEntityId = message.Commitment.LegalEntityId,
                         LegalEntityName = message.Commitment.LegalEntityName,
+                        LegalEntityAddress = message.Commitment.LegalEntityAddress,
+                        LegalEntityOrganisationType = message.Commitment.LegalEntityOrganisationType,
                         ProviderId = message.Commitment.ProviderId.Value,
                         ProviderName = message.Commitment.ProviderName
                     }
@@ -99,6 +102,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 EmployerAccountId = commitment.EmployerAccountId,
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
+                LegalEntityAddress = commitment.LegalEntityAddress,
+                LegalEntityOrganisationType = (OrganisationType) commitment.LegalEntityOrganisationType,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
                 CommitmentStatus = (CommitmentStatus) commitment.CommitmentStatus,
