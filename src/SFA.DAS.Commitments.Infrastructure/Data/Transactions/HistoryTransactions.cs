@@ -67,6 +67,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             await WriteCommitmentHistory(connection, transactions, commitmentHistoryItem, CommitmentChangeType.DeleteApprenticeship);
         }
 
+        public async Task UpdateApprenticeshipForCommitment(
+            IDbConnection connection,
+            IDbTransaction trans,
+            CommitmentHistoryItem commitmentHistoryItem)
+        {
+            _logger.Debug($"History item for deleteing apprenticeship on commitment: {commitmentHistoryItem.CommitmentId}",
+               commitmentId: commitmentHistoryItem.CommitmentId);
+
+            await WriteCommitmentHistory(connection, trans, commitmentHistoryItem, CommitmentChangeType.EditApprenticeship);
+        }
+
         // Apprenticeship
 
         public async Task CreateApprenticeship(

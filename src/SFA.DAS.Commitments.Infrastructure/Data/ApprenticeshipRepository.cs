@@ -101,6 +101,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                             UserId = userId
                         });
 
+                await _historyTransactions.UpdateApprenticeshipForCommitment(connection, trans,
+                    new CommitmentHistoryItem
+                    {
+                        CommitmentId = apprenticeship.CommitmentId,
+                        UpdatedByRole = caller.CallerType,
+                        UserId = userId
+                    });
+
                 return returnCode;
             });
         }
