@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NLog;
+
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -13,12 +12,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
     public sealed class UpdateApprenticeshipStatusCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly UpdateApprenticeshipStatusValidator _validator;
         private readonly ICommitmentsLogger _logger;
 
-        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, UpdateApprenticeshipStatusValidator validator, ICommitmentsLogger logger)
+        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, UpdateApprenticeshipStatusValidator validator, ICommitmentsLogger logger)
         {
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _logger = logger;
         }
@@ -36,10 +39,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             CheckAuthorization(command, commitment);
 
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(command.ApprenticeshipId);
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
             var newPaymentStatus = (PaymentStatus) command.PaymentStatus.GetValueOrDefault((Api.Types.PaymentStatus) apprenticeship.PaymentStatus);
 
-            await _commitmentRepository.UpdateApprenticeshipStatus(command.CommitmentId, command.ApprenticeshipId, newPaymentStatus);
+            await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, command.ApprenticeshipId, newPaymentStatus);
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)

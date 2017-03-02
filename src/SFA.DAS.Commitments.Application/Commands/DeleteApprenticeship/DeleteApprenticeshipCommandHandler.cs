@@ -14,19 +14,29 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
     public sealed class DeleteApprenticeshipCommandHandler : AsyncRequestHandler<DeleteApprenticeshipCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private readonly ICommitmentsLogger _logger;
 
-        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger)
+        public DeleteApprenticeshipCommandHandler(
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository, 
+            AbstractValidator<DeleteApprenticeshipCommand> validator, 
+            ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
+            if (apprenticeshipRepository == null)
+                throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _logger = logger;
         }
@@ -40,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(command.ApprenticeshipId);
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
 
             if (apprenticeship == null)
             {
@@ -54,7 +64,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
-            await _commitmentRepository.DeleteApprenticeship(command.ApprenticeshipId);
+            await _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId, command.Caller.CallerType, command.UserId, commitment.Id);
         }
 
         private void LogMessage(DeleteApprenticeshipCommand command)

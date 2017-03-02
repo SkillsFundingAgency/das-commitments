@@ -11,11 +11,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
 {
     public sealed class GetApprenticeshipsQueryHandler : IAsyncRequestHandler<GetApprenticeshipsRequest, GetApprenticeshipsResponse>
     {
-        private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        public GetApprenticeshipsQueryHandler(ICommitmentRepository commitmentRepository)
+        public GetApprenticeshipsQueryHandler(IApprenticeshipRepository apprenticeshipRepository)
         {
-            _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
         }
 
         public async Task<GetApprenticeshipsResponse> Handle(GetApprenticeshipsRequest message)
@@ -63,9 +63,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
             switch (caller.CallerType)
             {
                 case CallerType.Employer:
-                    return await _commitmentRepository.GetApprenticeshipsByEmployer(caller.Id);
+                    return await _apprenticeshipRepository.GetApprenticeshipsByEmployer(caller.Id);
                 case CallerType.Provider:
-                    return await _commitmentRepository.GetApprenticeshipsByProvider(caller.Id);
+                    return await _apprenticeshipRepository.GetApprenticeshipsByProvider(caller.Id);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

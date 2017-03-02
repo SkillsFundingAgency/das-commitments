@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -16,7 +17,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger)
+        public CreateCommitmentCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            IHashingService hashingService, 
+            AbstractValidator<CreateCommitmentCommand> validator, 
+            ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -42,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             var newCommitment = MapFrom(message.Commitment);
 
-            var commitmentId = await _commitmentRepository.Create(newCommitment);
+            var commitmentId = await _commitmentRepository.Create(newCommitment, message.CallerType, message.UserId);
 
             await _commitmentRepository.UpdateCommitmentReference(commitmentId, _hashingService.HashValue(commitmentId));
 

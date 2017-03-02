@@ -53,28 +53,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>()));
-        }
-
-        [Test]
-        public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromRequest()
-        {
-            Commitment argument = null;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>()))
-                .ReturnsAsync(4)
-                .Callback<Commitment>(x => argument = x);
-
-            await _handler.Handle(_exampleValidRequest);
-
-            argument.Should().NotBeNull();
-            AssertMappingIsCorrect(argument);
+            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>()));
         }
 
         [Test]
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
             const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(ExpectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(ExpectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 

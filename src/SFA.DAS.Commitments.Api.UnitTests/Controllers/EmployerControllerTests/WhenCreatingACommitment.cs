@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenACreateResponseCodeIsReturnedOnSuccess()
         {
-            var result = await _controller.CreateCommitment(123L, new Commitment());
+            var result = await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment()});
 
             result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<Commitment>>();
         }
@@ -42,7 +42,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             const long testAccountId = 123L;
             const long testCommitmentId = 5L;
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ReturnsAsync(testCommitmentId);
-            var result = await _controller.CreateCommitment(testAccountId, new Commitment()) as CreatedAtRouteNegotiatedContentResult<Commitment>;
+            var result = await _controller.CreateCommitment(testAccountId,
+                new CommitmentRequest { Commitment = new Commitment() }) as CreatedAtRouteNegotiatedContentResult<Commitment>;
 
             result.RouteName.Should().Be("GetCommitmentForEmployer");
             result.RouteValues["accountId"].Should().Be(testAccountId);
@@ -52,7 +53,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToCreateCommitment()
         {
-            var result = await _controller.CreateCommitment(123L, new Commitment());
+            await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment() });
 
             _mockMediator.Verify(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>()));
         }
@@ -62,7 +63,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ThrowsAsync(new ValidationException(""));
 
-            Assert.ThrowsAsync<ValidationException>(async () => await _controller.CreateCommitment(123L, new Commitment()));
+            Assert.ThrowsAsync<ValidationException>(async () =>
+                await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment() }));
         }
     }
 }

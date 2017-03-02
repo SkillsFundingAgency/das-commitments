@@ -11,5 +11,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         public string LastUpdatedByEmail { get; set; }
         public string LastUpdatedByName { get; set; }
         public LastAction LatestAction { get; set; }
+        public string UserId { get; set; }
     }
 }

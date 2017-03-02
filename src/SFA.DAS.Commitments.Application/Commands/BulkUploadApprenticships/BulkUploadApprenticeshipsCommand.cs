@@ -12,5 +12,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         public long CommitmentId { get; set; }
 
         public IList<Apprenticeship> Apprenticeships { get; set; }
+
+        public string UserId { get; set; }
     }
 }

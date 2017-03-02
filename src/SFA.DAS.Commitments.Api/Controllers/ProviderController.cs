@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -72,23 +71,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(apprenticeship);
         }
 
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForProvider")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateApprenticeship(long providerId, long commitmentId, Apprenticeship apprenticeship)
-        {
-            var response = await _providerOrchestrator.CreateApprenticeship(providerId, commitmentId, apprenticeship);
-
-            return CreatedAtRoute("GetApprenticeshipForProvider", new {providerId, commitmentId, apprenticeshipId = response}, default(Apprenticeship));
-        }
-
-        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, Apprenticeship apprenticeship)
-        {
-            await _providerOrchestrator.PutApprenticeship(providerId, commitmentId, apprenticeshipId, apprenticeship);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
 
         [Route("{providerId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
@@ -99,30 +81,49 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [Route("{providerId}/commitments/{commitmentId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> DeleteCommitment(long providerId, long commitmentId, [FromBody] DeleteRequest deleteRequest)
+        {
+            await _providerOrchestrator.DeleteCommitment(providerId, commitmentId, deleteRequest.UserId);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForProvider")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> CreateApprenticeship(long providerId, long commitmentId, [FromBody] ApprenticeshipRequest apprenticeshipRequest)
+        {
+            var response = await _providerOrchestrator.CreateApprenticeship(providerId, commitmentId, apprenticeshipRequest);
+
+            return CreatedAtRoute("GetApprenticeshipForProvider", new {providerId, commitmentId, apprenticeshipId = response}, default(Apprenticeship));
+        }
+
+        [Route("{providerId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}", Name = "UpdateApprenticeshipForProvider")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)
+        {
+            await _providerOrchestrator.PutApprenticeship(providerId, commitmentId, apprenticeshipId, apprenticeshipRequest);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         [Route("{providerId}/commitments/{commitmentId}/apprenticeships/bulk")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PostBulkUpload(long providerId, long commitmentId, IList<Apprenticeship> apprenticeships)
+        public async Task<IHttpActionResult> PostBulkUpload(long providerId, long commitmentId, BulkApprenticeshipRequest bulkRequest)
         {
             // TODO: What should we return to the caller? list of urls?
-            await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, apprenticeships);
+            await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, bulkRequest);
 
             return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = commitmentId }, default(Commitment));
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> DeleteApprenticeship(long providerId, long apprenticeshipId)
+        public async Task<IHttpActionResult> DeleteApprenticeship(long providerId, long apprenticeshipId, [FromBody] DeleteRequest deleteRequest)
         {
-            await _providerOrchestrator.DeleteApprenticeship(providerId, apprenticeshipId);
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        [Route("{providerId}/commitments/{commitmentId}")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> DeleteCommitment(long providerId, long commitmentId)
-        {
-            await _providerOrchestrator.DeleteCommitment(providerId, commitmentId);
+            await _providerOrchestrator.DeleteApprenticeship(providerId, apprenticeshipId, deleteRequest.UserId);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

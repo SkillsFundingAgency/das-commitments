@@ -19,8 +19,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private readonly AbstractValidator<DeleteCommitmentCommand> _validator;
         private readonly ICommitmentsLogger _logger;
 
-        public DeleteCommitmentCommandHandler(
-            ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger)
+        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -55,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(commitment.Apprenticeships);
 
-            await _commitmentRepository.DeleteCommitment(command.CommitmentId);
+            await _commitmentRepository.DeleteCommitment(command.CommitmentId, command.Caller.CallerType, command.UserId);
         }
 
         private static void CheckAuthorization(DeleteCommitmentCommand message, Commitment commitment)

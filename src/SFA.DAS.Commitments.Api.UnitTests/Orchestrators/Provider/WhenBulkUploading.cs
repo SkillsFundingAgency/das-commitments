@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using System.Threading.Tasks;
+
 using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
@@ -28,7 +26,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         [Test]
         public async Task ShouldCallTheMediatorBulkUpload()
         {
-            await _orchestrator.CreateApprenticeships(1L, 2L, new List<Apprenticeship>());
+            await _orchestrator.CreateApprenticeships(1L, 2L, new BulkApprenticeshipRequest());
 
             _mockMediator.Verify(x => x.SendAsync(It.IsAny<BulkUploadApprenticeshipsCommand>()), Times.Once);
         }

@@ -17,12 +17,22 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         private BulkUploadApprenticeshipsValidator _validator;
         private ICommitmentsLogger _logger;
         private ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private IApprenticeshipEvents _apprenticeshipEvents;
 
-        public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository, BulkUploadApprenticeshipsValidator validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public BulkUploadApprenticeshipsCommandHandler(
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository, 
+            BulkUploadApprenticeshipsValidator validator, 
+            IApprenticeshipEvents apprenticeshipEvents, 
+            ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
+            if (apprenticeshipRepository == null)
+                throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
             if (apprenticeshipEvents == null)
@@ -31,6 +41,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
@@ -57,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
 
             Stopwatch watch = Stopwatch.StartNew();
-            var insertedApprenticeships = await _commitmentRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
+            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
             watch = Stopwatch.StartNew();
