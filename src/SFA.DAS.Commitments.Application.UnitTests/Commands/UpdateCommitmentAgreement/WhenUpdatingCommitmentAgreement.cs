@@ -18,6 +18,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
     public sealed class WhenUpdatingCommitmentAgreement
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private UpdateCommitmentAgreementCommandHandler _handler;
         private UpdateCommitmentAgreementCommand _validCommand;
 
@@ -25,8 +26,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public void Setup()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _handler = new UpdateCommitmentAgreementCommandHandler(
-                _mockCommitmentRespository.Object, 
+                _mockCommitmentRespository.Object,
+                _mockApprenticeshipRespository.Object,
                 new ApprenticeshipUpdateRules(), 
                 Mock.Of<IApprenticeshipEvents>(), 
                 Mock.Of<ICommitmentsLogger>(), 

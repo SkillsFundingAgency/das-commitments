@@ -13,18 +13,24 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICommitmentRepository _commitmentRepository;
+
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
 
-        public SetPaymentOrderCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public SetPaymentOrderCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
+            if (apprenticeshipRepository == null)
+                throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (apprenticeshipEvents == null)
                 throw new ArgumentNullException(nameof(apprenticeshipEvents));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
         }
@@ -33,11 +39,11 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
         {
             _logger.Info($"Called SetPaymentOrderCommand for employer account {command.AccountId}", accountId: command.AccountId);
 
-            var existingApprenticeships = await _commitmentRepository.GetApprenticeshipsByEmployer(command.AccountId);
+            var existingApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
 
             await _commitmentRepository.SetPaymentOrder(command.AccountId);
 
-            var updatedApprenticeships = await _commitmentRepository.GetApprenticeshipsByEmployer(command.AccountId);
+            var updatedApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
 
             await PublishEventsForApprenticeshipsWithNewPaymentOrder(command.AccountId, existingApprenticeships, updatedApprenticeships);
         }

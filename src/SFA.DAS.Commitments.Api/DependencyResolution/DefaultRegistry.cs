@@ -60,6 +60,8 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 .SelectConstructor(() => new EventsApi(null)); // The default one isn't the one we want to use.
 
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IHistoryRepository>().Use<HistoryRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));

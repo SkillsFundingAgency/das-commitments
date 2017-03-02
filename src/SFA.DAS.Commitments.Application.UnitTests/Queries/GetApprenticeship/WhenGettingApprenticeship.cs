@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
     [TestFixture]
     public sealed class WhenGettingApprenticeship
     {
-        private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private GetApprenticeshipQueryHandler _handler;
         private GetApprenticeshipRequest _exampleValidRequest;
         private Apprenticeship _fakeRepositoryApprenticeship;
@@ -24,8 +24,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         [SetUp]
         public void SetUp()
         {
-            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _handler = new GetApprenticeshipQueryHandler(_mockCommitmentRespository.Object, new GetApprenticeshipValidator());
+            _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
+            _handler = new GetApprenticeshipQueryHandler(_mockApprenticeshipRespository.Object, new GetApprenticeshipValidator());
 
             var dataFixture = new Fixture();
             _fakeRepositoryApprenticeship = dataFixture.Build<Apprenticeship>().Create();
@@ -46,13 +46,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Once);
+            _mockApprenticeshipRespository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Once);
         }
 
         [Test]
         public async Task ThenShouldReturnAnApprenticeshipInResponse()
         {
-            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
 
             var response = await _handler.Handle(_exampleValidRequest);
 
@@ -78,7 +78,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         [Test]
         public async Task ThenReturnsAResponseWithNullIfTheCommitmentIsNotFound()
         {
-            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(default(Apprenticeship));
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(default(Apprenticeship));
 
             var response = await _handler.Handle(_exampleValidRequest);
 
@@ -88,7 +88,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         [Test]
         public void ThenIfAnAccountIdIsProvidedThatDoesntMatchTheApprenticeshipThrowsAnException()
         {
-            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
 
             var employerId = _fakeRepositoryApprenticeship.EmployerAccountId++;
 
@@ -108,7 +108,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
         [Test]
         public void ThenIfAProviderIdIsProvidedThatDoesntMatchTheApprenticeshipThrowsAnException()
         {
-            _mockCommitmentRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryApprenticeship);
 
             var providerId = _fakeRepositoryApprenticeship.ProviderId++;
 

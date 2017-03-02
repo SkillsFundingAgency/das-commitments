@@ -30,6 +30,8 @@ values
 	@EmployerAccountId,
 	@LegalEntityId,
 	@LegalEntityName,
+	@LegalEntityAddress,
+	@LegalEntityOrganisationType,
 	@Verified,
 	GETDATE()
 )

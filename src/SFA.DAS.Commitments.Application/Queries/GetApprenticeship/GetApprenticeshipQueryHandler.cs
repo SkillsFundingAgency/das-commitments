@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -11,12 +10,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 {
     public sealed class GetApprenticeshipQueryHandler : IAsyncRequestHandler<GetApprenticeshipRequest, GetApprenticeshipResponse>
     {
-        private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly AbstractValidator<GetApprenticeshipRequest> _validator;
 
-        public GetApprenticeshipQueryHandler(ICommitmentRepository commitmentRepository, AbstractValidator<GetApprenticeshipRequest> validator)
+        public GetApprenticeshipQueryHandler(IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<GetApprenticeshipRequest> validator)
         {
-            _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
         }
 
@@ -27,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var apprenticeship = await _commitmentRepository.GetApprenticeship(message.ApprenticeshipId);
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(message.ApprenticeshipId);
 
             if (apprenticeship== null)
             {

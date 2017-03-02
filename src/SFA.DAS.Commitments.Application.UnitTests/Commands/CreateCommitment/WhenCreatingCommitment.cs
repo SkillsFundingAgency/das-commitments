@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
@@ -71,14 +72,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>()));
+            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>()));
         }
 
         [Test]
         public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromRequest()
         {
             Domain.Entities.Commitment argument = null;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>()))
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>(),It.IsAny<CallerType>(), It.IsAny<string>()))
                 .ReturnsAsync(4)
                 .Callback<Domain.Entities.Commitment>(x => argument = x);
 
@@ -92,7 +93,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
             const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>())).ReturnsAsync(ExpectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(ExpectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 

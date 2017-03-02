@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         public void Setup()
         {
             _validator = new DeleteCommitmentValidator();
-            _handler = new DeleteCommitmentCommandHandler(Mock.Of<ICommitmentRepository>(), _validator, Mock.Of<ICommitmentsLogger>());
+            _handler = new DeleteCommitmentCommandHandler(Mock.Of<ICommitmentRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IHistoryRepository>());
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }

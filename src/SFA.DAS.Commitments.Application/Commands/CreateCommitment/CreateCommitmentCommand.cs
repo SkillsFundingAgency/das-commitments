@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
@@ -7,5 +8,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
     public sealed class CreateCommitmentCommand : IAsyncRequest<long>
     {
         public Commitment Commitment { get; set; }
+
+        public string UserId { get; set; }
+
+        public CallerType CallerType { get; set; }
     }
 }
