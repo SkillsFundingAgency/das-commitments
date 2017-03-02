@@ -11,7 +11,6 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
@@ -90,35 +89,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockApprenticeshipRepository.Verify(x => 
                 x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>()));
         }
-
-        //[TestCase(CallerType.Employer)]
-        //[TestCase(CallerType.Provider)]
-        //public async Task ThenShouldCallTheHistoryRepository(CallerType callerType)
-        //{
-        //    _exampleValidRequest.Caller.CallerType = callerType;
-        //    _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
-        //    {
-        //        Id = _exampleValidRequest.CommitmentId,
-        //        ProviderId = _exampleValidRequest.Caller.Id,
-        //        EmployerAccountId = _exampleValidRequest.Caller.Id
-        //    });
-
-        //    await _handler.Handle(_exampleValidRequest);
-
-        //    _mockHistoryRepository.Verify(x => x.CreateApprenticeship(
-        //        It.Is<ApprenticeshipHistoryItem>(arg 
-        //            => arg.ChangeType == ApprenticeshipChangeType.Created
-        //            && arg.UpdatedByRole == callerType
-        //            && arg.UserId == _exampleValidRequest.UserId)
-        //        ), Times.Once);
-
-        //    _mockHistoryRepository.Verify(x => x.CreateCommitmentHistory(
-        //        It.Is<CommitmentHistoryItem>(arg 
-        //            => arg.ChangeType == CommitmentChangeType.CreateApprenticeship
-        //            && arg.UpdatedByRole == callerType
-        //            && arg.UserId == _exampleValidRequest.UserId)
-        //        ), Times.Once);
-        //}
 
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatusOfTheApprenticeshipsToNotAgreed()

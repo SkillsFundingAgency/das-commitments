@@ -7,10 +7,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
@@ -23,15 +21,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         private DeleteCommitmentCommandHandler _handler;
         private DeleteCommitmentCommand _validCommand;
 
-        private Mock<IHistoryRepository> _historyRepository;
-
         [SetUp]
         public void Setup()
         {
             _mockCommitmentRepository = new Mock<ICommitmentRepository>();
             _validator = new DeleteCommitmentValidator();
-            _historyRepository = new Mock<IHistoryRepository>();
-            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _historyRepository.Object);
+            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>());
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }

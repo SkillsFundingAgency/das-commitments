@@ -124,11 +124,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         await UpdateLastAction(commitmentId, lastAction, connection, trans);
 
                         // ToDo: Need to tests
-                        var changeType = CommitmentChangeType.SendForReview;
+                        var changeType = CommitmentChangeType.SentForReview;
                         if (editStatus == EditStatus.Both && lastAction.LastAction == LastAction.Approve)
                             changeType = CommitmentChangeType.FinalApproval;
                         else if(lastAction.LastAction == LastAction.Approve)
-                            changeType = CommitmentChangeType.SendForApproval;
+                            changeType = CommitmentChangeType.SentForApproval;
 
                         await _historyTransactions.UpdateCommitment(connection, trans, changeType,
                             new CommitmentHistoryItem { CommitmentId = commitmentId, UpdatedByRole = lastAction.Caller.CallerType, UserId = lastAction.UserId});

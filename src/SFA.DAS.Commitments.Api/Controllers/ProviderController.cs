@@ -83,9 +83,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{providerId}/commitments/{commitmentId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> DeleteCommitment(long providerId, long commitmentId, [FromBody] string userId)
+        public async Task<IHttpActionResult> DeleteCommitment(long providerId, long commitmentId, [FromBody] DeleteRequest deleteRequest)
         {
-            await _providerOrchestrator.DeleteCommitment(providerId, commitmentId, userId);
+            await _providerOrchestrator.DeleteCommitment(providerId, commitmentId, deleteRequest.UserId);
 
             return StatusCode(HttpStatusCode.NoContent);
         }
@@ -121,9 +121,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> DeleteApprenticeship(long providerId, long apprenticeshipId, [FromBody] string userId)
+        public async Task<IHttpActionResult> DeleteApprenticeship(long providerId, long apprenticeshipId, [FromBody] DeleteRequest deleteRequest)
         {
-            await _providerOrchestrator.DeleteApprenticeship(providerId, apprenticeshipId, userId);
+            await _providerOrchestrator.DeleteApprenticeship(providerId, apprenticeshipId, deleteRequest.UserId);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

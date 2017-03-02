@@ -9,7 +9,6 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
@@ -20,9 +19,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private readonly AbstractValidator<DeleteCommitmentCommand> _validator;
         private readonly ICommitmentsLogger _logger;
 
-        private readonly IHistoryRepository _historyRepository;
-
-        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IHistoryRepository historyRepository)
+        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -30,13 +27,10 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
                 throw new ArgumentNullException(nameof(validator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            if (historyRepository == null)
-                throw new ArgumentNullException(nameof(historyRepository));
 
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
-            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(DeleteCommitmentCommand command)
@@ -61,14 +55,6 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             CheckPaymentStatus(commitment.Apprenticeships);
 
             await _commitmentRepository.DeleteCommitment(command.CommitmentId, command.Caller.CallerType, command.UserId);
-
-            await _historyRepository.CreateCommitmentHistory(
-                new CommitmentHistoryItem
-                    {
-                        CommitmentId = commitment.Id,
-                        UserId = command.UserId,
-                        UpdatedByRole = command.Caller.CallerType
-                    });
         }
 
         private static void CheckAuthorization(DeleteCommitmentCommand message, Commitment commitment)
