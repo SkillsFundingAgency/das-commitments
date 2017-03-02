@@ -49,7 +49,6 @@
   <ItemGroup>
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
-    <Compile Include="Data\IHistoryRepository.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\History\ApprenticeshipChangeType.cs" />
