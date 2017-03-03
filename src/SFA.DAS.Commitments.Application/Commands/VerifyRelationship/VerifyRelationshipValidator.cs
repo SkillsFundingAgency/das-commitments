@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
             RuleFor(x => x.ProviderId).NotEmpty();
             RuleFor(x => x.LegalEntityId).NotEmpty();
             RuleFor(x => x.UserId).NotEmpty();
+            RuleFor(x => x.Verified).NotEmpty();
         }
     }
 }

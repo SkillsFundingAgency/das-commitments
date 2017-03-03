@@ -199,7 +199,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetRelationshipResponse> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
         {
-            _logger.Info($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}");
+            _logger.Info($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
 
             return await _mediator.SendAsync(new GetRelationshipRequest
             {
@@ -211,7 +211,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetRelationshipByCommitmentResponse> GetRelationship(long providerId, long commitmentId)
         {
-            _logger.Info($"Getting relationship for provider {providerId}, commitment {commitmentId}");
+            _logger.Info($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
             return await _mediator.SendAsync(new GetRelationshipByCommitmentRequest
             {
@@ -222,23 +222,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
         {
-            _logger.Info($"Verifying relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}");
+            _logger.Info($"Verifying relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
 
-            if (patchRequest.Relationship.Verified.HasValue)
+            await _mediator.SendAsync(new VerifyRelationshipCommand
             {
-                await _mediator.SendAsync(new VerifyRelationshipCommand
-                {
-                    ProviderId = providerId,
-                    EmployerAccountId = employerAccountId,
-                    LegalEntityId = legalEntityId,
-                    UserId = patchRequest.UserId,
-                    Verified = patchRequest.Relationship.Verified.Value
-                });
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
+                ProviderId = providerId,
+                EmployerAccountId = employerAccountId,
+                LegalEntityId = legalEntityId,
+                UserId = patchRequest.UserId,
+                Verified = patchRequest.Relationship.Verified
+            });
         }
 
     }

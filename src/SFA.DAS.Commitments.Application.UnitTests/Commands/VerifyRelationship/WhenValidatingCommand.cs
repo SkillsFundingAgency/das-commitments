@@ -24,7 +24,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
                 EmployerAccountId = 1,
                 ProviderId = 2,
                 LegalEntityId = "L3",
-                UserId = "User"
+                UserId = "User",
+                Verified = true
             };
 
             //Act
@@ -88,6 +89,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
             //Assert
             Assert.IsFalse(result.IsValid);
             Assert.IsTrue(result.Errors.Any(e => e.PropertyName == "UserId"));
+        }
+
+        [Test]
+        public void ThenVerifiedIsMandatory()
+        {
+            //Arrange
+            var request = new VerifyRelationshipCommand();
+
+            //Act
+            var result = _validator.Validate(request);
+
+            //Assert
+            Assert.IsFalse(result.IsValid);
+            Assert.IsTrue(result.Errors.Any(e => e.PropertyName == "Verified"));
         }
     }
 }
