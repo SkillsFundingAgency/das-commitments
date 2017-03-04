@@ -74,6 +74,10 @@
     <Build Include="StoredProcedures\BulkUploadApprenticships.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
     <Build Include="StoredProcedures\DeleteCommitment.sql" />
+    <Build Include="Tables\Relationship.sql" />
+    <Build Include="StoredProcedures\CreateRelationship.sql" />
+    <Build Include="StoredProcedures\GetRelationship.sql" />
+    <Build Include="StoredProcedures\VerifyRelationship.sql" />
     <Build Include="Tables\ApprenticeshipHistory.sql" />
     <Build Include="Tables\CommitmentHistory.sql" />
   </ItemGroup>

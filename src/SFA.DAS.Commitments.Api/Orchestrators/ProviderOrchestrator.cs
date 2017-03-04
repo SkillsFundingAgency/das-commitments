@@ -8,10 +8,13 @@ using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
+using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -193,5 +196,43 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = userId
             });
         }
+
+        public async Task<GetRelationshipResponse> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
+        {
+            _logger.Info($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+
+            return await _mediator.SendAsync(new GetRelationshipRequest
+            {
+                ProviderId = providerId,
+                EmployerAccountId = employerAccountId,
+                LegalEntityId = legalEntityId
+            });
+        }
+
+        public async Task<GetRelationshipByCommitmentResponse> GetRelationship(long providerId, long commitmentId)
+        {
+            _logger.Info($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
+
+            return await _mediator.SendAsync(new GetRelationshipByCommitmentRequest
+            {
+                ProviderId = providerId,
+                CommitmentId = commitmentId
+            });
+        }
+
+        public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
+        {
+            _logger.Info($"Verifying relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+
+            await _mediator.SendAsync(new VerifyRelationshipCommand
+            {
+                ProviderId = providerId,
+                EmployerAccountId = employerAccountId,
+                LegalEntityId = legalEntityId,
+                UserId = patchRequest.UserId,
+                Verified = patchRequest.Relationship.Verified
+            });
+        }
+
     }
 }

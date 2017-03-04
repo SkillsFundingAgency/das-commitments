@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
+    <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
+    <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
+    <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommand.cs" />
@@ -91,12 +94,23 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
+    <Compile Include="Commands\VerifyRelationship\VerifyRelationshipCommand.cs" />
+    <Compile Include="Commands\VerifyRelationship\VerifyRelationshipCommandHandler.cs" />
+    <Compile Include="Commands\VerifyRelationship\VerifyRelationshipValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
+    <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
+    <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
+    <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />
+    <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentValidator.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipQueryHandler.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
+    <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
     <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
