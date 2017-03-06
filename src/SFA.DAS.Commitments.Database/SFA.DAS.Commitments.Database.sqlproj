@@ -88,6 +88,6 @@
     <None Include="SFA.DAS.Commitments.Database.publish.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PostDeploy Include="PostDeployment\UpdateLastUpdatedByEmployerColumn.sql" />
+    <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
   </ItemGroup>
 </Project>
