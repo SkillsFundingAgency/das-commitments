@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Application.Commands
 
         private void ValidateStartDate()
         {
-            RuleFor(x => x.StartDate).GreaterThan(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null);
+            RuleFor(x => x.StartDate).GreaterThanOrEqualTo(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null);
         }
 
         private void ValidateEndDate()
