@@ -80,6 +80,8 @@
     <Build Include="StoredProcedures\VerifyRelationship.sql" />
     <Build Include="Tables\ApprenticeshipHistory.sql" />
     <Build Include="Tables\CommitmentHistory.sql" />
+    <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
+    <Build Include="UserDefinedTypes\ULNTable.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

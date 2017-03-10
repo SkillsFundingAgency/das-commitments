@@ -327,5 +327,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 return results.ToList();
             });
         }
+
+        public Task<IList<ApprenticeshipResult>> GetActiveApprenticeshipsByUlns(IEnumerable<string> ulns)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
