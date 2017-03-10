@@ -1,0 +1,4 @@
+﻿CREATE TYPE [dbo].[ULNTable] AS TABLE
+(
+	[ULN] [NVARCHAR](50) NOT NULL
+)
