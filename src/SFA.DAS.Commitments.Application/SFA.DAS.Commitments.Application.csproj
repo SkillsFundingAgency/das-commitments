@@ -106,6 +106,7 @@
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsValidator.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

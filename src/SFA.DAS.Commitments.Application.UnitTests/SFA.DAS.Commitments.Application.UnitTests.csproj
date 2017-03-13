@@ -118,8 +118,8 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenVerifyingRelationship.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
-    <Compile Include="Queries\GetApprenticeshipsByUlns\WhenGettingApprenticeshipsByUlns.cs" />
-    <Compile Include="Queries\GetApprenticeshipsByUlns\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\WhenGettingOverlappingApprenticeships.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenGettingApprenticeship.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitment.cs" />
