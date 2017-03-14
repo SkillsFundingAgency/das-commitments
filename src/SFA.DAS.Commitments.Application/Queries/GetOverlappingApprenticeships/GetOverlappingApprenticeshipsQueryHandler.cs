@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 
             foreach (var request in query.OverlappingApprenticeshipRequests)
             {
-                foreach (var apprenticeship in apprenticeships.Where(x=> x.Uln.Equals(request.Uln, StringComparison.InvariantCultureIgnoreCase)))
+                foreach (var apprenticeship in apprenticeships.Where(x=> x.Uln.Equals(request.Uln, StringComparison.InvariantCultureIgnoreCase) && x.Id != request.ExcludeApprenticeshipId))
                 {
                     var overlapsStart = IsApprenticeshipDateBetween(request.DateFrom, apprenticeship.StartDate, apprenticeship.EndDate);
                     var overlapsEnd = IsApprenticeshipDateBetween(request.DateTo, apprenticeship.StartDate, apprenticeship.EndDate);
@@ -67,8 +67,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                             //todo: flesh out
                         });
                     }
-                    else if (IsApprenticeshipDateBefore(request.DateFrom, apprenticeship.StartDate) &&
-                             IsApprenticeshipDateAfter(request.DateTo, apprenticeship.EndDate))
+                    //Straddle
+                    else if (IsApprenticeshipDateStraddle(request.DateFrom, request.DateTo, apprenticeship.StartDate, apprenticeship.EndDate))
                     {
                         result.Data.Add(new OverlappingApprentice
                         {
@@ -110,6 +110,37 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
             if (dateToCheck.Month < checkAgainstDate.Month) return false;
 
             return false;
+        }
+
+        private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start,
+            DateTime date2End)
+        {
+            //does date 1 straddle date 2?
+            if (IsApprenticeshipDateBefore(date1Start, date2Start) &&
+                IsApprenticeshipDateAfter(date1End, date2End))
+            {
+                return true;
+            }
+
+            //In case of same month and year, if the dates span at least 1 whole month then they must straddle
+            if (IsSameMonthYear(date1Start, date2Start) || IsSameMonthYear(date1End, date2End))
+            {
+                //if >= 1 month shared
+                var startMonth = (date1Start.Year * 12) + date1Start.Month;
+                var endMonth = (date1End.Year * 12) + date1End.Month;
+
+                if ((endMonth - startMonth) >= 2)
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        private static bool IsSameMonthYear(DateTime date1, DateTime date2)
+        {
+            return (date1.Month == date2.Month && date1.Year == date2.Year);
         }
 
     }

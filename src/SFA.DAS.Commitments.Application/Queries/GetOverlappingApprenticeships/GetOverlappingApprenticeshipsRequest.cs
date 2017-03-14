@@ -14,6 +14,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
     //todo: replace this class with an api type
     public class OverlappingApprenticeshipRequest
     {
+        public long? ExcludeApprenticeshipId { get; set; }
         public string Uln { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
