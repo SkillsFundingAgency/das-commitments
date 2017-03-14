@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingApprenticeships
@@ -35,9 +36,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             //Arrange
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                    new OverlappingApprenticeshipRequest()
+                    new ApprenticeshipOverlapValidationRequest()
                 }
             };
 
@@ -50,14 +51,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
         }
 
         [Test]
-        public void ThenDateFromIsRequired()
+        public void ThenStartDateIsRequired()
         {
             //Arrange
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                    new OverlappingApprenticeshipRequest()
+                    new ApprenticeshipOverlapValidationRequest()
                 }
             };
 
@@ -66,18 +67,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             //Assert
             Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains("DateFrom")));
+            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains(nameof(ApprenticeshipOverlapValidationRequest.StartDate))));
         }
 
         [Test]
-        public void ThenDateToIsRequired()
+        public void ThenEndDateIsRequired()
         {
             //Arrange
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                    new OverlappingApprenticeshipRequest()
+                    new ApprenticeshipOverlapValidationRequest()
                 }
             };
 
@@ -86,7 +87,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             //Assert
             Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains("DateTo")));
+            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains(nameof(ApprenticeshipOverlapValidationRequest.EndDate))));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using FluentValidation;
+using SFA.DAS.Commitments.Api.Types.Validation;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 {
@@ -15,13 +16,13 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
         }
     }
 
-    public class OverlappingApprenticeshipRequestValidator : AbstractValidator<OverlappingApprenticeshipRequest>
+    public class OverlappingApprenticeshipRequestValidator : AbstractValidator<ApprenticeshipOverlapValidationRequest>
     {
         public OverlappingApprenticeshipRequestValidator()
         {
             RuleFor(x => x.Uln).NotEmpty();
-            RuleFor(x => x.DateFrom).NotEmpty();
-            RuleFor(x => x.DateTo).NotEmpty();
+            RuleFor(x => x.StartDate).NotEmpty();
+            RuleFor(x => x.EndDate).NotEmpty();
         }
     }
 }

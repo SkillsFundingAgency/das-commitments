@@ -3,8 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.Validation;
+using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 {
@@ -31,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 
             var result = new GetOverlappingApprenticeshipsResponse
             {
-                Data = new List<OverlappingApprentice>()
+                Data = new List<OverlappingApprenticeship>()
             };
 
             var ulns = query.OverlappingApprenticeshipRequests.Select(x => x.Uln);
@@ -42,19 +45,40 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
             {
                 foreach (var apprenticeship in apprenticeships)
                 {
+                    var validationFailReason = _overlapRules.DetermineOverlap(request, apprenticeship);
 
-                    if(_overlapRules.IsOverlap(request, apprenticeship))
+                    if (validationFailReason != ValidationFailReason.None)
                     {
-                        result.Data.Add(new OverlappingApprentice
-                        {
-                            //todo: flesh out
-                        });
+                        result.Data.Add(MapFrom(apprenticeship, validationFailReason));
                     }
-
                 }
             }
 
             return result;
         }
+
+        private OverlappingApprenticeship MapFrom(ApprenticeshipResult source, ValidationFailReason validationFailReason)
+        {
+            var result = new OverlappingApprenticeship
+            {
+                Apprenticeship = new Api.Types.Apprenticeship.Apprenticeship
+                {
+                    Id = source.Id,
+                    StartDate = source.StartDate,
+                    EndDate = source.EndDate,
+                    ULN = source.Uln
+                    //todo: complete           
+                },
+                EmployerAccountId = source.EmployerAccountId,
+                LegalEntityName = source.LegalEntityName,
+                ProviderId = source.ProviderId,
+                ProviderName = source.ProviderName,
+                ValidationFailReason = validationFailReason
+                
+            };
+
+            return result;
+        }
+
     }
 }

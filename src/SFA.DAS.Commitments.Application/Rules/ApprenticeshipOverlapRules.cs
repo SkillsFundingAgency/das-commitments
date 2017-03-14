@@ -1,22 +1,22 @@
 ﻿using System;
-using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
+using SFA.DAS.Commitments.Api.Types.Validation;
+using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Rules
 {
     public class ApprenticeshipOverlapRules : IApprenticeshipOverlapRules
     {
-        //todo: return reason
-        public bool IsOverlap(OverlappingApprenticeshipRequest request, ApprenticeshipResult apprenticeship)
+        public ValidationFailReason DetermineOverlap(ApprenticeshipOverlapValidationRequest request, ApprenticeshipResult apprenticeship)
         {
-            if(!request.Uln.Equals(apprenticeship.Uln, StringComparison.InvariantCultureIgnoreCase))
+            if (!request.Uln.Equals(apprenticeship.Uln, StringComparison.InvariantCultureIgnoreCase))
             {
-                return false;
+                return ValidationFailReason.None;
             }
 
-            if (request.ExcludeApprenticeshipId == apprenticeship.Id)
+            if (request.ApprenticeshipId.HasValue && request.ApprenticeshipId.Value == apprenticeship.Id)
             {
-                return false;
+                return ValidationFailReason.None;
             }
 
             //Get the appropriate dates for the apprenticeship
@@ -24,31 +24,34 @@ namespace SFA.DAS.Commitments.Application.Rules
             var apprenticeshipStartDate = apprenticeship.StartDate;
             var apprenticeshipEndDate = apprenticeship.EndDate;
 
-            var overlapsStart = IsApprenticeshipDateBetween(request.DateFrom, apprenticeshipStartDate, apprenticeshipEndDate);
-            var overlapsEnd = IsApprenticeshipDateBetween(request.DateTo, apprenticeshipStartDate, apprenticeshipEndDate);
+            var overlapsStart = IsApprenticeshipDateBetween(request.StartDate, apprenticeshipStartDate, apprenticeshipEndDate);
+            var overlapsEnd = IsApprenticeshipDateBetween(request.EndDate, apprenticeshipStartDate, apprenticeshipEndDate);
 
             //Contained
             if (overlapsStart && overlapsEnd)
             {
-                return true;
-            }
-            //Overlap start date
-            else if (overlapsStart)
-            {
-                return true;
-            }
-            //Overlap end date
-            else if (overlapsEnd)
-            {
-                return true;
-            }
-            //Straddle
-            else if (IsApprenticeshipDateStraddle(request.DateFrom, request.DateTo, apprenticeshipStartDate, apprenticeshipEndDate))
-            {
-                return true;
+                return ValidationFailReason.DateWithin;
             }
 
-            return false;
+            //Overlap start date
+            if (overlapsStart)
+            {
+                return ValidationFailReason.OverlappingStartDate;
+            }
+
+            //Overlap end date
+            if (overlapsEnd)
+            {
+                return ValidationFailReason.OverlappingEndDate;
+            }
+
+            //Straddle
+            if (IsApprenticeshipDateStraddle(request.StartDate, request.EndDate, apprenticeshipStartDate, apprenticeshipEndDate))
+            {
+                return ValidationFailReason.DateEmbrace;
+            }
+
+            return ValidationFailReason.None;
         }
 
         public static bool IsApprenticeshipDateBetween(DateTime dateToCheck, DateTime dateFrom, DateTime dateTo)

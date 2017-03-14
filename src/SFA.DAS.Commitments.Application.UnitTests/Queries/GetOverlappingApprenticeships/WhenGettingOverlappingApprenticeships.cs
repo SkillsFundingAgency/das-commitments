@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
@@ -37,7 +38,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
         public async Task ThenTheRequestIsValidated()
         {
             //Arrange
-            var request = new GetOverlappingApprenticeshipsRequest { OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>()};
+            var request = new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>()
+            };
 
             //Act
             await _handler.Handle(request);
@@ -52,13 +56,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             //Arrange
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = new DateTime(2017,10,1),
-                        DateTo = new DateTime(2017,11,1)
+                        StartDate = new DateTime(2017,10,1),
+                        EndDate = new DateTime(2017,11,1)
                    }
                 }
             };
@@ -82,13 +86,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = startDate,
-                        DateTo = endDate
+                        StartDate = startDate,
+                        EndDate = endDate
                    }
                 }
             };
@@ -110,13 +114,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = startDate,
-                        DateTo = endDate
+                        StartDate = startDate,
+                        EndDate = endDate
                    }
                 }
             };
@@ -137,13 +141,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "999999999",
-                        DateFrom = new DateTime(2018,01,1),
-                        DateTo = new DateTime(2018,12,31)
+                        StartDate = new DateTime(2018,01,1),
+                        EndDate = new DateTime(2018,12,31)
                    }
                 }
             };
@@ -164,13 +168,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = new DateTime(2018,03,15),
-                        DateTo = new DateTime(2018,05,15)
+                        StartDate = new DateTime(2018,03,15),
+                        EndDate = new DateTime(2018,05,15)
                    }
                 }
             };
@@ -191,13 +195,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                        Uln = "1234567890",
-                        DateFrom = new DateTime(2018,05,15),
-                        DateTo = new DateTime(2018,07,15)
+                        StartDate = new DateTime(2018,05,15),
+                        EndDate = new DateTime(2018,07,15)
                    }
                 }
             };
@@ -220,13 +224,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = startDate,
-                        DateTo = endDate
+                        StartDate = startDate,
+                        EndDate = endDate
                    }
                 }
             };
@@ -247,13 +251,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = new DateTime(2018,03,15),
-                        DateTo = new DateTime(2018,07,15)
+                        StartDate = new DateTime(2018,03,15),
+                        EndDate = new DateTime(2018,07,15)
                    }
                 }
             };
@@ -274,13 +278,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
                         Uln = "1234567890",
-                        DateFrom = new DateTime(2018,01,15),
-                        DateTo = new DateTime(2018,05,15)
+                        StartDate = new DateTime(2018,01,15),
+                        EndDate = new DateTime(2018,05,15)
                    }
                 }
             };
@@ -313,14 +317,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
-                OverlappingApprenticeshipRequests = new List<OverlappingApprenticeshipRequest>
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
                 {
-                   new OverlappingApprenticeshipRequest
+                   new ApprenticeshipOverlapValidationRequest
                    {
-                        ExcludeApprenticeshipId = 666,
+                        ApprenticeshipId = 666,
                         Uln = "1234567890",
-                        DateFrom = new DateTime(2018,02,15),
-                        DateTo = new DateTime(2018,04,15)
+                        StartDate = new DateTime(2018,02,15),
+                        EndDate = new DateTime(2018,04,15)
                    }
                 }
             };
