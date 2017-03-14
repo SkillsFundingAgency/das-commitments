@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
 
-            if (command.LatestAction == Api.Types.LastAction.Approve)
+            if (command.LatestAction == Api.Types.Commitment.Types.LastAction.Approve)
                 CheckStateForApproval(commitment, command.Caller);
 
             var latestAction = (LastAction) command.LatestAction;

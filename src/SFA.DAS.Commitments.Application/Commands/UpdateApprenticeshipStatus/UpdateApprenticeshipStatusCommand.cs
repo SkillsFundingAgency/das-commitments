@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {

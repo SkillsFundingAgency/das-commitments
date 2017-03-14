@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public void Setup()
         {
             _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
-            var exampleValidApprenticeship = new Apprenticeship
+            var exampleValidApprenticeship = new Apprenticeship.Apprenticeship
             {
                 FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),
                 ULN = ApprenticeshipTestDataHelper.CreateValidULN(),
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [Test]
         public void ShouldValidateApprenticeship()
         {
-            _exampleCommand.Apprenticeship = new Apprenticeship(); // Empty apprenticeship has invalid fields
+            _exampleCommand.Apprenticeship = new Apprenticeship.Apprenticeship(); // Empty apprenticeship has invalid fields
 
             var result = _validator.Validate(_exampleCommand);
 

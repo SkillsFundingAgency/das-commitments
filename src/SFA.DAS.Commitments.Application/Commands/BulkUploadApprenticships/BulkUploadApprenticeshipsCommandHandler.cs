@@ -76,7 +76,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
-        private Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
+        private Apprenticeship MapFrom(Api.Types.Apprenticeship.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
         {
             var domainApprenticeship = new Apprenticeship
             {
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             return domainApprenticeship;
         }
 
-        private static void SetCallerSpecificReference(Apprenticeship domainApprenticeship, Api.Types.Apprenticeship apiApprenticeship, CallerType callerType)
+        private static void SetCallerSpecificReference(Apprenticeship domainApprenticeship, Api.Types.Apprenticeship.Apprenticeship apiApprenticeship, CallerType callerType)
         {
             if (callerType.IsEmployer())
                 domainApprenticeship.EmployerRef = apiApprenticeship.EmployerRef;

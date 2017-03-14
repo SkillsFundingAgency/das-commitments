@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             CheckAuthorization(command, commitment);
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
-            var newPaymentStatus = (PaymentStatus) command.PaymentStatus.GetValueOrDefault((Api.Types.PaymentStatus) apprenticeship.PaymentStatus);
+            var newPaymentStatus = (PaymentStatus) command.PaymentStatus.GetValueOrDefault((Api.Types.Apprenticeship.Types.PaymentStatus) apprenticeship.PaymentStatus);
 
             await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, command.ApprenticeshipId, newPaymentStatus);
         }

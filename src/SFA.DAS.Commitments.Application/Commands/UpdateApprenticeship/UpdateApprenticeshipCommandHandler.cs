@@ -125,7 +125,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             }
         }
 
-        private static Apprenticeship MapFrom(Api.Types.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
+        private static Apprenticeship MapFrom(Api.Types.Apprenticeship.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
         {
             var domainApprenticeship = new Apprenticeship
             {

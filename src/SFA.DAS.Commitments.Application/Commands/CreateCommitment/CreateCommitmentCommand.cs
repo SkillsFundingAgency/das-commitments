@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment

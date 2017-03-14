@@ -6,6 +6,8 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Domain.Interfaces;

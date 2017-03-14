@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 _mockMediator.Object);
 
             Fixture fixture = new Fixture();
-            fixture.Customize<Api.Types.Apprenticeship>(ob => ob
+            fixture.Customize<Api.Types.Apprenticeship.Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
                 .With(x => x.FirstName, "First name")
@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.TrainingCode, string.Empty)
                 .With(x => x.TrainingName, string.Empty)
             );
-            var populatedCommitment = fixture.Build<Api.Types.Commitment>().Create();
+            var populatedCommitment = fixture.Build<Api.Types.Commitment.Commitment>().Create();
             _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment, CallerType = CallerType.Employer, UserId = "UserId"};
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))

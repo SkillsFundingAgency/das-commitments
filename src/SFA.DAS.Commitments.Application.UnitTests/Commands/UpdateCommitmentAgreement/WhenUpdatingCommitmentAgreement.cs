@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _validCommand = new UpdateCommitmentAgreementCommand
             {
                 Caller = new Domain.Caller { Id = 444, CallerType = Domain.CallerType.Employer },
-                LatestAction = Api.Types.LastAction.Amend,
+                LatestAction = Api.Types.Commitment.Types.LastAction.Amend,
                 CommitmentId = 123L,
                 LastUpdatedByName = "Test Tester",
                 LastUpdatedByEmail = "test@tester.com"
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public void ShouldThrowExceptionIfActionIsNotSetToValidValue()
         {
-            _validCommand.LatestAction = (Api.Types.LastAction)99;
+            _validCommand.LatestAction = (Api.Types.Commitment.Types.LastAction)99;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
 
@@ -147,7 +147,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _validCommand.Caller.Id = 444;
             _validCommand.Caller.CallerType = Domain.CallerType.Employer;
-            _validCommand.LatestAction = Api.Types.LastAction.Approve;
+            _validCommand.LatestAction = Api.Types.Commitment.Types.LastAction.Approve;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
             act.ShouldThrow<InvalidOperationException>().WithMessage("Commitment 123 cannot be approved because apprentice information is incomplete");
@@ -161,7 +161,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _validCommand.Caller.Id = 333;
             _validCommand.Caller.CallerType = Domain.CallerType.Provider;
-            _validCommand.LatestAction = Api.Types.LastAction.Approve;
+            _validCommand.LatestAction = Api.Types.Commitment.Types.LastAction.Approve;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
             act.ShouldThrow<InvalidOperationException>().WithMessage("Commitment 123 cannot be approved because apprentice information is incomplete");

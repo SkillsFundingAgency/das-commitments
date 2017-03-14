@@ -10,6 +10,7 @@ using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;

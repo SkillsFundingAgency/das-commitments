@@ -6,6 +6,9 @@ using MediatR;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using TrainingType = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
 {
@@ -30,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
             return new GetApprenticeshipsResponse
             {
                 Data = apprenticeships.Select(
-                    x => new Api.Types.Apprenticeship
+                    x => new Api.Types.Apprenticeship.Apprenticeship
                     {
                         Id = x.Id,
                         CommitmentId = x.CommitmentId,
@@ -40,14 +43,14 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         FirstName = x.FirstName,
                         LastName = x.LastName,
                         ULN = x.ULN,
-                        TrainingType = (Api.Types.TrainingType) x.TrainingType,
+                        TrainingType = (TrainingType) x.TrainingType,
                         TrainingCode = x.TrainingCode,
                         TrainingName = x.TrainingName,
                         Cost = x.Cost,
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,
-                        PaymentStatus = (Api.Types.PaymentStatus) x.PaymentStatus,
-                        AgreementStatus = (Api.Types.AgreementStatus) x.AgreementStatus,
+                        PaymentStatus = (PaymentStatus )x.PaymentStatus,
+                        AgreementStatus = (AgreementStatus) x.AgreementStatus,
                         DateOfBirth = x.DateOfBirth,
                         NINumber = x.NINumber,
                         EmployerRef = x.EmployerRef,

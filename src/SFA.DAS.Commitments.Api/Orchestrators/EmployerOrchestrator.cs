@@ -20,7 +20,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
-using PaymentStatus = SFA.DAS.Commitments.Api.Types.PaymentStatus;
+using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -69,7 +69,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task<long> CreateCommitment(long accountId, CommitmentRequest commitmentRequest)
+        public async Task<long> CreateCommitment(long accountId, Commitment.CommitmentRequest commitmentRequest)
         {
             _logger.Info($"Creating commitment for employer account {accountId}", accountId: accountId);
 
@@ -112,7 +112,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task<long> CreateApprenticeship(long accountId, long commitmentId, ApprenticeshipRequest apprenticeshipRequest)
+        public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
         {
             _logger.Info($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
@@ -131,7 +131,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)
+        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
         {
             _logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
@@ -170,7 +170,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipSubmission apprenticeshipSubmission)
+        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
         {
             _logger.Info($"Updating payment status to {apprenticeshipSubmission.PaymentStatus} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 

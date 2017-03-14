@@ -9,6 +9,8 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain.Interfaces;
 

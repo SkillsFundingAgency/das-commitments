@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void SetUp()
         {
-            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, CommitmentId = 123L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.PaymentStatus.Active};
+            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, CommitmentId = 123L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Active};
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
@@ -75,10 +75,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldThrow<UnauthorizedException>();
         }
 
-        [TestCase(PaymentStatus.PendingApproval, Api.Types.PaymentStatus.Active)]
-        [TestCase(PaymentStatus.Active, Api.Types.PaymentStatus.Paused)]
-        [TestCase(PaymentStatus.Paused, Api.Types.PaymentStatus.Active)]
-        public void ThenWhenStateTransitionIsValidNoExceptionIsThrown(PaymentStatus initial, Api.Types.PaymentStatus target)
+        [TestCase(PaymentStatus.PendingApproval, Api.Types.Apprenticeship.Types.PaymentStatus.Active)]
+        [TestCase(PaymentStatus.Active, Api.Types.Apprenticeship.Types.PaymentStatus.Paused)]
+        [TestCase(PaymentStatus.Paused, Api.Types.Apprenticeship.Types.PaymentStatus.Active)]
+        public void ThenWhenStateTransitionIsValidNoExceptionIsThrown(PaymentStatus initial, Api.Types.Apprenticeship.Types.PaymentStatus target)
         {
             var apprenticeshipFromRepository = new Apprenticeship {PaymentStatus = initial};
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository);
@@ -89,9 +89,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldNotThrow<InvalidRequestException>();
         }
 
-        [TestCase(PaymentStatus.PendingApproval, Api.Types.PaymentStatus.Paused)]
-        [TestCase(PaymentStatus.Paused, Api.Types.PaymentStatus.PendingApproval)]
-        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial, Api.Types.PaymentStatus target)
+        [TestCase(PaymentStatus.PendingApproval, Api.Types.Apprenticeship.Types.PaymentStatus.Paused)]
+        [TestCase(PaymentStatus.Paused, Api.Types.Apprenticeship.Types.PaymentStatus.PendingApproval)]
+        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial, Api.Types.Apprenticeship.Types.PaymentStatus target)
         {
             var apprenticeshipFromRepository = new Apprenticeship {PaymentStatus = initial};
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository);

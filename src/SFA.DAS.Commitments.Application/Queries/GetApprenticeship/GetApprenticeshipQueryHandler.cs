@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 return response;
             }
 
-            response.Data = new Api.Types.Apprenticeship
+            response.Data = new Api.Types.Apprenticeship.Apprenticeship
             {
                 Id = matchingApprenticeship.Id,
                 CommitmentId = matchingApprenticeship.CommitmentId,
@@ -73,13 +73,13 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 FirstName = matchingApprenticeship.FirstName,
                 LastName = matchingApprenticeship.LastName,
                 ULN = matchingApprenticeship.ULN,
-                TrainingType = (Api.Types.TrainingType)matchingApprenticeship.TrainingType,
+                TrainingType = (Api.Types.Apprenticeship.Types.TrainingType)matchingApprenticeship.TrainingType,
                 TrainingCode = matchingApprenticeship.TrainingCode,
                 TrainingName = matchingApprenticeship.TrainingName,
                 Cost = matchingApprenticeship.Cost,
                 StartDate = matchingApprenticeship.StartDate,
                 EndDate = matchingApprenticeship.EndDate,
-                PaymentStatus = (Api.Types.PaymentStatus)matchingApprenticeship.PaymentStatus,
+                PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus)matchingApprenticeship.PaymentStatus,
                 AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus,
                 DateOfBirth = matchingApprenticeship.DateOfBirth,
                 NINumber = matchingApprenticeship.NINumber,
