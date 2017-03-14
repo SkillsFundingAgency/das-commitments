@@ -67,14 +67,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                     StartDate = source.StartDate,
                     EndDate = source.EndDate,
                     ULN = source.Uln
-                    //todo: complete           
                 },
                 EmployerAccountId = source.EmployerAccountId,
                 LegalEntityName = source.LegalEntityName,
                 ProviderId = source.ProviderId,
                 ProviderName = source.ProviderName,
                 ValidationFailReason = validationFailReason
-                
             };
 
             return result;

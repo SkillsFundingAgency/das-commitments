@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 using Dapper;
@@ -13,8 +12,6 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
-
-using StructureMap;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -328,9 +325,33 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public Task<IList<ApprenticeshipResult>> GetActiveApprenticeshipsByUlns(IEnumerable<string> ulns)
+        public async Task<IList<ApprenticeshipResult>> GetActiveApprenticeshipsByUlns(IEnumerable<string> ulns)
         {
-            throw new NotImplementedException();
+            var ulnDataTable = GenerateUlnDataTable(ulns);
+
+            return await WithConnection(async c =>
+            {
+                var result = await c.QueryAsync<ApprenticeshipResult>(
+                    sql: $"[dbo].[GetActiveApprenticeshipsByULNs]",
+                    param: new { @ULNs = ulnDataTable.AsTableValuedParameter("dbo.ULNTable") },
+                    commandType: CommandType.Text);
+
+                return result.ToList();
+            });
+        }
+
+        private static DataTable GenerateUlnDataTable(IEnumerable<string> ulns)
+        {
+            var result = new DataTable();
+
+            result.Columns.Add("ULN", typeof(string));
+
+            foreach (var uln in ulns)
+            {
+                result.Rows.Add(uln);
+            }
+
+            return result;
         }
     }
 }
