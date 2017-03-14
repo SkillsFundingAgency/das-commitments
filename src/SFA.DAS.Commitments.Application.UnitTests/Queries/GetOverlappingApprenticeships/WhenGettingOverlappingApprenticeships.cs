@@ -338,6 +338,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             {
                 CreateTestRecord("1234567890", new DateTime(2018,02,15), new DateTime(2018,04,15)),
                 CreateTestRecord("1234567890", new DateTime(2018,06,15), new DateTime(2018,08,15)),
+                CreateTestRecord("1234567890", new DateTime(2018,12,01), new DateTime(2018,12,31)),
                 CreateTestRecord("1234567890", new DateTime(2020,01,15), new DateTime(2020,12,15))
             };
 

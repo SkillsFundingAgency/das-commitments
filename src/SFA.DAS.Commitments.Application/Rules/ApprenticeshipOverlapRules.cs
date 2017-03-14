@@ -19,8 +19,13 @@ namespace SFA.DAS.Commitments.Application.Rules
                 return false;
             }
 
-            var overlapsStart = IsApprenticeshipDateBetween(request.DateFrom, apprenticeship.StartDate, apprenticeship.EndDate);
-            var overlapsEnd = IsApprenticeshipDateBetween(request.DateTo, apprenticeship.StartDate, apprenticeship.EndDate);
+            //Get the appropriate dates for the apprenticeship
+            //Additional logic to select other dates based on status can go here
+            var apprenticeshipStartDate = apprenticeship.StartDate;
+            var apprenticeshipEndDate = apprenticeship.EndDate;
+
+            var overlapsStart = IsApprenticeshipDateBetween(request.DateFrom, apprenticeshipStartDate, apprenticeshipEndDate);
+            var overlapsEnd = IsApprenticeshipDateBetween(request.DateTo, apprenticeshipStartDate, apprenticeshipEndDate);
 
             //Contained
             if (overlapsStart && overlapsEnd)
@@ -38,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.Rules
                 return true;
             }
             //Straddle
-            else if (IsApprenticeshipDateStraddle(request.DateFrom, request.DateTo, apprenticeship.StartDate, apprenticeship.EndDate))
+            else if (IsApprenticeshipDateStraddle(request.DateFrom, request.DateTo, apprenticeshipStartDate, apprenticeshipEndDate))
             {
                 return true;
             }
@@ -54,27 +59,15 @@ namespace SFA.DAS.Commitments.Application.Rules
         private static bool IsApprenticeshipDateBefore(DateTime dateToCheck, DateTime checkAgainstDate)
         {
             if (dateToCheck.Year < checkAgainstDate.Year) return true;
-
             if (dateToCheck.Year > checkAgainstDate.Year) return false;
-
             if (dateToCheck.Month < checkAgainstDate.Month) return true;
-
             if (dateToCheck.Month > checkAgainstDate.Month) return false;
-
             return false;
         }
 
         private static bool IsApprenticeshipDateAfter(DateTime dateToCheck, DateTime checkAgainstDate)
         {
-            if (dateToCheck.Year > checkAgainstDate.Year) return true;
-
-            if (dateToCheck.Year < checkAgainstDate.Year) return false;
-
-            if (dateToCheck.Month > checkAgainstDate.Month) return true;
-
-            if (dateToCheck.Month < checkAgainstDate.Month) return false;
-
-            return false;
+            return IsApprenticeshipDateBefore(checkAgainstDate, dateToCheck);
         }
 
         private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start,
