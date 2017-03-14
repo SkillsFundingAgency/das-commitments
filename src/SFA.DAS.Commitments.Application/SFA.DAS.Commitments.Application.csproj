@@ -115,7 +115,9 @@
     <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
+    <Compile Include="Rules\ApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
+    <Compile Include="Rules\IApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\GetApprenticeship\GetApprenticeshipQueryHandler.cs" />

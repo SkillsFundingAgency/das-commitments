@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
+using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -29,7 +30,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(new List<ApprenticeshipResult>());
 
-            _handler = new GetOverlappingApprenticeshipsQueryHandler(_apprenticeshipRepository.Object, _validator.Object);
+            _handler = new GetOverlappingApprenticeshipsQueryHandler(_apprenticeshipRepository.Object, _validator.Object, new ApprenticeshipOverlapRules());
         }
 
         [Test]
