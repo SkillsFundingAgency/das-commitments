@@ -8,6 +8,7 @@ using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 {
@@ -64,15 +65,29 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                 Apprenticeship = new Api.Types.Apprenticeship.Apprenticeship
                 {
                     Id = source.Id,
+                    CommitmentId = source.CommitmentId,
                     StartDate = source.StartDate,
                     EndDate = source.EndDate,
-                    ULN = source.Uln
+                    ULN = source.Uln,
+                    EmployerAccountId = source.EmployerAccountId,
+                    ProviderId = source.ProviderId,
+                    TrainingType = (Api.Types.Apprenticeship.Types.TrainingType)source.TrainingType,
+                    TrainingCode = source.TrainingCode,
+                    TrainingName = source.TrainingName,
+                    Cost = source.Cost,
+                    PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus)source.PaymentStatus,
+                    AgreementStatus = (Api.Types.AgreementStatus)source.AgreementStatus,
+                    DateOfBirth = source.DateOfBirth,
+                    EmployerRef = source.EmployerRef,
+                    ProviderRef = source.ProviderRef,
+                    FirstName = source.FirstName,
+                    LastName = source.LastName
                 },
                 EmployerAccountId = source.EmployerAccountId,
                 LegalEntityName = source.LegalEntityName,
                 ProviderId = source.ProviderId,
                 ProviderName = source.ProviderName,
-                ValidationFailReason = validationFailReason
+                ValidationFailReason = validationFailReason,
             };
 
             return result;

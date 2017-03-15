@@ -6,9 +6,11 @@ AS
 
 SELECT
 a.*,
+c.EmployerAccountId,
 c.ProviderId,
 c.ProviderName,
-c.LegalEntityName
+c.LegalEntityName,
+c.Id as 'CommitmentId'
 FROM [dbo].[Apprenticeship] a
 JOIN [dbo].[Commitment] c on c.Id = a.CommitmentId
 JOIN @ULNs u ON u.ULN = a.ULN

@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.Rules
             return ValidationFailReason.None;
         }
 
-        public static bool IsApprenticeshipDateBetween(DateTime dateToCheck, DateTime dateFrom, DateTime dateTo)
+        private static bool IsApprenticeshipDateBetween(DateTime dateToCheck, DateTime dateFrom, DateTime dateTo)
         {
             return (IsApprenticeshipDateAfter(dateToCheck, dateFrom) && IsApprenticeshipDateBefore(dateToCheck, dateTo));
         }
@@ -76,21 +76,17 @@ namespace SFA.DAS.Commitments.Application.Rules
         private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start,
             DateTime date2End)
         {
-            //does date 1 straddle date 2?
+            //straightforward case - clear straddle
             if (IsApprenticeshipDateBefore(date1Start, date2Start) &&
                 IsApprenticeshipDateAfter(date1End, date2End))
             {
                 return true;
             }
 
-            //In case of same month and year, if the dates span at least 1 whole month then they must straddle
+            //In case of same month and year, if dates span more than a month then must straddle
             if (IsSameMonthYear(date1Start, date2Start) || IsSameMonthYear(date1End, date2End))
             {
-                //if >= 1 month shared
-                var startMonth = (date1Start.Year * 12) + date1Start.Month;
-                var endMonth = (date1End.Year * 12) + date1End.Month;
-
-                if ((endMonth - startMonth) >= 2)
+                if (date1Start.Month != date1End.Month)
                 {
                     return true;
                 }

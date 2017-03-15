@@ -334,7 +334,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var result = await c.QueryAsync<ApprenticeshipResult>(
                     sql: $"[dbo].[GetActiveApprenticeshipsByULNs]",
                     param: new { @ULNs = ulnDataTable.AsTableValuedParameter("dbo.ULNTable") },
-                    commandType: CommandType.Text);
+                    commandType: CommandType.StoredProcedure);
 
                 return result.ToList();
             });
