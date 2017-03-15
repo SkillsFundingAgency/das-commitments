@@ -19,8 +19,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlappingApprenticeships(IEnumerable<ApprenticeshipOverlapValidationRequest> requests)
+        public async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlappingApprenticeships(IEnumerable<ApprenticeshipOverlapValidationRequest> apprenticeshipOverlapValidationRequests)
         {
+            var requests = apprenticeshipOverlapValidationRequests.ToList();
+
             var command = new Application.Queries.GetOverlappingApprenticeships.GetOverlappingApprenticeshipsRequest
                 {
                     OverlappingApprenticeshipRequests = requests.ToList()
@@ -30,13 +32,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var result = new List<ApprenticeshipOverlapValidationResult>();
 
-            var ulngroups = response.Data.GroupBy(x => x.Apprenticeship.ULN);
+            var ulngroups = response.Data.GroupBy(x => x.Apprenticeship.ULN).ToList();
 
             foreach (var group in ulngroups)
             {
                 result.Add(new ApprenticeshipOverlapValidationResult
                 {
-                    //todo: remove single
                     Self = requests.Single(x=> x.Uln.Equals(group.Key, StringComparison.InvariantCultureIgnoreCase)),
                     OverlappingApprenticeships = response.Data.Where(x=> x.Apprenticeship.ULN.Equals(group.Key, StringComparison.InvariantCultureIgnoreCase))
                 });
