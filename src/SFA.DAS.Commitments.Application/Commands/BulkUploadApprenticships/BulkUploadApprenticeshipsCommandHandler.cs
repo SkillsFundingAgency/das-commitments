@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -17,6 +21,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         private BulkUploadApprenticeshipsValidator _validator;
         private ICommitmentsLogger _logger;
         private ICommitmentRepository _commitmentRepository;
+        private IMediator _mediator;
 
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
@@ -27,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             IApprenticeshipRepository apprenticeshipRepository, 
             BulkUploadApprenticeshipsValidator validator, 
             IApprenticeshipEvents apprenticeshipEvents, 
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger, IMediator mediator)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -45,6 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
+            _mediator = mediator;
         }
 
         protected override async Task HandleCore(BulkUploadApprenticeshipsCommand command)
@@ -65,9 +71,42 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
-            var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command));
+            var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command)).ToList();
 
-            Stopwatch watch = Stopwatch.StartNew();
+            //Overlap validation
+            _logger.Info("Performing overlap validation for bulk upload");
+            var watch = Stopwatch.StartNew();
+            var overlapValidationRequest = new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>()
+            };
+
+            foreach (var apprenticeship in apprenticeships.Where(x=> x.StartDate.HasValue && x.EndDate.HasValue && !string.IsNullOrEmpty(x.ULN)))
+            {
+                overlapValidationRequest.OverlappingApprenticeshipRequests.Add(new ApprenticeshipOverlapValidationRequest
+                {
+                    Uln = apprenticeship.ULN,
+                    StartDate = apprenticeship.StartDate.Value,
+                    EndDate = apprenticeship.EndDate.Value
+                });
+            }
+
+            if (overlapValidationRequest.OverlappingApprenticeshipRequests.Any())
+            {
+                var overlapResponse = await _mediator.SendAsync(overlapValidationRequest);
+
+                watch.Stop();
+                _logger.Trace($"Overlap validation took {watch.ElapsedMilliseconds} milliseconds");
+
+                if (overlapResponse.Data.Any())
+                {
+                    _logger.Info($"Found {overlapResponse.Data.Count} overlapping errors");
+                    var errors = overlapResponse.Data.Select(overlap => new ValidationFailure(string.Empty, overlap.ValidationFailReason.ToString())).ToList();
+                    throw new ValidationException(errors);
+                }
+            }
+
+            watch = Stopwatch.StartNew();
             var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 

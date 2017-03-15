@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using NLog;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
@@ -16,13 +18,15 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IApprenticeshipOverlapRules _overlapRules;
+        private readonly ICommitmentsLogger _logger;
         private readonly AbstractValidator<GetOverlappingApprenticeshipsRequest> _validator;
 
-        public GetOverlappingApprenticeshipsQueryHandler(IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<GetOverlappingApprenticeshipsRequest> validator, IApprenticeshipOverlapRules overlapRules)
+        public GetOverlappingApprenticeshipsQueryHandler(IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<GetOverlappingApprenticeshipsRequest> validator, IApprenticeshipOverlapRules overlapRules, ICommitmentsLogger logger)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _overlapRules = overlapRules;
+            _logger = logger;
         }
 
         public async Task<GetOverlappingApprenticeshipsResponse> Handle(GetOverlappingApprenticeshipsRequest query)
@@ -50,6 +54,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 
                     if (validationFailReason != ValidationFailReason.None)
                     {
+                        _logger.Info($"ULN: {request.Uln} {request.StartDate:MMM yyyy} - {request.EndDate:MMM yyyy} Reason: {validationFailReason} " +
+                                     $"with Apprenticeship Id: {apprenticeship.Id} {apprenticeship.StartDate:MMM yyyy} - {apprenticeship.EndDate:MMM yyyy}");
                         result.Data.Add(MapFrom(apprenticeship, validationFailReason));
                     }
                 }

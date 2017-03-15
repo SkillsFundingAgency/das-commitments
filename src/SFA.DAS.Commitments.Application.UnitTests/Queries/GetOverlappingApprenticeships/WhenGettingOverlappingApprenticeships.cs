@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingApprenticeships
 {
@@ -31,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(new List<ApprenticeshipResult>());
 
-            _handler = new GetOverlappingApprenticeshipsQueryHandler(_apprenticeshipRepository.Object, _validator.Object, new ApprenticeshipOverlapRules());
+            _handler = new GetOverlappingApprenticeshipsQueryHandler(_apprenticeshipRepository.Object, _validator.Object, new ApprenticeshipOverlapRules(), Mock.Of<ICommitmentsLogger>());
         }
 
         [Test]
