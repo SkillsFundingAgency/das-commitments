@@ -23,6 +23,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("apprenticeships/overlapping")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> ValidateOverlappingApprenticeships([FromBody]IEnumerable<ApprenticeshipOverlapValidationRequest> request)
         {
             var result = await _validationOrchestrator.ValidateOverlappingApprenticeships(request);
