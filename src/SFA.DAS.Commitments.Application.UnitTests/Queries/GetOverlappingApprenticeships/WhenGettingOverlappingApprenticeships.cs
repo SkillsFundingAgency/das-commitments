@@ -187,8 +187,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             Assert.AreEqual(ValidationFailReason.OverlappingEndDate, result.Data[0].ValidationFailReason);
         }
 
-        /* More complex cases */
-
         [TestCase("2018-04-01", "2018-06-30", Description = "Start and end date both disregarded")]
         [TestCase("2018-04-01", "2018-05-15", Description = "Start date disregarded")]
         [TestCase("2018-05-15", "2018-06-01", Description = "End date disregarded")]
