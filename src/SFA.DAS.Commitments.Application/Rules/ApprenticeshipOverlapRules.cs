@@ -73,23 +73,54 @@ namespace SFA.DAS.Commitments.Application.Rules
             return IsApprenticeshipDateBefore(checkAgainstDate, dateToCheck);
         }
 
-        private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start,
-            DateTime date2End)
+        private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start, DateTime date2End)
         {
             //straightforward case - clear straddle
-            if (IsApprenticeshipDateBefore(date1Start, date2Start) &&
-                IsApprenticeshipDateAfter(date1End, date2End))
+            if (IsApprenticeshipDateBefore(date1Start, date2Start) && IsApprenticeshipDateAfter(date1End, date2End))
             {
                 return true;
             }
 
-            //In case of same month and year, if dates span more than a month then must straddle
-            if (IsSameMonthYear(date1Start, date2Start) || IsSameMonthYear(date1End, date2End))
+            //Case where active apprenticeship is single-month, cannot overlap
+            if (IsSameMonthYear(date2Start, date2End))
             {
-                if (date1Start.Month != date1End.Month)
+                return false;
+            }
+
+            //Case where timespans are identical
+            if (IsSameMonthYear(date1Start, date2Start) && IsSameMonthYear(date1End, date2End))
+            {
+                //Then single month apprenticeships do not overlap
+                if (IsSameMonthYear(date1Start, date1End))
                 {
-                    return true;
+                    return false;
                 }
+
+                return true;
+            }
+
+            //If the apprenticeships share a start date
+            if (IsSameMonthYear(date1Start, date2Start))
+            {
+                //The if is a single month then do not overlap
+                if (IsSameMonthYear(date1Start, date1End))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            //If they share an end date
+            if (IsSameMonthYear(date1End, date2End))
+            {
+                //Then if is a single month then do not overlap
+                if (IsSameMonthYear(date1Start, date1End))
+                {
+                    return false;
+                }
+
+                return true;
             }
 
             return false;

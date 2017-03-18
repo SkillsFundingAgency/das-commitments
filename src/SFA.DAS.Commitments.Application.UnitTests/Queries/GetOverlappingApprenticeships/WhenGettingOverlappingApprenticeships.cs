@@ -5,6 +5,7 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Types.Validation;
+using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
@@ -75,43 +76,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             _apprenticeshipRepository.Verify(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()), Times.Once);
         }
 
-        [TestCase("2018-04-01", "2018-06-30", Description = "Start and end date both disregarded")]
-        [TestCase("2018-04-01", "2018-05-15", Description = "Start date disregarded")]
-        [TestCase("2018-05-15", "2018-06-01", Description = "End date disregarded")]
-        [TestCase("2018-02-15", "2018-02-16", Description = "Start/end same month disregarded")]
-        public async Task ThenTheOverlapCheckDisregardsDatesWithinTheSameMonth(DateTime startDate, DateTime endDate)
-        {
-            //Arrange
-            _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
-                .ReturnsAsync(CreateTestData());
-
-            var request = new GetOverlappingApprenticeshipsRequest
-            {
-                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
-                {
-                   new ApprenticeshipOverlapValidationRequest
-                   {
-                        Uln = "1234567890",
-                        StartDate = startDate,
-                        EndDate = endDate
-                   }
-                }
-            };
-
-            //Act
-            var result = await _handler.Handle(request);
-
-            //Assert
-            Assert.IsEmpty(result.Data);
-        }
-
         [TestCase("2017-01-01", "2017-12-31", Description = "Before any apprenticeships")]
         [TestCase("2022-01-01", "2022-12-31", Description = "After any apprenticeships")]
         public async Task ThenIfDatesDoNotFallWithinRangeOfExistingApprenticeshipThenNotOverlapping(DateTime startDate, DateTime endDate)
         {
             //Arrange
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
-                .ReturnsAsync(CreateTestData());
+                .ReturnsAsync(CreateSingleRecordTestData());
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
@@ -138,7 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
         {
             //Arrange
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
-                .ReturnsAsync(CreateTestData());
+                .ReturnsAsync(CreateSingleRecordTestData());
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
@@ -148,7 +119,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
                    {
                         Uln = "999999999",
                         StartDate = new DateTime(2018,01,1),
-                        EndDate = new DateTime(2018,12,31)
+                        EndDate = new DateTime(2018,06,30)
                    }
                 }
             };
@@ -165,7 +136,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
         {
             //Arrange
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
-                .ReturnsAsync(CreateTestData());
+                .ReturnsAsync(CreateSingleRecordTestData());
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
@@ -175,7 +146,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
                    {
                         Uln = "1234567890",
                         StartDate = new DateTime(2018,03,15),
-                        EndDate = new DateTime(2018,05,15)
+                        EndDate = new DateTime(2018,12,15)
                    }
                 }
             };
@@ -185,10 +156,47 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
 
             //Assert
             Assert.AreEqual(1, result.Data.Count);
+            Assert.AreEqual(ValidationFailReason.OverlappingStartDate, result.Data[0].ValidationFailReason);
         }
 
         [Test]
         public async Task ThenIfEndDateFallsWithinRangeOfExistingApprenticeshipThenIsOverlapping()
+        {
+            //Arrange
+            _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
+                .ReturnsAsync(CreateSingleRecordTestData());
+
+            var request = new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
+                {
+                   new ApprenticeshipOverlapValidationRequest
+                   {
+                        Uln = "1234567890",
+                        StartDate = new DateTime(2018,01,15),
+                        EndDate = new DateTime(2018,03,15)
+                   }
+                }
+            };
+
+            //Act
+            var result = await _handler.Handle(request);
+
+            //Assert
+            Assert.AreEqual(1, result.Data.Count);
+            Assert.AreEqual(ValidationFailReason.OverlappingEndDate, result.Data[0].ValidationFailReason);
+        }
+
+        /* More complex cases */
+
+        [TestCase("2018-04-01", "2018-06-30", Description = "Start and end date both disregarded")]
+        [TestCase("2018-04-01", "2018-05-15", Description = "Start date disregarded")]
+        [TestCase("2018-05-15", "2018-06-01", Description = "End date disregarded")]
+        [TestCase("2018-02-15", "2018-02-16", Description = "Start/end same month disregarded")]
+        [TestCase("2021-09-15", "2021-09-15", Description = "Start/end same month as single-month active record disregarded")]
+        [TestCase("2021-09-01", "2021-10-15", Description = "Start month overlaps single-month active record disregarded")]
+        [TestCase("2021-08-15", "2021-09-15", Description = "End month overlaps single-month active record disregarded")]
+        public async Task ThenTheOverlapCheckDisregardsDatesWithinTheSameMonth(DateTime startDate, DateTime endDate)
         {
             //Arrange
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
@@ -200,9 +208,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
                 {
                    new ApprenticeshipOverlapValidationRequest
                    {
-                       Uln = "1234567890",
-                        StartDate = new DateTime(2018,05,15),
-                        EndDate = new DateTime(2018,07,15)
+                        Uln = "1234567890",
+                        StartDate = startDate,
+                        EndDate = endDate
                    }
                 }
             };
@@ -211,18 +219,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             var result = await _handler.Handle(request);
 
             //Assert
-            Assert.AreEqual(1, result.Data.Count);
+            Assert.IsEmpty(result.Data);
         }
 
-        [TestCase("2018-03-01", "2018-03-31", Description = "Dates contained within existing range - single month")]
-        [TestCase("2021-03-15", "2021-04-15", Description = "Dates contained within existing range - two months")]
-        [TestCase("2020-03-15", "2020-09-15", Description = "Dates contained within existing range - longer duration")]
-        [TestCase("2018-02-15", "2018-04-15", Description = "Same dates as existing range")]
+        [TestCase("2018-06-01", "2018-06-30", Description = "Dates contained within existing range - single month")]
+        [TestCase("2018-06-15", "2018-07-15", Description = "Dates contained within existing range - two months")]
+        [TestCase("2018-03-15", "2018-09-15", Description = "Dates contained within existing range - longer duration")]
+        [TestCase("2018-02-15", "2018-11-15", Description = "Same dates as existing range")]
         public async Task ThenIfBothDatesFallWithinRangeOfSingleExistingApprenticeshipThenIsOverlapping(DateTime startDate, DateTime endDate)
         {
             //Arrange
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
-                .ReturnsAsync(CreateTestData());
+                .ReturnsAsync(CreateSingleRecordTestData());
 
             var request = new GetOverlappingApprenticeshipsRequest
             {
@@ -274,6 +282,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
         [TestCase("2018-01-15", "2018-05-15", Description = "Straightforward straddle")]
         [TestCase("2017-12-15", "2018-04-15", Description = "Partial straddle - end")]
         [TestCase("2017-02-15", "2018-05-15", Description = "Partial straddle - start")]
+        [TestCase("2019-12-01", "2020-12-01", Description = "Possible straddle or end date within")]
+        [TestCase("2021-08-01", "2021-10-01", Description = "Straddle around single-month active record")]
         public async Task ThenIfDatesStraddleExistingApprenticeshipThenIsOverlapping(DateTime startDate, DateTime endDate)
         {
             //Arrange
@@ -340,6 +350,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             Assert.IsEmpty(result.Data);
         }
 
+        /// <summary>
+        /// Creates a single apprenticeship running Feb-Nov 2018
+        /// </summary>
+        /// <returns></returns>
+        private static List<ApprenticeshipResult> CreateSingleRecordTestData()
+        {
+            var mockData = new List<ApprenticeshipResult>
+            {
+                CreateTestRecord("1234567890", new DateTime(2018,02,15), new DateTime(2018,11,15))
+            };
+
+            return mockData;
+        }
+
+        /// <summary>
+        /// Creates a multi-record set of test data - 
+        /// Feb-Apr 18, Jun-Aug 18, Dec 18, Jan-Dec 20, Mar-Apr 21, Sep 21
+        /// </summary>
+        /// <returns></returns>
         private static List<ApprenticeshipResult> CreateTestData()
         {
             var mockData = new List<ApprenticeshipResult>
@@ -348,7 +377,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
                 CreateTestRecord("1234567890", new DateTime(2018,06,15), new DateTime(2018,08,15)),
                 CreateTestRecord("1234567890", new DateTime(2018,12,01), new DateTime(2018,12,31)),
                 CreateTestRecord("1234567890", new DateTime(2020,01,15), new DateTime(2020,12,15)),
-                CreateTestRecord("1234567890", new DateTime(2021,03,15), new DateTime(2021,04,15))
+                CreateTestRecord("1234567890", new DateTime(2021,03,15), new DateTime(2021,04,15)),
+                CreateTestRecord("1234567890", new DateTime(2021,09,15), new DateTime(2021,09,15))
             };
 
             return mockData;
