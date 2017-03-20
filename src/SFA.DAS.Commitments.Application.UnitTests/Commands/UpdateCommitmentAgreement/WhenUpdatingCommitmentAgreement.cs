@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
+using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgreement
 {
@@ -21,10 +25,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private UpdateCommitmentAgreementCommandHandler _handler;
         private UpdateCommitmentAgreementCommand _validCommand;
+        private Mock<IMediator> _mockMediator;
 
         [SetUp]
         public void Setup()
         {
+            _mockMediator = new Mock<IMediator>();
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
+                {
+                    Data = new List<OverlappingApprenticeship>()
+                });
+
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _handler = new UpdateCommitmentAgreementCommandHandler(
@@ -32,8 +44,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 _mockApprenticeshipRespository.Object,
                 new ApprenticeshipUpdateRules(), 
                 Mock.Of<IApprenticeshipEvents>(), 
-                Mock.Of<ICommitmentsLogger>(), 
-                Mock.Of<IMediator>(),
+                Mock.Of<ICommitmentsLogger>(),
+                _mockMediator.Object,
                 new UpdateCommitmentAgreementCommandValidator());
 
             _validCommand = new UpdateCommitmentAgreementCommand
@@ -165,6 +177,64 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
             act.ShouldThrow<InvalidOperationException>().WithMessage("Commitment 123 cannot be approved because apprentice information is incomplete");
+        }
+
+
+        [Test]
+        public async Task ThenIfApprovingCommitmentThenMediatorIsCalledToCheckForOverlappingApprenticeships()
+        {
+            //Arrange
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockMediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfNotApprovingCommitmentThenMediatorIsNotCalledToCheckForOverlappingApprenticeships()
+        {
+            //Arrange
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = LastAction.Amend;
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockMediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Never);
+        }
+
+        [Test]
+        public void ThenIfApprovingCommitmentThenIfThereAreOverlappingApprenticeshipsThenThrowAnException()
+        {
+            //Arrange
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
+                {
+                    Data = new List<OverlappingApprenticeship>
+                    {
+                        new OverlappingApprenticeship()
+                    }
+                });
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            //Act
+            Func<Task> act = async () => { await _handler.Handle(_validCommand); };
+
+            //Assert
+            act.ShouldThrow<ValidationException>();
         }
     }
 }
