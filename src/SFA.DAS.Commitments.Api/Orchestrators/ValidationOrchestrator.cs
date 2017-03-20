@@ -19,7 +19,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlappingApprenticeships(IEnumerable<ApprenticeshipOverlapValidationRequest> apprenticeshipOverlapValidationRequests)
+        public async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlappingApprenticeships(
+            IEnumerable<ApprenticeshipOverlapValidationRequest> apprenticeshipOverlapValidationRequests)
         {
             var requests = apprenticeshipOverlapValidationRequests.ToList();
 

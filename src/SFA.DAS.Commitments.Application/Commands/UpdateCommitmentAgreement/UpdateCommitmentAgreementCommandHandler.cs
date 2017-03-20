@@ -208,16 +208,17 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task<GetOverlappingApprenticeshipsResponse> GetOverlappingApprenticeships(Commitment commitment)
         {
-            var overlapRequests = new List<ApprenticeshipOverlapValidationRequest>();
-            foreach (var apprenticeship in commitment.Apprenticeships.Where(x => !string.IsNullOrWhiteSpace(x.ULN) && x.StartDate.HasValue && x.EndDate.HasValue))
-            {
-                overlapRequests.Add(new ApprenticeshipOverlapValidationRequest
-                {
-                    Uln = apprenticeship.ULN,
-                    StartDate = apprenticeship.StartDate.Value,
-                    EndDate = apprenticeship.EndDate.Value
-                });
-            }
+            var overlapRequests = 
+                commitment.Apprenticeships
+                .Where(x => !string.IsNullOrWhiteSpace(x.ULN) && x.StartDate.HasValue && x.EndDate.HasValue)
+                .Select(apprenticeship => 
+                    new ApprenticeshipOverlapValidationRequest
+                        {
+                            Uln = apprenticeship.ULN,
+                            StartDate = apprenticeship.StartDate.Value,
+                            EndDate = apprenticeship.EndDate.Value
+                        })
+                .ToList();
 
             var response = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
             {

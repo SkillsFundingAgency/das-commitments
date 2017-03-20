@@ -56,42 +56,42 @@ namespace SFA.DAS.Commitments.Application.Rules
 
         private static bool IsApprenticeshipDateBetween(DateTime dateToCheck, DateTime dateFrom, DateTime dateTo)
         {
-            return (IsApprenticeshipDateAfter(dateToCheck, dateFrom) && IsApprenticeshipDateBefore(dateToCheck, dateTo));
+            return IsApprenticeshipDateAfter(dateToCheck, dateFrom) && IsDateBefore(dateToCheck, dateTo);
         }
 
-        private static bool IsApprenticeshipDateBefore(DateTime dateToCheck, DateTime checkAgainstDate)
+        private static bool IsDateBefore(DateTime date1, DateTime date2)
         {
-            if (dateToCheck.Year < checkAgainstDate.Year) return true;
-            if (dateToCheck.Year > checkAgainstDate.Year) return false;
-            if (dateToCheck.Month < checkAgainstDate.Month) return true;
-            if (dateToCheck.Month > checkAgainstDate.Month) return false;
+            if (date1.Year < date2.Year) return true;
+            if (date1.Year > date2.Year) return false;
+            if (date1.Month < date2.Month) return true;
+            if (date1.Month > date2.Month) return false;
             return false;
         }
 
-        private static bool IsApprenticeshipDateAfter(DateTime dateToCheck, DateTime checkAgainstDate)
+        private static bool IsApprenticeshipDateAfter(DateTime date1, DateTime date2)
         {
-            return IsApprenticeshipDateBefore(checkAgainstDate, dateToCheck);
+            return IsDateBefore(date2, date1);
         }
 
         private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start, DateTime date2End)
         {
             //straightforward case - clear straddle
-            if (IsApprenticeshipDateBefore(date1Start, date2Start) && IsApprenticeshipDateAfter(date1End, date2End))
+            if (IsDateBefore(date1Start, date2Start) && IsApprenticeshipDateAfter(date1End, date2End))
             {
                 return true;
             }
 
             //Case where active apprenticeship is single-month, cannot overlap
-            if (IsSameMonthYear(date2Start, date2End))
+            if (IsSameMonthAndYear(date2Start, date2End))
             {
                 return false;
             }
 
             //Case where timespans are identical
-            if (IsSameMonthYear(date1Start, date2Start) && IsSameMonthYear(date1End, date2End))
+            if (IsSameMonthAndYear(date1Start, date2Start) && IsSameMonthAndYear(date1End, date2End))
             {
                 //Then single month apprenticeships do not overlap
-                if (IsSameMonthYear(date1Start, date1End))
+                if (IsSameMonthAndYear(date1Start, date1End))
                 {
                     return false;
                 }
@@ -100,10 +100,10 @@ namespace SFA.DAS.Commitments.Application.Rules
             }
 
             //If the apprenticeships share a start date
-            if (IsSameMonthYear(date1Start, date2Start))
+            if (IsSameMonthAndYear(date1Start, date2Start))
             {
                 //The if is a single month then do not overlap
-                if (IsSameMonthYear(date1Start, date1End))
+                if (IsSameMonthAndYear(date1Start, date1End))
                 {
                     return false;
                 }
@@ -112,10 +112,10 @@ namespace SFA.DAS.Commitments.Application.Rules
             }
 
             //If they share an end date
-            if (IsSameMonthYear(date1End, date2End))
+            if (IsSameMonthAndYear(date1End, date2End))
             {
                 //Then if is a single month then do not overlap
-                if (IsSameMonthYear(date1Start, date1End))
+                if (IsSameMonthAndYear(date1Start, date1End))
                 {
                     return false;
                 }
@@ -126,10 +126,9 @@ namespace SFA.DAS.Commitments.Application.Rules
             return false;
         }
 
-        private static bool IsSameMonthYear(DateTime date1, DateTime date2)
+        private static bool IsSameMonthAndYear(DateTime date1, DateTime date2)
         {
-            return (date1.Month == date2.Month && date1.Year == date2.Year);
+            return date1.Month == date2.Month && date1.Year == date2.Year;
         }
-
     }
 }

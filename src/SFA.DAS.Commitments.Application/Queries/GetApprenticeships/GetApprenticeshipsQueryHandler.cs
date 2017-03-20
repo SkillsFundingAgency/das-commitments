@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         Cost = x.Cost,
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,
-                        PaymentStatus = (PaymentStatus )x.PaymentStatus,
+                        PaymentStatus = (PaymentStatus) x.PaymentStatus,
                         AgreementStatus = (AgreementStatus) x.AgreementStatus,
                         DateOfBirth = x.DateOfBirth,
                         NINumber = x.NINumber,

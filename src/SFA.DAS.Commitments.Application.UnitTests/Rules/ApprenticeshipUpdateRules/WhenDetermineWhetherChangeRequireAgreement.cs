@@ -21,6 +21,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             var existingApprenticeship = CreateApprenticeship();
             var updatedApprenticeship = CreateApprenticeship();
 
+            existingApprenticeship.StartDate = updatedApprenticeship.StartDate;
+            existingApprenticeship.EndDate = updatedApprenticeship.EndDate;
+
             // both the same initially
             Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
@@ -69,6 +72,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
         {
             var existingApprenticeship = CreateApprenticeship();
             var updatedApprenticeship = CreateApprenticeship();
+
+            existingApprenticeship.StartDate = updatedApprenticeship.StartDate;
+            existingApprenticeship.EndDate = updatedApprenticeship.EndDate;
 
             Assert.IsFalse(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
