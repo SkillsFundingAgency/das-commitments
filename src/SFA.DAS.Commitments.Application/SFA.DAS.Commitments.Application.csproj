@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.28.0.24319, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.28.0.24319\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.30.0.25645, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.30.0.25645\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.11.0.19990, Culture=neutral, processorArchitecture=MSIL">
@@ -100,9 +100,13 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsQueryHandler.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsRequest.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsResponse.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
+    <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsValidator.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />
@@ -111,7 +115,9 @@
     <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
+    <Compile Include="Rules\ApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
+    <Compile Include="Rules\IApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\IApprenticeshipUpdateRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\GetApprenticeship\GetApprenticeshipQueryHandler.cs" />

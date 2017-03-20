@@ -4,14 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
-using EditStatus = SFA.DAS.Commitments.Api.Types.EditStatus;
-using LastAction = SFA.DAS.Commitments.Api.Types.LastAction;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.EditStatus;
+using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {

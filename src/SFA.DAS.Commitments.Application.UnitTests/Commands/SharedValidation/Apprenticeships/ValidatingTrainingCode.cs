@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [Test]
         public void ShouldBeValidIfNoTrainingCodeValuesSet()
         {
-            ExampleValidApprenticeship.TrainingType = Api.Types.TrainingType.Standard; // Default value
+            ExampleValidApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Standard; // Default value
             ExampleValidApprenticeship.TrainingCode = null;
             ExampleValidApprenticeship.TrainingName = null;
 
@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [Test]
         public void ShouldBeInValidIfTrainingCodeNotSet()
         {
-            ExampleValidApprenticeship.TrainingType = Api.Types.TrainingType.Standard;
+            ExampleValidApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Standard;
             ExampleValidApprenticeship.TrainingCode = null;
             ExampleValidApprenticeship.TrainingName = "Test Training Name";
 
@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [Test]
         public void ShouldBeInValidIfTrainingNameNotSet()
         {
-            ExampleValidApprenticeship.TrainingType = Api.Types.TrainingType.Standard;
+            ExampleValidApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Standard;
             ExampleValidApprenticeship.TrainingCode = "22";
             ExampleValidApprenticeship.TrainingName = null;
 
@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [Test]
         public void ShouldBeInValidIfTrainingTypeInvalid()
         {
-            ExampleValidApprenticeship.TrainingType = (Api.Types.TrainingType)5;
+            ExampleValidApprenticeship.TrainingType = (Api.Types.Apprenticeship.Types.TrainingType)5;
             ExampleValidApprenticeship.TrainingCode = "22";
             ExampleValidApprenticeship.TrainingName = "Test Training Name";
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [TestCase("02-2211-22")]
         public void ShouldBeInValidIfFrameworkCodeNotInCorrectFormat(string code)
         {
-            ExampleValidApprenticeship.TrainingType = Api.Types.TrainingType.Framework;
+            ExampleValidApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Framework;
             ExampleValidApprenticeship.TrainingCode = code;
             ExampleValidApprenticeship.TrainingName = "Test Training Name";
 
@@ -74,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         [TestCase("abc")]
         public void ShouldBeInValidIfStandardCodeNotInCorrectFormat(string code)
         {
-            ExampleValidApprenticeship.TrainingType = Api.Types.TrainingType.Standard;
+            ExampleValidApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Standard;
             ExampleValidApprenticeship.TrainingCode = code;
             ExampleValidApprenticeship.TrainingName = "Test Training Name";
 

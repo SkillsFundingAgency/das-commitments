@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
         public long CommitmentId { get; set; }
 
-        public Apprenticeship Apprenticeship { get; set; }
+        public Apprenticeship.Apprenticeship Apprenticeship { get; set; }
 
         public string UserId { get; set; }
     }

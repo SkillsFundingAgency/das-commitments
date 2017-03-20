@@ -46,7 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockValidator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipCommand>())).Returns(new ValidationResult());
 
             var fixture = new Fixture();
-            var populatedApprenticeship = fixture.Build<Api.Types.Apprenticeship>().Create();
+            var populatedApprenticeship = fixture.Build<Api.Types.Apprenticeship.Apprenticeship>().Create();
 
             _exampleValidRequest = new UpdateApprenticeshipCommand
             {

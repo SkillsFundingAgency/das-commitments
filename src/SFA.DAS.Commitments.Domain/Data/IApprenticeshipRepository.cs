@@ -24,5 +24,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId);
 
         Task<Apprenticeship> GetApprenticeship(long apprenticeshipId);
+
+        Task<IList<ApprenticeshipResult>> GetActiveApprenticeshipsByUlns(IEnumerable<string> ulns);
     }
 }

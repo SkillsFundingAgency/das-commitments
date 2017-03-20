@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -77,8 +80,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
 
-            if (command.LatestAction == Api.Types.LastAction.Approve)
+            if (command.LatestAction == Api.Types.Commitment.Types.LastAction.Approve)
+            {
                 CheckStateForApproval(commitment, command.Caller);
+
+                var overlaps = await GetOverlappingApprenticeships(commitment);
+                if (overlaps.Data.Any())
+                {
+                    throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
+                }
+            }
 
             var latestAction = (LastAction) command.LatestAction;
 
@@ -193,6 +204,28 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             {
                 await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = employerAccountId});
             }
+        }
+
+        private async Task<GetOverlappingApprenticeshipsResponse> GetOverlappingApprenticeships(Commitment commitment)
+        {
+            var overlapRequests = 
+                commitment.Apprenticeships
+                .Where(x => !string.IsNullOrWhiteSpace(x.ULN) && x.StartDate.HasValue && x.EndDate.HasValue)
+                .Select(apprenticeship => 
+                    new ApprenticeshipOverlapValidationRequest
+                        {
+                            Uln = apprenticeship.ULN,
+                            StartDate = apprenticeship.StartDate.Value,
+                            EndDate = apprenticeship.EndDate.Value
+                        })
+                .ToList();
+
+            var response = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = overlapRequests
+            });
+
+            return response;
         }
     }
 }

@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -10,8 +12,8 @@ using SFA.DAS.Commitments.Application.Rules;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.CommitmentStatus;
-using TrainingType = SFA.DAS.Commitments.Api.Types.TrainingType;
+using CommitmentStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.CommitmentStatus;
+using TrainingType = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {
@@ -56,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
         {
             return new GetCommitmentResponse
             {
-                Data = new Commitment
+                Data = new Commitment.Commitment
                 {
                     Id = commitment.Id,
                     Reference = commitment.Reference,
@@ -72,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
                     EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
                     ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
-                    Apprenticeships = commitment.Apprenticeships?.Select(x => new Apprenticeship
+                    Apprenticeships = commitment.Apprenticeships?.Select(x => new Apprenticeship.Apprenticeship
                     {
                         Id = x.Id,
                         ULN = x.ULN,

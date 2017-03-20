@@ -36,9 +36,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public async Task ThenACreateResponseCodeIsReturnedOnSuccess()
         {
             var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, 
-                new ApprenticeshipRequest { Apprenticeship = new Apprenticeship()});
+                new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship()});
 
-            result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<Apprenticeship>>();
+            result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<Apprenticeship.Apprenticeship>>();
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateApprenticeshipCommand>())).ReturnsAsync(createdApprenticeshipId);
             var result = await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId,
-                new ApprenticeshipRequest { Apprenticeship = new Apprenticeship() }) as CreatedAtRouteNegotiatedContentResult<Apprenticeship>;
+                new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() }) as CreatedAtRouteNegotiatedContentResult<Apprenticeship.Apprenticeship>;
 
             result.RouteName.Should().Be("GetApprenticeshipForProvider");
             result.RouteValues["providerId"].Should().Be(TestProviderId);
@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToCreateApprenticeship()
         {
-            var newApprenticeship = new ApprenticeshipRequest { Apprenticeship = new Apprenticeship() };
+            var newApprenticeship = new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() };
             await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, newApprenticeship);
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.Caller.CallerType == CallerType.Provider && a.Caller.Id == TestProviderId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship.Apprenticeship)));
@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 
             Assert.ThrowsAsync<ValidationException>(async () => 
                 await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId,
-                    new ApprenticeshipRequest { Apprenticeship = new Apprenticeship() }));
+                    new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() }));
         }
     }
 }

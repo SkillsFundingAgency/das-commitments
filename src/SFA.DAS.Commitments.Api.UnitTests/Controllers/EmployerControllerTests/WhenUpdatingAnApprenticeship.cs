@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             var result = 
                 await _controller.PutApprenticeship(TestAccountId, TestCommitmentId, TestApprenticeshipId, 
-                    new ApprenticeshipRequest { Apprenticeship = new Apprenticeship() });
+                    new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() });
 
             result.Should().BeOfType<StatusCodeResult>();
 
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToCreateApprenticeship()
         {
-            var newApprenticeship = new ApprenticeshipRequest { Apprenticeship = new Apprenticeship() };
+            var newApprenticeship = new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() };
             var result = await _controller.PutApprenticeship(TestAccountId, TestCommitmentId, TestApprenticeshipId, newApprenticeship);
 
             _mockMediator.Verify(x => x.SendAsync(
@@ -61,7 +61,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateApprenticeshipCommand>())).ThrowsAsync(new ValidationException(""));
 
-            Assert.ThrowsAsync<ValidationException>(async () => await _controller.PutApprenticeship(TestAccountId, TestCommitmentId, TestApprenticeshipId, new ApprenticeshipRequest { Apprenticeship = new Apprenticeship() }));
+            Assert.ThrowsAsync<ValidationException>(async () => await _controller.PutApprenticeship(TestAccountId, TestCommitmentId, TestApprenticeshipId, new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() }));
         }
     }
 }

@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             _validator = new UpdateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
 
-            var populatedCommitment = fixture.Build<Apprenticeship>().Create();
+            var populatedCommitment = fixture.Build<Apprenticeship.Apprenticeship>().Create();
             _exampleCommand = new UpdateApprenticeshipCommand
             {
                 Caller = new Caller

@@ -26,10 +26,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private const long TestApprenticeshipId = 3L;
         private ProviderController _controller;
         private Mock<IMediator> _mockMediator;
-        private Apprenticeship _newApprenticeship;
+        private Apprenticeship.Apprenticeship _newApprenticeship;
         private ProviderOrchestrator _providerOrchestrator;
 
-        private ApprenticeshipRequest _newApprenticeshipRequest;
+        private Apprenticeship.ApprenticeshipRequest _newApprenticeshipRequest;
 
         [SetUp]
         public void Setup()
@@ -38,12 +38,12 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
             _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator);
 
-            _newApprenticeship = new Apprenticeship
+            _newApprenticeship = new Apprenticeship.Apprenticeship
             {
                 CommitmentId = TestCommitmentId,
                 Id = TestApprenticeshipId
             };
-            _newApprenticeshipRequest = new ApprenticeshipRequest { Apprenticeship = _newApprenticeship };
+            _newApprenticeshipRequest = new Apprenticeship.ApprenticeshipRequest { Apprenticeship = _newApprenticeship };
         }
 
         [Test]

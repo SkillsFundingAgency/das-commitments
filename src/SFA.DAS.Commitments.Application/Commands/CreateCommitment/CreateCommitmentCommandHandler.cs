@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             return commitmentId;
         }
 
-        private static Commitment MapFrom(Api.Types.Commitment commitment)
+        private static Commitment MapFrom(Api.Types.Commitment.Commitment commitment)
         {
             var domainCommitment = new Commitment
             {
