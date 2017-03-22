@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRules
@@ -13,12 +12,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
         public void Setup()
         {
             _rules = new Application.Rules.ApprenticeshipUpdateRules();
-        }
-
-        [Test, Ignore("Awaiting change after private beta wave 2b")]
-        public void ThenSetToDeletedIfThereAreNoApprenticeshipsPendingAgreement()
-        {
-            Assert.AreEqual(CommitmentStatus.Deleted, _rules.DetermineNewCommmitmentStatus(false));
         }
 
         [Test]
