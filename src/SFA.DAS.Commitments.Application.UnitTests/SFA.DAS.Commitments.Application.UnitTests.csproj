@@ -101,6 +101,7 @@
     <Compile Include="Commands\CreateRelationship\WhenValidatingRequest.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\SetPaymentOrder\WhenUpdatingPaymentOrder.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ApprenticeshipValidationTestBase.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingEmployerReference.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingTotalCost.cs" />
