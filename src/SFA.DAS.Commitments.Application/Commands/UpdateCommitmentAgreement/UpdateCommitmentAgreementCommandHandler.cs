@@ -115,7 +115,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 if (hasChanged)
                 {
                     var updatedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeship.Id);
-                    await _apprenticeshipEvents.PublishEvent(updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
+                    await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
                 }
             }
 

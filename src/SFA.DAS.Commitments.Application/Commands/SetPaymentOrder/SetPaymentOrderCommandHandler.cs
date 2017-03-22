@@ -55,7 +55,16 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
 
             // TODO: Need better way to publish all these events
-            await Task.WhenAll(changedApprenticeships.Select(a => _apprenticeshipEvents.PublishEvent(a, "APPRENTICESHIP-UPDATED")));
+            await Task.WhenAll(changedApprenticeships.Select(PublishEventForApprenticeship));
+        }
+
+        private Task PublishEventForApprenticeship(Apprenticeship apprenticeship)
+        {
+            return Task.Run(async () =>
+            {
+                var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
+                await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED");
+            });
         }
 
         private class ComparerPaymentOrder : IEqualityComparer<Apprenticeship>

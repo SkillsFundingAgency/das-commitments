@@ -26,6 +26,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
 
             Commitment = new Commitment
             {
+                Id = 348957,
                 ProviderId = 123,
                 EmployerAccountId = 987,
                 LegalEntityId = "LE ID",
