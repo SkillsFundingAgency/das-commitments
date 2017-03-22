@@ -26,6 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private UpdateCommitmentAgreementCommandHandler _handler;
         private UpdateCommitmentAgreementCommand _validCommand;
         private Mock<IMediator> _mockMediator;
+        private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
 
         [SetUp]
         public void Setup()
@@ -39,11 +40,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
+            _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _handler = new UpdateCommitmentAgreementCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRespository.Object,
                 new ApprenticeshipUpdateRules(), 
-                Mock.Of<IApprenticeshipEvents>(), 
+                _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>(),
                 _mockMediator.Object,
                 new UpdateCommitmentAgreementCommandValidator());
@@ -235,6 +237,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             //Assert
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public async Task ThenIfAnApprenticeshipIsUpdatedAnEventIsPublished()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234 };
+            commitment.Apprenticeships.Add(apprenticeship);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            var updatedApprenticeship = new Apprenticeship();
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(apprenticeship.Id)).ReturnsAsync(updatedApprenticeship);
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            await _handler.Handle(_validCommand);
+
+            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED"), Times.Once);
         }
     }
 }
