@@ -102,7 +102,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
                 TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
                 TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard,
-                PaymentOrder = apprenticeship.PaymentOrder
+                PaymentOrder = apprenticeship.PaymentOrder,
+                LegalEntityId = commitment.LegalEntityId,
+                LegalEntityName = commitment.LegalEntityName,
+                LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString()
             };
         }
     }

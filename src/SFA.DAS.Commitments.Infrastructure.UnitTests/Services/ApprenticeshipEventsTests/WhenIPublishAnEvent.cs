@@ -119,7 +119,10 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.TrainingStartDate == Apprenticeship.StartDate &&
                    apprenticeshipEvent.TrainingTotalCost == Apprenticeship.Cost &&
                    apprenticeshipEvent.TrainingType == (Apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard) &&
-                   apprenticeshipEvent.PaymentOrder == Apprenticeship.PaymentOrder;
+                   apprenticeshipEvent.PaymentOrder == Apprenticeship.PaymentOrder &&
+                   apprenticeshipEvent.LegalEntityId == Commitment.LegalEntityId &&
+                   apprenticeshipEvent.LegalEntityName == Commitment.LegalEntityName &&
+                   apprenticeshipEvent.LegalEntityOrganisationType == Commitment.LegalEntityOrganisationType.ToString();
 
         }
     }
