@@ -107,6 +107,10 @@
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsValidator.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateQueryHandler.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateRequest.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateResponse.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateValidator.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

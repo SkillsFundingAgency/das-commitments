@@ -126,6 +126,8 @@
     <Compile Include="Queries\GetCommitment\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenGettingEmployerCommitments.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenValidatingAccountId.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\WhenGettingPendingApprenticeshipUpdate.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenGettingProviderCommitments.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenValidatingProviderId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

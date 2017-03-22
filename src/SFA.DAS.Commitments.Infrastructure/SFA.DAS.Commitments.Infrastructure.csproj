@@ -108,6 +108,7 @@
   <ItemGroup>
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
+    <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\Transactions\IHistoryTransactions.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipTransactions.cs" />
     <Compile Include="Data\BaseRepository.cs" />
