@@ -42,6 +42,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                 Data = new List<OverlappingApprenticeship>()
             };
 
+            if (!query.OverlappingApprenticeshipRequests.Any())
+                return result;
+
             var ulns = query.OverlappingApprenticeshipRequests.Select(x => x.Uln);
 
             var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(ulns);

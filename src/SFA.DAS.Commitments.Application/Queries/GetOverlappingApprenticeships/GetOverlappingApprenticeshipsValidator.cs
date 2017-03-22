@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
     {
         public GetOverlappingApprenticeshipsValidator()
         {
-            RuleFor(x => x.OverlappingApprenticeshipRequests).Must(x => x != null && x.Any());
+            RuleFor(x => x.OverlappingApprenticeshipRequests).Must(x => x != null);
 
             RuleForEach(x => x.OverlappingApprenticeshipRequests)
                 .SetValidator(new OverlappingApprenticeshipRequestValidator());
