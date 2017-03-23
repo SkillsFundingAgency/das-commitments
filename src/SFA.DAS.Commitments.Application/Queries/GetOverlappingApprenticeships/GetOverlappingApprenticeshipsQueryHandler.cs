@@ -3,14 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using NLog;
+
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 {
@@ -41,6 +40,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
             {
                 Data = new List<OverlappingApprenticeship>()
             };
+
+            if (!query.OverlappingApprenticeshipRequests.Any())
+                return result;
 
             var ulns = query.OverlappingApprenticeshipRequests.Select(x => x.Uln);
 

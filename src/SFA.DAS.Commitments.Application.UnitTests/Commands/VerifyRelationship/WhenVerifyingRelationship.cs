@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
         }
 
         [Test]
-        public async Task ThenIfTheRequestIsNotValidThenTheRepositoryIsNotCalled()
+        public void ThenIfTheRequestIsNotValidThenTheRepositoryIsNotCalled()
         {
             //Arrange
             var request = new VerifyRelationshipCommand();
