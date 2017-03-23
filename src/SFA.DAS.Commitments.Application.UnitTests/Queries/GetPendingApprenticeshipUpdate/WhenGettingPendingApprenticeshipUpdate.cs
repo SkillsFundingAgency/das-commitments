@@ -23,7 +23,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
 
         private GetPendingApprenticeshipUpdateQueryHandler _handler;
 
-
         [SetUp]
         public void Arrange()
         {
@@ -54,7 +53,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
 
             _handler = new GetPendingApprenticeshipUpdateQueryHandler(_validator.Object, _repository.Object);
         }
-
 
         [Test]
         public async Task ThenTheRequestIsValidated()

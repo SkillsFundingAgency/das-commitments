@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommand.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommandHandler.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateValidator.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />

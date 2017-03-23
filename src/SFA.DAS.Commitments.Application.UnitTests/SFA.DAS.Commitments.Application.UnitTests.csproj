@@ -92,6 +92,8 @@
     <Compile Include="ApprenticeshipTestDataHelper.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenCreatingApprenticeships.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
