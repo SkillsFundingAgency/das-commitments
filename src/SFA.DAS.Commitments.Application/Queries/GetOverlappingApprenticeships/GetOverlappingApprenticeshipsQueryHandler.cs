@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                     {
                         _logger.Info($"ULN: {request.Uln} {request.StartDate:MMM yyyy} - {request.EndDate:MMM yyyy} Reason: {validationFailReason} " +
                                      $"with Apprenticeship Id: {apprenticeship.Id} {apprenticeship.StartDate:MMM yyyy} - {apprenticeship.EndDate:MMM yyyy}");
-                        result.Data.Add(MapFrom(apprenticeship, validationFailReason));
+                        result.Data.Add(MapFrom(apprenticeship, validationFailReason, request.ApprenticeshipId));
                     }
                 }
             }
@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
             return result;
         }
 
-        private OverlappingApprenticeship MapFrom(ApprenticeshipResult source, ValidationFailReason validationFailReason)
+        private OverlappingApprenticeship MapFrom(ApprenticeshipResult source, ValidationFailReason validationFailReason, long? requestApprenticeshipId)
         {
             var result = new OverlappingApprenticeship
             {
@@ -91,6 +91,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                     FirstName = source.FirstName,
                     LastName = source.LastName
                 },
+                RequestApprenticeshipId = requestApprenticeshipId,
                 EmployerAccountId = source.EmployerAccountId,
                 LegalEntityName = source.LegalEntityName,
                 ProviderId = source.ProviderId,
