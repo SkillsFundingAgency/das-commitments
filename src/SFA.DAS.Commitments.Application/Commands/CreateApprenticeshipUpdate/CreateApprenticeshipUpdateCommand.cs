@@ -1,15 +1,13 @@
-﻿using System;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
 using MediatR;
-using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 {
     [Validator(typeof(CreateApprenticeshipUpdateValidator))]
     public class CreateApprenticeshipUpdateCommand: IAsyncRequest
     {
-        //todo:replace with api type
-        public PendingApprenticeshipUpdatePlaceholder ApprenticeshipUpdate { get; set; }
-        
+        public ApprenticeshipUpdate ApprenticeshipUpdate { get; set; }
+        public string UserId { get; set; }
     }
 }

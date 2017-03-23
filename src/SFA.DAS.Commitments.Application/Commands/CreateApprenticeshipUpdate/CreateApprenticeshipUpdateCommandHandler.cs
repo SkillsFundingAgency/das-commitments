@@ -46,19 +46,19 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             await _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(MapFrom(command.ApprenticeshipUpdate));
         }
 
-        private ApprenticeshipUpdate MapFrom(PendingApprenticeshipUpdatePlaceholder source)
+        private ApprenticeshipUpdate MapFrom(Api.Types.Apprenticeship.ApprenticeshipUpdate source)
         {
             return new ApprenticeshipUpdate
             {
                 Id = source.Id,
                 ApprenticeshipId = source.ApprenticeshipId,
-                Originator = source.Originator,
+                Originator = (Originator) source.Originator,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 DateOfBirth = source.DateOfBirth,
                 ULN = source.ULN,
                 TrainingCode = source.TrainingCode,
-                TrainingType = source.TrainingType,
+                TrainingType = source.TrainingType.HasValue ? (TrainingType) source.TrainingType : default(TrainingType?),
                 TrainingName = source.TrainingName,
                 Cost = source.Cost,
                 StartDate = source.StartDate,

@@ -6,7 +6,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
     {
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
-        public CallerType Originator { get; set; }
+        public Originator Originator { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
