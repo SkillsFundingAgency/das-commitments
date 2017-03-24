@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
-using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
-using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshipUpdate
 {
@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new PendingApprenticeshipUpdatePlaceholder()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             //Act
@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             //Assert
             Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Any(x=> x.PropertyName.Contains(nameof(PendingApprenticeshipUpdatePlaceholder.ApprenticeshipId))));
+            Assert.IsTrue(result.Errors.Any(x=> x.PropertyName.Contains(nameof(ApprenticeshipUpdate.ApprenticeshipId))));
 
         }
 
@@ -41,10 +41,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new PendingApprenticeshipUpdatePlaceholder
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
                 {
                     ApprenticeshipId = 1,
-                    Originator = CallerType.Employer
+                    Originator = Originator.Employer
                 }
             };
 
@@ -61,10 +61,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new PendingApprenticeshipUpdatePlaceholder
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
                 {
                     ApprenticeshipId = 1,
-                    Originator = CallerType.Employer,
+                    Originator = Originator.Employer,
                     FirstName = "Test"
                 }
             };

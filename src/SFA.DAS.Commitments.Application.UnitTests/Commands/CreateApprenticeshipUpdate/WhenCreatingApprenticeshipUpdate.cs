@@ -8,7 +8,6 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
-using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -47,7 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new PendingApprenticeshipUpdatePlaceholder()
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
             };
 
             //Act
@@ -81,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new PendingApprenticeshipUpdatePlaceholder()
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
             };
 
             //Act
@@ -100,7 +99,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new PendingApprenticeshipUpdatePlaceholder()
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
             };
 
             //Act && Assert

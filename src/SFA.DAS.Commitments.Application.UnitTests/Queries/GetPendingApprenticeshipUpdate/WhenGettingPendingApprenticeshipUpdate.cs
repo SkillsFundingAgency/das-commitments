@@ -7,7 +7,6 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -34,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
             {
                 Id = 1,
                 ApprenticeshipId = 1,
-                Originator = CallerType.Employer,
+                Originator = Originator.Employer,
                 FirstName = "John",
                 LastName = "Smith",
                 DateOfBirth = new DateTime(2000, 01, 03),
@@ -110,12 +109,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
             //Assert
             Assert.AreEqual(_testRecord.Id, result.Data.Id);
             Assert.AreEqual(_testRecord.ApprenticeshipId, result.Data.ApprenticeshipId);
-            Assert.AreEqual(_testRecord.Originator, result.Data.Originator);
+            Assert.AreEqual(_testRecord.Originator, (Originator) result.Data.Originator);
             Assert.AreEqual(_testRecord.FirstName, result.Data.FirstName);
             Assert.AreEqual(_testRecord.LastName, result.Data.LastName);
             Assert.AreEqual(_testRecord.DateOfBirth, result.Data.DateOfBirth);
             Assert.AreEqual(_testRecord.ULN, result.Data.ULN);
-            Assert.AreEqual(_testRecord.TrainingType, result.Data.TrainingType);
+            Assert.AreEqual(_testRecord.TrainingType, (TrainingType?) result.Data.TrainingType);
             Assert.AreEqual(_testRecord.TrainingCode, result.Data.TrainingCode);
             Assert.AreEqual(_testRecord.TrainingName, result.Data.TrainingName);
             Assert.AreEqual(_testRecord.Cost, result.Data.Cost);

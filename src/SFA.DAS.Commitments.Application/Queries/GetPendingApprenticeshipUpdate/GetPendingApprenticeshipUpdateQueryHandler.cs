@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -39,19 +40,20 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate
             };
         }
 
-        private PendingApprenticeshipUpdatePlaceholder MapFrom(ApprenticeshipUpdate source)
+        private Api.Types.Apprenticeship.ApprenticeshipUpdate MapFrom(ApprenticeshipUpdate source)
         {
-            return new PendingApprenticeshipUpdatePlaceholder
+            return new Api.Types.Apprenticeship.ApprenticeshipUpdate
             {
                 Id = source.Id,
                 ApprenticeshipId = source.ApprenticeshipId,
-                Originator = source.Originator,
+                Originator = (Api.Types.Apprenticeship.Types.Originator) source.Originator,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 DateOfBirth = source.DateOfBirth,
                 ULN = source.ULN,
                 TrainingCode = source.TrainingCode,
-                TrainingType = source.TrainingType,
+                TrainingType = source.TrainingType.HasValue ? (Api.Types.Apprenticeship.Types.TrainingType) source.TrainingType
+                                                            : default(Api.Types.Apprenticeship.Types.TrainingType?),
                 TrainingName = source.TrainingName,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
