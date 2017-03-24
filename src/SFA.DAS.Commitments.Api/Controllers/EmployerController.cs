@@ -132,5 +132,30 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{accountId}/apprenticeshipupdate/{apprenticeshipId}")]
+        //[Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
+        {
+            var response = await _employerOrchestrator.GetPendingApprenticeshipUpdate(accountId, apprenticeshipId);
+
+            if (response.Data == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response.Data);
+        }
+
+        [Route("{accountId}/apprenticeshipupdate")]
+        //[Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> CreateApprenticeshipUpdate(long accountId,
+            [FromBody] ApprenticeshipUpdateRequest updateRequest)
+        {
+            await _employerOrchestrator.CreateApprenticeshipUpdate(accountId, updateRequest);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
     }
 }

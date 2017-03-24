@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Web.UI;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
@@ -14,6 +16,7 @@ using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -213,6 +216,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 CommitmentId = commitmentId,
                 UserId = userId
+            });
+        }
+
+        public async Task<GetPendingApprenticeshipUpdateResponse> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
+        {
+            _logger.Info($"Getting pending update for apprenticeship {apprenticeshipId} for employer account {accountId}");
+
+            var response = await _mediator.SendAsync(new GetPendingApprenticeshipUpdateRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                ApprenticeshipId = apprenticeshipId
+            });
+
+            return response;
+        }
+
+        public async Task CreateApprenticeshipUpdate(long accountId, Apprenticeship.ApprenticeshipUpdateRequest updateRequest)
+        {
+            _logger.Info($"Creating update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for employer account {accountId}");
+
+            await _mediator.SendAsync(new CreateApprenticeshipUpdateCommand
+                {
+                    Caller = new Caller
+                    {
+                        CallerType = CallerType.Employer,
+                        Id = accountId
+                    },
+                    ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate
             });
         }
     }

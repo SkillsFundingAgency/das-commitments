@@ -103,7 +103,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
             //Arrange
             var request = new GetPendingApprenticeshipUpdateRequest();
 
-            //Act
+            //Act.
             var result = await _handler.Handle(request);
 
             //Assert

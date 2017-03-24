@@ -44,8 +44,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@apprenticeshipId", apprenticeshipUpdate.ApprenticeshipId);
-
-                parameters.Add("@Originator", apprenticeshipUpdate.ApprenticeshipId);
+                parameters.Add("@Originator", apprenticeshipUpdate.Originator);
                 parameters.Add("@FirstName", apprenticeshipUpdate.FirstName);
                 parameters.Add("@LastName", apprenticeshipUpdate.LastName);
                 parameters.Add("@ULN", apprenticeshipUpdate.ULN);
