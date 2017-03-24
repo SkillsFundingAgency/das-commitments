@@ -155,6 +155,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{providerId}/apprenticeshipupdate/{apprenticeshipId}")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
         {
             var response = await _providerOrchestrator.GetPendingApprenticeshipUpdate(providerId, apprenticeshipId);
@@ -168,7 +169,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{providerId}/apprenticeshipupdate")]
-        //[Authorize(Roles = "Role1")]
+        [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> CreateApprenticeshipUpdate(long providerId,
             [FromBody] ApprenticeshipUpdateRequest updateRequest)
         {

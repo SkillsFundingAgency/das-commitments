@@ -6,7 +6,9 @@ using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -16,7 +18,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
     public class WhenGettingPendingApprenticeshipUpdate
     {
         private Mock<GetPendingApprenticeshipUpdateValidator> _validator;
-        private Mock<IApprenticeshipUpdateRepository> _repository;
+        private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
+        private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
 
         private ApprenticeshipUpdate _testRecord;
 
@@ -28,6 +31,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
             _validator = new Mock<GetPendingApprenticeshipUpdateValidator>();
             _validator.Setup(x => x.Validate(It.IsAny<GetPendingApprenticeshipUpdateRequest>()))
                 .Returns(() => new ValidationResult());
+
+            var testApprenticeship = new Apprenticeship
+            {
+                Id = 999,
+                EmployerAccountId = 888,
+                ProviderId = 777
+            };
 
             _testRecord = new ApprenticeshipUpdate
             {
@@ -46,18 +56,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
                 EndDate = new DateTime(2018, 6, 1)
             };
 
-            _repository = new Mock<IApprenticeshipUpdateRepository>();
-            _repository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+            _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(testApprenticeship);
+
+            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(_testRecord);
 
-            _handler = new GetPendingApprenticeshipUpdateQueryHandler(_validator.Object, _repository.Object);
+            _handler = new GetPendingApprenticeshipUpdateQueryHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object);
         }
 
         [Test]
         public async Task ThenTheRequestIsValidated()
         {
             //Arrange
-            var request = new GetPendingApprenticeshipUpdateRequest();
+            var request = new GetPendingApprenticeshipUpdateRequest
+            {
+                Caller = new Caller { CallerType = CallerType.Employer, Id = 888 }
+            };
 
             //Act
             await _handler.Handle(request);
@@ -78,30 +95,49 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
                         }));
 
             var request = new GetPendingApprenticeshipUpdateRequest();
-
             //Act && Assert
             Func<Task> act = async () => await _handler.Handle(request);
             act.ShouldThrow<ValidationException>();
         }
 
         [Test]
+        public void ThenIfTheCallerIdIsNotAuthorizedThenExceptionIsThrown()
+        {
+            //Arrange
+            var request = new GetPendingApprenticeshipUpdateRequest
+            {
+                Caller = new Caller { CallerType = CallerType.Employer, Id = 123 }
+            };
+           
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<UnauthorizedException>();
+        }
+
+        [Test]
         public async Task ThenTheRepositoryIsCalledToRetrieveData()
         {
             //Arrange
-            var request = new GetPendingApprenticeshipUpdateRequest();
+            var request = new GetPendingApprenticeshipUpdateRequest
+            {
+                Caller = new Caller {CallerType = CallerType.Employer, Id = 888}
+            };
 
             //Act
             await _handler.Handle(request);
 
             //Assert
-            _repository.Verify(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()), Times.Once);
+            _apprenticeshipUpdateRepository.Verify(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()), Times.Once);
         }
 
         [Test]
         public async Task ThenTheResponseIsMappedCorrectly()
         {
             //Arrange
-            var request = new GetPendingApprenticeshipUpdateRequest();
+            var request = new GetPendingApprenticeshipUpdateRequest
+            {
+                Caller = new Caller {CallerType = CallerType.Employer, Id = 888}
+            };
 
             //Act.
             var result = await _handler.Handle(request);

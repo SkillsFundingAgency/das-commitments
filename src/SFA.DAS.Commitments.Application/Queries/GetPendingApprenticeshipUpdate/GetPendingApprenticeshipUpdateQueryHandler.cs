@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -12,16 +14,20 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate
     {
         private readonly AbstractValidator<GetPendingApprenticeshipUpdateRequest> _validator;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        public GetPendingApprenticeshipUpdateQueryHandler(AbstractValidator<GetPendingApprenticeshipUpdateRequest> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository)
+        public GetPendingApprenticeshipUpdateQueryHandler(AbstractValidator<GetPendingApprenticeshipUpdateRequest> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository)
         {
             if (validator == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(validator));
             if(apprenticeshipUpdateRepository==null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(apprenticeshipUpdateRepository));
+            if(apprenticeshipRepository==null)
+                throw new ArgumentException(nameof(apprenticeshipRepository));
 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
         }
 
         public async Task<GetPendingApprenticeshipUpdateResponse> Handle(GetPendingApprenticeshipUpdateRequest message)
@@ -31,6 +37,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate
             {
                 throw new ValidationException(validationResult.Errors);
             }
+
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(message.ApprenticeshipId);
+
+            CheckAuthorization(message, apprenticeship);
 
             var result = await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(message.ApprenticeshipId);
 
@@ -60,5 +70,22 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate
                 EndDate = source.EndDate
             };
         }
+
+        private void CheckAuthorization(GetPendingApprenticeshipUpdateRequest request, Apprenticeship apprenticeship)
+        {
+            switch (request.Caller.CallerType)
+            {
+                case CallerType.Provider:
+                    if (apprenticeship.ProviderId != request.Caller.Id)
+                        throw new UnauthorizedException($"Provider {request.Caller.Id} unauthorized to view apprenticeship {request.ApprenticeshipId}");
+                    break;
+                case CallerType.Employer:
+                default:
+                    if (apprenticeship.EmployerAccountId != request.Caller.Id)
+                        throw new UnauthorizedException($"Employer {request.Caller.Id} unauthorized to view apprenticeship {request.ApprenticeshipId}");
+                    break;
+            }
+        }
+
     }
 }
