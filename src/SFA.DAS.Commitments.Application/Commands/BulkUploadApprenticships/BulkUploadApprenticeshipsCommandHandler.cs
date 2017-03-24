@@ -81,14 +81,17 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>()
             };
 
+            var i = 0;
             foreach (var apprenticeship in apprenticeships.Where(x=> x.StartDate.HasValue && x.EndDate.HasValue && !string.IsNullOrEmpty(x.ULN)))
             {
                 overlapValidationRequest.OverlappingApprenticeshipRequests.Add(new ApprenticeshipOverlapValidationRequest
                 {
+                    ApprenticeshipId = i, //assign a row id, as this value will be zero for files
                     Uln = apprenticeship.ULN,
                     StartDate = apprenticeship.StartDate.Value,
                     EndDate = apprenticeship.EndDate.Value
                 });
+                i++;
             }
 
             if (overlapValidationRequest.OverlappingApprenticeshipRequests.Any())
