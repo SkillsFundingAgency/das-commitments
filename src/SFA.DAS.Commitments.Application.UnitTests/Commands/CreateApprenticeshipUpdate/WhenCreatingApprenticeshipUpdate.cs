@@ -8,9 +8,12 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
+using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshipUpdate
 {
@@ -19,7 +22,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
     {
         private Mock<CreateApprenticeshipUpdateValidator> _validator;
 
-        private Mock<IApprenticeshipUpdateRepository> _repository;
+        private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
+        private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
 
@@ -30,14 +34,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
 
-            _repository = new Mock<IApprenticeshipUpdateRepository>();
-            _repository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(null);
 
-            _repository.Setup(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()))
+            _apprenticeshipUpdateRepository.Setup(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()))
                 .Returns(() => Task.FromResult(new Unit()));
 
-            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _repository.Object, Mock.Of<ICommitmentsLogger>());
+            _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                });
+
+
+            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object);
         }
 
         [Test]
@@ -46,6 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
+                Caller = new Caller(1, CallerType.Employer),
                 ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
             };
 
@@ -54,6 +68,36 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             //Assert
             _validator.Verify(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()), Times.Once);
+        }
+
+        [Test]
+        public void ThenIfTheProviderFailsAuthorisationThenAnExceptionIsThrown()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(666, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+            };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(command);
+            act.ShouldThrow<UnauthorizedException>();
+        }
+
+        [Test]
+        public void ThenIfTheEmployerFailsAuthorisationThenAnExceptionIsThrown()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(666, CallerType.Employer),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+            };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(command);
+            act.ShouldThrow<UnauthorizedException>();
         }
 
         [Test]
@@ -80,6 +124,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
             {
+                Caller = new Caller(2, CallerType.Provider),
                 ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
             };
 
@@ -87,14 +132,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             await _handler.Handle(command);
 
             //Assert
-            _repository.Verify(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()), Times.Once);
+            _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()), Times.Once);
         }
 
         [Test]
         public void ThenIfTheApprenticeshipAlreadyHasAPendingUpdateThenAnExceptionIsThrown()
         {
             //Arrange
-            _repository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(new ApprenticeshipUpdate());
 
             var command = new CreateApprenticeshipUpdateCommand
@@ -107,7 +152,54 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             act.ShouldThrow<InvalidOperationException>();
 
             //Assert
-            _repository.Verify(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>()), Times.Never);
+            _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()), Times.Never);
         }
+
+        [Test]
+        public async Task ThenIfTheUpdateContainsNoDataForImmediateEffectThenTheApprenticeshipIsNotUpdated()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                {
+                    FirstName = "Test",
+                    LastName = "Tester"
+                }
+            };
+
+            //Act
+            await _handler.Handle(command);
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(
+                It.Is<ApprenticeshipUpdate>(y=> y != null),
+                It.Is<Apprenticeship>(y=> y == null)),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheUpdateContainsNoDataForApprovalThenTheUpdateIsNotCreated()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                {
+                    ULN = "123"
+                }
+            };
+
+            //Act
+            await _handler.Handle(command);
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(
+                It.Is<ApprenticeshipUpdate>(y => y == null),
+                It.Is<Apprenticeship>(y => y != null)),
+                Times.Once);
+        }        
     }
 }

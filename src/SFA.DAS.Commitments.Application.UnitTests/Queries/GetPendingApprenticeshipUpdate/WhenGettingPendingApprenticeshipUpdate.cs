@@ -47,7 +47,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
                 FirstName = "John",
                 LastName = "Smith",
                 DateOfBirth = new DateTime(2000, 01, 03),
-                ULN = "1234567890",
                 TrainingType = TrainingType.Framework,
                 TrainingCode = "AB-123",
                 TrainingName = "Test Course",
@@ -149,7 +148,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetPendingApprentice
             Assert.AreEqual(_testRecord.FirstName, result.Data.FirstName);
             Assert.AreEqual(_testRecord.LastName, result.Data.LastName);
             Assert.AreEqual(_testRecord.DateOfBirth, result.Data.DateOfBirth);
-            Assert.AreEqual(_testRecord.ULN, result.Data.ULN);
             Assert.AreEqual(_testRecord.TrainingType, (TrainingType?) result.Data.TrainingType);
             Assert.AreEqual(_testRecord.TrainingCode, result.Data.TrainingCode);
             Assert.AreEqual(_testRecord.TrainingName, result.Data.TrainingName);

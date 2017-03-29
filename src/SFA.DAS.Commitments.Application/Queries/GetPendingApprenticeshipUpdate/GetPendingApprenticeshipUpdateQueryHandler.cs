@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -60,7 +59,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 DateOfBirth = source.DateOfBirth,
-                ULN = source.ULN,
                 TrainingCode = source.TrainingCode,
                 TrainingType = source.TrainingType.HasValue ? (Api.Types.Apprenticeship.Types.TrainingType) source.TrainingType
                                                             : default(Api.Types.Apprenticeship.Types.TrainingType?),

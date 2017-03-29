@@ -6,7 +6,6 @@
 	[Status] TINYINT NOT NULL DEFAULT(0),
     [FirstName] NVARCHAR(100) NULL, 
     [LastName] NVARCHAR(100) NULL, 
-    [ULN] NVARCHAR(50) NULL, 
     [TrainingType] INT NULL, 
     [TrainingCode] NVARCHAR(20) NULL, 
     [TrainingName] NVARCHAR(126) NULL, 

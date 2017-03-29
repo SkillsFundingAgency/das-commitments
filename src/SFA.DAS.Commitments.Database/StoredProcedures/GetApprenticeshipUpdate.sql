@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[GetPendingApprenticeshipUpdate]
+﻿CREATE PROCEDURE [dbo].[GetApprenticeshipUpdate]
 	@ApprenticeshipId BIGINT
 AS
 
