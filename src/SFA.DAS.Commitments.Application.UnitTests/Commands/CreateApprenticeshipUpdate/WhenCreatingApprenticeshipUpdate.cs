@@ -149,7 +149,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             //Act && Assert
             Func<Task> act = async () => await _handler.Handle(command);
-            act.ShouldThrow<InvalidOperationException>();
+            act.ShouldThrow<ValidationException>();
 
             //Assert
             _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()), Times.Never);
