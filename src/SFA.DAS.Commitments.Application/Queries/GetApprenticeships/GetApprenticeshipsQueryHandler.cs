@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 using TrainingType = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.TrainingType;
 
@@ -55,7 +56,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         NINumber = x.NINumber,
                         EmployerRef = x.EmployerRef,
                         ProviderRef = x.ProviderRef,
-                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
+                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship,
+                        PendingUpdateOriginator = (Originator?)x.UpdateOriginator,
+                        ProviderName = x.ProviderName,
+                        LegalEntityName = x.LegalEntityName
                     }
                     ).ToList()
             };
