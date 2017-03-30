@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -16,8 +20,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentsLogger _logger;
+        private readonly IMediator _mediator;
 
-        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository)
+        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator)
         { 
             if(validator==null)
                 throw new ArgumentNullException(nameof(validator));
@@ -27,11 +32,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 throw new ArgumentNullException(nameof(logger));
             if(apprenticeshipRepository==null)
                 throw new ArgumentNullException(nameof(apprenticeshipRepository));
+            if(mediator == null)
+                throw new ArgumentNullException(nameof(mediator));
 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _logger = logger;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _mediator = mediator;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -49,8 +57,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
-
+         
             CheckAuthorisation(command, apprenticeship);
+            await CheckOverlappingApprenticehips(command, apprenticeship);
 
             var immediateUpdate = MapToImmediateApprenticeshipUpdate(command);
             var pendingUpdate = MapToPendingApprenticeshipUpdate(command.ApprenticeshipUpdate);
@@ -111,6 +120,34 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                     if (apprenticeship.ProviderId != command.Caller.Id)
                         throw new UnauthorizedException($"Provider {command.Caller.Id} not authorised to update apprenticeship {apprenticeship.Id}");
                     break;
+            }
+        }
+
+        private async Task CheckOverlappingApprenticehips(CreateApprenticeshipUpdateCommand command, Apprenticeship originalApprenticeship)
+        {
+            var coalesce = new Func<string, string, string>((s, s1) => string.IsNullOrWhiteSpace(s) ? s1 : s);
+
+            var overlapResult = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
+                {
+                    new ApprenticeshipOverlapValidationRequest
+                    {
+                        ApprenticeshipId = originalApprenticeship.Id,
+                        Uln = coalesce(command.ApprenticeshipUpdate.ULN, originalApprenticeship.ULN),
+                        StartDate = command.ApprenticeshipUpdate.StartDate ?? originalApprenticeship.StartDate.Value,
+                        EndDate = command.ApprenticeshipUpdate.EndDate ?? originalApprenticeship.EndDate.Value
+                    }
+                }
+            });
+
+            if (overlapResult.Data.Any())
+            {
+                foreach (var overlap in overlapResult.Data)
+                {
+                    _logger.Info($"ApprenticeshipUpdate overlaps with apprenticeship {overlap.Apprenticeship.Id}");
+                }
+                throw new ValidationException("Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }
         }
     }
