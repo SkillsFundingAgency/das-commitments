@@ -7,8 +7,10 @@ using FluentValidation.Results;
 using MediatR;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -24,6 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
+        private Mock<IMediator> _mediator;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
 
@@ -47,10 +50,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 {
                     EmployerAccountId = 1,
                     ProviderId = 2,
+                    ULN =" 123",
+                    StartDate = new DateTime(2018,5,1),
+                    EndDate = new DateTime(2018,9,1),
+                    Id = 3
                 });
 
+            _mediator = new Mock<IMediator>();
+            _mediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
+                {
+                    Data = new List<OverlappingApprenticeship>()
+                });
 
-            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object);
+            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object);
         }
 
         [Test]
@@ -200,6 +213,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 It.Is<ApprenticeshipUpdate>(y => y == null),
                 It.Is<Apprenticeship>(y => y != null)),
                 Times.Once);
-        }        
+        }
+
+        [Test]
+        public async Task ThenTheMediatorIsCalledToCheckOverlappingApprenticeships()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                {
+                    ULN = "123"
+                }
+            };
+
+            //Act
+            await _handler.Handle(command);
+
+            //Arrange
+            _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Once);
+
+        }
     }
 }

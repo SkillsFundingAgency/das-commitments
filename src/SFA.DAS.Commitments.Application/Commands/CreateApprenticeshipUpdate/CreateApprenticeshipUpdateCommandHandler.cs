@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
          
             CheckAuthorisation(command, apprenticeship);
-            await CheckOverlappingApprenticehips(command, apprenticeship);
+            await CheckOverlappingApprenticeships(command, apprenticeship);
 
             var immediateUpdate = MapToImmediateApprenticeshipUpdate(command);
             var pendingUpdate = MapToPendingApprenticeshipUpdate(command.ApprenticeshipUpdate);
@@ -123,7 +123,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
         }
 
-        private async Task CheckOverlappingApprenticehips(CreateApprenticeshipUpdateCommand command, Apprenticeship originalApprenticeship)
+        private async Task CheckOverlappingApprenticeships(CreateApprenticeshipUpdateCommand command, Apprenticeship originalApprenticeship)
         {
             var coalesce = new Func<string, string, string>((s, s1) => string.IsNullOrWhiteSpace(s) ? s1 : s);
 
