@@ -57,7 +57,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         EmployerRef = x.EmployerRef,
                         ProviderRef = x.ProviderRef,
                         CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship,
-                        PendingUpdateOriginator = (Originator?)x.UpdateOriginator
+                        PendingUpdateOriginator = (Originator?)x.UpdateOriginator,
+                        ProviderName = x.ProviderName,
+                        LegalEntityName = x.LegalEntityName
                     }
                     ).ToList()
             };

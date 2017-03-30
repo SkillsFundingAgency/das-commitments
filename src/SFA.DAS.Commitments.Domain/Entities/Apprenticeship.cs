@@ -30,5 +30,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public DateTime AgreedOn { get; set; }
         public int PaymentOrder { get; set; }
         public Originator? UpdateOriginator { get; set; }
+        public string ProviderName { get; set; }
+        public string LegalEntityName { get; set; }
     }
 }

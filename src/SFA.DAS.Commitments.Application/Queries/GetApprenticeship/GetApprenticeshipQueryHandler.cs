@@ -6,6 +6,8 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
+using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
+
 namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 {
     public sealed class GetApprenticeshipQueryHandler : IAsyncRequestHandler<GetApprenticeshipRequest, GetApprenticeshipResponse>
@@ -85,7 +87,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 NINumber = matchingApprenticeship.NINumber,
                 EmployerRef = matchingApprenticeship.EmployerRef,
                 ProviderRef = matchingApprenticeship.ProviderRef,
-                CanBeApproved = callerType == CallerType.Employer ? matchingApprenticeship.EmployerCanApproveApprenticeship : matchingApprenticeship.ProviderCanApproveApprenticeship
+                CanBeApproved = callerType == CallerType.Employer ? matchingApprenticeship.EmployerCanApproveApprenticeship : matchingApprenticeship.ProviderCanApproveApprenticeship,
+                PendingUpdateOriginator = (Originator?)matchingApprenticeship.UpdateOriginator,
+                ProviderName = matchingApprenticeship.ProviderName,
+                LegalEntityName = matchingApprenticeship.LegalEntityName
             };
 
             return response;

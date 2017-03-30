@@ -3,7 +3,7 @@ AS
 
 SELECT 
 	a.*,
-	c.EmployerAccountId, c.ProviderId, c.Reference,
+	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
 	au.Originator AS UpdateOriginator,
 	CASE 
 		WHEN
