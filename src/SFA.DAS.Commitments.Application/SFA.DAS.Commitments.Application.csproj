@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.35.0.26580, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.35.0.26580\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.40.0.27093, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.40.0.27093\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.11.0.19990, Culture=neutral, processorArchitecture=MSIL">
@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommand.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommandHandler.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateValidator.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
@@ -107,6 +110,10 @@
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetApprenticeships\GetApprenticeshipsResponse.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsValidator.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateQueryHandler.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateRequest.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateResponse.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateValidator.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

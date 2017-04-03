@@ -3,7 +3,8 @@ AS
 
 SELECT 
 	a.*,
-	c.EmployerAccountId, c.ProviderId, c.Reference, 
+	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
+	au.Originator AS UpdateOriginator,
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
@@ -40,3 +41,6 @@ SELECT
 		Commitment c
 	ON 
 		c.Id = a.CommitmentId
+	LEFT JOIN
+		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
+		ON au.ApprenticeshipId = a.Id

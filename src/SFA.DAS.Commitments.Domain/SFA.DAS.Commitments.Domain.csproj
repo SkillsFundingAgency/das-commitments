@@ -49,9 +49,12 @@
   <ItemGroup>
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
+    <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
+    <Compile Include="Entities\ApprenticeshipUpdate.cs" />
+    <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\History\ApprenticeshipChangeType.cs" />
     <Compile Include="Entities\History\ApprenticeshipHistoryItem.cs" />
     <Compile Include="Entities\History\CommitmentChangeType.cs" />
@@ -61,6 +64,7 @@
     <Compile Include="Entities\LastAction.cs" />
     <Compile Include="Entities\LastUpdateAction.cs" />
     <Compile Include="Entities\OrganisationType.cs" />
+    <Compile Include="Entities\Originator.cs" />
     <Compile Include="Entities\PaymentStatus.cs" />
     <Compile Include="Caller.cs" />
     <Compile Include="CallerType.cs" />

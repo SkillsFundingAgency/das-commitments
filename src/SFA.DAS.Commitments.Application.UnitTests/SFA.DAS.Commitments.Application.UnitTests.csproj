@@ -72,8 +72,8 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.35.0.26580, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.35.0.26580\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.40.0.27093, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.40.0.27093\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=1.11.0.19990, Culture=neutral, processorArchitecture=MSIL">
@@ -92,6 +92,8 @@
     <Compile Include="ApprenticeshipTestDataHelper.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenCreatingApprenticeships.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
+    <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
@@ -126,6 +128,8 @@
     <Compile Include="Queries\GetCommitment\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenGettingEmployerCommitments.cs" />
     <Compile Include="Queries\GetEmployerCommitments\WhenValidatingAccountId.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\WhenGettingPendingApprenticeshipUpdate.cs" />
+    <Compile Include="Queries\GetPendingApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenGettingProviderCommitments.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenValidatingProviderId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
