@@ -33,14 +33,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var result = new List<ApprenticeshipOverlapValidationResult>();
 
-            var ulngroups = response.Data.GroupBy(x => x.Apprenticeship.ULN).ToList();
+            var requestGroups = response.Data.GroupBy(x => x.RequestApprenticeshipId).ToList();
 
-            foreach (var group in ulngroups)
+            foreach (var group in requestGroups)
             {
                 result.Add(new ApprenticeshipOverlapValidationResult
                 {
-                    Self = requests.Single(x=> x.Uln.Equals(group.Key, StringComparison.InvariantCultureIgnoreCase)),
-                    OverlappingApprenticeships = response.Data.Where(x=> x.Apprenticeship.ULN.Equals(group.Key, StringComparison.InvariantCultureIgnoreCase))
+                    Self = requests.Single(x=> x.ApprenticeshipId == group.Key),
+                    OverlappingApprenticeships = response.Data.Where(x=> x.RequestApprenticeshipId == group.Key)
                 });
             }
 
