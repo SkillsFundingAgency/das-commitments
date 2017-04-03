@@ -241,7 +241,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetPendingApprenticeshipUpdateResponse> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
         {
-            _logger.Info($"Getting pending update for apprenticeship {apprenticeshipId} for provider account {providerId}");
+            _logger.Info($"Getting pending update for apprenticeship {apprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
             var response = await _mediator.SendAsync(new GetPendingApprenticeshipUpdateRequest
             {
@@ -258,7 +258,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task CreateApprenticeshipUpdate(long providerId, ApprenticeshipUpdateRequest updateRequest)
         {
-            _logger.Info($"Creating update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for provider account {providerId}");
+            _logger.Info($"Creating update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: updateRequest.ApprenticeshipUpdate.ApprenticeshipId);
 
             await _mediator.SendAsync(new CreateApprenticeshipUpdateCommand
             {
