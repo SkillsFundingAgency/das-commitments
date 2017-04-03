@@ -153,5 +153,23 @@ namespace SFA.DAS.Commitments.Api.Controllers
             await _providerOrchestrator.PatchRelationship(providerId, employerAccountId, legalEntityId, request);
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/update")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
+        {
+            var response = await _providerOrchestrator.GetPendingApprenticeshipUpdate(providerId, apprenticeshipId);
+            return Ok(response.Data);
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/update")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> CreateApprenticeshipUpdate(long providerId, long apprenticeshipId,
+            [FromBody] ApprenticeshipUpdateRequest updateRequest)
+        {
+            await _providerOrchestrator.CreateApprenticeshipUpdate(providerId, updateRequest);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
     }
 }
