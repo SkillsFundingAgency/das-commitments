@@ -42,63 +42,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
 
             VerifyEventWasPublished(_event);
         }
-
-        [Test]
-        public async Task AndTheProviderIdIsNotCompleteThenTheEventIsNotPublished()
-        {
-            Commitment.ProviderId = null;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasNotPublished();
-        }
-
-        [Test]
-        public async Task AndTheEndDateIsNotCompleteThenTheEventIsNotPublished()
-        {
-            Apprenticeship.EndDate = null;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasNotPublished();
-        }
-
-        [Test]
-        public async Task AndTheStartDateIsNotCompleteThenTheEventIsNotPublished()
-        {
-            Apprenticeship.StartDate = null;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasNotPublished();
-        }
-
-        [Test]
-        public async Task AndTheCostIsNotCompleteThenTheEventIsNotPublished()
-        {
-            Apprenticeship.Cost = null;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasNotPublished();
-        }
-
-        [Test]
-        public async Task AndTheTrainingCodeIsNotCompleteThenTheEventIsNotPublished()
-        {
-            Apprenticeship.TrainingCode = null;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasNotPublished();
-        }
-
-        private void VerifyEventWasNotPublished()
-        {
-            CommitmentsLogger.Verify(x => x.Info(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<long?>(), It.IsAny<long?>()), Times.Never);
-            EventsApi.Verify(x => x.CreateApprenticeshipEvent(It.IsAny<ApprenticeshipEvent>()), Times.Never);
-        }
-
+        
         private void VerifyEventWasPublished(string @event)
         {
             CommitmentsLogger.Verify(x => x.Info($"Create apprenticeship event: {@event}", null, null, Commitment.Id, Apprenticeship.Id), Times.Once);

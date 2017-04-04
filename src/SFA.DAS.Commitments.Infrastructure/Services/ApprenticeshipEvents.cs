@@ -23,13 +23,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
         {
-            if (HasMinimumInformation(commitment, apprenticeship))
-            {
-                ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event);
+            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event);
 
-                _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
-                await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
-            }
+            _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
 
         public async Task BulkPublishEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event)
@@ -38,11 +35,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
             foreach (var apprenticeship in apprenticeships)
             {
-                // only publish if data is reasonably complete
-                if (HasMinimumInformation(commitment, apprenticeship))
-                {
-                    eventsToPublish.Add(CreateEvent(commitment, apprenticeship, @event));
-                }
+                eventsToPublish.Add(CreateEvent(commitment, apprenticeship, @event));
             }
 
             if (eventsToPublish.Count > 0)
@@ -50,11 +43,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 _logger.Info($"Creating apprenticeship events");
                 await _eventsApi.BulkCreateApprenticeshipEvent(eventsToPublish);
             }
-        }
-
-        private static bool HasMinimumInformation(Commitment commitment, Apprenticeship apprenticeship)
-        {
-            return commitment.ProviderId != null && apprenticeship.EndDate != null && apprenticeship.StartDate != null && apprenticeship.Cost != null && apprenticeship.TrainingCode != null;
         }
 
         private static ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
@@ -68,7 +56,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TrainingId = apprenticeship.TrainingCode ?? string.Empty,
                 Event = @event,
                 PaymentStatus = (PaymentStatus)apprenticeship.PaymentStatus,
-                ProviderId = commitment.ProviderId.ToString(),
+                ProviderId = commitment.ProviderId != null ? commitment.ProviderId.ToString() : string.Empty,
                 TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
                 TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
                 TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
