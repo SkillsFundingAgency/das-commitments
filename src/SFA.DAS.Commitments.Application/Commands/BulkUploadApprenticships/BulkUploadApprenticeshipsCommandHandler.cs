@@ -73,7 +73,23 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             var apprenticeships = command.Apprenticeships.Select(x => MapFrom(x, command)).ToList();
 
-            //Overlap validation
+            await ValidateOverlaps(apprenticeships);
+
+            var watch = Stopwatch.StartNew();
+            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
+            _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
+
+            watch = Stopwatch.StartNew();
+            await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
+            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-deleted events took {watch.ElapsedMilliseconds} milliseconds");
+
+            watch = Stopwatch.StartNew();
+            await _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED");
+            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
+        }
+
+        private async Task ValidateOverlaps(List<Apprenticeship> apprenticeships)
+        {
             _logger.Info("Performing overlap validation for bulk upload");
             var watch = Stopwatch.StartNew();
             var overlapValidationRequest = new GetOverlappingApprenticeshipsRequest
@@ -82,7 +98,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             };
 
             var i = 0;
-            foreach (var apprenticeship in apprenticeships.Where(x=> x.StartDate.HasValue && x.EndDate.HasValue && !string.IsNullOrEmpty(x.ULN)))
+            foreach (var apprenticeship in apprenticeships.Where(x => x.StartDate.HasValue && x.EndDate.HasValue && !string.IsNullOrEmpty(x.ULN)))
             {
                 overlapValidationRequest.OverlappingApprenticeshipRequests.Add(new ApprenticeshipOverlapValidationRequest
                 {
@@ -108,14 +124,6 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                     throw new ValidationException(errors);
                 }
             }
-
-            watch = Stopwatch.StartNew();
-            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
-            _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
-
-            watch = Stopwatch.StartNew();
-            await _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED");
-            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
         private Apprenticeship MapFrom(Api.Types.Apprenticeship.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)

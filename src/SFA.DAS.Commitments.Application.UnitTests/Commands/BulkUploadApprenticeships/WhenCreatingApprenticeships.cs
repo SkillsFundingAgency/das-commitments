@@ -7,8 +7,6 @@ using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Commands;
@@ -17,7 +15,9 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -31,6 +31,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private List<Apprenticeship> _exampleApprenticships;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IMediator> _mockMediator;
+        private Commitment _existingCommitment;
+        private List<Domain.Entities.Apprenticeship> _existingApprenticeships;
 
         [SetUp]
         public void SetUp()
@@ -66,9 +68,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                 Apprenticeships = _exampleApprenticships
             };
 
-            var existingCommitment = new Domain.Entities.Commitment { ProviderId = 111L, EditStatus = Domain.Entities.EditStatus.ProviderOnly };
+            _existingApprenticeships = new List<Domain.Entities.Apprenticeship>();
+            _existingCommitment = new Commitment { ProviderId = 111L, EditStatus = EditStatus.ProviderOnly, Apprenticeships = _existingApprenticeships };
 
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(existingCommitment);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_existingCommitment);
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse {Data = new List<OverlappingApprenticeship>()});
@@ -83,6 +86,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
 
             _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(
                 It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldPublishApprenticeshipDeletedEvents()
+        {
+            var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship() };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(insertedApprenticeships);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockApprenticeshipEvents.Verify(x => x.BulkPublishDeletionEvent(_existingCommitment, _existingApprenticeships, "APPRENTICESHIP-DELETED"), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldPublishApprenticeshipCreatedEvents()
+        {
+            var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship() };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(insertedApprenticeships);
+            
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockApprenticeshipEvents.Verify(x => x.BulkPublishEvent(_existingCommitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"), Times.Once);
         }
 
         [Test]
