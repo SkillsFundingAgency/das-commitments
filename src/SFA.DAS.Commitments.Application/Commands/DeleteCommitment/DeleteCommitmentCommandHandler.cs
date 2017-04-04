@@ -18,8 +18,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly AbstractValidator<DeleteCommitmentCommand> _validator;
         private readonly ICommitmentsLogger _logger;
+        private readonly IApprenticeshipEvents _apprenticeshipEvents;
 
-        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger)
+        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -27,10 +28,13 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
                 throw new ArgumentNullException(nameof(validator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (apprenticeshipEvents == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEvents));
 
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
+            _apprenticeshipEvents = apprenticeshipEvents;
         }
 
         protected override async Task HandleCore(DeleteCommitmentCommand command)
@@ -55,6 +59,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             CheckPaymentStatus(commitment.Apprenticeships);
 
             await _commitmentRepository.DeleteCommitment(command.CommitmentId, command.Caller.CallerType, command.UserId);
+            await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
         }
 
         private static void CheckAuthorization(DeleteCommitmentCommand message, Commitment commitment)

@@ -91,9 +91,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldPublishApprenticeshipDeletedEvents()
         {
-            var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship() };
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(insertedApprenticeships);
-
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipEvents.Verify(x => x.BulkPublishDeletionEvent(_existingCommitment, _existingApprenticeships, "APPRENTICESHIP-DELETED"), Times.Once);

@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
     public sealed class WhenDeletingCommitment
     {
         private Mock<ICommitmentRepository> _mockCommitmentRepository;
+        private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private AbstractValidator<DeleteCommitmentCommand> _validator;
         private DeleteCommitmentCommandHandler _handler;
         private DeleteCommitmentCommand _validCommand;
@@ -25,8 +26,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         public void Setup()
         {
             _mockCommitmentRepository = new Mock<ICommitmentRepository>();
+            _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _validator = new DeleteCommitmentValidator();
-            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>());
+            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object);
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }
@@ -132,6 +134,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
             act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 unauthorized");
+        }
+
+        [Test]
+        public async Task ShouldPublishApprenticeshipDeletedEvents()
+        {
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval }
+                }
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            await _handler.Handle(_validCommand);
+
+            _mockApprenticeshipEvents.Verify(x => x.BulkPublishDeletionEvent(testCommitment, testCommitment.Apprenticeships, "APPRENTICESHIP-DELETED"), Times.Once);
         }
     }
 }
