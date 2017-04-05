@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,6 +59,43 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
 
                 return 0;
+            });
+        }
+
+        public async Task ApproveApprenticeshipUpdate(long apprenticeshipId, string userId)
+        {
+            throw new NotImplementedException();
+
+            //await WithConnection(async connection =>
+            //{
+            //    var parameters = new DynamicParameters();
+            //    parameters.Add("@apprenticeshipId", apprenticeshipId);
+
+            //    var results = await connection.QueryAsync<ApprenticeshipUpdate>(
+            //        sql: $"[dbo].[GetApprenticeshipUpdate]",
+            //        param: parameters,
+            //        commandType: CommandType.StoredProcedure);
+
+            //    //return results.SingleOrDefault();
+            //});
+        }
+
+        public async Task RejectApprenticeshipUpdate(long apprenticeshipUpdateId, string userId)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipUpdateId, DbType.Int64);
+                parameters.Add("@status", ApprenticeshipUpdateStatus.Rejected, DbType.Int16);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[ApprenticeshipUpdate] SET Status = @status " +
+                    "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
             });
         }
     }
