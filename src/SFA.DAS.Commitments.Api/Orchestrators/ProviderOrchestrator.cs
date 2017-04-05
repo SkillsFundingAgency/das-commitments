@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -21,7 +22,9 @@ using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -269,6 +272,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate
             });
+        }
+
+        public async Task PatchApprenticeshipUpdate(long providerId, long apprenticeshipId, ApprenticeshipUpdateSubmission submission)
+        {
+            _logger.Info($"Patching update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+
+            var command =
+                new UpdateApprenticeshipUpdateCommand
+                {
+                    ApprenticeshipId = apprenticeshipId,
+                    Caller = new Caller(providerId, CallerType.Provider),
+                    UserId = submission.UserId,
+                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus
+                };
+
+            await _mediator.SendAsync(command);
         }
     }
 }
