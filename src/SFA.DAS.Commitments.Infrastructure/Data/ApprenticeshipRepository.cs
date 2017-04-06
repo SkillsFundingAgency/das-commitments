@@ -74,39 +74,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
 
             await WithTransaction(async (connection, trans) =>
-            {
-                var parameters = _apprenticeshipTransactions.GetApprenticeshipUpdateCreateParameters(apprenticeship);
-                parameters.Add("@id", apprenticeship.Id, DbType.Int64);
+                {
+                    var returnCode = await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
 
-                var refItem = caller.CallerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
-
-                var returnCode = await connection.ExecuteAsync(
-                    sql: "UPDATE [dbo].[Apprenticeship] " +
-                        "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
-                        "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
-                        "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
-                        $"{refItem} WHERE Id = @id;",
-                    param: parameters,
-                    transaction: trans,
-                    commandType: CommandType.Text);
-
-                await _historyTransactions.UpdateApprenticeship(connection, trans, 
-                    new ApprenticeshipHistoryItem
+                    await _historyTransactions.UpdateApprenticeship(connection, trans, 
+                        new ApprenticeshipHistoryItem
                         {
                             ApprenticeshipId = apprenticeship.Id,
                             UpdatedByRole = caller.CallerType,
                             UserId = userId
                         });
 
-                await _historyTransactions.UpdateApprenticeshipForCommitment(connection, trans,
-                    new CommitmentHistoryItem
+                    await _historyTransactions.UpdateApprenticeshipForCommitment(connection, trans,
+                        new CommitmentHistoryItem
                     {
                         CommitmentId = apprenticeship.CommitmentId,
                         UpdatedByRole = caller.CallerType,
                         UserId = userId
                     });
 
-                return returnCode;
+                    return returnCode;
             });
         }
 

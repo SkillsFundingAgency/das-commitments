@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
@@ -249,6 +250,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     },
                     ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate
             });
+        }
+
+        public async Task PatchApprenticeshipUpdate(long accountId, long apprenticeshipId, Apprenticeship.ApprenticeshipUpdateSubmission submission)
+        {
+            _logger.Info($"Patching update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
+
+            var command = 
+                new UpdateApprenticeshipUpdateCommand
+                {
+                    ApprenticeshipId = apprenticeshipId,
+                    Caller = new Caller(accountId, CallerType.Employer),
+                    UserId = submission.UserId,
+                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus
+                };
+
+            await _mediator.SendAsync(command);
         }
     }
 }
