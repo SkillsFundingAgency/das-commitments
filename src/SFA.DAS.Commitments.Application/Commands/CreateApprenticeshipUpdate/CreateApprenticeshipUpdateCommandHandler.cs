@@ -90,22 +90,22 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             return result;
         }
 
-        private ApprenticeshipUpdate MapToPendingApprenticeshipUpdate(Api.Types.Apprenticeship.ApprenticeshipUpdate source)
+        private ApprenticeshipUpdate MapToPendingApprenticeshipUpdate(Api.Types.Apprenticeship.ApprenticeshipUpdate update)
         {
             var result =  new ApprenticeshipUpdate
             {
-                Id = source.Id,
-                ApprenticeshipId = source.ApprenticeshipId,
-                Originator = (Originator) source.Originator,
-                FirstName = source.FirstName,
-                LastName = source.LastName,
-                DateOfBirth = source.DateOfBirth,
-                TrainingCode = source.TrainingCode,
-                TrainingType = source.TrainingType.HasValue ? (TrainingType) source.TrainingType : default(TrainingType?),
-                TrainingName = source.TrainingName,
-                Cost = source.Cost,
-                StartDate = source.StartDate,
-                EndDate = source.EndDate
+                Id = update.Id,
+                ApprenticeshipId = update.ApprenticeshipId,
+                Originator = (Originator) update.Originator,
+                FirstName = update.FirstName,
+                LastName = update.LastName,
+                DateOfBirth = update.DateOfBirth,
+                TrainingCode = update.TrainingCode,
+                TrainingType = update.TrainingType.HasValue ? (TrainingType) update.TrainingType : default(TrainingType?),
+                TrainingName = update.TrainingName,
+                Cost = update.Cost,
+                StartDate = update.StartDate,
+                EndDate = update.EndDate
             };
 
             return result.HasChanges ? result : null;

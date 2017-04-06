@@ -78,7 +78,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.FirstName.Should().Be("Original First name");
             _apprenticeship.LastName.Should().Be("Original Last name");
             _apprenticeship.DateOfBirth.Should().Be(new DateTime(1998, 12, 8));
-            _apprenticeship.ULN.Should().Be("1112223301");
             EnsureNoChanges();
         }
 
@@ -91,7 +90,42 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.FirstName.Should().Be("New First name");
             _apprenticeship.LastName.Should().Be("New Last name");
             _apprenticeship.DateOfBirth.Should().Be(new DateTime(1998, 12, 8));
-            _apprenticeship.ULN.Should().Be("1112223301");
+            EnsureNoChanges();
+        }
+
+        [Test]
+        public void UpdateAllFields()
+        {
+            var dob = DateTime.Now.AddYears(19);
+            var startDate = DateTime.Now.AddYears(2);
+            var endDate = DateTime.Now.AddYears(4);
+            var update = new ApprenticeshipUpdate
+            {
+                FirstName = "New First name",
+                LastName = "New Last name",
+                DateOfBirth = dob,
+                TrainingType = TrainingType.Framework,
+                TrainingCode = "training-code",
+                TrainingName = "Training name",
+                Cost = 1500,
+                StartDate = startDate,
+                EndDate = endDate
+            };
+            _sut.ApplyUpdate(_apprenticeship, update);
+
+            _apprenticeship.FirstName.Should().Be("New First name");
+            _apprenticeship.LastName.Should().Be("New Last name");
+            _apprenticeship.DateOfBirth.Should().Be(dob);
+
+            _apprenticeship.TrainingType.Should().Be(TrainingType.Framework);
+            _apprenticeship.TrainingCode.Should().Be("training-code");
+            _apprenticeship.TrainingName.Should().Be("Training name");
+
+            _apprenticeship.StartDate.Should().Be(startDate);
+            _apprenticeship.EndDate.Should().Be(endDate);
+
+            _apprenticeship.Cost.Should().Be(1500);
+
             EnsureNoChanges();
         }
     }

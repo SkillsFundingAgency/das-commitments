@@ -19,6 +19,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                 ? ap.LastName
                 : update.LastName;
 
+            if (!string.IsNullOrEmpty(update.TrainingCode) 
+                && update.TrainingType != null 
+                && !string.IsNullOrEmpty(update.TrainingName))
+            {
+                ap.TrainingCode = update.TrainingCode;
+                ap.TrainingType = (TrainingType)update.TrainingType;
+                ap.TrainingName = update.TrainingName;
+            }
+
             ap.DateOfBirth = update.DateOfBirth ?? ap.DateOfBirth;
 
             ap.Cost = update.Cost ?? ap.Cost;
