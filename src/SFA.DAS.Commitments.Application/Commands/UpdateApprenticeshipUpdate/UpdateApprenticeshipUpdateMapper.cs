@@ -19,12 +19,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                 ? ap.LastName
                 : update.LastName;
 
-            if (!string.IsNullOrEmpty(update.TrainingCode) 
-                && update.TrainingType != null 
+            ap.TrainingType = update.TrainingType ?? ap.TrainingType;
+
+            if (!string.IsNullOrEmpty(update.TrainingCode)
                 && !string.IsNullOrEmpty(update.TrainingName))
             {
                 ap.TrainingCode = update.TrainingCode;
-                ap.TrainingType = (TrainingType)update.TrainingType;
                 ap.TrainingName = update.TrainingName;
             }
 
