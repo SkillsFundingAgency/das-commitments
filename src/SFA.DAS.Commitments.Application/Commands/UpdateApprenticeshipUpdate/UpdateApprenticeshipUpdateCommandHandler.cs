@@ -70,10 +70,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                 await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
             }
 
-            //if (command.UpdateStatus == ApprenticeshipUpdateStatus.Deleted)
-            //{
-            //    await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(command.ApprenticeshipId, command.UserId);
-            //}
+            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Deleted)
+            {
+                await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
+            }
         }
 
         private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
