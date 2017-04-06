@@ -50,8 +50,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     EmployerAccountId = 1,
                     ProviderId = 2,
                     ULN =" 123",
-                    StartDate = new DateTime(2018,5,1),
-                    EndDate = new DateTime(2018,9,1),
+                    StartDate = new DateTime(DateTime.Now.Year + 2 ,5,1),
+                    EndDate = new DateTime(DateTime.Now.Year + 2,9,1),
                     Id = 3
                 });
 
@@ -232,7 +232,64 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             //Arrange
             _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Once);
+        }
 
+        [Test]
+        public void ThenIfTheStartDateIsLastMonth_ValidationFailureExceptionIsThrown()
+        {
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    ULN = " 123",
+                    StartDate = DateTime.Now.AddMonths(-1),
+                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                    Id = 3
+                });
+
+            var request = new CreateApprenticeshipUpdateCommand
+                              {
+                                  ApprenticeshipUpdate =
+                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                          {
+                                              Id = 5,
+                                              ApprenticeshipId = 42
+                                          }
+                              };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenIfTheStartDateWasLastDayOfPrevMonth_ValidationFailureExceptionIsThrown()
+        {
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    ULN = " 123",
+                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                    Id = 3
+                });
+
+            var request = new CreateApprenticeshipUpdateCommand
+                              {
+                                  ApprenticeshipUpdate =
+                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                          {
+                                              Id = 5,
+                                              ApprenticeshipId = 42
+                                          }
+                              };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<ValidationException>();
         }
     }
 }

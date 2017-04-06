@@ -58,6 +58,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
          
+            if(apprenticeship.StartDate < new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
+                throw new ValidationException("Unable to create an update for an apprenticeship that is already started");
+
             CheckAuthorisation(command, apprenticeship);
             await CheckOverlappingApprenticeships(command, apprenticeship);
 
