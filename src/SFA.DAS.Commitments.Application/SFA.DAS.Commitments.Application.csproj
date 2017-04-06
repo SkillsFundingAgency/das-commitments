@@ -93,6 +93,7 @@
     <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusValidator.cs" />
     <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateCommandHandler.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateMapper.cs" />
     <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateValidator.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />

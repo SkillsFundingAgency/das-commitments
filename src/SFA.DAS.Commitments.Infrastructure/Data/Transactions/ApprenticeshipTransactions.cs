@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Dapper;
 
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -59,6 +60,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@providerRef", apprenticeship.ProviderRef, DbType.String);
             parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
             return parameters;
+        }
+
+        public async Task<int> UpdateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship, Caller caller)
+        {
+            var parameters = GetApprenticeshipUpdateCreateParameters(apprenticeship);
+            parameters.Add("@id", apprenticeship.Id, DbType.Int64);
+
+            var refItem = caller.CallerType == CallerType.Employer ? "EmployerRef = @employerRef" : "ProviderRef = @providerRef";
+
+            var returnCode = await connection.ExecuteAsync(
+                sql: "UPDATE [dbo].[Apprenticeship] " +
+                    "SET CommitmentId = @commitmentId, FirstName = @firstName, LastName = @lastName, DateOfBirth = @dateOfBirth, NINUmber = @niNumber, " +
+                    "ULN = @uln, TrainingType = @trainingType, TrainingCode = @trainingCode, TrainingName = @trainingName, Cost = @cost, " +
+                    "StartDate = @startDate, EndDate = @endDate, PaymentStatus = @paymentStatus, AgreementStatus = @agreementStatus, " +
+                    $"{refItem} WHERE Id = @id;",
+                param: parameters,
+                transaction: trans,
+                commandType: CommandType.Text);
+
+            return returnCode;
         }
     }
 }

@@ -25,11 +25,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
         private readonly IMediator _mediator;
 
+        private readonly IUpdateApprenticeshipUpdateMapper _mapper;
+
         public UpdateApprenticeshipUpdateCommandHandler(
             AbstractValidator<UpdateApprenticeshipUpdateCommand> validator,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             IApprenticeshipRepository apprenticeshipRepository,
-            IMediator mediator)
+            IMediator mediator,
+            IUpdateApprenticeshipUpdateMapper mapper)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
@@ -39,21 +42,27 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                 throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
+            if (mapper == null)
+                throw new ArgumentNullException(nameof(mapper));
 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipUpdateCommand command)
         {
             var pendingUpdate = await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(command.ApprenticeshipId);
-            await ValidateCommand(command, pendingUpdate);
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+
+            await ValidateCommand(command, pendingUpdate, apprenticeship);
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
             {
-                await _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(command.ApprenticeshipId, command.UserId);
+                _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
+                await _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate.Id, command.UserId, apprenticeship, command.Caller);
             }
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
@@ -63,11 +72,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             //if (command.UpdateStatus == ApprenticeshipUpdateStatus.Deleted)
             //{
-            //    await _apprenticeshipUpdateRepository.DeleteApprenticeshipUpdate(command.ApprenticeshipId, command.UserId);
+            //    await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(command.ApprenticeshipId, command.UserId);
             //}
         }
 
-        private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate)
+        private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
         {
             var result = _validator.Validate(command);
             if (!result.IsValid)
@@ -76,13 +85,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             if (pendingUpdate == null)
                 throw new ValidationException($"No existing apprenticeship update pending for apprenticeship {command.ApprenticeshipId}");
 
-            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+            
 
             CheckAuthorisation(command, apprenticeship);
-            await CheckOverlappingApprenticeships(command, pendingUpdate, apprenticeship);
+            await CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
         }
 
-        private async Task CheckOverlappingApprenticeships(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship originalApprenticeship)
+        private async Task CheckOverlappingApprenticeships(ApprenticeshipUpdate pendingUpdate, Apprenticeship originalApprenticeship)
         {
             var overlapResult = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
             {

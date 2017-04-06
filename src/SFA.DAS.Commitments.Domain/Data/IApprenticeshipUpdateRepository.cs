@@ -9,8 +9,10 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task CreateApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, Apprenticeship apprenticeship);
 
-        Task ApproveApprenticeshipUpdate(long apprenticeshipId, string userId);
+        Task ApproveApprenticeshipUpdate(long apprenticeshipId, string userId, Apprenticeship apprenticeship, Caller caller);
 
         Task RejectApprenticeshipUpdate(long apprenticeshipUpdateId, string userId);
+
+        Task UndoApprenticeshipUpdate(long apprenticeshipUpdateId, string userId);
     }
 }

@@ -59,9 +59,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>() });
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5 });
+                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42 });
 
-            _sut = new UpdateApprenticeshipUpdateCommandHandler(_validator.Object, _repository.Object, _apprenticeshipRepository.Object, _mediator.Object);
+            _sut = new UpdateApprenticeshipUpdateCommandHandler(_validator.Object, _repository.Object, _apprenticeshipRepository.Object, _mediator.Object, new UpdateApprenticeshipUpdateMapper());
         }
 
         [Test]
@@ -127,8 +127,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(ApprenticeshipId, UserId), Times.Once);
-            _repository.Verify(m => m.RejectApprenticeshipUpdate(ApprenticeshipId, UserId), Times.Never);
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(42, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
+            _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Never);
         }
 
         [Test]
@@ -146,8 +146,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(ApprenticeshipId, UserId), Times.Never);
-            _repository.Verify(m => m.RejectApprenticeshipUpdate(ApprenticeshipId, UserId), Times.Once);
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(42, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
+            _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Once);
         }
 
         [Test]
