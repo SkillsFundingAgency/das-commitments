@@ -190,20 +190,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenTheMediatorIsCalledToCheckOverlappingApprenticeships()
+        public async Task ThenTheOverlappingIsNotChackedIfReject()
         {
             var command = new UpdateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(666, CallerType.Provider),
                 ApprenticeshipId = 5L,
-                UserId = "user123"
+                UserId = "user123",
+                UpdateStatus = ApprenticeshipUpdateStatus.Rejected
             };
 
             //Act
             await _sut.Handle(command);
 
             //Arrange
-            _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Once);
+            _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenTheOverlappingIsNotChackedIfUndo()
+        {
+            var command = new UpdateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(666, CallerType.Provider),
+                ApprenticeshipId = 5L,
+                UserId = "user123",
+                UpdateStatus = ApprenticeshipUpdateStatus.Deleted
+            };
+
+            //Act
+            await _sut.Handle(command);
+
+            //Arrange
+            _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Never);
         }
 
         [Test]
@@ -213,7 +232,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 Caller = new Caller(666, CallerType.Provider),
                 ApprenticeshipId = 5L,
-                UserId = "user123"
+                UserId = "user123",
+                UpdateStatus = ApprenticeshipUpdateStatus.Approved
             };
 
             _mediator.Setup(m => m.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))

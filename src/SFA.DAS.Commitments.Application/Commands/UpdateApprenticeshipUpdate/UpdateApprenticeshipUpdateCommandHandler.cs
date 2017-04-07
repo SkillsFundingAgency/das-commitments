@@ -88,7 +88,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             
 
             CheckAuthorisation(command, apprenticeship);
-            await CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
+
+            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
+            {
+                await CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
+            }
         }
 
         private async Task CheckOverlappingApprenticeships(ApprenticeshipUpdate pendingUpdate, Apprenticeship originalApprenticeship)
