@@ -19,12 +19,14 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
 
         private readonly AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private readonly ICommitmentsLogger _logger;
+        private readonly IApprenticeshipEvents _apprenticeshipEvents;
 
         public DeleteApprenticeshipCommandHandler(
             ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository, 
             AbstractValidator<DeleteApprenticeshipCommand> validator, 
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IApprenticeshipEvents apprenticeshipEvents)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -34,11 +36,14 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
                 throw new ArgumentNullException(nameof(validator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (apprenticeshipEvents == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEvents));
 
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _logger = logger;
+            _apprenticeshipEvents = apprenticeshipEvents;
         }
 
         protected override async Task HandleCore(DeleteApprenticeshipCommand command)
@@ -65,6 +70,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             CheckPaymentStatus(apprenticeship);
 
             await _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId, command.Caller.CallerType, command.UserId, commitment.Id);
+            await _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED");
         }
 
         private void LogMessage(DeleteApprenticeshipCommand command)

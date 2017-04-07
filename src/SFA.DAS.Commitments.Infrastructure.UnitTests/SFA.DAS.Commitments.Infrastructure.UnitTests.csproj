@@ -71,6 +71,9 @@
     <Compile Include="Data\ParentChildrenMapperTests\WhenMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\ApprenticeshipEventsTestsBase.cs" />
+    <Compile Include="Services\ApprenticeshipEventsTests\WhenIBulkPublishDeletionEvents.cs" />
+    <Compile Include="Services\ApprenticeshipEventsTests\WhenIPublishADeletionEvent.cs" />
+    <Compile Include="Services\ApprenticeshipEventsTests\WhenIBulkPublishEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\WhenIPublishAnEvent.cs" />
   </ItemGroup>
   <ItemGroup>

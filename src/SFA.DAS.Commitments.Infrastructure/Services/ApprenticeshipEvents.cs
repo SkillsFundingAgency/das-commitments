@@ -23,13 +23,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
         {
-            if (HasMinimumInformation(commitment, apprenticeship))
-            {
-                ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event);
+            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus);
 
-                _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
-                await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
-            }
+            _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
 
         public async Task BulkPublishEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event)
@@ -38,13 +35,34 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
             foreach (var apprenticeship in apprenticeships)
             {
-                // only publish if data is reasonably complete
-                if (HasMinimumInformation(commitment, apprenticeship))
-                {
-                    eventsToPublish.Add(CreateEvent(commitment, apprenticeship, @event));
-                }
+                eventsToPublish.Add(CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus));
             }
 
+            await BulkPublishEvent(eventsToPublish);
+        }
+
+        public async Task PublishDeletionEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
+        {
+            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, PaymentStatus.Deleted);
+
+            _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+        }
+
+        public async Task BulkPublishDeletionEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event)
+        {
+            var eventsToPublish = new List<ApprenticeshipEvent>();
+
+            foreach (var apprenticeship in apprenticeships)
+            {
+                eventsToPublish.Add(CreateEvent(commitment, apprenticeship, @event, PaymentStatus.Deleted));
+            }
+
+            await BulkPublishEvent(eventsToPublish);
+        }
+
+        private async Task BulkPublishEvent(List<ApprenticeshipEvent> eventsToPublish)
+        {
             if (eventsToPublish.Count > 0)
             {
                 _logger.Info($"Creating apprenticeship events");
@@ -52,12 +70,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             }
         }
 
-        private static bool HasMinimumInformation(Commitment commitment, Apprenticeship apprenticeship)
-        {
-            return commitment.ProviderId != null && apprenticeship.EndDate != null && apprenticeship.StartDate != null && apprenticeship.Cost != null && apprenticeship.TrainingCode != null;
-        }
-
-        private static ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
+        private static ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, PaymentStatus paymentStatus)
         {
             return new ApprenticeshipEvent
             {
@@ -67,8 +80,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 LearnerId = apprenticeship.ULN ?? "NULL",
                 TrainingId = apprenticeship.TrainingCode ?? string.Empty,
                 Event = @event,
-                PaymentStatus = (PaymentStatus)apprenticeship.PaymentStatus,
-                ProviderId = commitment.ProviderId.ToString(),
+                PaymentStatus = paymentStatus,
+                ProviderId = commitment.ProviderId != null ? commitment.ProviderId.ToString() : string.Empty,
                 TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
                 TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
                 TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,

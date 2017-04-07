@@ -8,36 +8,16 @@ using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEventsTests
 {
     [TestFixture]
-    public class WhenIPublishAnEvent : ApprenticeshipEventsTestsBase
+    public class WhenIPublishADeletionEvent : ApprenticeshipEventsTestsBase
     {
         private string _event = "Test";
 
         [Test]
-        public async Task AndTheTrainingTypeIsFrameworkThenTheEventIsPublishedWithTheCorrectTrainingType()
+        public async Task ThenTheEventIsPublishedWithTheCorrectPaymentStatus()
         {
             Apprenticeship.TrainingType = TrainingType.Framework;
 
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasPublished(_event);
-        }
-
-        [Test]
-        public async Task AndTheTrainingTypeIsStandardThenTheEventIsPublishedWithTheCorrectTrainingType()
-        {
-            Apprenticeship.TrainingType = TrainingType.Standard;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
-
-            VerifyEventWasPublished(_event);
-        }
-
-        [Test]
-        public async Task AndTheUlnIsNotProvidedThenTheEventIsPublishedWithADefaultValue()
-        {
-            Apprenticeship.ULN = null;
-
-            await Service.PublishEvent(Commitment, Apprenticeship, _event);
+            await Service.PublishDeletionEvent(Commitment, Apprenticeship, _event);
 
             VerifyEventWasPublished(_event);
         }
@@ -50,7 +30,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
 
         private bool EventMatchesParameters(ApprenticeshipEvent apprenticeshipEvent, string @event)
         {
-            return EventMatchesParameters(apprenticeshipEvent, @event, (PaymentStatus)Apprenticeship.PaymentStatus);
+            return EventMatchesParameters(apprenticeshipEvent, @event, PaymentStatus.Deleted);
         }
     }
 }
