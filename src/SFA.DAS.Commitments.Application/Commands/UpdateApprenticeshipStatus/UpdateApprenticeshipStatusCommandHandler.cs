@@ -1,20 +1,18 @@
-﻿using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
-
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class UpdateApprenticeshipStatusCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
-
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-
         private readonly UpdateApprenticeshipStatusValidator _validator;
         private readonly ICommitmentsLogger _logger;
 
@@ -39,9 +37,29 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             CheckAuthorization(command, commitment);
 
-            var newPaymentStatus = (PaymentStatus) command.PaymentStatus.GetValueOrDefault((Api.Types.Apprenticeship.Types.PaymentStatus) apprenticeship.PaymentStatus);
+            var newPaymentStatus = (PaymentStatus)command.PaymentStatus.GetValueOrDefault((Api.Types.Apprenticeship.Types.PaymentStatus)apprenticeship.PaymentStatus);
 
-            await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, command.ApprenticeshipId, newPaymentStatus);
+            // TODO: LWA - validate that date for change is valid value
+            ValidateDateOfChange(command.PaymentStatus, command.DateOfChange, apprenticeship);
+
+            await SaveChange(command, commitment, newPaymentStatus);
+        }
+
+        private void ValidateDateOfChange(Api.Types.Apprenticeship.Types.PaymentStatus? paymentStatus, DateTime dateOfChange, Apprenticeship apprenticeship)
+        {
+            return;
+        }
+
+        private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, PaymentStatus newPaymentStatus)
+        {
+            if (newPaymentStatus == PaymentStatus.Cancelled) // TODO: LWA - Rename this payment status
+            {
+                await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
+
+                return;
+            }
+
+            throw new NotImplementedException();
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)

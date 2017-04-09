@@ -97,6 +97,27 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange)
+        {
+            _logger.Debug($"Stopping apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+                parameters.Add("@stopDate", dateOfChange, DbType.Date);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, StopDate = @stopDate " +
+                    "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);

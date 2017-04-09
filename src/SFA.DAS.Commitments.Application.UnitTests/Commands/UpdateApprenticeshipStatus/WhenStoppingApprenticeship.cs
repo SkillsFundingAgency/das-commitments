@@ -13,7 +13,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenUpdatingApprenticeshipStatus
+    public sealed class WhenStoppingApprenticeship
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
@@ -23,8 +23,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void SetUp()
         {
-            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Active};
-            var _testApprenticeship = new Apprenticeship { CommitmentId = 123L, PaymentStatus = PaymentStatus.PendingApproval };
+            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn};
+            var _testApprenticeship = new Apprenticeship { CommitmentId = 123L, PaymentStatus = PaymentStatus.Active };
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
@@ -46,10 +46,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatus(
+            _mockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == _exampleValidRequest.ApprenticeshipId),
-                It.Is<PaymentStatus>(a => a == (PaymentStatus) _exampleValidRequest.PaymentStatus)));
+                It.Is<DateTime>(a => a == _exampleValidRequest.DateOfChange)));
         }
 
         [Test]
@@ -76,27 +76,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldThrow<UnauthorizedException>();
         }
 
-        [TestCase(PaymentStatus.PendingApproval, Api.Types.Apprenticeship.Types.PaymentStatus.Active)]
-        [TestCase(PaymentStatus.Active, Api.Types.Apprenticeship.Types.PaymentStatus.Paused)]
-        [TestCase(PaymentStatus.Paused, Api.Types.Apprenticeship.Types.PaymentStatus.Active)]
-        public void ThenWhenStateTransitionIsValidNoExceptionIsThrown(PaymentStatus initial, Api.Types.Apprenticeship.Types.PaymentStatus target)
+        [TestCase(PaymentStatus.Active)]
+        [TestCase(PaymentStatus.Paused)]
+        public void ThenWhenStateTransitionIsValidNoExceptionIsThrown(PaymentStatus initial)
         {
             var apprenticeshipFromRepository = new Apprenticeship {PaymentStatus = initial};
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository);
-            _exampleValidRequest.PaymentStatus = target;
+            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldNotThrow<InvalidRequestException>();
         }
 
-        [TestCase(PaymentStatus.PendingApproval, Api.Types.Apprenticeship.Types.PaymentStatus.Paused)]
-        [TestCase(PaymentStatus.Paused, Api.Types.Apprenticeship.Types.PaymentStatus.PendingApproval)]
-        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial, Api.Types.Apprenticeship.Types.PaymentStatus target)
+        [TestCase(PaymentStatus.Cancelled)]
+        [TestCase(PaymentStatus.Completed)]
+        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial)
         {
             var apprenticeshipFromRepository = new Apprenticeship {PaymentStatus = initial};
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(apprenticeshipFromRepository);
-            _exampleValidRequest.PaymentStatus = target;
+            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
