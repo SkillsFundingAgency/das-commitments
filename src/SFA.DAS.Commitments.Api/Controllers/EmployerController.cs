@@ -115,11 +115,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, [FromBody] ApprenticeshipSubmission apprenticeshipSubmission)
+        public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long apprenticeshipId, [FromBody] ApprenticeshipSubmission apprenticeshipSubmission)
         {
-            await _employerOrchestrator.PatchApprenticeship(accountId, commitmentId, apprenticeshipId, apprenticeshipSubmission);
+            await _employerOrchestrator.PatchApprenticeship(accountId, apprenticeshipId, apprenticeshipSubmission);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

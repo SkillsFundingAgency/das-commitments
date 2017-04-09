@@ -23,12 +23,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void SetUp()
         {
-            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, CommitmentId = 123L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Active};
+            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Active};
+            var _testApprenticeship = new Apprenticeship { CommitmentId = 123L, PaymentStatus = PaymentStatus.PendingApproval };
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
 
-            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(new Apprenticeship {PaymentStatus = PaymentStatus.PendingApproval});
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(_testApprenticeship);
             _mockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
 
             _handler = new UpdateApprenticeshipStatusCommandHandler(_mockCommitmentRespository.Object, _mockApprenticeshipRespository.Object, new UpdateApprenticeshipStatusValidator(), Mock.Of<ICommitmentsLogger>());
@@ -39,14 +40,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
-                Id = _exampleValidRequest.CommitmentId,
+                Id = 123L,
                 EmployerAccountId = _exampleValidRequest.AccountId
             });
 
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatus(
-                It.Is<long>(a => a == _exampleValidRequest.CommitmentId),
+                It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == _exampleValidRequest.ApprenticeshipId),
                 It.Is<PaymentStatus>(a => a == (PaymentStatus) _exampleValidRequest.PaymentStatus)));
         }
@@ -64,9 +65,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenWhenUnauthorisedAnUnauthorizedExceptionIsThrown()
         {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
             {
-                Id = _exampleValidRequest.CommitmentId,
+                Id = 123L,
                 ProviderId = _exampleValidRequest.AccountId++
             });
 

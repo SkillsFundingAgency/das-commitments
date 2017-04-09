@@ -174,16 +174,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task PatchApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
+        public async Task PatchApprenticeship(long accountId, long apprenticeshipId, Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
         {
-            _logger.Info($"Updating payment status to {apprenticeshipSubmission.PaymentStatus} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
+            _logger.Info($"Updating payment status to {apprenticeshipSubmission.PaymentStatus} for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
             {
                 AccountId = accountId,
-                CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
                 PaymentStatus = apprenticeshipSubmission.PaymentStatus,
+                //DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId
             });
         }
