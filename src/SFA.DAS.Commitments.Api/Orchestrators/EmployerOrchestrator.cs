@@ -183,7 +183,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 AccountId = accountId,
                 ApprenticeshipId = apprenticeshipId,
                 PaymentStatus = apprenticeshipSubmission.PaymentStatus,
-                //DateOfChange = apprenticeshipSubmission.DateOfChange,
+                DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId
             });
         }

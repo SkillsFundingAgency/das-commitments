@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            if (newPaymentStatus == PaymentStatus.Cancelled) // TODO: LWA - Rename this payment status
+            if (newPaymentStatus == PaymentStatus.Withdrawn)
             {
                 await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
 

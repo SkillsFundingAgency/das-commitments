@@ -25,8 +25,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void SetUp()
         {
-            _exampleValidRequest = new UpdateApprenticeshipStatusCommand {AccountId = 111L, ApprenticeshipId = 444L, PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn};
-            _testApprenticeship = new Apprenticeship { CommitmentId = 123L, PaymentStatus = PaymentStatus.Active };
+            _exampleValidRequest = new UpdateApprenticeshipStatusCommand
+            {
+                AccountId = 111L,
+                ApprenticeshipId = 444L,
+                PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn,
+                DateOfChange = DateTime.Now.Date
+            };
+
+            _testApprenticeship = new Apprenticeship
+            {
+                CommitmentId = 123L,
+                PaymentStatus = PaymentStatus.Active,
+                StartDate = DateTime.UtcNow.Date.AddMonths(-1)
+            };
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
@@ -86,20 +98,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             _testApprenticeship.PaymentStatus = initial;
 
-            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
-
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldNotThrow<InvalidRequestException>();
         }
 
-        [TestCase(PaymentStatus.Cancelled)]
+        [TestCase(PaymentStatus.Withdrawn)]
         [TestCase(PaymentStatus.Completed)]
         public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial)
         {
             _testApprenticeship.PaymentStatus = initial;
-
-            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
@@ -118,8 +126,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 EmployerAccountId = _exampleValidRequest.AccountId
             });
 
-            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
-
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
@@ -137,7 +143,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 EmployerAccountId = _exampleValidRequest.AccountId
             });
 
-            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
             _exampleValidRequest.DateOfChange = DateTime.UtcNow.AddMonths(1).Date;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
@@ -157,7 +162,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 EmployerAccountId = _exampleValidRequest.AccountId
             });
 
-            _exampleValidRequest.PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
             _exampleValidRequest.DateOfChange = startDate.AddDays(-5).Date;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
