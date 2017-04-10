@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -74,7 +75,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         {
             if (newPaymentStatus == PaymentStatus.Withdrawn)
             {
-                await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
+                // Currently only called by Employer
+                await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange, CallerType.Employer, command.UserId);
 
                 return;
             }

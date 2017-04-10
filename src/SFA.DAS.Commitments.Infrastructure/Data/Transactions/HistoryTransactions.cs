@@ -6,6 +6,7 @@ using Dapper;
 
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
@@ -100,6 +101,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
                     apprenticeshipId: apprenticeshipHistoryItem.ApprenticeshipId);
 
             await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.Updated);
+        }
+
+        public async Task UpdateApprenticeshipStatus(
+            IDbConnection connection,
+            IDbTransaction trans,
+            PaymentStatus newStatus,
+            ApprenticeshipHistoryItem apprenticeshipHistoryItem)
+        {
+            _logger.Debug($"Creating history item for updating apprenticehsip status to {newStatus}: {apprenticeshipHistoryItem.ApprenticeshipId}",
+                    apprenticeshipId: apprenticeshipHistoryItem.ApprenticeshipId);
+
+            await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.ChangeOfStatus);
         }
 
         private async Task WriteCommitmentHistory(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem, CommitmentChangeType changeType)

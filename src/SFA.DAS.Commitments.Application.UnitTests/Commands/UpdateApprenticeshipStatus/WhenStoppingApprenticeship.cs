@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -65,7 +66,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == _exampleValidRequest.ApprenticeshipId),
-                It.Is<DateTime>(a => a == _exampleValidRequest.DateOfChange)));
+                It.Is<DateTime>(a => a == _exampleValidRequest.DateOfChange),
+                It.Is<CallerType>(a => a == CallerType.Employer),
+                It.Is<string>(a => a == _exampleValidRequest.UserId)));
         }
 
         [Test]
