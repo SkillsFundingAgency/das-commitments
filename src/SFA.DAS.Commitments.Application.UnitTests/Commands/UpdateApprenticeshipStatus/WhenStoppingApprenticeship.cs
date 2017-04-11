@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private Mock<ICurrentDateTime> _mockCurrentDateTime;
+        private Mock<IApprenticeshipEvents> _mockEventsApi;
         private UpdateApprenticeshipStatusCommandHandler _handler;
         private UpdateApprenticeshipStatusCommand _exampleValidRequest;
         private Apprenticeship _testApprenticeship;
@@ -44,12 +45,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            _mockEventsApi = new Mock<IApprenticeshipEvents>();
 
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(_testApprenticeship);
             _mockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _handler = new UpdateApprenticeshipStatusCommandHandler(_mockCommitmentRespository.Object, _mockApprenticeshipRespository.Object, new UpdateApprenticeshipStatusValidator(), _mockCurrentDateTime.Object, Mock.Of<ICommitmentsLogger>());
+            _handler = new UpdateApprenticeshipStatusCommandHandler(
+                _mockCommitmentRespository.Object, 
+                _mockApprenticeshipRespository.Object, 
+                new UpdateApprenticeshipStatusValidator(), 
+                _mockCurrentDateTime.Object,
+                _mockEventsApi.Object,
+                Mock.Of<ICommitmentsLogger>());
         }
 
         [Test]
@@ -69,6 +77,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<DateTime>(a => a == _exampleValidRequest.DateOfChange),
                 It.Is<CallerType>(a => a == CallerType.Employer),
                 It.Is<string>(a => a == _exampleValidRequest.UserId)));
+        }
+
+        [Test]
+        public async Task ThenShouldSendAnApprenticeshipEvent()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = _exampleValidRequest.AccountId
+            });
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<PaymentStatus>()));
         }
 
         [Test]

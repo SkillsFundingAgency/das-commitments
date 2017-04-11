@@ -17,18 +17,21 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly UpdateApprenticeshipStatusValidator _validator;
         private readonly ICurrentDateTime _currentDate;
         private readonly ICommitmentsLogger _logger;
+        private readonly IApprenticeshipEvents _eventsApi;
 
         public UpdateApprenticeshipStatusCommandHandler(
             ICommitmentRepository commitmentRepository, 
             IApprenticeshipRepository apprenticeshipRepository, 
             UpdateApprenticeshipStatusValidator validator,
             ICurrentDateTime currentDate,
+            IApprenticeshipEvents eventsApi,
             ICommitmentsLogger logger)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _currentDate = currentDate;
+            _eventsApi = eventsApi;
             _logger = logger;
         }
 
@@ -50,6 +53,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ValidateDateOfChange(command.PaymentStatus, command.DateOfChange, apprenticeship);
 
             await SaveChange(command, commitment, newPaymentStatus);
+
+            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus);
         }
 
         private void ValidateDateOfChange(Api.Types.Apprenticeship.Types.PaymentStatus? paymentStatus, DateTime dateOfChange, Apprenticeship apprenticeship)
