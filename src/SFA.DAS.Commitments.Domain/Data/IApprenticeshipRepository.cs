@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Domain.Entities;
+using System;
 
 namespace SFA.DAS.Commitments.Domain.Data
 {
@@ -10,6 +11,8 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> CreateApprenticeship(Apprenticeship apprenticeship, CallerType callerType, string userId);
 
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId);
+
+        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, CallerType callerType, string userId);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 

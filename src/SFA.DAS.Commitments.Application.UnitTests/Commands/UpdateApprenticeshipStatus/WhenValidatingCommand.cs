@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 
@@ -17,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
 
             _validator = new UpdateApprenticeshipStatusValidator();
-            _exampleCommand = new UpdateApprenticeshipStatusCommand {AccountId = 1L, CommitmentId = 123L, ApprenticeshipId = 444L, PaymentStatus = PaymentStatus.Active};
+            _exampleCommand = new UpdateApprenticeshipStatusCommand {AccountId = 1L, ApprenticeshipId = 444L, PaymentStatus = PaymentStatus.Active};
         }
 
         [TestCase(0)]
@@ -33,20 +32,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
         [TestCase(0)]
         [TestCase(-2)]
-        public void ThenCommitmentIdIsLessThanOneIsInvalid(long commitmentId)
-        {
-            _exampleCommand.CommitmentId = commitmentId;
-
-            var result = _validator.Validate(_exampleCommand);
-
-            result.IsValid.Should().BeFalse();
-        }
-
-        [TestCase(0)]
-        [TestCase(-2)]
         public void ThenApprenticeshipIdIsLessThanOneIsInvalid(long apprenticeship)
         {
-            _exampleCommand.CommitmentId = apprenticeship;
+            _exampleCommand.ApprenticeshipId = apprenticeship;
 
             var result = _validator.Validate(_exampleCommand);
 
