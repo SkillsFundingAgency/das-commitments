@@ -75,7 +75,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             updatedApprenticeship.EmployerRef.Should().Be("Employer ref");
 
             updatedApprenticeship.CommitmentId.Should().Be(11);
-            updatedApprenticeship.PaymentStatus.Should().Be(PaymentStatus.Cancelled);
+            updatedApprenticeship.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
             updatedApprenticeship.AgreementStatus.Should().Be(AgreementStatus.ProviderAgreed);
             updatedApprenticeship.CreatedOn.Should().Be(new DateTime(2006, 1, 1));
             updatedApprenticeship.AgreedOn.Should().Be(new DateTime(2006, 5, 5));

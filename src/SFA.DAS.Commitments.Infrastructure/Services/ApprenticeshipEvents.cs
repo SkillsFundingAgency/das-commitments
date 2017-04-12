@@ -29,6 +29,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
 
+        public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo)
+        {
+            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus);
+
+            apprenticeshipEvent.EffectiveFrom = effectiveFrom;
+            apprenticeshipEvent.EffectiveTo = effectiveTo;
+
+            _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+        }
+
         public async Task BulkPublishEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event)
         {
             var eventsToPublish = new List<ApprenticeshipEvent>();
