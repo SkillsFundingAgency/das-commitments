@@ -1,15 +1,18 @@
 ﻿using System;
 
+using Newtonsoft.Json;
+
 using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 {
     public class UpdateApprenticeshipUpdateMapper : IUpdateApprenticeshipUpdateMapper
     {
-        public void ApplyUpdate(Apprenticeship ap, ApprenticeshipUpdate update)
+        public Apprenticeship ApplyUpdate(Apprenticeship oldApprenticeship, ApprenticeshipUpdate update)
         {
-            Func<string, string, string> changedOrNull = (a, edit) =>
-                a == edit ? a : edit;
+
+            var json = JsonConvert.SerializeObject(oldApprenticeship);
+            var ap = JsonConvert.DeserializeObject<Apprenticeship>(json);
 
             ap.FirstName = string.IsNullOrEmpty(update.FirstName)
                 ? ap.FirstName
@@ -34,11 +37,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             ap.StartDate = update.StartDate ?? ap.StartDate;
             ap.EndDate = update.EndDate ?? ap.EndDate;
+
+            return ap;
         }
     }
 
     public interface IUpdateApprenticeshipUpdateMapper
     {
-        void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate);
+        Apprenticeship ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate);
     }
 }

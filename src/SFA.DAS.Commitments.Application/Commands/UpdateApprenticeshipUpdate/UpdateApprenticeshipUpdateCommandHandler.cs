@@ -12,6 +12,7 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 {
@@ -27,12 +28,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
         private readonly IUpdateApprenticeshipUpdateMapper _mapper;
 
+        private readonly IApprenticeshipEvents _eventsApi;
+
+        private readonly ICommitmentRepository _commitmentRepository;
+
         public UpdateApprenticeshipUpdateCommandHandler(
             AbstractValidator<UpdateApprenticeshipUpdateCommand> validator,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             IApprenticeshipRepository apprenticeshipRepository,
             IMediator mediator,
-            IUpdateApprenticeshipUpdateMapper mapper)
+            IUpdateApprenticeshipUpdateMapper mapper,
+            IApprenticeshipEvents eventsApi,
+            ICommitmentRepository commitmentRepository)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
@@ -44,12 +51,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                 throw new ArgumentNullException(nameof(mediator));
             if (mapper == null)
                 throw new ArgumentNullException(nameof(mapper));
+            if (eventsApi == null)
+                throw new ArgumentNullException(nameof(eventsApi));
+            if (commitmentRepository== null)
+                throw new ArgumentNullException(nameof(commitmentRepository));
 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _mediator = mediator;
             _mapper = mapper;
+            _eventsApi = eventsApi;
+            _commitmentRepository = commitmentRepository;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipUpdateCommand command)
@@ -61,8 +74,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
             {
-                _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
-                await _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate.Id, command.UserId, apprenticeship, command.Caller);
+                var updatedApprenticeship = _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
+                await _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate.Id, command.UserId, updatedApprenticeship, command.Caller);
+
+                await CreateEvents(apprenticeship, updatedApprenticeship, pendingUpdate);
             }
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
@@ -74,6 +89,22 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             {
                 await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
             }
+        }
+
+        private async Task CreateEvents(Apprenticeship apprenticeship, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
+        {
+            var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
+            DateTime? changeEffective = pendingUpdate.CreatedOn;
+            if (updatedApprenticeship.StartDate > pendingUpdate.CreatedOn) // Was waiting to start when created
+            {
+                changeEffective = updatedApprenticeship.StartDate;
+            }
+
+            apprenticeship.EndDate = changeEffective?.AddDays(-1);
+            updatedApprenticeship.StartDate = changeEffective;
+
+            await _eventsApi.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED");
+            await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
         }
 
         private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)

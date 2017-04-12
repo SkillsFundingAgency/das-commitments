@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -21,6 +22,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@StartDate", apprenticeshipUpdate.StartDate);
             parameters.Add("@EndDate", apprenticeshipUpdate.EndDate);
             parameters.Add("@DateOfBirth", apprenticeshipUpdate.DateOfBirth);
+            parameters.Add("@CreatedOn", DateTime.UtcNow);
 
             return await connection.ExecuteAsync(
                     sql: $"[dbo].[CreateApprenticeshipUpdate]",
