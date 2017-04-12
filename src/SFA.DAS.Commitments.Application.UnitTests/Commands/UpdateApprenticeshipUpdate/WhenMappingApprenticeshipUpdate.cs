@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     EmployerRef = "Employer ref",
 
                     CommitmentId = 11,
-                    PaymentStatus = PaymentStatus.Cancelled,
+                    PaymentStatus = PaymentStatus.Withdrawn,
                     AgreementStatus = AgreementStatus.ProviderAgreed,
                     CreatedOn = new DateTime(2006, 1, 1),
                     AgreedOn = new DateTime(2006, 5, 5),
@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.EmployerRef.Should().Be("Employer ref");
 
             _apprenticeship.CommitmentId.Should().Be(11);
-            _apprenticeship.PaymentStatus.Should().Be(PaymentStatus.Cancelled);
+            _apprenticeship.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
             _apprenticeship.AgreementStatus.Should().Be(AgreementStatus.ProviderAgreed);
             _apprenticeship.CreatedOn.Should().Be(new DateTime(2006, 1, 1));
             _apprenticeship.AgreedOn.Should().Be(new DateTime(2006, 5, 5));

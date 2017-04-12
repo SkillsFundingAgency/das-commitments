@@ -61,6 +61,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             await BulkPublishEvent(eventsToPublish);
         }
 
+        public async Task PublishChangeApprenticeshipStatusEvent(Commitment commitment, Apprenticeship apprenticeship, Domain.Entities.PaymentStatus paymentStatus)
+        {
+            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", (PaymentStatus)paymentStatus);
+
+            _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
+
+            await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
+        }
+
         private async Task BulkPublishEvent(List<ApprenticeshipEvent> eventsToPublish)
         {
             if (eventsToPublish.Count > 0)

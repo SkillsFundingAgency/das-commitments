@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
 
         [TestCase(PaymentStatus.Active)]
         [TestCase(PaymentStatus.PendingApproval)]
-        [TestCase(PaymentStatus.Cancelled)]
+        [TestCase(PaymentStatus.Withdrawn)]
         [TestCase(PaymentStatus.Completed)]
         [TestCase(PaymentStatus.Deleted)]
         [TestCase(PaymentStatus.Paused)]
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
 
         [TestCase(PaymentStatus.Active)]
         [TestCase(PaymentStatus.PendingApproval)]
-        [TestCase(PaymentStatus.Cancelled)]
+        [TestCase(PaymentStatus.Withdrawn)]
         [TestCase(PaymentStatus.Completed)]
         [TestCase(PaymentStatus.Deleted)]
         [TestCase(PaymentStatus.Paused)]
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             Assert.AreEqual(PaymentStatus.PendingApproval, _rules.DetermineNewPaymentStatus(currentPaymentStatus, AgreementStatus.NotAgreed));
         }
 
-        [TestCase(PaymentStatus.Cancelled)]
+        [TestCase(PaymentStatus.Withdrawn)]
         [TestCase(PaymentStatus.Completed)]
         [TestCase(PaymentStatus.Deleted)]
         public void ThenShouldErrorIfTryingToSetPaymentStatusOnAClosedApprenticeship(PaymentStatus paymentStatus)
