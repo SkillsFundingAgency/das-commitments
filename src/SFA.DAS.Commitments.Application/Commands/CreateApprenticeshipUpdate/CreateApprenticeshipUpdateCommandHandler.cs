@@ -57,9 +57,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
-         
-            if(apprenticeship.StartDate < new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
-                throw new ValidationException("Unable to create an update for an apprenticeship that is already started");
+
+            if (!ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate))
+                throw new ValidationException("Unable to create an update for an apprenticeship that is already started ");
 
             CheckAuthorisation(command, apprenticeship);
             await CheckOverlappingApprenticeships(command, apprenticeship);
@@ -68,6 +68,29 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             var pendingUpdate = MapToPendingApprenticeshipUpdate(command.ApprenticeshipUpdate);
 
             await _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate);
+        }
+
+        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate apprenticeshipUpdate)
+        {
+            var started = apprenticeship.StartDate.HasValue && apprenticeship.StartDate.Value <=
+                                      new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+            if (!started)
+                return true;
+
+            var isValid = 
+                apprenticeshipUpdate.ULN == null
+                && apprenticeshipUpdate.StartDate == null
+                && apprenticeshipUpdate.EndDate == null
+                && apprenticeshipUpdate.TrainingCode == null;
+
+            if (!isValid)
+            {
+                _logger.Warn($"Trying to update a started apprenticeship with values; ULN {apprenticeshipUpdate.ULN}, StartDate: {apprenticeshipUpdate.StartDate}, EndDate: {apprenticeshipUpdate.EndDate}, TrainingCode: {apprenticeshipUpdate.TrainingCode}");
+                return false;
+            }
+
+            return true;
         }
 
         private Apprenticeship MapToImmediateApprenticeshipUpdate(CreateApprenticeshipUpdateCommand command)

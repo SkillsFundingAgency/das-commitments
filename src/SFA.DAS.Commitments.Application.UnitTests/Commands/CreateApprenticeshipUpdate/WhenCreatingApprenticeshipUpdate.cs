@@ -148,6 +148,34 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
+        public async Task ThenTheRepositoryIsCalledToCreateRecordWhenStarted()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+            };
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    ULN = "123",
+                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                    Id = 3
+                });
+
+            //Act
+            await _handler.Handle(command);
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()), Times.Once);
+        }
+
+        [Test]
         public void ThenIfTheApprenticeshipAlreadyHasAPendingUpdateThenAnExceptionIsThrown()
         {
             //Arrange
@@ -200,7 +228,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 Caller = new Caller(2, CallerType.Provider),
                 ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
                 {
-                    ULN = "123"
                 }
             };
 
@@ -211,7 +238,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _apprenticeshipUpdateRepository.Verify(x => x.CreateApprenticeshipUpdate(
                 It.Is<ApprenticeshipUpdate>(y => y == null),
                 It.Is<Apprenticeship>(y => y != null)),
-                Times.Once);
+                Times.Never);
         }
 
         [Test]
@@ -235,7 +262,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenIfTheStartDateIsLastMonth_ValidationFailureExceptionIsThrown()
+        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUlnHasChanged()
         {
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship
@@ -254,7 +281,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                       new Api.Types.Apprenticeship.ApprenticeshipUpdate
                                           {
                                               Id = 5,
-                                              ApprenticeshipId = 42
+                                              ApprenticeshipId = 42,
+                                              ULN = "1112223301"
                                           }
                               };
 
@@ -264,7 +292,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenIfTheStartDateWasLastDayOfPrevMonth_ValidationFailureExceptionIsThrown()
+        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUpdated_StartDate()
         {
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship
@@ -283,9 +311,70 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                       new Api.Types.Apprenticeship.ApprenticeshipUpdate
                                           {
                                               Id = 5,
-                                              ApprenticeshipId = 42
+                                              ApprenticeshipId = 42,
+                                              StartDate = new DateTime(DateTime.Now.Year + 2, 5, 1)
                                           }
                               };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUpdatedEndDate()
+        {
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    ULN = " 123",
+                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                    Id = 3
+                });
+
+            var request = new CreateApprenticeshipUpdateCommand
+            {
+                ApprenticeshipUpdate =
+                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      {
+                                          Id = 5,
+                                          ApprenticeshipId = 42,
+                                          EndDate = new DateTime(DateTime.Now.Year + 2, 5, 1)
+                                      }
+            };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUpdated_TrainingCode()
+        {
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    ULN = " 123",
+                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                    Id = 3
+                });
+
+            var request = new CreateApprenticeshipUpdateCommand
+            {
+                ApprenticeshipUpdate =
+                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      {
+                                          Id = 5,
+                                          ApprenticeshipId = 42,
+                                          TrainingCode = "abc-123"
+                                      }
+            };
 
             //Act && Assert
             Func<Task> act = async () => await _handler.Handle(request);
