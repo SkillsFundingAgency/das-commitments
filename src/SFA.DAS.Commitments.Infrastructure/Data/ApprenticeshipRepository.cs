@@ -128,7 +128,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime dateOfChange, CallerType callerType, string userId)
         {
-            if (paymentStatus != PaymentStatus.Paused || paymentStatus != PaymentStatus.Active)
+            if (!(paymentStatus == PaymentStatus.Paused || paymentStatus == PaymentStatus.Active))
                 throw new ArgumentException("PaymentStatus should be Paused or Active", nameof(paymentStatus));
 
             _logger.Debug($"Updating apprenticeship status to {paymentStatus} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
