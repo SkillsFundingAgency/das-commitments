@@ -98,7 +98,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 PaymentOrder = apprenticeship.PaymentOrder,
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
-                LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString()
+                LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
+                DateOfBirth = apprenticeship.DateOfBirth
             };
         }
     }
