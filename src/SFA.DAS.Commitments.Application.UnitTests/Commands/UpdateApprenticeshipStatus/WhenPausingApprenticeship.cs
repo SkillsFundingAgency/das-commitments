@@ -15,7 +15,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenPausingApprenticeship
     {
-        // TODO: LWA - Complete tests
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private Mock<ICurrentDateTime> _mockCurrentDateTime;
@@ -80,19 +79,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<string>(a => a == _exampleValidRequest.UserId)));
         }
 
-        //[Test]
-        //public async Task ThenShouldSendAnApprenticeshipEvent()
-        //{
-        //    _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
-        //    {
-        //        Id = 123L,
-        //        EmployerAccountId = _exampleValidRequest.AccountId
-        //    });
+        [Test]
+        public async Task ThenShouldSendAnApprenticeshipEvent()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = _exampleValidRequest.AccountId
+            });
 
-        //    await _handler.Handle(_exampleValidRequest);
+            await _handler.Handle(_exampleValidRequest);
 
-        //    _mockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<PaymentStatus>()));
-        //}
+            _mockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(
+                It.IsAny<Commitment>(), 
+                It.IsAny<Apprenticeship>(), 
+                It.Is<PaymentStatus>(a => a == PaymentStatus.Paused), 
+                null, 
+                It.Is<DateTime?>(a => a.Equals(_exampleValidRequest.DateOfChange))));
+        }
 
         [TestCase(PaymentStatus.Withdrawn)]
         [TestCase(PaymentStatus.Completed)]
