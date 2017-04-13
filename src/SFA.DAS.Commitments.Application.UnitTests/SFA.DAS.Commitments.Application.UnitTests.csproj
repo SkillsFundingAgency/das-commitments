@@ -115,6 +115,8 @@
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingGivenName.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingFamilyName.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingUln.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\WhenResumingApprenticeship.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\WhenPausingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenStoppingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipUpdate\WhenMappingApprenticeshipUpdate.cs" />

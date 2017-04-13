@@ -50,14 +50,32 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             var newPaymentStatus = (PaymentStatus)command.PaymentStatus.GetValueOrDefault((Api.Types.Apprenticeship.Types.PaymentStatus)apprenticeship.PaymentStatus);
 
-            ValidateDateOfChange(command.PaymentStatus, command.DateOfChange, apprenticeship);
+            ValidateDateOfChange(command.PaymentStatus.Value, command.DateOfChange, apprenticeship);
 
             await SaveChange(command, commitment, newPaymentStatus);
 
             await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus);
         }
 
-        private void ValidateDateOfChange(Api.Types.Apprenticeship.Types.PaymentStatus? paymentStatus, DateTime dateOfChange, Apprenticeship apprenticeship)
+        private void ValidateDateOfChange(Api.Types.Apprenticeship.Types.PaymentStatus paymentStatus, DateTime dateOfChange, Apprenticeship apprenticeship)
+        {
+            switch (paymentStatus)
+            {
+                case Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn:
+                    ValidateChangeDateForStop(dateOfChange, apprenticeship);
+                    break;
+                case Api.Types.Apprenticeship.Types.PaymentStatus.Active:
+                case Api.Types.Apprenticeship.Types.PaymentStatus.Paused:
+                    ValidateChangeDateForPauseResume(dateOfChange);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(paymentStatus), "Not a valid value for change of status");
+            }
+
+            return;
+        }
+
+        private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {
             if (apprenticeship.IsWaitingToStart(_currentDate))
             {
@@ -72,8 +90,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
             }
+        }
 
-            return;
+        private void ValidateChangeDateForPauseResume(DateTime dateOfChange)
+        {
+            if (dateOfChange.Date > _currentDate.Now.Date)
+                throw new ValidationException("Invalid Date of Change. Date should be todays date.");
         }
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, PaymentStatus newPaymentStatus)

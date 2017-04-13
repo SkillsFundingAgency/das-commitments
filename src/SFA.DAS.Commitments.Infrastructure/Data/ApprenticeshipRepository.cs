@@ -126,6 +126,37 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime dateOfChange, CallerType callerType, string userId)
+        {
+            if (paymentStatus != PaymentStatus.Paused || paymentStatus != PaymentStatus.Active)
+                throw new ArgumentException("PaymentStatus should be Paused or Active", nameof(paymentStatus));
+
+            _logger.Debug($"Updating apprenticeship status to {paymentStatus} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+
+            await WithTransaction(async (conn, tran) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+                parameters.Add("@paymentStatus", paymentStatus, DbType.Int16);
+
+                var returnCode = await conn.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
+                    "WHERE Id = @id;",
+                    transaction: tran,
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                await _historyTransactions.UpdateApprenticeshipStatus(conn, tran, paymentStatus,
+                    new ApprenticeshipHistoryItem
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        UpdatedByRole = callerType,
+                        UserId = userId
+                    });
+            });
+        }
+
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
