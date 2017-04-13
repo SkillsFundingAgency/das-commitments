@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.ProviderId == Commitment.ProviderId.ToString() &&
                    apprenticeshipEvent.TrainingEndDate == Apprenticeship.EndDate &&
                    apprenticeshipEvent.TrainingStartDate == Apprenticeship.StartDate &&
-                   apprenticeshipEvent.TrainingTotalCost == Apprenticeship.Cost &&
+                   apprenticeshipEvent.TrainingTotalCost == (Apprenticeship.Cost ?? -1) &&
                    apprenticeshipEvent.TrainingType == (Apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard) &&
                    apprenticeshipEvent.PaymentOrder == Apprenticeship.PaymentOrder &&
                    apprenticeshipEvent.LegalEntityId == Commitment.LegalEntityId &&

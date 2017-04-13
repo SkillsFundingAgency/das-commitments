@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 ProviderId = commitment.ProviderId != null ? commitment.ProviderId.ToString() : string.Empty,
                 TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
                 TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
-                TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
+                TrainingTotalCost = apprenticeship.Cost ?? -1,
                 TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard,
                 PaymentOrder = apprenticeship.PaymentOrder,
                 LegalEntityId = commitment.LegalEntityId,

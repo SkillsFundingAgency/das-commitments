@@ -41,7 +41,17 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
 
             VerifyEventWasPublished(_event);
         }
-        
+
+        [Test]
+        public async Task AndTheTotalTrainingCostIsNotProvidedThenTheEventIsPublishedWithADefaultValue()
+        {
+            Apprenticeship.Cost = null;
+
+            await Service.PublishEvent(Commitment, Apprenticeship, _event);
+
+            VerifyEventWasPublished(_event);
+        }
+
         private void VerifyEventWasPublished(string @event)
         {
             CommitmentsLogger.Verify(x => x.Info($"Create apprenticeship event: {@event}", null, null, Commitment.Id, Apprenticeship.Id), Times.Once);
