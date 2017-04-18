@@ -72,9 +72,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             await BulkPublishEvent(eventsToPublish);
         }
 
-        public async Task PublishChangeApprenticeshipStatusEvent(Commitment commitment, Apprenticeship apprenticeship, Domain.Entities.PaymentStatus paymentStatus)
+        public async Task PublishChangeApprenticeshipStatusEvent(Commitment commitment, Apprenticeship apprenticeship, Domain.Entities.PaymentStatus paymentStatus, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
             ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", (PaymentStatus)paymentStatus);
+            apprenticeshipEvent.EffectiveFrom = effectiveFrom;
+            apprenticeshipEvent.EffectiveTo = effectiveTo;
 
             _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
 
@@ -97,19 +99,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
                 ApprenticeshipId = apprenticeship.Id,
                 EmployerAccountId = commitment.EmployerAccountId.ToString(),
-                LearnerId = apprenticeship.ULN ?? "NULL",
-                TrainingId = apprenticeship.TrainingCode ?? string.Empty,
+                LearnerId = apprenticeship.ULN,
+                TrainingId = apprenticeship.TrainingCode,
                 Event = @event,
                 PaymentStatus = paymentStatus,
-                ProviderId = commitment.ProviderId != null ? commitment.ProviderId.ToString() : string.Empty,
-                TrainingEndDate = apprenticeship.EndDate ?? DateTime.MaxValue,
-                TrainingStartDate = apprenticeship.StartDate ?? DateTime.MaxValue,
-                TrainingTotalCost = apprenticeship.Cost ?? decimal.MinValue,
+                ProviderId = commitment.ProviderId?.ToString(),
+                TrainingEndDate = apprenticeship.EndDate,
+                TrainingStartDate = apprenticeship.StartDate,
+                TrainingTotalCost = apprenticeship.Cost,
                 TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard,
                 PaymentOrder = apprenticeship.PaymentOrder,
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
-                LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString()
+                LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
+                DateOfBirth = apprenticeship.DateOfBirth
             };
         }
     }

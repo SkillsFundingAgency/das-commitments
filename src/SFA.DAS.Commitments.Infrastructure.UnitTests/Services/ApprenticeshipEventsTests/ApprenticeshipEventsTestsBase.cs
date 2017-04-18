@@ -46,7 +46,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                 ULN = "ULN",
                 PaymentStatus = Domain.Entities.PaymentStatus.Active,
                 TrainingType = TrainingType.Framework,
-                PaymentOrder = 213
+                PaymentOrder = 213,
+                DateOfBirth = DateTime.Now.AddYears(-18)
             };
         }
 
@@ -67,7 +68,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.PaymentOrder == Apprenticeship.PaymentOrder &&
                    apprenticeshipEvent.LegalEntityId == Commitment.LegalEntityId &&
                    apprenticeshipEvent.LegalEntityName == Commitment.LegalEntityName &&
-                   apprenticeshipEvent.LegalEntityOrganisationType == Commitment.LegalEntityOrganisationType.ToString();
+                   apprenticeshipEvent.LegalEntityOrganisationType == Commitment.LegalEntityOrganisationType.ToString() &&
+                   apprenticeshipEvent.DateOfBirth == Apprenticeship.DateOfBirth;
         }
     }
 }
