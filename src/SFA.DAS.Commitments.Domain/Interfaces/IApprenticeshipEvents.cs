@@ -12,6 +12,6 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
 
         Task PublishDeletionEvent(Commitment commitment, Apprenticeship apprenticeship, string @event);
         Task BulkPublishDeletionEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event);
-        Task PublishChangeApprenticeshipStatusEvent(Commitment commitment, Apprenticeship apprenticeship, PaymentStatus paymentStatus);
+        Task PublishChangeApprenticeshipStatusEvent(Commitment commitment, Apprenticeship apprenticeship, PaymentStatus paymentStatus, DateTime? effectiveFrom = null, DateTime? effectiveTo = null);
     }
 }

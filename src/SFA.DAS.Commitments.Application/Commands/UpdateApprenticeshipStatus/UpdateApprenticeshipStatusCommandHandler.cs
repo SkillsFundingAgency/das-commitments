@@ -50,14 +50,38 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             var newPaymentStatus = (PaymentStatus)command.PaymentStatus.GetValueOrDefault((Api.Types.Apprenticeship.Types.PaymentStatus)apprenticeship.PaymentStatus);
 
-            ValidateDateOfChange(command.PaymentStatus, command.DateOfChange, apprenticeship);
+            await SaveChange(command, commitment, apprenticeship, newPaymentStatus);
 
-            await SaveChange(command, commitment, newPaymentStatus);
-
-            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus);
+            await CreateEvent(command, apprenticeship, commitment, newPaymentStatus);
         }
 
-        private void ValidateDateOfChange(Api.Types.Apprenticeship.Types.PaymentStatus? paymentStatus, DateTime dateOfChange, Apprenticeship apprenticeship)
+        private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
+        {
+            if (newPaymentStatus == PaymentStatus.Withdrawn || newPaymentStatus == PaymentStatus.Paused)
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveTo: command.DateOfChange.Date);
+            else
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
+        }
+
+        private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
+        {
+            switch (newPaymentStatus)
+            {
+                case PaymentStatus.Active:
+                case PaymentStatus.Paused:
+                    ValidateChangeDateForPauseResume(command.DateOfChange);
+                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, command.DateOfChange, CallerType.Employer, command.UserId);
+                    break;
+                case PaymentStatus.Withdrawn:
+                    ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
+                    await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange, CallerType.Employer, command.UserId);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(newPaymentStatus), "Not a valid value for change of status");
+            }
+        }
+
+        private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {
             if (apprenticeship.IsWaitingToStart(_currentDate))
             {
@@ -72,21 +96,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
             }
-
-            return;
         }
 
-        private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, PaymentStatus newPaymentStatus)
+        private void ValidateChangeDateForPauseResume(DateTime dateOfChange)
         {
-            if (newPaymentStatus == PaymentStatus.Withdrawn)
-            {
-                // Currently only called by Employer
-                await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange, CallerType.Employer, command.UserId);
-
-                return;
-            }
-
-            throw new NotImplementedException();
+            if (dateOfChange.Date > _currentDate.Now.Date)
+                throw new ValidationException("Invalid Date of Change. Date should be todays date.");
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
