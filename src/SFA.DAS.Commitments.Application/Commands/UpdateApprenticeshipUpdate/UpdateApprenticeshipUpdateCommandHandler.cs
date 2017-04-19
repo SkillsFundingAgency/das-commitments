@@ -99,8 +99,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             {
                 changeEffective = updatedApprenticeship.StartDate;
             }
-            //apprenticeship.EndDate = changeEffective?.AddDays(-1);
-            //updatedApprenticeship.StartDate = changeEffective;
 
             await _eventsApi.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", null, changeEffective?.AddDays(-1));
             await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", changeEffective, null);
