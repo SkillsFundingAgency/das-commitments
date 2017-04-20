@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
 
             await _handler.Handle(command);
 
-            _apprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED"), Times.Once);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", null), Times.Once);
         }
     }
 }
