@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -91,7 +92,36 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             var latestAction = (LastAction) command.LatestAction;
 
-            // update apprenticeship agreement statuses
+            await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
+
+            var updatedCommitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+
+            await UpdateCommitmentStatuses(command, updatedCommitment, areAnyApprenticeshipsPendingAgreement, latestAction);
+
+            // recalculate payment order for all the employer account's apprenticeships if necessary
+            await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
+        }
+
+        private async Task UpdateCommitmentStatuses(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment, bool areAnyApprenticeshipsPendingAgreement, LastAction latestAction)
+        {
+            var newEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
+                updatedCommitment.Apprenticeships.Count, latestAction);
+            var newCommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+
+            var lastUpdateAction = new LastUpdateAction
+            {
+                LastUpdaterName = command.LastUpdatedByName,
+                LastUpdaterEmail = command.LastUpdatedByEmail,
+                Caller = command.Caller,
+                LastAction = latestAction,
+                UserId = command.UserId
+            };
+            await _commitmentRepository.UpdateCommitment(command.CommitmentId, newCommitmentStatus, newEditStatus, lastUpdateAction);
+        }
+
+        private async Task UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
+        {
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
                 var hasChanged = false;
@@ -114,30 +144,65 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
                 if (hasChanged)
                 {
-                    var updatedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeship.Id);
-                    await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
+                    await PublishApprenticeshipUpdatedEvent(commitment, apprenticeship, newApprenticeshipAgreementStatus);
                 }
             }
+        }
 
-            var updatedCommitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
-            var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+        private async Task PublishApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, AgreementStatus newApprenticeshipAgreementStatus)
+        {
+            var updatedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeship.Id);
+            var effectiveFromDate = await DetermineEffectiveFromDate(newApprenticeshipAgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
+            await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
+        }
 
-            // update commitment statuses
-            var newEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement, updatedCommitment.Apprenticeships.Count, latestAction);
-            var newCommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+        private async Task<DateTime?> DetermineEffectiveFromDate(AgreementStatus agreementStatus, string uln, DateTime? startDate)
+        {
+            if (agreementStatus != AgreementStatus.BothAgreed)
+            {
+                return null;
+            }
 
-            var lastUpdateAction = new LastUpdateAction
-                         {
-                             LastUpdaterName = command.LastUpdatedByName,
-                             LastUpdaterEmail = command.LastUpdatedByEmail,
-                             Caller = command.Caller,
-                             LastAction = latestAction,
-                             UserId = command.UserId
-                         };
-            await _commitmentRepository.UpdateCommitment(command.CommitmentId, newCommitmentStatus, newEditStatus, lastUpdateAction);
+            var previousApprenticeshipStoppedDate = await GetPreviousApprenticeshipStoppedDate(uln, startDate);
+            if (HasPreviousApprenticeshipStoppedInTheSameMonth(previousApprenticeshipStoppedDate, startDate))
+            {
+                return previousApprenticeshipStoppedDate.Value.AddDays(1);
+            }
+            
+            return new DateTime(startDate.Value.Year, startDate.Value.Month, 1);
+        }
 
-            // recalculate payment order for all the employer account's apprenticeships if necessary
-            await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
+        private bool HasPreviousApprenticeshipStoppedInTheSameMonth(DateTime? previousApprenticeshipStoppedDate, DateTime? startDate)
+        {
+            if (!previousApprenticeshipStoppedDate.HasValue)
+            {
+                return false;
+            }
+
+            if (previousApprenticeshipStoppedDate.Value.Year != startDate.Value.Year || previousApprenticeshipStoppedDate.Value.Month != startDate.Value.Month)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<DateTime?> GetPreviousApprenticeshipStoppedDate(string uln, DateTime? startDate)
+        {
+            var previousApprenticeships = await GetPreviousApprenticeships(uln, startDate.Value);
+            if (!previousApprenticeships.Any())
+            {
+                return null;
+            }
+
+            var latestApprenticeship = previousApprenticeships.OrderByDescending(x => x.StartDate).First();
+            return latestApprenticeship.StopDate;
+        }
+
+        private async Task<IEnumerable<ApprenticeshipResult>> GetPreviousApprenticeships(string uln, DateTime startDate)
+        {
+            var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(new[] { uln });
+            return apprenticeships.Where(x => x.StartDate < startDate);
         }
 
         private void LogMessage(UpdateCommitmentAgreementCommand command)

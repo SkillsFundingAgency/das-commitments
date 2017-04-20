@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -31,16 +32,27 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
 
             VerifyEventWasPublished(_event);
         }
-        
-        private void VerifyEventWasPublished(string @event)
+
+        [Test]
+        public async Task AndTheEffectiveFromDateIsProvidedThenTheEventIsPublishedWithTheCorrectEffectiveFromDate()
         {
-            CommitmentsLogger.Verify(x => x.Info($"Create apprenticeship event: {@event}", null, null, Commitment.Id, Apprenticeship.Id), Times.Once);
-            EventsApi.Verify(x => x.CreateApprenticeshipEvent(It.Is<ApprenticeshipEvent>(y => EventMatchesParameters(y, @event))), Times.Once);
+            Apprenticeship.TrainingType = TrainingType.Standard;
+            var effectiveFrom = DateTime.Now.AddDays(-1);
+
+            await Service.PublishEvent(Commitment, Apprenticeship, _event, effectiveFrom);
+
+            VerifyEventWasPublished(_event, effectiveFrom);
         }
 
-        private bool EventMatchesParameters(ApprenticeshipEvent apprenticeshipEvent, string @event)
+        private void VerifyEventWasPublished(string @event, DateTime? effectiveFrom = null)
         {
-            return EventMatchesParameters(apprenticeshipEvent, @event, (PaymentStatus)Apprenticeship.PaymentStatus);
+            CommitmentsLogger.Verify(x => x.Info($"Create apprenticeship event: {@event}", null, null, Commitment.Id, Apprenticeship.Id), Times.Once);
+            EventsApi.Verify(x => x.CreateApprenticeshipEvent(It.Is<ApprenticeshipEvent>(y => EventMatchesParameters(y, @event, effectiveFrom))), Times.Once);
+        }
+
+        private bool EventMatchesParameters(ApprenticeshipEvent apprenticeshipEvent, string @event, DateTime? effectiveFrom)
+        {
+            return EventMatchesParameters(apprenticeshipEvent, @event, (PaymentStatus)Apprenticeship.PaymentStatus) && apprenticeshipEvent.EffectiveFrom == effectiveFrom;
         }
     }
 }
