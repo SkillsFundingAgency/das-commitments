@@ -35,6 +35,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
         private DateTime _apprenticeshipStartDate;
 
+        private DateTime _updateCreadtedOn;
+
         [SetUp]
         public void SetUp()
         {
@@ -45,6 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _commitment = new Mock<ICommitmentRepository>();
 
+            _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _validator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
 
@@ -66,7 +69,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>() });
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42 });
+                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn});
 
             _sut = new UpdateApprenticeshipUpdateCommandHandler(
                 _validator.Object,
@@ -145,7 +148,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _repository.Verify(m => m.ApproveApprenticeshipUpdate(42, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
             _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Never);
             _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Never);
-            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>()), Times.Exactly(2));
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>()), Times.Never);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Once);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), _apprenticeshipStartDate, null), Times.Once);
         }
 
         [Test]
@@ -296,19 +301,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(), 
                 It.Is<Apprenticeship>(m => 
-                       m.StartDate == _apprenticeshipStartDate // Keep old start date
-                    && m.EndDate == createdOn.AddDays(-1) // Set end date to day before updated was requested
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Original first name"), 
-                It.IsAny<string>()), Times.Once);
+                It.IsAny<string>(), null, createdOn.AddDays(-1)), Times.Once);
 
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
                 It.Is<Apprenticeship>(m => 
-                       m.StartDate == createdOn // Start date to when update was created
-                    && m.EndDate == _apprenticeshipStartDate.AddYears(2) // Keep end date
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Updated first name" ),
-                It.IsAny<string>()), Times.Exactly(1));
+                It.IsAny<string>(), createdOn, null), Times.Exactly(1));
         }
 
         [Test]
@@ -341,19 +346,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
                 It.Is<Apprenticeship>(m =>
-                       m.StartDate == _apprenticeshipStartDate // Keep the old start date
-                    && m.EndDate == _apprenticeshipStartDate.AddDays(-1) // Start date - 1 is new end date
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Original first name"),
-                It.IsAny<string>()), Times.Once);
+                It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Once);
 
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
                 It.Is<Apprenticeship>(m =>
-                       m.StartDate == _apprenticeshipStartDate // Keep old start date
-                    && m.EndDate == _apprenticeshipStartDate.AddYears(2) // Keep old end date 
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Updated first name"),
-                It.IsAny<string>()), Times.Exactly(1));
+                It.IsAny<string>(), _apprenticeshipStartDate, null), Times.Once);
         }
 
         [Test]
@@ -394,10 +399,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
                 It.Is<Apprenticeship>(m =>
-                       m.StartDate == _apprenticeshipStartDate // Keep the old start date
-                    && m.EndDate == newStartDate.AddDays(-1) // Start date - 1 is new end date
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Original first name"),
-                It.IsAny<string>()), Times.Once);
+                It.IsAny<string>(), null, newStartDate.AddDays(-1)), Times.Once);
 
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
@@ -406,7 +411,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                        m.StartDate == newStartDate // Keep old start date
                     && m.EndDate == newEndDate // Set new end date from update reqest
                     && m.FirstName == "Updated first name"),
-                It.IsAny<string>()), Times.Exactly(1));
+                It.IsAny<string>(), newStartDate, null), Times.Exactly(1));
         }
 
         /*
