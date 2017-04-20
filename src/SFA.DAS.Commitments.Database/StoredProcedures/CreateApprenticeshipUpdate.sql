@@ -10,7 +10,8 @@
 		@Cost DECIMAL NULL, 
 		@StartDate DATETIME NULL, 
 		@EndDate DATETIME NULL, 
-		@DateOfBirth DATETIME NULL
+		@DateOfBirth DATETIME NULL,
+		@CreatedOn DATETIME NULL
 )
 AS
 
@@ -26,7 +27,8 @@ AS
 		[Cost], 
 		[StartDate], 
 		[EndDate], 
-		[DateOfBirth]
+		[DateOfBirth],
+		[CreatedOn]
 	)
 	values
 	(
@@ -40,5 +42,6 @@ AS
 		@Cost, 
 		@StartDate, 
 		@EndDate, 
-		@DateOfBirth
+		@DateOfBirth,
+		@CreatedOn
 	)

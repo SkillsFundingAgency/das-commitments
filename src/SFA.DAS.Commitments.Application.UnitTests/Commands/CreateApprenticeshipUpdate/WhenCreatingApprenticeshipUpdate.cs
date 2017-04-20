@@ -18,7 +18,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshipUpdate
 {
-    [TestFixture()]
+    [TestFixture]
     public class WhenCreatingApprenticeshipUpdate
     {
         private Mock<CreateApprenticeshipUpdateValidator> _validator;

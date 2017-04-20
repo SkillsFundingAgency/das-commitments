@@ -12,5 +12,6 @@
     [Cost] DECIMAL NULL, 
     [StartDate] DATETIME NULL, 
     [EndDate] DATETIME NULL, 
-    [DateOfBirth] DATETIME NULL
+    [DateOfBirth] DATETIME NULL,
+	[CreatedOn] DATETIME NULL,
 )

@@ -1,7 +1,6 @@
 ﻿using System;
 
 using FluentAssertions;
-
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
@@ -49,7 +48,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             };
         }
 
-        private void EnsureNoChanges()
+        private void EnsureNoChanges(Apprenticeship updatedApprenticeship)
         {
             _apprenticeship.Id.Should().Be(55);
             _apprenticeship.EmployerAccountId.Should().Be(555);
@@ -67,30 +66,54 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.UpdateOriginator.Should().Be(Originator.Provider);
             _apprenticeship.ProviderName.Should().Be("Provider name");
             _apprenticeship.LegalEntityName.Should().Be("Legal entity name");
+
+            updatedApprenticeship.Id.Should().Be(55);
+            updatedApprenticeship.EmployerAccountId.Should().Be(555);
+            updatedApprenticeship.ProviderId.Should().Be(666);
+            updatedApprenticeship.ULN.Should().Be("1112223301");
+            updatedApprenticeship.ProviderRef.Should().Be("Provider ref");
+            updatedApprenticeship.EmployerRef.Should().Be("Employer ref");
+
+            updatedApprenticeship.CommitmentId.Should().Be(11);
+            updatedApprenticeship.PaymentStatus.Should().Be(PaymentStatus.Withdrawn);
+            updatedApprenticeship.AgreementStatus.Should().Be(AgreementStatus.ProviderAgreed);
+            updatedApprenticeship.CreatedOn.Should().Be(new DateTime(2006, 1, 1));
+            updatedApprenticeship.AgreedOn.Should().Be(new DateTime(2006, 5, 5));
+            updatedApprenticeship.PaymentOrder.Should().Be(666);
+            updatedApprenticeship.UpdateOriginator.Should().Be(Originator.Provider);
+            updatedApprenticeship.ProviderName.Should().Be("Provider name");
+            updatedApprenticeship.LegalEntityName.Should().Be("Legal entity name");
         }
 
         [Test]
         public void EmptyUpdate()
         {
             var update = new ApprenticeshipUpdate();
-            _sut.ApplyUpdate(_apprenticeship, update);
+            var updatedApprenticeship =  _sut.ApplyUpdate(_apprenticeship, update);
 
             _apprenticeship.FirstName.Should().Be("Original First name");
             _apprenticeship.LastName.Should().Be("Original Last name");
             _apprenticeship.DateOfBirth.Should().Be(new DateTime(1998, 12, 8));
-            EnsureNoChanges();
+
+            updatedApprenticeship.FirstName.Should().Be("Original First name");
+            updatedApprenticeship.LastName.Should().Be("Original Last name");
+            updatedApprenticeship.DateOfBirth.Should().Be(new DateTime(1998, 12, 8));
+
+            EnsureNoChanges(updatedApprenticeship);
         }
 
         [Test]
         public void NameUpdate()
         {
             var update = new ApprenticeshipUpdate {FirstName = "New First name", LastName = "New Last name"};
-            _sut.ApplyUpdate(_apprenticeship, update);
+            var updatedApprenticeship  = _sut.ApplyUpdate(_apprenticeship, update);
 
-            _apprenticeship.FirstName.Should().Be("New First name");
-            _apprenticeship.LastName.Should().Be("New Last name");
+            updatedApprenticeship.FirstName.Should().Be("New First name");
+            updatedApprenticeship.LastName.Should().Be("New Last name");
+            _apprenticeship.FirstName.Should().Be("Original First name");
+            _apprenticeship.LastName.Should().Be("Original Last name");
             _apprenticeship.DateOfBirth.Should().Be(new DateTime(1998, 12, 8));
-            EnsureNoChanges();
+            EnsureNoChanges(updatedApprenticeship);
         }
 
         [Test]
@@ -111,22 +134,22 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 StartDate = startDate,
                 EndDate = endDate
             };
-            _sut.ApplyUpdate(_apprenticeship, update);
+            var updatedApprenticeship = _sut.ApplyUpdate(_apprenticeship, update);
 
-            _apprenticeship.FirstName.Should().Be("New First name");
-            _apprenticeship.LastName.Should().Be("New Last name");
-            _apprenticeship.DateOfBirth.Should().Be(dob);
+            updatedApprenticeship.FirstName.Should().Be("New First name");
+            updatedApprenticeship.LastName.Should().Be("New Last name");
+            updatedApprenticeship.DateOfBirth.Should().Be(dob);
 
-            _apprenticeship.TrainingType.Should().Be(TrainingType.Framework);
-            _apprenticeship.TrainingCode.Should().Be("training-code");
-            _apprenticeship.TrainingName.Should().Be("Training name");
+            updatedApprenticeship.TrainingType.Should().Be(TrainingType.Framework);
+            updatedApprenticeship.TrainingCode.Should().Be("training-code");
+            updatedApprenticeship.TrainingName.Should().Be("Training name");
 
-            _apprenticeship.StartDate.Should().Be(startDate);
-            _apprenticeship.EndDate.Should().Be(endDate);
+            updatedApprenticeship.StartDate.Should().Be(startDate);
+            updatedApprenticeship.EndDate.Should().Be(endDate);
 
-            _apprenticeship.Cost.Should().Be(1500);
+            updatedApprenticeship.Cost.Should().Be(1500);
 
-            EnsureNoChanges();
+            EnsureNoChanges(updatedApprenticeship);
         }
     }
 }

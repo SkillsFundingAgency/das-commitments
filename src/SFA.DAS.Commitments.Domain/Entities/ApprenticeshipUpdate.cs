@@ -16,6 +16,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTime? CreatedOn { get; set; }
 
         public bool HasChanges => !string.IsNullOrWhiteSpace(FirstName)
                                   || !string.IsNullOrWhiteSpace(LastName)

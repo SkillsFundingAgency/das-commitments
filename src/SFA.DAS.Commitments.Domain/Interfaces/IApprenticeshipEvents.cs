@@ -8,6 +8,7 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
     public interface IApprenticeshipEvents
     {
         Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event);
+        Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string v1, DateTime? effectiveFrom, DateTime? effectiveTo);
         Task BulkPublishEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event);
 
         Task PublishDeletionEvent(Commitment commitment, Apprenticeship apprenticeship, string @event);
