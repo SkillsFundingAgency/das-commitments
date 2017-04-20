@@ -7,7 +7,6 @@ using FluentValidation;
 using FluentValidation.Results;
 
 using MediatR;
-
 using Moq;
 using NUnit.Framework;
 
@@ -18,6 +17,7 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipUpdate
 {
@@ -29,8 +29,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<AbstractValidator<UpdateApprenticeshipUpdateCommand>> _validator;
         private Mock<IApprenticeshipUpdateRepository> _repository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
-
         private Mock<IMediator> _mediator;
+        private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
+        private Mock<ICommitmentRepository> _commitment;
+
+        private DateTime _apprenticeshipStartDate;
+
+        private DateTime _updateCreadtedOn;
 
         [SetUp]
         public void SetUp()
@@ -39,19 +44,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _repository = new Mock<IApprenticeshipUpdateRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mediator = new Mock<IMediator>();
+            _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
+            _commitment = new Mock<ICommitmentRepository>();
 
+            _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _validator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
 
+            _apprenticeshipStartDate = DateTime.Now.AddYears(2);
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(
                     new Apprenticeship
                     {
+                        FirstName = "Original first name",
                         EmployerAccountId = 555,
                         ProviderId = 666,
                         ULN = " 123",
-                        StartDate = new DateTime(2018, 5, 1),
-                        EndDate = new DateTime(2018, 9, 1),
+                        StartDate = _apprenticeshipStartDate,
+                        EndDate = _apprenticeshipStartDate.AddYears(2),
                         Id = 3
                     });
 
@@ -59,9 +69,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>() });
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42 });
+                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn});
 
-            _sut = new UpdateApprenticeshipUpdateCommandHandler(_validator.Object, _repository.Object, _apprenticeshipRepository.Object, _mediator.Object, new UpdateApprenticeshipUpdateMapper());
+            _sut = new UpdateApprenticeshipUpdateCommandHandler(
+                _validator.Object,
+                _repository.Object,
+                _apprenticeshipRepository.Object,
+                _mediator.Object,
+                new UpdateApprenticeshipUpdateMapper(),
+                _apprenticeshipEvents.Object,
+                _commitment.Object
+                );
         }
 
         [Test]
@@ -130,6 +148,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _repository.Verify(m => m.ApproveApprenticeshipUpdate(42, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
             _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Never);
             _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Never);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Once);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), _apprenticeshipStartDate, null), Times.Once);
         }
 
         [Test]
@@ -150,6 +171,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _repository.Verify(m => m.ApproveApprenticeshipUpdate(42, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
             _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Once);
             _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Never);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
         }
 
         [Test]
@@ -170,6 +192,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _repository.Verify(m => m.ApproveApprenticeshipUpdate(42, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
             _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Never);
             _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Once);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
         }
 
         [Test]
@@ -205,6 +228,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             //Arrange
             _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Never);
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
         }
 
         [Test]
@@ -249,5 +273,164 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             Func<Task> act = async () => await _sut.Handle(command);
             act.ShouldThrow<ValidationException>().WithMessage("Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
         }
+
+        // ---------------------------------------------------
+
+        [Test]
+        public async Task ThenCallEventsWhen_Started()
+        {
+            var createdOn = _apprenticeshipStartDate.AddMonths(2);
+
+            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(new ApprenticeshipUpdate {
+                    ApprenticeshipId = 5,
+                    Id = 42,
+                    FirstName = "Updated first name",
+                    CreatedOn =  createdOn});
+
+            await _sut.Handle(
+                new UpdateApprenticeshipUpdateCommand
+                {
+                    ApprenticeshipId = 5L,
+                    UpdateStatus = ApprenticeshipUpdateStatus.Approved,
+                    UserId = "user123",
+                    Caller = new Caller(555, CallerType.Employer)
+                });
+
+            // Old apprenticeship
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(
+                It.IsAny<Commitment>(), 
+                It.Is<Apprenticeship>(m => 
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
+                    && m.FirstName == "Original first name"), 
+                It.IsAny<string>(), null, createdOn.AddDays(-1)), Times.Once);
+
+            // New apprenticeship
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(
+                It.IsAny<Commitment>(),
+                It.Is<Apprenticeship>(m => 
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
+                    && m.FirstName == "Updated first name" ),
+                It.IsAny<string>(), createdOn, null), Times.Exactly(1));
+        }
+
+        [Test]
+        public async Task ThenCallEventsWhen_WaitingToStart()
+        {
+            var createdOn = _apprenticeshipStartDate.AddMonths(-2);
+
+            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(new ApprenticeshipUpdate
+                {
+                    ApprenticeshipId = 5,
+                    Id = 42,
+                    FirstName = "Updated first name",
+                    CreatedOn = createdOn
+                });
+
+            await _sut.Handle(
+                new UpdateApprenticeshipUpdateCommand
+                {
+                    ApprenticeshipId = 5L,
+                    UpdateStatus = ApprenticeshipUpdateStatus.Approved,
+                    UserId = "user123",
+                    Caller = new Caller(555, CallerType.Employer)
+                });
+
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.IsAny<long>(), It.IsAny<string>(), 
+                It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
+
+            // Old apprenticeship
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(
+                It.IsAny<Commitment>(),
+                It.Is<Apprenticeship>(m =>
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
+                    && m.FirstName == "Original first name"),
+                It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Once);
+
+            // New apprenticeship
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(
+                It.IsAny<Commitment>(),
+                It.Is<Apprenticeship>(m =>
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
+                    && m.FirstName == "Updated first name"),
+                It.IsAny<string>(), _apprenticeshipStartDate, null), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenCallEventsWhen_WaitingToStart_AndStartEndDateUpdated()
+        {
+            var createdOn = _apprenticeshipStartDate.AddMonths(-2);
+            var newStartDate = _apprenticeshipStartDate.AddDays(5);
+            var newEndDate = _apprenticeshipStartDate.AddDays(10);
+            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(new ApprenticeshipUpdate
+                {
+                    ApprenticeshipId = 5,
+                    Id = 42,
+                    FirstName = "Updated first name",
+                    CreatedOn = createdOn,
+                    StartDate = newStartDate,
+                    EndDate = newEndDate
+                });
+
+            await _sut.Handle(
+                new UpdateApprenticeshipUpdateCommand
+                {
+                    ApprenticeshipId = 5L,
+                    UpdateStatus = ApprenticeshipUpdateStatus.Approved,
+                    UserId = "user123",
+                    Caller = new Caller(555, CallerType.Employer)
+                });
+
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.IsAny<long>(), It.IsAny<string>(),
+                It.Is<Apprenticeship>(p =>
+                       p.StartDate == newStartDate
+                    && p.EndDate == newEndDate
+                    && p.FirstName == "Updated first name"
+                    ),
+                It.IsAny<Caller>()), Times.Once);
+
+            // Old apprenticeship
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(
+                It.IsAny<Commitment>(),
+                It.Is<Apprenticeship>(m =>
+                       m.StartDate == _apprenticeshipStartDate
+                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
+                    && m.FirstName == "Original first name"),
+                It.IsAny<string>(), null, newStartDate.AddDays(-1)), Times.Once);
+
+            // New apprenticeship
+            _apprenticeshipEvents.Verify(x => x.PublishEvent(
+                It.IsAny<Commitment>(),
+                It.Is<Apprenticeship>(m =>
+                       m.StartDate == newStartDate // Keep old start date
+                    && m.EndDate == newEndDate // Set new end date from update reqest
+                    && m.FirstName == "Updated first name"),
+                It.IsAny<string>(), newStartDate, null), Times.Exactly(1));
+        }
+
+        /*
+         * 
+         * 
+            When confirming a change to an approved apprenticeship
+            When the change was requested:
+            if the apprenticeship was "waiting to start" then the change effective date is the start date of the apprenticeship
+
+            if the apprenticeship was "live" then the change effective date is the date that the change was requested
+            
+        The following occurs when a change of circumstances is approved:
+
+            using the "old" apprenticeship data, an event is emitted with the effective to date set to the change effective date minus 1 day
+            apprenticeship data is updated with the requested field changes applied
+            using the "new" apprenticeship data, an event is emitted with the effective from date set to the change effective date
+            (info) Note: a future iteration will capture a change effective date from the user which represents when the change of circumstances should be applied from - this will clearly identify the user's intent
+            When stopping an apprenticeship
+
+         */
     }
 }

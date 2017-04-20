@@ -21,9 +21,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null)
+        public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
-            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus, effectiveFrom);
+            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus, effectiveFrom, effectiveTo);
 
             _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
             await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
