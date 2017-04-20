@@ -24,5 +24,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public DateTime? DateOfBirth { get; set; }
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }
+        public DateTime? StopDate { get; set; }
     }
 }
