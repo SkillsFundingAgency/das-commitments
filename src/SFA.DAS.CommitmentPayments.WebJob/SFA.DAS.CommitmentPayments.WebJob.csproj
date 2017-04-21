@@ -118,7 +118,13 @@
     <Compile Include="Updater\IDataLockUpdater.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="App.config" />
+    <None Include="App.Debug.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Release.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -146,9 +152,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <!--<UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v12.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
+  <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v14.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
   <Target Name="AfterBuild">
     <TransformXml Source="app.config" Transform="app.$(Configuration).config" Destination="$(OutputPath)\$(AssemblyName).$(OutputType).config" />
   </Target>
-  -->
 </Project>
