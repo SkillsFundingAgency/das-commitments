@@ -4,101 +4,57 @@ using FluentAssertions;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenStoppingApprenticeship
+    public sealed class WhenStoppingApprenticeship : UpdateApprenticeshipStatusBase
     {
-        private Mock<ICommitmentRepository> _mockCommitmentRespository;
-        private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
-        private Mock<ICurrentDateTime> _mockCurrentDateTime;
-        private Mock<IApprenticeshipEvents> _mockEventsApi;
-        private UpdateApprenticeshipStatusCommandHandler _handler;
-        private UpdateApprenticeshipStatusCommand _exampleValidRequest;
-        private Apprenticeship _testApprenticeship;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _exampleValidRequest = new UpdateApprenticeshipStatusCommand
-            {
-                AccountId = 111L,
-                ApprenticeshipId = 444L,
-                PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn,
-                DateOfChange = DateTime.Now.Date
-            };
-
-            _testApprenticeship = new Apprenticeship
-            {
-                CommitmentId = 123L,
-                PaymentStatus = PaymentStatus.Active,
-                StartDate = DateTime.UtcNow.Date.AddMonths(-1)
-            };
-
-            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
-            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
-            _mockEventsApi = new Mock<IApprenticeshipEvents>();
-
-            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId))).ReturnsAsync(_testApprenticeship);
-            _mockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
-            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
-
-            _handler = new UpdateApprenticeshipStatusCommandHandler(
-                _mockCommitmentRespository.Object, 
-                _mockApprenticeshipRespository.Object, 
-                new UpdateApprenticeshipStatusValidator(), 
-                _mockCurrentDateTime.Object,
-                _mockEventsApi.Object,
-                Mock.Of<ICommitmentsLogger>());
-        }
+        protected override Api.Types.Apprenticeship.Types.PaymentStatus RequestPaymentStatus => Api.Types.Apprenticeship.Types.PaymentStatus.Withdrawn;
+        protected override PaymentStatus ApprenticeshipPaymentStatus => PaymentStatus.Active;
 
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatus()
         {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
+                EmployerAccountId = ExampleValidRequest.AccountId
             });
 
-            await _handler.Handle(_exampleValidRequest);
+            await Handler.Handle(ExampleValidRequest);
 
-            _mockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
+            MockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
                 It.Is<long>(a => a == 123L),
-                It.Is<long>(a => a == _exampleValidRequest.ApprenticeshipId),
-                It.Is<DateTime>(a => a == _exampleValidRequest.DateOfChange),
+                It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
+                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange),
                 It.Is<CallerType>(a => a == CallerType.Employer),
-                It.Is<string>(a => a == _exampleValidRequest.UserId)));
+                It.Is<string>(a => a == ExampleValidRequest.UserId)));
         }
 
         [Test]
         public async Task ThenShouldSendAnApprenticeshipEvent()
         {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
+                EmployerAccountId = ExampleValidRequest.AccountId
             });
 
-            await _handler.Handle(_exampleValidRequest);
+            await Handler.Handle(ExampleValidRequest);
 
-            _mockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<PaymentStatus>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()));
+            MockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<PaymentStatus>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()));
         }
 
         [Test]
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
         {
-            _exampleValidRequest.AccountId = 0; // Forces validation failure
+            ExampleValidRequest.AccountId = 0; // Forces validation failure
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
         }
@@ -106,13 +62,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public void ThenWhenUnauthorisedAnUnauthorizedExceptionIsThrown()
         {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
             {
                 Id = 123L,
-                ProviderId = _exampleValidRequest.AccountId++
+                ProviderId = ExampleValidRequest.AccountId++
             });
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<UnauthorizedException>();
         }
@@ -121,9 +77,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [TestCase(PaymentStatus.Paused)]
         public void ThenWhenStateTransitionIsValidNoExceptionIsThrown(PaymentStatus initial)
         {
-            _testApprenticeship.PaymentStatus = initial;
+            TestApprenticeship.PaymentStatus = initial;
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldNotThrow<InvalidRequestException>();
         }
@@ -132,9 +88,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [TestCase(PaymentStatus.Completed)]
         public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial)
         {
-            _testApprenticeship.PaymentStatus = initial;
+            TestApprenticeship.PaymentStatus = initial;
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<Exception>();
         }
@@ -143,15 +99,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         public void ThenThrowsExceptionIfApprenticeshipIsWaitingToStartAndChangeDateIsNotTrainingStartDate()
         {
             var startDate = DateTime.UtcNow.AddMonths(2).Date;
-            _testApprenticeship.StartDate = startDate;
+            TestApprenticeship.StartDate = startDate;
 
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
             {
                 Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
+                EmployerAccountId = ExampleValidRequest.AccountId
             });
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
         }
@@ -160,17 +116,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         public void ThenThrowsExceptionIfApprenticeshipIsInProgressAndChangeDateIsInFuture()
         {
             var startDate = DateTime.UtcNow.AddMonths(-22).Date;
-            _testApprenticeship.StartDate = startDate;
+            TestApprenticeship.StartDate = startDate;
 
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
             {
                 Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
+                EmployerAccountId = ExampleValidRequest.AccountId
             });
 
-            _exampleValidRequest.DateOfChange = DateTime.UtcNow.AddMonths(1).Date;
+            ExampleValidRequest.DateOfChange = DateTime.UtcNow.AddMonths(1).Date;
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
         }
@@ -179,17 +135,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         public void ThenThrowsExceptionIfApprenticeshipIsInProgressAndChangeDateIsBeforeTrainingStartDate()
         {
             var startDate = DateTime.UtcNow.AddMonths(-22).Date;
-            _testApprenticeship.StartDate = startDate;
+            TestApprenticeship.StartDate = startDate;
 
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
             {
                 Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
+                EmployerAccountId = ExampleValidRequest.AccountId
             });
 
-            _exampleValidRequest.DateOfChange = startDate.AddDays(-5).Date;
+            ExampleValidRequest.DateOfChange = startDate.AddDays(-5).Date;
 
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
         }
