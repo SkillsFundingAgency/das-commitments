@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             var config = GetConfiguration("SFA.DAS.CommitmentPayments");
             For<IConfiguration>().Use(config);
             For<IDataLockUpdater>().Use<DataLockerUpdater>();
-            For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext(), null)).AlwaysUnique();
+            For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext())).AlwaysUnique();
         }
 
         private CommitmentPaymentsConfiguration GetConfiguration(string serviceName)
