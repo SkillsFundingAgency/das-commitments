@@ -6,19 +6,16 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
-using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
+using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -171,6 +168,37 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockMediator.Verify(x=> x.SendAsync(It.IsAny<CreateRelationshipCommand>()), Times.Never);
         }
 
+        [Test]
+        public async Task ThenIfNoMessageIsProvidedThenAMessageIsNotSaved()
+        {
+            _exampleValidRequest.Message = null;
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(x => x.SaveMessage(It.IsAny<long>(), It.IsAny<Message>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenIfAMessageIsProvidedThenTheMessageIsSaved()
+        {
+            //Arange
+            const long expectedCommitmentId = 45;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(expectedCommitmentId);
+            _exampleValidRequest.Message = "New Message";
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(
+                x =>
+                    x.SaveMessage(expectedCommitmentId,
+                        It.Is<Message>(
+                            m => m.Author == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name && m.CreatedBy == _exampleValidRequest.CallerType && m.Text == _exampleValidRequest.Message)),
+                Times.Once);
+        }
 
         private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
         {

@@ -169,7 +169,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 LatestAction = submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
                 LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
-                UserId = submission.UserId
+                UserId = submission.UserId,
+                Message = submission.Message
             });
         }
 
