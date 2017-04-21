@@ -33,7 +33,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
 
             For<IConfiguration>().Use(config);
             For<IDataLockUpdater>().Use<DataLockerUpdater>();
-            For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext(), null)).AlwaysUnique();
+
+            For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext())).AlwaysUnique();
             ConfigurePaymentsApiService(config.UseDocumentRepository);
         }
 

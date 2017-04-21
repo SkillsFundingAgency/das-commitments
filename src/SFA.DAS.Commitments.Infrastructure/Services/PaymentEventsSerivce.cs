@@ -36,8 +36,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             int page = 1)
         {
             // ToDo: Retry policy?
-            // ToDo: Set up config
-            // ToDO: Set up what service to use
             //var result = await _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page);
             //return result.Items.Select(_mapper.Map);
 
