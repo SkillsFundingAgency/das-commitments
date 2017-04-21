@@ -1,16 +1,20 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Application.Rules;
+using SFA.DAS.Commitments.Domain.Entities;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
+using EditStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.EditStatus;
+using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
+using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 using TrainingType = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
@@ -70,32 +74,49 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
                     EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
                     ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
-                    Apprenticeships = commitment.Apprenticeships?.Select(x => new Apprenticeship.Apprenticeship
-                    {
-                        Id = x.Id,
-                        ULN = x.ULN,
-                        CommitmentId = x.CommitmentId,
-                        EmployerAccountId = x.EmployerAccountId,
-                        ProviderId = x.ProviderId,
-                        Reference = x.Reference,
-                        FirstName = x.FirstName,
-                        LastName = x.LastName,
-                        TrainingType = (TrainingType)x.TrainingType,
-                        TrainingCode = x.TrainingCode,
-                        TrainingName = x.TrainingName,
-                        Cost = x.Cost,
-                        StartDate = x.StartDate,
-                        EndDate = x.EndDate,
-                        AgreementStatus = (AgreementStatus)x.AgreementStatus,
-                        PaymentStatus = (PaymentStatus)x.PaymentStatus,
-                        DateOfBirth = x.DateOfBirth,
-                        NINumber = x.NINumber,
-                        EmployerRef = x.EmployerRef,
-                        ProviderRef = x.ProviderRef,
-                        CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
-                    }).ToList()
+                    Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
+                    Messages = MapMessagesFrom(commitment.Messages)
                 }
             };
+        }
+
+        private List<Commitment.MessageView> MapMessagesFrom(List<Message> messages)
+        {
+            return messages.Select(x => new Commitment.MessageView
+            {
+                Message = x.Text,
+                Author = x.Author,
+                CreatedBy = x.CreatedBy == CallerType.Employer ? MessageCreator.Employer : MessageCreator.Provider,
+                CreatedDateTime = x.CreatedDateTime
+            }).ToList();
+        }
+
+        private static List<Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Domain.Entities.Apprenticeship> apprenticeships, CallerType callerType)
+        {
+            return apprenticeships.Select(x => new Apprenticeship.Apprenticeship
+            {
+                Id = x.Id,
+                ULN = x.ULN,
+                CommitmentId = x.CommitmentId,
+                EmployerAccountId = x.EmployerAccountId,
+                ProviderId = x.ProviderId,
+                Reference = x.Reference,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                TrainingType = (TrainingType)x.TrainingType,
+                TrainingCode = x.TrainingCode,
+                TrainingName = x.TrainingName,
+                Cost = x.Cost,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                AgreementStatus = (AgreementStatus)x.AgreementStatus,
+                PaymentStatus = (PaymentStatus)x.PaymentStatus,
+                DateOfBirth = x.DateOfBirth,
+                NINumber = x.NINumber,
+                EmployerRef = x.EmployerRef,
+                ProviderRef = x.ProviderRef,
+                CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
+            }).ToList();
         }
 
         private static void CheckAuthorization(GetCommitmentRequest message, Domain.Entities.Commitment commitment)
