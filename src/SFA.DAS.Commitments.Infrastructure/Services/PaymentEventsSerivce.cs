@@ -38,9 +38,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             // ToDo: Retry policy?
             // ToDo: Set up config
             // ToDO: Set up what service to use
-            var result = await _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page);
+            //var result = await _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page);
+            //return result.Items.Select(_mapper.Map);
 
-            return result.Items.Select(_mapper.Map);
+            var result = await _paymentsEventsApi.GetPeriodEnds();
+            return new DataLockEventItem[0];
         }
     }
 }

@@ -17,7 +17,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             long ukprn = 0,
             int page = 1)
         {
+
+            /* 
+             * Hello world.
+                For the PaymentEvents document repo:
+                Would it be a good idea to use Azure Storage blob thingi? 
+                We can then add/fake document easy outside the solution. 
+                Hej då.
+             */
             // ToDo: need a service that enable us to test when new payment events are comming in
+
+            var nextEventId = sinceEventId + 1;
+
             var list = new List<DataLockEventItem> { new DataLockEventItem() };
             return Task.Run(() => list.AsEnumerable());
         }
