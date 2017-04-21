@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
@@ -15,17 +17,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         private readonly IPaymentEventMapper _mapper;
 
+        private readonly ILog _logger;
+
+        public int RetryWaitTimeInSeconds { get; set; } = 3;
+
         public PaymentEventsSerivce(
             IPaymentsEventsApiClient paymentsEventsApi,
-            IPaymentEventMapper mapper)
+            IPaymentEventMapper mapper,
+            ILog logger)
         {
             if(paymentsEventsApi == null)
                 throw new ArgumentNullException(nameof(paymentsEventsApi));
             if (mapper == null)
                 throw new ArgumentNullException(nameof(mapper));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _paymentsEventsApi = paymentsEventsApi;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<DataLockEventItem>> GetDataLockEvents(
@@ -35,12 +45,37 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             long ukprn = 0,
             int page = 1)
         {
-            // ToDo: Retry policy?
-            //var result = await _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page);
-            //return result.Items.Select(_mapper.Map);
+            var result = await  Retry(
+                3, 
+                () => _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page)
+            );
+            // ToDo: Do we need to thow exception if GetDataLockEvents fails? 
 
-            var result = await _paymentsEventsApi.GetPeriodEnds();
-            return new DataLockEventItem[0];
+            return 
+                result?.Items.Select(_mapper.Map) 
+                ?? new DataLockEventItem[0];
+        }
+
+        private async Task<T> Retry<T>(int retryCount, Func<Task<T>> action)
+        {
+            var exception = new List<Exception>();
+            do
+            {
+                --retryCount;
+                try
+                {
+                    return await action.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    exception.Add(ex);
+                    System.Threading.Thread.Sleep(TimeSpan.FromSeconds(RetryWaitTimeInSeconds));
+                }
+            }
+            while (retryCount > 0);
+
+            _logger.Warn(exception.FirstOrDefault(), $"Not able to call service, tried {exception.Count} times");
+            return default(T);
         }
     }
 }
