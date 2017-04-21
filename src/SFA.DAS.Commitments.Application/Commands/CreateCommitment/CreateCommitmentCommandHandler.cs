@@ -1,23 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
-using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
-using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {

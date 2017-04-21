@@ -19,24 +19,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private readonly IHistoryTransactions _historyTransactions;
 
-        private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
-
         public CommitmentRepository(
-            string databaseConnectionString, 
+            string databaseConnectionString,
             ICommitmentsLogger logger,
-            IHistoryTransactions historyTransactions,
-            IApprenticeshipTransactions apprenticeshipTransactions) : base(databaseConnectionString)
+            IHistoryTransactions historyTransactions) : base(databaseConnectionString)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (historyTransactions == null)
                 throw new ArgumentNullException(nameof(historyTransactions));
-            if (historyTransactions == null)
-                throw new ArgumentNullException(nameof(apprenticeshipTransactions));
 
             _logger = logger;
             _historyTransactions = historyTransactions;
-            _apprenticeshipTransactions = apprenticeshipTransactions;
         }
 
         public async Task<long> Create(Commitment commitment, CallerType callerType, string userId)
@@ -74,13 +68,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
-
-                    foreach (var apprenticeship in commitment.Apprenticeships)
-                    {
-                        _logger.Debug($"Creating apprenticeship in new commitment - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId, commitmentId: commitmentId);
-                        apprenticeship.CommitmentId = commitmentId;
-                        await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
-                    }
 
                     await _historyTransactions.CreateCommitment(
                         connection, trans,
@@ -127,11 +114,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         var changeType = CommitmentChangeType.SentForReview;
                         if (editStatus == EditStatus.Both && lastAction.LastAction == LastAction.Approve)
                             changeType = CommitmentChangeType.FinalApproval;
-                        else if(lastAction.LastAction == LastAction.Approve)
+                        else if (lastAction.LastAction == LastAction.Approve)
                             changeType = CommitmentChangeType.SentForApproval;
 
                         await _historyTransactions.UpdateCommitment(connection, trans, changeType,
-                            new CommitmentHistoryItem { CommitmentId = commitmentId, UpdatedByRole = lastAction.Caller.CallerType, UserId = lastAction.UserId});
+                            new CommitmentHistoryItem { CommitmentId = commitmentId, UpdatedByRole = lastAction.Caller.CallerType, UserId = lastAction.UserId });
                         return 1L;
                     });
         }
@@ -198,11 +185,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         connection,
                         tran,
                         new CommitmentHistoryItem
-                            {
-                                CommitmentId = commitmentId,
-                                UpdatedByRole = callerType,
-                                UserId = userId
-                            });
+                        {
+                            CommitmentId = commitmentId,
+                            UpdatedByRole = callerType,
+                            UserId = userId
+                        });
                     tran.Commit();
                     return returnCode;
                 }
@@ -283,7 +270,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 commandType: CommandType.StoredProcedure,
                 map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
-            return lookup.Values.SingleOrDefault();
+            var commitment = lookup.Values.SingleOrDefault();
+            commitment.Messages = await GetMessages(connection, commitmentId);
+            return commitment;
         }
 
         private Task<IList<CommitmentSummary>> GetCommitmentsByIdentifier(string identifierName, long identifierValue)
@@ -294,9 +283,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var results = await c.QueryAsync<CommitmentSummary>(
-                    sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int) CommitmentStatus.Deleted};",
+                    sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
                     param: parameters);
 
+                await GetMessages(results, c);
                 return results.ToList();
             });
         }
@@ -346,6 +336,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 param: parameters,
                 transaction: transaction,
                 commandType: CommandType.Text);
+        }
+
+        private static async Task GetMessages(IEnumerable<CommitmentSummary> commitments, IDbConnection connection)
+        {
+            var tasks = commitments.Select(c => Task.Run(async () => { c.Messages = await GetMessages(connection, c.Id); }));
+            await Task.WhenAll(tasks);
+        }
+
+        private static async Task<List<Message>> GetMessages(IDbConnection connection, long commitmentId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@commitmentId", commitmentId);
+
+            var results = await connection.QueryAsync<Message>(
+                sql: $"SELECT * FROM [dbo].[Messages] WHERE CommitmentId = @commitmentId",
+                param: parameters);
+
+            return results.ToList();
         }
     }
 }
