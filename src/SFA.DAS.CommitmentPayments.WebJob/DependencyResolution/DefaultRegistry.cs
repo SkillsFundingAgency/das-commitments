@@ -35,15 +35,20 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             For<IDataLockUpdater>().Use<DataLockerUpdater>();
 
             For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext())).AlwaysUnique();
-            ConfigurePaymentsApiService(config.UseDocumentRepository);
+            ConfigurePaymentsApiService(config);
         }
 
-        private void ConfigurePaymentsApiService(bool useDocumentRepository)
+        private void ConfigurePaymentsApiService(CommitmentPaymentsConfiguration config)
         {
-            if (useDocumentRepository)
-                For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>();
+            if (config.UseDocumentRepository)
+            {
+                For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>()
+                    .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
+            }
             else
+            {
                 For<IPaymentEvents>().Use<PaymentEventsSerivce>();
+            }
         }
 
         private CommitmentPaymentsConfiguration GetConfiguration(string serviceName)
