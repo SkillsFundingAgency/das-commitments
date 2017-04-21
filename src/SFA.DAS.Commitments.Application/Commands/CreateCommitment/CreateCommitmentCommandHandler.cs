@@ -97,7 +97,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         {
             var domainCommitment = new Commitment
             {
-                Id = commitment.Id,
                 Reference = commitment.Reference,
                 EmployerAccountId = commitment.EmployerAccountId,
                 LegalEntityId = commitment.LegalEntityId,
@@ -111,22 +110,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 LastAction = LastAction.None,
                 LastUpdatedByEmployerName = commitment.EmployerLastUpdateInfo.Name,
                 LastUpdatedByEmployerEmail = commitment.EmployerLastUpdateInfo.EmailAddress,
-                Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
-                {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    ULN = x.ULN,
-                    CommitmentId = commitment.Id,
-                    PaymentStatus = (PaymentStatus) x.PaymentStatus,
-                    AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                    TrainingType = (TrainingType) x.TrainingType,
-                    TrainingCode = x.TrainingCode,
-                    TrainingName = x.TrainingName,
-                    Cost = x.Cost,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate
-                }).ToList()
             };
 
             return domainCommitment;

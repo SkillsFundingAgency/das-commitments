@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -12,7 +11,6 @@ using SFA.DAS.Commitments.Application.Rules;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.CommitmentStatus;
 using TrainingType = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
@@ -58,16 +56,14 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
         {
             return new GetCommitmentResponse
             {
-                Data = new Commitment.Commitment
+                Data = new Commitment.CommitmentView
                 {
                     Id = commitment.Id,
                     Reference = commitment.Reference,
                     ProviderId = commitment.ProviderId,
                     ProviderName = commitment.ProviderName,
                     EmployerAccountId = commitment.EmployerAccountId,
-                    LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
-                    CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
                     EditStatus = (EditStatus)commitment.EditStatus,
                     AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
                     LastAction = (LastAction)commitment.LastAction,

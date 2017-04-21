@@ -7,7 +7,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -34,7 +33,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             var result = await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment()});
 
-            result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<Commitment>>();
+            result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<CommitmentView>>();
         }
 
         [Test]
@@ -44,7 +43,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             const long testCommitmentId = 5L;
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateCommitmentCommand>())).ReturnsAsync(testCommitmentId);
             var result = await _controller.CreateCommitment(testAccountId,
-                new CommitmentRequest { Commitment = new Commitment() }) as CreatedAtRouteNegotiatedContentResult<Commitment>;
+                new CommitmentRequest { Commitment = new Commitment() }) as CreatedAtRouteNegotiatedContentResult<CommitmentView>;
 
             result.RouteName.Should().Be("GetCommitmentForEmployer");
             result.RouteValues["accountId"].Should().Be(testAccountId);
