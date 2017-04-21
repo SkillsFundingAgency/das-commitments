@@ -83,6 +83,14 @@
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.17615\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SFA.DAS.Provider.Events.Api.Client, Version=2.0.0.27426, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.27426\lib\net45\SFA.DAS.Provider.Events.Api.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.Provider.Events.Api.Types, Version=2.0.0.27426, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.27426\lib\net45\SFA.DAS.Provider.Events.Api.Types.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="StructureMap, Version=4.2.0.402, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\structuremap.4.2.0.402\lib\net40\StructureMap.dll</HintPath>
       <Private>True</Private>
@@ -123,6 +131,9 @@
     <Compile Include="Services\ApprenticeshipEvents.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
     <Compile Include="Services\HashingService.cs" />
+    <Compile Include="Services\IPaymentEventMapper.cs" />
+    <Compile Include="Services\PaymentEventsDocumentSerivce.cs" />
+    <Compile Include="Services\PaymentEventsSerivce.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
