@@ -255,6 +255,23 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task SaveMessage(long commitmentId, Message message)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@CommitmentId", commitmentId);
+                parameters.Add("@Author", message.Author);
+                parameters.Add("@Text", message.Text);
+                parameters.Add("@CreatedBy", message.CreatedBy);
+
+                return await connection.ExecuteAsync(
+                    sql: $"[dbo].[CreateMessage]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+            });
+        }
+
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
         {
             var lookup = new Dictionary<object, Commitment>();
