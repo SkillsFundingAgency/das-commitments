@@ -67,6 +67,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     ProviderId = commitment.ProviderId,
                     ProviderName = commitment.ProviderName,
                     EmployerAccountId = commitment.EmployerAccountId,
+                    LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
                     EditStatus = (EditStatus)commitment.EditStatus,
                     AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
