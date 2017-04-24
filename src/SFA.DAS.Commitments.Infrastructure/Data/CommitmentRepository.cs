@@ -288,7 +288,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
 
             var commitment = lookup.Values.SingleOrDefault();
-            commitment.Messages = await GetMessages(connection, commitmentId);
+            if (commitment != null)
+            {
+                commitment.Messages = await GetMessages(connection, commitmentId);
+            }
             return commitment;
         }
 
