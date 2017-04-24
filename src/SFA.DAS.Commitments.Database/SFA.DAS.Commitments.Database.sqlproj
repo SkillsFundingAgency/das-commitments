@@ -85,6 +85,8 @@
     <Build Include="Tables\ApprenticeshipUpdate.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipUpdate.sql" />
     <Build Include="StoredProcedures\CreateApprenticeshipUpdate.sql" />
+    <Build Include="Tables\DataLockStatus.sql" />
+    <Build Include="StoredProcedures\CreateDataLockStatus.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
