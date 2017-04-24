@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return Task.Run(() => data);
         }
 
-        private PageOfResults<DataLockEvent> GetData(int nextEventId)
+        private PageOfResults<DataLockEvent> GetData(long nextEventId)
         {
             var fileName = $"{nextEventId}_payment_event.json";
             var result = ReadFromStoage(fileName);

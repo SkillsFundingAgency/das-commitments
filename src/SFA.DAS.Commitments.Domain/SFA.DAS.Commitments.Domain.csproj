@@ -50,6 +50,7 @@
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
+    <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
