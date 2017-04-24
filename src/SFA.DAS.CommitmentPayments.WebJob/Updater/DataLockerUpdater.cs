@@ -25,8 +25,17 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
         public async Task RunUpdate()
         {
+            //get the last data lock event id
+
+            //keep getting pages of data locks
+
             var result = await _paymentEventsSerivce.GetDataLockEvents();
             //...
+
+            //foreach, stash in the db
+
+            
+
         }
     }
 }
