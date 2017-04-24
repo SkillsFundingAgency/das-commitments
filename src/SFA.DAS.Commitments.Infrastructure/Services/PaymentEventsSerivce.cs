@@ -38,15 +38,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         }
 
         public async Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
-            int sinceEventId = 0,
+            long sinceEventId = 0,
             DateTime? sinceTime = null,
             string employerAccountId = null,
             long ukprn = 0,
             int page = 1)
         {
+            //todo: remove cast to int below
+
             var result = await  Retry(
                 3, 
-                () => _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page)
+                () => _paymentsEventsApi.GetDataLockEvents((int)sinceEventId, sinceTime, employerAccountId, ukprn, page)
             );
             // ToDo: Do we need to thow exception if GetDataLockEvents fails? 
 

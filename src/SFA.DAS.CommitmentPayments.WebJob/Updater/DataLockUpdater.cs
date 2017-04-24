@@ -30,23 +30,23 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
         public async Task RunUpdate()
         {
-            //var lastId = await _dataLockRepository.GetLastDataLockEventId();
+            var lastId = await _dataLockRepository.GetLastDataLockEventId();
 
-            //while (true)
-            //{
-            //    var page = (await _paymentEventsSerivce.GetDataLockEvents(lastId)).ToList();
+            while (true)
+            {
+                var page = (await _paymentEventsSerivce.GetDataLockEvents(lastId)).ToList();
 
-            //    if (!page.Any())
-            //    {
-            //        continue;
-            //    }
+                if (!page.Any())
+                {
+                    break;
+                }
 
-            //    foreach (var dataLockStatus in page)
-            //    {
-            //        await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
-            //        lastId = dataLockStatus.DataLockEventId;
-            //    }
-            //}
+                foreach (var dataLockStatus in page)
+                {
+                    await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
+                    lastId = dataLockStatus.DataLockEventId;
+                }
+            }
         }
     }
 }

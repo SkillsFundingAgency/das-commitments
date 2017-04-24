@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
                 .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
 
             For<IConfiguration>().Use(config);
-            For<IDataLockUpdater>().Use<DataLockerUpdater>();
+            For<IDataLockUpdater>().Use<DataLockUpdater>();
 
             For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext())).AlwaysUnique();
             ConfigurePaymentsApiService(config);

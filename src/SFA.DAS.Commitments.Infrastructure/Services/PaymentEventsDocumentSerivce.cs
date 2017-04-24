@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         }
 
         public Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
-            int sinceEventId = 0,
+            long sinceEventId = 0,
             DateTime? sinceTime = null,
             string employerAccountId = null,
             long ukprn = 0,
