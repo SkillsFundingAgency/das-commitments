@@ -7,7 +7,6 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
-using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
@@ -38,7 +37,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<DataLockEventItem>> GetDataLockEvents(
+        public async Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
             int sinceEventId = 0,
             DateTime? sinceTime = null,
             string employerAccountId = null,
@@ -53,7 +52,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
             return 
                 result?.Items.Select(_mapper.Map) 
-                ?? new DataLockEventItem[0];
+                ?? new DataLockStatus[0];
         }
 
         private async Task<T> Retry<T>(int retryCount, Func<Task<T>> action)

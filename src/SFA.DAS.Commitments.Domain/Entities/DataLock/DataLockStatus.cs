@@ -1,9 +1,20 @@
-﻿namespace SFA.DAS.Commitments.Domain.Entities.DataLock
+﻿using System;
+
+namespace SFA.DAS.Commitments.Domain.Entities.DataLock
 {
-    public enum DataLockStatus
+    public class DataLockStatus
     {
-        Unknown = 0,
-        Pass = 1,
-        Fail = 2
+        public long DataLockEventId { get; set; }
+        public DateTime DataLockEventDatetime { get; set; }
+        public string PriceEpisodeIdentifier { get; set; }
+        public long ApprenticeshipId { get; set; }
+        public string IlrTrainingCourseCode { get; set; }
+        public TrainingType IlrTrainingType { get; set; }
+        public DateTime? IlrActualStartDate { get; set; }
+        public DateTime? IlrEffectiveFromDate { get; set; }
+        public decimal? IlrTotalCost { get; set; }
+        public Status Status { get; set; }
+        public TriageStatus TriageStatus { get; set; }
+        public DataLockErrorCode ErrorCode { get; set; }
     }
 }

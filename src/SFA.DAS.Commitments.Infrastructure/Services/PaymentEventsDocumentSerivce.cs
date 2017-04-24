@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _logger = logger;
         }
 
-        public Task<IEnumerable<DataLockEventItem>> GetDataLockEvents(
+        public Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
             int sinceEventId = 0,
             DateTime? sinceTime = null,
             string employerAccountId = null,
@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             var result = GetData(sinceEventId + 1);
             var data =
                 result?.Items.Select(_mapper.Map)
-                ?? new DataLockEventItem[0];
+                ?? new DataLockStatus[0];
 
             return Task.Run(() => data);
         }

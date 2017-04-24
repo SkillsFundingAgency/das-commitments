@@ -132,6 +132,7 @@
     <Compile Include="Services\CurrentDateTime.cs" />
     <Compile Include="Services\HashingService.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />
+    <Compile Include="Services\PaymentEventMapper.cs" />
     <Compile Include="Services\PaymentEventsDocumentSerivce.cs" />
     <Compile Include="Services\PaymentEventsSerivce.cs" />
   </ItemGroup>

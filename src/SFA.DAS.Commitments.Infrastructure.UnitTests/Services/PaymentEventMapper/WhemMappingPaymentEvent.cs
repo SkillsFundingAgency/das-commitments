@@ -2,7 +2,6 @@
 using System.Linq;
 
 using FluentAssertions;
-
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -56,12 +55,76 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
             result.IlrEffectiveFromDate.Should().Be(lrPriceEffectiveDate);
             result.IlrTotalCost.Should().Be(2100M);
 
-            result.ErrorCodes.Count().Should().Be(2);
-
-            result.DataLockStatus.Should().Be(DataLockStatus.Fail);
+            result.Status.Should().Be(Status.Fail);
             result.TriageStatus.Should().Be(TriageStatus.None);
-
         }
 
+        [Test]
+        public void ThenErrorCodesShouldBeMerged()
+        {
+            var errorCodes = new[]
+            {
+                new DataLockEventError { ErrorCode = "Dlock01" },
+                new DataLockEventError { ErrorCode = "Dlock02" }
+            };
+
+            var result = _sut.Map(
+                new DataLockEvent
+                {
+                    Errors = errorCodes
+                });
+
+            result.ErrorCode.Should().Be((DataLockErrorCode)3);
+        }
+
+        [Test]
+        public void ThenErrorCodesShouldIgnoreValuesThatAreNotRecognised()
+        {
+            var errorCodes = new[]
+            {
+                new DataLockEventError { ErrorCode = "Dlock01" },
+                new DataLockEventError { ErrorCode = "Abba213" }
+            };
+
+            var result = _sut.Map(
+                new DataLockEvent
+                {
+                    Errors = errorCodes
+                });
+
+            result.ErrorCode.Should().Be((DataLockErrorCode)1);
+        }
+
+        [Test]
+        public void ThenErrorCodesShouldIgnoreCaseAndUnderscore()
+        {
+            var errorCodes = new[]
+            {
+                new DataLockEventError { ErrorCode = "DLOCK_04" },
+                new DataLockEventError { ErrorCode = "DLOCK_05" }
+            };
+
+            var result = _sut.Map(
+                new DataLockEvent
+                {
+                    Errors = errorCodes
+                });
+
+            result.ErrorCode.Should().Be((DataLockErrorCode)24);
+        }
+
+        [Test]
+        public void ThenErrorCodesShouldBeNone()
+        {
+            var errorCodes = new DataLockEventError[0];
+
+            var result = _sut.Map(
+                new DataLockEvent
+                {
+                    Errors = errorCodes
+                });
+
+            result.ErrorCode.Should().Be(DataLockErrorCode.None);
+        }
     }
 }
