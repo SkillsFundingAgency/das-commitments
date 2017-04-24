@@ -367,7 +367,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             parameters.Add("@commitmentId", commitmentId);
 
             var results = await connection.QueryAsync<Message>(
-                sql: $"SELECT * FROM [dbo].[Messages] WHERE CommitmentId = @commitmentId",
+                sql: $"SELECT * FROM [dbo].[Message] WHERE CommitmentId = @commitmentId",
                 param: parameters);
 
             return results.ToList();
