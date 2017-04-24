@@ -27,7 +27,7 @@ FROM
 			a.AgreedOn IS NOT NULL
 	
 		ORDER BY
-			CAST(a.AgreedOn AS DATE),
+			a.AgreedOn,
 			a.ULN
 	) AS npo -- apprenticeship Ids with corresponding new payment order (if appropriate) based on agreement date, ULN
 
