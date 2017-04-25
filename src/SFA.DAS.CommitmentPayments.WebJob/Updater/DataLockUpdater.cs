@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
@@ -30,19 +31,31 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
         public async Task RunUpdate()
         {
+            _logger.Info("Retrieving last DataLock Event Id from repository");
             var lastId = await _dataLockRepository.GetLastDataLockEventId();
 
             while (true)
             {
+                _logger.Info($"Retrieving page of data from Payment Events Service since Event Id {lastId}");
+                var stopwatch = Stopwatch.StartNew();
                 var page = (await _paymentEventsSerivce.GetDataLockEvents(lastId)).ToList();
+                stopwatch.Stop();
+                _logger.Info($"Response took {stopwatch.ElapsedMilliseconds}ms");
 
                 if (!page.Any())
                 {
+                    _logger.Info("No data returned; exiting");
                     break;
                 }
 
+                _logger.Info($"{page.Count} pages returned");
+
                 foreach (var dataLockStatus in page)
                 {
+                    _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                                 $"Event Id {dataLockStatus.DataLockEventId} " + 
+                                 $"Status {dataLockStatus.ErrorCode}");
+
                     await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
                     lastId = dataLockStatus.DataLockEventId;
                 }

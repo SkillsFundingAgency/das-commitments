@@ -15,35 +15,56 @@
 )
 AS
 
--- create or insert (or merge?) based on ApprenticeshipId
+	IF EXISTS(select 1 from [dbo].[DataLockStatus] where ApprenticeshipId = @ApprenticeshipId)
+	BEGIN
 
-	insert into [dbo].[DataLockStatus]
-	(
-		DataLockEventId,
-		DataLockEventDatetime,
-		PriceEpisodeIdentifier,
-		ApprenticeshipId,
-		IlrTrainingCourseCode,
-		IlrTrainingType,
-		IlrActualStartDate,
-		IlrEffectiveFromDate,
-		IlrTotalCost,
-		ErrorCodes,
-		[Status],
-		TriageStatus
-	)
-	values
-	(
-		@DataLockEventId,
-		@DataLockEventDatetime,
-		@PriceEpisodeIdentifier,
-		@ApprenticeshipId,
-		@IlrTrainingCourseCode,
-		@IlrTrainingType,
-		@IlrActualStartDate,
-		@IlrEffectiveFromDate,
-		@IlrTotalCost,
-		@ErrorCodes,
-		@Status,
-		@TriageStatus
-	)
+		update [dbo].[DataLockStatus] set
+		DataLockEventId = @DataLockEventId,
+		DataLockEventDatetime = @DataLockEventDatetime,
+		PriceEpisodeIdentifier = @PriceEpisodeIdentifier,
+		IlrTrainingCourseCode = @IlrTrainingCourseCode,
+		IlrTrainingType = @IlrTrainingType,
+		IlrActualStartDate = @IlrActualStartDate,
+		IlrEffectiveFromDate = @IlrEffectiveFromDate,
+		IlrTotalCost = @IlrTotalCost,
+		ErrorCodes = @ErrorCodes,
+		[Status] = @Status,
+		TriageStatus = @TriageStatus
+		where ApprenticeshipId = @ApprenticeshipId
+
+	END
+	ELSE
+	BEGIN
+	
+		insert into [dbo].[DataLockStatus]
+		(
+			DataLockEventId,
+			DataLockEventDatetime,
+			PriceEpisodeIdentifier,
+			ApprenticeshipId,
+			IlrTrainingCourseCode,
+			IlrTrainingType,
+			IlrActualStartDate,
+			IlrEffectiveFromDate,
+			IlrTotalCost,
+			ErrorCodes,
+			[Status],
+			TriageStatus
+		)
+		values
+		(
+			@DataLockEventId,
+			@DataLockEventDatetime,
+			@PriceEpisodeIdentifier,
+			@ApprenticeshipId,
+			@IlrTrainingCourseCode,
+			@IlrTrainingType,
+			@IlrActualStartDate,
+			@IlrEffectiveFromDate,
+			@IlrTotalCost,
+			@ErrorCodes,
+			@Status,
+			@TriageStatus
+		)
+
+	END

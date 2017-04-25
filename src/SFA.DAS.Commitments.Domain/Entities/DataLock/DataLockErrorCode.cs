@@ -1,5 +1,8 @@
+using System;
+
 namespace SFA.DAS.Commitments.Domain.Entities.DataLock
 {
+    [Flags]
     public enum DataLockErrorCode
     {
         None = 0,

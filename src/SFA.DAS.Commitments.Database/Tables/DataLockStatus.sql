@@ -12,13 +12,14 @@
 	[IlrTotalCost] DECIMAL NULL,
     [ErrorCodes] INT NOT NULL,
     [Status] TINYINT NOT NULL,
-    [TriageStatus] TINYINT NOT NULL
+    [TriageStatus] TINYINT NOT NULL,
+	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id])
 )
 GO
 
 CREATE NONCLUSTERED INDEX [IX_DataLockStatus_DataLockEventId] ON [dbo].[DataLockStatus] ([DataLockEventId])
 GO
 
-CREATE NONCLUSTERED INDEX [IX_DataLockStatus_ApprenticeshipId] ON [dbo].[DataLockStatus] ([ApprenticeshipId])
+CREATE UNIQUE INDEX [IX_DataLockStatus_ApprenticeshipId] ON [dbo].[DataLockStatus] ([ApprenticeshipId])
 GO
 
