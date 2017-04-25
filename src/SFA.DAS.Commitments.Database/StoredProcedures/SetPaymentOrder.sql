@@ -41,6 +41,3 @@ INNER JOIN
 	Apprenticeship a
 ON 
 	a.id = npo.ApprenticeshipId
-
-ORDER BY
-	npo.NewPaymentOrder
