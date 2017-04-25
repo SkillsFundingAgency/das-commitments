@@ -117,6 +117,7 @@
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
+    <Compile Include="Data\DataLockRepository.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipUpdateTransactions.cs" />
     <Compile Include="Data\Transactions\IApprenticeshipUpdateTransactions.cs" />
     <Compile Include="Data\Transactions\IHistoryTransactions.cs" />

@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE [dbo].[CreateDataLockStatus]
+﻿CREATE PROCEDURE [dbo].[UpdateDataLockStatus]
 (
 	@DataLockEventId BIGINT,
 	@DataLockEventDatetime DATETIME,
@@ -14,6 +14,8 @@
     @TriageStatus TINYINT
 )
 AS
+
+-- create or insert (or merge?) based on ApprenticeshipId
 
 	insert into [dbo].[DataLockStatus]
 	(

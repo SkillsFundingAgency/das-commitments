@@ -86,7 +86,7 @@
     <Build Include="StoredProcedures\GetApprenticeshipUpdate.sql" />
     <Build Include="StoredProcedures\CreateApprenticeshipUpdate.sql" />
     <Build Include="Tables\DataLockStatus.sql" />
-    <Build Include="StoredProcedures\CreateDataLockStatus.sql" />
+    <Build Include="StoredProcedures\UpdateDataLockStatus.sql" />
     <Build Include="StoredProcedures\GetLastDataLockEventId.sql" />
   </ItemGroup>
   <ItemGroup>

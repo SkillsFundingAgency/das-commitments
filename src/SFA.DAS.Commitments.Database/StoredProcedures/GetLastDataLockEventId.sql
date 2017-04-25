@@ -1,3 +1,3 @@
 ﻿CREATE PROCEDURE [dbo].[GetLastDataLockEventId]
 AS
-	SELECT MAX(DataLockEventId) from DataLockStatus
+	SELECT MAX(DataLockEventId) 'DataLockEventId' from DataLockStatus
