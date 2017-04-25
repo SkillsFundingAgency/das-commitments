@@ -17,5 +17,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> CreateRelationship(Relationship relationship);
         Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode);
         Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified);
+        Task SaveMessage(long commitmentId, Message message);
     }
 }

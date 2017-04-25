@@ -6,12 +6,10 @@ using SFA.DAS.Commitments.Api.Controllers;
 using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using System.Web.Http.Results;
-using SFA.DAS.Commitments.Api.Types;
 using FluentAssertions;
 using FluentValidation;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
@@ -36,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ReturnsAsync(mediatorResponse);
 
-            var result = await _controller.GetCommitment(111L, 3L) as OkNegotiatedContentResult<Commitment>;
+            var result = await _controller.GetCommitment(111L, 3L) as OkNegotiatedContentResult<CommitmentView>;
 
             result.Content.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);

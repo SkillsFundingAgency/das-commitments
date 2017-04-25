@@ -63,4 +63,32 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="LastUpdatedByEmployerName" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="f0e1259d-6a7d-4ac4-a7ed-048a15f530f7" ChangeDateTime="04/21/2017 08:53:21">
+    <Property Name="ElementName" Value="[dbo].[Message].[CreatedBy]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Message]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Creator" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="11f946df-cfb0-4301-b2f6-283279974775" ChangeDateTime="04/21/2017 12:32:33">
+    <Property Name="ElementName" Value="[dbo].[Message].[Creator]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Message]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedBy" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f9b5ad20-76b9-4267-aad7-1da4ca002326" ChangeDateTime="04/21/2017 12:32:42">
+    <Property Name="ElementName" Value="[dbo].[Message].[Message]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Message]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Text" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0c56167f-0e1f-4032-8670-3e681cb434a4" ChangeDateTime="04/21/2017 12:33:04">
+    <Property Name="ElementName" Value="[dbo].[Message].[CreatedOn]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Message]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CreatedDateTime" />
+  </Operation>
 </Operations>

@@ -1,9 +1,8 @@
-﻿using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Commitment;
+﻿using SFA.DAS.Commitments.Api.Types.Commitment;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {
-    public class GetCommitmentResponse : QueryResponse<Commitment>
+    public class GetCommitmentResponse : QueryResponse<CommitmentView>
     {
     }
 }

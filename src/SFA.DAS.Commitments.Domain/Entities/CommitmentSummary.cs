@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.Commitments.Domain.Entities
+﻿using System.Collections.Generic;
+
+namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class CommitmentSummary
     {
@@ -20,5 +22,6 @@
         public string LastUpdatedByEmployerEmail { get; set; }
         public string LastUpdatedByProviderName { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
+        public List<Message> Messages { get; set; }
     }
 }

@@ -30,5 +30,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string LastUpdatedByProviderEmail { get; set; }
 
         public List<Apprenticeship> Apprenticeships { get; set; }
+        public List<Message> Messages { get; set; }
     }
 }
