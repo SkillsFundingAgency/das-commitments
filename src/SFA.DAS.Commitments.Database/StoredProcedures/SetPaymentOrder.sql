@@ -8,11 +8,15 @@ AS
 UPDATE Apprenticeship
 SET
 	PaymentOrder = npo.NewPaymentOrder
-FROM
-    (
+FROM 
+	(
+	SELECT TOP 1000000
+		apps.ApprenticeshipId,
+		ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS [NewPaymentOrder]
+	FROM 
+		(
 		SELECT TOP 1000000
-			a.Id AS ApprenticeshipId,
-			ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS [NewPaymentOrder]
+			a.Id AS ApprenticeshipId
 		FROM
 			Apprenticeship a
 
@@ -20,18 +24,23 @@ FROM
 			Commitment c
 		ON
 			a.CommitmentId = c.Id
-
-		WHERE
+		AND
 			c.EmployerAccountId = @employerAccountId
 		AND
 			a.AgreedOn IS NOT NULL
 	
 		ORDER BY
-			a.AgreedOn,
+			CAST(a.AgreedOn AS DATE),
 			a.ULN
-	) AS npo -- apprenticeship Ids with corresponding new payment order (if appropriate) based on agreement date, ULN
+
+		) AS apps -- apprenticeship Ids ordered by agreement date, ULN
+
+	) AS npo -- apprenticeship Ids with corresponding new payment order
 
 INNER JOIN
 	Apprenticeship a
 ON 
 	a.id = npo.ApprenticeshipId
+
+ORDER BY
+	npo.NewPaymentOrder
