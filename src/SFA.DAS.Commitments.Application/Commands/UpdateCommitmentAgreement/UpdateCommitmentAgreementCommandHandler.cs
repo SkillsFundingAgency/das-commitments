@@ -102,18 +102,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             // recalculate payment order for all the employer account's apprenticeships if necessary
             await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
 
-            await CreateMessageIfNeeded(command);
+            await CreateMessage(command);
         }
 
-        private async Task CreateMessageIfNeeded(UpdateCommitmentAgreementCommand command)
+        private async Task CreateMessage(UpdateCommitmentAgreementCommand command)
         {
-            if (string.IsNullOrEmpty(command.Message))
-                return;
-
             var message = new Message
             {
                 Author = command.LastUpdatedByName,
-                Text = command.Message,
+                Text = command.Message ?? string.Empty,
                 CreatedBy = command.Caller.CallerType
             };
 

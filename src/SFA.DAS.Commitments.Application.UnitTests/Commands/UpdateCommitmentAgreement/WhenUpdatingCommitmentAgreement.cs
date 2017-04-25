@@ -345,7 +345,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         }
 
         [Test]
-        public async Task ThenIfNoMessageIsProvidedThenAMessageIsNotSaved()
+        public async Task ThenIfNoMessageIsProvidedThenAnEmptyMessageIsSaved()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -356,7 +356,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             await _handler.Handle(_validCommand);
 
             //Assert
-            _mockCommitmentRespository.Verify(x => x.SaveMessage(It.IsAny<long>(), It.IsAny<Message>()), Times.Never);
+            _mockCommitmentRespository.Verify(
+                x =>
+                    x.SaveMessage(_validCommand.CommitmentId,
+                        It.Is<Message>(m => m.Author == _validCommand.LastUpdatedByName && m.CreatedBy == _validCommand.Caller.CallerType && m.Text == string.Empty)), Times.Once);
         }
 
         [Test]
