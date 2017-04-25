@@ -88,6 +88,8 @@
     <Build Include="Tables\DataLockStatus.sql" />
     <Build Include="StoredProcedures\UpdateDataLockStatus.sql" />
     <Build Include="StoredProcedures\GetLastDataLockEventId.sql" />
+    <Build Include="Tables\Message.sql" />
+    <Build Include="StoredProcedures\CreateMessage.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

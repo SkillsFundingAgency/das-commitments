@@ -83,7 +83,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Commitment = commitmentRequest.Commitment,
                 UserId = commitmentRequest.UserId,
-                CallerType = CallerType.Employer
+                CallerType = CallerType.Employer,
+                Message = commitmentRequest.Message
             });
         }
 
@@ -170,7 +171,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 LatestAction = submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
                 LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
-                UserId = submission.UserId
+                UserId = submission.UserId,
+                Message = submission.Message
             });
         }
 

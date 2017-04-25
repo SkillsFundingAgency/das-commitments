@@ -60,6 +60,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetProviderCommitmen
             });
             
             response.Data.Count.Should().Be(activeCommitments.Count());
+            response.Data[0].Messages.Should().HaveSameCount(activeCommitments[0].Messages);
             response.Data.Should().OnlyContain(x => commitmentsFromRepository.Any(y => y.Id == x.Id && y.Reference == x.Reference));
         }
 

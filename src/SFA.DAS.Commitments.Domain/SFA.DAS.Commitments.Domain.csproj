@@ -69,6 +69,7 @@
     <Compile Include="Entities\EditStatus.cs" />
     <Compile Include="Entities\LastAction.cs" />
     <Compile Include="Entities\LastUpdateAction.cs" />
+    <Compile Include="Entities\Message.cs" />
     <Compile Include="Entities\OrganisationType.cs" />
     <Compile Include="Entities\Originator.cs" />
     <Compile Include="Entities\PaymentStatus.cs" />

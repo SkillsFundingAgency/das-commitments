@@ -56,9 +56,21 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
                         CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveCommitment : x.ProviderCanApproveCommitment,
                         EmployerLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByEmployerName, EmailAddress = x.LastUpdatedByEmployerEmail },
                         ProviderLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByProviderName, EmailAddress = x.LastUpdatedByProviderEmail },
+                        Messages = MapMessagesFrom(x.Messages)
                     }
                     ).ToList()
             };
+        }
+
+        private List<MessageView> MapMessagesFrom(List<Message> messages)
+        {
+            return messages.Select(x => new MessageView
+            {
+                Message = x.Text,
+                Author = x.Author,
+                CreatedBy = x.CreatedBy == CallerType.Employer ? MessageCreator.Employer : MessageCreator.Provider,
+                CreatedDateTime = x.CreatedDateTime
+            }).ToList();
         }
 
         private async Task<IList<CommitmentSummary>> GetCommitments(Caller caller)

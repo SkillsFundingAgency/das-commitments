@@ -64,6 +64,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
             response.Data.Id.Should().Be(_fakeRepositoryCommitment.Id);
             response.Data.Reference.Should().Be(_fakeRepositoryCommitment.Reference);
             response.Data.Apprenticeships.Should().HaveSameCount(_fakeRepositoryCommitment.Apprenticeships);
+            response.Data.Messages.Should().HaveSameCount(_fakeRepositoryCommitment.Messages);
         }
 
         [Test]

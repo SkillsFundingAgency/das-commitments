@@ -1,23 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
-using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
-using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
@@ -56,6 +50,21 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            await CreateRelationshipIfDoesNotAlreadyExist(message);
+
+            var newCommitment = MapFrom(message.Commitment);
+
+            var commitmentId = await _commitmentRepository.Create(newCommitment, message.CallerType, message.UserId);
+
+            await _commitmentRepository.UpdateCommitmentReference(commitmentId, _hashingService.HashValue(commitmentId));
+
+            await CreateMessageIfNeeded(commitmentId, message);
+
+            return commitmentId;
+        }
+
+        private async Task CreateRelationshipIfDoesNotAlreadyExist(CreateCommitmentCommand message)
+        {
             var relationship = await _mediator.SendAsync(new GetRelationshipRequest
             {
                 EmployerAccountId = message.Commitment.EmployerAccountId,
@@ -83,21 +92,27 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     }
                 });
             }
+        }
 
-            var newCommitment = MapFrom(message.Commitment);
+        private async Task CreateMessageIfNeeded(long commitmentId, CreateCommitmentCommand command)
+        {
+            if (string.IsNullOrEmpty(command.Message))
+                return;
 
-            var commitmentId = await _commitmentRepository.Create(newCommitment, message.CallerType, message.UserId);
+            var message = new Message
+            {
+                Author = command.Commitment.EmployerLastUpdateInfo.Name,
+                Text = command.Message,
+                CreatedBy = command.CallerType
+            };
 
-            await _commitmentRepository.UpdateCommitmentReference(commitmentId, _hashingService.HashValue(commitmentId));
-
-            return commitmentId;
+            await _commitmentRepository.SaveMessage(commitmentId, message);
         }
 
         private static Commitment MapFrom(Api.Types.Commitment.Commitment commitment)
         {
             var domainCommitment = new Commitment
             {
-                Id = commitment.Id,
                 Reference = commitment.Reference,
                 EmployerAccountId = commitment.EmployerAccountId,
                 LegalEntityId = commitment.LegalEntityId,
@@ -111,22 +126,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 LastAction = LastAction.None,
                 LastUpdatedByEmployerName = commitment.EmployerLastUpdateInfo.Name,
                 LastUpdatedByEmployerEmail = commitment.EmployerLastUpdateInfo.EmailAddress,
-                Apprenticeships = commitment.Apprenticeships.Select(x => new Apprenticeship
-                {
-                    Id = x.Id,
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    ULN = x.ULN,
-                    CommitmentId = commitment.Id,
-                    PaymentStatus = (PaymentStatus) x.PaymentStatus,
-                    AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                    TrainingType = (TrainingType) x.TrainingType,
-                    TrainingCode = x.TrainingCode,
-                    TrainingName = x.TrainingName,
-                    Cost = x.Cost,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate
-                }).ToList()
             };
 
             return domainCommitment;

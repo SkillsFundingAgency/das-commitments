@@ -6,19 +6,16 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
-using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
+using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -36,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
-			var commandValidator = new CreateCommitmentValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
+			var commandValidator = new CreateCommitmentValidator();
 			_mockMediator = new Mock<IMediator>();
             _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, 
                 _mockHashingService.Object,
@@ -171,10 +168,40 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockMediator.Verify(x=> x.SendAsync(It.IsAny<CreateRelationshipCommand>()), Times.Never);
         }
 
+        [Test]
+        public async Task ThenIfNoMessageIsProvidedThenAMessageIsNotSaved()
+        {
+            _exampleValidRequest.Message = null;
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(x => x.SaveMessage(It.IsAny<long>(), It.IsAny<Message>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenIfAMessageIsProvidedThenTheMessageIsSaved()
+        {
+            //Arange
+            const long expectedCommitmentId = 45;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(expectedCommitmentId);
+            _exampleValidRequest.Message = "New Message";
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(
+                x =>
+                    x.SaveMessage(expectedCommitmentId,
+                        It.Is<Message>(
+                            m => m.Author == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name && m.CreatedBy == _exampleValidRequest.CallerType && m.Text == _exampleValidRequest.Message)),
+                Times.Once);
+        }
 
         private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
         {
-            argument.Id.Should().Be(_exampleValidRequest.Commitment.Id);
             argument.Reference.Should().Be(_exampleValidRequest.Commitment.Reference);
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
@@ -185,20 +212,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.LastAction.Should().Be(LastAction.None);
             argument.LastUpdatedByEmployerName.Should().Be(_exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name);
             argument.LastUpdatedByEmployerEmail.Should().Be(_exampleValidRequest.Commitment.EmployerLastUpdateInfo.EmailAddress);
-            argument.Apprenticeships.Should().HaveSameCount(_exampleValidRequest.Commitment.Apprenticeships);
-            argument.Apprenticeships[0].Id.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Id);
-            argument.Apprenticeships[0].ULN.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].ULN);
-            argument.Apprenticeships[0].FirstName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].FirstName);
-            argument.Apprenticeships[0].LastName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].LastName);
-            argument.Apprenticeships[0].CommitmentId.Should().Be(_exampleValidRequest.Commitment.Id);
-            argument.Apprenticeships[0].Cost.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].Cost);
-            argument.Apprenticeships[0].AgreementStatus.Should().Be((AgreementStatus)_exampleValidRequest.Commitment.Apprenticeships[0].AgreementStatus);
-            argument.Apprenticeships[0].PaymentStatus.Should().Be((PaymentStatus)_exampleValidRequest.Commitment.Apprenticeships[0].PaymentStatus);
-            argument.Apprenticeships[0].TrainingType.Should().Be((TrainingType)_exampleValidRequest.Commitment.Apprenticeships[0].TrainingType);
-            argument.Apprenticeships[0].TrainingCode.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingCode);
-            argument.Apprenticeships[0].TrainingName.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].TrainingName);
-            argument.Apprenticeships[0].StartDate.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].StartDate);
-            argument.Apprenticeships[0].EndDate.Should().Be(_exampleValidRequest.Commitment.Apprenticeships[0].EndDate);
+            argument.Apprenticeships.Should().BeEmpty();
         }
     }
 }

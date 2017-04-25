@@ -343,5 +343,38 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             var expectedStartDate = stoppedDate.AddDays(1);
             _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
         }
+
+        [Test]
+        public async Task ThenIfNoMessageIsProvidedThenAMessageIsNotSaved()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.Message = null;
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockCommitmentRespository.Verify(x => x.SaveMessage(It.IsAny<long>(), It.IsAny<Message>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenIfAMessageIsProvidedThenTheMessageIsSaved()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.Message = "New Message";
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockCommitmentRespository.Verify(
+                x =>
+                    x.SaveMessage(_validCommand.CommitmentId,
+                        It.Is<Message>(m => m.Author == _validCommand.LastUpdatedByName && m.CreatedBy == _validCommand.Caller.CallerType && m.Text == _validCommand.Message)), Times.Once);
+        }
     }
 }
