@@ -20,6 +20,6 @@ GO
 CREATE NONCLUSTERED INDEX [IX_DataLockStatus_DataLockEventId] ON [dbo].[DataLockStatus] ([DataLockEventId])
 GO
 
-CREATE UNIQUE INDEX [IX_DataLockStatus_ApprenticeshipId] ON [dbo].[DataLockStatus] ([ApprenticeshipId])
+CREATE UNIQUE INDEX [IX_DataLockStatus_ApprenticeshipId] ON [dbo].[DataLockStatus] ([ApprenticeshipId],[PriceEpisodeIdentifier])
 GO
 

@@ -15,7 +15,11 @@
 )
 AS
 
-	IF EXISTS(select 1 from [dbo].[DataLockStatus] where ApprenticeshipId = @ApprenticeshipId)
+	IF EXISTS(
+		select 1 from [dbo].[DataLockStatus]
+		where ApprenticeshipId = @ApprenticeshipId
+		and PriceEpisodeIdentifier = @PriceEpisodeIdentifier
+	)
 	BEGIN
 
 		update [dbo].[DataLockStatus] set
@@ -30,7 +34,9 @@ AS
 		ErrorCodes = @ErrorCodes,
 		[Status] = @Status,
 		TriageStatus = @TriageStatus
-		where ApprenticeshipId = @ApprenticeshipId
+		where
+		ApprenticeshipId = @ApprenticeshipId
+		and PriceEpisodeIdentifier = @PriceEpisodeIdentifier
 
 	END
 	ELSE
