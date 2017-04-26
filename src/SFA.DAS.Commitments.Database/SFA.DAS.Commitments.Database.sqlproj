@@ -70,8 +70,6 @@
     <Build Include="Views\CommitmentSummary.sql" />
     <Build Include="Views\ApprenticeshipSummary.sql" />
     <Build Include="StoredProcedures\GetCommitment.sql" />
-    <Build Include="UserDefinedTypes\ApprenticeshipTable.sql" />
-    <Build Include="StoredProcedures\BulkUploadApprenticships.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
     <Build Include="StoredProcedures\DeleteCommitment.sql" />
     <Build Include="Tables\Relationship.sql" />
