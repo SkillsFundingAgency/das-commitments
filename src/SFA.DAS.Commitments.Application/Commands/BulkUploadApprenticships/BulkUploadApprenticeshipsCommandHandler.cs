@@ -84,12 +84,13 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
             watch = Stopwatch.StartNew();
-            await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
-            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-deleted events took {watch.ElapsedMilliseconds} milliseconds");
-
-            watch = Stopwatch.StartNew();
-            await _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED");
-            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
+            var eventTasks = new[]
+            {
+                _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED"),
+                _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED")
+            };
+            await Task.WhenAll(eventTasks);
+            _logger.Trace($"Publishing bulk uploads of {command.Apprenticeships.Count} events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
         private async Task ValidateOverlaps(List<Apprenticeship> apprenticeships)
@@ -113,6 +114,9 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 });
                 i++;
             }
+            _logger.Trace($"Building Overlap validation command took {watch.ElapsedMilliseconds} milliseconds");
+
+            watch = Stopwatch.StartNew();
 
             if (overlapValidationRequest.OverlappingApprenticeshipRequests.Any())
             {
