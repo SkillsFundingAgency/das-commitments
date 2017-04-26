@@ -57,12 +57,16 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         {
             LogMessage(command);
 
+            var watch = Stopwatch.StartNew();
             var validationResult = _validator.Validate(command);
+            _logger.Trace($"Validating {command.Apprenticeships.Count} apprentices took {watch.ElapsedMilliseconds} milliseconds");
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            watch = Stopwatch.StartNew();
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            _logger.Trace($"Loading commitment took {watch.ElapsedMilliseconds} milliseconds");
             if (commitment == null)
                 throw new ResourceNotFoundException($"Provider { command.Caller.Id } specified a non-existant Commitment { command.CommitmentId}");
 
@@ -75,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             await ValidateOverlaps(apprenticeships);
 
-            var watch = Stopwatch.StartNew();
+            watch = Stopwatch.StartNew();
             var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
