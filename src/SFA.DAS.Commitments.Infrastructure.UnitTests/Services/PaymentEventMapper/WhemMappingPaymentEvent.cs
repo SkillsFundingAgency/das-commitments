@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Provider.Events.Api.Types;
 
@@ -56,7 +57,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
             result.IlrTotalCost.Should().Be(2100M);
 
             result.Status.Should().Be(Status.Fail);
-            result.TriageStatus.Should().Be(TriageStatus.None);
+            result.TriageStatus.Should().Be(TriageStatus.Unknown);
         }
 
         [Test]
@@ -125,6 +126,39 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
                 });
 
             result.ErrorCode.Should().Be(DataLockErrorCode.None);
+        }
+
+        [TestCase(12, 25, "12-25")]
+        [TestCase(2, 25, "2-25")]
+        public void ThenMappingStandards(int? standardCode, int? programType, string expectedTrainingCode)
+        {
+            var result = _sut.Map(
+                new DataLockEvent
+                    {
+                        IlrStandardCode = standardCode,
+                        IlrProgrammeType = programType,
+                        Errors = new DataLockEventError[0]
+                });
+
+            result.IlrTrainingCourseCode.Should().Be(expectedTrainingCode);
+            result.IlrTrainingType.Should().Be(TrainingType.Standard);
+        }
+
+        [TestCase(200, 21, 4, "200-21-4")]
+        [TestCase(403, 2, 1, "403-2-1")]
+        public void ThenMappingFramework(int? frameworkCode, int? progType, int? pathwayCode, string exprectedId)
+        {
+            var result = _sut.Map(
+                new DataLockEvent
+                    {
+                        IlrFrameworkCode = frameworkCode,
+                        IlrProgrammeType = progType,
+                        IlrPathwayCode = pathwayCode,
+                        Errors = new DataLockEventError[0]
+                    });
+
+            result.IlrTrainingCourseCode.Should().Be(exprectedId);
+            result.IlrTrainingType.Should().Be(TrainingType.Framework);
         }
     }
 }
