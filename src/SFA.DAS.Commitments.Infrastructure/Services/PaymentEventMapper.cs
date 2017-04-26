@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         private string DeriveTrainingCourseCode(DataLockEvent dataLockEvent)
         {
             return dataLockEvent.IlrProgrammeType == 25 
-                ? $"{dataLockEvent.IlrStandardCode}-25" : 
+                ? $"{dataLockEvent.IlrStandardCode}" : 
                 $"{dataLockEvent.IlrFrameworkCode}-{dataLockEvent.IlrProgrammeType}-{dataLockEvent.IlrPathwayCode}";
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using FluentAssertions;
 using NUnit.Framework;
@@ -128,8 +127,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
             result.ErrorCode.Should().Be(DataLockErrorCode.None);
         }
 
-        [TestCase(12, 25, "12-25")]
-        [TestCase(2, 25, "2-25")]
+        [TestCase(12, 25, "12")]
+        [TestCase(2, 25, "2")]
         public void ThenMappingStandards(int? standardCode, int? programType, string expectedTrainingCode)
         {
             var result = _sut.Map(
