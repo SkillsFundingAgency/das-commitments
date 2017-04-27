@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Api.Client
                 throw new ArgumentNullException(nameof(configuration));
             _configuration = configuration;
 
-            _commitmentHelper = new HttpCommitmentHelper(configuration.ClientToken);
+            _commitmentHelper = new HttpCommitmentHelper(configuration);
         }
 
         public async Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentSubmission submission)
