@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.WebJob", "SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj", "{00F79506-1368-4A99-A8F7-D922AE0B231C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client", "SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj", "{DEA2C098-EC17-4485-961D-A7F48720D37D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Types", "SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj", "{AA3B3870-F97A-443B-8429-663DE064A8AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +88,14 @@ Global
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
