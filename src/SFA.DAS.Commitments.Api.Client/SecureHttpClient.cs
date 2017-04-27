@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Api.Client
             return content;
         }
 
-        public async Task<string> PutAsync(string url, string data)
+        public virtual async Task<string> PutAsync(string url, string data)
         {
             string content;
 
@@ -84,7 +84,7 @@ namespace SFA.DAS.Commitments.Api.Client
             return content;
         }
 
-        public async Task<string> PatchAsync(string url, string data)
+        public virtual async Task<string> PatchAsync(string url, string data)
         {
             string content;
             var authenticationResult = await GetAuthenticationResult(_configuration.ClientId, _configuration.ClientSecret, _configuration.IdentifierUri, _configuration.Tenant);
@@ -104,7 +104,7 @@ namespace SFA.DAS.Commitments.Api.Client
             return content;
         }
 
-        public async Task DeleteAsync(string url, string data)
+        public virtual async Task DeleteAsync(string url, string data)
         {
             var authenticationResult = await GetAuthenticationResult(_configuration.ClientId, _configuration.ClientSecret, _configuration.IdentifierUri, _configuration.Tenant);
 
