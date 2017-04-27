@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommitmentsApiClientTests\WhenCallingTheApi.cs" />
+    <Compile Include="DataLockApiClientTests\WhenCallingTheApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderApiClientTests\WhenCallingTheApi.cs" />
     <Compile Include="RelationshipApiClientTests\WhenCallingTheApi.cs" />
