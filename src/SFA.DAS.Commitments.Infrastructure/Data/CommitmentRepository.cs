@@ -123,6 +123,29 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     });
         }
 
+        public async Task UpdateCommitment(Commitment commitment)
+        {
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitment.Id, DbType.Int64);
+                parameters.Add("@commitmentStatus", commitment.CommitmentStatus, DbType.Int16);
+                parameters.Add("@editStatus", commitment.EditStatus, DbType.Int16);
+                parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
+                parameters.Add("@lastUpdatedByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
+                parameters.Add("@lastUpdatedByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
+                parameters.Add("@lastUpdatedByProviderName", commitment.LastUpdatedByProviderName, DbType.String);
+                parameters.Add("@lastUpdatedByProviderEmail", commitment.LastUpdatedByProviderEmail, DbType.String);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql: "UpdateCommitment",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return returnCode;
+            });
+        }
+
         private static string GetUpdateLastActionSql(Caller caller)
         {
             if (caller.CallerType == CallerType.Employer)
