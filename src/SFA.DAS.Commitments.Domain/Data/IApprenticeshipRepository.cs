@@ -20,6 +20,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, AgreementStatus agreementStatus);
 
+        Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships);
 
         Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId);
 
