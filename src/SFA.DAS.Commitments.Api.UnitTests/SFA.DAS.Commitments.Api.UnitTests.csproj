@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Controllers\ApprenticeshipControllerTests\WhenGettingDataLock.cs" />
     <Compile Include="Controllers\ApprenticeshipControllerTests\WhenGettingDataLocks.cs" />
+    <Compile Include="Controllers\ApprenticeshipControllerTests\WhenUpdatingDataLock.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingACommitment.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingAnApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingAllCommitments.cs" />

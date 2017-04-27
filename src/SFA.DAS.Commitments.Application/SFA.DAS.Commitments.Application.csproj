@@ -101,6 +101,9 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
+    <Compile Include="Commands\UpdateDataLock\UpdateDataLockCommand.cs" />
+    <Compile Include="Commands\UpdateDataLock\UpdateDataLockCommandHandler.cs" />
+    <Compile Include="Commands\UpdateDataLock\UpdateDataLockCommandValidator.cs" />
     <Compile Include="Commands\VerifyRelationship\VerifyRelationshipCommand.cs" />
     <Compile Include="Commands\VerifyRelationship\VerifyRelationshipCommandHandler.cs" />
     <Compile Include="Commands\VerifyRelationship\VerifyRelationshipValidator.cs" />

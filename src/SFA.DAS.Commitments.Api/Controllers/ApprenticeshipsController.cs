@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Api.Types.DataLock;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -37,13 +37,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
-        //[Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId")]
-        //[Authorize(Roles = "Role1")]
-        //public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockStatus datalock)
-        //{
-        //    var response = await _orchestrator.PatchDataLock(apprenticeshipId, datalock);
-
-        //    return Ok(response.Data);
-        //}
+        [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockStatus datalock)
+        {
+            await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, datalock);
+            return Ok();
+        }
     }
 }
