@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Api.Client
             }
         }
 
-        public virtual async Task<string> PostAsync(string url, object message)
+        public virtual async Task<string> PostAsync(string url, string message)
         {
             string content;
             var authenticationResult = await GetAuthenticationResult(_configuration.ClientId, _configuration.ClientSecret, _configuration.IdentifierUri, _configuration.Tenant);
@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Api.Client
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
                 client.DefaultRequestHeaders.Add("accept", "application/json");
 
-                var response = await client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(message), Encoding.UTF8, "application/json"));
+                var response = await client.PostAsync(url, new StringContent(message, Encoding.UTF8, "application/json"));
                 response.EnsureSuccessStatusCode();
                 content = await response.Content.ReadAsStringAsync();
             }
