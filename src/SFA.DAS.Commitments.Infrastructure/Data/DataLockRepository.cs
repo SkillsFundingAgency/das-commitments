@@ -55,5 +55,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     commandType: CommandType.StoredProcedure);
             });
         }
+
+        public Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DataLockStatus> GetDataLock(long dataLockEventId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.44.0.28906, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.44.0.28906\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.45.0.29099, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.45.0.29099\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
@@ -107,6 +107,14 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksValidator.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockRequest.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockQueryHandler.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockResponse.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockValidator.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsResponse.cs" />
