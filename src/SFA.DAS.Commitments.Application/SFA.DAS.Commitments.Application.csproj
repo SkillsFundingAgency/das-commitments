@@ -107,6 +107,7 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Interfaces\IApprenticeshipEventsList.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsResponse.cs" />
