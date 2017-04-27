@@ -119,19 +119,28 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task UpdateCommitmentStatuses(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment, bool areAnyApprenticeshipsPendingAgreement, LastAction latestAction)
         {
-            var newEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
+            updatedCommitment.EditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
                 updatedCommitment.Apprenticeships.Count, latestAction);
-            var newCommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+            updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+            updatedCommitment.LastAction = latestAction;
 
-            var lastUpdateAction = new LastUpdateAction
+            SetLastUpdatedDetails(command, updatedCommitment);
+            
+            await _commitmentRepository.UpdateCommitment(updatedCommitment, command.Caller.CallerType, command.UserId);
+        }
+
+        private static void SetLastUpdatedDetails(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment)
+        {
+            if (command.Caller.CallerType == CallerType.Employer)
             {
-                LastUpdaterName = command.LastUpdatedByName,
-                LastUpdaterEmail = command.LastUpdatedByEmail,
-                Caller = command.Caller,
-                LastAction = latestAction,
-                UserId = command.UserId
-            };
-            await _commitmentRepository.UpdateCommitment(command.CommitmentId, newCommitmentStatus, newEditStatus, lastUpdateAction);
+                updatedCommitment.LastUpdatedByEmployerEmail = command.LastUpdatedByEmail;
+                updatedCommitment.LastUpdatedByEmployerName = command.LastUpdatedByName;
+            }
+            else
+            {
+                updatedCommitment.LastUpdatedByProviderEmail = command.LastUpdatedByEmail;
+                updatedCommitment.LastUpdatedByProviderName = command.LastUpdatedByName;
+            }
         }
 
         private async Task UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)

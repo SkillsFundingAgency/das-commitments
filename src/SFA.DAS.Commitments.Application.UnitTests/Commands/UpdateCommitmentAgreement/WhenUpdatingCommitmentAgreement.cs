@@ -379,5 +379,45 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                     x.SaveMessage(_validCommand.CommitmentId,
                         It.Is<Message>(m => m.Author == _validCommand.LastUpdatedByName && m.CreatedBy == _validCommand.Caller.CallerType && m.Text == _validCommand.Message)), Times.Once);
         }
+
+        [Test]
+        public async Task ThenIfTheCallerIsTheEmployerThenTheCommitmentStatusesAreUpdatedCorrectly()
+        {
+            var commitment = new Commitment { Id = 123L, ProviderId = 333, ProviderCanApproveCommitment = false, EditStatus = EditStatus.EmployerOnly, EmployerAccountId = 444 };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.Caller.CallerType = CallerType.Employer;
+            
+            await _handler.Handle(_validCommand);
+
+            _mockCommitmentRespository.Verify(
+                x =>
+                    x.UpdateCommitment(It.Is<Commitment>(
+                            y => y.EditStatus == EditStatus.ProviderOnly 
+                                && y.CommitmentStatus == CommitmentStatus.Active 
+                                && y.LastUpdatedByEmployerEmail == _validCommand.LastUpdatedByEmail
+                                && y.LastUpdatedByEmployerName == _validCommand.LastUpdatedByName
+                                && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction), _validCommand.Caller.CallerType, _validCommand.UserId), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheCallerIsTheProviderThenTheCommitmentStatusesAreUpdatedCorrectly()
+        {
+            var commitment = new Commitment { Id = 123L, ProviderId = 444, ProviderCanApproveCommitment = false, EditStatus = EditStatus.ProviderOnly };
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.Caller.CallerType = CallerType.Provider;
+            
+            await _handler.Handle(_validCommand);
+
+            _mockCommitmentRespository.Verify(
+                x =>
+                    x.UpdateCommitment(It.Is<Commitment>(
+                            y => y.EditStatus == EditStatus.EmployerOnly
+                                && y.CommitmentStatus == CommitmentStatus.Active
+                                && y.LastUpdatedByProviderEmail == _validCommand.LastUpdatedByEmail
+                                && y.LastUpdatedByProviderName == _validCommand.LastUpdatedByName
+                                && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction), _validCommand.Caller.CallerType, _validCommand.UserId), Times.Once);
+        }
     }
 }
