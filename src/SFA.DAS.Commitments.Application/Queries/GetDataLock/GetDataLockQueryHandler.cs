@@ -35,12 +35,20 @@ namespace SFA.DAS.Commitments.Application.Queries.GetDataLock
 
             var data = await _dataLockRepository.GetDataLock(message.DataLockEventId);
 
-            //todo: assert datalock belongs to apprenticeship
+            AssertDataLockBelongsToApprenticeship(message.ApprenticeshipId, data);
 
             return new GetDataLockResponse
             {
                 Data = MapFrom(data)
             };
+        }
+
+        private void AssertDataLockBelongsToApprenticeship(long apprenticeshipId, DataLockStatus dataLockStatus)
+        {
+            if (apprenticeshipId != dataLockStatus.ApprenticeshipId)
+            {
+                throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} does not belong to Apprenticeship {apprenticeshipId}");
+            }
         }
 
         private Api.Types.DataLock.DataLockStatus MapFrom(DataLockStatus source)

@@ -9,12 +9,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
     [RoutePrefix("api")]
     public class ApprenticeshipsController : ApiController
     {
-        private readonly ApprenticeshipOrchestrator _orchestrator;
+        private readonly ApprenticeshipsOrchestrator _orchestrator;
 
-        public ApprenticeshipsController(ApprenticeshipOrchestrator orchestrator)
+        public ApprenticeshipsController(ApprenticeshipsOrchestrator orchestrator)
         {
             if(orchestrator==null)
-                throw new ArgumentNullException(nameof(ApprenticeshipOrchestrator));
+                throw new ArgumentNullException(nameof(ApprenticeshipsOrchestrator));
 
             _orchestrator = orchestrator;
         }

@@ -6,11 +6,11 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
-    public class ApprenticeshipOrchestrator
+    public class ApprenticeshipsOrchestrator
     {
-        private IMediator _mediator;
+        private readonly IMediator _mediator;
 
-        public ApprenticeshipOrchestrator(IMediator mediator)
+        public ApprenticeshipsOrchestrator(IMediator mediator)
         {
             _mediator = mediator;
         }

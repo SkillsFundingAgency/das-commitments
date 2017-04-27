@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -58,6 +59,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetDataLock
             _validator.Verify(x => x.Validate(It.IsAny<GetDataLockRequest>()), Times.Once);
         }
 
+        [Test]
+        public void ThenIfTheDataLockDoesNotBelongToTheApprenticeshipThenAnExceptionIsThrown()
+        {
+            //Arrange
+            var request = new GetDataLockRequest
+            {
+                ApprenticeshipId = 1,
+                DataLockEventId = 2
+            };
+
+            _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
+               .ReturnsAsync(new DataLockStatus
+               {
+                   DataLockEventId = 2,
+                   ApprenticeshipId = 3
+               });
+
+            //Act & Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<ValidationException>();
+        }
 
         [Test]
         public async Task ThenTheResultShouldBeMapped()
@@ -82,7 +104,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetDataLock
             _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
                 .ReturnsAsync(dataLockStatus);
 
-            var request = new GetDataLockRequest();
+            var request = new GetDataLockRequest
+            {
+                ApprenticeshipId = 999L,
+                DataLockEventId = 1L
+            };
 
             //Act
             var result = await _handler.Handle(request);
