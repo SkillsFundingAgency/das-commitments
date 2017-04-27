@@ -208,6 +208,28 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships)
+        {
+            await WithTransaction(async (connection, transaction) =>
+            {
+                foreach (var apprenticeship in apprenticeships)
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@id", apprenticeship.Id, DbType.Int64);
+                    parameters.Add("@paymentStatus", apprenticeship.PaymentStatus, DbType.Int16);
+                    parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
+                    parameters.Add("@agreedOn", apprenticeship.AgreedOn, DbType.DateTime);
+
+                    await connection.ExecuteAsync(
+                        sql: "UpdateApprenticeshipStatuses",
+                        param: parameters,
+                        transaction: transaction,
+                        commandType: CommandType.StoredProcedure);
+                }
+                return 0;
+            });
+        }
+
         public async Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId)
         {
             _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);

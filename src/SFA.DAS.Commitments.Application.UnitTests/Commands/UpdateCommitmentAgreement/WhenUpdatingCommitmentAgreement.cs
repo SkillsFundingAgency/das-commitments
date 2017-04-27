@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -240,7 +241,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         }
 
         [Test]
-        public async Task ThenIfAnApprenticeshipIsUpdatedWithoutBeingApprovedAnEventIsPublishedWithoutAnEffectiveFromDate()
+        public async Task ThenIfAnApprenticeshipAgreementStatusIsUpdatedTheApprenticeshipStatusesAreUpdated()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
             var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234 };
@@ -248,20 +249,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
-            var updatedApprenticeship = new Apprenticeship();
-            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(apprenticeship.Id)).ReturnsAsync(updatedApprenticeship);
-
             _validCommand.LatestAction = LastAction.Approve;
 
             await _handler.Handle(_validCommand);
-            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", null, null), Times.Once);
+            
+            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatuses(It.Is<List<Apprenticeship>>(y => y.First().AgreementStatus == AgreementStatus.EmployerAgreed)), Times.Once);
         }
 
         [Test]
-        public async Task ThenIfAnApprenticeshipIsApprovedAndTheLearnerHasNoPreviousApprenticeshipsAnEventIsPublishedWithTheFirstOfTheStartMonthAsTheEffectiveFromDate()
+        public async Task ThenIfAnApprenticeshipAgreementStatusIsBothAgreedTheAgreedOnDateIsUpdated()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
-            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now, ULN = "1234567" };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now.AddDays(10)};
             commitment.Apprenticeships.Add(apprenticeship);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -274,8 +273,79 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             await _handler.Handle(_validCommand);
 
+            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatuses(It.Is<List<Apprenticeship>>(y => y.First().AgreedOn.Value.Date == DateTime.Now.Date)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfAnApprenticeshipAgreementStatusIsBothAgreedAndTheAgreedOnDateIsAlreadySetTheAgreedOnDateIsNotUpdated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var expectedAgreedOnDate = DateTime.Now.AddDays(-10);
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, AgreedOn = expectedAgreedOnDate, StartDate = DateTime.Now.AddDays(10) };
+            commitment.Apprenticeships.Add(apprenticeship);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN })).ReturnsAsync(new List<ApprenticeshipResult>());
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            await _handler.Handle(_validCommand);
+
+            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatuses(It.Is<List<Apprenticeship>>(y => y.First().AgreedOn.Value == expectedAgreedOnDate)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfAnApprenticeshipPaymentStatusIsUpdatedTheApprenticeshipStatusesAreUpdated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.Active, Id = 1234 };
+            commitment.Apprenticeships.Add(apprenticeship);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            var updatedApprenticeship = new Apprenticeship();
+            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(apprenticeship.Id)).ReturnsAsync(updatedApprenticeship);
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            await _handler.Handle(_validCommand);
+
+            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatuses(It.Is<List<Apprenticeship>>(y => y.First().PaymentStatus == PaymentStatus.PendingApproval)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfAnApprenticeshipIsUpdatedWithoutBeingApprovedAnEventIsPublishedWithoutAnEffectiveFromDate()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234 };
+            commitment.Apprenticeships.Add(apprenticeship);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            await _handler.Handle(_validCommand);
+            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", null, null), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfAnApprenticeshipIsApprovedAndTheLearnerHasNoPreviousApprenticeshipsAnEventIsPublishedWithTheFirstOfTheStartMonthAsTheEffectiveFromDate()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now, ULN = "1234567" };
+            commitment.Apprenticeships.Add(apprenticeship);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN })).ReturnsAsync(new List<ApprenticeshipResult>());
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            await _handler.Handle(_validCommand);
+
             var expectedStartDate = new DateTime(apprenticeship.StartDate.Value.Year, apprenticeship.StartDate.Value.Month, 1);
-            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
+            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
         }
 
         [Test]
@@ -294,8 +364,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
-            var updatedApprenticeship = new Apprenticeship();
-            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(apprenticeship.Id)).ReturnsAsync(updatedApprenticeship);
             _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN }))
                 .ReturnsAsync(new List<ApprenticeshipResult>
                 {
@@ -307,7 +375,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             await _handler.Handle(_validCommand);
 
             var expectedStartDate = new DateTime(apprenticeship.StartDate.Value.Year, apprenticeship.StartDate.Value.Month, 1);
-            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
+            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
         }
 
         [Test]
@@ -326,8 +394,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
-            var updatedApprenticeship = new Apprenticeship();
-            _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(apprenticeship.Id)).ReturnsAsync(updatedApprenticeship);
             var stoppedDate = apprenticeship.StartDate.Value.AddDays(-5);
             _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN }))
                 .ReturnsAsync(new List<ApprenticeshipResult>
@@ -341,7 +407,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             await _handler.Handle(_validCommand);
 
             var expectedStartDate = stoppedDate.AddDays(1);
-            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
+            _mockApprenticeshipEvents.Verify(x => x.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
         }
 
         [Test]

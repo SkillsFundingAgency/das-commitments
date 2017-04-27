@@ -145,6 +145,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
         {
+            var updatedApprenticeships = new List<Apprenticeship>();
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
                 var hasChanged = false;
@@ -155,28 +156,34 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
                 if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
                 {
-                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipAgreementStatus);
+                    apprenticeship.AgreementStatus = newApprenticeshipAgreementStatus;
+                    if (apprenticeship.AgreementStatus == AgreementStatus.BothAgreed && !apprenticeship.AgreedOn.HasValue)
+                    {
+                        apprenticeship.AgreedOn = DateTime.Now;
+                    }
                     hasChanged = true;
                 }
 
                 if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
                 {
-                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipPaymentStatus);
+                    apprenticeship.PaymentStatus = newApprenticeshipPaymentStatus;
                     hasChanged = true;
                 }
 
                 if (hasChanged)
                 {
-                    await PublishApprenticeshipUpdatedEvent(commitment, apprenticeship, newApprenticeshipAgreementStatus);
+                    updatedApprenticeships.Add(apprenticeship);
+                    await PublishApprenticeshipUpdatedEvent(commitment, apprenticeship);
                 }
             }
+
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
         }
 
-        private async Task PublishApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, AgreementStatus newApprenticeshipAgreementStatus)
+        private async Task PublishApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
         {
-            var updatedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeship.Id);
-            var effectiveFromDate = await DetermineEffectiveFromDate(newApprenticeshipAgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
-            await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
+            var effectiveFromDate = await DetermineEffectiveFromDate(apprenticeship.AgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
+            await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
         }
 
         private async Task<DateTime?> DetermineEffectiveFromDate(AgreementStatus agreementStatus, string uln, DateTime? startDate)
