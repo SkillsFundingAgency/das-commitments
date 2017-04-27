@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using SFA.DAS.Commitments.Api.Attributes;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Validation;
 
@@ -23,7 +24,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("apprenticeships/overlapping")]
-        [Authorize(Roles = "Role1")]
+        [ApiAuthorize(Roles = "Role1")]
         public async Task<IHttpActionResult> ValidateOverlappingApprenticeships([FromBody]IEnumerable<ApprenticeshipOverlapValidationRequest> request)
         {
             var result = await _validationOrchestrator.ValidateOverlappingApprenticeships(request);
