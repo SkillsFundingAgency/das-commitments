@@ -35,6 +35,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetDataLock
 
             var data = await _dataLockRepository.GetDataLock(message.DataLockEventId);
 
+            //todo: assert datalock belongs to apprenticeship
+
             return new GetDataLockResponse
             {
                 Data = MapFrom(data)

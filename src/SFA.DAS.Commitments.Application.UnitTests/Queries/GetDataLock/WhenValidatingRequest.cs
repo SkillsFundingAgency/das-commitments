@@ -33,5 +33,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetDataLock
             Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains(
                 nameof(GetDataLockRequest.DataLockEventId))));
         }
+
+        [Test]
+        public void ThenApprenticeshipIdMustBeSpecified()
+        {
+            //Arrange
+            var request = new GetDataLockRequest();
+
+            //Act
+            var result = _validator.Validate(request);
+
+            //Arrange
+            Assert.IsFalse(result.IsValid);
+            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains(
+                nameof(GetDataLockRequest.ApprenticeshipId))));
+        }
     }
 }

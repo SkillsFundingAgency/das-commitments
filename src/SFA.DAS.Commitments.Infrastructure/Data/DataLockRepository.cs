@@ -56,14 +56,32 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId)
+        public async Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId)
         {
-            throw new NotImplementedException();
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@ApprenticeshipId", apprenticeshipId);
+                var results = await connection.QueryAsync<DataLockStatus>(
+                    sql: $"[dbo].[GetDataLockStatusesByApprenticeshipId]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            });
         }
 
-        public Task<DataLockStatus> GetDataLock(long dataLockEventId)
+        public async Task<DataLockStatus> GetDataLock(long dataLockEventId)
         {
-            throw new NotImplementedException();
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@DataLockEventId", dataLockEventId);
+                var results = await connection.QueryAsync<DataLockStatus>(
+                    sql: $"[dbo].[GetDataLockStatus]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+                return results.SingleOrDefault();
+            });
         }
     }
 }

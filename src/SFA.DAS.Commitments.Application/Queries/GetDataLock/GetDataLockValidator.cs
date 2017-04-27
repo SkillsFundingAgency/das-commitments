@@ -6,6 +6,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetDataLock
     {
         public GetDataLockValidator()
         {
+            RuleFor(x => x.ApprenticeshipId).NotEmpty();
             RuleFor(x => x.DataLockEventId).NotEmpty();
         }
     }

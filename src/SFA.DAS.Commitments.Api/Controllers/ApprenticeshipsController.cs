@@ -19,23 +19,23 @@ namespace SFA.DAS.Commitments.Api.Controllers
             _orchestrator = orchestrator;
         }
 
-        //[Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId")]
-        //[Authorize(Roles = "Role1")]
-        //public async Task<IHttpActionResult> GetDataLock(long apprenticeshipId, long dataLockEventId)
-        //{
-        //    var response = await _orchestrator.GetDataLock(apprenticeshipId, dataLockEventId);
+        [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLock(long apprenticeshipId, long dataLockEventId)
+        {
+            var response = await _orchestrator.GetDataLock(apprenticeshipId, dataLockEventId);
 
-        //    return Ok(response.Data);
-        //}
+            return Ok(response.Data);
+        }
 
-        //[Route("apprenticeships/{apprenticeshipId}/datalocks")]
-        //[Authorize(Roles = "Role1")]
-        //public async Task<IHttpActionResult> GetDataLocks(long apprenticeshipId)
-        //{
-        //    var response = await _orchestrator.GetDataLocks(apprenticeshipId);
+        [Route("apprenticeships/{apprenticeshipId}/datalocks")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLocks(long apprenticeshipId)
+        {
+            var response = await _orchestrator.GetDataLocks(apprenticeshipId);
 
-        //    return Ok(response.Data);
-        //}
+            return Ok(response.Data);
+        }
 
         //[Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId")]
         //[Authorize(Roles = "Role1")]

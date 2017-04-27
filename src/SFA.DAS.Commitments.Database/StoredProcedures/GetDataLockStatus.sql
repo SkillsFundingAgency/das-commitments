@@ -1,10 +1,10 @@
 ﻿CREATE PROCEDURE [dbo].[GetDataLockStatus]
-	@DataLockId BIGINT
+	@DataLockEventId BIGINT
 AS
 BEGIN
 	
 	SELECT *
 	from DataLockStatus
-	where Id = @DataLockId
+	where DataLockEventId = @DataLockEventId
 
 END
