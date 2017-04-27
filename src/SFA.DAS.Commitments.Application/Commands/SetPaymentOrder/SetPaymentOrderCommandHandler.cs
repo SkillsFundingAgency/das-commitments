@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -16,22 +17,26 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
 
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        private readonly IApprenticeshipEvents _apprenticeshipEvents;
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
+        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
 
-        public SetPaymentOrderCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger)
+        public SetPaymentOrderCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, ICommitmentsLogger logger)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
             if (apprenticeshipRepository == null)
                 throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
+            if (apprenticeshipEventsList == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEventsList));
+            if (apprenticeshipEventsPublisher == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEventsPublisher));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
 
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
-            _apprenticeshipEvents = apprenticeshipEvents;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
+            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _logger = logger;
         }
 
@@ -53,18 +58,19 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             var changedApprenticeships = updatedApprenticeships.Except(existingApprenticeships, new ComparerPaymentOrder()).ToList();
 
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
-
-            // TODO: Need better way to publish all these events
-            await Task.WhenAll(changedApprenticeships.Select(PublishEventForApprenticeship));
+            
+            await PublishEventsForChangesApprenticeships(changedApprenticeships);
         }
 
-        private Task PublishEventForApprenticeship(Apprenticeship apprenticeship)
+        private async Task PublishEventsForChangesApprenticeships(List<Apprenticeship> changedApprenticeships)
         {
-            return Task.Run(async () =>
+            foreach (var changedApprenticeship in changedApprenticeships)
             {
-                var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
-                await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED");
-            });
+                var commitment = await _commitmentRepository.GetCommitmentById(changedApprenticeship.CommitmentId);
+                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
+            }
+
+            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
 
         private class ComparerPaymentOrder : IEqualityComparer<Apprenticeship>
