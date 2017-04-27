@@ -12,15 +12,12 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="EnvironmentName" />
       <Setting name="ConfigurationStorageConnectionString" />
-      <Setting name="ApiTokenSecret" />
-      <Setting name="ApiIssuer" />
-      <Setting name="ApiAudiences" />
-      <Setting name="LoggingRedisConnectionString"/>
-      <Setting name="LoggingRedisKey"/>
-      <Setting name="InstrumentationKey"/>
+      <Setting name="LoggingRedisConnectionString" />
+      <Setting name="LoggingRedisKey" />
+      <Setting name="InstrumentationKey" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert"/>
+      <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert" />
     </Endpoints>
     <Certificates>
       <Certificate name="WebSslCert" storeLocation="LocalMachine" storeName="My" />

@@ -6,14 +6,11 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="__StorageConnectionString__" />
       <Setting name="EnvironmentName" value="__EnvironmentName__" />
       <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
-      <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
-      <Setting name="ApiIssuer" value="__ApiIssuer__"/>
-      <Setting name="ApiAudiences" value="__ApiAudiences__"/>
       <Setting name="LoggingRedisConnectionString" value="__LoggingRedisConnectionString__" />
       <Setting name="LoggingRedisKey" value="__LoggingRedisKey__" />
-      <Setting name="InstrumentationKey" value="__InstrumentationKey__"/>
+      <Setting name="InstrumentationKey" value="__InstrumentationKey__" />
     </ConfigurationSettings>
-     <Certificates>
+    <Certificates>
       <Certificate name="WebSslCert" thumbprint="371D59F807751FB2EA73C84E7374BDE88AD7A6E0" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
