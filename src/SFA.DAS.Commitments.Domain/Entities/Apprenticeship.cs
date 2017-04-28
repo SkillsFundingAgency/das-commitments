@@ -1,5 +1,7 @@
 ﻿using System;
 
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+
 namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class Apprenticeship
@@ -32,5 +34,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Originator? UpdateOriginator { get; set; }
         public string ProviderName { get; set; }
         public string LegalEntityName { get; set; }
+        public TriageStatus? DataLockTriage { get; set; }
     }
 }
