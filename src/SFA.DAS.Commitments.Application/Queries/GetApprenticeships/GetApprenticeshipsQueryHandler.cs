@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
+
+using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -59,7 +61,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship,
                         PendingUpdateOriginator = (Originator?)x.UpdateOriginator,
                         ProviderName = x.ProviderName,
-                        LegalEntityName = x.LegalEntityName
+                        LegalEntityName = x.LegalEntityName,
+                        DataLockTriageStatus = (TriageStatus?)x.DataLockTriage,
                     }
                     ).ToList()
             };
