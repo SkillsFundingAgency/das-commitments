@@ -37,11 +37,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
-        [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId")]
+        [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockStatus datalock)
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
-            await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, datalock);
+            await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
             return Ok();
         }
     }

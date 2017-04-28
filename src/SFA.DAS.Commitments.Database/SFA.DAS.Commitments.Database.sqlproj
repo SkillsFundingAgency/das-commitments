@@ -92,6 +92,7 @@
     <Build Include="StoredProcedures\CreateMessage.sql" />
     <Build Include="StoredProcedures\GetDataLockStatusesByApprenticeshipId.sql" />
     <Build Include="StoredProcedures\GetDataLockStatus.sql" />
+    <Build Include="StoredProcedures\UpdateDataLockTriageStatus.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
