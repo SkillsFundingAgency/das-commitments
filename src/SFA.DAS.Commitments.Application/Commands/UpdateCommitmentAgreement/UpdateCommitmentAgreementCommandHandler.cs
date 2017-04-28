@@ -8,6 +8,7 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -23,13 +24,12 @@ using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
-    //todo: add test for UpdateCommitmentAgreementCommandHandler various scenarios
     public sealed class UpdateCommitmentAgreementCommandHandler : AsyncRequestHandler<UpdateCommitmentAgreementCommand>
     {
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
-        private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentRepository _commitmentRepository;
-
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
+        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
         private readonly ICommitmentsLogger _logger;
@@ -39,11 +39,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         public UpdateCommitmentAgreementCommandHandler(
             ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository,
-            IApprenticeshipUpdateRules apprenticeshipUpdateRules, 
-            IApprenticeshipEvents apprenticeshipEvents, 
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules,
             ICommitmentsLogger logger, 
             IMediator mediator,
-            AbstractValidator<UpdateCommitmentAgreementCommand> validator)
+            AbstractValidator<UpdateCommitmentAgreementCommand> validator, 
+            IApprenticeshipEventsList apprenticeshipEventsList, 
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -51,8 +52,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 throw new ArgumentNullException(nameof(apprenticeshipRepository));
             if (apprenticeshipUpdateRules == null)
                 throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
+            if (apprenticeshipEventsList == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEventsList));
+            if (apprenticeshipEventsPublisher == null)
+                throw new ArgumentNullException(nameof(apprenticeshipEventsPublisher));
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
             if (logger == null)
@@ -61,10 +64,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
-            _apprenticeshipEvents = apprenticeshipEvents;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
+            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _logger = logger;
             _mediator = mediator;
             _validator = validator;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
+            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand command)
@@ -148,42 +154,49 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var updatedApprenticeships = new List<Apprenticeship>();
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
-                var hasChanged = false;
-
                 //todo: extract status stuff outside loop and set all apprenticeships to same agreement status?
-                var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
-                var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
-
-                if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
-                {
-                    apprenticeship.AgreementStatus = newApprenticeshipAgreementStatus;
-                    if (apprenticeship.AgreementStatus == AgreementStatus.BothAgreed && !apprenticeship.AgreedOn.HasValue)
-                    {
-                        apprenticeship.AgreedOn = DateTime.Now;
-                    }
-                    hasChanged = true;
-                }
-
-                if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
-                {
-                    apprenticeship.PaymentStatus = newApprenticeshipPaymentStatus;
-                    hasChanged = true;
-                }
+                var hasChanged = UpdateApprenticeshipStatuses(command, latestAction, apprenticeship);
 
                 if (hasChanged)
                 {
                     updatedApprenticeships.Add(apprenticeship);
-                    await PublishApprenticeshipUpdatedEvent(commitment, apprenticeship);
+                    await AddApprenticeshipUpdatedEvent(commitment, apprenticeship);
                 }
             }
 
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
+            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
 
-        private async Task PublishApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
+        private bool UpdateApprenticeshipStatuses(UpdateCommitmentAgreementCommand command, LastAction latestAction, Apprenticeship apprenticeship)
+        {
+            bool hasChanged = false;
+
+            var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
+            var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
+
+            if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
+            {
+                apprenticeship.AgreementStatus = newApprenticeshipAgreementStatus;
+                if (apprenticeship.AgreementStatus == AgreementStatus.BothAgreed && !apprenticeship.AgreedOn.HasValue)
+                {
+                    apprenticeship.AgreedOn = DateTime.Now;
+                }
+                hasChanged = true;
+            }
+
+            if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
+            {
+                apprenticeship.PaymentStatus = newApprenticeshipPaymentStatus;
+                hasChanged = true;
+            }
+            return hasChanged;
+        }
+
+        private async Task AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
         {
             var effectiveFromDate = await DetermineEffectiveFromDate(apprenticeship.AgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
-            await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
+            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
         }
 
         private async Task<DateTime?> DetermineEffectiveFromDate(AgreementStatus agreementStatus, string uln, DateTime? startDate)
