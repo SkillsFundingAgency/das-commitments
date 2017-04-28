@@ -123,8 +123,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             var parameters = new DynamicParameters();
             parameters.Add("@commitmentId", commitmentHistoryItem.CommitmentId, DbType.Int64);
             parameters.Add("@userId", commitmentHistoryItem.UserId, DbType.String);
-            parameters.Add("@updatedByRole", commitmentHistoryItem.UpdatedByRole, DbType.Int16);
-            parameters.Add("@changeType", changeType, DbType.Int16);
+            parameters.Add("@updatedByRole", commitmentHistoryItem.UpdatedByRole.ToString(), DbType.String);
+            parameters.Add("@changeType", changeType.ToString(), DbType.String);
             parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
 
             await connection.QueryAsync<long>(
@@ -145,8 +145,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             var parameters = new DynamicParameters();
             parameters.Add("@apprenticeshipId", apprenticeshipHistoryItem.ApprenticeshipId, DbType.Int64);
             parameters.Add("@userId", apprenticeshipHistoryItem.UserId, DbType.String);
-            parameters.Add("@updatedByRole", apprenticeshipHistoryItem.UpdatedByRole, DbType.Int16);
-            parameters.Add("@changeType", changeType, DbType.Int16);
+            parameters.Add("@updatedByRole", apprenticeshipHistoryItem.UpdatedByRole.ToString(), DbType.String);
+            parameters.Add("@changeType", changeType.ToString(), DbType.String);
             parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
 
             await connection.QueryAsync<long>(
