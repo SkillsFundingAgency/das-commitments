@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Types;
+using ApprenticeshipEvent = SFA.DAS.Events.Api.Types.ApprenticeshipEvent;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEventsTests
 {

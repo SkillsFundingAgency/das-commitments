@@ -10,6 +10,7 @@ using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
+    [Obsolete("Use ApprenticeshipEventsPublisher and ApprenticeshipEventsList.")]
     public class ApprenticeshipEvents : IApprenticeshipEvents
     {
         private readonly IEventsApi _eventsApi;
@@ -23,7 +24,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
-            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus, effectiveFrom, effectiveTo);
+            var apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, (PaymentStatus)apprenticeship.PaymentStatus, effectiveFrom, effectiveTo);
 
             _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
             await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
@@ -31,7 +32,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task BulkPublishEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event)
         {
-            var eventsToPublish = new List<ApprenticeshipEvent>();
+            var eventsToPublish = new List<Events.Api.Types.ApprenticeshipEvent>();
 
             foreach (var apprenticeship in apprenticeships)
             {
@@ -43,7 +44,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task PublishDeletionEvent(Commitment commitment, Apprenticeship apprenticeship, string @event)
         {
-            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, PaymentStatus.Deleted);
+            var apprenticeshipEvent = CreateEvent(commitment, apprenticeship, @event, PaymentStatus.Deleted);
 
             _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
             await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
@@ -51,7 +52,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task BulkPublishDeletionEvent(Commitment commitment, IList<Apprenticeship> apprenticeships, string @event)
         {
-            var eventsToPublish = new List<ApprenticeshipEvent>();
+            var eventsToPublish = new List<Events.Api.Types.ApprenticeshipEvent>();
 
             foreach (var apprenticeship in apprenticeships)
             {
@@ -63,14 +64,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task PublishChangeApprenticeshipStatusEvent(Commitment commitment, Apprenticeship apprenticeship, Domain.Entities.PaymentStatus paymentStatus, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
-            ApprenticeshipEvent apprenticeshipEvent = CreateEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", (PaymentStatus)paymentStatus, effectiveFrom, effectiveTo);
+            var apprenticeshipEvent = CreateEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", (PaymentStatus)paymentStatus, effectiveFrom, effectiveTo);
 
             _logger.Info($"Create apprenticeship event: {apprenticeshipEvent.Event}", commitmentId: commitment.Id, apprenticeshipId: apprenticeship.Id);
 
             await _eventsApi.CreateApprenticeshipEvent(apprenticeshipEvent);
         }
 
-        private async Task BulkPublishEvent(List<ApprenticeshipEvent> eventsToPublish)
+        private async Task BulkPublishEvent(List<Events.Api.Types.ApprenticeshipEvent> eventsToPublish)
         {
             if (eventsToPublish.Count > 0)
             {
@@ -79,9 +80,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             }
         }
 
-        private static ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, PaymentStatus paymentStatus, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
+        private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, PaymentStatus paymentStatus, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
-            return new ApprenticeshipEvent
+            return new Events.Api.Types.ApprenticeshipEvent
             {
                 AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
                 ApprenticeshipId = apprenticeship.Id,

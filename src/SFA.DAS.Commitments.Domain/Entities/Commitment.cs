@@ -7,6 +7,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Commitment()
         {
             Apprenticeships = new List<Apprenticeship>();
+            Messages = new List<Message>();
         }
 
         public long Id { get; set; }

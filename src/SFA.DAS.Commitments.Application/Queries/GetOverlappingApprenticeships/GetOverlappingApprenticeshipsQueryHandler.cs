@@ -53,14 +53,13 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
             sw = Stopwatch.StartNew();
 
             var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(ulns);
-
             _logger.Trace($"Getting active apprenticeships from database took {sw.ElapsedMilliseconds}");
 
             sw = Stopwatch.StartNew();
 
-            foreach (var request in query.OverlappingApprenticeshipRequests)
+            foreach (var apprenticeship in apprenticeships)
             {
-                foreach (var apprenticeship in apprenticeships)
+                foreach (var request in query.OverlappingApprenticeshipRequests.Where(x => x.Uln == apprenticeship.Uln))
                 {
                     var validationFailReason = _overlapRules.DetermineOverlap(request, apprenticeship);
 
