@@ -126,11 +126,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@updatedByRole", commitmentHistoryItem.UpdatedByRole.ToString(), DbType.String);
             parameters.Add("@changeType", changeType.ToString(), DbType.String);
             parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
+            parameters.Add("@UpdatedByName", commitmentHistoryItem.UpdatedByName, DbType.String);
 
             await connection.QueryAsync<long>(
                 sql:
-                "INSERT INTO [dbo].[CommitmentHistory](CommitmentId, UserId, UpdatedByRole, ChangeType, CreatedOn) " +
-                "VALUES (@commitmentId, @userId, @updatedByRole, @changeType, @createdOn); ",
+                "INSERT INTO [dbo].[CommitmentHistory](CommitmentId, UserId, UpdatedByRole, ChangeType, CreatedOn, UpdatedByName) " +
+                "VALUES (@commitmentId, @userId, @updatedByRole, @changeType, @createdOn, @updatedByName); ",
                 param: parameters,
                 commandType: CommandType.Text,
                 transaction: trans);
@@ -148,11 +149,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@updatedByRole", apprenticeshipHistoryItem.UpdatedByRole.ToString(), DbType.String);
             parameters.Add("@changeType", changeType.ToString(), DbType.String);
             parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
+            parameters.Add("@updatedByName", apprenticeshipHistoryItem.UpdatedByName, DbType.String);
 
             await connection.QueryAsync<long>(
                 sql:
-                "INSERT INTO [dbo].[ApprenticeshipHistory](ApprenticeshipId, UserId, UpdatedByRole, ChangeType, CreatedOn) " +
-                "VALUES (@apprenticeshipId, @userId, @updatedByRole, @changeType, @createdOn); ",
+                "INSERT INTO [dbo].[ApprenticeshipHistory](ApprenticeshipId, UserId, UpdatedByRole, ChangeType, CreatedOn, UpdatedByName) " +
+                "VALUES (@apprenticeshipId, @userId, @updatedByRole, @changeType, @createdOn, @updatedByName); ",
                 param: parameters,
                 commandType: CommandType.Text,
                 transaction: trans);

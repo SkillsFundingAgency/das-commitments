@@ -6,4 +6,5 @@
     [UpdatedByRole] NVARCHAR(50) NOT NULL, 
     [ChangeType] NVARCHAR(50) NOT NULL,
     [CreatedOn] DATETIME NOT NULL, 
+    [UpdatedByName] NVARCHAR(255) NULL
 )

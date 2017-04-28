@@ -7,5 +7,6 @@
         public string UserId { get; set; }
 
         public CallerType UpdatedByRole { get; set; }
+        public string UpdatedByName { get; set; }
     }
 }
