@@ -21,11 +21,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task Publish(IApprenticeshipEventsList events)
         {
-            var apiEvents = events.Events.Select(x => CreateEvent(x.Commitment, x.Apprenticeship, x.Event, x.EffectiveFrom));
+            var apiEvents = events.Events.Select(x => CreateEvent(x.Commitment, x.Apprenticeship, x.Event, x.EffectiveFrom, x.EffectiveTo));
             await _eventsApi.BulkCreateApprenticeshipEvent(apiEvents.ToList());
         }
 
-        private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null)
+        private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
             return new Events.Api.Types.ApprenticeshipEvent
             {
@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
                 DateOfBirth = apprenticeship.DateOfBirth,
                 EffectiveFrom = effectiveFrom,
-                EffectiveTo = null
+                EffectiveTo = effectiveTo
             };
         }
     }

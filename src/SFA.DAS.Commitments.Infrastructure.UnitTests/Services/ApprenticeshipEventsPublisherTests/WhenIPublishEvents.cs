@@ -97,12 +97,24 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             VerifyEventWasAdded(_event, effectiveFrom);
         }
 
-        private void VerifyEventWasAdded(string @event, DateTime? effectiveFrom = null)
+        [Test]
+        public async Task AndTheEffectiveToDateIsProvidedThenTheEventIsAddedWithTheCorrectEffectiveToDate()
         {
-            _eventsApi.Verify(x => x.BulkCreateApprenticeshipEvent(It.Is<IList<ApprenticeshipEvent>>(y => EventMatchesParameters(y, effectiveFrom))));
+            _apprenticeship.TrainingType = TrainingType.Standard;
+            var effectiveTo = DateTime.Now.AddDays(1);
+            _mockApprenticeshipEvent.SetupGet(x => x.EffectiveTo).Returns(effectiveTo);
+
+            await _publisher.Publish(_eventsList.Object);
+
+            VerifyEventWasAdded(_event, effectiveTo: effectiveTo);
         }
 
-        private bool EventMatchesParameters(IList<ApprenticeshipEvent> apprenticeshipEvents, DateTime? effectiveFrom)
+        private void VerifyEventWasAdded(string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
+        {
+            _eventsApi.Verify(x => x.BulkCreateApprenticeshipEvent(It.Is<IList<ApprenticeshipEvent>>(y => EventMatchesParameters(y, effectiveFrom, effectiveTo))));
+        }
+
+        private bool EventMatchesParameters(IList<ApprenticeshipEvent> apprenticeshipEvents, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
             if (apprenticeshipEvents.Count != 1)
             {
@@ -127,7 +139,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.LegalEntityName == _commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == _commitment.LegalEntityOrganisationType.ToString() &&
                    apprenticeshipEvent.DateOfBirth == _apprenticeship.DateOfBirth &&
-                   apprenticeshipEvent.EffectiveFrom == effectiveFrom;
-        }
+                   apprenticeshipEvent.EffectiveFrom == effectiveFrom &&
+                   apprenticeshipEvent.EffectiveTo == effectiveTo;
+        } 
     }
 }

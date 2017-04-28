@@ -9,5 +9,6 @@ namespace SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents
         Apprenticeship Apprenticeship { get; }
         string Event { get; }
         DateTime? EffectiveFrom { get; }
+        DateTime? EffectiveTo { get; }
     }
 }

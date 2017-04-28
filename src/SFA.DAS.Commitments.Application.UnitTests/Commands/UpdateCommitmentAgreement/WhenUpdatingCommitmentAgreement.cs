@@ -330,7 +330,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _validCommand.LatestAction = LastAction.Approve;
 
             await _handler.Handle(_validCommand);
-            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", null), Times.Once);
+            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", null, null), Times.Once);
             _mockApprenticeshipEventsPublisher.Verify(x => x.Publish(_mockApprenticeshipEventsList.Object), Times.Once);
         }
 
@@ -350,7 +350,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             await _handler.Handle(_validCommand);
 
             var expectedStartDate = new DateTime(apprenticeship.StartDate.Value.Year, apprenticeship.StartDate.Value.Month, 1);
-            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate), Times.Once);
+            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
             _mockApprenticeshipEventsPublisher.Verify(x => x.Publish(_mockApprenticeshipEventsList.Object), Times.Once);
         }
 
@@ -381,7 +381,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             await _handler.Handle(_validCommand);
 
             var expectedStartDate = new DateTime(apprenticeship.StartDate.Value.Year, apprenticeship.StartDate.Value.Month, 1);
-            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate), Times.Once);
+            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
             _mockApprenticeshipEventsPublisher.Verify(x => x.Publish(_mockApprenticeshipEventsList.Object), Times.Once);
         }
 
@@ -414,7 +414,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             await _handler.Handle(_validCommand);
 
             var expectedStartDate = stoppedDate.AddDays(1);
-            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate), Times.Once);
+            _mockApprenticeshipEventsList.Verify(x => x.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", expectedStartDate, null), Times.Once);
             _mockApprenticeshipEventsPublisher.Verify(x => x.Publish(_mockApprenticeshipEventsList.Object), Times.Once);
         }
 

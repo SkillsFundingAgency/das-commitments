@@ -15,6 +15,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
         private Apprenticeship _apprenticeship;
         private string _event = "Test";
         private DateTime _effectiveFrom;
+        private DateTime _effectiveTo;
 
         [SetUp]
         public void Given()
@@ -24,18 +25,20 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             _commitment = new Commitment();
             _apprenticeship = new Apprenticeship();
             _effectiveFrom = DateTime.Now.AddDays(-10);
+            _effectiveTo = DateTime.Now.AddDays(10);
         }
 
         [Test]
         public void ThenTheEventIsAdded()
         {
-            _list.Add(_commitment, _apprenticeship, _event, _effectiveFrom);
+            _list.Add(_commitment, _apprenticeship, _event, _effectiveFrom, _effectiveTo);
 
             _list.Events.Count.Should().Be(1);
             _list.Events.First().Apprenticeship.Should().Be(_apprenticeship);
             _list.Events.First().Commitment.Should().Be(_commitment);
             _list.Events.First().Event.Should().Be(_event);
             _list.Events.First().EffectiveFrom.Should().Be(_effectiveFrom);
+            _list.Events.First().EffectiveTo.Should().Be(_effectiveTo);
         }
     }
 }

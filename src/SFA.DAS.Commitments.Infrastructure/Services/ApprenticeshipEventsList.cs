@@ -16,14 +16,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _events = new List<IApprenticeshipEvent>();
         }
 
-        public void Add(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null)
+        public void Add(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
-            _events.Add(CreateEvent(commitment, apprenticeship, @event, effectiveFrom));
+            _events.Add(CreateEvent(commitment, apprenticeship, @event, effectiveFrom, effectiveTo));
         }
 
-        private static IApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null)
+        private static IApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
-            return new ApprenticeshipEvent(commitment, apprenticeship, @event, effectiveFrom);
+            return new ApprenticeshipEvent(commitment, apprenticeship, @event, effectiveFrom, effectiveTo);
         }
     }
 }
