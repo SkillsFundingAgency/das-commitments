@@ -10,7 +10,7 @@
 	[IlrActualStartDate] DATETIME NULL,
 	[IlrEffectiveFromDate] DATETIME NULL,
 	[IlrTotalCost] DECIMAL NULL,
-    [ErrorCodes] INT NOT NULL,
+    [ErrorCode] INT NOT NULL,
     [Status] TINYINT NOT NULL,
     [TriageStatus] TINYINT NOT NULL,
 	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id])

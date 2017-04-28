@@ -6,14 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class DataLockRepository : BaseRepository, IDataLockRepository
     {
-        public DataLockRepository(string connectionString) : base(connectionString)
+        private readonly IApprenticeshipUpdateTransactions _apprenticeshipUpdateTransactions;
+        private readonly IDataLockTransactions _dataLockTransactions;
+
+        public DataLockRepository(string connectionString,
+            IApprenticeshipUpdateTransactions apprenticeshipUpdateTransactions,
+            IDataLockTransactions dataLockTransactions) : base(connectionString)
         {
+            _apprenticeshipUpdateTransactions = apprenticeshipUpdateTransactions;
+            _dataLockTransactions = dataLockTransactions;
         }
 
         public async Task<long> GetLastDataLockEventId()
@@ -45,7 +54,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@IlrActualStartDate", dataLockStatus.IlrActualStartDate);
                 parameters.Add("@IlrEffectiveFromDate", dataLockStatus.IlrEffectiveFromDate);
                 parameters.Add("@IlrTotalCost", dataLockStatus.IlrTotalCost);
-                parameters.Add("@ErrorCodes", dataLockStatus.ErrorCode);
+                parameters.Add("@ErrorCode", dataLockStatus.ErrorCode);
                 parameters.Add("@Status", dataLockStatus.Status);
                 parameters.Add("@TriageStatus", dataLockStatus.TriageStatus);
 
@@ -84,17 +93,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus)
+        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate)
         {
-            return await WithConnection(async connection =>
+            return await WithTransaction(async (connection, trans) =>
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("@DataLockEventId", dataLockEventId);
-                parameters.Add("@TriageStatus", triageStatus);
-                return await connection.ExecuteAsync(
-                    sql: $"[dbo].[UpdateDataLockTriageStatus]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
+                await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
+                    dataLockEventId, triageStatus);
+                
+                if (triageStatus == TriageStatus.Change)
+                {
+                    await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans,
+                        apprenticeshipUpdate);
+                }
+
+                return 0;
             });
         }
     }

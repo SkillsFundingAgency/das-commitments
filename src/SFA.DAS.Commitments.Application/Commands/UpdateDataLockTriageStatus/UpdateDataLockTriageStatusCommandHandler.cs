@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
@@ -33,9 +34,51 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var triageStatus = (TriageStatus) message.TriageStatus;
+            var dataLock = await _dataLockRepository.GetDataLock(message.DataLockEventId);
 
-            await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus);
+            AssertDataLockBelongsToApprenticeship(message.ApprenticeshipId, dataLock);
+
+            var triageStatus = (TriageStatus)message.TriageStatus;
+
+            if (dataLock.TriageStatus == triageStatus)
+            {
+                return;
+            }
+
+            ApprenticeshipUpdate apprenticeshipUpdate = null;
+            if (triageStatus == TriageStatus.Change)
+            {
+                apprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    ApprenticeshipId = dataLock.ApprenticeshipId,
+                    Originator = Originator.Provider,
+                    //todo: update origin
+                };
+
+                if ((dataLock.ErrorCode & DataLockErrorCode.Dlock07) == DataLockErrorCode.Dlock07)
+                {
+                    apprenticeshipUpdate.Cost = dataLock.IlrTotalCost;
+                }
+
+                if ((dataLock.ErrorCode & DataLockErrorCode.Dlock09) == DataLockErrorCode.Dlock09)
+                {
+                    apprenticeshipUpdate.StartDate = dataLock.IlrActualStartDate;
+                    //todo: this field? or go get the apprenticeship and use the start date as per Mark's notes?
+                }
+
+                //todo: ChangeEffectiveDates? Not clear.
+
+            }
+
+            await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus, apprenticeshipUpdate);
+        }
+
+        private void AssertDataLockBelongsToApprenticeship(long apprenticeshipId, DataLockStatus dataLockStatus)
+        {
+            if (apprenticeshipId != dataLockStatus.ApprenticeshipId)
+            {
+                throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} does not belong to Apprenticeship {apprenticeshipId}");
+            }
         }
     }
 }

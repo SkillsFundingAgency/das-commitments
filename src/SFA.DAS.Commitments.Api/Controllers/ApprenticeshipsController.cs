@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
-        [Authorize(Roles = "Role1")]
+        //[Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetDataLock(long apprenticeshipId, long dataLockEventId)
         {
             var response = await _orchestrator.GetDataLock(apprenticeshipId, dataLockEventId);
@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks")]
-        [Authorize(Roles = "Role1")]
+        //[Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetDataLocks(long apprenticeshipId)
         {
             var response = await _orchestrator.GetDataLocks(apprenticeshipId);
@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
-        [Authorize(Roles = "Role1")]
+        //[Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
             await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, triageSubmission);

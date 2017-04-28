@@ -9,7 +9,7 @@
 	@IlrActualStartDate DATETIME,
 	@IlrEffectiveFromDate DATETIME,
 	@IlrTotalCost DECIMAL,
-    @ErrorCodes INT,
+    @ErrorCode INT,
     @Status TINYINT,
     @TriageStatus TINYINT
 )
@@ -31,7 +31,7 @@ AS
 		IlrActualStartDate = @IlrActualStartDate,
 		IlrEffectiveFromDate = @IlrEffectiveFromDate,
 		IlrTotalCost = @IlrTotalCost,
-		ErrorCodes = @ErrorCodes,
+		ErrorCode = @ErrorCode,
 		[Status] = @Status,
 		TriageStatus = @TriageStatus
 		where
@@ -53,7 +53,7 @@ AS
 			IlrActualStartDate,
 			IlrEffectiveFromDate,
 			IlrTotalCost,
-			ErrorCodes,
+			ErrorCode,
 			[Status],
 			TriageStatus
 		)
@@ -68,7 +68,7 @@ AS
 			@IlrActualStartDate,
 			@IlrEffectiveFromDate,
 			@IlrTotalCost,
-			@ErrorCodes,
+			@ErrorCode,
 			@Status,
 			@TriageStatus
 		)
