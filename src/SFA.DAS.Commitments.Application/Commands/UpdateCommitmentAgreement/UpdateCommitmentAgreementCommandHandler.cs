@@ -46,21 +46,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             IApprenticeshipEventsList apprenticeshipEventsList, 
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (apprenticeshipUpdateRules == null)
-                throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
-            if (apprenticeshipEventsList == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEventsList));
-            if (apprenticeshipEventsPublisher == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEventsPublisher));
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
@@ -100,18 +85,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
 
-            var updatedCommitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
-            var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+            var areAnyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+            await UpdateCommitmentStatuses(command, commitment, areAnyApprenticeshipsPendingAgreement, latestAction);
+            await CreateCommitmentMessage(command, commitment);
 
-            await UpdateCommitmentStatuses(command, updatedCommitment, areAnyApprenticeshipsPendingAgreement, latestAction);
-
-            // recalculate payment order for all the employer account's apprenticeships if necessary
             await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
-
-            await CreateMessage(command);
         }
 
-        private async Task CreateMessage(UpdateCommitmentAgreementCommand command)
+        private async Task CreateCommitmentMessage(UpdateCommitmentAgreementCommand command, Commitment commitment)
         {
             var message = new Message
             {
@@ -119,7 +100,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 Text = command.Message ?? string.Empty,
                 CreatedBy = command.Caller.CallerType
             };
-
+            commitment.Messages.Add(message);
+            
             await _commitmentRepository.SaveMessage(command.CommitmentId, message);
         }
 
