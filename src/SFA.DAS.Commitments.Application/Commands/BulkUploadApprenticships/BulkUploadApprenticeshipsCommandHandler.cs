@@ -57,12 +57,16 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         {
             LogMessage(command);
 
+            var watch = Stopwatch.StartNew();
             var validationResult = _validator.Validate(command);
+            _logger.Trace($"Validating {command.Apprenticeships.Count} apprentices took {watch.ElapsedMilliseconds} milliseconds");
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            watch = Stopwatch.StartNew();
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            _logger.Trace($"Loading commitment took {watch.ElapsedMilliseconds} milliseconds");
             if (commitment == null)
                 throw new ResourceNotFoundException($"Provider { command.Caller.Id } specified a non-existant Commitment { command.CommitmentId}");
 
@@ -75,17 +79,18 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             await ValidateOverlaps(apprenticeships);
 
-            var watch = Stopwatch.StartNew();
+            watch = Stopwatch.StartNew();
             var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
             watch = Stopwatch.StartNew();
-            await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
-            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-deleted events took {watch.ElapsedMilliseconds} milliseconds");
-
-            watch = Stopwatch.StartNew();
-            await _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED");
-            _logger.Trace($"Publishing bulk upload of {command.Apprenticeships.Count} apprenticeship-created events took {watch.ElapsedMilliseconds} milliseconds");
+            var eventTasks = new[]
+            {
+                _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED"),
+                _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED")
+            };
+            await Task.WhenAll(eventTasks);
+            _logger.Trace($"Publishing bulk uploads of {command.Apprenticeships.Count} events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
         private async Task ValidateOverlaps(List<Apprenticeship> apprenticeships)
@@ -109,6 +114,9 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 });
                 i++;
             }
+            _logger.Trace($"Building Overlap validation command took {watch.ElapsedMilliseconds} milliseconds");
+
+            watch = Stopwatch.StartNew();
 
             if (overlapValidationRequest.OverlappingApprenticeshipRequests.Any())
             {
