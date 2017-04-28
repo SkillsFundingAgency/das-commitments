@@ -54,8 +54,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _logger = logger;
             _mediator = mediator;
             _validator = validator;
-            _apprenticeshipEventsList = apprenticeshipEventsList;
-            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand command)
