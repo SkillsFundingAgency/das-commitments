@@ -11,7 +11,8 @@
 		@StartDate DATETIME NULL, 
 		@EndDate DATETIME NULL, 
 		@DateOfBirth DATETIME NULL,
-		@CreatedOn DATETIME NULL
+		@CreatedOn DATETIME NULL,
+		@UpdateOrigin TINYINT
 )
 AS
 
@@ -28,7 +29,8 @@ AS
 		[StartDate], 
 		[EndDate], 
 		[DateOfBirth],
-		[CreatedOn]
+		[CreatedOn],
+		[UpdateOrigin]
 	)
 	values
 	(
@@ -43,5 +45,6 @@ AS
 		@StartDate, 
 		@EndDate, 
 		@DateOfBirth,
-		@CreatedOn
+		@CreatedOn,
+		@UpdateOrigin
 	)

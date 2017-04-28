@@ -14,6 +14,7 @@
     [EndDate] DATETIME NULL, 
     [DateOfBirth] DATETIME NULL,
 	[CreatedOn] DATETIME NULL,
+	[UpdateOrigin] TINYINT NOT NULL
 )
 GO
 

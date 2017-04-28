@@ -23,6 +23,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@EndDate", apprenticeshipUpdate.EndDate);
             parameters.Add("@DateOfBirth", apprenticeshipUpdate.DateOfBirth);
             parameters.Add("@CreatedOn", DateTime.UtcNow);
+            parameters.Add("@UpdateOrigin", apprenticeshipUpdate.UpdateOrigin);
 
             return await connection.ExecuteAsync(
                     sql: $"[dbo].[CreateApprenticeshipUpdate]",

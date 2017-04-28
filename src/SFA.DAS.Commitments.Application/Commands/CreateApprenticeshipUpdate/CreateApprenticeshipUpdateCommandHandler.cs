@@ -128,7 +128,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 TrainingName = update.TrainingName,
                 Cost = update.Cost,
                 StartDate = update.StartDate,
-                EndDate = update.EndDate
+                EndDate = update.EndDate,
+                UpdateOrigin = (UpdateOrigin) update.UpdateOrigin
             };
 
             return result.HasChanges ? result : null;

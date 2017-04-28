@@ -114,7 +114,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                 ApprenticeshipId = 1,
                 UserId = "USER",
                 DataLockEventId = 2,
-                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Unknown
+                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Change
             };
 
             _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                 {
                     ApprenticeshipId = 1,
                     DataLockEventId = 2,
-                    TriageStatus = TriageStatus.Change
+                    TriageStatus = TriageStatus.Unknown
                 });
 
             //Act
@@ -134,6 +134,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                 It.Is<ApprenticeshipUpdate>(
                     u => u.ApprenticeshipId == 1
                     && u.Originator == Originator.Provider
+                    && u.UpdateOrigin == UpdateOrigin.DataLock
                     //todo: finish these assertions
                 )),
                 Times.Once);

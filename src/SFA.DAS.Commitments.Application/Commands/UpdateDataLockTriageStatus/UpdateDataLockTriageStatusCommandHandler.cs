@@ -52,6 +52,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 {
                     ApprenticeshipId = dataLock.ApprenticeshipId,
                     Originator = Originator.Provider,
+                    UpdateOrigin = UpdateOrigin.DataLock
                     //todo: update origin
                 };
 
