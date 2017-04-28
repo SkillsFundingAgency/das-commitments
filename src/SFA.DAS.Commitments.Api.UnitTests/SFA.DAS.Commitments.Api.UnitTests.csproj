@@ -71,8 +71,8 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.45.0.29099, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.45.0.29099\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.47.0.29287, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.47.0.29287\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Controllers\ApprenticeshipControllerTests\WhenGettingDataLock.cs" />
     <Compile Include="Controllers\ApprenticeshipControllerTests\WhenGettingDataLocks.cs" />
+    <Compile Include="Controllers\ApprenticeshipControllerTests\WhenUpdatingDataLock.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingACommitment.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingAnApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingAllCommitments.cs" />

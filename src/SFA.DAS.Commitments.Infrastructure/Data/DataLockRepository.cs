@@ -83,5 +83,19 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 return results.SingleOrDefault();
             });
         }
+
+        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus)
+        {
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@DataLockEventId", dataLockEventId);
+                parameters.Add("@TriageStatus", triageStatus);
+                return await connection.ExecuteAsync(
+                    sql: $"[dbo].[UpdateDataLockTriageStatus]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+            });
+        }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Commitments.Api.Types.DataLock.Types;
+using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -36,9 +38,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return response;
         }
 
-        public async Task PatchDataLock(long apprenticeshipId, DataLockStatus datalock)
+        public async Task PatchDataLock(long apprenticeshipId, long dataLockEventId, DataLockTriageSubmission triageSubmission)
         {
-            throw new System.NotImplementedException();
+            await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                DataLockEventId = dataLockEventId,
+                TriageStatus = triageSubmission.TriageStatus,
+                UserId = triageSubmission.UserId
+            });
         }
     }
 }
