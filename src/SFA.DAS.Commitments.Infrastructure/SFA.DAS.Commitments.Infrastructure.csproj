@@ -131,7 +131,10 @@
     <Compile Include="Data\Transactions\IApprenticeshipTransactions.cs" />
     <Compile Include="Logging\CommitmentsLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ApprenticeshipEvent.cs" />
     <Compile Include="Services\ApprenticeshipEvents.cs" />
+    <Compile Include="Services\ApprenticeshipEventsList.cs" />
+    <Compile Include="Services\ApprenticeshipEventsPublisher.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
     <Compile Include="Services\HashingService.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />
@@ -140,6 +143,10 @@
     <Compile Include="Services\PaymentEventsSerivce.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
+      <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
+      <Name>SFA.DAS.Commitments.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>

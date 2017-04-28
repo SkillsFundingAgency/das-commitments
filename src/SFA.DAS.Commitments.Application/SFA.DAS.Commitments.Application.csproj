@@ -118,6 +118,9 @@
     <Compile Include="Queries\GetDataLock\GetDataLockQueryHandler.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockResponse.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockValidator.cs" />
+    <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEvent.cs" />
+    <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEventsList.cs" />
+    <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEventsPublisher.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsResponse.cs" />

@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
 
         protected override async Task HandleCore(CreateRelationshipCommand message)
         {
-            _logger.Info($"Employer: {message.Relationship.EmployerAccountId} has called CreateCommitmentCommand", accountId: message.Relationship.EmployerAccountId);
+            _logger.Info($"Employer: {message.Relationship.EmployerAccountId} has called CreateRelationshipCommand", accountId: message.Relationship.EmployerAccountId);
 
             var validationResult = _validator.Validate(message);
 

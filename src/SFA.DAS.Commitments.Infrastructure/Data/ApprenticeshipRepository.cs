@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -208,6 +209,28 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships)
+        {
+            await WithTransaction(async (connection, transaction) =>
+            {
+                foreach (var apprenticeship in apprenticeships)
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@id", apprenticeship.Id, DbType.Int64);
+                    parameters.Add("@paymentStatus", apprenticeship.PaymentStatus, DbType.Int16);
+                    parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
+                    parameters.Add("@agreedOn", apprenticeship.AgreedOn, DbType.DateTime);
+
+                    await connection.ExecuteAsync(
+                        sql: "UpdateApprenticeshipStatuses",
+                        param: parameters,
+                        transaction: transaction,
+                        commandType: CommandType.StoredProcedure);
+                }
+                return 0;
+            });
+        }
+
         public async Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId)
         {
             _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
@@ -241,7 +264,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             _logger.Debug($"Bulk upload {apprenticeships.Count()} apprenticeships for commitment {commitmentId}", commitmentId: commitmentId);
 
-            var table = BuildApprenticeshipDataTable(apprenticeships);
+            var table = BuildApprenticeshipDataTable(commitmentId, apprenticeships);
 
             var insertedApprenticeships =
                 await WithConnection(connection => UploadApprenticeshipsAndGetIds(commitmentId, connection, table));
@@ -275,18 +298,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetApprenticeshipsByIdentifier("ProviderId", providerId);
         }
 
-        private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, IDbConnection x, DataTable table)
+        private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, SqlConnection x, DataTable table)
         {
             IList<Apprenticeship> apprenticeships;
 
             using (var tran = x.BeginTransaction())
             {
-                await x.ExecuteAsync(
-                    sql: "[dbo].[BulkUploadApprenticships]",
-                    transaction: tran,
-                    commandType: CommandType.StoredProcedure,
-                    param: new { @commitmentId = commitmentId, @apprenticeships = table.AsTableValuedParameter("dbo.ApprenticeshipTable") }
-                );
+                await DeleteCommitmentApprenticeships(commitmentId, x, tran);
+                BulkCopyApprenticeships(x, table, tran);
 
                 var commitment = await GetCommitment(commitmentId, x, tran);
                 apprenticeships = commitment.Apprenticeships;
@@ -297,13 +316,51 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeships.ToList();
         }
 
-        private DataTable BuildApprenticeshipDataTable(IEnumerable<Apprenticeship> apprenticeships)
+        private static void BulkCopyApprenticeships(SqlConnection x, DataTable table, SqlTransaction tran)
+        {
+            using (var bulkCopy = new SqlBulkCopy(x, SqlBulkCopyOptions.Default, tran))
+            {
+                bulkCopy.DestinationTableName = "[dbo].[Apprenticeship]";
+                bulkCopy.ColumnMappings.Add("CommitmentId", "CommitmentId");
+                bulkCopy.ColumnMappings.Add("FirstName", "FirstName");
+                bulkCopy.ColumnMappings.Add("LastName", "LastName");
+                bulkCopy.ColumnMappings.Add("ULN", "ULN");
+                bulkCopy.ColumnMappings.Add("TrainingType", "TrainingType");
+                bulkCopy.ColumnMappings.Add("TrainingCode", "TrainingCode");
+                bulkCopy.ColumnMappings.Add("TrainingName", "TrainingName");
+                bulkCopy.ColumnMappings.Add("Cost", "Cost");
+                bulkCopy.ColumnMappings.Add("StartDate", "StartDate");
+                bulkCopy.ColumnMappings.Add("EndDate", "EndDate");
+                bulkCopy.ColumnMappings.Add("AgreementStatus", "AgreementStatus");
+                bulkCopy.ColumnMappings.Add("PaymentStatus", "PaymentStatus");
+                bulkCopy.ColumnMappings.Add("DateOfBirth", "DateOfBirth");
+                bulkCopy.ColumnMappings.Add("NINumber", "NINumber");
+                bulkCopy.ColumnMappings.Add("EmployerRef", "EmployerRef");
+                bulkCopy.ColumnMappings.Add("ProviderRef", "ProviderRef");
+                bulkCopy.ColumnMappings.Add("CreatedOn", "CreatedOn");
+                bulkCopy.WriteToServer(table);
+            }
+        }
+
+        private static async Task DeleteCommitmentApprenticeships(long commitmentId, SqlConnection x, SqlTransaction tran)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+
+            await x.ExecuteAsync(
+                sql: "DELETE FROM [dbo].[Apprenticeship] WHERE CommitmentId = @CommitmentId;",
+                param: parameters,
+                transaction: tran,
+                commandType: CommandType.Text);
+        }
+
+        private DataTable BuildApprenticeshipDataTable(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
         {
             var apprenticeshipsTable = CreateApprenticeshipsDataTable();
 
             foreach (var apprenticeship in apprenticeships)
             {
-                AddApprenticeshipToTable(apprenticeshipsTable, apprenticeship);
+                AddApprenticeshipToTable(apprenticeshipsTable, commitmentId, apprenticeship);
             }
 
             return apprenticeshipsTable;
@@ -313,6 +370,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             var apprenticeshipsTable = new DataTable();
 
+            apprenticeshipsTable.Columns.Add("CommitmentId", typeof(long));
             apprenticeshipsTable.Columns.Add("FirstName", typeof(string));
             apprenticeshipsTable.Columns.Add("LastName", typeof(string));
             apprenticeshipsTable.Columns.Add("ULN", typeof(string));
@@ -332,9 +390,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeshipsTable;
         }
 
-        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, Apprenticeship a)
+        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, long commitmentId, Apprenticeship a)
         {
-            return apprenticeshipsTable.Rows.Add(a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
+            return apprenticeshipsTable.Rows.Add(commitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
                 a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
         }

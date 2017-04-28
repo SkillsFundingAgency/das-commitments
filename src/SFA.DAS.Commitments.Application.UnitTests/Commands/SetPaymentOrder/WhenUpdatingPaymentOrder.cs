@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -15,7 +16,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
         private SetPaymentOrderCommandHandler _handler;
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
-        private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
+        private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
+        private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
         private Mock<ICommitmentsLogger> _commitmentsLogger;
 
         [SetUp]
@@ -23,9 +25,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
         {
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
+            _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
+            _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _commitmentsLogger = new Mock<ICommitmentsLogger>();
-            _handler = new SetPaymentOrderCommandHandler(_commitmentRepository.Object, _apprenticeshipRepository.Object, _apprenticeshipEvents.Object, _commitmentsLogger.Object);
+            _handler = new SetPaymentOrderCommandHandler(_commitmentRepository.Object, _apprenticeshipRepository.Object, _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _commitmentsLogger.Object);
         }
 
         [Test]
@@ -55,7 +58,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
 
             await _handler.Handle(command);
 
-            _apprenticeshipEvents.Verify(x => x.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", null, null), Times.Once);
+            _apprenticeshipEventsList.Verify(x => x.Add(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", null, null), Times.Once);
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
         }
     }
 }

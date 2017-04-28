@@ -98,37 +98,35 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetCommitmentsByIdentifier("EmployerAccountId", accountId);
         }
 
-        public async Task UpdateCommitment(
-            long commitmentId,
-            CommitmentStatus commitmentStatus,
-            EditStatus editStatus,
-            LastUpdateAction lastAction)
+        public async Task UpdateCommitment(Commitment commitment, CallerType callerType, string userId)
         {
-            await WithTransaction(async (connection, trans) =>
-                    {
-                        await UpdateCommitmentStatus(commitmentId, commitmentStatus, connection, trans);
-                        await UpdateEditStatus(commitmentId, editStatus, connection, trans);
-                        await UpdateLastAction(commitmentId, lastAction, connection, trans);
+            await WithTransaction(async (connection, transaction) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitment.Id, DbType.Int64);
+                parameters.Add("@commitmentStatus", commitment.CommitmentStatus, DbType.Int16);
+                parameters.Add("@editStatus", commitment.EditStatus, DbType.Int16);
+                parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
+                parameters.Add("@lastUpdatedByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
+                parameters.Add("@lastUpdatedByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
+                parameters.Add("@lastUpdatedByProviderName", commitment.LastUpdatedByProviderName, DbType.String);
+                parameters.Add("@lastUpdatedByProviderEmail", commitment.LastUpdatedByProviderEmail, DbType.String);
 
-                        // ToDo: Need to tests
-                        var changeType = CommitmentChangeType.SentForReview;
-                        if (editStatus == EditStatus.Both && lastAction.LastAction == LastAction.Approve)
-                            changeType = CommitmentChangeType.FinalApproval;
-                        else if (lastAction.LastAction == LastAction.Approve)
-                            changeType = CommitmentChangeType.SentForApproval;
+                await connection.ExecuteAsync(
+                    sql: "UpdateCommitment",
+                    param: parameters,
+                    transaction: transaction,
+                    commandType: CommandType.StoredProcedure);
 
-                        await _historyTransactions.UpdateCommitment(connection, trans, changeType,
-                            new CommitmentHistoryItem { CommitmentId = commitmentId, UpdatedByRole = lastAction.Caller.CallerType, UserId = lastAction.UserId });
-                        return 1L;
-                    });
-        }
+                // ToDo: Need to tests
+                var changeType = CommitmentChangeType.SentForReview;
+                if (commitment.EditStatus == EditStatus.Both && commitment.LastAction == LastAction.Approve)
+                    changeType = CommitmentChangeType.FinalApproval;
+                else if (commitment.LastAction == LastAction.Approve)
+                    changeType = CommitmentChangeType.SentForApproval;
 
-        private static string GetUpdateLastActionSql(Caller caller)
-        {
-            if (caller.CallerType == CallerType.Employer)
-                return @"UPDATE [dbo].[Commitment] SET LastAction = @lastAction, LastUpdatedByEmployerName = @lastUpdatedByName, LastUpdatedByEmployerEmail = @lastUpdatedByEmail WHERE Id = @id;";
-
-            return @"UPDATE [dbo].[Commitment] SET LastAction = @lastAction, LastUpdatedByProviderName = @lastUpdatedByName, LastUpdatedByProviderEmail = @lastUpdatedByEmail WHERE Id = @id;";
+                await _historyTransactions.UpdateCommitment(connection, transaction, changeType, new CommitmentHistoryItem { CommitmentId = commitment.Id, UpdatedByRole = callerType, UserId = userId }); ;
+            });
         }
 
         public async Task UpdateCommitmentReference(long commitmentId, string hashValue)
@@ -309,53 +307,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 await GetMessages(results, c);
                 return results.ToList();
             });
-        }
-
-        private async Task UpdateCommitmentStatus(long commitmentId, CommitmentStatus commitmentStatus, IDbConnection connection, IDbTransaction transaction)
-        {
-            _logger.Debug($"Updating commitment {commitmentId} commitment status to {commitmentStatus}", commitmentId: commitmentId);
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", commitmentId, DbType.Int64);
-            parameters.Add("@commitmentStatus", commitmentStatus, DbType.Int16);
-
-            await connection.ExecuteAsync(
-                sql: "UPDATE [dbo].[Commitment] SET CommitmentStatus = @commitmentStatus WHERE Id = @id;",
-                param: parameters,
-                transaction: transaction,
-                commandType: CommandType.Text);
-        }
-
-        private async Task UpdateEditStatus(long commitmentId, EditStatus editStatus, IDbConnection connection, IDbTransaction transaction)
-        {
-            _logger.Debug($"Updating commitment {commitmentId} edit status to {editStatus}", commitmentId: commitmentId);
-
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", commitmentId, DbType.Int64);
-            parameters.Add("@editStatus", editStatus, DbType.Int16);
-
-            await connection.ExecuteAsync(
-                sql: "UPDATE [dbo].[Commitment] SET EditStatus = @editStatus WHERE Id = @id;",
-                param: parameters,
-                transaction: transaction,
-                commandType: CommandType.Text);
-        }
-
-        private async Task UpdateLastAction(long commitmentId, LastUpdateAction lastUpdateAction, IDbConnection connection, IDbTransaction transaction)
-        {
-            _logger.Debug($"Updating commitment {commitmentId} last action to {lastUpdateAction.LastAction}", commitmentId: commitmentId);
-            var parameters = new DynamicParameters();
-            parameters.Add("@id", commitmentId, DbType.Int64);
-            parameters.Add("@lastAction", lastUpdateAction.LastAction, DbType.Int16);
-            parameters.Add("@lastUpdatedByName", lastUpdateAction.LastUpdaterName, DbType.String);
-            parameters.Add("@lastUpdatedByEmail", lastUpdateAction.LastUpdaterEmail, DbType.String);
-
-            await connection.ExecuteAsync(
-                sql: GetUpdateLastActionSql(lastUpdateAction.Caller),
-                param: parameters,
-                transaction: transaction,
-                commandType: CommandType.Text);
         }
 
         private static async Task GetMessages(IEnumerable<CommitmentSummary> commitments, IDbConnection connection)

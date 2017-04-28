@@ -18,3 +18,9 @@
     [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
     [LastUpdatedByProviderEmail] NVARCHAR(255) NULL
 )
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId] ON [dbo].[Commitment] ([ProviderId])
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId] ON [dbo].[Commitment] ([EmployerAccountId])

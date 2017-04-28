@@ -12,3 +12,6 @@
 	[CreatedOn] DATETIME NULL,
 	CONSTRAINT UQ_Relationship UNIQUE (EmployerAccountId,ProviderId,LegalEntityId)
 )
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Relationship_Employer_Provider_LegalEntity] ON [dbo].[Relationship] ([EmployerAccountId], [ProviderId], [LegalEntityId])

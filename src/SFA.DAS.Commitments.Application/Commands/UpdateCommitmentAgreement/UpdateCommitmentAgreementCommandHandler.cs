@@ -8,6 +8,7 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -23,13 +24,12 @@ using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
-    //todo: add test for UpdateCommitmentAgreementCommandHandler various scenarios
     public sealed class UpdateCommitmentAgreementCommandHandler : AsyncRequestHandler<UpdateCommitmentAgreementCommand>
     {
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
-        private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentRepository _commitmentRepository;
-
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
+        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
         private readonly ICommitmentsLogger _logger;
@@ -39,29 +39,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         public UpdateCommitmentAgreementCommandHandler(
             ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository,
-            IApprenticeshipUpdateRules apprenticeshipUpdateRules, 
-            IApprenticeshipEvents apprenticeshipEvents, 
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules,
             ICommitmentsLogger logger, 
             IMediator mediator,
-            AbstractValidator<UpdateCommitmentAgreementCommand> validator)
+            AbstractValidator<UpdateCommitmentAgreementCommand> validator, 
+            IApprenticeshipEventsList apprenticeshipEventsList, 
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (apprenticeshipUpdateRules == null)
-                throw new ArgumentNullException(nameof(apprenticeshipUpdateRules));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
-            _apprenticeshipEvents = apprenticeshipEvents;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
+            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _logger = logger;
             _mediator = mediator;
             _validator = validator;
@@ -94,83 +83,100 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
 
-            var updatedCommitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
-            var areAnyApprenticeshipsPendingAgreement = updatedCommitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+            var areAnyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+            await UpdateCommitmentStatuses(command, commitment, areAnyApprenticeshipsPendingAgreement, latestAction);
+            await CreateCommitmentMessage(command, commitment);
 
-            await UpdateCommitmentStatuses(command, updatedCommitment, areAnyApprenticeshipsPendingAgreement, latestAction);
-
-            // recalculate payment order for all the employer account's apprenticeships if necessary
             await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
-
-            await CreateMessageIfNeeded(command);
         }
 
-        private async Task CreateMessageIfNeeded(UpdateCommitmentAgreementCommand command)
+        private async Task CreateCommitmentMessage(UpdateCommitmentAgreementCommand command, Commitment commitment)
         {
-            if (string.IsNullOrEmpty(command.Message))
-                return;
-
             var message = new Message
             {
                 Author = command.LastUpdatedByName,
-                Text = command.Message,
+                Text = command.Message ?? string.Empty,
                 CreatedBy = command.Caller.CallerType
             };
-
+            commitment.Messages.Add(message);
+            
             await _commitmentRepository.SaveMessage(command.CommitmentId, message);
         }
 
         private async Task UpdateCommitmentStatuses(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment, bool areAnyApprenticeshipsPendingAgreement, LastAction latestAction)
         {
-            var newEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
+            updatedCommitment.EditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
                 updatedCommitment.Apprenticeships.Count, latestAction);
-            var newCommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+            updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
+            updatedCommitment.LastAction = latestAction;
 
-            var lastUpdateAction = new LastUpdateAction
+            SetLastUpdatedDetails(command, updatedCommitment);
+            
+            await _commitmentRepository.UpdateCommitment(updatedCommitment, command.Caller.CallerType, command.UserId);
+        }
+
+        private static void SetLastUpdatedDetails(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment)
+        {
+            if (command.Caller.CallerType == CallerType.Employer)
             {
-                LastUpdaterName = command.LastUpdatedByName,
-                LastUpdaterEmail = command.LastUpdatedByEmail,
-                Caller = command.Caller,
-                LastAction = latestAction,
-                UserId = command.UserId
-            };
-            await _commitmentRepository.UpdateCommitment(command.CommitmentId, newCommitmentStatus, newEditStatus, lastUpdateAction);
+                updatedCommitment.LastUpdatedByEmployerEmail = command.LastUpdatedByEmail;
+                updatedCommitment.LastUpdatedByEmployerName = command.LastUpdatedByName;
+            }
+            else
+            {
+                updatedCommitment.LastUpdatedByProviderEmail = command.LastUpdatedByEmail;
+                updatedCommitment.LastUpdatedByProviderName = command.LastUpdatedByName;
+            }
         }
 
         private async Task UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
         {
+            var updatedApprenticeships = new List<Apprenticeship>();
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
-                var hasChanged = false;
-
                 //todo: extract status stuff outside loop and set all apprenticeships to same agreement status?
-                var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
-                var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
-
-                if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
-                {
-                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipAgreementStatus);
-                    hasChanged = true;
-                }
-
-                if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
-                {
-                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(command.CommitmentId, apprenticeship.Id, newApprenticeshipPaymentStatus);
-                    hasChanged = true;
-                }
+                var hasChanged = UpdateApprenticeshipStatuses(command, latestAction, apprenticeship);
 
                 if (hasChanged)
                 {
-                    await PublishApprenticeshipUpdatedEvent(commitment, apprenticeship, newApprenticeshipAgreementStatus);
+                    updatedApprenticeships.Add(apprenticeship);
+                    await AddApprenticeshipUpdatedEvent(commitment, apprenticeship);
                 }
             }
+
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
+            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
 
-        private async Task PublishApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, AgreementStatus newApprenticeshipAgreementStatus)
+        private bool UpdateApprenticeshipStatuses(UpdateCommitmentAgreementCommand command, LastAction latestAction, Apprenticeship apprenticeship)
         {
-            var updatedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeship.Id);
-            var effectiveFromDate = await DetermineEffectiveFromDate(newApprenticeshipAgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
-            await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
+            bool hasChanged = false;
+
+            var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
+            var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
+
+            if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
+            {
+                apprenticeship.AgreementStatus = newApprenticeshipAgreementStatus;
+                if (apprenticeship.AgreementStatus == AgreementStatus.BothAgreed && !apprenticeship.AgreedOn.HasValue)
+                {
+                    apprenticeship.AgreedOn = DateTime.Now;
+                }
+                hasChanged = true;
+            }
+
+            if (apprenticeship.PaymentStatus != newApprenticeshipPaymentStatus)
+            {
+                apprenticeship.PaymentStatus = newApprenticeshipPaymentStatus;
+                hasChanged = true;
+            }
+            return hasChanged;
+        }
+
+        private async Task AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
+        {
+            var effectiveFromDate = await DetermineEffectiveFromDate(apprenticeship.AgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
+            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
         }
 
         private async Task<DateTime?> DetermineEffectiveFromDate(AgreementStatus agreementStatus, string uln, DateTime? startDate)

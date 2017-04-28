@@ -5,6 +5,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Domain.Interfaces
 {
+    [Obsolete("Use IApprenticeshipEventsPublisher and IApprenticeshipEventsList.")]
     public interface IApprenticeshipEvents
     {
         Task PublishEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null);
