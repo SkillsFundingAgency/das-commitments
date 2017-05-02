@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipUpdate
 {
@@ -44,7 +45,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     PaymentOrder = 666,
                     UpdateOriginator = Originator.Provider,
                     ProviderName = "Provider name",
-                    LegalEntityName = "Legal entity name"
+                    LegalEntityName = "Legal entity name",
+                    DataLockTriage = TriageStatus.FixIlr
             };
         }
 
@@ -66,6 +68,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.UpdateOriginator.Should().Be(Originator.Provider);
             _apprenticeship.ProviderName.Should().Be("Provider name");
             _apprenticeship.LegalEntityName.Should().Be("Legal entity name");
+            _apprenticeship.TrainingType.Should().Be(TriageStatus.FixIlr);
 
             updatedApprenticeship.Id.Should().Be(55);
             updatedApprenticeship.EmployerAccountId.Should().Be(555);
@@ -83,6 +86,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             updatedApprenticeship.UpdateOriginator.Should().Be(Originator.Provider);
             updatedApprenticeship.ProviderName.Should().Be("Provider name");
             updatedApprenticeship.LegalEntityName.Should().Be("Legal entity name");
+            updatedApprenticeship.DataLockTriage.Should().Be(TriageStatus.FixIlr);
         }
 
         [Test]

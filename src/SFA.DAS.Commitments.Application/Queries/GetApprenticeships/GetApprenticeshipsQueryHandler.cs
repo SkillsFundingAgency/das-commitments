@@ -63,6 +63,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         ProviderName = x.ProviderName,
                         LegalEntityName = x.LegalEntityName,
                         DataLockTriageStatus = (TriageStatus?)x.DataLockTriage,
+                        DataLockErrorCode = (DataLockErrorCode)x.DataLockErrorCode
                     }
                     ).ToList()
             };

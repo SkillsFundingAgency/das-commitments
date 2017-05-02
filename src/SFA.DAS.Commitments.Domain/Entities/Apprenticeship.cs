@@ -35,5 +35,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string ProviderName { get; set; }
         public string LegalEntityName { get; set; }
         public TriageStatus? DataLockTriage { get; set; }
+        public DataLockErrorCode DataLockErrorCode { get; set; }
     }
 }
