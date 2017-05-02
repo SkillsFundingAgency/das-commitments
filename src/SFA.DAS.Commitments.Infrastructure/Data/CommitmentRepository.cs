@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _historyTransactions = historyTransactions;
         }
 
-        public async Task<long> Create(Commitment commitment, CallerType callerType, string userId)
+        public async Task<long> Create(Commitment commitment)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
@@ -156,7 +156,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task DeleteCommitment(long commitmentId, CallerType callerType, string userId)
+        public async Task DeleteCommitment(long commitmentId)
         {
             _logger.Debug($"Deleting commitment {commitmentId}", commitmentId: commitmentId);
 
@@ -171,15 +171,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         param: new { @commitmentId = commitmentId }
                     );
 
-                    await _historyTransactions.DeleteCommitment(
-                        connection,
-                        tran,
-                        new CommitmentHistoryItem
-                        {
-                            CommitmentId = commitmentId,
-                            UpdatedByRole = callerType,
-                            UserId = userId
-                        });
                     tran.Commit();
                     return returnCode;
                 }

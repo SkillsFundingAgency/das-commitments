@@ -22,14 +22,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             _logger = logger;
         }
 
-        public async Task DeleteCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem)
-        {
-            _logger.Debug($"History item for deleting commitment: {commitmentHistoryItem.CommitmentId}",
-                commitmentId: commitmentHistoryItem.CommitmentId);
-
-            await WriteCommitmentHistory(connection, trans, commitmentHistoryItem, CommitmentChangeType.Deleted);
-        }
-
         public async Task UpdateCommitment(IDbConnection connection, IDbTransaction trans, CommitmentChangeType changeType, CommitmentHistoryItem commitmentHistoryItem)
         {
             _logger.Debug($"History item for updating commitment: {commitmentHistoryItem.CommitmentId}",

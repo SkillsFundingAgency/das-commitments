@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             var newCommitment = MapFrom(message.Commitment);
 
-            newCommitment.Id = await _commitmentRepository.Create(newCommitment, message.CallerType, message.UserId);
+            newCommitment.Id = await _commitmentRepository.Create(newCommitment);
 
             await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));
 

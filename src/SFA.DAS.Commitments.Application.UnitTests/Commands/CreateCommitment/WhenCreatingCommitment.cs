@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>()));
+            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>()));
         }
 
         [Test]
@@ -85,10 +85,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             Domain.Entities.Commitment argument = null;
             _mockCommitmentRespository.Setup(
-                    x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>()))
+                    x => x.Create(It.IsAny<Domain.Entities.Commitment>()))
                 .ReturnsAsync(4)
-                .Callback<Domain.Entities.Commitment, CallerType, string>(
-                    ((commitment, callerType, userId) => argument = commitment));
+                .Callback<Domain.Entities.Commitment>(
+                    ((commitment) => argument = commitment));
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -100,7 +100,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
             const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(ExpectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>())).ReturnsAsync(ExpectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 
@@ -189,7 +189,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             //Arange
             const long expectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(expectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
             _exampleValidRequest.Message = "New Message";
 
             //Act
@@ -208,7 +208,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenAHistoryRecordIsCreated()
         {
             const long expectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(expectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
 
             await _handler.Handle(_exampleValidRequest);
 

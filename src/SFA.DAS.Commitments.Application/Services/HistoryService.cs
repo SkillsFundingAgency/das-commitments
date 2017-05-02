@@ -35,5 +35,11 @@ namespace SFA.DAS.Commitments.Application.Services
             _historyItem.UpdatedState = JsonConvert.SerializeObject(_trackedObject);
             await _repository.InsertHistory(_historyItem);
         }
+
+        public async Task CreateDelete()
+        {
+            _historyItem.OriginalState = _originalState;
+            await _repository.InsertHistory(_historyItem);
+        }
     }
 }
