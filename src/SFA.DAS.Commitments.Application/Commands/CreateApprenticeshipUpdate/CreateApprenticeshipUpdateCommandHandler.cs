@@ -134,7 +134,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 EffectiveToDate = null
             };
 
-            //todo: ensure this logic is covered by a test
             if (apprenticeship.StartDate > DateTime.UtcNow) // Was waiting to start when created
             {
                 result.EffectiveFromDate = apprenticeship.StartDate.Value;

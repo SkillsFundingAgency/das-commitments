@@ -29,6 +29,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
 
+        private Apprenticeship _existingApprenticeship;
+
         [SetUp]
         public void Arrange()
         {
@@ -43,17 +45,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _apprenticeshipUpdateRepository.Setup(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()))
                 .Returns(() => Task.FromResult(new Unit()));
 
+            _existingApprenticeship = new Apprenticeship
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                ULN = " 123",
+                StartDate = new DateTime(DateTime.Now.Year + 2, 5, 1),
+                EndDate = new DateTime(DateTime.Now.Year + 2, 9, 1),
+                Id = 3
+            };
+
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Apprenticeship
-                {
-                    EmployerAccountId = 1,
-                    ProviderId = 2,
-                    ULN =" 123",
-                    StartDate = new DateTime(DateTime.Now.Year + 2 ,5,1),
-                    EndDate = new DateTime(DateTime.Now.Year + 2,9,1),
-                    Id = 3
-                });
+                .ReturnsAsync(_existingApprenticeship);
 
             _mediator = new Mock<IMediator>();
             _mediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
@@ -257,7 +261,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Act
             await _handler.Handle(command);
 
-            //Arrange
+            //Assert
             _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Once);
         }
 
@@ -379,6 +383,30 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Act && Assert
             Func<Task> act = async () => await _handler.Handle(request);
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public async Task ThenIfTheApprenticeshipIsWaitingToStartThenTheChangeWillBeEffectiveFromTheApprenticeshipStartDate()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                {
+                    ULN = "123",
+                    Cost = 100
+                }
+            };
+
+            //Act
+            await _handler.Handle(command);
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(
+                x => x.CreateApprenticeshipUpdate(
+                    It.Is<ApprenticeshipUpdate>(u => u.EffectiveFromDate == _existingApprenticeship.StartDate),
+                    It.IsAny<Apprenticeship>()));
         }
     }
 }
