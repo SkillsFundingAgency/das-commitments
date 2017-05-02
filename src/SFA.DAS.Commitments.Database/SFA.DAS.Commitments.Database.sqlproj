@@ -76,8 +76,6 @@
     <Build Include="StoredProcedures\CreateRelationship.sql" />
     <Build Include="StoredProcedures\GetRelationship.sql" />
     <Build Include="StoredProcedures\VerifyRelationship.sql" />
-    <Build Include="Tables\ApprenticeshipHistory.sql" />
-    <Build Include="Tables\CommitmentHistory.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
     <Build Include="UserDefinedTypes\ULNTable.sql" />
     <Build Include="Tables\ApprenticeshipUpdate.sql" />
