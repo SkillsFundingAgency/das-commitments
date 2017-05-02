@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -123,15 +125,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == TestApprenticeship.Id &&
-                                y.ChangeType == ApprenticeshipChangeType.ChangeOfStatus.ToString() &&
-                                y.EntityType == "Apprenticeship" &&
-                                y.OriginalState == expectedOriginalApprenticeshipState &&
-                                y.UpdatedByRole == CallerType.Employer.ToString() &&
-                                y.UpdatedState == expectedNewApprenticeshipState &&
-                                y.UserId == ExampleValidRequest.UserId)), Times.Once);
+                                y.First().EntityId == TestApprenticeship.Id &&
+                                y.First().ChangeType == ApprenticeshipChangeType.ChangeOfStatus.ToString() &&
+                                y.First().EntityType == "Apprenticeship" &&
+                                y.First().OriginalState == expectedOriginalApprenticeshipState &&
+                                y.First().UpdatedByRole == CallerType.Employer.ToString() &&
+                                y.First().UpdatedState == expectedNewApprenticeshipState &&
+                                y.First().UserId == ExampleValidRequest.UserId)), Times.Once);
         }
     }
 }

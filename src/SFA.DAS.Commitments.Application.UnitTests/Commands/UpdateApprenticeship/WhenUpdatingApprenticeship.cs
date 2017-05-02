@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -136,28 +137,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == testCommitment.Id &&
-                                y.ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
-                                y.EntityType == "Commitment" &&
-                                y.OriginalState == expectedOriginalCommitmentState &&
-                                y.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
-                                y.UpdatedState == expectedOriginalCommitmentState &&
-                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.First().EntityId == testCommitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalCommitmentState &&
+                                y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedOriginalCommitmentState &&
+                                y.First().UserId == _exampleValidRequest.UserId)), Times.Once);
 
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == testApprenticeship.Id &&
-                                y.ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
-                                y.EntityType == "Apprenticeship" &&
-                                y.OriginalState == expectedOriginalApprenticeshipState &&
-                                y.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
-                                y.UpdatedState == expectedNewApprenticeshipState &&
-                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.Last().EntityId == testApprenticeship.Id &&
+                                y.Last().ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
+                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().OriginalState == expectedOriginalApprenticeshipState &&
+                                y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.Last().UpdatedState == expectedNewApprenticeshipState &&
+                                y.Last().UserId == _exampleValidRequest.UserId)), Times.Once);
         }
     }
 }

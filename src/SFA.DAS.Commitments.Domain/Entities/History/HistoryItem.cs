@@ -1,20 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace SFA.DAS.Commitments.Domain.Entities.History
 {
     public class HistoryItem
     {
-        public string EntityType { get; set; }
-        public long EntityId { get; set; }
-        public string UserId { get; set; }
-        public string UpdatedByRole { get; set; }
-        public string ChangeType { get; set; }
-        public string UpdatedByName { get; set; }
-        public string OriginalState { get; set; }
-        public string UpdatedState { get; set; }
+        private readonly HistoryChangeType _historyChangeType;
+
+        public HistoryItem(HistoryChangeType historyChangeType, object trackedObject, string entityType, long entityId, string userId, string updatedByRole, string changeType)
+        {
+            _historyChangeType = historyChangeType;
+
+            TrackedObject = trackedObject;
+            EntityType = entityType;
+            EntityId = entityId;
+            UserId = userId;
+            UpdatedByRole = updatedByRole;
+            ChangeType = changeType;
+
+            if (_historyChangeType != HistoryChangeType.Insert)
+            {
+                OriginalState = JsonConvert.SerializeObject(TrackedObject);
+            }
+        }
+
+        public string EntityType { get; }
+        public long EntityId { get; }
+        public string UserId { get; }
+        public string UpdatedByRole { get; }
+        public string ChangeType { get; }
+        public string UpdatedByName { get; }
+        public string OriginalState { get; }
+
+        public string UpdatedState
+        {
+            get
+            {
+                if (_historyChangeType == HistoryChangeType.Delete)
+                {
+                    return null;
+                }
+
+                return JsonConvert.SerializeObject(TrackedObject);
+            }
+        }
+
+        public object TrackedObject { get; }
     }
 }

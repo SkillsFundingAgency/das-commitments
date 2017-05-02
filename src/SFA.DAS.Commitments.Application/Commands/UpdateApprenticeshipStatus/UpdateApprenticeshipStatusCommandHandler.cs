@@ -63,7 +63,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
         {
-            var historyService = new HistoryService(_historyRepository, apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId);
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId);
             apprenticeship.PaymentStatus = newPaymentStatus;
             switch (newPaymentStatus)
             {
@@ -79,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newPaymentStatus), "Not a valid value for change of status");
             }
-            await historyService.CreateUpdate();
+            await historyService.Save();
         }
 
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)

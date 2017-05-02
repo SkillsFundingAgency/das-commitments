@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -215,15 +217,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == expectedCommitmentId && 
-                                y.ChangeType == CommitmentChangeType.Created.ToString() && 
-                                y.EntityType == "Commitment" && 
-                                y.OriginalState == null &&
-                                y.UpdatedByRole == _exampleValidRequest.CallerType.ToString() &&
-                                y.UpdatedState != null &&
-                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.First().EntityId == expectedCommitmentId && 
+                                y.First().ChangeType == CommitmentChangeType.Created.ToString() && 
+                                y.First().EntityType == "Commitment" && 
+                                y.First().OriginalState == null &&
+                                y.First().UpdatedByRole == _exampleValidRequest.CallerType.ToString() &&
+                                y.First().UpdatedState != null &&
+                                y.First().UserId == _exampleValidRequest.UserId)), Times.Once);
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)

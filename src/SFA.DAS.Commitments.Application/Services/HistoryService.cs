@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -9,44 +10,37 @@ namespace SFA.DAS.Commitments.Application.Services
     internal class HistoryService
     {
         private readonly IHistoryRepository _repository;
-        private readonly object _trackedObject;
-        private readonly HistoryItem _historyItem;
-        private readonly string _originalState;
-
-        internal HistoryService(IHistoryRepository repository, object trackedObject, string changeType, long entityId, string entityType, CallerType updatedByRole, string userId)
+        private readonly List<HistoryItem> _historyItems;
+        
+        internal HistoryService(IHistoryRepository repository)
         {
             _repository = repository;
-            _trackedObject = trackedObject;
-
-            _historyItem = new HistoryItem
-            {
-                ChangeType = changeType,
-                EntityId = entityId,
-                EntityType = entityType,
-                UpdatedByRole = updatedByRole.ToString(),
-                UserId = userId
-            };
-
-            _originalState = JsonConvert.SerializeObject(_trackedObject);
+            _historyItems = new List<HistoryItem>();
         }
 
-        internal async Task CreateInsert()
+        internal void TrackInsert(object trackedObject, string changeType, long entityId, string entityType, CallerType updatedByRole, string userId)
         {
-            _historyItem.UpdatedState = JsonConvert.SerializeObject(_trackedObject);
-            await _repository.InsertHistory(_historyItem);
+            AddHistoryItem(HistoryChangeType.Insert, trackedObject, changeType, entityId, entityType, updatedByRole, userId);
         }
 
-        public async Task CreateDelete()
+        public void TrackDelete(object trackedObject, string changeType, long entityId, string entityType, CallerType updatedByRole, string userId)
         {
-            _historyItem.OriginalState = _originalState;
-            await _repository.InsertHistory(_historyItem);
+            AddHistoryItem(HistoryChangeType.Delete, trackedObject, changeType, entityId, entityType, updatedByRole, userId);
         }
 
-        public async Task CreateUpdate()
+        public void TrackUpdate(object trackedObject, string changeType, long entityId, string entityType, CallerType updatedByRole, string userId)
         {
-            _historyItem.OriginalState = _originalState;
-            _historyItem.UpdatedState = JsonConvert.SerializeObject(_trackedObject);
-            await _repository.InsertHistory(_historyItem);
+            AddHistoryItem(HistoryChangeType.Update, trackedObject, changeType, entityId, entityType, updatedByRole, userId);
+        }
+
+        public async Task Save()
+        {
+            await _repository.InsertHistory(_historyItems);
+        }
+
+        private void AddHistoryItem(HistoryChangeType historyChangeType, object trackedObject, string changeType, long entityId, string entityType, CallerType updatedByRole, string userId)
+        {
+            _historyItems.Add(new HistoryItem(historyChangeType, trackedObject, entityType, entityId, userId, updatedByRole.ToString(), changeType));
         }
     }
 }

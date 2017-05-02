@@ -514,15 +514,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == commitment.Id &&
-                                y.ChangeType == CommitmentChangeType.SentForReview.ToString() &&
-                                y.EntityType == "Commitment" &&
-                                y.OriginalState == expectedOriginalState &&
-                                y.UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
-                                y.UpdatedState == expectedNewState &&
-                                y.UserId == _validCommand.UserId)), Times.Once);
+                                y.First().EntityId == commitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.SentForReview.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedNewState &&
+                                y.First().UserId == _validCommand.UserId)), Times.Once);
         }
 
         [Test]
@@ -543,15 +543,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == commitment.Id &&
-                                y.ChangeType == CommitmentChangeType.FinalApproval.ToString() &&
-                                y.EntityType == "Commitment" &&
-                                y.OriginalState == expectedOriginalState &&
-                                y.UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
-                                y.UpdatedState == expectedNewState &&
-                                y.UserId == _validCommand.UserId)), Times.Once);
+                                y.First().EntityId == commitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.FinalApproval.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedNewState &&
+                                y.First().UserId == _validCommand.UserId)), Times.Once);
         }
 
         [Test]
@@ -571,15 +571,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == commitment.Id &&
-                                y.ChangeType == CommitmentChangeType.SentForApproval.ToString() &&
-                                y.EntityType == "Commitment" &&
-                                y.OriginalState == expectedOriginalState &&
-                                y.UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
-                                y.UpdatedState == expectedNewState &&
-                                y.UserId == _validCommand.UserId)), Times.Once);
+                                y.First().EntityId == commitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.SentForApproval.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedNewState &&
+                                y.First().UserId == _validCommand.UserId)), Times.Once);
         }
     }
 }

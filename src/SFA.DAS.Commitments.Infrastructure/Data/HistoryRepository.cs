@@ -1,9 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
@@ -14,24 +13,28 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
         }
 
-        public async Task InsertHistory(HistoryItem historyItem)
+        public async Task InsertHistory(IEnumerable<HistoryItem> historyItems)
         {
-            await WithConnection(async (connection) =>
+            await WithTransaction(async (connection, transaction) =>
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("@entityType", historyItem.EntityType, DbType.String);
-                parameters.Add("@entityId", historyItem.EntityId, DbType.Int64);
-                parameters.Add("@userId", historyItem.UserId, DbType.String);
-                parameters.Add("@updatedByRole", historyItem.UpdatedByRole, DbType.String);
-                parameters.Add("@changeType", historyItem.ChangeType, DbType.String);
-                parameters.Add("@updatedByName", historyItem.UpdatedByName, DbType.String);
-                parameters.Add("@originalState", historyItem.OriginalState, DbType.String);
-                parameters.Add("@updatedState", historyItem.UpdatedState, DbType.String);
+                foreach (var historyItem in historyItems)
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@entityType", historyItem.EntityType, DbType.String);
+                    parameters.Add("@entityId", historyItem.EntityId, DbType.Int64);
+                    parameters.Add("@userId", historyItem.UserId, DbType.String);
+                    parameters.Add("@updatedByRole", historyItem.UpdatedByRole, DbType.String);
+                    parameters.Add("@changeType", historyItem.ChangeType, DbType.String);
+                    parameters.Add("@updatedByName", historyItem.UpdatedByName, DbType.String);
+                    parameters.Add("@originalState", historyItem.OriginalState, DbType.String);
+                    parameters.Add("@updatedState", historyItem.UpdatedState, DbType.String);
 
-                return await connection.ExecuteAsync(
-                    sql: "InsertHistory",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
+                    await connection.ExecuteAsync(
+                        sql: "InsertHistory",
+                        param: parameters,
+                        transaction: transaction,
+                        commandType: CommandType.StoredProcedure);
+                }
             });
         }
     }

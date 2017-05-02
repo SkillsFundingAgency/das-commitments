@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -230,28 +232,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == testCommitment.Id &&
-                                y.ChangeType == CommitmentChangeType.CreatedApprenticeship.ToString() &&
-                                y.EntityType == "Commitment" &&
-                                y.OriginalState == expectedOriginalState &&
-                                y.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
-                                y.UpdatedState == expectedOriginalState &&
-                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.First().EntityId == testCommitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.CreatedApprenticeship.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedOriginalState &&
+                                y.First().UserId == _exampleValidRequest.UserId)), Times.Once);
 
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == expectedApprenticeshipId &&
-                                y.ChangeType == ApprenticeshipChangeType.Created.ToString() &&
-                                y.EntityType == "Apprenticeship" &&
-                                y.OriginalState == null &&
-                                y.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
-                                y.UpdatedState != null &&
-                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.Last().EntityId == expectedApprenticeshipId &&
+                                y.Last().ChangeType == ApprenticeshipChangeType.Created.ToString() &&
+                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().OriginalState == null &&
+                                y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.Last().UpdatedState != null &&
+                                y.Last().UserId == _exampleValidRequest.UserId)), Times.Once);
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Apprenticeship argument)

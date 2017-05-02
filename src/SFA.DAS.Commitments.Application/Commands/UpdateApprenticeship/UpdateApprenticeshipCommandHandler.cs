@@ -27,9 +27,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
-        private HistoryService _commitmentHistoryService;
-        private HistoryService _apprenticeshipHistoryService;
-
+        private HistoryService _historyService;
+        
         public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository)
         {
             _commitmentRepository = commitmentRepository;
@@ -71,16 +70,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
         private async Task CreateHistory()
         {
-            await Task.WhenAll(
-                _commitmentHistoryService.CreateUpdate(),
-                _apprenticeshipHistoryService.CreateUpdate()
-            );
+            await _historyService.Save();
         }
 
         private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId)
         {
-            _commitmentHistoryService = new HistoryService(_historyRepository, commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
-            _apprenticeshipHistoryService = new HistoryService(_historyRepository, apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+            _historyService = new HistoryService(_historyRepository);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
+            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
         }
 
         private void LogMessage(UpdateApprenticeshipCommand command)

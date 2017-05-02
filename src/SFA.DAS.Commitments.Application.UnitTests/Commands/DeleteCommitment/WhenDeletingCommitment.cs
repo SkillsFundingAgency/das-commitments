@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -178,15 +179,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _mockHistoryRepository.Verify(
                 x =>
                     x.InsertHistory(
-                        It.Is<HistoryItem>(
+                        It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.EntityId == testCommitment.Id &&
-                                y.ChangeType == CommitmentChangeType.Deleted.ToString() &&
-                                y.EntityType == "Commitment" &&
-                                y.OriginalState == expectedOriginalState &&
-                                y.UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
-                                y.UpdatedState == null &&
-                                y.UserId == _validCommand.UserId)), Times.Once);
+                                y.First().EntityId == testCommitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.Deleted.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == null &&
+                                y.First().UserId == _validCommand.UserId)), Times.Once);
         }
     }
 }

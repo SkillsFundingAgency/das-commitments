@@ -66,12 +66,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
         private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId)
         {
-            var commitmentHistory = new HistoryService(_historyRepository, commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
-            var apprenticeshipHistory = new HistoryService(_historyRepository, apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
-            await Task.WhenAll(
-                commitmentHistory.CreateUpdate(),
-                apprenticeshipHistory.CreateInsert()
-            );
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
+            historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+            await historyService.Save();
         }
 
         private async Task UpdateStatusOfApprenticeship(Commitment commitment)

@@ -63,8 +63,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         private async Task CreateHistory(Commitment newCommitment, CallerType callerType, string userId)
         {
-            var historyService = new HistoryService(_historyRepository, newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, "Commitment", callerType, userId);
-            await historyService.CreateInsert();
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackInsert(newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, "Commitment", callerType, userId);
+            await historyService.Save();
         }
 
         private async Task CreateRelationshipIfDoesNotAlreadyExist(CreateCommitmentCommand message)

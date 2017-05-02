@@ -60,8 +60,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
 
         private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId)
         {
-            var historyService = new HistoryService(_historyRepository, commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, "Commitment", callerType, userId);
-            await historyService.CreateDelete();
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackDelete(commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, "Commitment", callerType, userId);
+            await historyService.Save();
         }
 
         private static void CheckAuthorization(DeleteCommitmentCommand message, Commitment commitment)

@@ -104,7 +104,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var updatedEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
                 updatedCommitment.Apprenticeships.Count, latestAction);
             var changeType = DetermineHistoryChangeType(latestAction, updatedEditStatus);
-            var historyService = new HistoryService(_historyRepository, updatedCommitment, changeType.ToString(), updatedCommitment.Id, "Commitment", command.Caller.CallerType, command.UserId);
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, "Commitment", command.Caller.CallerType, command.UserId);
 
             updatedCommitment.EditStatus = updatedEditStatus;
             updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
@@ -113,7 +114,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             SetLastUpdatedDetails(command, updatedCommitment);
             
             await _commitmentRepository.UpdateCommitment(updatedCommitment);
-            await historyService.CreateUpdate();
+            await historyService.Save();
         }
 
         private CommitmentChangeType DetermineHistoryChangeType(LastAction latestAction, EditStatus updatedEditStatus)
