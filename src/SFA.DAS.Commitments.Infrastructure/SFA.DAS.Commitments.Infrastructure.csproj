@@ -112,11 +112,9 @@
     <Compile Include="Data\HistoryRepository.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipUpdateTransactions.cs" />
     <Compile Include="Data\Transactions\IApprenticeshipUpdateTransactions.cs" />
-    <Compile Include="Data\Transactions\IHistoryTransactions.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipTransactions.cs" />
     <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
-    <Compile Include="Data\Transactions\HistoryTransactions.cs" />
     <Compile Include="Data\ParentChildrenMapper.cs" />
     <Compile Include="Data\Transactions\IApprenticeshipTransactions.cs" />
     <Compile Include="Logging\CommitmentsLogger.cs" />

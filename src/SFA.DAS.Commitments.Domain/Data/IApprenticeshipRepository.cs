@@ -12,9 +12,9 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
 
-        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, CallerType callerType, string userId);
+        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange);
 
-        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime dateOfChange, CallerType callerType, string userId);
+        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 

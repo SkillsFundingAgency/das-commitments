@@ -4,13 +4,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Dapper;
-
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 
@@ -19,27 +16,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class ApprenticeshipRepository : BaseRepository, IApprenticeshipRepository
     {
         private readonly ICommitmentsLogger _logger;
-
-        private readonly IHistoryTransactions _historyTransactions;
-
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
-        public ApprenticeshipRepository(
-            string connectionString,
-            ICommitmentsLogger logger,
-            IHistoryTransactions historyTransactions,
-            IApprenticeshipTransactions apprenticeshipTransactions)
-            : base(connectionString)
+        public ApprenticeshipRepository(string connectionString, ICommitmentsLogger logger, IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (historyTransactions == null)
-                throw new ArgumentNullException(nameof(historyTransactions));
-            if (apprenticeshipTransactions == null)
-                throw new ArgumentNullException(nameof(apprenticeshipTransactions));
-
             _logger = logger;
-            _historyTransactions = historyTransactions;
             _apprenticeshipTransactions = apprenticeshipTransactions;
         }
 
@@ -65,7 +46,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, CallerType callerType, string userId)
+        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange)
         {
             _logger.Debug($"Stopping apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
@@ -83,18 +64,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
-
-                await _historyTransactions.UpdateApprenticeshipStatus(conn, tran, PaymentStatus.Withdrawn,
-                    new ApprenticeshipHistoryItem
-                    {
-                        ApprenticeshipId = apprenticeshipId,
-                        UpdatedByRole = callerType,
-                        UserId = userId
-                    });
             });
         }
 
-        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime dateOfChange, CallerType callerType, string userId)
+        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
             if (!(paymentStatus == PaymentStatus.Paused || paymentStatus == PaymentStatus.Active))
                 throw new ArgumentException("PaymentStatus should be Paused or Active", nameof(paymentStatus));
@@ -114,14 +87,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
-
-                await _historyTransactions.UpdateApprenticeshipStatus(conn, tran, paymentStatus,
-                    new ApprenticeshipHistoryItem
-                    {
-                        ApprenticeshipId = apprenticeshipId,
-                        UpdatedByRole = callerType,
-                        UserId = userId
-                    });
             });
         }
 

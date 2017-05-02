@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -29,10 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository.Verify(x => x.PauseOrResumeApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<PaymentStatus>(a => a == PaymentStatus.Paused),
-                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange),
-                It.Is<CallerType>(a => a == CallerType.Employer),
-                It.Is<string>(a => a == ExampleValidRequest.UserId)));
+                It.Is<PaymentStatus>(a => a == PaymentStatus.Paused)));
         }
 
         [Test]
@@ -101,6 +100,35 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Should().Be("Invalid Date of Change. Date should be todays date.");
+        }
+
+        [Test]
+        public async Task ThenAHistoryRecordIsCreated()
+        {
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            });
+
+            var expectedOriginalApprenticeshipState = JsonConvert.SerializeObject(TestApprenticeship);
+
+            await Handler.Handle(ExampleValidRequest);
+
+            var expectedNewApprenticeshipState = JsonConvert.SerializeObject(TestApprenticeship);
+
+            MockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<HistoryItem>(
+                            y =>
+                                y.EntityId == TestApprenticeship.Id &&
+                                y.ChangeType == ApprenticeshipChangeType.ChangeOfStatus.ToString() &&
+                                y.EntityType == "Apprenticeship" && 
+                                y.OriginalState == expectedOriginalApprenticeshipState &&
+                                y.UpdatedByRole == CallerType.Employer.ToString() &&
+                                y.UpdatedState == expectedNewApprenticeshipState &&
+                                y.UserId == ExampleValidRequest.UserId)), Times.Once);
         }
     }
 }
