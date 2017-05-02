@@ -87,6 +87,8 @@
     <Build Include="StoredProcedures\CreateMessage.sql" />
     <Build Include="StoredProcedures\UpdateCommitment.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipStatuses.sql" />
+    <Build Include="Tables\History.sql" />
+    <Build Include="StoredProcedures\InsertHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

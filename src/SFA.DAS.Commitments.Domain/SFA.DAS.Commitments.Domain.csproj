@@ -50,6 +50,7 @@
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
+    <Compile Include="Data\IHistoryRepository.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Entities\History\CommitmentHistoryItem.cs" />
     <Compile Include="Entities\CommitmentSummary.cs" />
     <Compile Include="Entities\EditStatus.cs" />
+    <Compile Include="Entities\History\HistoryItem.cs" />
     <Compile Include="Entities\LastAction.cs" />
     <Compile Include="Entities\Message.cs" />
     <Compile Include="Entities\OrganisationType.cs" />

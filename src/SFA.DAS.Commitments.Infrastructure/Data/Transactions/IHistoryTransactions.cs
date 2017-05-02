@@ -8,7 +8,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
     public interface IHistoryTransactions
     {
-        Task CreateCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem);
         Task DeleteCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem);
         Task UpdateCommitment(IDbConnection connection, IDbTransaction trans, CommitmentChangeType changeType, CommitmentHistoryItem commitmentHistoryItem);
         Task AddApprenticeshipForCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem);

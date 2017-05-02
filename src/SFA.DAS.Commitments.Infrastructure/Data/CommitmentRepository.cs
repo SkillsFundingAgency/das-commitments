@@ -69,14 +69,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
 
-                    await _historyTransactions.CreateCommitment(
-                        connection, trans,
-                        new CommitmentHistoryItem
-                        {
-                            CommitmentId = commitmentId,
-                            UserId = userId,
-                            UpdatedByRole = callerType
-                        });
                     trans.Commit();
                     return commitmentId;
                 }

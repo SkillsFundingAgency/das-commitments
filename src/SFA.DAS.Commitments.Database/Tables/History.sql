@@ -7,5 +7,7 @@
     [UpdatedByRole] NVARCHAR(50) NOT NULL, 
     [ChangeType] NVARCHAR(50) NOT NULL,
     [CreatedOn] DATETIME NOT NULL, 
-    [UpdatedByName] NVARCHAR(255) NULL
+    [UpdatedByName] NVARCHAR(255) NULL, 
+    [OriginalState] NVARCHAR(MAX) NULL, 
+    [UpdatedState] NVARCHAR(MAX) NULL
 )
