@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@changeType", historyItem.ChangeType, DbType.String);
                 parameters.Add("@updatedByName", historyItem.UpdatedByName, DbType.String);
                 parameters.Add("@originalState", historyItem.OriginalState, DbType.String);
-                parameters.Add("@updatedState", historyItem.UpdatedState, DbType.Int64);
+                parameters.Add("@updatedState", historyItem.UpdatedState, DbType.String);
 
                 return await connection.ExecuteAsync(
                     sql: "InsertHistory",
