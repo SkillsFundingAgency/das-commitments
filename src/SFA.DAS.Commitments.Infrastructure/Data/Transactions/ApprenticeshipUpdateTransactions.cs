@@ -24,7 +24,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@DateOfBirth", apprenticeshipUpdate.DateOfBirth);
             parameters.Add("@CreatedOn", DateTime.UtcNow);
             parameters.Add("@UpdateOrigin", apprenticeshipUpdate.UpdateOrigin);
-
+            parameters.Add("@EffectiveFromDate", apprenticeshipUpdate.EffectiveFromDate);
+            parameters.Add("@EffectiveToDate", apprenticeshipUpdate.EffectiveToDate);
+		
             return await connection.ExecuteAsync(
                     sql: $"[dbo].[CreateApprenticeshipUpdate]",
                     param: parameters,

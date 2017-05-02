@@ -18,6 +18,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public DateTime? EndDate { get; set; }
         public DateTime? CreatedOn { get; set; }
         public UpdateOrigin UpdateOrigin { get; set; }
+        public DateTime EffectiveFromDate { get; set; }
+        public DateTime? EffectiveToDate { get; set; }
 
         public bool HasChanges => !string.IsNullOrWhiteSpace(FirstName)
                                   || !string.IsNullOrWhiteSpace(LastName)

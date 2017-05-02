@@ -12,7 +12,9 @@
 		@EndDate DATETIME NULL, 
 		@DateOfBirth DATETIME NULL,
 		@CreatedOn DATETIME NULL,
-		@UpdateOrigin TINYINT
+		@UpdateOrigin TINYINT,
+		@EffectiveFromDate DATETIME,
+		@EffectiveToDate DATETIME NULL
 )
 AS
 
@@ -30,7 +32,9 @@ AS
 		[EndDate], 
 		[DateOfBirth],
 		[CreatedOn],
-		[UpdateOrigin]
+		[UpdateOrigin],
+		[EffectiveFromDate],
+		[EffectiveToDate]
 	)
 	values
 	(
@@ -46,5 +50,7 @@ AS
 		@EndDate, 
 		@DateOfBirth,
 		@CreatedOn,
-		@UpdateOrigin
+		@UpdateOrigin,
+		@EffectiveFromDate,
+		@EffectiveToDate
 	)

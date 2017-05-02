@@ -12,17 +12,21 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
     {
         private readonly AbstractValidator<UpdateDataLockTriageStatusCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
         public UpdateDataLockTriageStatusCommandHandler(AbstractValidator<UpdateDataLockTriageStatusCommand> validator,
-            IDataLockRepository dataLockRepository)
+            IDataLockRepository dataLockRepository, IApprenticeshipRepository apprenticeshipRepository)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(AbstractValidator<UpdateDataLockTriageStatusCommand>));
             if(dataLockRepository == null)
                 throw new ArgumentNullException(nameof(IDataLockRepository));
+            if(apprenticeshipRepository == null)
+                throw new ArgumentNullException(nameof(IApprenticeshipRepository));
 
             _validator = validator;
             _dataLockRepository = dataLockRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
         }
 
         protected override async Task HandleCore(UpdateDataLockTriageStatusCommand message)
@@ -48,12 +52,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
             ApprenticeshipUpdate apprenticeshipUpdate = null;
             if (triageStatus == TriageStatus.Change)
             {
+                var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(message.ApprenticeshipId);
+
                 apprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                     ApprenticeshipId = dataLock.ApprenticeshipId,
                     Originator = Originator.Provider,
-                    UpdateOrigin = UpdateOrigin.DataLock
-                    //todo: update origin
+                    UpdateOrigin = UpdateOrigin.DataLock,
+                    EffectiveFromDate = apprenticeship.StartDate.Value,
+                    EffectiveToDate = null
                 };
 
                 if ((dataLock.ErrorCode & DataLockErrorCode.Dlock07) == DataLockErrorCode.Dlock07)
@@ -64,11 +71,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 if ((dataLock.ErrorCode & DataLockErrorCode.Dlock09) == DataLockErrorCode.Dlock09)
                 {
                     apprenticeshipUpdate.StartDate = dataLock.IlrActualStartDate;
-                    //todo: this field? or go get the apprenticeship and use the start date as per Mark's notes?
                 }
-
-                //todo: ChangeEffectiveDates? Not clear.
-
             }
 
             await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus, apprenticeshipUpdate);
