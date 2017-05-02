@@ -5,7 +5,7 @@ SELECT
 	a.*,
 	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
 	au.Originator AS UpdateOriginator,
-	dataLock.TriageStatus AS DataLockTriage,
+	dataLock.TriageStatus AS DataLockTriage, dataLock.ErrorCode as DataLockErrorCode,
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
@@ -46,6 +46,6 @@ SELECT
 		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
 		ON au.ApprenticeshipId = a.Id
 	LEFT JOIN
-	    (SELECT ApprenticeshipId, TriageStatus FROM DataLockStatus) AS dataLock
+	    (SELECT ApprenticeshipId, TriageStatus, ErrorCode FROM DataLockStatus) AS dataLock
 		ON 
 			dataLock.ApprenticeshipId = a.Id

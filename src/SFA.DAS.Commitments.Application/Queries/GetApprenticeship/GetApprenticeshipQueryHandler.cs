@@ -94,6 +94,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 ProviderName = matchingApprenticeship.ProviderName,
                 LegalEntityName = matchingApprenticeship.LegalEntityName,
                 DataLockTriageStatus = (TriageStatus?)matchingApprenticeship.DataLockTriage,
+                DataLockErrorCode = (DataLockErrorCode)matchingApprenticeship.DataLockErrorCode
             };
 
             return response;
