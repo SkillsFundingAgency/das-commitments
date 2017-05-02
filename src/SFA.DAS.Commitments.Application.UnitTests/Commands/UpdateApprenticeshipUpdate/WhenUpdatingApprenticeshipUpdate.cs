@@ -69,7 +69,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>() });
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn});
+                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, EffectiveFromDate = _apprenticeshipStartDate, CreatedOn = _updateCreadtedOn});
 
             _sut = new UpdateApprenticeshipUpdateCommandHandler(
                 _validator.Object,
@@ -286,6 +286,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     ApprenticeshipId = 5,
                     Id = 42,
                     FirstName = "Updated first name",
+                    EffectiveFromDate = createdOn,
                     CreatedOn =  createdOn});
 
             await _sut.Handle(
@@ -327,6 +328,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     ApprenticeshipId = 5,
                     Id = 42,
                     FirstName = "Updated first name",
+                    EffectiveFromDate = _apprenticeshipStartDate,
                     CreatedOn = createdOn
                 });
 
@@ -373,6 +375,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     ApprenticeshipId = 5,
                     Id = 42,
                     FirstName = "Updated first name",
+                    EffectiveFromDate = newStartDate,
                     CreatedOn = createdOn,
                     StartDate = newStartDate,
                     EndDate = newEndDate
@@ -402,7 +405,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                        m.StartDate == _apprenticeshipStartDate
                     && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Original first name"),
-                It.IsAny<string>(), null, newStartDate.AddDays(-1)), Times.Once);
+                It.IsAny<string>(),
+                null,
+                newStartDate.AddDays(-1)),
+                Times.Once);
 
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(

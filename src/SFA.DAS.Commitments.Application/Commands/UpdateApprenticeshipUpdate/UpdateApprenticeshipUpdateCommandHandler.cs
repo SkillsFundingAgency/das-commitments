@@ -94,11 +94,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
         private async Task CreateEvents(Apprenticeship apprenticeship, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
         {
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
-            DateTime? changeEffective = pendingUpdate.CreatedOn;
-            if (updatedApprenticeship.StartDate > pendingUpdate.CreatedOn) // Was waiting to start when created
-            {
-                changeEffective = updatedApprenticeship.StartDate;
-            }
+
+            DateTime? changeEffective = pendingUpdate.EffectiveFromDate;
 
             await _eventsApi.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", null, changeEffective?.AddDays(-1));
             await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", changeEffective, null);
