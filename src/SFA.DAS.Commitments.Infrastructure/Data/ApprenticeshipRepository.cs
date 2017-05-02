@@ -54,30 +54,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 });
         }
 
-        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId)
+        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
 
             await WithTransaction(async (connection, trans) =>
                 {
                     var returnCode = await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
-
-                    await _historyTransactions.UpdateApprenticeship(connection, trans, 
-                        new ApprenticeshipHistoryItem
-                        {
-                            ApprenticeshipId = apprenticeship.Id,
-                            UpdatedByRole = caller.CallerType,
-                            UserId = userId
-                        });
-
-                    await _historyTransactions.UpdateApprenticeshipForCommitment(connection, trans,
-                        new CommitmentHistoryItem
-                    {
-                        CommitmentId = apprenticeship.CommitmentId,
-                        UpdatedByRole = caller.CallerType,
-                        UserId = userId
-                    });
-
                     return returnCode;
             });
         }

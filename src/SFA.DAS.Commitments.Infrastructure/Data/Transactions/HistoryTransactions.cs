@@ -22,30 +22,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             _logger = logger;
         }
 
-        public async Task UpdateApprenticeshipForCommitment(
-            IDbConnection connection,
-            IDbTransaction trans,
-            CommitmentHistoryItem commitmentHistoryItem)
-        {
-            _logger.Debug($"History item for deleteing apprenticeship on commitment: {commitmentHistoryItem.CommitmentId}",
-               commitmentId: commitmentHistoryItem.CommitmentId);
-
-            await WriteCommitmentHistory(connection, trans, commitmentHistoryItem, CommitmentChangeType.EditedApprenticeship);
-        }
-
-        // Apprenticeship
-
-        public async Task UpdateApprenticeship(
-            IDbConnection connection,
-            IDbTransaction trans,
-            ApprenticeshipHistoryItem apprenticeshipHistoryItem)
-        {
-            _logger.Debug($"Creating history item for updating apprenticehsip: {apprenticeshipHistoryItem.ApprenticeshipId}",
-                    apprenticeshipId: apprenticeshipHistoryItem.ApprenticeshipId);
-
-            await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.Updated);
-        }
-
         public async Task UpdateApprenticeshipStatus(
             IDbConnection connection,
             IDbTransaction trans,
@@ -56,29 +32,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
                     apprenticeshipId: apprenticeshipHistoryItem.ApprenticeshipId);
 
             await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.ChangeOfStatus);
-        }
-
-        private async Task WriteCommitmentHistory(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem, CommitmentChangeType changeType)
-        {
-            if(string.IsNullOrEmpty(commitmentHistoryItem.UserId))
-                _logger.Warn($"Missing user id for history item. ChangeType: {changeType}, Role {commitmentHistoryItem.UpdatedByRole}");
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@commitmentId", commitmentHistoryItem.CommitmentId, DbType.Int64);
-            parameters.Add("@userId", commitmentHistoryItem.UserId, DbType.String);
-            parameters.Add("@updatedByRole", commitmentHistoryItem.UpdatedByRole.ToString(), DbType.String);
-            parameters.Add("@changeType", changeType.ToString(), DbType.String);
-            parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
-            parameters.Add("@UpdatedByName", commitmentHistoryItem.UpdatedByName, DbType.String);
-
-            await connection.QueryAsync<long>(
-                sql:
-                "INSERT INTO [dbo].[CommitmentHistory](CommitmentId, UserId, UpdatedByRole, ChangeType, CreatedOn, UpdatedByName) " +
-                "VALUES (@commitmentId, @userId, @updatedByRole, @changeType, @createdOn, @updatedByName); ",
-                param: parameters,
-                commandType: CommandType.Text,
-                transaction: trans);
-
         }
 
         private async Task WriteHistory(IDbConnection connection, IDbTransaction trans, ApprenticeshipHistoryItem apprenticeshipHistoryItem, ApprenticeshipChangeType changeType)

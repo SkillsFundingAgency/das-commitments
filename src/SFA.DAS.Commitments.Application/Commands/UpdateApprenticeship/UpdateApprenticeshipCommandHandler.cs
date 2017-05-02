@@ -5,9 +5,11 @@ using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Rules;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
@@ -24,14 +26,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private readonly IApprenticeshipUpdateRules _apprenticeshipUpdateRules;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
+        private readonly IHistoryRepository _historyRepository;
+        private HistoryService _commitmentHistoryService;
+        private HistoryService _apprenticeshipHistoryService;
 
-        public UpdateApprenticeshipCommandHandler(
-            ICommitmentRepository commitmentRepository, 
-            IApprenticeshipRepository apprenticeshipRepository,
-            AbstractValidator<UpdateApprenticeshipCommand> validator, 
-            IApprenticeshipUpdateRules apprenticeshipUpdateRules, 
-            IApprenticeshipEvents apprenticeshipEvents, 
-            ICommitmentsLogger logger)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -39,6 +38,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             _apprenticeshipUpdateRules = apprenticeshipUpdateRules;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
+            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand command)
@@ -58,16 +58,29 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
-            var updatedApprenticeship = MapFrom(command.Apprenticeship, command);
+            StartTrackingHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId);
 
-            var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(apprenticeship, updatedApprenticeship);
+            UpdateApprenticeshipEntity(apprenticeship, command.Apprenticeship, command);
 
-            updatedApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, doChangesRequireAgreement);
-            updatedApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, doChangesRequireAgreement);
+            await Task.WhenAll(
+                _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller),
+                _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED"),
+                CreateHistory()
+            );
+        }
 
-            await _apprenticeshipRepository.UpdateApprenticeship(updatedApprenticeship, command.Caller, command.UserId);
+        private async Task CreateHistory()
+        {
+            await Task.WhenAll(
+                _commitmentHistoryService.CreateUpdate(),
+                _apprenticeshipHistoryService.CreateUpdate()
+            );
+        }
 
-            await _apprenticeshipEvents.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED");
+        private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId)
+        {
+            _commitmentHistoryService = new HistoryService(_historyRepository, commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
+            _apprenticeshipHistoryService = new HistoryService(_historyRepository, apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
         }
 
         private void LogMessage(UpdateApprenticeshipCommand command)
@@ -125,14 +138,30 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             }
         }
 
-        private static Apprenticeship MapFrom(Api.Types.Apprenticeship.Apprenticeship apprenticeship, UpdateApprenticeshipCommand message)
+        private void UpdateApprenticeshipEntity(Apprenticeship existingApprenticeship, Api.Types.Apprenticeship.Apprenticeship updatedApprenticeship, UpdateApprenticeshipCommand message)
         {
-            var domainApprenticeship = new Apprenticeship
-            {
-                Id = message.ApprenticeshipId, FirstName = apprenticeship.FirstName, LastName = apprenticeship.LastName, DateOfBirth = apprenticeship.DateOfBirth, NINumber = apprenticeship.NINumber, ULN = apprenticeship.ULN, CommitmentId = message.CommitmentId, PaymentStatus = (PaymentStatus) apprenticeship.PaymentStatus, AgreementStatus = (AgreementStatus) apprenticeship.AgreementStatus, TrainingType = (TrainingType) apprenticeship.TrainingType, TrainingCode = apprenticeship.TrainingCode, TrainingName = apprenticeship.TrainingName, Cost = apprenticeship.Cost, StartDate = apprenticeship.StartDate, EndDate = apprenticeship.EndDate, EmployerRef = apprenticeship.EmployerRef, ProviderRef = apprenticeship.ProviderRef
-            };
+            var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship);
 
-            return domainApprenticeship;
+            existingApprenticeship.Id = message.ApprenticeshipId;
+            existingApprenticeship.FirstName = updatedApprenticeship.FirstName;
+            existingApprenticeship.LastName = updatedApprenticeship.LastName;
+            existingApprenticeship.DateOfBirth = updatedApprenticeship.DateOfBirth;
+            existingApprenticeship.NINumber = updatedApprenticeship.NINumber;
+            existingApprenticeship.ULN = updatedApprenticeship.ULN;
+            existingApprenticeship.CommitmentId = message.CommitmentId;
+            existingApprenticeship.PaymentStatus = (PaymentStatus)updatedApprenticeship.PaymentStatus;
+            existingApprenticeship.AgreementStatus = (AgreementStatus)updatedApprenticeship.AgreementStatus;
+            existingApprenticeship.TrainingType = (TrainingType)updatedApprenticeship.TrainingType;
+            existingApprenticeship.TrainingCode = updatedApprenticeship.TrainingCode;
+            existingApprenticeship.TrainingName = updatedApprenticeship.TrainingName;
+            existingApprenticeship.Cost = updatedApprenticeship.Cost;
+            existingApprenticeship.StartDate = updatedApprenticeship.StartDate;
+            existingApprenticeship.EndDate = updatedApprenticeship.EndDate;
+            existingApprenticeship.EmployerRef = updatedApprenticeship.EmployerRef;
+            existingApprenticeship.ProviderRef = updatedApprenticeship.ProviderRef;
+
+            existingApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(existingApprenticeship.AgreementStatus, message.Caller.CallerType, doChangesRequireAgreement);
+            existingApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(existingApprenticeship.PaymentStatus, doChangesRequireAgreement);
         }
     }
 }

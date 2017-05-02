@@ -19,7 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
         public void ThenSetTrueIfAnySignificantFieldsDiffer()
         {
             var existingApprenticeship = CreateApprenticeship();
-            var updatedApprenticeship = CreateApprenticeship();
+            var updatedApprenticeship = CreateApiApprenticeship();
 
             existingApprenticeship.StartDate = updatedApprenticeship.StartDate;
             existingApprenticeship.EndDate = updatedApprenticeship.EndDate;
@@ -29,49 +29,49 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
 
             updatedApprenticeship.Cost *= 2;
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.DateOfBirth = DateTime.Now;
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.FirstName += "X";
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.LastName += "X";
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.NINumber += "X";
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.StartDate = DateTime.Now;
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.EndDate = DateTime.Now;
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
             updatedApprenticeship.TrainingCode += "X";
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
 
-            updatedApprenticeship.TrainingType = TrainingType.Standard;
+            updatedApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Standard;
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.TrainingName += "X";
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
-            updatedApprenticeship = CreateApprenticeship();
+            updatedApprenticeship = CreateApiApprenticeship();
         }
 
         [Test]
         public void ThenSetFalseIfOnlyInsignificantFieldsDiffer()
         {
             var existingApprenticeship = CreateApprenticeship();
-            var updatedApprenticeship = CreateApprenticeship();
+            var updatedApprenticeship = CreateApiApprenticeship();
 
             existingApprenticeship.StartDate = updatedApprenticeship.StartDate;
             existingApprenticeship.EndDate = updatedApprenticeship.EndDate;
@@ -107,6 +107,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
                 EmployerRef = "EMPLOYER REF",
                 ProviderRef = "PROVIDER REF",
                 DateOfBirth = new DateTime(2000,12,30)
+            };
+        }
+
+        private static Api.Types.Apprenticeship.Apprenticeship CreateApiApprenticeship()
+        {
+            return new Api.Types.Apprenticeship.Apprenticeship
+            {
+                AgreementStatus = Api.Types.AgreementStatus.NotAgreed,
+                PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.PendingApproval,
+                Cost = 1000,
+                FirstName = "First name",
+                LastName = "Last name",
+                NINumber = "NINO",
+                ULN = "ULN",
+                TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Framework,
+                TrainingName = "TRAINING",
+                TrainingCode = "CODE",
+                StartDate = DateTime.Now.AddMonths(1),
+                EndDate = DateTime.Now.AddMonths(6),
+                EmployerRef = "EMPLOYER REF",
+                ProviderRef = "PROVIDER REF",
+                DateOfBirth = new DateTime(2000, 12, 30)
             };
         }
     }
