@@ -30,7 +30,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 
             _dataLockRepository = new Mock<IDataLockRepository>();
             _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
-                .ReturnsAsync(new DataLockStatus());
+                .ReturnsAsync(new DataLockStatus
+                {
+                    ErrorCode = DataLockErrorCode.Dlock03
+                });
 
             _dataLockRepository.Setup(x => x.UpdateDataLockTriageStatus(It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()))
                 .Returns(() => Task.FromResult(1L));
@@ -137,7 +140,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                 {
                     ApprenticeshipId = 1,
                     DataLockEventId = 2,
-                    TriageStatus = TriageStatus.Unknown
+                    TriageStatus = TriageStatus.Unknown,
+                    ErrorCode = DataLockErrorCode.Dlock07
                 });
 
             //Act
@@ -164,7 +168,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                 {
                     ApprenticeshipId = 1,
                     DataLockEventId = 2,
-                    TriageStatus = TriageStatus.Unknown
+                    TriageStatus = TriageStatus.Unknown,
+                    ErrorCode = DataLockErrorCode.Dlock07
                 });
 
             //Act
