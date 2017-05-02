@@ -49,6 +49,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 return;
             }
 
+            AssertValidTriageStatus(triageStatus, dataLock);
+
             ApprenticeshipUpdate apprenticeshipUpdate = null;
             if (triageStatus == TriageStatus.Change)
             {
@@ -83,6 +85,31 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
             {
                 throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} does not belong to Apprenticeship {apprenticeshipId}");
             }
+        }
+
+        private void AssertValidTriageStatus(TriageStatus triageStatus, DataLockStatus dataLockStatus)
+        {
+            if (triageStatus == TriageStatus.Change)
+            {
+                if (!(dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07)
+                    || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock09)))
+                {
+                    throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} with error code {dataLockStatus.ErrorCode} cannot be triaged as {triageStatus}");
+                }
+            }
+
+            if (triageStatus == TriageStatus.Restart)
+            {
+                if (!(dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                      || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                      || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                      || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock06)
+                      ))
+                {
+                    throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} with error code {dataLockStatus.ErrorCode} cannot be triaged as {triageStatus}");
+                }
+            }
+
         }
     }
 }
