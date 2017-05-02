@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckCommitmentStatus(commitment);
 
             var apprenticeship = MapFrom(command.Apprenticeship, command);
-            apprenticeship.Id = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship, command.Caller.CallerType, command.UserId);
+            apprenticeship.Id = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
 
             await Task.WhenAll(
                 _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-CREATED"),

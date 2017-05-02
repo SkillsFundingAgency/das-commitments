@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _apprenticeshipTransactions = apprenticeshipTransactions;
         }
 
-        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship, CallerType callerType, string userId)
+        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
         {
             _logger.Debug($"Creating apprenticeship - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId);
 
@@ -215,7 +215,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId)
+        public async Task DeleteApprenticeship(long apprenticeshipId)
         {
             _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
@@ -231,15 +231,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     transaction: transactions,
                     commandType: CommandType.Text);
-
-                await _historyTransactions.DeleteApprenticeshipForCommitment(connection, transactions, 
-                    new CommitmentHistoryItem
-                        {
-                            CommitmentId = commitmentId,
-                            UpdatedByRole = CallerType.Employer,
-                            UserId = userId
-                        });
-
                 return returnCode;
             });
         }

@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipRepository.Verify(x => 
-                x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>()));
+                x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()));
         }
 
         [Test]
@@ -124,9 +124,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             });
 
             _mockApprenticeshipRepository
-                .Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>()))
+                .Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()))
                 .ReturnsAsync(_exampleValidRequest.Apprenticeship.Id)
-                .Callback<Domain.Entities.Apprenticeship, CallerType, string>((x, c,y) => argument = x);
+                .Callback<Domain.Entities.Apprenticeship>((x) => argument = x);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -144,11 +144,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 Id = _exampleValidRequest.CommitmentId,
                 ProviderId = _exampleValidRequest.Caller.Id
             });
-            _mockApprenticeshipRepository.Setup(x => 
-                x.CreateApprenticeship(
-                    It.IsAny<Domain.Entities.Apprenticeship>(), 
-                    It.IsAny<CallerType>(),
-                    It.IsAny<string>())).ReturnsAsync(expectedApprenticeshipId);
+            _mockApprenticeshipRepository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>())).ReturnsAsync(expectedApprenticeshipId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 
@@ -227,7 +223,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var expectedOriginalState = JsonConvert.SerializeObject(testCommitment);
             var expectedApprenticeshipId = 12;
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
-            _mockApprenticeshipRepository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(expectedApprenticeshipId);
+            _mockApprenticeshipRepository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>())).ReturnsAsync(expectedApprenticeshipId);
 
             await _handler.Handle(_exampleValidRequest);
 

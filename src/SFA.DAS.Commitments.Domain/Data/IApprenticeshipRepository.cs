@@ -8,7 +8,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface IApprenticeshipRepository
     {
-        Task<long> CreateApprenticeship(Apprenticeship apprenticeship, CallerType callerType, string userId);
+        Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
 
         Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId);
 
@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships);
 
-        Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId);
+        Task DeleteApprenticeship(long apprenticeshipId);
 
         Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships, CallerType caller, string userId);
 
