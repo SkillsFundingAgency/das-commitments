@@ -22,14 +22,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             _logger = logger;
         }
 
-        public async Task UpdateCommitment(IDbConnection connection, IDbTransaction trans, CommitmentChangeType changeType, CommitmentHistoryItem commitmentHistoryItem)
-        {
-            _logger.Debug($"History item for updating commitment: {commitmentHistoryItem.CommitmentId}",
-               commitmentId: commitmentHistoryItem.CommitmentId);
-
-            await WriteCommitmentHistory(connection, trans, commitmentHistoryItem, changeType);
-        }
-
         public async Task AddApprenticeshipForCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem)
         {
             _logger.Debug($"History item for adding apprenticeship to commitment: {commitmentHistoryItem.CommitmentId}",

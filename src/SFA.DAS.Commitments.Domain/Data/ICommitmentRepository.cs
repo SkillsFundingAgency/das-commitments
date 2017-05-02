@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
         Task<Commitment> GetCommitmentById(long id);
         Task DeleteCommitment(long commitmentId);
-        Task UpdateCommitment(Commitment commitment, CallerType callerType, string userId);
+        Task UpdateCommitment(Commitment commitment);
         Task UpdateCommitmentReference(long commitmentId, string hashValue);
         Task SetPaymentOrder(long accountId);
         Task<long> CreateRelationship(Relationship relationship);

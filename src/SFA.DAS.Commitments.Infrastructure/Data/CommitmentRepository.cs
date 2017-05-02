@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetCommitmentsByIdentifier("EmployerAccountId", accountId);
         }
 
-        public async Task UpdateCommitment(Commitment commitment, CallerType callerType, string userId)
+        public async Task UpdateCommitment(Commitment commitment)
         {
             await WithTransaction(async (connection, transaction) =>
             {
@@ -109,15 +109,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     transaction: transaction,
                     commandType: CommandType.StoredProcedure);
-
-                // ToDo: Need to tests
-                var changeType = CommitmentChangeType.SentForReview;
-                if (commitment.EditStatus == EditStatus.Both && commitment.LastAction == LastAction.Approve)
-                    changeType = CommitmentChangeType.FinalApproval;
-                else if (commitment.LastAction == LastAction.Approve)
-                    changeType = CommitmentChangeType.SentForApproval;
-
-                await _historyTransactions.UpdateCommitment(connection, transaction, changeType, new CommitmentHistoryItem { CommitmentId = commitment.Id, UpdatedByRole = callerType, UserId = userId }); ;
             });
         }
 
