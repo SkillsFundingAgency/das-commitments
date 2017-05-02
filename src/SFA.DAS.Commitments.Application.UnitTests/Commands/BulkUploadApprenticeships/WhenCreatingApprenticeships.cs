@@ -6,6 +6,7 @@ using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Api.Types.Validation.Types;
@@ -16,6 +17,7 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 
@@ -31,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private List<Apprenticeship> _exampleApprenticships;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IMediator> _mockMediator;
+        private Mock<IHistoryRepository> _mockHistoryRepository;
         private Commitment _existingCommitment;
         private List<Domain.Entities.Apprenticeship> _existingApprenticeships;
 
@@ -41,6 +44,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _mockMediator = new Mock<IMediator>();
+            _mockHistoryRepository = new Mock<IHistoryRepository>();
 
             var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
 
@@ -49,7 +53,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                 _mockApprenticeshipRespository.Object,
                 validator,
                 _mockApprenticeshipEvents.Object,
-                Mock.Of<ICommitmentsLogger>(), _mockMediator.Object);
+                Mock.Of<ICommitmentsLogger>(), 
+                _mockMediator.Object,
+                _mockHistoryRepository.Object);
 
             _exampleApprenticships = new List<Apprenticeship>
             {
@@ -80,17 +86,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldCallCommitmentRepository()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(
-                It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>()), Times.Once);
+            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>()), Times.Once);
         }
 
         [Test]
         public async Task ShouldPublishApprenticeshipDeletedEvents()
         {
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipEvents.Verify(x => x.BulkPublishDeletionEvent(_existingCommitment, _existingApprenticeships, "APPRENTICESHIP-DELETED"), Times.Once);
@@ -100,7 +107,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         public async Task ShouldPublishApprenticeshipCreatedEvents()
         {
             var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship() };
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(insertedApprenticeships);
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
             
             await _handler.Handle(_exampleValidRequest);
 
@@ -169,6 +176,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ThenOverlappingApprenticeshipValidationShouldBePerformed()
         {
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+
             //Act
             await _handler.Handle(_exampleValidRequest);
 
@@ -200,6 +209,43 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public async Task ThenHistoryRecordsAreCreated()
+        {
+            var expectedOriginalCommitmentState = JsonConvert.SerializeObject(_existingCommitment);
+
+            var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship { Id = 1234 } };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.First().EntityId == _existingCommitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.BulkUploadedApprenticeships.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalCommitmentState &&
+                                y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedOriginalCommitmentState &&
+                                y.First().UserId == _exampleValidRequest.UserId)), Times.Once);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.Last().EntityId == insertedApprenticeships[0].Id &&
+                                y.Last().ChangeType == ApprenticeshipChangeType.Created.ToString() &&
+                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().OriginalState == null &&
+                                y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.Last().UpdatedState != null &&
+                                y.Last().UserId == _exampleValidRequest.UserId)), Times.Once);
         }
     }
 }

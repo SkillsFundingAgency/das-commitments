@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task DeleteApprenticeship(long apprenticeshipId);
 
-        Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships, CallerType caller, string userId);
+        Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships);
 
         Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId);
 

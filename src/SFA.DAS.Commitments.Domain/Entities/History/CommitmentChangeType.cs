@@ -9,6 +9,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
         EditedApprenticeship = 4,
         SentForReview = 5,
         SentForApproval = 6,
-        FinalApproval = 7
+        FinalApproval = 7,
+        BulkUploadedApprenticeships = 8
     }
 }
