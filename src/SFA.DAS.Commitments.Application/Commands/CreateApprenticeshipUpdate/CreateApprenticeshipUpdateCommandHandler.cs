@@ -65,7 +65,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             await CheckOverlappingApprenticeships(command, apprenticeship);
 
             var immediateUpdate = MapToImmediateApprenticeshipUpdate(command);
-            var pendingUpdate = MapToPendingApprenticeshipUpdate(command.ApprenticeshipUpdate);
+            var pendingUpdate = MapToPendingApprenticeshipUpdate(apprenticeship, command.ApprenticeshipUpdate);
 
             await _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate);
         }
@@ -113,7 +113,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             return result;
         }
 
-        private ApprenticeshipUpdate MapToPendingApprenticeshipUpdate(Api.Types.Apprenticeship.ApprenticeshipUpdate update)
+        private ApprenticeshipUpdate MapToPendingApprenticeshipUpdate(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate update)
         {
             var result =  new ApprenticeshipUpdate
             {
@@ -129,8 +129,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 Cost = update.Cost,
                 StartDate = update.StartDate,
                 EndDate = update.EndDate,
-                UpdateOrigin = (UpdateOrigin) update.UpdateOrigin
+                UpdateOrigin = (UpdateOrigin) update.UpdateOrigin,
+                EffectiveFromDate = DateTime.UtcNow,
+                EffectiveToDate = null
             };
+
+            //todo: ensure this logic is covered by a test
+            if (apprenticeship.StartDate > DateTime.UtcNow) // Was waiting to start when created
+            {
+                result.EffectiveFromDate = apprenticeship.StartDate.Value;
+            }
 
             return result.HasChanges ? result : null;
         }
