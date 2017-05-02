@@ -22,14 +22,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             _logger = logger;
         }
 
-        public async Task AddApprenticeshipForCommitment(IDbConnection connection, IDbTransaction trans, CommitmentHistoryItem commitmentHistoryItem)
-        {
-            _logger.Debug($"History item for adding apprenticeship to commitment: {commitmentHistoryItem.CommitmentId}",
-               commitmentId: commitmentHistoryItem.CommitmentId);
-
-            await WriteCommitmentHistory(connection, trans, commitmentHistoryItem, CommitmentChangeType.CreatedApprenticeship);
-        }
-
         public async Task DeleteApprenticeshipForCommitment(
             IDbConnection connection,
             IDbTransaction transactions,
@@ -53,17 +45,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
         }
 
         // Apprenticeship
-
-        public async Task CreateApprenticeship(
-            IDbConnection connection,
-            IDbTransaction trans,
-            ApprenticeshipHistoryItem apprenticeshipHistoryItem)
-        {   
-            _logger.Debug($"Creating history item for apprenticehsip: {apprenticeshipHistoryItem.ApprenticeshipId}",
-                    apprenticeshipId: apprenticeshipHistoryItem.ApprenticeshipId);
-
-            await WriteHistory(connection, trans, apprenticeshipHistoryItem, ApprenticeshipChangeType.Created);
-        }
 
         public async Task UpdateApprenticeship(
             IDbConnection connection,

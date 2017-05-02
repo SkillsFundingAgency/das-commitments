@@ -3,15 +3,16 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
@@ -30,22 +31,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private CreateApprenticeshipCommandHandler _handler;
         private CreateApprenticeshipCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
-
+        private Mock<IHistoryRepository> _mockHistoryRepository;
 
         [SetUp]
         public void SetUp()
         {
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _mockHistoryRepository = new Mock<IHistoryRepository>();
             var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
             _handler = new CreateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRepository.Object,
                 validator, 
                 _mockApprenticeshipEvents.Object, 
-                Mock.Of<ICommitmentsLogger>());
+                Mock.Of<ICommitmentsLogger>(),
+                _mockHistoryRepository.Object);
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
@@ -212,6 +214,48 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task ThenHistoryRecordsAreCreated()
+        {
+            var testCommitment = new Commitment
+            {
+                ProviderId = _exampleValidRequest.Caller.Id,
+                Id = _exampleValidRequest.CommitmentId
+            };
+            var expectedOriginalState = JsonConvert.SerializeObject(testCommitment);
+            var expectedApprenticeshipId = 12;
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+            _mockApprenticeshipRepository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>(), It.IsAny<string>())).ReturnsAsync(expectedApprenticeshipId);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<HistoryItem>(
+                            y =>
+                                y.EntityId == testCommitment.Id &&
+                                y.ChangeType == CommitmentChangeType.CreatedApprenticeship.ToString() &&
+                                y.EntityType == "Commitment" &&
+                                y.OriginalState == expectedOriginalState &&
+                                y.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.UpdatedState == expectedOriginalState &&
+                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<HistoryItem>(
+                            y =>
+                                y.EntityId == expectedApprenticeshipId &&
+                                y.ChangeType == ApprenticeshipChangeType.Created.ToString() &&
+                                y.EntityType == "Apprenticeship" &&
+                                y.OriginalState == null &&
+                                y.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
+                                y.UpdatedState != null &&
+                                y.UserId == _exampleValidRequest.UserId)), Times.Once);
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Apprenticeship argument)

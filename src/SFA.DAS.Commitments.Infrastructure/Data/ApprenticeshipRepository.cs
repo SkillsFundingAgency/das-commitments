@@ -50,22 +50,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await WithTransaction(async (connection, trans)=>
                 {
                     var apprenticeshipId = await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
-                    await _historyTransactions.CreateApprenticeship(connection, trans,
-                        new ApprenticeshipHistoryItem
-                        {
-                            ApprenticeshipId = apprenticeshipId,
-                            UpdatedByRole = callerType,
-                            UserId = userId
-                        });
-
-                    await _historyTransactions.AddApprenticeshipForCommitment(connection, trans, 
-                        new CommitmentHistoryItem
-                        {
-                            CommitmentId = apprenticeship.CommitmentId, 
-                            UpdatedByRole = callerType,
-                            UserId = userId
-                        });
-
                     return apprenticeshipId;
                 });
         }

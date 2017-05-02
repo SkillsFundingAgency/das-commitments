@@ -4,12 +4,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -17,20 +14,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
 
-        private readonly IHistoryTransactions _historyTransactions;
-
-        public CommitmentRepository(
-            string databaseConnectionString,
-            ICommitmentsLogger logger,
-            IHistoryTransactions historyTransactions) : base(databaseConnectionString)
+        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (historyTransactions == null)
-                throw new ArgumentNullException(nameof(historyTransactions));
-
             _logger = logger;
-            _historyTransactions = historyTransactions;
         }
 
         public async Task<long> Create(Commitment commitment)
