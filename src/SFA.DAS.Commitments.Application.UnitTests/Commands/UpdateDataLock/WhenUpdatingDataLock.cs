@@ -179,7 +179,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     && u.UpdateOrigin == UpdateOrigin.DataLock
                     && u.EffectiveFromDate == _existingApprenticeship.StartDate.Value
                     && u.EffectiveToDate.HasValue == false
-                    //todo: finish these assertions
                 )),
                 Times.Once);
         }
