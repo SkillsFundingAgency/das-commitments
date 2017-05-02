@@ -50,11 +50,17 @@
     <Compile Include="CallerTypeExtensions.cs" />
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
+    <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
+    <Compile Include="Entities\DataLock\DataLockErrorCode.cs" />
+    <Compile Include="Entities\DataLock\DataLockEventError.cs" />
+    <Compile Include="Entities\DataLock\DataLockStatus.cs" />
+    <Compile Include="Entities\DataLock\Status.cs" />
+    <Compile Include="Entities\DataLock\TriageStatus.cs" />
     <Compile Include="Entities\History\ApprenticeshipChangeType.cs" />
     <Compile Include="Entities\History\ApprenticeshipHistoryItem.cs" />
     <Compile Include="Entities\History\CommitmentChangeType.cs" />
@@ -79,10 +85,12 @@
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\ICurrentDateTime.cs" />
     <Compile Include="Interfaces\IHashingService.cs" />
+    <Compile Include="Interfaces\IPaymentEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\TrainingType.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

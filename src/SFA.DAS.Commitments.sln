@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.WebJob", "SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj", "{00F79506-1368-4A99-A8F7-D922AE0B231C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob.UnitTests", "SFA.DAS.CommitmentPayments.WebJob.UnitTests\SFA.DAS.CommitmentPayments.WebJob.UnitTests.csproj", "{F682E16D-2919-4A26-8DF8-12C608F54E39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +86,10 @@ Global
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,5 +98,6 @@ Global
 		{8EDF4429-251A-416D-BB68-93F227191BCF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{C0C88789-3229-4B47-8081-16D1B5D85D9A} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{6669C64D-7DAE-47C2-A469-7636C89C0974} = {AEF29222-4B94-48CB-9438-78E5A6333438}
+		{F682E16D-2919-4A26-8DF8-12C608F54E39} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 EndGlobal

@@ -4,10 +4,15 @@ using Microsoft.Azure;
 using NLog;
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.CommitmentPayments.WebJob.Updater;
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Data;
+using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.Provider.Events.Api.Client;
+
 using StructureMap;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
@@ -24,9 +29,30 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
                 });
 
             var config = GetConfiguration("SFA.DAS.CommitmentPayments");
+
+            For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
+                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
+
             For<IConfiguration>().Use(config);
-            For<IDataLockUpdater>().Use<DataLockerUpdater>();
+            For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString); ;
+
+            For<IDataLockUpdater>().Use<DataLockUpdater>();
+
             For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext())).AlwaysUnique();
+            ConfigurePaymentsApiService(config);
+        }
+
+        private void ConfigurePaymentsApiService(CommitmentPaymentsConfiguration config)
+        {
+            if (config.UseDocumentRepository)
+            {
+                For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>()
+                    .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
+            }
+            else
+            {
+                For<IPaymentEvents>().Use<PaymentEventsSerivce>();
+            }
         }
 
         private CommitmentPaymentsConfiguration GetConfiguration(string serviceName)

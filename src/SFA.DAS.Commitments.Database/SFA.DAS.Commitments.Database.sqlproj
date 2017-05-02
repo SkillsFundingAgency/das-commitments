@@ -83,6 +83,9 @@
     <Build Include="Tables\ApprenticeshipUpdate.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipUpdate.sql" />
     <Build Include="StoredProcedures\CreateApprenticeshipUpdate.sql" />
+    <Build Include="Tables\DataLockStatus.sql" />
+    <Build Include="StoredProcedures\UpdateDataLockStatus.sql" />
+    <Build Include="StoredProcedures\GetLastDataLockEventId.sql" />
     <Build Include="Tables\Message.sql" />
     <Build Include="StoredProcedures\CreateMessage.sql" />
     <Build Include="StoredProcedures\UpdateCommitment.sql" />
