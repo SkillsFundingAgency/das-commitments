@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
@@ -20,30 +22,16 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
         private readonly AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
+        private readonly IHistoryRepository _historyRepository;
 
-        public DeleteApprenticeshipCommandHandler(
-            ICommitmentRepository commitmentRepository,
-            IApprenticeshipRepository apprenticeshipRepository, 
-            AbstractValidator<DeleteApprenticeshipCommand> validator, 
-            ICommitmentsLogger logger,
-            IApprenticeshipEvents apprenticeshipEvents)
+        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
-
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _logger = logger;
             _apprenticeshipEvents = apprenticeshipEvents;
+            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(DeleteApprenticeshipCommand command)
@@ -69,8 +57,18 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
-            await _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId, command.Caller.CallerType, command.UserId, commitment.Id);
-            await _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED");
+            await Task.WhenAll(
+                _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId),
+                 _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
+                CreateHistory(commitment, command.Caller.CallerType, command.UserId)
+            );
+        }
+
+        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId)
+        {
+            var commitmentHistory = new HistoryService(_historyRepository);
+            commitmentHistory.TrackUpdate(commitment, CommitmentChangeType.DeletedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
+            await commitmentHistory.Save();
         }
 
         private void LogMessage(DeleteApprenticeshipCommand command)

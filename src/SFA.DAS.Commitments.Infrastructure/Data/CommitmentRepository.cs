@@ -4,12 +4,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -17,23 +14,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
 
-        private readonly IHistoryTransactions _historyTransactions;
-
-        public CommitmentRepository(
-            string databaseConnectionString,
-            ICommitmentsLogger logger,
-            IHistoryTransactions historyTransactions) : base(databaseConnectionString)
+        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (historyTransactions == null)
-                throw new ArgumentNullException(nameof(historyTransactions));
-
             _logger = logger;
-            _historyTransactions = historyTransactions;
         }
 
-        public async Task<long> Create(Commitment commitment, CallerType callerType, string userId)
+        public async Task<long> Create(Commitment commitment)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
@@ -69,14 +55,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
 
-                    await _historyTransactions.CreateCommitment(
-                        connection, trans,
-                        new CommitmentHistoryItem
-                        {
-                            CommitmentId = commitmentId,
-                            UserId = userId,
-                            UpdatedByRole = callerType
-                        });
                     trans.Commit();
                     return commitmentId;
                 }
@@ -98,7 +76,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetCommitmentsByIdentifier("EmployerAccountId", accountId);
         }
 
-        public async Task UpdateCommitment(Commitment commitment, CallerType callerType, string userId)
+        public async Task UpdateCommitment(Commitment commitment)
         {
             await WithTransaction(async (connection, transaction) =>
             {
@@ -117,15 +95,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     transaction: transaction,
                     commandType: CommandType.StoredProcedure);
-
-                // ToDo: Need to tests
-                var changeType = CommitmentChangeType.SentForReview;
-                if (commitment.EditStatus == EditStatus.Both && commitment.LastAction == LastAction.Approve)
-                    changeType = CommitmentChangeType.FinalApproval;
-                else if (commitment.LastAction == LastAction.Approve)
-                    changeType = CommitmentChangeType.SentForApproval;
-
-                await _historyTransactions.UpdateCommitment(connection, transaction, changeType, new CommitmentHistoryItem { CommitmentId = commitment.Id, UpdatedByRole = callerType, UserId = userId }); ;
             });
         }
 
@@ -164,7 +133,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task DeleteCommitment(long commitmentId, CallerType callerType, string userId)
+        public async Task DeleteCommitment(long commitmentId)
         {
             _logger.Debug($"Deleting commitment {commitmentId}", commitmentId: commitmentId);
 
@@ -179,15 +148,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         param: new { @commitmentId = commitmentId }
                     );
 
-                    await _historyTransactions.DeleteCommitment(
-                        connection,
-                        tran,
-                        new CommitmentHistoryItem
-                        {
-                            CommitmentId = commitmentId,
-                            UpdatedByRole = callerType,
-                            UserId = userId
-                        });
                     tran.Commit();
                     return returnCode;
                 }

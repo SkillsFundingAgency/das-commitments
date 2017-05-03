@@ -6,9 +6,11 @@ using FluentValidation;
 using MediatR;
 
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
@@ -19,22 +21,15 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private readonly AbstractValidator<DeleteCommitmentCommand> _validator;
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
+        private readonly IHistoryRepository _historyRepository;
 
-        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents)
+        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
-
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
             _apprenticeshipEvents = apprenticeshipEvents;
+            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(DeleteCommitmentCommand command)
@@ -58,8 +53,16 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(commitment.Apprenticeships);
 
-            await _commitmentRepository.DeleteCommitment(command.CommitmentId, command.Caller.CallerType, command.UserId);
+            await _commitmentRepository.DeleteCommitment(command.CommitmentId);
+            await CreateHistory(commitment, command.Caller.CallerType, command.UserId);
             await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
+        }
+
+        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId)
+        {
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackDelete(commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, "Commitment", callerType, userId);
+            await historyService.Save();
         }
 
         private static void CheckAuthorization(DeleteCommitmentCommand message, Commitment commitment)

@@ -9,9 +9,11 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
@@ -22,35 +24,19 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         private ICommitmentsLogger _logger;
         private ICommitmentRepository _commitmentRepository;
         private IMediator _mediator;
-
+        private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-
         private IApprenticeshipEvents _apprenticeshipEvents;
 
-        public BulkUploadApprenticeshipsCommandHandler(
-            ICommitmentRepository commitmentRepository,
-            IApprenticeshipRepository apprenticeshipRepository, 
-            BulkUploadApprenticeshipsValidator validator, 
-            IApprenticeshipEvents apprenticeshipEvents, 
-            ICommitmentsLogger logger, IMediator mediator)
+        public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, BulkUploadApprenticeshipsValidator validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IMediator mediator, IHistoryRepository historyRepository)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
             _mediator = mediator;
+            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(BulkUploadApprenticeshipsCommand command)
@@ -80,17 +66,27 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             await ValidateOverlaps(apprenticeships);
 
             watch = Stopwatch.StartNew();
-            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships, command.Caller.CallerType, command.UserId);
+            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
             _logger.Trace($"Bulk insert of {command.Apprenticeships.Count} apprentices into Db took {watch.ElapsedMilliseconds} milliseconds");
 
             watch = Stopwatch.StartNew();
-            var eventTasks = new[]
-            {
+            await Task.WhenAll(
                 _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED"),
-                _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED")
-            };
-            await Task.WhenAll(eventTasks);
+                _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"),
+                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId)
+            );
             _logger.Trace($"Publishing bulk uploads of {command.Apprenticeships.Count} events took {watch.ElapsedMilliseconds} milliseconds");
+        }
+
+        private async Task CreateHistory(Commitment commitment, IList<Apprenticeship> insertedApprenticeships, CallerType callerType, string userId)
+        {
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.BulkUploadedApprenticeships.ToString(), commitment.Id, "Commitment", callerType, userId);
+            foreach (var apprenticeship in insertedApprenticeships)
+            {
+                historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+            }
+            await historyService.Save();
         }
 
         private async Task ValidateOverlaps(List<Apprenticeship> apprenticeships)
