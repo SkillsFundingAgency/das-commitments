@@ -5,6 +5,7 @@ using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
 {
@@ -14,8 +15,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        public UpdateDataLockTriageStatusCommandHandler(AbstractValidator<UpdateDataLockTriageStatusCommand> validator,
-            IDataLockRepository dataLockRepository, IApprenticeshipRepository apprenticeshipRepository)
+        private readonly ICommitmentsLogger _logger;
+
+        public UpdateDataLockTriageStatusCommandHandler(
+            AbstractValidator<UpdateDataLockTriageStatusCommand> validator,
+            IDataLockRepository dataLockRepository, 
+            IApprenticeshipRepository apprenticeshipRepository,
+            ICommitmentsLogger logger)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(AbstractValidator<UpdateDataLockTriageStatusCommand>));
@@ -23,10 +29,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 throw new ArgumentNullException(nameof(IDataLockRepository));
             if(apprenticeshipRepository == null)
                 throw new ArgumentNullException(nameof(IApprenticeshipRepository));
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
 
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _logger = logger;
         }
 
         protected override async Task HandleCore(UpdateDataLockTriageStatusCommand message)
@@ -46,6 +55,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
 
             if (dataLock.TriageStatus == triageStatus)
             {
+                _logger.Warn($"Trying to update data lock for apprenticeship: {message.ApprenticeshipId} with the same TriageStatus ({message.TriageStatus}) ");
                 return;
             }
 

@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 {
@@ -51,7 +52,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
             _handler = new UpdateDataLockTriageStatusCommandHandler(
                 _validator.Object,
                 _dataLockRepository.Object,
-                _apprenticeshipRepository.Object);
+                _apprenticeshipRepository.Object,
+                Mock.Of<ICommitmentsLogger>());
         }
 
         [Test]
