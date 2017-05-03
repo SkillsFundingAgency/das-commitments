@@ -119,5 +119,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     commandType: CommandType.Text,
                     transaction: trans);
         }
+
+        public async Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId)
+        {
+            await WithTransaction(async (connection, trans) =>
+            {
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,
+                    ApprenticeshipUpdateStatus.Superceded);
+                return 1L;
+            });
+        }
     }
 }

@@ -16,5 +16,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.DataLock
         public Status Status { get; set; }
         public TriageStatus TriageStatus { get; set; }
         public DataLockErrorCode ErrorCode { get; set; }
+        public long? ApprenticeshipUpdateId { get; set; }
+        public bool IsResolved { get; set; }
     }
 }

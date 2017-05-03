@@ -57,6 +57,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@ErrorCode", dataLockStatus.ErrorCode);
                 parameters.Add("@Status", dataLockStatus.Status);
                 parameters.Add("@TriageStatus", dataLockStatus.TriageStatus);
+                parameters.Add("@ApprenticeshipUpdateId", dataLockStatus.ApprenticeshipUpdateId);
+                parameters.Add("@IsResolved", dataLockStatus.IsResolved);
 
                 return await connection.ExecuteAsync(
                     sql: $"[dbo].[UpdateDataLockStatus]",
@@ -93,19 +95,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate)
+        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate, bool isResolved)
         {
             return await WithTransaction(async (connection, trans) =>
             {
-                await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
-                    dataLockEventId, triageStatus);
-                
+                var apprenticeshipUpdateId = default(long?);
+
                 if (triageStatus == TriageStatus.Change)
                 {
-                    await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans,
+                    apprenticeshipUpdateId = await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans,
                         apprenticeshipUpdate);
                 }
 
+                await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
+                    dataLockEventId, triageStatus, apprenticeshipUpdateId, isResolved);
+                
                 return 0;
             });
         }

@@ -13,7 +13,9 @@
     [ErrorCode] INT NOT NULL,
     [Status] TINYINT NOT NULL,
     [TriageStatus] TINYINT NOT NULL,
-	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id])
+	[ApprenticeshipUpdateId] BIGINT NULL,
+	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
+	CONSTRAINT [FK_DataLockStatus_ApprenticeshipUpdateId] FOREIGN KEY ([ApprenticeshipUpdateId]) REFERENCES [ApprenticeshipUpdate]([Id])
 )
 GO
 

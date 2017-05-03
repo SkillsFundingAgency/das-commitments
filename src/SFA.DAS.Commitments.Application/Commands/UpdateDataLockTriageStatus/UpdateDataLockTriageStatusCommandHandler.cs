@@ -92,7 +92,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 }
             }
 
-            await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus, apprenticeshipUpdate);
+            var isResolved = triageStatus != TriageStatus.Unknown;
+
+            await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus, apprenticeshipUpdate, isResolved);
         }
 
         private void AssertDataLockBelongsToApprenticeship(long apprenticeshipId, DataLockStatus dataLockStatus)

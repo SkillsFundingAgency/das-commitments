@@ -11,6 +11,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> UpdateDataLockStatus(DataLockStatus dataLockStatus);
         Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId);
         Task<DataLockStatus> GetDataLock(long dataLockEventId);
-        Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate);
+        Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate, bool isResolved);
     }
 }

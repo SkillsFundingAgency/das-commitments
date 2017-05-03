@@ -54,3 +54,5 @@ AS
 		@EffectiveFromDate,
 		@EffectiveToDate
 	)
+
+	SELECT SCOPE_IDENTITY()

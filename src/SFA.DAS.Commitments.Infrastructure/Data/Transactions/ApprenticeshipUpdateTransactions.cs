@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -26,12 +27,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@UpdateOrigin", apprenticeshipUpdate.UpdateOrigin);
             parameters.Add("@EffectiveFromDate", apprenticeshipUpdate.EffectiveFromDate);
             parameters.Add("@EffectiveToDate", apprenticeshipUpdate.EffectiveToDate);
-		
-            return await connection.ExecuteAsync(
-                    sql: $"[dbo].[CreateApprenticeshipUpdate]",
-                    param: parameters,
-                    transaction: trans,
-                    commandType: CommandType.StoredProcedure);
+
+            return (await connection.QueryAsync<long>(
+                sql: $"[dbo].[CreateApprenticeshipUpdate]",
+                param: parameters,
+                transaction: trans,
+                commandType: CommandType.StoredProcedure)).Single();
         }
 
         public async Task<long> UpdateApprenticeshipReferenceAndUln(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)

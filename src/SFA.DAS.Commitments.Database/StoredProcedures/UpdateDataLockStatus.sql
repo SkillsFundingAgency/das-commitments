@@ -11,7 +11,8 @@
 	@IlrTotalCost DECIMAL,
     @ErrorCode INT,
     @Status TINYINT,
-    @TriageStatus TINYINT
+    @TriageStatus TINYINT,
+	@ApprenticeshipUpdateId BIGINT
 )
 AS
 
@@ -33,7 +34,8 @@ AS
 		IlrTotalCost = @IlrTotalCost,
 		ErrorCode = @ErrorCode,
 		[Status] = @Status,
-		TriageStatus = @TriageStatus
+		TriageStatus = @TriageStatus,
+		ApprenticeshipUpdateId = @ApprenticeshipUpdateId
 		where
 		ApprenticeshipId = @ApprenticeshipId
 		and PriceEpisodeIdentifier = @PriceEpisodeIdentifier
@@ -55,7 +57,8 @@ AS
 			IlrTotalCost,
 			ErrorCode,
 			[Status],
-			TriageStatus
+			TriageStatus,
+			ApprenticeshipUpdateId
 		)
 		values
 		(
@@ -70,7 +73,8 @@ AS
 			@IlrTotalCost,
 			@ErrorCode,
 			@Status,
-			@TriageStatus
+			@TriageStatus,
+			@ApprenticeshipUpdateId
 		)
 
 	END

@@ -14,5 +14,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task RejectApprenticeshipUpdate(long apprenticeshipUpdateId, string userId);
 
         Task UndoApprenticeshipUpdate(long apprenticeshipUpdateId, string userId);
+
+        Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId);
     }
 }

@@ -1,8 +1,10 @@
 ﻿CREATE PROCEDURE [dbo].[UpdateDataLockTriageStatus]
 	@DataLockEventId BIGINT,
-	@TriageStatus TINYINT
+	@TriageStatus TINYINT,
+	@ApprenticeshipUpdateId BIGINT
 AS
 
 	update DataLockStatus
-	set TriageStatus = @TriageStatus
+	set TriageStatus = @TriageStatus,
+	ApprenticeshipUpdateId = @ApprenticeshipUpdateId
 	where DataLockEventId = @DataLockEventId
