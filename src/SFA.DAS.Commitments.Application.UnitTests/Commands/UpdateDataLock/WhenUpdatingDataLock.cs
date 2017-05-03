@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
@@ -21,6 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Apprenticeship _existingApprenticeship;
+        private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
 
         [SetUp]
         public void Arrange()
@@ -49,10 +51,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(_existingApprenticeship);
 
+            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(null);
+
             _handler = new UpdateDataLockTriageStatusCommandHandler(
                 _validator.Object,
                 _dataLockRepository.Object,
                 _apprenticeshipRepository.Object,
+                _apprenticeshipUpdateRepository.Object,
                 Mock.Of<ICommitmentsLogger>());
         }
 
@@ -171,7 +178,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     ApprenticeshipId = 1,
                     DataLockEventId = 2,
                     TriageStatus = TriageStatus.Unknown,
-                    ErrorCode = DataLockErrorCode.Dlock07
+                    ErrorCode = DataLockErrorCode.Dlock07,
+                    IlrEffectiveFromDate = new DateTime(2018,6,1)
                 });
 
             //Act
@@ -184,10 +192,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     u => u.ApprenticeshipId == 1
                     && u.Originator == Originator.Provider
                     && u.UpdateOrigin == UpdateOrigin.DataLock
-                    && u.EffectiveFromDate == _existingApprenticeship.StartDate.Value
+                    && u.EffectiveFromDate == new DateTime(2018, 6, 1)
                     && u.EffectiveToDate.HasValue == false
                 )),
                 Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfAnOutstandingApprenticeshipUpdateExistsThenAnExceptionIsThrown()
+        {
+            //Arrange
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(new ApprenticeshipUpdate());
+
+            var command = new UpdateDataLockTriageStatusCommand
+            {
+                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Restart
+            };
+
+            //Act & Assert
+            Func<Task> act = async () => await _handler.Handle(command);
+
+            act.ShouldThrow<ValidationException>();
         }
     }
 }
