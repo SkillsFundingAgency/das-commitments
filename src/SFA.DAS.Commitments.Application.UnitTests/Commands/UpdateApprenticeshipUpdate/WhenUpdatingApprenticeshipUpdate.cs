@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using FluentAssertions;
@@ -8,6 +9,7 @@ using FluentValidation.Results;
 
 using MediatR;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Types.Validation;
@@ -17,6 +19,7 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipUpdate
@@ -32,10 +35,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<IMediator> _mediator;
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
+        private Mock<IHistoryRepository> _historyRepository;
 
         private DateTime _apprenticeshipStartDate;
 
         private DateTime _updateCreadtedOn;
+        private Apprenticeship _apprenticeship;
 
         [SetUp]
         public void SetUp()
@@ -46,30 +51,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mediator = new Mock<IMediator>();
             _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _commitment = new Mock<ICommitmentRepository>();
+            _historyRepository = new Mock<IHistoryRepository>();
 
             _updateCreadtedOn = DateTime.Now.AddDays(-2);
-            _validator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipUpdateCommand>()))
-                .Returns(() => new ValidationResult());
+            _validator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipUpdateCommand>())).Returns(() => new ValidationResult());
 
             _apprenticeshipStartDate = DateTime.Now.AddYears(2);
-            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(
-                    new Apprenticeship
-                    {
-                        FirstName = "Original first name",
-                        EmployerAccountId = 555,
-                        ProviderId = 666,
-                        ULN = " 123",
-                        StartDate = _apprenticeshipStartDate,
-                        EndDate = _apprenticeshipStartDate.AddYears(2),
-                        Id = 3
-                    });
+            _apprenticeship = new Apprenticeship
+            {
+                FirstName = "Original first name",
+                EmployerAccountId = 555,
+                ProviderId = 666,
+                ULN = " 123",
+                StartDate = _apprenticeshipStartDate,
+                EndDate = _apprenticeshipStartDate.AddYears(2),
+                Id = 3
+            };
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
 
-            _mediator.Setup(m => m.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>() });
+            _mediator.Setup(m => m.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>())).ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>() });
 
-            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn});
+            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>())).ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn});
+            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
 
             _sut = new UpdateApprenticeshipUpdateCommandHandler(
                 _validator.Object,
@@ -78,7 +81,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mediator.Object,
                 new UpdateApprenticeshipUpdateMapper(),
                 _apprenticeshipEvents.Object,
-                _commitment.Object
+                _commitment.Object,
+                _historyRepository.Object
                 );
         }
 
@@ -412,6 +416,53 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     && m.EndDate == newEndDate // Set new end date from update reqest
                     && m.FirstName == "Updated first name"),
                 It.IsAny<string>(), newStartDate, null), Times.Exactly(1));
+        }
+
+        [Test]
+        public async Task ThenCreatesHistoryIfApproved()
+        {
+            var testCommitment = new Commitment { ProviderId = 1234, Id = 9874 };
+            var expectedOriginalCommitmentState = JsonConvert.SerializeObject(testCommitment);
+            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            var expectedOriginalApprenticeshipState = JsonConvert.SerializeObject(_apprenticeship);
+
+            var command = new UpdateApprenticeshipUpdateCommand
+            {
+                ApprenticeshipId = 1234,
+                UpdateStatus = ApprenticeshipUpdateStatus.Approved,
+                UserId = "ABC123",
+                Caller = new Caller(555, CallerType.Employer)
+            };
+            await _sut.Handle(command);
+
+            var expectedNewApprenticeshipState = JsonConvert.SerializeObject(_apprenticeship);
+
+            _historyRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.First().EntityId == testCommitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalCommitmentState &&
+                                y.First().UpdatedByRole == command.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedOriginalCommitmentState &&
+                                y.First().UserId == command.UserId)), Times.Once);
+
+            _historyRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.Last().EntityId == _apprenticeship.Id &&
+                                y.Last().ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
+                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().OriginalState == expectedOriginalApprenticeshipState &&
+                                y.Last().UpdatedByRole == command.Caller.CallerType.ToString() &&
+                                y.Last().UpdatedState == expectedNewApprenticeshipState &&
+                                y.Last().UserId == command.UserId)), Times.Once);
         }
 
         /*
