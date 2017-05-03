@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                     ApprenticeshipId = dataLock.ApprenticeshipId,
                     Originator = Originator.Provider,
                     UpdateOrigin = UpdateOrigin.DataLock,
-                    EffectiveFromDate = apprenticeship.StartDate.Value,
+                    EffectiveFromDate = dataLock.IlrEffectiveFromDate.Value,
                     EffectiveToDate = null
                 };
 

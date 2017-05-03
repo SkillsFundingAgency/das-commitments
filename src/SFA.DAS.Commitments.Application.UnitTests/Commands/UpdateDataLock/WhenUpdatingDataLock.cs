@@ -178,7 +178,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     ApprenticeshipId = 1,
                     DataLockEventId = 2,
                     TriageStatus = TriageStatus.Unknown,
-                    ErrorCode = DataLockErrorCode.Dlock07
+                    ErrorCode = DataLockErrorCode.Dlock07,
+                    IlrEffectiveFromDate = new DateTime(2018,6,1)
                 });
 
             //Act
@@ -191,7 +192,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     u => u.ApprenticeshipId == 1
                     && u.Originator == Originator.Provider
                     && u.UpdateOrigin == UpdateOrigin.DataLock
-                    && u.EffectiveFromDate == _existingApprenticeship.StartDate.Value
+                    && u.EffectiveFromDate == new DateTime(2018, 6, 1)
                     && u.EffectiveToDate.HasValue == false
                 )),
                 Times.Once);
