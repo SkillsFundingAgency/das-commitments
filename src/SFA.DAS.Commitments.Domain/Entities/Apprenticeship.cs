@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.Commitments.Domain.Entities
 {
@@ -32,5 +33,11 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Originator? UpdateOriginator { get; set; }
         public string ProviderName { get; set; }
         public string LegalEntityName { get; set; }
+
+        public Apprenticeship Clone()
+        {
+            var json = JsonConvert.SerializeObject(this);
+            return JsonConvert.DeserializeObject<Apprenticeship>(json);
+        }
     }
 }

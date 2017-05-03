@@ -74,10 +74,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
             {
-                var updatedApprenticeship = _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
-                await _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate.Id, command.UserId, updatedApprenticeship, command.Caller);
+                var originalApprenticeship = apprenticeship.Clone();
+                _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
+                await _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate.Id, command.UserId, apprenticeship, command.Caller);
 
-                await CreateEvents(apprenticeship, updatedApprenticeship, pendingUpdate);
+                await CreateEvents(originalApprenticeship, apprenticeship, pendingUpdate);
             }
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
