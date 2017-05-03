@@ -14,6 +14,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
         private readonly AbstractValidator<UpdateDataLockTriageStatusCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository; 
 
         private readonly ICommitmentsLogger _logger;
 
@@ -21,6 +22,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
             AbstractValidator<UpdateDataLockTriageStatusCommand> validator,
             IDataLockRepository dataLockRepository, 
             IApprenticeshipRepository apprenticeshipRepository,
+            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             ICommitmentsLogger logger)
         {
             if (validator == null)
@@ -31,10 +33,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                 throw new ArgumentNullException(nameof(IApprenticeshipRepository));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if(apprenticeshipUpdateRepository == null)
+                throw new ArgumentNullException(nameof(IApprenticeshipUpdateRepository));
 
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _logger = logger;
         }
 
@@ -60,6 +65,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
             }
 
             AssertValidTriageStatus(triageStatus, dataLock);
+            await AssertNoPendingApprenticeshipUpdate(dataLock, message.ApprenticeshipId);
 
             ApprenticeshipUpdate apprenticeshipUpdate = null;
             if (triageStatus == TriageStatus.Change)
@@ -119,7 +125,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
                     throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} with error code {dataLockStatus.ErrorCode} cannot be triaged as {triageStatus}");
                 }
             }
+        }
 
+        private async Task AssertNoPendingApprenticeshipUpdate(DataLockStatus dataLockStatus, long apprenticeshipId)
+        {
+            var pending = await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(apprenticeshipId);
+            if(pending != null)
+            {
+                throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} with error code {dataLockStatus.ErrorCode} cannot be triaged due to apprenticeship {apprenticeshipId} having pending update");
+            }
         }
     }
 }
