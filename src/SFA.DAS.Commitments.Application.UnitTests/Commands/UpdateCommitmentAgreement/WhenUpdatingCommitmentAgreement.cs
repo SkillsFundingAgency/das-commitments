@@ -46,6 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult>());
             _mockApprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _mockApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
@@ -276,7 +277,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             var updatedApprenticeship = new Apprenticeship();
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(apprenticeship.Id)).ReturnsAsync(updatedApprenticeship);
-            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN })).ReturnsAsync(new List<ApprenticeshipResult>());
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == apprenticeship.ULN))).ReturnsAsync(new List<ApprenticeshipResult>());
 
             _validCommand.LatestAction = LastAction.Approve;
 
@@ -295,7 +296,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
-            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN })).ReturnsAsync(new List<ApprenticeshipResult>());
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == apprenticeship.ULN))).ReturnsAsync(new List<ApprenticeshipResult>());
 
             _validCommand.LatestAction = LastAction.Approve;
 
@@ -348,7 +349,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
-            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN })).ReturnsAsync(new List<ApprenticeshipResult>());
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == apprenticeship.ULN))).ReturnsAsync(new List<ApprenticeshipResult>());
 
             _validCommand.LatestAction = LastAction.Approve;
 
@@ -375,10 +376,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
-            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN }))
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == apprenticeship.ULN)))
                 .ReturnsAsync(new List<ApprenticeshipResult>
                 {
-                    new ApprenticeshipResult { StartDate = apprenticeship.StartDate.Value.AddMonths(-2), StopDate = apprenticeship.StartDate.Value.AddMonths(-1) }
+                    new ApprenticeshipResult { StartDate = apprenticeship.StartDate.Value.AddMonths(-2), StopDate = apprenticeship.StartDate.Value.AddMonths(-1), Uln = apprenticeship.ULN}
                 });
 
             _validCommand.LatestAction = LastAction.Approve;
@@ -407,11 +408,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             var stoppedDate = apprenticeship.StartDate.Value.AddDays(-5);
-            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(new[] { apprenticeship.ULN }))
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == apprenticeship.ULN)))
                 .ReturnsAsync(new List<ApprenticeshipResult>
                 {
-                    new ApprenticeshipResult { StartDate = apprenticeship.StartDate.Value.AddMonths(-4), StopDate = apprenticeship.StartDate.Value.AddMonths(-3) },
-                    new ApprenticeshipResult { StartDate = apprenticeship.StartDate.Value.AddMonths(-2), StopDate = stoppedDate }
+                    new ApprenticeshipResult { StartDate = apprenticeship.StartDate.Value.AddMonths(-4), StopDate = apprenticeship.StartDate.Value.AddMonths(-3), Uln = apprenticeship.ULN },
+                    new ApprenticeshipResult { StartDate = apprenticeship.StartDate.Value.AddMonths(-2), StopDate = stoppedDate, Uln = apprenticeship.ULN }
                 });
 
             _validCommand.LatestAction = LastAction.Approve;
