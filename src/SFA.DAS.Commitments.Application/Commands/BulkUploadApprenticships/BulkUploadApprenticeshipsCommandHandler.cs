@@ -73,18 +73,18 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             await Task.WhenAll(
                 _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED"),
                 _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"),
-                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId)
+                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId, command.UserName)
             );
             _logger.Trace($"Publishing bulk uploads of {command.Apprenticeships.Count} events took {watch.ElapsedMilliseconds} milliseconds");
         }
 
-        private async Task CreateHistory(Commitment commitment, IList<Apprenticeship> insertedApprenticeships, CallerType callerType, string userId)
+        private async Task CreateHistory(Commitment commitment, IList<Apprenticeship> insertedApprenticeships, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(commitment, CommitmentChangeType.BulkUploadedApprenticeships.ToString(), commitment.Id, "Commitment", callerType, userId);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.BulkUploadedApprenticeships.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
             foreach (var apprenticeship in insertedApprenticeships)
             {
-                historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+                historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
             }
             await historyService.Save();
         }

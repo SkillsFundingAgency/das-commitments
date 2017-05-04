@@ -60,14 +60,14 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             await Task.WhenAll(
                 _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId),
                  _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
-                CreateHistory(commitment, command.Caller.CallerType, command.UserId)
+                CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName)
             );
         }
 
-        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId)
+        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId, string userName)
         {
             var commitmentHistory = new HistoryService(_historyRepository);
-            commitmentHistory.TrackUpdate(commitment, CommitmentChangeType.DeletedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
+            commitmentHistory.TrackUpdate(commitment, CommitmentChangeType.DeletedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
             await commitmentHistory.Save();
         }
 

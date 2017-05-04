@@ -132,7 +132,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 CommitmentId = commitmentId,
                 Apprenticeship = apprenticeshipRequest.Apprenticeship,
-                UserId = apprenticeshipRequest.UserId
+                UserId = apprenticeshipRequest.UserId,
+                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
         }
 
@@ -152,7 +153,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
                 Apprenticeship = apprenticeshipRequest.Apprenticeship,
-                UserId = apprenticeshipRequest.UserId
+                UserId = apprenticeshipRequest.UserId,
+                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
         }
 
@@ -186,11 +188,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId,
                 PaymentStatus = apprenticeshipSubmission.PaymentStatus,
                 DateOfChange = apprenticeshipSubmission.DateOfChange,
-                UserId = apprenticeshipSubmission.UserId
+                UserId = apprenticeshipSubmission.UserId,
+                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
             });
         }
 
-        public async Task DeleteApprenticeship(long accountId, long apprenticeshipId, string userId)
+        public async Task DeleteApprenticeship(long accountId, long apprenticeshipId, string userId, string userName)
         {
             _logger.Info($"Deleting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
@@ -202,11 +205,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = accountId
                 },
                 ApprenticeshipId = apprenticeshipId,
-                UserId = userId
+                UserId = userId,
+                UserName = userName
             });
         }
 
-        public async Task DeleteCommitment(long accountId, long commitmentId, string userId)
+        public async Task DeleteCommitment(long accountId, long commitmentId, string userId, string userName)
         {
             _logger.Info($"Deleting commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
@@ -218,7 +222,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = accountId
                 },
                 CommitmentId = commitmentId,
-                UserId = userId
+                UserId = userId,
+                UserName = userName
             });
         }
 
@@ -250,7 +255,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         CallerType = CallerType.Employer,
                         Id = accountId
                     },
-                    ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate
+                    ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate,
+                    UserName = updateRequest.LastUpdatedByInfo?.Name,
+                    UserId = updateRequest.UserId
             });
         }
 
@@ -264,7 +271,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     ApprenticeshipId = apprenticeshipId,
                     Caller = new Caller(accountId, CallerType.Employer),
                     UserId = submission.UserId,
-                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus
+                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus,
+                    UserName = submission.LastUpdatedByInfo?.Name
                 };
 
             await _mediator.SendAsync(command);

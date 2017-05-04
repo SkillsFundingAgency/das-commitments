@@ -10,5 +10,6 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         public long CommitmentId { get; set; }
 
         public string UserId { get; set; }
+        public string UserName { get; set; }
     }
 }

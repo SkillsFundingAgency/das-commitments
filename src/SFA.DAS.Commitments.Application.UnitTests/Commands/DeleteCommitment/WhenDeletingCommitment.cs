@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _validator = new DeleteCommitmentValidator();
             _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object);
 
-            _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
+            _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserId = "User", UserName = "Bob"};
         }
 
         [Test]
@@ -187,7 +187,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == null &&
-                                y.First().UserId == _validCommand.UserId)), Times.Once);
+                                y.First().UserId == _validCommand.UserId &&
+                                y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
         }
     }
 }

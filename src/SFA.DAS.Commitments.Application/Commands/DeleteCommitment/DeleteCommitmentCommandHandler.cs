@@ -54,14 +54,14 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             CheckPaymentStatus(commitment.Apprenticeships);
 
             await _commitmentRepository.DeleteCommitment(command.CommitmentId);
-            await CreateHistory(commitment, command.Caller.CallerType, command.UserId);
+            await CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
             await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
         }
 
-        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId)
+        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackDelete(commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, "Commitment", callerType, userId);
+            historyService.TrackDelete(commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
             await historyService.Save();
         }
 

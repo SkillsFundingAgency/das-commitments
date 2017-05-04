@@ -71,7 +71,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                     Id = 111L
                 },
                 CommitmentId = 123L,
-                Apprenticeships = _exampleApprenticships
+                Apprenticeships = _exampleApprenticships,
+                UserId = "User",
+                UserName = "Bob"
             };
 
             _existingApprenticeships = new List<Domain.Entities.Apprenticeship>();
@@ -232,7 +234,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                                 y.First().OriginalState == expectedOriginalCommitmentState &&
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
-                                y.First().UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
 
             _mockHistoryRepository.Verify(
                 x =>
@@ -245,7 +248,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                                 y.Last().OriginalState == null &&
                                 y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState != null &&
-                                y.Last().UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.Last().UserId == _exampleValidRequest.UserId &&
+                                y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
         }
     }
 }

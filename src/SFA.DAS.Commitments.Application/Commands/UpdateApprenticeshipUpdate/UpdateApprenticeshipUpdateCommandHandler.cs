@@ -68,8 +68,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
         {
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", command.Caller.CallerType, command.UserId);
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", command.Caller.CallerType, command.UserId);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", command.Caller.CallerType, command.UserId, command.UserName);
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", command.Caller.CallerType, command.UserId, command.UserName);
             var originalApprenticeship = apprenticeship.Clone();
             _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
 

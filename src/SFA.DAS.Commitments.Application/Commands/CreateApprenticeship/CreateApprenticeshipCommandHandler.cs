@@ -58,17 +58,17 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             await Task.WhenAll(
                 _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-CREATED"),
                 UpdateStatusOfApprenticeship(commitment),
-                CreateHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId)
+                CreateHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
             );
 
             return apprenticeship.Id;
         }
 
-        private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId)
+        private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
-            historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
+            historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
             await historyService.Save();
         }
 

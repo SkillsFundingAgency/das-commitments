@@ -225,7 +225,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                 y.First().OriginalState == null &&
                                 y.First().UpdatedByRole == _exampleValidRequest.CallerType.ToString() &&
                                 y.First().UpdatedState != null &&
-                                y.First().UserId == _exampleValidRequest.UserId)), Times.Once);
+                                y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().UpdatedByName == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name)), Times.Once);
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)

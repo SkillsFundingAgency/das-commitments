@@ -5,7 +5,9 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
@@ -26,9 +28,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         [Test]
         public async Task ShouldCallTheMediatorBulkUpload()
         {
-            await _orchestrator.CreateApprenticeships(1L, 2L, new BulkApprenticeshipRequest());
+            var providerId = 1L;
+            var commitmentId = 2L;
+            var request = new BulkApprenticeshipRequest { LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@email.com", Name = "Bob" }, UserId = "User" };
+            await _orchestrator.CreateApprenticeships(providerId, commitmentId, request);
 
-            _mockMediator.Verify(x => x.SendAsync(It.IsAny<BulkUploadApprenticeshipsCommand>()), Times.Once);
+            _mockMediator.Verify(
+                x =>
+                    x.SendAsync(
+                        It.Is<BulkUploadApprenticeshipsCommand>(
+                            y =>
+                                y.Caller.Id == providerId && y.Caller.CallerType == CallerType.Provider && y.CommitmentId == commitmentId && y.UserId == request.UserId &&
+                                y.UserName == request.LastUpdatedByInfo.Name)), Times.Once);
         }
     }
 }

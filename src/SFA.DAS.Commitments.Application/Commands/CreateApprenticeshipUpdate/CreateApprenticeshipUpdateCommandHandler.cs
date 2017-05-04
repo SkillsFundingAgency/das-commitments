@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             Apprenticeship immediateUpdate = null;
             if (HasImmediateUpdate(command))
             {
-                await StartHistoryTracking(apprenticeship, command.Caller.CallerType, command.UserId);
+                await StartHistoryTracking(apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
                 MapImmediateApprenticeshipUpdate(apprenticeship, command);
                 immediateUpdate = apprenticeship;
             }
@@ -83,12 +83,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
         }
 
-        private async Task StartHistoryTracking(Apprenticeship apprenticeship, CallerType callerType, string userId)
+        private async Task StartHistoryTracking(Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
         {
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             _historyService = new HistoryService(_historyRepository);
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
-            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
+            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
         }
 
         private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate apprenticeshipUpdate)

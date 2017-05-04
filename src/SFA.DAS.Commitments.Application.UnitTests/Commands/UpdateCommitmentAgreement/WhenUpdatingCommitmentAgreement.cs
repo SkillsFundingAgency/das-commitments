@@ -580,7 +580,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
-                                y.First().UserId == _validCommand.UserId)), Times.Once);
+                                y.First().UserId == _validCommand.UserId &&
+                                y.First().UpdatedByName == _validCommand.LastUpdatedByName)), Times.Once);
         }
     }
 }

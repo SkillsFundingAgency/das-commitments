@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
@@ -43,7 +44,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
                 CommitmentId = TestCommitmentId,
                 Id = TestApprenticeshipId
             };
-            _newApprenticeshipRequest = new Apprenticeship.ApprenticeshipRequest { Apprenticeship = _newApprenticeship };
+            _newApprenticeshipRequest = new Apprenticeship.ApprenticeshipRequest
+            {
+                Apprenticeship = _newApprenticeship,
+                LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@Email.com", Name = "Bob" }
+            };
         }
 
         [Test]
@@ -62,7 +67,13 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         {
             await _controller.PutApprenticeship(TestProviderId, TestCommitmentId, TestApprenticeshipId, _newApprenticeshipRequest);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateApprenticeshipCommand>(a => a.Caller.CallerType == CallerType.Provider && a.Caller.Id == TestProviderId && a.CommitmentId == TestCommitmentId && a.ApprenticeshipId == TestApprenticeshipId && a.Apprenticeship == _newApprenticeship)));
+            _mockMediator.Verify(
+                x =>
+                    x.SendAsync(
+                        It.Is<UpdateApprenticeshipCommand>(
+                            a =>
+                                a.Caller.CallerType == CallerType.Provider && a.Caller.Id == TestProviderId && a.CommitmentId == TestCommitmentId && a.ApprenticeshipId == TestApprenticeshipId &&
+                                a.Apprenticeship == _newApprenticeship && a.UserName == _newApprenticeshipRequest.LastUpdatedByInfo.Name)));
         }
 
         [Test]
