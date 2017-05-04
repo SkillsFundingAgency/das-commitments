@@ -133,7 +133,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.First().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.First().UpdatedByRole == CallerType.Employer.ToString() &&
                                 y.First().UpdatedState == expectedNewApprenticeshipState &&
-                                y.First().UserId == ExampleValidRequest.UserId)), Times.Once);
+                                y.First().UserId == ExampleValidRequest.UserId &&
+                                y.First().UpdatedByName == ExampleValidRequest.UserName)), Times.Once);
         }
     }
 }

@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -47,10 +48,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToUpdateApprenticeshipStatus()
         {
+            var userName = "Bob";
             await _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
-                new ApprenticeshipSubmission { PaymentStatus = PaymentStatus.Active });
+                new ApprenticeshipSubmission { PaymentStatus = PaymentStatus.Active, LastUpdatedByInfo = new LastUpdateInfo { Name = userName } });
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateApprenticeshipStatusCommand>(y => y.PaymentStatus == PaymentStatus.Active)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateApprenticeshipStatusCommand>(y => y.PaymentStatus == PaymentStatus.Active && y.UserName == userName)));
         }
 
         [Test]

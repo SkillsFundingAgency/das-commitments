@@ -31,7 +31,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
                 PaymentStatus = RequestPaymentStatus,
-                DateOfChange = DateTime.Now.Date
+                DateOfChange = DateTime.Now.Date,
+                UserName = "Bob"
             };
 
             TestApprenticeship = new Apprenticeship

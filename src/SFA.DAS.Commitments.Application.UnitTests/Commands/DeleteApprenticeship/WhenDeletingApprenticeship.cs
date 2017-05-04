@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             _validator = new DeleteApprenticeshipValidator();
             _handler = new DeleteApprenticeshipCommandHandler(_mockCommitmentRepository.Object, _mockApprenticeshipRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object);
 
-            _validCommand = new DeleteApprenticeshipCommand { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
+            _validCommand = new DeleteApprenticeshipCommand { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserName = "Bob", UserId = "User" };
 
             _apprenticeship = new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, ProviderId = 123, EmployerAccountId = 123 };
             _mockApprenticeshipRepository.Setup(r => r.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
@@ -161,7 +161,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalState &&
-                                y.First().UserId == _validCommand.UserId)), Times.Once);
+                                y.First().UserId == _validCommand.UserId &&
+                                y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
         }
     }
 }
