@@ -98,7 +98,7 @@
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SFA.DAS.Commitments.Database.publish.xml" />
+    <None Include="Database.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
