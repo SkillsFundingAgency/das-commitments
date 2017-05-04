@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -44,33 +45,61 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
         {
             _logger.Info($"Called SetPaymentOrderCommand for employer account {command.AccountId}", accountId: command.AccountId);
 
+            var sw = Stopwatch.StartNew();
             var existingApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
+            _logger.Trace($"Getting existing apprenticeships took {sw.ElapsedMilliseconds}");
 
+            sw = Stopwatch.StartNew();
             await _commitmentRepository.SetPaymentOrder(command.AccountId);
+            _logger.Trace($"Updating payment order took {sw.ElapsedMilliseconds}");
 
+            sw = Stopwatch.StartNew();
             var updatedApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
+            _logger.Trace($"Getting updated apprenticeships took {sw.ElapsedMilliseconds}");
 
             await PublishEventsForApprenticeshipsWithNewPaymentOrder(command.AccountId, existingApprenticeships, updatedApprenticeships);
         }
 
         private async Task PublishEventsForApprenticeshipsWithNewPaymentOrder(long employerAccountId, IEnumerable<Apprenticeship> existingApprenticeships, IEnumerable<Apprenticeship> updatedApprenticeships)
         {
+            var sw = Stopwatch.StartNew();
             var changedApprenticeships = updatedApprenticeships.Except(existingApprenticeships, new ComparerPaymentOrder()).ToList();
 
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
-            
+            _logger.Trace($"Determining changed apprenticeships took {sw.ElapsedMilliseconds}");
+
             await PublishEventsForChangesApprenticeships(changedApprenticeships);
         }
 
         private async Task PublishEventsForChangesApprenticeships(List<Apprenticeship> changedApprenticeships)
         {
+            var commitments = await GetCommitmentsForApprenticeships(changedApprenticeships);
+
+            var sw = Stopwatch.StartNew();
             foreach (var changedApprenticeship in changedApprenticeships)
             {
-                var commitment = await _commitmentRepository.GetCommitmentById(changedApprenticeship.CommitmentId);
+                var commitment = commitments[changedApprenticeship.CommitmentId];
                 _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
             }
+            _logger.Trace($"Adding events took {sw.ElapsedMilliseconds}");
 
+            sw = Stopwatch.StartNew();
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+            _logger.Trace($"Publishing events took {sw.ElapsedMilliseconds}");
+        }
+
+        private async Task<Dictionary<long, Commitment>> GetCommitmentsForApprenticeships(List<Apprenticeship> changedApprenticeships)
+        {
+            var commitments = new Dictionary<long, Commitment>();
+            var commitmentIds = changedApprenticeships.Select(x => x.CommitmentId).Distinct();
+            var tasks = commitmentIds.Select(x => _commitmentRepository.GetCommitmentById(x)).ToList();
+            await Task.WhenAll(tasks);
+            foreach (var task in tasks)
+            {
+                var commitment = task.Result;
+                commitments.Add(commitment.Id, commitment);
+            }
+            return commitments;
         }
 
         private class ComparerPaymentOrder : IEqualityComparer<Apprenticeship>
@@ -83,8 +112,8 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             public int GetHashCode(Apprenticeship obj)
             {
                 var hash = 19;
-                hash = hash*27 + (obj.Id).GetHashCode();
-                hash = hash*27 + (obj.PaymentOrder).GetHashCode();
+                hash = hash * 27 + (obj.Id).GetHashCode();
+                hash = hash * 27 + (obj.PaymentOrder).GetHashCode();
 
                 return hash;
             }

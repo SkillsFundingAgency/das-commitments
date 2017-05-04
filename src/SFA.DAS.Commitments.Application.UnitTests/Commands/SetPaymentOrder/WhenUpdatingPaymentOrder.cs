@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
                 .ReturnsAsync(new List<Apprenticeship> { existingApprenticeship })
                 .ReturnsAsync(new List<Apprenticeship> { updatedApprenticeship });
             
-            var commitment = new Commitment();
+            var commitment = new Commitment { Id = 3245 };
             _commitmentRepository.Setup(x => x.GetCommitmentById(updatedApprenticeship.CommitmentId)).ReturnsAsync(commitment);
 
             await _handler.Handle(command);
