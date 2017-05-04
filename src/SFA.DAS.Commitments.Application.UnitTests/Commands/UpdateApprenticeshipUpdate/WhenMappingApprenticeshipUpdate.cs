@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.UpdateOriginator.Should().Be(Originator.Provider);
             _apprenticeship.ProviderName.Should().Be("Provider name");
             _apprenticeship.LegalEntityName.Should().Be("Legal entity name");
-            _apprenticeship.TrainingType.Should().Be(TriageStatus.FixIlr);
+            _apprenticeship.TrainingType.Should().Be(TrainingType.Framework);
 
             updatedApprenticeship.Id.Should().Be(55);
             updatedApprenticeship.EmployerAccountId.Should().Be(555);
