@@ -82,12 +82,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
             {
-                await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
+                await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate, command.UserId);
             }
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Deleted)
             {
-                await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
+                await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
             }
         }
 

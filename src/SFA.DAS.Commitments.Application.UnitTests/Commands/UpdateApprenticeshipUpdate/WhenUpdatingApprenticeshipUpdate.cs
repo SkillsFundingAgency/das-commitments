@@ -145,9 +145,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(new ApprenticeshipUpdate {Id = 42}, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
-            _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Never);
-            _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Never);
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
+            _repository.Verify(m => m.RejectApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
+            _repository.Verify(m => m.UndoApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Once);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), _apprenticeshipStartDate, null), Times.Once);
@@ -168,9 +168,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(new ApprenticeshipUpdate { Id = 42 }, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
-            _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Once);
-            _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Never);
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
+            _repository.Verify(m => m.RejectApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Once);
+            _repository.Verify(m => m.UndoApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
         }
 
@@ -189,9 +189,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(new ApprenticeshipUpdate { Id = 42 }, UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
-            _repository.Verify(m => m.RejectApprenticeshipUpdate(42, UserId), Times.Never);
-            _repository.Verify(m => m.UndoApprenticeshipUpdate(42, UserId), Times.Once);
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
+            _repository.Verify(m => m.RejectApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
+            _repository.Verify(m => m.UndoApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Once);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
         }
 

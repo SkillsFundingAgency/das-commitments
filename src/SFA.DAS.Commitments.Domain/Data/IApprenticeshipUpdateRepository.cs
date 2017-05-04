@@ -11,9 +11,9 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId, Apprenticeship apprenticeship, Caller caller);
 
-        Task RejectApprenticeshipUpdate(long apprenticeshipUpdateId, string userId);
+        Task RejectApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId);
 
-        Task UndoApprenticeshipUpdate(long apprenticeshipUpdateId, string userId);
+        Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId);
 
         Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId);
     }
