@@ -56,15 +56,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             await CreateMessageIfNeeded(newCommitment.Id, message);
 
-            await CreateHistory(newCommitment, message.CallerType, message.UserId);
+            await CreateHistory(newCommitment, message.CallerType, message.UserId, message.Commitment.EmployerLastUpdateInfo.Name);
 
             return newCommitment.Id;
         }
 
-        private async Task CreateHistory(Commitment newCommitment, CallerType callerType, string userId)
+        private async Task CreateHistory(Commitment newCommitment, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackInsert(newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, "Commitment", callerType, userId);
+            historyService.TrackInsert(newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, "Commitment", callerType, userId, userName);
             await historyService.Save();
         }
 

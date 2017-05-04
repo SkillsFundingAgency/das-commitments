@@ -57,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
-            StartTrackingHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId);
+            StartTrackingHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
 
             UpdateApprenticeshipEntity(apprenticeship, command.Apprenticeship, command);
 
@@ -73,11 +73,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             await _historyService.Save();
         }
 
-        private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId)
+        private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
         {
             _historyService = new HistoryService(_historyRepository);
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId);
-            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
+            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
         }
 
         private void LogMessage(UpdateApprenticeshipCommand command)

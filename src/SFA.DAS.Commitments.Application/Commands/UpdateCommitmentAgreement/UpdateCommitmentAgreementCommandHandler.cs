@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -64,15 +65,21 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
 
+            Stopwatch sw;
+
             if (command.LatestAction == Api.Types.Commitment.Types.LastAction.Approve)
             {
+                sw = Stopwatch.StartNew();
                 CheckStateForApproval(commitment, command.Caller);
+                _logger.Trace($"Checking state for approval took {sw.ElapsedMilliseconds}");
 
+                sw = Stopwatch.StartNew();
                 var overlaps = await GetOverlappingApprenticeships(commitment);
                 if (overlaps.Data.Any())
                 {
                     throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
                 }
+                _logger.Trace($"Checking overlaps took {sw.ElapsedMilliseconds}");
             }
 
             var latestAction = (LastAction) command.LatestAction;
@@ -101,19 +108,23 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task UpdateCommitmentStatuses(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment, bool areAnyApprenticeshipsPendingAgreement, LastAction latestAction)
         {
+            var sw = Stopwatch.StartNew();
             var updatedEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
                 updatedCommitment.Apprenticeships.Count, latestAction);
             var changeType = DetermineHistoryChangeType(latestAction, updatedEditStatus);
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, "Commitment", command.Caller.CallerType, command.UserId);
+            historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, "Commitment", command.Caller.CallerType, command.UserId, command.LastUpdatedByName);
 
             updatedCommitment.EditStatus = updatedEditStatus;
             updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
             updatedCommitment.LastAction = latestAction;
 
             SetLastUpdatedDetails(command, updatedCommitment);
-            
+            _logger.Trace($"Updating commitment (in memory) took {sw.ElapsedMilliseconds}");
+
+            sw = Stopwatch.StartNew();
             await _commitmentRepository.UpdateCommitment(updatedCommitment);
+            _logger.Trace($"Updating commitment (in database) {sw.ElapsedMilliseconds}");
             await historyService.Save();
         }
 
@@ -144,6 +155,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
         {
+            var sw = Stopwatch.StartNew();
             var updatedApprenticeships = new List<Apprenticeship>();
             foreach (var apprenticeship in commitment.Apprenticeships)
             {
@@ -156,9 +168,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                     await AddApprenticeshipUpdatedEvent(commitment, apprenticeship);
                 }
             }
+            _logger.Trace($"Updateding apprenticeships (in memory!) took {sw.ElapsedMilliseconds}");
 
+            sw = Stopwatch.StartNew();
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
+            _logger.Trace($"Updateding apprenticeships (in database!) took {sw.ElapsedMilliseconds}");
+
+            sw = Stopwatch.StartNew();
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+            _logger.Trace($"Publishing events took {sw.ElapsedMilliseconds}");
         }
 
         private bool UpdateApprenticeshipStatuses(UpdateCommitmentAgreementCommand command, LastAction latestAction, Apprenticeship apprenticeship)
@@ -301,7 +319,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             if (latestAction == LastAction.Approve && apprenticeshipsCount > 0 && !areAnyApprenticeshipsPendingAgreement)
             {
+                var sw = Stopwatch.StartNew();
                 await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = employerAccountId});
+                _logger.Trace($"Setting payment order took {sw.ElapsedMilliseconds}");
             }
         }
 

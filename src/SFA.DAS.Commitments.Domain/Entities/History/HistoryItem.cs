@@ -6,7 +6,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
     {
         private readonly HistoryChangeType _historyChangeType;
 
-        public HistoryItem(HistoryChangeType historyChangeType, object trackedObject, string entityType, long entityId, string userId, string updatedByRole, string changeType)
+        public HistoryItem(HistoryChangeType historyChangeType, object trackedObject, string entityType, long entityId, string userId, string updatedByRole, string changeType, string updatedByName)
         {
             _historyChangeType = historyChangeType;
 
@@ -16,6 +16,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
             UserId = userId;
             UpdatedByRole = updatedByRole;
             ChangeType = changeType;
+            UpdatedByName = updatedByName;
 
             if (_historyChangeType != HistoryChangeType.Insert)
             {
