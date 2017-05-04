@@ -146,8 +146,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             existingApprenticeship.NINumber = updatedApprenticeship.NINumber;
             existingApprenticeship.ULN = updatedApprenticeship.ULN;
             existingApprenticeship.CommitmentId = message.CommitmentId;
-            existingApprenticeship.PaymentStatus = (PaymentStatus)updatedApprenticeship.PaymentStatus;
-            existingApprenticeship.AgreementStatus = (AgreementStatus)updatedApprenticeship.AgreementStatus;
             existingApprenticeship.TrainingType = (TrainingType)updatedApprenticeship.TrainingType;
             existingApprenticeship.TrainingCode = updatedApprenticeship.TrainingCode;
             existingApprenticeship.TrainingName = updatedApprenticeship.TrainingName;

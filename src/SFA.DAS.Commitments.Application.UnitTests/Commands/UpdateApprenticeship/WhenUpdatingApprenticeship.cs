@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -30,6 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<AbstractValidator<UpdateApprenticeshipCommand>> _mockValidator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<IApprenticeshipUpdateRules> _mockApprenticeshipUpdateRules;
 
         [SetUp]
         public void SetUp()
@@ -39,11 +41,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockValidator = new Mock<AbstractValidator<UpdateApprenticeshipCommand>>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _mockApprenticeshipUpdateRules = new Mock<IApprenticeshipUpdateRules>();
+
             _handler = new UpdateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object, 
                 _mockApprenticeshipRepository.Object, 
-                _mockValidator.Object, 
-                new ApprenticeshipUpdateRules(), 
+                _mockValidator.Object,
+                _mockApprenticeshipUpdateRules.Object, 
                 _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object);
@@ -163,5 +167,42 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.Last().UserId == _exampleValidRequest.UserId &&
                                 y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
         }
+
+        [Test]
+        public async Task ThenIfNoChangesWereMadeThenTheAgreementStatusRemainsUnchanged()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                ProviderId = _exampleValidRequest.Caller.Id,
+                Id = _exampleValidRequest.CommitmentId
+            };
+            
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            var testApprenticeship = new Apprenticeship
+            {
+                Id = _exampleValidRequest.ApprenticeshipId,
+                AgreementStatus = AgreementStatus.EmployerAgreed
+            };
+            _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(testApprenticeship);
+
+            _mockApprenticeshipUpdateRules.Setup(x => x.DetermineNewAgreementStatus(
+                    It.IsAny<AgreementStatus>(),
+                    It.IsAny<CallerType>(),
+                    It.IsAny<bool>()))
+                .Returns(() => AgreementStatus.EmployerAgreed);
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockApprenticeshipUpdateRules.Verify(x => x.DetermineNewAgreementStatus(
+                It.Is<AgreementStatus>(s => s == AgreementStatus.EmployerAgreed),
+                It.IsAny<CallerType>(),
+                It.IsAny<bool>()),
+                Times.Once);
+        }
+
     }
 }
