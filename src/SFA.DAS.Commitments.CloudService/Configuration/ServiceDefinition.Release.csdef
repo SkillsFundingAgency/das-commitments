@@ -12,9 +12,6 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
       <Setting name="EnvironmentName" />
       <Setting name="ConfigurationStorageConnectionString" />
-      <Setting name="ApiTokenSecret" />
-      <Setting name="ApiIssuer" />
-      <Setting name="ApiAudiences" />
       <Setting name="LoggingRedisConnectionString"/>
       <Setting name="LoggingRedisKey"/>
       <Setting name="InstrumentationKey"/>

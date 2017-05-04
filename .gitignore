@@ -256,3 +256,4 @@ paket-files/
 *.sln.iml
 src/Tools/**/*.*
 **/*.orig
+src/Tools/PhantomJS/tools/phantomjs/ChangeLog

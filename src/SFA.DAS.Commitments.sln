@@ -26,12 +26,20 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC8DEBD-332E-42CB-95AF-4230E1385B75}"
 	ProjectSection(SolutionItems) = preProject
 		Build.fsx = Build.fsx
+		CustomTargets.fsx = CustomTargets.fsx
+		DefaultTargets.fsx = DefaultTargets.fsx
 		RunBuild.bat = RunBuild.bat
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob", "SFA.DAS.CommitmentPayments.WebJob\SFA.DAS.CommitmentPayments.WebJob.csproj", "{42C9280D-CDAA-45B8-9A02-EB629288798D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.WebJob", "SFA.DAS.Commitments.Host.WebJob\SFA.DAS.Commitments.Host.WebJob.csproj", "{00F79506-1368-4A99-A8F7-D922AE0B231C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client", "SFA.DAS.Commitments.Api.Client\SFA.DAS.Commitments.Api.Client.csproj", "{DEA2C098-EC17-4485-961D-A7F48720D37D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Types", "SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj", "{AA3B3870-F97A-443B-8429-663DE064A8AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.Client.UnitTests", "SFA.DAS.Commitments.Api.Client.UnitTests\SFA.DAS.Commitments.Api.Client.UnitTests.csproj", "{957A547B-22A4-4E8A-AD7E-6F788062938E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +92,18 @@ Global
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F79506-1368-4A99-A8F7-D922AE0B231C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA2C098-EC17-4485-961D-A7F48720D37D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA3B3870-F97A-443B-8429-663DE064A8AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{957A547B-22A4-4E8A-AD7E-6F788062938E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{957A547B-22A4-4E8A-AD7E-6F788062938E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{957A547B-22A4-4E8A-AD7E-6F788062938E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{957A547B-22A4-4E8A-AD7E-6F788062938E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,5 +112,6 @@ Global
 		{8EDF4429-251A-416D-BB68-93F227191BCF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{C0C88789-3229-4B47-8081-16D1B5D85D9A} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{6669C64D-7DAE-47C2-A469-7636C89C0974} = {AEF29222-4B94-48CB-9438-78E5A6333438}
+		{957A547B-22A4-4E8A-AD7E-6F788062938E} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 EndGlobal
