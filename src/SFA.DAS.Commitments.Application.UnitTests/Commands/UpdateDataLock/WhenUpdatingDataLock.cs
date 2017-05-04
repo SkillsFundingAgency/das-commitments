@@ -201,7 +201,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         }
 
         [Test]
-        public async Task ThenIfAnOutstandingApprenticeshipUpdateExistsThenAnExceptionIsThrown()
+        public void ThenIfAnOutstandingApprenticeshipUpdateExistsThenAnExceptionIsThrown()
         {
             //Arrange
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))

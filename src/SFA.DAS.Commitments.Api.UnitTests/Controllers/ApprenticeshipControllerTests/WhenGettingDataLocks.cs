@@ -5,6 +5,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -22,7 +23,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ApprenticeshipController
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetDataLocksRequest>()))
                 .ReturnsAsync(new GetDataLocksResponse());
 
-            _orchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object);
+            _orchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new ApprenticeshipsController(_orchestrator);
         }
 

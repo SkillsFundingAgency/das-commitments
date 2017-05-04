@@ -75,8 +75,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _historyRepository = new Mock<IHistoryRepository>();
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
+            var mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object);
+            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object, mockCurrentDateTime.Object);
         }
 
         [Test]

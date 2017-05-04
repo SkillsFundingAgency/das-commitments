@@ -93,7 +93,7 @@
     <Compile Include="Services\ApprenticeshipEventsTests\WhenIPublishADeletionEvent.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\WhenIBulkPublishEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\WhenIPublishAnEvent.cs" />
-    <Compile Include="Services\PaymentEventMapper\WhemMappingPaymentEvent.cs" />
+    <Compile Include="Services\PaymentEventMapper\WhenMappingPaymentEvent.cs" />
     <Compile Include="Services\PaymentEventsSerivce\WhenCallingPaymentEventsApi.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -26,8 +26,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly IHistoryRepository _historyRepository;
         private readonly ICommitmentRepository _commitmentRepository;
         private HistoryService _historyService;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository)
+        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository, ICurrentDateTime currentDateTime)
         { 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -36,6 +37,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _mediator = mediator;
             _historyRepository = historyRepository;
             _commitmentRepository = commitmentRepository;
+            _currentDateTime = currentDateTime;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -95,7 +97,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var started = apprenticeship.StartDate.HasValue && apprenticeship.StartDate.Value <=
-                                      new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                                      new DateTime(_currentDateTime.Now.Year, _currentDateTime.Now.Month, 1);
 
             if (!started)
                 return true;
@@ -152,11 +154,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 StartDate = update.StartDate,
                 EndDate = update.EndDate,
                 UpdateOrigin = (UpdateOrigin) update.UpdateOrigin,
-                EffectiveFromDate = DateTime.UtcNow,
+                EffectiveFromDate = _currentDateTime.Now,
                 EffectiveToDate = null
             };
 
-            if (apprenticeship.StartDate > DateTime.UtcNow) // Was waiting to start when created
+            if (apprenticeship.StartDate > _currentDateTime.Now) // Was waiting to start when created
             {
                 result.EffectiveFromDate = apprenticeship.StartDate.Value;
             }
