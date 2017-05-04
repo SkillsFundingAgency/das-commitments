@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -6,6 +8,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using FluentValidation;
+using Newtonsoft.Json;
+using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -29,10 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository.Verify(x => x.PauseOrResumeApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
-                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange),
-                It.Is<CallerType>(a => a == CallerType.Employer),
-                It.Is<string>(a => a == ExampleValidRequest.UserId)));
+                It.Is<PaymentStatus>(a => a == PaymentStatus.Active)));
         }
 
         [Test]
@@ -104,6 +105,36 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Should().Be("Invalid Date of Change. Date should be todays date.");
+        }
+
+        [Test]
+        public async Task ThenAHistoryRecordIsCreated()
+        {
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            });
+
+            var expectedOriginalApprenticeshipState = JsonConvert.SerializeObject(TestApprenticeship);
+
+            await Handler.Handle(ExampleValidRequest);
+
+            var expectedNewApprenticeshipState = JsonConvert.SerializeObject(TestApprenticeship);
+
+            MockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.First().EntityId == TestApprenticeship.Id &&
+                                y.First().ChangeType == ApprenticeshipChangeType.ChangeOfStatus.ToString() &&
+                                y.First().EntityType == "Apprenticeship" &&
+                                y.First().OriginalState == expectedOriginalApprenticeshipState &&
+                                y.First().UpdatedByRole == CallerType.Employer.ToString() &&
+                                y.First().UpdatedState == expectedNewApprenticeshipState &&
+                                y.First().UserId == ExampleValidRequest.UserId &&
+                                y.First().UpdatedByName == ExampleValidRequest.UserName)), Times.Once);
         }
     }
 }

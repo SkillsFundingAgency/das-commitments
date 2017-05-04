@@ -4,13 +4,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Dapper;
-
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 
@@ -19,86 +16,37 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class ApprenticeshipRepository : BaseRepository, IApprenticeshipRepository
     {
         private readonly ICommitmentsLogger _logger;
-
-        private readonly IHistoryTransactions _historyTransactions;
-
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
-        public ApprenticeshipRepository(
-            string connectionString,
-            ICommitmentsLogger logger,
-            IHistoryTransactions historyTransactions,
-            IApprenticeshipTransactions apprenticeshipTransactions)
-            : base(connectionString)
+        public ApprenticeshipRepository(string connectionString, ICommitmentsLogger logger, IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (historyTransactions == null)
-                throw new ArgumentNullException(nameof(historyTransactions));
-            if (apprenticeshipTransactions == null)
-                throw new ArgumentNullException(nameof(apprenticeshipTransactions));
-
             _logger = logger;
-            _historyTransactions = historyTransactions;
             _apprenticeshipTransactions = apprenticeshipTransactions;
         }
 
-        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship, CallerType callerType, string userId)
+        public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
         {
             _logger.Debug($"Creating apprenticeship - {apprenticeship.FirstName} {apprenticeship.LastName}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId);
 
             return await WithTransaction(async (connection, trans)=>
                 {
                     var apprenticeshipId = await _apprenticeshipTransactions.CreateApprenticeship(connection, trans, apprenticeship);
-                    await _historyTransactions.CreateApprenticeship(connection, trans,
-                        new ApprenticeshipHistoryItem
-                        {
-                            ApprenticeshipId = apprenticeshipId,
-                            UpdatedByRole = callerType,
-                            UserId = userId
-                        });
-
-                    await _historyTransactions.AddApprenticeshipForCommitment(connection, trans, 
-                        new CommitmentHistoryItem
-                        {
-                            CommitmentId = apprenticeship.CommitmentId, 
-                            UpdatedByRole = callerType,
-                            UserId = userId
-                        });
-
                     return apprenticeshipId;
                 });
         }
 
-        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId)
+        public async Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeship.Id}", accountId: apprenticeship.EmployerAccountId, providerId: apprenticeship.ProviderId, commitmentId: apprenticeship.CommitmentId, apprenticeshipId: apprenticeship.Id);
 
             await WithTransaction(async (connection, trans) =>
                 {
                     var returnCode = await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
-
-                    await _historyTransactions.UpdateApprenticeship(connection, trans, 
-                        new ApprenticeshipHistoryItem
-                        {
-                            ApprenticeshipId = apprenticeship.Id,
-                            UpdatedByRole = caller.CallerType,
-                            UserId = userId
-                        });
-
-                    await _historyTransactions.UpdateApprenticeshipForCommitment(connection, trans,
-                        new CommitmentHistoryItem
-                    {
-                        CommitmentId = apprenticeship.CommitmentId,
-                        UpdatedByRole = caller.CallerType,
-                        UserId = userId
-                    });
-
                     return returnCode;
             });
         }
 
-        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, CallerType callerType, string userId)
+        public async Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange)
         {
             _logger.Debug($"Stopping apprenticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
@@ -116,18 +64,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
-
-                await _historyTransactions.UpdateApprenticeshipStatus(conn, tran, PaymentStatus.Withdrawn,
-                    new ApprenticeshipHistoryItem
-                    {
-                        ApprenticeshipId = apprenticeshipId,
-                        UpdatedByRole = callerType,
-                        UserId = userId
-                    });
             });
         }
 
-        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime dateOfChange, CallerType callerType, string userId)
+        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
             if (!(paymentStatus == PaymentStatus.Paused || paymentStatus == PaymentStatus.Active))
                 throw new ArgumentException("PaymentStatus should be Paused or Active", nameof(paymentStatus));
@@ -147,14 +87,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     transaction: tran,
                     param: parameters,
                     commandType: CommandType.Text);
-
-                await _historyTransactions.UpdateApprenticeshipStatus(conn, tran, paymentStatus,
-                    new ApprenticeshipHistoryItem
-                    {
-                        ApprenticeshipId = apprenticeshipId,
-                        UpdatedByRole = callerType,
-                        UserId = userId
-                    });
             });
         }
 
@@ -231,7 +163,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId)
+        public async Task DeleteApprenticeship(long apprenticeshipId)
         {
             _logger.Debug($"Deleting apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
@@ -247,20 +179,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     transaction: transactions,
                     commandType: CommandType.Text);
-
-                await _historyTransactions.DeleteApprenticeshipForCommitment(connection, transactions, 
-                    new CommitmentHistoryItem
-                        {
-                            CommitmentId = commitmentId,
-                            UpdatedByRole = CallerType.Employer,
-                            UserId = userId
-                        });
-
                 return returnCode;
             });
         }
 
-        public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships, CallerType caller, string userId)
+        public async Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships)
         {
             _logger.Debug($"Bulk upload {apprenticeships.Count()} apprenticeships for commitment {commitmentId}", commitmentId: commitmentId);
 

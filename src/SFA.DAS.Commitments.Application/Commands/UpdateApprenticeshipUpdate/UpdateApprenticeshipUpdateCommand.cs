@@ -17,5 +17,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
         public string UserId { get; set; }
 
         public Caller Caller { get; set; }
+        public string UserName { get; set; }
     }
 }

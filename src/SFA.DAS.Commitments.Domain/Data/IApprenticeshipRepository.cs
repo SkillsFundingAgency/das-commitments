@@ -8,13 +8,13 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface IApprenticeshipRepository
     {
-        Task<long> CreateApprenticeship(Apprenticeship apprenticeship, CallerType callerType, string userId);
+        Task<long> CreateApprenticeship(Apprenticeship apprenticeship);
 
-        Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller, string userId);
+        Task UpdateApprenticeship(Apprenticeship apprenticeship, Caller caller);
 
-        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange, CallerType callerType, string userId);
+        Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange);
 
-        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime dateOfChange, CallerType callerType, string userId);
+        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 
@@ -22,9 +22,9 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships);
 
-        Task DeleteApprenticeship(long apprenticeshipId, CallerType callerType, string userId, long commitmentId);
+        Task DeleteApprenticeship(long apprenticeshipId);
 
-        Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships, CallerType caller, string userId);
+        Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships);
 
         Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId);
 

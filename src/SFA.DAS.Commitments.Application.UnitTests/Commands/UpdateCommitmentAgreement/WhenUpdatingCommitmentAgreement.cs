@@ -6,6 +6,7 @@ using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
@@ -15,6 +16,7 @@ using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
 
@@ -30,6 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private Mock<IMediator> _mockMediator;
         private Mock<IApprenticeshipEventsList> _mockApprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _mockApprenticeshipEventsPublisher;
+        private Mock<IHistoryRepository> _mockHistoryRepository;
 
         [SetUp]
         public void Setup()
@@ -45,6 +48,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _mockApprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _mockApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
+            _mockHistoryRepository = new Mock<IHistoryRepository>();
             _handler = new UpdateCommitmentAgreementCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRespository.Object,
@@ -53,7 +57,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 _mockMediator.Object,
                 new UpdateCommitmentAgreementCommandValidator(),
                 _mockApprenticeshipEventsList.Object,
-                _mockApprenticeshipEventsPublisher.Object);
+                _mockApprenticeshipEventsPublisher.Object,
+                _mockHistoryRepository.Object);
 
             _validCommand = new UpdateCommitmentAgreementCommand
             {
@@ -471,7 +476,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 && y.CommitmentStatus == CommitmentStatus.Active 
                                 && y.LastUpdatedByEmployerEmail == _validCommand.LastUpdatedByEmail
                                 && y.LastUpdatedByEmployerName == _validCommand.LastUpdatedByName
-                                && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction), _validCommand.Caller.CallerType, _validCommand.UserId), Times.Once);
+                                && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction)), Times.Once);
         }
 
         [Test]
@@ -491,7 +496,91 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 && y.CommitmentStatus == CommitmentStatus.Active
                                 && y.LastUpdatedByProviderEmail == _validCommand.LastUpdatedByEmail
                                 && y.LastUpdatedByProviderName == _validCommand.LastUpdatedByName
-                                && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction), _validCommand.Caller.CallerType, _validCommand.UserId), Times.Once);
+                                && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheCommitmentIsSentForReviewThenAHistoryRecordIsCreated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var expectedOriginalState = JsonConvert.SerializeObject(commitment);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            await _handler.Handle(_validCommand);
+
+            var expectedNewState = JsonConvert.SerializeObject(commitment);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.First().EntityId == commitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.SentForReview.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedNewState &&
+                                y.First().UserId == _validCommand.UserId)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheCommitmentIsSentForFinalApprovalThenAHistoryRecordIsCreated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            commitment.Apprenticeships.Add(new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, StartDate = DateTime.Now.AddMonths(1) });
+            var expectedOriginalState = JsonConvert.SerializeObject(commitment);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult>());
+
+            _validCommand.LatestAction = LastAction.Approve;
+            await _handler.Handle(_validCommand);
+
+            var expectedNewState = JsonConvert.SerializeObject(commitment);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.First().EntityId == commitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.FinalApproval.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedNewState &&
+                                y.First().UserId == _validCommand.UserId)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheCommitmentIsSentForApprovalThenAHistoryRecordIsCreated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var expectedOriginalState = JsonConvert.SerializeObject(commitment);
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = LastAction.Approve;
+
+            await _handler.Handle(_validCommand);
+
+            var expectedNewState = JsonConvert.SerializeObject(commitment);
+
+            _mockHistoryRepository.Verify(
+                x =>
+                    x.InsertHistory(
+                        It.Is<IEnumerable<HistoryItem>>(
+                            y =>
+                                y.First().EntityId == commitment.Id &&
+                                y.First().ChangeType == CommitmentChangeType.SentForApproval.ToString() &&
+                                y.First().EntityType == "Commitment" &&
+                                y.First().OriginalState == expectedOriginalState &&
+                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                                y.First().UpdatedState == expectedNewState &&
+                                y.First().UserId == _validCommand.UserId &&
+                                y.First().UpdatedByName == _validCommand.LastUpdatedByName)), Times.Once);
         }
     }
 }

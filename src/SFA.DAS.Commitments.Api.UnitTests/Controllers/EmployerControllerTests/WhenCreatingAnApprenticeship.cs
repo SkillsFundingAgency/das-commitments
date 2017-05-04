@@ -9,6 +9,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -59,10 +60,20 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ThenTheMediatorIsCalledToCreateApprenticeship()
         {
-            var newApprenticeship = new Apprenticeship.ApprenticeshipRequest { Apprenticeship = new Apprenticeship.Apprenticeship() };
+            var newApprenticeship = new Apprenticeship.ApprenticeshipRequest
+            {
+                Apprenticeship = new Apprenticeship.Apprenticeship(),
+                LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@email.com", Name = "Bob" }
+            };
             var result = await _controller.CreateApprenticeship(TestAccountId, TestCommitmentId, newApprenticeship);
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateApprenticeshipCommand>(a => a.Caller.CallerType == CallerType.Employer && a.Caller.Id == TestAccountId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship.Apprenticeship)));
+            _mockMediator.Verify(
+                x =>
+                    x.SendAsync(
+                        It.Is<CreateApprenticeshipCommand>(
+                            a =>
+                                a.Caller.CallerType == CallerType.Employer && a.Caller.Id == TestAccountId && a.CommitmentId == TestCommitmentId && a.Apprenticeship == newApprenticeship.Apprenticeship &&
+                                a.UserName == newApprenticeship.LastUpdatedByInfo.Name)));
         }
 
         [Test]

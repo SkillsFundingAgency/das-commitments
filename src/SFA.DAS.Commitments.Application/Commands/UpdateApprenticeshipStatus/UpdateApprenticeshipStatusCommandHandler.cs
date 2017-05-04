@@ -7,6 +7,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
@@ -17,15 +19,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly UpdateApprenticeshipStatusValidator _validator;
         private readonly ICurrentDateTime _currentDate;
         private readonly ICommitmentsLogger _logger;
+        private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEvents _eventsApi;
 
-        public UpdateApprenticeshipStatusCommandHandler(
-            ICommitmentRepository commitmentRepository, 
-            IApprenticeshipRepository apprenticeshipRepository, 
-            UpdateApprenticeshipStatusValidator validator,
-            ICurrentDateTime currentDate,
-            IApprenticeshipEvents eventsApi,
-            ICommitmentsLogger logger)
+        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, UpdateApprenticeshipStatusValidator validator, ICurrentDateTime currentDate, IApprenticeshipEvents eventsApi, ICommitmentsLogger logger, IHistoryRepository historyRepository)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -33,6 +30,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _currentDate = currentDate;
             _eventsApi = eventsApi;
             _logger = logger;
+            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand command)
@@ -65,20 +63,24 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
         {
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
+            apprenticeship.PaymentStatus = newPaymentStatus;
             switch (newPaymentStatus)
             {
                 case PaymentStatus.Active:
                 case PaymentStatus.Paused:
                     ValidateChangeDateForPauseResume(command.DateOfChange);
-                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, command.DateOfChange, CallerType.Employer, command.UserId);
+                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus);
                     break;
                 case PaymentStatus.Withdrawn:
                     ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
-                    await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange, CallerType.Employer, command.UserId);
+                    await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newPaymentStatus), "Not a valid value for change of status");
             }
+            await historyService.Save();
         }
 
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)

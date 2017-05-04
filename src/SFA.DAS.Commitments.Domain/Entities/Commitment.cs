@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.Commitments.Domain.Entities
 {
@@ -30,7 +31,9 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string LastUpdatedByProviderName { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
 
+        [JsonIgnore]
         public List<Apprenticeship> Apprenticeships { get; set; }
+        [JsonIgnore]
         public List<Message> Messages { get; set; }
     }
 }

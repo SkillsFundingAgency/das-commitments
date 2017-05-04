@@ -76,8 +76,6 @@
     <Build Include="StoredProcedures\CreateRelationship.sql" />
     <Build Include="StoredProcedures\GetRelationship.sql" />
     <Build Include="StoredProcedures\VerifyRelationship.sql" />
-    <Build Include="Tables\ApprenticeshipHistory.sql" />
-    <Build Include="Tables\CommitmentHistory.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
     <Build Include="UserDefinedTypes\ULNTable.sql" />
     <Build Include="Tables\ApprenticeshipUpdate.sql" />
@@ -93,6 +91,8 @@
     <Build Include="StoredProcedures\UpdateDataLockTriageStatus.sql" />
     <Build Include="StoredProcedures\UpdateCommitment.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipStatuses.sql" />
+    <Build Include="Tables\History.sql" />
+    <Build Include="StoredProcedures\InsertHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

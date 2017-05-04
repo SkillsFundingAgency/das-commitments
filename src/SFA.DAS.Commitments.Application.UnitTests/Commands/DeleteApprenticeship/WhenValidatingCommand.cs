@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         public void Setup()
         {
             _validator = new DeleteApprenticeshipValidator();
-            _handler = new DeleteApprenticeshipCommandHandler(Mock.Of<ICommitmentRepository>(), Mock.Of<IApprenticeshipRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IApprenticeshipEvents>());
+            _handler = new DeleteApprenticeshipCommandHandler(Mock.Of<ICommitmentRepository>(), Mock.Of<IApprenticeshipRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>());
 
             _validCommand = new DeleteApprenticeshipCommand() { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }

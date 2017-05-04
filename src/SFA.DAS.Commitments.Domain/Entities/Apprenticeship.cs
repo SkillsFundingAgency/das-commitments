@@ -2,6 +2,8 @@
 
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
+using Newtonsoft.Json;
+
 namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class Apprenticeship
@@ -36,5 +38,11 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string LegalEntityName { get; set; }
         public TriageStatus? DataLockTriage { get; set; }
         public DataLockErrorCode DataLockErrorCode { get; set; }
+
+        public Apprenticeship Clone()
+        {
+            var json = JsonConvert.SerializeObject(this);
+            return JsonConvert.DeserializeObject<Apprenticeship>(json);
+        }
     }
 }

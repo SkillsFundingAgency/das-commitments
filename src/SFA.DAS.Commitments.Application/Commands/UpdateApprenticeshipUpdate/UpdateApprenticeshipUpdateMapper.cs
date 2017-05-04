@@ -1,49 +1,39 @@
-﻿using System;
-
-using Newtonsoft.Json;
-
-using SFA.DAS.Commitments.Domain.Entities;
+﻿using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 {
     public class UpdateApprenticeshipUpdateMapper : IUpdateApprenticeshipUpdateMapper
     {
-        public Apprenticeship ApplyUpdate(Apprenticeship oldApprenticeship, ApprenticeshipUpdate update)
+        public void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
         {
-
-            var json = JsonConvert.SerializeObject(oldApprenticeship);
-            var ap = JsonConvert.DeserializeObject<Apprenticeship>(json);
-
-            ap.FirstName = string.IsNullOrEmpty(update.FirstName)
-                ? ap.FirstName
+            apprenticeship.FirstName = string.IsNullOrEmpty(update.FirstName)
+                ? apprenticeship.FirstName
                 : update.FirstName;
 
-            ap.LastName = string.IsNullOrEmpty(update.LastName)
-                ? ap.LastName
+            apprenticeship.LastName = string.IsNullOrEmpty(update.LastName)
+                ? apprenticeship.LastName
                 : update.LastName;
 
-            ap.TrainingType = update.TrainingType ?? ap.TrainingType;
+            apprenticeship.TrainingType = update.TrainingType ?? apprenticeship.TrainingType;
 
             if (!string.IsNullOrEmpty(update.TrainingCode)
                 && !string.IsNullOrEmpty(update.TrainingName))
             {
-                ap.TrainingCode = update.TrainingCode;
-                ap.TrainingName = update.TrainingName;
+                apprenticeship.TrainingCode = update.TrainingCode;
+                apprenticeship.TrainingName = update.TrainingName;
             }
 
-            ap.DateOfBirth = update.DateOfBirth ?? ap.DateOfBirth;
+            apprenticeship.DateOfBirth = update.DateOfBirth ?? apprenticeship.DateOfBirth;
 
-            ap.Cost = update.Cost ?? ap.Cost;
+            apprenticeship.Cost = update.Cost ?? apprenticeship.Cost;
 
-            ap.StartDate = update.StartDate ?? ap.StartDate;
-            ap.EndDate = update.EndDate ?? ap.EndDate;
-
-            return ap;
+            apprenticeship.StartDate = update.StartDate ?? apprenticeship.StartDate;
+            apprenticeship.EndDate = update.EndDate ?? apprenticeship.EndDate;
         }
     }
 
     public interface IUpdateApprenticeshipUpdateMapper
     {
-        Apprenticeship ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate);
+        void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate);
     }
 }

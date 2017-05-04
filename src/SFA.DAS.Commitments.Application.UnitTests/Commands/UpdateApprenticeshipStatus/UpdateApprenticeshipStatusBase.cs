@@ -15,6 +15,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<IApprenticeshipRepository> MockApprenticeshipRespository;
         protected Mock<ICurrentDateTime> MockCurrentDateTime;
         protected Mock<IApprenticeshipEvents> MockEventsApi;
+        protected Mock<IHistoryRepository> MockHistoryRepository;
         protected UpdateApprenticeshipStatusCommandHandler Handler;
         protected UpdateApprenticeshipStatusCommand ExampleValidRequest;
         protected Apprenticeship TestApprenticeship;
@@ -30,7 +31,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
                 PaymentStatus = RequestPaymentStatus,
-                DateOfChange = DateTime.Now.Date
+                DateOfChange = DateTime.Now.Date,
+                UserName = "Bob"
             };
 
             TestApprenticeship = new Apprenticeship
@@ -44,6 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockEventsApi = new Mock<IApprenticeshipEvents>();
+            MockHistoryRepository = new Mock<IHistoryRepository>();
 
             MockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId))).ReturnsAsync(TestApprenticeship);
             MockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
@@ -55,7 +58,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 new UpdateApprenticeshipStatusValidator(),
                 MockCurrentDateTime.Object,
                 MockEventsApi.Object,
-                Mock.Of<ICommitmentsLogger>());
+                Mock.Of<ICommitmentsLogger>(),
+                MockHistoryRepository.Object);
         }
     }
 }

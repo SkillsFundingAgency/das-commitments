@@ -19,5 +19,3 @@
 	[EffectiveToDate] DATETIME NULL
 )
 GO
-
-CREATE NONCLUSTERED INDEX [IX_ApprenticeshipHistory_ApprenticeshipId] ON [dbo].[ApprenticeshipHistory] ([ApprenticeshipId])

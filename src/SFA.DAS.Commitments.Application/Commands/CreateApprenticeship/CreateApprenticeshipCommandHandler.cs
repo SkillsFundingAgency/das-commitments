@@ -5,8 +5,10 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
@@ -22,30 +24,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         private readonly AbstractValidator<CreateApprenticeshipCommand> _validator;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
+        private readonly IHistoryRepository _historyRepository;
 
-        public CreateApprenticeshipCommandHandler(
-            ICommitmentRepository commitmentRepository,
-            IApprenticeshipRepository apprenticeshipRepository, 
-            AbstractValidator<CreateApprenticeshipCommand> validator, 
-            IApprenticeshipEvents apprenticeshipEvents, 
-            ICommitmentsLogger logger)
+        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
-            if (apprenticeshipEvents == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEvents));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _validator = validator;
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
+            _historyRepository = historyRepository;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand command)
@@ -64,16 +52,24 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
-            var apprenticeshipId = await
-                _apprenticeshipRepository.CreateApprenticeship(MapFrom(command.Apprenticeship, command), command.Caller.CallerType, command.UserId);
-            
-            command.Apprenticeship.Id = apprenticeshipId;
+            var apprenticeship = MapFrom(command.Apprenticeship, command);
+            apprenticeship.Id = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
 
-            await _apprenticeshipEvents.PublishEvent(commitment, MapFrom(command.Apprenticeship, command), "APPRENTICESHIP-CREATED");
+            await Task.WhenAll(
+                _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-CREATED"),
+                UpdateStatusOfApprenticeship(commitment),
+                CreateHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
+            );
 
-            await UpdateStatusOfApprenticeship(commitment);
+            return apprenticeship.Id;
+        }
 
-            return apprenticeshipId;
+        private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
+        {
+            var historyService = new HistoryService(_historyRepository);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
+            historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
+            await historyService.Save();
         }
 
         private async Task UpdateStatusOfApprenticeship(Commitment commitment)
@@ -100,8 +96,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 ULN = apprenticeship.ULN,
                 CommitmentId = message.CommitmentId,
                 PaymentStatus = PaymentStatus.PendingApproval,
-                AgreementStatus = (Domain.Entities.AgreementStatus) apprenticeship.AgreementStatus,
-                TrainingType = (Domain.Entities.TrainingType) apprenticeship.TrainingType,
+                AgreementStatus = (Domain.Entities.AgreementStatus)apprenticeship.AgreementStatus,
+                TrainingType = (Domain.Entities.TrainingType)apprenticeship.TrainingType,
                 TrainingCode = apprenticeship.TrainingCode,
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
