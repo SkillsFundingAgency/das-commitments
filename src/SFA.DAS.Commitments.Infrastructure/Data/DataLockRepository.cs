@@ -95,7 +95,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate, bool isResolved)
+        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             return await WithTransaction(async (connection, trans) =>
             {
@@ -108,7 +108,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
 
                 await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
-                    dataLockEventId, triageStatus, apprenticeshipUpdateId, isResolved);
+                    dataLockEventId, triageStatus, apprenticeshipUpdateId);
                 
                 return 0;
             });

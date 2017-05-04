@@ -6,6 +6,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
     public interface IDataLockTransactions
     {
-        Task<long> UpdateDataLockTriageStatus(IDbConnection connection, IDbTransaction trans, long dataLockEventId, TriageStatus triageStatus, long? apprenticeshipUpdateId, bool isResolved);
+        Task<long> UpdateDataLockTriageStatus(IDbConnection connection, IDbTransaction trans, long dataLockEventId, TriageStatus triageStatus, long? apprenticeshipUpdateId);
     }
 }

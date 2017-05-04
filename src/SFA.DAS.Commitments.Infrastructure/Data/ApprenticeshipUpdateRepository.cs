@@ -16,7 +16,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipUpdateTransactions _apprenticeshipUpdateTransactions;
-
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
         public ApprenticeshipUpdateRepository(
@@ -73,13 +72,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task ApproveApprenticeshipUpdate(long id, string userId, Apprenticeship apprenticeship, Caller caller)
+        public async Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId, Apprenticeship apprenticeship, Caller caller)
         {
             await WithTransaction(async (connection, trans) =>
             {
                 await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
 
-                await UpdateApprenticeshipUpdate(connection, trans, id, userId, ApprenticeshipUpdateStatus.Approved);
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId, ApprenticeshipUpdateStatus.Approved);
+
+                if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
+                {
+                    await ResolveDatalock(connection, trans, apprenticeshipUpdate.Id);
+                }
 
                 return 1L;
             });
@@ -115,6 +119,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     sql:
                     "UPDATE [dbo].[ApprenticeshipUpdate] SET Status = @status " +
                     "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text,
+                    transaction: trans);
+        }
+
+        private async Task ResolveDatalock(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@ApprenticeshipUpdateId", apprenticeshipUpdateId, DbType.Int64);
+
+            await connection.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[DataLock] SET IsResolved=1 " +
+                    "WHERE ApprenticeshipUpdateId = @apprenticeshipUpdateId;",
                     param: parameters,
                     commandType: CommandType.Text,
                     transaction: trans);

@@ -8,13 +8,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
     public class DataLockTransactions : IDataLockTransactions
     {
         public async Task<long> UpdateDataLockTriageStatus(IDbConnection connection,
-            IDbTransaction trans, long dataLockEventId, TriageStatus triageStatus, long? apprenticeshipUpdateId, bool isResolved)
+            IDbTransaction trans, long dataLockEventId, TriageStatus triageStatus, long? apprenticeshipUpdateId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@DataLockEventId", dataLockEventId);
             parameters.Add("@TriageStatus", triageStatus);
             parameters.Add("@ApprenticeshipUpdateId", apprenticeshipUpdateId);
-            parameters.Add("@IsResolved", isResolved);
 
             return await connection.ExecuteAsync(
                 sql: $"[dbo].[UpdateDataLockTriageStatus]",

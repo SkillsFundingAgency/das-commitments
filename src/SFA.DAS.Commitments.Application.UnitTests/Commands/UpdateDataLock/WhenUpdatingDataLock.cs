@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     ErrorCode = DataLockErrorCode.Dlock03
                 });
 
-            _dataLockRepository.Setup(x => x.UpdateDataLockTriageStatus(It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>(), It.IsAny<bool>()))
+            _dataLockRepository.Setup(x => x.UpdateDataLockTriageStatus(It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()))
                 .Returns(() => Task.FromResult(1L));
 
             _existingApprenticeship = new Apprenticeship
@@ -105,7 +105,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 
             //Assert
             _dataLockRepository.Verify(x => x.UpdateDataLockTriageStatus(
-                It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>(), It.IsAny<bool>()),
+                It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()),
                 Times.Once);
         }
 
@@ -129,7 +129,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 
             //Assert
             _dataLockRepository.Verify(x => x.UpdateDataLockTriageStatus(
-                It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>(), It.IsAny<bool>()),
+                It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()),
                 Times.Never);
         }
 
@@ -196,7 +196,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     && u.UpdateOrigin == UpdateOrigin.DataLock
                     && u.EffectiveFromDate == new DateTime(2018, 6, 1)
                     && u.EffectiveToDate.HasValue == false
-                ), It.IsAny<bool>()),
+                )),
                 Times.Once);
         }
 

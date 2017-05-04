@@ -12,7 +12,8 @@
     @ErrorCode INT,
     @Status TINYINT,
     @TriageStatus TINYINT,
-	@ApprenticeshipUpdateId BIGINT
+	@ApprenticeshipUpdateId BIGINT,
+	@IsResolved BIT
 )
 AS
 
@@ -35,7 +36,8 @@ AS
 		ErrorCode = @ErrorCode,
 		[Status] = @Status,
 		TriageStatus = @TriageStatus,
-		ApprenticeshipUpdateId = @ApprenticeshipUpdateId
+		ApprenticeshipUpdateId = @ApprenticeshipUpdateId,
+		IsResolved = @IsResolved
 		where
 		ApprenticeshipId = @ApprenticeshipId
 		and PriceEpisodeIdentifier = @PriceEpisodeIdentifier
@@ -58,7 +60,8 @@ AS
 			ErrorCode,
 			[Status],
 			TriageStatus,
-			ApprenticeshipUpdateId
+			ApprenticeshipUpdateId,
+			IsResolved
 		)
 		values
 		(
@@ -74,7 +77,8 @@ AS
 			@ErrorCode,
 			@Status,
 			@TriageStatus,
-			@ApprenticeshipUpdateId
+			@ApprenticeshipUpdateId,
+			@IsResolved
 		)
 
 	END
