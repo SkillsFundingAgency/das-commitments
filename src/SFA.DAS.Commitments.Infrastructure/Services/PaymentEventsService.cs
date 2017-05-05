@@ -10,7 +10,7 @@ using SFA.DAS.Provider.Events.Api.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    public class PaymentEventsSerivce : IPaymentEvents
+    public class PaymentEventsService : IPaymentEvents
     {
         private readonly IPaymentsEventsApiClient _paymentsEventsApi;
 
@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public int RetryWaitTimeInSeconds { get; set; } = 3;
 
-        public PaymentEventsSerivce(
+        public PaymentEventsService(
             IPaymentsEventsApiClient paymentsEventsApi,
             IPaymentEventMapper mapper,
             ILog logger)
@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             long ukprn = 0,
             int page = 1)
         {
-            //todo: remove cast to int below
+            //todo: remove cast to int once package fixed
 
             var result = await  Retry(
                 3, 

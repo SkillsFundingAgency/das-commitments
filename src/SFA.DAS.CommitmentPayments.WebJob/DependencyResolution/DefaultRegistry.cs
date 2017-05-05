@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             }
             else
             {
-                For<IPaymentEvents>().Use<PaymentEventsSerivce>();
+                For<IPaymentEvents>().Use<PaymentEventsService>();
             }
         }
 

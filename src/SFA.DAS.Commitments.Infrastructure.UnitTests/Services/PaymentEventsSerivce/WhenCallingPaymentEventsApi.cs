@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSer
     [TestFixture]
     public class WhenCallingPaymentEventsApi
     {
-        private Infrastructure.Services.PaymentEventsSerivce _sut;
+        private Infrastructure.Services.PaymentEventsService _sut;
 
         private Mock<IPaymentsEventsApiClient> _paymentEventsApi;
 
@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSer
         public void SetUp()
         {
             _paymentEventsApi = new Mock<IPaymentsEventsApiClient>();
-            _sut = new Infrastructure.Services.PaymentEventsSerivce(_paymentEventsApi.Object, new Infrastructure.Services.PaymentEventMapper(), Mock.Of<ILog>());
+            _sut = new Infrastructure.Services.PaymentEventsService(_paymentEventsApi.Object, new Infrastructure.Services.PaymentEventMapper(), Mock.Of<ILog>());
         }
 
         [Test]
