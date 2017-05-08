@@ -374,7 +374,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             result.Columns.Add("ULN", typeof(string));
 
-            foreach (var uln in ulns)
+            foreach (var uln in ulns.Where(u => u.Length <= 50))
             {
                 result.Rows.Add(uln);
             }
