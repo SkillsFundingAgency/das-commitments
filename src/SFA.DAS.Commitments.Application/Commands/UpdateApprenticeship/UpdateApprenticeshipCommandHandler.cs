@@ -63,6 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             await Task.WhenAll(
                 _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller),
+                UpdateStatusOfApprenticeship(commitment),
                 _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED"),
                 CreateHistory()
             );
@@ -71,6 +72,17 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private async Task CreateHistory()
         {
             await _historyService.Save();
+        }
+
+        private async Task UpdateStatusOfApprenticeship(Commitment commitment)
+        {
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                if (apprenticeship.AgreementStatus != AgreementStatus.NotAgreed)
+                {
+                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, AgreementStatus.NotAgreed);
+                }
+            }
         }
 
         private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)

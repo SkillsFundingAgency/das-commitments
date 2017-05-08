@@ -117,6 +117,42 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
+        public async Task ThenItShouldUpdatedTheAgreementStatusForAllApprenticeshipsOnTheSameCommitment()
+        {
+            var c = new Commitment
+            {
+                Id = 123L,
+                EditStatus = EditStatus.ProviderOnly,
+                ProviderId = 111L,
+                EmployerAccountId = 5L,
+                CommitmentStatus = CommitmentStatus.Active,
+                Apprenticeships =
+                                new List<Apprenticeship>
+                                    {
+                                        new Apprenticeship { Id = 1, AgreementStatus = AgreementStatus.BothAgreed, PaymentStatus = PaymentStatus.PendingApproval },
+                                        new Apprenticeship { Id = 2, AgreementStatus = AgreementStatus.EmployerAgreed, PaymentStatus = PaymentStatus.PendingApproval },
+                                        new Apprenticeship { Id = 3, AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval },
+                                        new Apprenticeship { Id = 4, AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.PendingApproval }
+                                    }
+            };
+
+            _mockApprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(
+                    new Apprenticeship
+                        {
+                            Id = 99,
+                            AgreementStatus = AgreementStatus.NotAgreed,
+                            PaymentStatus = PaymentStatus.Active
+                        });
+
+            _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockApprenticeshipRepository.Verify(x =>
+                x.UpdateApprenticeshipStatus(123, It.IsAny<long>(), AgreementStatus.NotAgreed), Times.Exactly(3));
+        }
+
+        [Test]
         public async Task ThenHistoryRecordsAreCreated()
         {
             var testCommitment = new Commitment

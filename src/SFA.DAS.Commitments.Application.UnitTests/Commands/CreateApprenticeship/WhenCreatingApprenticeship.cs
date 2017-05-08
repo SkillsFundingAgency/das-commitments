@@ -215,6 +215,33 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
+        public async Task ThenItShouldUpdatedTheAgreementStatusForAllApprenticeshipsOnTheSameCommitment()
+        {
+            var c = new Commitment
+                        {
+                            Id = 123L,
+                            EditStatus = EditStatus.ProviderOnly,
+                            ProviderId = 111L,
+                            EmployerAccountId = 5L,
+                            CommitmentStatus = CommitmentStatus.Active,
+                            Apprenticeships =
+                                new List<Domain.Entities.Apprenticeship>
+                                    {
+                                        new Domain.Entities.Apprenticeship { Id = 1, AgreementStatus = AgreementStatus.BothAgreed},
+                                        new Domain.Entities.Apprenticeship { Id = 2, AgreementStatus = AgreementStatus.EmployerAgreed },
+                                        new Domain.Entities.Apprenticeship { Id = 3, AgreementStatus = AgreementStatus.ProviderAgreed },
+                                        new Domain.Entities.Apprenticeship { Id = 4, AgreementStatus = AgreementStatus.NotAgreed }
+                                    }
+                        };
+
+            _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockApprenticeshipRepository.Verify(x =>
+                x.UpdateApprenticeshipStatus(123, It.IsAny<long>(), AgreementStatus.NotAgreed), Times.Exactly(3));
+        }
+
+        [Test]
         public async Task ThenHistoryRecordsAreCreated()
         {
             var testCommitment = new Commitment
