@@ -125,8 +125,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private bool HasImmediateUpdate(CreateApprenticeshipUpdateCommand command)
         {
             if (string.IsNullOrWhiteSpace(command.ApprenticeshipUpdate.ULN)
-                && string.IsNullOrWhiteSpace(command.ApprenticeshipUpdate.EmployerRef)
-                && string.IsNullOrWhiteSpace(command.ApprenticeshipUpdate.ProviderRef))
+                && command.ApprenticeshipUpdate.EmployerRef == null
+                && command.ApprenticeshipUpdate.ProviderRef == null)
             {
                 return false;
             }
