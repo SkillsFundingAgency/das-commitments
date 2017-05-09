@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
 
         private void VerifyEventWasPublished(string @event)
         {
-            CommitmentsLogger.Verify(x => x.Info("Creating apprenticeship events", null, null, null, null), Times.Once);
+            CommitmentsLogger.Verify(x => x.Info("Creating apprenticeship events", null, null, null, null, null), Times.Once);
             EventsApi.Verify(x => x.BulkCreateApprenticeshipEvent(It.Is<List<ApprenticeshipEvent>>(y => y.TrueForAll(z => EventMatchesParameters(z, @event)))), Times.Once);
         }
 
