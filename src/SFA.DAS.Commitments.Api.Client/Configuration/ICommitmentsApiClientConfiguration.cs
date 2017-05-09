@@ -8,5 +8,6 @@
         string ClientSecret { get; set; }
         string IdentifierUri { get; set; }
         string Tenant { get; set; }
+        string ClientCertificateThumbprint { get; set; }
     }
 }

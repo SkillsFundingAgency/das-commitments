@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -49,8 +50,19 @@ namespace SFA.DAS.Commitments.Api.Client
             string content;
             var authenticationResult = await GetAuthenticationResult(_configuration.ClientId, _configuration.ClientSecret, _configuration.IdentifierUri, _configuration.Tenant);
 
-            using (var client = new HttpClient())
+            using (var store = new ClientCertificateStore(new X509Store(StoreLocation.LocalMachine)))
+            using (var handler = new WebRequestHandler())
+            using (var client = new HttpClient(handler))
             {
+                if (!string.IsNullOrEmpty(_configuration.ClientCertificateThumbprint))
+                {
+                    var certificate = store.FindCertificateByThumbprint(_configuration.ClientCertificateThumbprint);
+                    if (certificate != null)
+                    {
+                        handler.ClientCertificates.Add(certificate);
+                    }
+                }
+
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
                 client.DefaultRequestHeaders.Add("accept", "application/json");
 
