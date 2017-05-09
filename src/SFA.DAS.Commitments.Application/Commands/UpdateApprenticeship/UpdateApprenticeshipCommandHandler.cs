@@ -63,6 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             await Task.WhenAll(
                 _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller),
+                UpdateStatusOfApprenticeship(commitment, apprenticeship),
                 _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED"),
                 CreateHistory()
             );
@@ -71,6 +72,17 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private async Task CreateHistory()
         {
             await _historyService.Save();
+        }
+
+        private async Task UpdateStatusOfApprenticeship(Commitment commitment, Apprenticeship updatedApprenticeship)
+        {
+            foreach (var apprenticeship in commitment.Apprenticeships.Where(x => x.Id != updatedApprenticeship.Id))
+            {
+                if (apprenticeship.AgreementStatus != updatedApprenticeship.AgreementStatus)
+                {
+                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, updatedApprenticeship.AgreementStatus);
+                }
+            }
         }
 
         private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
@@ -139,7 +151,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         {
             var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship);
 
-            existingApprenticeship.Id = message.ApprenticeshipId;
             existingApprenticeship.FirstName = updatedApprenticeship.FirstName;
             existingApprenticeship.LastName = updatedApprenticeship.LastName;
             existingApprenticeship.DateOfBirth = updatedApprenticeship.DateOfBirth;
