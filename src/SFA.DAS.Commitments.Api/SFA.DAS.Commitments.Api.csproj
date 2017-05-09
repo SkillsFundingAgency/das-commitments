@@ -308,6 +308,7 @@
     <Compile Include="Attributes\ApiAuthorizeAttribute.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
+    <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="Controllers\ValidationController.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
