@@ -140,7 +140,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .ReturnsAsync(
                     new Apprenticeship
                         {
-                            Id = 99,
+                            Id = 1,
                             AgreementStatus = AgreementStatus.NotAgreed,
                             PaymentStatus = PaymentStatus.Active
                         });
@@ -149,7 +149,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipRepository.Verify(x =>
-                x.UpdateApprenticeshipStatus(123, It.IsAny<long>(), AgreementStatus.NotAgreed), Times.Exactly(3));
+                x.UpdateApprenticeshipStatus(123, It.IsAny<long>(), AgreementStatus.NotAgreed), Times.Exactly(2));
         }
 
         [Test]
