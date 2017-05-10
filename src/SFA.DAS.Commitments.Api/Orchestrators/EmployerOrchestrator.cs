@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            _logger.Info($"Retrieved commitments for employer account {accountId}. {response.Data.Count} commitments found", accountId: accountId);
+            _logger.Info($"Retrieved commitments for employer account {accountId}. {response.Data?.Count} commitments found", accountId: accountId);
 
             return response;
         }

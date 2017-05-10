@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            _logger.Info($"Retrieved commitments for provider {providerId}. {response.Data.Count} commitments found", providerId: providerId, recordCount: response.Data.Count);
+            _logger.Info($"Retrieved commitments for provider {providerId}. {response.Data?.Count} commitments found", providerId: providerId, recordCount: response.Data?.Count);
 
             return response;
         }
