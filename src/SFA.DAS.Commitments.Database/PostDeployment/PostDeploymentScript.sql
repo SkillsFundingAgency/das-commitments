@@ -40,3 +40,13 @@ BEGIN
 
 	DROP TABLE [dbo].[ApprenticeshipHistory]
 END
+
+
+
+UPDATE u
+SET
+u.[UpdateOrigin] = 1,
+u.[EffectiveFromDate] = a.[StartDate]
+FROM [dbo].[ApprenticeshipUpdate] u
+JOIN [dbo].[Apprenticeship] a ON a.Id = u.ApprenticeshipId
+
