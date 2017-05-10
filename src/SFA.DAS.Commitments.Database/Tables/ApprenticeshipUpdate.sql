@@ -14,8 +14,8 @@
     [EndDate] DATETIME NULL, 
     [DateOfBirth] DATETIME NULL,
 	[CreatedOn] DATETIME NULL,
-	[UpdateOrigin] TINYINT NOT NULL,
-	[EffectiveFromDate] DATETIME NOT NULL,
+	[UpdateOrigin] TINYINT NULL,
+	[EffectiveFromDate] DATETIME NULL,
 	[EffectiveToDate] DATETIME NULL
 )
 GO
