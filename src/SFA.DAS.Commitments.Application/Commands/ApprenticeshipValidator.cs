@@ -29,12 +29,12 @@ namespace SFA.DAS.Commitments.Application.Commands
 
         private void ValidateFirstName()
         {
-            RuleFor(x => x.FirstName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
+            RuleFor(x => x.FirstName).NotEmpty().Must(m => _lengthLessThanFunc(m, 101));
         }
 
         private void ValidateLastName()
         {
-            RuleFor(x => x.LastName).NotEmpty().Must(m => _lengthLessThanFunc(m, 100));
+            RuleFor(x => x.LastName).NotEmpty().Must(m => _lengthLessThanFunc(m, 101));
         }
 
         private void ValidateUln()
