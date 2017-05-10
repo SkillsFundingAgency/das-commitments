@@ -24,7 +24,6 @@ using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -46,9 +45,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetCommitmentsResponse> GetCommitments(long providerId)
         {
-            _logger.Info($"Getting commitments for provider {providerId}", providerId: providerId);
+            _logger.Trace($"Getting commitments for provider {providerId}", providerId: providerId);
 
-            return await _mediator.SendAsync(new GetCommitmentsRequest
+            var response = await _mediator.SendAsync(new GetCommitmentsRequest
             {
                 Caller = new Caller
                 {
@@ -56,13 +55,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = providerId
                 }
             });
+
+            _logger.Info($"Retrieved commitments for provider {providerId}. {response.Data.Count} commitments found", providerId: providerId, recordCount: response.Data.Count);
+
+            return response;
         }
 
         public async Task<GetCommitmentResponse> GetCommitment(long providerId, long commitmentId)
         {
-            _logger.Info($"Getting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+            _logger.Trace($"Getting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
-            return await _mediator.SendAsync(new GetCommitmentRequest
+            var response = await _mediator.SendAsync(new GetCommitmentRequest
             {
                 Caller = new Caller
                 {
@@ -71,13 +74,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 CommitmentId = commitmentId
             });
+
+            _logger.Info($"Retrieved commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+
+            return response;
         }
 
         public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId)
         {
-            _logger.Info($"Getting apprenticeships for provider {providerId}", providerId: providerId);
+            _logger.Trace($"Getting apprenticeships for provider {providerId}", providerId: providerId);
 
-            return await _mediator.SendAsync(new GetApprenticeshipsRequest
+            var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
                 Caller = new Caller
                 {
@@ -85,13 +92,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = providerId
                 }
             });
+
+            _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
+
+            return response;
         }
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)
         {
-            _logger.Info($"Getting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+            _logger.Trace($"Getting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
-            return await _mediator.SendAsync(new GetApprenticeshipRequest
+            var response = await _mediator.SendAsync(new GetApprenticeshipRequest
             {
                 Caller = new Caller
                 {
@@ -100,15 +111,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 ApprenticeshipId = apprenticeshipId
             });
+
+            if (response.Data != null)
+                _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
+            else
+                _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+
+            return response;
         }
 
         public async Task<long> CreateApprenticeship(long providerId, long commitmentId, ApprenticeshipRequest apprenticeshipRequest)
         {
-            _logger.Info($"Creating apprenticeship for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+            _logger.Trace($"Creating apprenticeship for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
 
-            return await _mediator.SendAsync(new CreateApprenticeshipCommand
+            var id = await _mediator.SendAsync(new CreateApprenticeshipCommand
             {
                 Caller = new Caller
                 {
@@ -120,11 +138,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
+
+            _logger.Info($"Created apprenticeship {id} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: id, recordCount: 1);
+
+            return id;
         }
 
         public async Task PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)
         {
-            _logger.Info($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+            _logger.Trace($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
 
@@ -141,11 +163,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
+
+            _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+
         }
 
         public async Task CreateApprenticeships(long providerId, long commitmentId, BulkApprenticeshipRequest bulkRequest)
         {
-            _logger.Info($"Bulk uploading {bulkRequest.Apprenticeships?.Count ?? 0} apprenticeships for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+            _logger.Trace($"Bulk uploading {bulkRequest.Apprenticeships?.Count ?? 0} apprenticeships for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new BulkUploadApprenticeshipsCommand
             {
@@ -155,11 +180,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = bulkRequest.UserId,
                 UserName = bulkRequest.LastUpdatedByInfo?.Name
             });
+
+            _logger.Info($"Bulk uploaded {bulkRequest.Apprenticeships?.Count ?? 0} apprenticeships for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, recordCount: bulkRequest.Apprenticeships?.Count ?? 0);
+
         }
 
         public async Task PatchCommitment(long providerId, long commitmentId, CommitmentSubmission submission)
         {
-            _logger.Info($"Updating latest action to {submission.Action} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+            _logger.Trace($"Updating latest action to {submission.Action} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
@@ -175,11 +203,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = submission.UserId,
                 Message = submission.Message
             });
+
+            _logger.Info($"Updated latest action to {submission.Action} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
         }
 
         public async Task DeleteApprenticeship(long providerId, long apprenticeshipId, string userId, string userName)
         {
-            _logger.Info($"Deleting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+            _logger.Trace($"Deleting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
             await _mediator.SendAsync(new DeleteApprenticeshipCommand
             {
@@ -192,11 +222,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = userId,
                 UserName = userName
             });
+
+            _logger.Info($"Deleted apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
         }
 
         public async Task DeleteCommitment(long providerId, long commitmentId, string userId, string userName)
         {
-            _logger.Info($"Deleting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+            _logger.Trace($"Deleting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
             await _mediator.SendAsync(new DeleteCommitmentCommand
             {
@@ -209,34 +241,50 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = userId,
                 UserName = userName
             });
+
+            _logger.Info($"Deleted commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
         }
 
         public async Task<GetRelationshipResponse> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
         {
-            _logger.Info($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+            _logger.Trace($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
 
-            return await _mediator.SendAsync(new GetRelationshipRequest
+            var response = await _mediator.SendAsync(new GetRelationshipRequest
             {
                 ProviderId = providerId,
                 EmployerAccountId = employerAccountId,
                 LegalEntityId = legalEntityId
             });
+
+            if (response.Data != null)
+                _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+            else
+                _logger.Info($"Relationship not found for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+
+            return response;
         }
 
         public async Task<GetRelationshipByCommitmentResponse> GetRelationship(long providerId, long commitmentId)
         {
-            _logger.Info($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
+            _logger.Trace($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
-            return await _mediator.SendAsync(new GetRelationshipByCommitmentRequest
+            var response = await _mediator.SendAsync(new GetRelationshipByCommitmentRequest
             {
                 ProviderId = providerId,
                 CommitmentId = commitmentId
             });
+
+            if (response.Data != null)
+                _logger.Info($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
+            else
+                _logger.Info($"Relationship not found for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
+
+            return response;
         }
 
         public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
         {
-            _logger.Info($"Verifying relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+            _logger.Trace($"Verifying relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
 
             await _mediator.SendAsync(new VerifyRelationshipCommand
             {
@@ -246,11 +294,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = patchRequest.UserId,
                 Verified = patchRequest.Relationship.Verified
             });
+
+            _logger.Info($"Verified relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
         }
 
         public async Task<GetPendingApprenticeshipUpdateResponse> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
         {
-            _logger.Info($"Getting pending update for apprenticeship {apprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+            _logger.Trace($"Getting pending update for apprenticeship {apprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
             var response = await _mediator.SendAsync(new GetPendingApprenticeshipUpdateRequest
             {
@@ -262,12 +312,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
+            _logger.Info($"Retrieved pending update for apprenticeship {apprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: apprenticeshipId);
+
             return response;
         }
 
         public async Task CreateApprenticeshipUpdate(long providerId, ApprenticeshipUpdateRequest updateRequest)
         {
-            _logger.Info($"Creating update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: updateRequest.ApprenticeshipUpdate.ApprenticeshipId);
+            _logger.Trace($"Creating update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: updateRequest.ApprenticeshipUpdate.ApprenticeshipId);
 
             await _mediator.SendAsync(new CreateApprenticeshipUpdateCommand
             {
@@ -280,11 +332,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserName = updateRequest.LastUpdatedByInfo?.Name,
                 UserId = updateRequest.UserId
             });
+
+            _logger.Info($"Created update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: updateRequest.ApprenticeshipUpdate.ApprenticeshipId);
         }
 
         public async Task PatchApprenticeshipUpdate(long providerId, long apprenticeshipId, ApprenticeshipUpdateSubmission submission)
         {
-            _logger.Info($"Patching update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+            _logger.Trace($"Patching update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
             var command =
                 new UpdateApprenticeshipUpdateCommand
@@ -297,6 +351,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 };
 
             await _mediator.SendAsync(command);
+
+            _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId, apprenticeshipId: apprenticeshipId);
         }
     }
 }

@@ -24,6 +24,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             var requests = apprenticeshipOverlapValidationRequests.ToList();
 
+            _logger.Trace($"Validating {requests.Count} overlapping validation requests");
+
             var command = new Application.Queries.GetOverlappingApprenticeships.GetOverlappingApprenticeshipsRequest
                 {
                     OverlappingApprenticeshipRequests = requests.ToList()
@@ -43,6 +45,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     OverlappingApprenticeships = response.Data.Where(x=> x.RequestApprenticeshipId == group.Key)
                 });
             }
+
+            _logger.Trace($"Validated {requests.Count} overlapping validation requests");
 
             return result;
         }
