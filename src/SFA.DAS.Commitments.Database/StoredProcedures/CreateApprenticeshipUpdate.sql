@@ -11,7 +11,10 @@
 		@StartDate DATETIME NULL, 
 		@EndDate DATETIME NULL, 
 		@DateOfBirth DATETIME NULL,
-		@CreatedOn DATETIME NULL
+		@CreatedOn DATETIME NULL,
+		@UpdateOrigin TINYINT,
+		@EffectiveFromDate DATETIME,
+		@EffectiveToDate DATETIME NULL
 )
 AS
 
@@ -28,7 +31,10 @@ AS
 		[StartDate], 
 		[EndDate], 
 		[DateOfBirth],
-		[CreatedOn]
+		[CreatedOn],
+		[UpdateOrigin],
+		[EffectiveFromDate],
+		[EffectiveToDate]
 	)
 	values
 	(
@@ -43,5 +49,10 @@ AS
 		@StartDate, 
 		@EndDate, 
 		@DateOfBirth,
-		@CreatedOn
+		@CreatedOn,
+		@UpdateOrigin,
+		@EffectiveFromDate,
+		@EffectiveToDate
 	)
+
+	SELECT SCOPE_IDENTITY()

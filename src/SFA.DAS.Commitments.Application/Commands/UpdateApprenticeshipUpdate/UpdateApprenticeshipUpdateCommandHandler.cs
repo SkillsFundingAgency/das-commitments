@@ -55,12 +55,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
             {
-                await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
+                await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate, command.UserId);
             }
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Deleted)
             {
-                await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate.Id, command.UserId);
+                await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
             }
         }
 
@@ -74,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
 
             await Task.WhenAll(
-                _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate.Id, command.UserId, apprenticeship, command.Caller),
+                _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate, command.UserId, apprenticeship, command.Caller),
                 CreateEvents(commitment, originalApprenticeship, apprenticeship, pendingUpdate),
                 historyService.Save()
             );
@@ -82,7 +82,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
         private async Task CreateEvents(Commitment commitment, Apprenticeship apprenticeship, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
         {
-            DateTime? changeEffective = pendingUpdate.CreatedOn;
+
+DateTime? changeEffective = pendingUpdate.CreatedOn;
             if (updatedApprenticeship.StartDate > pendingUpdate.CreatedOn) // Was waiting to start when created
             {
                 changeEffective = updatedApprenticeship.StartDate;

@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+
+using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -90,7 +92,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 CanBeApproved = callerType == CallerType.Employer ? matchingApprenticeship.EmployerCanApproveApprenticeship : matchingApprenticeship.ProviderCanApproveApprenticeship,
                 PendingUpdateOriginator = (Originator?)matchingApprenticeship.UpdateOriginator,
                 ProviderName = matchingApprenticeship.ProviderName,
-                LegalEntityName = matchingApprenticeship.LegalEntityName
+                LegalEntityName = matchingApprenticeship.LegalEntityName,
+                DataLockTriageStatus = (TriageStatus?)matchingApprenticeship.DataLockTriage,
+                DataLockErrorCode = (DataLockErrorCode)matchingApprenticeship.DataLockErrorCode
             };
 
             return response;

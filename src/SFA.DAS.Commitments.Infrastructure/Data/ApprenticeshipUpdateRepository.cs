@@ -16,7 +16,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipUpdateTransactions _apprenticeshipUpdateTransactions;
-
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
         public ApprenticeshipUpdateRepository(
@@ -73,34 +72,51 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task ApproveApprenticeshipUpdate(long id, string userId, Apprenticeship apprenticeship, Caller caller)
+        public async Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId, Apprenticeship apprenticeship, Caller caller)
         {
             await WithTransaction(async (connection, trans) =>
             {
                 await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
 
-                await UpdateApprenticeshipUpdate(connection, trans, id, userId, ApprenticeshipUpdateStatus.Approved);
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId, ApprenticeshipUpdateStatus.Approved);
+
+                if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
+                {
+                    await ResolveDatalock(connection, trans, apprenticeshipUpdate.Id);
+                }
 
                 return 1L;
             });
         }
 
-        public async Task RejectApprenticeshipUpdate(long apprenticeshipUpdateId, string userId)
+        public async Task RejectApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId)
         {
             await WithTransaction(async (connection, trans) =>
                 {
-                    await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, userId,
+                    await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId,
                         ApprenticeshipUpdateStatus.Rejected);
+
+                    if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
+                    {
+                        await ResetDatalockTriage(connection, trans, apprenticeshipUpdate.Id);
+                    }
+
                     return 1L;
                 });
         }
 
-        public async Task UndoApprenticeshipUpdate(long apprenticeshipUpdateId, string userId)
+        public async Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId)
         {
             await WithTransaction(async (connection, trans) =>
             {
-                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, userId,
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId,
                     ApprenticeshipUpdateStatus.Deleted);
+
+                if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
+                {
+                    await ResetDatalockTriage(connection, trans, apprenticeshipUpdate.Id);
+                }
+
                 return 1L;
             });
         }
@@ -118,6 +134,44 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     commandType: CommandType.Text,
                     transaction: trans);
+        }
+
+        private async Task ResolveDatalock(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@ApprenticeshipUpdateId", apprenticeshipUpdateId, DbType.Int64);
+
+            await connection.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[DataLockStatus] SET IsResolved=1 " +
+                    "WHERE ApprenticeshipUpdateId = @apprenticeshipUpdateId;",
+                    param: parameters,
+                    commandType: CommandType.Text,
+                    transaction: trans);
+        }
+
+        private async Task ResetDatalockTriage(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@ApprenticeshipUpdateId", apprenticeshipUpdateId, DbType.Int64);
+
+            await connection.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[DataLockStatus] SET TriageStatus=0, ApprenticeshipUpdateId=null " +
+                    "WHERE ApprenticeshipUpdateId = @apprenticeshipUpdateId;",
+                    param: parameters,
+                    commandType: CommandType.Text,
+                    transaction: trans);
+        }
+
+        public async Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId)
+        {
+            await WithTransaction(async (connection, trans) =>
+            {
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,
+                    ApprenticeshipUpdateStatus.Superceded);
+                return 1L;
+            });
         }
     }
 }

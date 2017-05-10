@@ -125,8 +125,14 @@
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
+    <Compile Include="Commands\UpdateDataLock\WhenUpdatingDataLock.cs" />
+    <Compile Include="Commands\UpdateDataLock\WhenValidatingRequest.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenVerifyingRelationship.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
+    <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />
+    <Compile Include="Queries\GetDataLocks\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetDataLock\WhenGettingDataLock.cs" />
+    <Compile Include="Queries\GetDataLock\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\WhenGettingOverlappingApprenticeships.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenGettingApprenticeship.cs" />

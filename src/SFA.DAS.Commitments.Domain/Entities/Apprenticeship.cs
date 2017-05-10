@@ -1,4 +1,7 @@
 ﻿using System;
+
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+
 using Newtonsoft.Json;
 
 namespace SFA.DAS.Commitments.Domain.Entities
@@ -33,6 +36,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Originator? UpdateOriginator { get; set; }
         public string ProviderName { get; set; }
         public string LegalEntityName { get; set; }
+        public TriageStatus? DataLockTriage { get; set; }
+        public DataLockErrorCode DataLockErrorCode { get; set; }
 
         public Apprenticeship Clone()
         {

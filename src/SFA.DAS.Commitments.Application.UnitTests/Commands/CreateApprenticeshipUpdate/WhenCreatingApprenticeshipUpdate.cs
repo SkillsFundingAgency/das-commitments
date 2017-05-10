@@ -35,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
 
+
         [SetUp]
         public void Arrange()
         {
@@ -59,8 +60,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 Id = 3,
                 CommitmentId = 974
             };
+
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_existingApprenticeship);
+ 			_apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(_existingApprenticeship);
 
             _mediator = new Mock<IMediator>();
             _mediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
@@ -72,8 +75,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _historyRepository = new Mock<IHistoryRepository>();
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
+            var mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object);
+            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object, mockCurrentDateTime.Object);
         }
 
         [Test]
@@ -268,7 +273,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Act
             await _handler.Handle(command);
 
-            //Arrange
+            //Assert
             _mediator.Verify(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()), Times.Once);
         }
 
@@ -392,6 +397,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             act.ShouldThrow<ValidationException>();
         }
 
+
         [Test]
         public async Task ThenIfTheUpdateContainsNoDataForImmediateEffectTheNoHistoryIsCreated()
         {
@@ -411,6 +417,30 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             //Assert
             _historyRepository.Verify(x => x.InsertHistory(It.IsAny<IEnumerable<HistoryItem>>()), Times.Never);
+        }
+		
+		 [Test]
+        public async Task ThenIfTheApprenticeshipIsWaitingToStartThenTheChangeWillBeEffectiveFromTheApprenticeshipStartDate()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                {
+                    ULN = "123",
+                    Cost = 100
+                }
+            };
+
+            //Act
+            await _handler.Handle(command);
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(
+                x => x.CreateApprenticeshipUpdate(
+                    It.Is<ApprenticeshipUpdate>(u => u.EffectiveFromDate == _existingApprenticeship.StartDate),
+                    It.IsAny<Apprenticeship>()));
         }
 
         [Test]

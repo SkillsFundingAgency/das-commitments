@@ -101,12 +101,23 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
+    <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommand.cs" />
+    <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandHandler.cs" />
+    <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandValidator.cs" />
     <Compile Include="Commands\VerifyRelationship\VerifyRelationshipCommand.cs" />
     <Compile Include="Commands\VerifyRelationship\VerifyRelationshipCommandHandler.cs" />
     <Compile Include="Commands\VerifyRelationship\VerifyRelationshipValidator.cs" />
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />
+    <Compile Include="Queries\GetDataLocks\GetDataLocksValidator.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockRequest.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockQueryHandler.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockResponse.cs" />
+    <Compile Include="Queries\GetDataLock\GetDataLockValidator.cs" />
     <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEvent.cs" />
     <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEventsList.cs" />
     <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEventsPublisher.cs" />
@@ -152,6 +163,7 @@
     <Compile Include="Services\HistoryService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
