@@ -165,18 +165,33 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 if (hasChanged)
                 {
                     updatedApprenticeships.Add(apprenticeship);
-                    await AddApprenticeshipUpdatedEvent(commitment, apprenticeship);
                 }
             }
             _logger.Trace($"Updateding apprenticeships (in memory!) took {sw.ElapsedMilliseconds}");
 
-            sw = Stopwatch.StartNew();
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
-            _logger.Trace($"Updateding apprenticeships (in database!) took {sw.ElapsedMilliseconds}");
+            await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
 
-            sw = Stopwatch.StartNew();
-            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-            _logger.Trace($"Publishing events took {sw.ElapsedMilliseconds}");
+            await Task.WhenAll(
+                _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships),
+                _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList)
+            );
+        }
+
+        private async Task CreateEventsForUpdatedApprenticeships(Commitment commitment, List<Apprenticeship> updatedApprenticeships)
+        {
+            var existingApprenticeships = await GetActiveApprenticeshipsForLearners(updatedApprenticeships);
+
+            Parallel.ForEach(updatedApprenticeships, apprenticeship =>
+            {
+                AddApprenticeshipUpdatedEvent(commitment, apprenticeship, existingApprenticeships.Where(x => x.Uln == apprenticeship.ULN));
+            });
+        }
+
+        private async Task<IEnumerable<ApprenticeshipResult>>  GetActiveApprenticeshipsForLearners(List<Apprenticeship> updatedApprenticeships)
+        {
+            var ulns = updatedApprenticeships.Select(x => x.ULN);
+            var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(ulns);
+            return apprenticeships;
         }
 
         private bool UpdateApprenticeshipStatuses(UpdateCommitmentAgreementCommand command, LastAction latestAction, Apprenticeship apprenticeship)
@@ -204,20 +219,20 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             return hasChanged;
         }
 
-        private async Task AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
+        private async void AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, IEnumerable<ApprenticeshipResult> existingApprenticeships)
         {
-            var effectiveFromDate = await DetermineEffectiveFromDate(apprenticeship.AgreementStatus, apprenticeship.ULN, apprenticeship.StartDate);
+            var effectiveFromDate = DetermineEffectiveFromDate(apprenticeship.AgreementStatus, existingApprenticeships, apprenticeship.StartDate);
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
         }
 
-        private async Task<DateTime?> DetermineEffectiveFromDate(AgreementStatus agreementStatus, string uln, DateTime? startDate)
+        private DateTime? DetermineEffectiveFromDate(AgreementStatus agreementStatus, IEnumerable<ApprenticeshipResult> existingApprenticeships, DateTime? startDate)
         {
             if (agreementStatus != AgreementStatus.BothAgreed)
             {
                 return null;
             }
 
-            var previousApprenticeshipStoppedDate = await GetPreviousApprenticeshipStoppedDate(uln, startDate);
+            var previousApprenticeshipStoppedDate = GetPreviousApprenticeshipStoppedDate(existingApprenticeships, startDate);
             if (HasPreviousApprenticeshipStoppedInTheSameMonth(previousApprenticeshipStoppedDate, startDate))
             {
                 return previousApprenticeshipStoppedDate.Value.AddDays(1);
@@ -241,9 +256,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             return true;
         }
 
-        private async Task<DateTime?> GetPreviousApprenticeshipStoppedDate(string uln, DateTime? startDate)
+        private DateTime? GetPreviousApprenticeshipStoppedDate(IEnumerable<ApprenticeshipResult> existingApprenticeships, DateTime? startDate)
         {
-            var previousApprenticeships = await GetPreviousApprenticeships(uln, startDate.Value);
+            var previousApprenticeships = GetPreviousApprenticeships(existingApprenticeships, startDate.Value);
             if (!previousApprenticeships.Any())
             {
                 return null;
@@ -253,10 +268,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             return latestApprenticeship.StopDate;
         }
 
-        private async Task<IEnumerable<ApprenticeshipResult>> GetPreviousApprenticeships(string uln, DateTime startDate)
+        private IEnumerable<ApprenticeshipResult> GetPreviousApprenticeships(IEnumerable<ApprenticeshipResult> existingApprenticeships, DateTime startDate)
         {
-            var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(new[] { uln });
-            return apprenticeships.Where(x => x.StartDate < startDate);
+            return existingApprenticeships.Where(x => x.StartDate < startDate);
         }
 
         private void LogMessage(UpdateCommitmentAgreementCommand command)

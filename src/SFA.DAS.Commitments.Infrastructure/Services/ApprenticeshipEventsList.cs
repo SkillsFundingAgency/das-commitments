@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -7,13 +8,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 {
     public class ApprenticeshipEventsList : IApprenticeshipEventsList
     {
-        private readonly List<IApprenticeshipEvent> _events;
+        private readonly ConcurrentBag<IApprenticeshipEvent> _events;
 
-        public IReadOnlyList<IApprenticeshipEvent> Events => _events;
+        public IReadOnlyList<IApprenticeshipEvent> Events => _events.ToArray();
 
         public ApprenticeshipEventsList()
         {
-            _events = new List<IApprenticeshipEvent>();
+            _events = new ConcurrentBag<IApprenticeshipEvent>();
         }
 
         public void Add(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)

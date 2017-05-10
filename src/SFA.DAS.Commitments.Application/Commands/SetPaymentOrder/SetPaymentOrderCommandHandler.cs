@@ -73,10 +73,12 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
 
         private async Task PublishEventsForChangesApprenticeships(List<Apprenticeship> changedApprenticeships)
         {
+            var commitments = await GetCommitmentsForApprenticeships(changedApprenticeships);
+
             var sw = Stopwatch.StartNew();
             foreach (var changedApprenticeship in changedApprenticeships)
             {
-                var commitment = await _commitmentRepository.GetCommitmentById(changedApprenticeship.CommitmentId);
+                var commitment = commitments[changedApprenticeship.CommitmentId];
                 _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
             }
             _logger.Trace($"Adding events took {sw.ElapsedMilliseconds}");
@@ -84,6 +86,20 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             sw = Stopwatch.StartNew();
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
             _logger.Trace($"Publishing events took {sw.ElapsedMilliseconds}");
+        }
+
+        private async Task<Dictionary<long, Commitment>> GetCommitmentsForApprenticeships(List<Apprenticeship> changedApprenticeships)
+        {
+            var commitments = new Dictionary<long, Commitment>();
+            var commitmentIds = changedApprenticeships.Select(x => x.CommitmentId).Distinct();
+            var tasks = commitmentIds.Select(x => _commitmentRepository.GetCommitmentById(x)).ToList();
+            await Task.WhenAll(tasks);
+            foreach (var task in tasks)
+            {
+                var commitment = task.Result;
+                commitments.Add(commitment.Id, commitment);
+            }
+            return commitments;
         }
 
         private class ComparerPaymentOrder : IEqualityComparer<Apprenticeship>
@@ -96,8 +112,8 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             public int GetHashCode(Apprenticeship obj)
             {
                 var hash = 19;
-                hash = hash*27 + (obj.Id).GetHashCode();
-                hash = hash*27 + (obj.PaymentOrder).GetHashCode();
+                hash = hash * 27 + (obj.Id).GetHashCode();
+                hash = hash * 27 + (obj.PaymentOrder).GetHashCode();
 
                 return hash;
             }
