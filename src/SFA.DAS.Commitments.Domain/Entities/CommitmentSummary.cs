@@ -4,6 +4,11 @@ namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class CommitmentSummary
     {
+        public CommitmentSummary()
+        {
+            Messages = new List<Message>();
+        }
+
         public long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }

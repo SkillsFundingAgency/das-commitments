@@ -2,7 +2,6 @@
 AS 
 
 SELECT c.*, 
-
 	COUNT(a.Id) AS ApprenticeshipCount,
 
 	COALESCE((SELECT TOP 1 AgreementStatus FROM ApprenticeshipSummary WHERE CommitmentId = c.Id), 0) AS AgreementStatus, -- because should all be same value
@@ -21,10 +20,8 @@ SELECT c.*,
 
 FROM 
 	Commitment c
-
 LEFT JOIN 
 	Apprenticeship a ON a.CommitmentId = c.Id
 
 GROUP BY 
 	c.Id, c.Reference, c.EmployerAccountId, c.LegalEntityId, c.LegalEntityName, c.ProviderId, c.ProviderName, c.CommitmentStatus, c.EditStatus, c.CreatedOn, c.LastAction, c.LastUpdatedByEmployerEmail, c.LastUpdatedByProviderEmail, c.LastUpdatedByEmployerName, c.LastUpdatedByProviderName, c.LegalEntityAddress, c.LegalEntityOrganisationType
-

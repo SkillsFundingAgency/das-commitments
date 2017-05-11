@@ -255,24 +255,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private Task<IList<CommitmentSummary>> GetCommitmentsByIdentifier(string identifierName, long identifierValue)
         {
+            var lookup = new Dictionary<object, CommitmentSummary>();
+            var mapper = new ParentChildrenMapper<CommitmentSummary, Message>();
+
             return WithConnection<IList<CommitmentSummary>>(async c =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var results = await c.QueryAsync<CommitmentSummary>(
-                    sql: $"SELECT * FROM [dbo].[CommitmentSummary] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
-                    param: parameters);
+                var results = await c.QueryAsync(
+                    sql: $"SELECT * FROM [dbo].[CommitmentSummaryWithMessages] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
+                    param: parameters,
+                    map: mapper.Map(lookup, x => x.Id, x => x.Messages),
+                    splitOn: "CommitmentId");
 
-                await GetMessages(results, c);
-                return results.ToList();
+                return lookup.Values.ToList();
             });
-        }
-
-        private static async Task GetMessages(IEnumerable<CommitmentSummary> commitments, IDbConnection connection)
-        {
-            var tasks = commitments.Select(c => Task.Run(async () => { c.Messages = await GetMessages(connection, c.Id); }));
-            await Task.WhenAll(tasks);
         }
 
         private static async Task<List<Message>> GetMessages(IDbConnection connection, long commitmentId)

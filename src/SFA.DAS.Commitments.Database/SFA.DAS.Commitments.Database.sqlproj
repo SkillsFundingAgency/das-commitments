@@ -93,6 +93,7 @@
     <Build Include="StoredProcedures\UpdateApprenticeshipStatuses.sql" />
     <Build Include="Tables\History.sql" />
     <Build Include="StoredProcedures\InsertHistory.sql" />
+    <Build Include="Views\CommitmentSummaryWithMessages.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
