@@ -76,6 +76,30 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             _apprenticeshipRepository.Verify(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()), Times.Once);
         }
 
+        [Test]
+        public async Task ThenIngoreRequestsWithoutUlns()
+        {
+            //Arrange
+            var request = new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
+                {
+                   new ApprenticeshipOverlapValidationRequest
+                   {
+                        Uln = null,
+                        StartDate = new DateTime(2017,10,1),
+                        EndDate = new DateTime(2017,11,1)
+                   }
+                }
+            };
+
+            //Act
+            await _handler.Handle(request);
+
+            //Assert
+            _apprenticeshipRepository.Verify(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()), Times.Never);
+        }
+
         [TestCase("2017-01-01", "2017-12-31", Description = "Before any apprenticeships")]
         [TestCase("2022-01-01", "2022-12-31", Description = "After any apprenticeships")]
         public async Task ThenIfDatesDoNotFallWithinRangeOfExistingApprenticeshipThenNotOverlapping(DateTime startDate, DateTime endDate)
