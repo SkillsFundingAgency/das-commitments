@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
@@ -13,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class FacetMapper
     {
-        public Facets BuildFacetes(IList<Apprenticeship> apprenticeships, ApprenticeshipQuery apprenticeshipQuery, Originator caller)
+        public Facets BuildFacetes(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var facets = new Facets
                              {
@@ -26,7 +24,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             return facets;
         }
 
-        private List<FacetItem<TrainingCourse>> ExtractTrainingCourses(IList<Apprenticeship> apprenticeships, ApprenticeshipQuery apprenticeshipQuery)
+        private List<FacetItem<TrainingCourse>> ExtractTrainingCourses(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
         {
             var result = 
                 apprenticeships
@@ -49,7 +47,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             return result;
         }
 
-        private List<FacetItem<string>> ExtractProviders(IList<Apprenticeship> apprenticeships, ApprenticeshipQuery apprenticeshipQuery)
+        private List<FacetItem<string>> ExtractProviders(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
         {
             var providers = 
                 apprenticeships
@@ -68,7 +66,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
         }
 
-        private List<FacetItem<RecordStatus>> ExtractRecordStatus(IList<Apprenticeship> apprenticeships, Originator caller, ApprenticeshipQuery apprenticeshipQuery)
+        private List<FacetItem<RecordStatus>> ExtractRecordStatus(IList<Apprenticeship> apprenticeships, Originator caller, ApprenticeshipSearchQuery apprenticeshipQuery)
         {
             var result = apprenticeships
                 .Where(m => m.PendingUpdateOriginator != null)
@@ -95,7 +93,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             return concatResult;
         }
 
-        private List<FacetItem<ApprenticeshipStatus>> ExtractApprenticeshipStatus(IList<Apprenticeship> apprenticeships, ApprenticeshipQuery apprenticeshipQuery)
+        private List<FacetItem<ApprenticeshipStatus>> ExtractApprenticeshipStatus(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
         {
             var er = apprenticeships.Select(m =>
                 new FacetItem<ApprenticeshipStatus>
@@ -103,7 +101,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     Data = MapPaymentStatus(m.PaymentStatus, m.StartDate),
                     Selected = false
                 }
-            ).Where(m => m.Data != ApprenticeshipStatus.None)
+            )
+            //.Where(m => m.Data != ApprenticeshipStatus.None)
             .DistinctBy(m => m.Data)
             .ToList();
 
@@ -130,7 +129,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 case PaymentStatus.Deleted:
                     return ApprenticeshipStatus.Live;
                 default:
-                    return ApprenticeshipStatus.None;
+                    return ApprenticeshipStatus.WaitingToStart;
             }
         }
     }

@@ -4,7 +4,6 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
@@ -16,14 +15,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
     {
         private FacetMapper _sut;
         private List<Apprenticeship> _data;
-        private ApprenticeshipQuery _userQuery;
+        private ApprenticeshipSearchQuery _userQuery;
 
         [SetUp]
         public void SetUp()
         {
             _data = new List<Apprenticeship>();
 
-            _userQuery = new ApprenticeshipQuery();
+            _userQuery = new ApprenticeshipSearchQuery();
             _sut = new FacetMapper();
         }
 

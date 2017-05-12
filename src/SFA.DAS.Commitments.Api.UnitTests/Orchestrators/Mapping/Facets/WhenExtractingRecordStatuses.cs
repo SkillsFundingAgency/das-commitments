@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Castle.Components.DictionaryAdapter;
-
 using FluentAssertions;
-
 using NUnit.Framework;
 
-using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
@@ -21,7 +18,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
     {
         private List<Apprenticeship> _data;
 
-        private ApprenticeshipQuery _userQuery;
+        private ApprenticeshipSearchQuery _userQuery;
 
         private FacetMapper _sut;
 
@@ -39,7 +36,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
                                 }
                         };
 
-            _userQuery = new ApprenticeshipQuery();
+            _userQuery = new ApprenticeshipSearchQuery();
             _sut = new FacetMapper();
         }
 
@@ -141,7 +138,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
             AssertStatuses(result, RecordStatus.ChangeRequested, 1);
         }
 
-        private void AssertStatuses(Models.Facets result, RecordStatus status, int i)
+        private void AssertStatuses(Types.Apprenticeship.Facets result, RecordStatus status, int i)
         {
             result.RecordStatuses.Count(m => m.Data == status).Should().Be(i);
         }

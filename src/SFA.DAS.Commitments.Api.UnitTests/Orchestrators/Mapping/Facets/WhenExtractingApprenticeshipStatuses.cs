@@ -5,7 +5,6 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
@@ -17,18 +16,19 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
     {
         private FacetMapper _sut;
         private List<Apprenticeship> _data;
-        private ApprenticeshipQuery _userQuery;
+        private ApprenticeshipSearchQuery _userQuery;
 
         [SetUp]
         public void SetUp()
         {
             _data = new List<Apprenticeship>();
 
-            _userQuery = new ApprenticeshipQuery();
+            _userQuery = new ApprenticeshipSearchQuery();
             _sut = new FacetMapper();
         }
 
         [Test]
+        [Ignore("Should never get apprenticeships with payment status -> PendingApproval <- ")]
         public void ShouldNotAddFacetPendingApproval()
         {
             _data.Add(new Apprenticeship
@@ -149,7 +149,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
             AssertStatus(result, ApprenticeshipStatus.Finished, 1);
         }
 
-        private void AssertStatus(Models.Facets result, ApprenticeshipStatus status, int i)
+        private void AssertStatus(Types.Apprenticeship.Facets result, ApprenticeshipStatus status, int i)
         {
             result.ApprenticeshipStatuses.Count(m => m.Data == status).Should().Be(i);
         }

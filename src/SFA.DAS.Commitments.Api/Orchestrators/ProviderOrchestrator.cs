@@ -98,7 +98,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return response;
         }
 
-        public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId, string data)
+        public async Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query)
         {
             _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}", providerId: providerId);
 
@@ -118,7 +118,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             throw new NotImplementedException("Not implemented");
             _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
 
-            return response;
+            //return response;
         }
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)

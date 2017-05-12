@@ -116,6 +116,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return response;
         }
 
+        public async Task<Apprenticeship.ApprenticeshipSearchResponse> GetApprenticeships(long accountId, Apprenticeship.ApprenticeshipSearchQuery query)
+        {
+            _logger.Trace($"Getting apprenticeships with filtered query for employer account {accountId}", accountId: accountId);
+
+            var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                }
+            });
+
+            throw new NotImplementedException();
+        }
+
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
