@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Queries;
-using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 
@@ -20,6 +20,8 @@ namespace SFA.DAS.Commitments.Api.Models
         public List<FacetItem<RecordStatus>> RecordStatuses { get; set; }
 
         public List<FacetItem<string>> TrainingProviders { get; set; }
+
+        public List<FacetItem<string>> EmployerOrganisations { get; set; }
 
         public List<FacetItem<TrainingCourse>> TrainingCourses { get; set; }
     }

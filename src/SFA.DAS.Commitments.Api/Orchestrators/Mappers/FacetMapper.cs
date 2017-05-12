@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -17,10 +18,54 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             var facets = new Facets
                              {
                                  ApprenticeshipStatuses = ExtractApprenticeshipStatus(apprenticeships, apprenticeshipQuery),
-                                 RecordStatuses = ExtractRecordStatus(apprenticeships, caller, apprenticeshipQuery)
+                                 RecordStatuses = ExtractRecordStatus(apprenticeships, caller, apprenticeshipQuery),
+                                 TrainingProviders = ExtractProviders(apprenticeships,apprenticeshipQuery),
+                                 TrainingCourses = ExtractTrainingCourses(apprenticeships, apprenticeshipQuery)
                              };
 
             return facets;
+        }
+
+        private List<FacetItem<TrainingCourse>> ExtractTrainingCourses(IList<Apprenticeship> apprenticeships, ApprenticeshipQuery apprenticeshipQuery)
+        {
+            var result = 
+                apprenticeships
+                .DistinctBy(m => m.TrainingCode)
+                .ToList()
+                .Select(m => new FacetItem<TrainingCourse>
+                            {
+                              Data  = new TrainingCourse
+                                          {
+                                              Id = m.TrainingCode,
+                                              Name = m.TrainingName,
+                                              TrainingType = m.TrainingType
+                                          }
+                            })
+                .ToList();
+
+            var coursIds = apprenticeshipQuery?.TrainingCourses?.Select(m => m.Id);
+            result.ForEach(m => m.Selected =  coursIds?.Contains(m.Data.Id) ?? false);
+
+            return result;
+        }
+
+        private List<FacetItem<string>> ExtractProviders(IList<Apprenticeship> apprenticeships, ApprenticeshipQuery apprenticeshipQuery)
+        {
+            var providers = 
+                apprenticeships
+                .Select(m => m.ProviderName)
+                .Distinct()
+                .Select(m => new FacetItem<string>()
+                            {
+                                Data = m,
+                                Selected = false
+                            })
+                .ToList();
+
+            providers.ForEach(m => m.Selected = apprenticeshipQuery.TrainingProviders?.Contains(m.Data) ?? false);
+
+            return providers;
+
         }
 
         private List<FacetItem<RecordStatus>> ExtractRecordStatus(IList<Apprenticeship> apprenticeships, Originator caller, ApprenticeshipQuery apprenticeshipQuery)
