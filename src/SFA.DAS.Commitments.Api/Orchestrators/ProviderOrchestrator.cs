@@ -98,6 +98,29 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return response;
         }
 
+        public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId, string data)
+        {
+            _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}", providerId: providerId);
+
+            var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = providerId
+                }
+            });
+
+            // Map Facets
+            // Filter apprenticesips according o user query
+            // Create model for apprenticeship wirh
+
+            throw new NotImplementedException("Not implemented");
+            _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
+
+            return response;
+        }
+
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)
         {
             _logger.Trace($"Getting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);

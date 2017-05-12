@@ -104,6 +104,8 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="Orchestrators\Mapping\Facets\WhenExtractingRecordStatuses.cs" />
+    <Compile Include="Orchestrators\Mapping\Facets\WhenExtractingApprenticeshipStatuses.cs" />
     <Compile Include="Orchestrators\Provider\WhenBulkUploading.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
