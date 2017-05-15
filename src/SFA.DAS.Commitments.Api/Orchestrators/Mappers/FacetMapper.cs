@@ -51,16 +51,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         {
             var providers = 
                 apprenticeships
-                .Select(m => m.ProviderName)
-                .Distinct()
+                .DistinctBy(m => m.ProviderId)
                 .Select(m => new FacetItem<string>()
                             {
-                                Data = m,
+                                Data = m.,
                                 Selected = false
                             })
                 .ToList();
 
-            providers.ForEach(m => m.Selected = apprenticeshipQuery.TrainingProviders?.Contains(m.Data) ?? false);
+            providers.ForEach(m => m.Selected = apprenticeshipQuery?.TrainingProviders?.Contains(m.Data) ?? false);
 
             return providers;
 
@@ -106,7 +105,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             .DistinctBy(m => m.Data)
             .ToList();
 
-            er.ForEach(m => m.Selected = apprenticeshipQuery.ApprenticeshipStatuses?.Contains(m.Data) ?? false);
+            er.ForEach(m => m.Selected = apprenticeshipQuery?.ApprenticeshipStatuses?.Contains(m.Data) ?? false);
 
             return er;
         }

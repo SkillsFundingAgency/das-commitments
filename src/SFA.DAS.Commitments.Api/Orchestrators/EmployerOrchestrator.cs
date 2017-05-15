@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Web.UI;
+
 using MediatR;
+
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -23,6 +24,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
+using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -31,15 +33,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
 
-        public EmployerOrchestrator(IMediator mediator, ICommitmentsLogger logger)
+        private readonly FacetMapper _facetMapper;
+
+        public EmployerOrchestrator(
+            IMediator mediator, 
+            ICommitmentsLogger logger,
+            FacetMapper facetMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (facetMapper == null)
+                throw new ArgumentNullException(nameof(facetMapper));
 
             _mediator = mediator;
             _logger = logger;
+            _facetMapper = facetMapper;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
@@ -129,7 +139,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            throw new NotImplementedException();
+            var facets = _facetMapper.BuildFacetes(response.Data, query, Originator.Employer);
+
+            return new Apprenticeship.ApprenticeshipSearchResponse
+                       {
+                           Apprenticeships = response.Data,
+                           Facets = facets
+                       };
         }
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
