@@ -17,11 +17,33 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                              {
                                  ApprenticeshipStatuses = ExtractApprenticeshipStatus(apprenticeships, apprenticeshipQuery),
                                  RecordStatuses = ExtractRecordStatus(apprenticeships, caller, apprenticeshipQuery),
-                                 TrainingProviders = ExtractProviders(apprenticeships,apprenticeshipQuery),
+                                 TrainingProviders = ExtractProviders(apprenticeships, apprenticeshipQuery),
+                                 EmployerOrganisations = ExtractEmployers(apprenticeships, apprenticeshipQuery),
                                  TrainingCourses = ExtractTrainingCourses(apprenticeships, apprenticeshipQuery)
                              };
 
             return facets;
+        }
+
+        private List<FacetItem<EmployerOrganisation>> ExtractEmployers(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
+        {
+            var employers =
+                apprenticeships
+                .DistinctBy(m => m.EmployerAccountId)
+                .Select(m => new FacetItem<EmployerOrganisation>()
+                {
+                    Data = new EmployerOrganisation()
+                    {
+                        Id = m.EmployerAccountId,
+                        Name = m.LegalEntityName
+                    },
+                    Selected = false
+                })
+                .ToList();
+
+            employers.ForEach(m => m.Selected = apprenticeshipQuery?.EmployerOrganisationIds?.Contains(m.Data.Id) ?? false);
+
+            return employers;
         }
 
         private List<FacetItem<TrainingCourse>> ExtractTrainingCourses(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
