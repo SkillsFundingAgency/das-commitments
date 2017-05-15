@@ -4,6 +4,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
@@ -22,7 +23,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _orchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _orchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), Mock.Of<FacetMapper>());
         }
 
         [Test]

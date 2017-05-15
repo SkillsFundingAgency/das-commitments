@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using MediatR;
 
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
@@ -25,6 +26,8 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
+using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
+
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
     public class ProviderOrchestrator
@@ -32,15 +35,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
 
-        public ProviderOrchestrator(IMediator mediator, ICommitmentsLogger logger)
+        private readonly FacetMapper _facetMapper;
+
+        public ProviderOrchestrator(
+            IMediator mediator, 
+            ICommitmentsLogger logger,
+            FacetMapper facetMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (facetMapper == null)
+                throw new ArgumentNullException(nameof(facetMapper));
 
             _mediator = mediator;
             _logger = logger;
+            _facetMapper = facetMapper;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long providerId)
@@ -111,14 +122,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            // Map Facets
+            var facets = _facetMapper.BuildFacetes(response.Data, query, Originator.Employer);
+
             // Filter apprenticesips according o user query
-            // Create model for apprenticeship wirh
 
-            throw new NotImplementedException("Not implemented");
-            _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
-
-            //return response;
+            return new ApprenticeshipSearchResponse
+            {
+                Apprenticeships = response.Data,
+                Facets = facets
+            };
         }
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)
