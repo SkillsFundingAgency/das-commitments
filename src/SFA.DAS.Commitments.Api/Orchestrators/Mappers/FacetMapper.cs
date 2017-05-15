@@ -40,26 +40,29 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                                           }
                             })
                 .ToList();
-
-            var coursIds = apprenticeshipQuery?.TrainingCourses?.Select(m => m.Id);
-            result.ForEach(m => m.Selected =  coursIds?.Contains(m.Data.Id) ?? false);
+            
+            result.ForEach(m => m.Selected = apprenticeshipQuery?.TrainingCourses?.Contains(m.Data.Id) ?? false);
 
             return result;
         }
 
-        private List<FacetItem<string>> ExtractProviders(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
+        private List<FacetItem<TrainingProvider>> ExtractProviders(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
         {
             var providers = 
                 apprenticeships
                 .DistinctBy(m => m.ProviderId)
-                .Select(m => new FacetItem<string>()
+                .Select(m => new FacetItem<TrainingProvider>()
                             {
-                                Data = m.,
+                                Data = new TrainingProvider
+                                           {
+                                               Id = m.ProviderId,
+                                               Name = m.ProviderName
+                                            },
                                 Selected = false
                             })
                 .ToList();
 
-            providers.ForEach(m => m.Selected = apprenticeshipQuery?.TrainingProviders?.Contains(m.Data) ?? false);
+            providers.ForEach(m => m.Selected = apprenticeshipQuery?.TrainingProviderIds?.Contains(m.Data.Id) ?? false);
 
             return providers;
 

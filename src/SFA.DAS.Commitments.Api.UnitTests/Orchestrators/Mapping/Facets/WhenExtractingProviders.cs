@@ -29,42 +29,41 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
         [Test]
         public void ShouldHave3UniqueProviders()
         {
-            _data.Add(new Apprenticeship {ProviderName = "Abba 365"});
-            _data.Add(new Apprenticeship { ProviderName = "Command & Conquer" });
-            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD" });
-            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD" });
+            _data.Add(new Apprenticeship {ProviderName = "Abba 365", ProviderId = 006});
+            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD", ProviderId = 007});
+            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD", ProviderId = 007});
+            _data.Add(new Apprenticeship { ProviderName = "Command & Conquer", ProviderId = 008});
 
             var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
 
             result.TrainingProviders.Count.Should().Be(3);
             result.TrainingProviders.Count(m => m.Selected).Should().Be(0);
 
-            result.TrainingProviders[0]?.Data.Should().Be("Abba 365");
-            result.TrainingProviders[1]?.Data.Should().Be("Command & Conquer");
-            result.TrainingProviders[2]?.Data.Should().Be("Valtech LTD");
+            result.TrainingProviders.Single(m => m.Data.Id == 006).Data.Name.Should().Be("Abba 365");
+            result.TrainingProviders.Single(m => m.Data.Id == 007).Data.Name.Should().Be("Valtech LTD");
+            result.TrainingProviders.Single(m => m.Data.Id == 008).Data.Name.Should().Be("Command & Conquer");
         }
 
         [Test]
         public void ShouldHave3UniqueProvidersAndOneSelected()
         {
-            _data.Add(new Apprenticeship { ProviderName = "Abba 365" });
-            _data.Add(new Apprenticeship { ProviderName = "Command & Conquer" });
-            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD" });
-            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD" }); 
+            _data.Add(new Apprenticeship { ProviderName = "Abba 365", ProviderId = 006 });
+            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD", ProviderId = 007 });
+            _data.Add(new Apprenticeship { ProviderName = "Valtech LTD", ProviderId = 007 }); 
+            _data.Add(new Apprenticeship { ProviderName = "Command & Conquer", ProviderId = 008 });
 
-            _userQuery.TrainingProviders = new List<string> { "Tottenham FC", "Command & Conquer" };
+            _userQuery.TrainingProviderIds = new List<long> { 008, 001 };
 
             var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
 
             result.TrainingProviders.Count.Should().Be(3);
             result.TrainingProviders.Count(m => m.Selected).Should().Be(1);
 
-            result.TrainingProviders[1]?.Data.Should().Be("Command & Conquer");
-            result.TrainingProviders[1]?.Selected.Should().BeTrue();
+            result.TrainingProviders.Single(m => m.Data.Id == 008).Data.Name.Should().Be("Command & Conquer");
+            result.TrainingProviders.Single(m => m.Data.Id == 008).Selected.Should().BeTrue();
 
-            result.TrainingProviders[0]?.Selected.Should().BeFalse();
-            result.TrainingProviders[2]?.Selected.Should().BeFalse();
-
+            result.TrainingProviders.Single(m => m.Data.Id == 006).Selected.Should().BeFalse();
+            result.TrainingProviders.Single(m => m.Data.Id == 007).Selected.Should().BeFalse();
         }
 
     }

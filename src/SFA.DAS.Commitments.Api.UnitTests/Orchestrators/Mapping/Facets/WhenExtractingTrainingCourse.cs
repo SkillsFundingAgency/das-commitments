@@ -53,12 +53,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
             _data.Add(new Apprenticeship { TrainingCode = "2", TrainingName = "Software tester", TrainingType = TrainingType.Standard });
             _data.Add(new Apprenticeship { TrainingCode = "22-166-0", TrainingName = "Fake framework", TrainingType = TrainingType.Framework });
 
-            _userQuery.TrainingCourses = new List<TrainingCourse>
-                                             {
-                                                 new TrainingCourse { Id = "33-33-3", Name = "Not included", TrainingType = TrainingType.Framework },
-                                                 new TrainingCourse { Id = "22-166-0", Name = "Fake framework", TrainingType = TrainingType.Framework },
-                                                 new TrainingCourse { Id = "3", Name = "Tester Level 2", TrainingType = TrainingType.Standard }
-                                             };
+            _userQuery.TrainingCourses = new List<string> { "33-33-3", "22-166-0", "3" };
 
             var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
 
