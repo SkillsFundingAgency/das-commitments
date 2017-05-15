@@ -54,10 +54,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
-        [HttpPost]
-        [Route("{accountId}/apprenticeships")]
-        //[Authorize(Roles = "Role1")] // ToDo: Enable
-        public async Task<IHttpActionResult> GetApprenticeships(long accountId, ApprenticeshipSearchQuery query)
+        [Route("{accountId}/apprenticeships/search")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetApprenticeships(long accountId, [FromUri] ApprenticeshipSearchQuery query)
         {
             var response = await _employerOrchestrator.GetApprenticeships(accountId, query);
 

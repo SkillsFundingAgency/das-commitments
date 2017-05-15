@@ -100,8 +100,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             var er = apprenticeships.Select(m =>
                 new FacetItem<ApprenticeshipStatus>
                 {
-                    Data = MapPaymentStatus(m.PaymentStatus, m.StartDate),
-                    Selected = false
+                    Data = MapPaymentStatus(m.PaymentStatus, m.StartDate)
                 }
             )
             //.Where(m => m.Data != ApprenticeshipStatus.None)
