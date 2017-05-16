@@ -160,5 +160,23 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
             result.IlrTrainingCourseCode.Should().Be(exprectedId);
             result.IlrTrainingType.Should().Be(TrainingType.Framework);
         }
+
+        [Test]
+        public void ShouldWorkWithDataLocksNull()
+        {
+            var result = _sut.Map(
+                new DataLockEvent
+                {
+                    IlrFrameworkCode = 129,
+                    IlrProgrammeType = 2,
+                    IlrPathwayCode = 12,
+                    Errors = null,
+                });
+
+            result.IlrTrainingCourseCode.Should().Be("129-2-12");
+            result.IlrTrainingType.Should().Be(TrainingType.Framework);
+            result.ErrorCode.Should().Be(DataLockErrorCode.None);
+            result.Status.Should().Be(Status.Pass);
+        }
     }
 }
