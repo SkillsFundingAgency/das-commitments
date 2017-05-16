@@ -4,9 +4,9 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Application.Services;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
 {

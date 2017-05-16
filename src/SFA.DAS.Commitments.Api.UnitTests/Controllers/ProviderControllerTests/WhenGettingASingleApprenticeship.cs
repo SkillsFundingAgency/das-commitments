@@ -9,7 +9,6 @@ using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -36,7 +35,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
                 new FacetMapper(),
-                new ApprenticeshipFilterService());
+                new ApprenticeshipFilterService(new FacetMapper()));
             _controller = new ProviderController(_providerOrchestrator);
         }
 

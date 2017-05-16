@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                                                DataLockTriageStatus = TriageStatus.Restart
                                            }
                                    };
-            _sut = new ApprenticeshipFilterService();
+            _sut = new ApprenticeshipFilterService(new FacetMapper());
         }
 
         [TestCase(Originator.Provider)]

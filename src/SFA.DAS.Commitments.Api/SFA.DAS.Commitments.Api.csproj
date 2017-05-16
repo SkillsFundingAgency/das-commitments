@@ -299,7 +299,6 @@
     <Compile Include="Models\SystemDetails.cs" />
     <Compile Include="Orchestrators\ApprenticeshipOrchestrator.cs" />
     <Compile Include="Orchestrators\EmployerOrchestrator.cs" />
-    <Compile Include="Orchestrators\Mappers\FacetMapper.cs" />
     <Compile Include="Orchestrators\ProviderOrchestrator.cs" />
     <Compile Include="Orchestrators\ValidationOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

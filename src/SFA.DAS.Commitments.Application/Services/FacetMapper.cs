@@ -7,7 +7,7 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Domain.Extensions;
 
-namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
+namespace SFA.DAS.Commitments.Application.Services
 {
     public class FacetMapper
     {
@@ -23,6 +23,28 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                              };
 
             return facets;
+        }
+
+        public ApprenticeshipStatus MapPaymentStatus(PaymentStatus paymentStatus, DateTime? apprenticeshipStartDate)
+        {
+            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var waitingToStart = apprenticeshipStartDate.HasValue && apprenticeshipStartDate.Value > now;
+
+            switch (paymentStatus)
+            {
+                case PaymentStatus.Active:
+                    return waitingToStart ? ApprenticeshipStatus.WaitingToStart : ApprenticeshipStatus.Live;
+                case PaymentStatus.Paused:
+                    return ApprenticeshipStatus.Paused;
+                case PaymentStatus.Withdrawn:
+                    return ApprenticeshipStatus.Stopped;
+                case PaymentStatus.Completed:
+                    return ApprenticeshipStatus.Finished;
+                case PaymentStatus.Deleted:
+                    return ApprenticeshipStatus.Live;
+                default:
+                    return ApprenticeshipStatus.WaitingToStart;
+            }
         }
 
         private List<FacetItem<EmployerOrganisation>> ExtractEmployers(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
@@ -132,28 +154,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             er.ForEach(m => m.Selected = apprenticeshipQuery?.ApprenticeshipStatuses?.Contains(m.Data) ?? false);
 
             return er;
-        }
-
-        private ApprenticeshipStatus MapPaymentStatus(PaymentStatus paymentStatus, DateTime? apprenticeshipStartDate)
-        {
-            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            var waitingToStart = apprenticeshipStartDate.HasValue && apprenticeshipStartDate.Value > now;
-
-            switch (paymentStatus)
-            {
-                case PaymentStatus.Active:
-                    return waitingToStart ? ApprenticeshipStatus.WaitingToStart : ApprenticeshipStatus.Live;
-                case PaymentStatus.Paused:
-                    return ApprenticeshipStatus.Paused;
-                case PaymentStatus.Withdrawn:
-                    return ApprenticeshipStatus.Stopped;
-                case PaymentStatus.Completed:
-                    return ApprenticeshipStatus.Finished;
-                case PaymentStatus.Deleted:
-                    return ApprenticeshipStatus.Live;
-                default:
-                    return ApprenticeshipStatus.WaitingToStart;
-            }
         }
     }
 }
