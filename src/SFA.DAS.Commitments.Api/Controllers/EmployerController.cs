@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-
+        
         [Route("{accountId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeship(long accountId, long apprenticeshipId)

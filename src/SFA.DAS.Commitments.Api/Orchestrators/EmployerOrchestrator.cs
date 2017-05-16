@@ -19,6 +19,7 @@ using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -35,10 +36,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         private readonly FacetMapper _facetMapper;
 
+        private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
+
         public EmployerOrchestrator(
             IMediator mediator, 
             ICommitmentsLogger logger,
-            FacetMapper facetMapper)
+            FacetMapper facetMapper,
+            ApprenticeshipFilterService apprenticeshipFilterService)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
@@ -46,10 +50,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 throw new ArgumentNullException(nameof(logger));
             if (facetMapper == null)
                 throw new ArgumentNullException(nameof(facetMapper));
+            if (apprenticeshipFilterService == null)
+                throw new ArgumentNullException(nameof(apprenticeshipFilterService));
 
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
+            _apprenticeshipFilterService = apprenticeshipFilterService;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
@@ -141,9 +148,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var facets = _facetMapper.BuildFacetes(response.Data, query, Originator.Employer);
 
+            var filteredProviders = _apprenticeshipFilterService.Filter(response.Data, query, Originator.Employer);
+
             return new Apprenticeship.ApprenticeshipSearchResponse
                        {
-                           Apprenticeships = response.Data,
+                           Apprenticeships = filteredProviders,
                            Facets = facets
                        };
         }

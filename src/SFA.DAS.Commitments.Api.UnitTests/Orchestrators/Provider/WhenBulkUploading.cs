@@ -8,6 +8,7 @@ using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -23,7 +24,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _orchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), Mock.Of<FacetMapper>());
+            _orchestrator = new ProviderOrchestrator(
+                _mockMediator.Object, 
+                Mock.Of<ICommitmentsLogger>(), 
+                Mock.Of<FacetMapper>(),
+                new ApprenticeshipFilterService());
         }
 
         [Test]
