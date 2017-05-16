@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Types;
@@ -29,7 +30,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
         {
             _eventsList = new Mock<IApprenticeshipEventsList>();
             _eventsApi = new Mock<IEventsApi>();
-            _publisher = new ApprenticeshipEventsPublisher(_eventsApi.Object);
+            _publisher = new ApprenticeshipEventsPublisher(_eventsApi.Object, Mock.Of<ICommitmentsLogger>());
 
             _commitment = new Commitment
             {
