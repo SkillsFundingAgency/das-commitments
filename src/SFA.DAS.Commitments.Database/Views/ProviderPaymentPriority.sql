@@ -18,7 +18,7 @@ AS
 	WHERE 
 		a.AgreedOn IS NOT NULL
 	AND
-		a.PaymentStatus IN (1, 2) -- Active or Paused
+		a.PaymentStatus <> 0 -- Pending Approval
 	GROUP BY 
 		c.ProviderId,
 		c.EmployerAccountId
@@ -27,7 +27,8 @@ SELECT
 	COALESCE(a1.ProviderId, a2.ProviderId) AS ProviderId,
 	COALESCE(cp.PriorityOrder, a2.ProviderOrder + 100) AS ProviderOrder,
 	a2.EmployerAccountId
-FROM AllProviders a1
+FROM 
+	AllProviders a1
 INNER JOIN 
 	CustomProviderPaymentPriority cp
 ON 
