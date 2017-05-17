@@ -14,6 +14,8 @@ FROM
 			a.Id AS ApprenticeshipId,
 			ROW_NUMBER() OVER (ORDER BY op.ProviderOrder, CAST(a.AgreedOn AS DATE), a.ULN) AS [NewPaymentOrder]
 		FROM (
+
+			-- TODO: LWA - Need to join on View to get provider priority order for only active ones
 			SELECT TOP 1000000
 				ROW_NUMBER() OVER (ORDER BY MIN(a.AgreedOn)) AS [ProviderOrder],
 				c.ProviderId, 
