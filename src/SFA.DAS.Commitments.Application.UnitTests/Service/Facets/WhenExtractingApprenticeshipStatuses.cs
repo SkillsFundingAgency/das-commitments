@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 
 using FluentAssertions;
+
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Services;
 
-namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
+namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 {
     [TestFixture]
     public class WhenExtractingApprenticeshipStatuses
@@ -149,7 +150,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
             AssertStatus(result, ApprenticeshipStatus.Finished, 1);
         }
 
-        private void AssertStatus(Types.Apprenticeship.Facets result, ApprenticeshipStatus status, int i)
+        private void AssertStatus(Api.Types.Apprenticeship.Facets result, ApprenticeshipStatus status, int i)
         {
             result.ApprenticeshipStatuses.Count(m => m.Data == status).Should().Be(i);
         }

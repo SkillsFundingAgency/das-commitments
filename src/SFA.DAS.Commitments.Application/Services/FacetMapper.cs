@@ -40,10 +40,8 @@ namespace SFA.DAS.Commitments.Application.Services
                     return ApprenticeshipStatus.Stopped;
                 case PaymentStatus.Completed:
                     return ApprenticeshipStatus.Finished;
-                case PaymentStatus.Deleted:
-                    return ApprenticeshipStatus.Live;
                 default:
-                    return ApprenticeshipStatus.WaitingToStart;
+                    return ApprenticeshipStatus.None;
             }
         }
 

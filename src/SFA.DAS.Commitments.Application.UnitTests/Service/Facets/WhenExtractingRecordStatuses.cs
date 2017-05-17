@@ -11,7 +11,7 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Services;
 
-namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
+namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 {
     [TestFixture]
     public class WhenExtractingRecordStatuses
@@ -138,7 +138,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mapping.Facets
             AssertStatuses(result, RecordStatus.ChangeRequested, 1);
         }
 
-        private void AssertStatuses(Types.Apprenticeship.Facets result, RecordStatus status, int i)
+        private void AssertStatuses(Api.Types.Apprenticeship.Facets result, RecordStatus status, int i)
         {
             result.RecordStatuses.Count(m => m.Data == status).Should().Be(i);
         }

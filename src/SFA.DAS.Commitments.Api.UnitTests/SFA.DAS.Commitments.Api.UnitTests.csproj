@@ -71,8 +71,8 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.53.0.30372, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.53.0.30372\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.55.0.30582, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.55.0.30582\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -105,10 +105,6 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
-    <Compile Include="Orchestrators\Mapping\Facets\WhenExtractingProviders.cs" />
-    <Compile Include="Orchestrators\Mapping\Facets\WhenExtractingRecordStatuses.cs" />
-    <Compile Include="Orchestrators\Mapping\Facets\WhenExtractingApprenticeshipStatuses.cs" />
-    <Compile Include="Orchestrators\Mapping\Facets\WhenExtractingTrainingCourse.cs" />
     <Compile Include="Orchestrators\Provider\WhenBulkUploading.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
