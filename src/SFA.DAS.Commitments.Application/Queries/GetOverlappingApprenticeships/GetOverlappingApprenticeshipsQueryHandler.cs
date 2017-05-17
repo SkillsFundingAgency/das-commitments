@@ -31,14 +31,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 
         public async Task<GetOverlappingApprenticeshipsResponse> Handle(GetOverlappingApprenticeshipsRequest query)
         {
-            var sw = Stopwatch.StartNew();
             var validationResult = _validator.Validate(query);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
             }
-
-            _logger.Trace($"Validating overlapping apprenticeships command took {sw.ElapsedMilliseconds}");
 
             var result = new GetOverlappingApprenticeshipsResponse
             {
@@ -50,13 +47,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
             if (!ulns.Any())
                 return result;
 
-            sw = Stopwatch.StartNew();
-
             var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(ulns);
-            _logger.Trace($"Getting active apprenticeships from database took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
-
             foreach (var apprenticeship in apprenticeships)
             {
                 foreach (var request in query.OverlappingApprenticeshipRequests.Where(x => x.Uln == apprenticeship.Uln))
@@ -71,8 +62,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
                     }
                 }
             }
-
-            _logger.Trace($"Determining overlaps took {sw.ElapsedMilliseconds}");
 
             return result;
         }

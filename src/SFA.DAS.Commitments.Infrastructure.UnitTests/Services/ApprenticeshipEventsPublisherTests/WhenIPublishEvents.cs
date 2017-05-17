@@ -110,6 +110,14 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             VerifyEventWasAdded(_event, effectiveTo: effectiveTo);
         }
 
+        [Test]
+        public async Task ThenTheEventListIsCleared()
+        {
+            await _publisher.Publish(_eventsList.Object);
+
+            _eventsList.Verify(x => x.Clear(), Times.Once);
+        }
+
         private void VerifyEventWasAdded(string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
             _eventsApi.Verify(x => x.BulkCreateApprenticeshipEvent(It.Is<IList<ApprenticeshipEvent>>(y => EventMatchesParameters(y, effectiveFrom, effectiveTo))));

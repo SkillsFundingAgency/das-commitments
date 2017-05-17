@@ -25,8 +25,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         public async Task Publish(IApprenticeshipEventsList events)
         {
             var apiEvents = events.Events.Select(x => CreateEvent(x.Commitment, x.Apprenticeship, x.Event, x.EffectiveFrom, x.EffectiveTo));
-            _logger.Trace($"ApprenticeshipEventsPublisher: Publishing {apiEvents.Count()} events");
             await _eventsApi.BulkCreateApprenticeshipEvent(apiEvents.ToList());
+            events.Clear();
         }
 
         private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo)

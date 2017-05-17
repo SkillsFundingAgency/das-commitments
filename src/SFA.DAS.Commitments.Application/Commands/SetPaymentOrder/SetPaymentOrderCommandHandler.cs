@@ -74,7 +74,6 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
                 var commitment = commitments[changedApprenticeship.CommitmentId];
                 _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
             }
-            _logger.Trace($"Adding {changedApprenticeships.Count} events took {sw.ElapsedMilliseconds}");
             
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
