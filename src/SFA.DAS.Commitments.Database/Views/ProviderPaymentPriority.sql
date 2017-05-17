@@ -23,44 +23,16 @@ AS
 		c.ProviderId,
 		c.EmployerAccountId
 )
-SELECT -- All Providers that are in the custom priority list and currently have "active" commitments
-	ppp.ProviderId, 
-	ppp.[PriorityOrder], 
-	ppp.EmployerAccountId 
-	FROM  
-		(
-			SELECT 
-				ProviderId, 
-				EmployerAccountid
-			FROM AllProviders a
-			INTERSECT
-			SELECT 
-				ProviderId, 
-				EmployerAccountid 
-			FROM CustomProviderPaymentPriority
-		) m
+SELECT 
+	COALESCE(a1.ProviderId, a2.ProviderId) AS ProviderId,
+	COALESCE(cp.PriorityOrder, a2.ProviderOrder + 100) AS ProviderOrder,
+	a2.EmployerAccountId
+FROM AllProviders a1
 INNER JOIN 
-	CustomProviderPaymentPriority ppp 
+	CustomProviderPaymentPriority cp
 ON 
-	ppp.Providerid = m.ProviderId
-UNION
-SELECT -- All providers that have "active" commitments but aren't in the custom priority list
-	ap.ProviderId, 
-	ap.ProviderOrder + 100, 
-	ap.employeraccountid 
-	FROM
-		(
-			SELECT 
-				ProviderId, 
-				EmployerAccountid
-			FROM AllProviders
-			EXCEPT
-			SELECT 
-				ProviderId,
-				EmployerAccountid
-			FROM CustomProviderPaymentPriority
-		) e
-INNER JOIN 
-	AllProviders ap 
+	a1.providerid = cp.providerid AND a1.employeraccountid = cp.employeraccountid
+RIGHT JOIN 
+	AllProviders a2 
 ON 
-	e.ProviderId = ap.ProviderId
+	a1.providerid = a2.providerid AND a1.employeraccountid = a2.employeraccountid
