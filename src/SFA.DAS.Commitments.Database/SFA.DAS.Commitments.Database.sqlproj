@@ -94,6 +94,8 @@
     <Build Include="Tables\History.sql" />
     <Build Include="StoredProcedures\InsertHistory.sql" />
     <Build Include="Views\CommitmentSummaryWithMessages.sql" />
+    <Build Include="Tables\CustomProviderPaymentPriority.sql" />
+    <Build Include="Views\ProviderPaymentPriority.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
