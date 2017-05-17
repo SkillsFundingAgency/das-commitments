@@ -30,6 +30,11 @@ namespace SFA.DAS.Commitments.Application.Services
 
             if (apprenticeshipQuery.RecordStatuses?.Any() ?? false)
             {
+                if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.NoActionNeeded))
+                {
+                    result = result.Where(m => m.DataLockTriageStatus == null && m.PendingUpdateOriginator == null);
+                }
+
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangeRequested))
                 {
                     result = result.Where(m => m.DataLockTriageStatus == TriageStatus.Restart);
@@ -43,6 +48,16 @@ namespace SFA.DAS.Commitments.Application.Services
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesForReview))
                 {
                     result = result.Where(m => m.PendingUpdateOriginator != null && m.PendingUpdateOriginator != caller);
+                }
+
+                if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrDataMismatch))
+                {
+                    result = result.Where(m => m.DataLockTriageStatus == TriageStatus.Unknown);
+                }
+
+                if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrChangesPending))
+                {
+                    result = result.Where(m => m.DataLockTriageStatus == TriageStatus.FixIlr);
                 }
             }
 

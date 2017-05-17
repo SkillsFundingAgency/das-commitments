@@ -124,15 +124,27 @@ namespace SFA.DAS.Commitments.Application.Services
                                     : RecordStatus.ChangesForReview
                         });
 
-            var resultDataLock = apprenticeships
-                .Where(m => m.DataLockTriageStatus == TriageStatus.Restart)
-                .Select(m => new FacetItem<RecordStatus>
-                                {
-                                    Data = RecordStatus.ChangeRequested
-                                     
-                                });
+            var dataLockStatuses = apprenticeships
+                .DistinctBy(m => m.DataLockTriageStatus)
+                .Select(
+                    m =>
+                        {
+                            switch (m.DataLockTriageStatus)
+                            {
+                                case TriageStatus.Unknown:
+                                    return new FacetItem<RecordStatus> { Data = RecordStatus.IlrDataMismatch};
+                                case TriageStatus.Change:
+                                case TriageStatus.Restart:
+                                    return new FacetItem<RecordStatus> { Data = RecordStatus.ChangeRequested };
+                                case TriageStatus.FixIlr:
+                                    return new FacetItem<RecordStatus> { Data = RecordStatus.IlrChangesPending };
+                            }
+                            return new FacetItem<RecordStatus> { Data = RecordStatus.NoActionNeeded };
+                            
+                        }
+                );
 
-            var concatResult = result.Concat(resultDataLock).DistinctBy(m => m.Data).ToList();
+            List<FacetItem<RecordStatus>> concatResult = result.Concat(dataLockStatuses).DistinctBy(m => m.Data).ToList();
 
             concatResult.ForEach(m => m.Selected = apprenticeshipQuery.RecordStatuses?.Contains(m.Data) ?? false);
 

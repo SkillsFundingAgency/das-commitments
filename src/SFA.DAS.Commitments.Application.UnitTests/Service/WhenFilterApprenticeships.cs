@@ -107,6 +107,49 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
         [TestCase(Originator.Provider)]
         [TestCase(Originator.Employer)]
+        public void ShouldFilterRecordStatusOnNothing(Originator caller)
+        {
+            var query = new ApprenticeshipSearchQuery
+            {
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.NoActionNeeded })
+            };
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.Count().Should().Be(1);
+        }
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
+        public void ShouldFilterRecordStatusOnIlrDataMismatch(Originator caller)
+        {
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockTriageStatus = TriageStatus.Unknown });
+            var query = new ApprenticeshipSearchQuery
+            {
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrDataMismatch })
+            };
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.Count().Should().Be(1);
+            result.FirstOrDefault().FirstName.Should().Be("ILR Data Mismatch");
+        }
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
+        public void ShouldFilterRecordStatusOnIlrChangesPending(Originator caller)
+        {
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Changes Pending", DataLockTriageStatus = TriageStatus.FixIlr });
+            var query = new ApprenticeshipSearchQuery
+            {
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrChangesPending })
+            };
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.Count().Should().Be(1);
+            result.FirstOrDefault().FirstName.Should().Be("ILR Changes Pending");
+        }
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
         public void ShouldFindNothingWhenFilterOn(Originator caller)
         {
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new [] { RecordStatus.ChangesPending, } ) };
