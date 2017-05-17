@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.Services
             _facetMapper = facetMapper;
         }
 
-        public IEnumerable<Apprenticeship> Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
+        public virtual IEnumerable<Apprenticeship> Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var apps = new Apprenticeship[apprenticeships.Count];
             apprenticeships.CopyTo(apps, 0);

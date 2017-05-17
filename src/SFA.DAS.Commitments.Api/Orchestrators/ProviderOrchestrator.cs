@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MediatR;
@@ -27,6 +28,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
+using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -128,9 +130,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var facets = _facetMapper.BuildFacetes(response.Data, query, Originator.Employer);
+            var approvedApprenticeships = response.Data
+                .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
-            var filteredProviders = _apprenticeshipFilterService.Filter(response.Data, query, Originator.Provider);
+            var facets = _facetMapper.BuildFacetes(approvedApprenticeships, query, Originator.Provider);
+
+            var filteredProviders = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Provider);
 
             return new ApprenticeshipSearchResponse
             {

@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Application.Services
 {
     public class FacetMapper
     {
-        public Facets BuildFacetes(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
+        public virtual Facets BuildFacetes(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var facets = new Facets
                              {
@@ -40,8 +40,10 @@ namespace SFA.DAS.Commitments.Application.Services
                     return ApprenticeshipStatus.Stopped;
                 case PaymentStatus.Completed:
                     return ApprenticeshipStatus.Finished;
+                case PaymentStatus.Deleted:
+                    return ApprenticeshipStatus.Live;
                 default:
-                    return ApprenticeshipStatus.None;
+                    return ApprenticeshipStatus.WaitingToStart;
             }
         }
 
