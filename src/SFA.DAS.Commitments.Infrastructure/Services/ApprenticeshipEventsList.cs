@@ -8,7 +8,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 {
     public class ApprenticeshipEventsList : IApprenticeshipEventsList
     {
-        private readonly ConcurrentBag<IApprenticeshipEvent> _events;
+        private ConcurrentBag<IApprenticeshipEvent> _events;
 
         public IReadOnlyList<IApprenticeshipEvent> Events => _events.ToArray();
 
@@ -20,6 +20,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         public void Add(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
             _events.Add(CreateEvent(commitment, apprenticeship, @event, effectiveFrom, effectiveTo));
+        }
+
+        public void Clear()
+        {
+            _events = new ConcurrentBag<IApprenticeshipEvent>();
         }
 
         private static IApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo)

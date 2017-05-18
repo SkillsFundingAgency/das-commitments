@@ -45,18 +45,12 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
         {
             _logger.Info($"Called SetPaymentOrderCommand for employer account {command.AccountId}", accountId: command.AccountId);
 
-            var sw = Stopwatch.StartNew();
             var existingApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
-            _logger.Trace($"Getting existing apprenticeships took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
+            
             await _commitmentRepository.SetPaymentOrder(command.AccountId);
-            _logger.Trace($"Updating payment order took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
+            
             var updatedApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
-            _logger.Trace($"Getting updated apprenticeships took {sw.ElapsedMilliseconds}");
-
+            
             await PublishEventsForApprenticeshipsWithNewPaymentOrder(command.AccountId, existingApprenticeships, updatedApprenticeships);
         }
 
@@ -66,8 +60,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             var changedApprenticeships = updatedApprenticeships.Except(existingApprenticeships, new ComparerPaymentOrder()).ToList();
 
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
-            _logger.Trace($"Determining changed apprenticeships took {sw.ElapsedMilliseconds}");
-
+            
             await PublishEventsForChangesApprenticeships(changedApprenticeships);
         }
 
@@ -81,11 +74,8 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
                 var commitment = commitments[changedApprenticeship.CommitmentId];
                 _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
             }
-            _logger.Trace($"Adding events took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
+            
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-            _logger.Trace($"Publishing events took {sw.ElapsedMilliseconds}");
         }
 
         private async Task<Dictionary<long, Commitment>> GetCommitmentsForApprenticeships(List<Apprenticeship> changedApprenticeships)

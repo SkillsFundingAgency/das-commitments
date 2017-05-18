@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                            IlrEffectiveFromDate = dataLockEvent.IlrPriceEffectiveDate,
                            IlrTotalCost = dataLockEvent.IlrTrainingPrice + dataLockEvent.IlrEndpointAssessorPrice,
                            ErrorCode = DetermineErrorCode(dataLockEvent.Errors),
-                           Status = dataLockEvent.Errors.Any() ? Status.Fail : Status.Pass
+                           Status = dataLockEvent.Errors?.Any() ?? false ? Status.Fail : Status.Pass
                        };
         }
 
@@ -55,6 +55,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             if (!typeof(T).IsEnum)
                 throw new NotSupportedException(typeof(T).Name + " is not an Enum");
             T flags;
+            if(enumFlagsAsList == null)
+                return default(T);
+
             enumFlagsAsList.RemoveAll(c => !Enum.TryParse(c, true, out flags));
             var commaSeparatedFlags = string.Join(",", enumFlagsAsList);
             Enum.TryParse(commaSeparatedFlags, true, out flags);

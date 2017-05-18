@@ -46,6 +46,6 @@ SELECT
 		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
 		ON au.ApprenticeshipId = a.Id
 	LEFT JOIN
-	    (SELECT ApprenticeshipId, TriageStatus, ErrorCode FROM DataLockStatus WHERE IsResolved = 0) AS dataLock
+	    (SELECT ApprenticeshipId, TriageStatus, ErrorCode FROM DataLockStatus WHERE Status = 2 AND IsResolved = 0) AS dataLock
 		ON 
 			dataLock.ApprenticeshipId = a.Id
