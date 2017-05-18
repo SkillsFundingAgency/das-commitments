@@ -135,22 +135,44 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
         [TestCase(Originator.Provider)]
         [TestCase(Originator.Employer)]
-        public void ShouldFilterRecordStatusOnIlrChangesPending(Originator caller)
+        public void ShouldFilterRecordStatusOnIlrChangesPendingAndMisMatch(Originator caller)
         {
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockTriageStatus = TriageStatus.Unknown });
             _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Changes Pending", DataLockTriageStatus = TriageStatus.FixIlr });
+
             var query = new ApprenticeshipSearchQuery
             {
-                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrChangesPending })
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrChangesPending, RecordStatus.IlrDataMismatch,  })
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().FirstName.Should().Be("ILR Changes Pending");
+            result.Count().Should().Be(2);
+            result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
+            result.Count(m => m.FirstName == "ILR Changes Pending").Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
         [TestCase(Originator.Employer)]
-        public void ShouldFindNothingWhenFilterOn(Originator caller)
+        public void ShouldFilterOnlyOneInstanceOfApprenticeship(Originator caller)
+        {
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockTriageStatus = TriageStatus.Unknown, PendingUpdateOriginator = caller});
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Changes Pending", DataLockTriageStatus = TriageStatus.FixIlr });
+
+            var query = new ApprenticeshipSearchQuery
+            {
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrChangesPending, RecordStatus.IlrDataMismatch, })
+            };
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.Count().Should().Be(2);
+            result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
+            result.Count(m => m.FirstName == "ILR Changes Pending").Should().Be(1);
+        }
+
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
+        public void ShouldFindNothingWhenFilterOnChangesPending(Originator caller)
         {
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new [] { RecordStatus.ChangesPending, } ) };
             var result = _sut.Filter(_apprenticeships, query, caller);

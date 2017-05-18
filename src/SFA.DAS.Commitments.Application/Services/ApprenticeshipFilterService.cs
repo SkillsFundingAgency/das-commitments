@@ -30,35 +30,37 @@ namespace SFA.DAS.Commitments.Application.Services
 
             if (apprenticeshipQuery.RecordStatuses?.Any() ?? false)
             {
+                var records = new List<Apprenticeship>();
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.NoActionNeeded))
                 {
-                    result = result.Where(m => m.DataLockTriageStatus == null && m.PendingUpdateOriginator == null);
+                    records.AddRange(result.Where(m => m.DataLockTriageStatus == null && m.PendingUpdateOriginator == null));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangeRequested))
                 {
-                    result = result.Where(m => m.DataLockTriageStatus == TriageStatus.Restart);
+                    records.AddRange(result.Where(m => m.DataLockTriageStatus == TriageStatus.Restart));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesPending))
                 {
-                    result = result.Where(m => m.PendingUpdateOriginator == caller);
+                    records.AddRange(result.Where(m => m.PendingUpdateOriginator == caller));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesForReview))
                 {
-                    result = result.Where(m => m.PendingUpdateOriginator != null && m.PendingUpdateOriginator != caller);
+                    records.AddRange(result.Where(m => m.PendingUpdateOriginator != null && m.PendingUpdateOriginator != caller));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrDataMismatch))
                 {
-                    result = result.Where(m => m.DataLockTriageStatus == TriageStatus.Unknown);
+                    records.AddRange(result.Where(m => m.DataLockTriageStatus == TriageStatus.Unknown));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrChangesPending))
                 {
-                    result = result.Where(m => m.DataLockTriageStatus == TriageStatus.FixIlr);
+                    records.AddRange(result.Where(m => m.DataLockTriageStatus == TriageStatus.FixIlr));
                 }
+                result = records;
             }
 
             if (apprenticeshipQuery.TrainingCourses?.Any() ?? false)
