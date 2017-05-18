@@ -14,10 +14,8 @@ FROM
 			a.Id AS ApprenticeshipId,
 			ROW_NUMBER() OVER (ORDER BY op.ProviderOrder, CAST(a.AgreedOn AS DATE), a.ULN) AS [NewPaymentOrder]
 		FROM (
-
-			-- TODO: LWA - Need to join on View to get provider priority order for only active ones
 			SELECT TOP 1000000
-				ROW_NUMBER() OVER (ORDER BY MIN(a.AgreedOn)) AS [ProviderOrder],
+				ROW_NUMBER() OVER (ORDER BY MIN(ppp.ProviderOrder)) AS [ProviderOrder],
 				c.ProviderId, 
 				MIN(a.AgreedOn) AS EarliestAgreedOn
 			FROM 
@@ -26,15 +24,19 @@ FROM
 				Commitment c
 			ON 
 				c.Id = a.CommitmentId
+			INNER JOIN
+				ProviderPaymentPriority ppp
+			ON
+				ppp.ProviderId = c.ProviderId
 			WHERE 
 				c.EmployerAccountId = @employerAccountId
 			AND 
 				a.AgreedOn IS NOT NULL
+			AND
+				a.PaymentStatus IN (1, 2) -- Active or Paused
 			GROUP BY 
 				c.ProviderId
-			ORDER BY
-				MIN(a.AgreedOn)
-			) op -- EA's providers ordered by earliest agreed apprentice across all the EA's commitments
+			) op -- EA's providers ordered by their custom selection or earliest agreed apprentice across all the EA's commitments
 
 		INNER JOIN 
 			Commitment c
