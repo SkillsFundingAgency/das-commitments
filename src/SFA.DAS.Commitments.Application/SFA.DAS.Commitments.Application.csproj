@@ -132,6 +132,9 @@
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateRequest.cs" />
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateResponse.cs" />
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateValidator.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityQueryHandler.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityRequest.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityResponse.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

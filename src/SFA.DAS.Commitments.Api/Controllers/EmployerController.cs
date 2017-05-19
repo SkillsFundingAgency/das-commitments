@@ -159,5 +159,14 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{accountId}/customproviderpaymentpriority")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetCustomProviderPaymentPriority(long accountId)
+        {
+            var response = await _employerOrchestrator.GetCustomProviderPaymentPriority(accountId);
+
+            return Ok(response.Data);
+        }
     }
 }

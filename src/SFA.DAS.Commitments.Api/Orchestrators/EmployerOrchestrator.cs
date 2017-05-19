@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Web.UI;
-using MediatR;
+﻿using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -17,10 +13,13 @@ using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
+using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using System;
+using System.Threading.Tasks;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 
@@ -183,6 +182,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+        }
+
+        public async Task<GetProviderPaymentsPriorityResponse> GetCustomProviderPaymentPriority(long accountId)
+        {
+            _logger.Info($"Getting Provider Payment Priority for employer account {accountId}", accountId);
+
+            var response = await _mediator.SendAsync(new GetProviderPaymentsPriorityRequest
+            {
+                EmployerAccountId = accountId
+            });
+
+            _logger.Info($"Retrieved {response.Data.Count} Provider Payment Priorities for employer account {accountId}", accountId);
+
+            return response;
         }
 
         public async Task PatchCommitment(long accountId, long commitmentId, CommitmentSubmission submission)
