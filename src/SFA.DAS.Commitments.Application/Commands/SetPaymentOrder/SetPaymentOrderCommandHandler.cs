@@ -15,13 +15,18 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICommitmentRepository _commitmentRepository;
-
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public SetPaymentOrderCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, ICommitmentsLogger logger)
+        public SetPaymentOrderCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            IApprenticeshipRepository apprenticeshipRepository, 
+            IApprenticeshipEventsList apprenticeshipEventsList, 
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, 
+            ICommitmentsLogger logger,
+            ICurrentDateTime currentDateTime)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -33,12 +38,15 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
                 throw new ArgumentNullException(nameof(apprenticeshipEventsPublisher));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (currentDateTime == null)
+                throw new ArgumentNullException(nameof(currentDateTime));
 
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _logger = logger;
+            _currentDateTime = currentDateTime;
         }
 
         protected override async Task HandleCore(SetPaymentOrderCommand command)
@@ -72,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             foreach (var changedApprenticeship in changedApprenticeships)
             {
                 var commitment = commitments[changedApprenticeship.CommitmentId];
-                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
+                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
             }
             
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);

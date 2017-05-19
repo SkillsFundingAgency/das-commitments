@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using System;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
 {
@@ -19,6 +20,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
         private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
         private Mock<ICommitmentsLogger> _commitmentsLogger;
+        private Mock<ICurrentDateTime> _currentDateTime;
+        private readonly DateTime CurrentDateTime = new DateTime(2017, 05, 13);
 
         [SetUp]
         public void Setup()
@@ -28,7 +31,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
             _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _commitmentsLogger = new Mock<ICommitmentsLogger>();
-            _handler = new SetPaymentOrderCommandHandler(_commitmentRepository.Object, _apprenticeshipRepository.Object, _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _commitmentsLogger.Object);
+            _currentDateTime = new Mock<ICurrentDateTime>();
+            _currentDateTime.SetupGet(x => x.Now).Returns(CurrentDateTime);
+
+            _handler = new SetPaymentOrderCommandHandler(
+                _commitmentRepository.Object, 
+                _apprenticeshipRepository.Object, 
+                _apprenticeshipEventsList.Object, 
+                _apprenticeshipEventsPublisher.Object, 
+                _commitmentsLogger.Object,
+                _currentDateTime.Object);
         }
 
         [Test]
@@ -58,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
 
             await _handler.Handle(command);
 
-            _apprenticeshipEventsList.Verify(x => x.Add(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", null, null), Times.Once);
+            _apprenticeshipEventsList.Verify(x => x.Add(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", CurrentDateTime, null), Times.Once);
             _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
         }
     }
