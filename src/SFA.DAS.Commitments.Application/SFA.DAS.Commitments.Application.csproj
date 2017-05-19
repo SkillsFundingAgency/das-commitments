@@ -100,6 +100,9 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
+    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandHandler.cs" />
+    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommand.cs" />
+    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandValidator.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommand.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandHandler.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandValidator.cs" />

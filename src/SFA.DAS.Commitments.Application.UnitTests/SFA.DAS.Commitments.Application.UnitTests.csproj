@@ -126,6 +126,7 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
     <Compile Include="Commands\UpdateDataLock\WhenUpdatingDataLock.cs" />
     <Compile Include="Commands\UpdateDataLock\WhenValidatingRequest.cs" />
+    <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenValidatingCommand.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenVerifyingRelationship.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
     <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />

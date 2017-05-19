@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -167,6 +168,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var response = await _employerOrchestrator.GetCustomProviderPaymentPriority(accountId);
 
             return Ok(response.Data);
+        }
+
+        [Route("{accountId}/customproviderpaymentpriority")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PutCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
+        {
+            await _employerOrchestrator.UpdateCustomProviderPaymentPriority(accountId, submission);
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
     }
 }

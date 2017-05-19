@@ -22,6 +22,10 @@ using System;
 using System.Threading.Tasks;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Api.Types.ProviderPayment;
+using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -184,6 +188,19 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
         }
 
+        public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
+        {
+            _logger.Info($"Updating Provider Payment Priority for employer account {accountId}", accountId);
+
+            var response = await _mediator.SendAsync(new UpdateProviderPaymentsPriorityCommand
+            {
+                EmployerAccountId = accountId,
+                ProviderPriorities = CreateListOfProviders(submission.Priorities)
+            });
+
+            _logger.Info($"Updated Provider Payment Priorities with {submission.Priorities.Count} providers for employer account {accountId}", accountId);
+        }
+
         public async Task<GetProviderPaymentsPriorityResponse> GetCustomProviderPaymentPriority(long accountId)
         {
             _logger.Info($"Getting Provider Payment Priority for employer account {accountId}", accountId);
@@ -330,6 +347,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             await _mediator.SendAsync(command);
 
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
+        }
+
+        private List<long> CreateListOfProviders(IList<ProviderPaymentPriorityUpdateItem> priorities)
+        {
+            if (priorities == null)
+                new List<long>(0);
+
+            return priorities.OrderBy(x => x.PriorityOrder).Select(x => x.ProviderId).ToList();
         }
     }
 }
