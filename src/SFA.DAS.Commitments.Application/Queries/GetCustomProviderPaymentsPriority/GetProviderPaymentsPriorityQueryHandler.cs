@@ -9,9 +9,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPrior
 {
     public sealed class GetProviderPaymentsPriorityQueryHandler : IAsyncRequestHandler<GetProviderPaymentsPriorityRequest, GetProviderPaymentsPriorityResponse>
     {
-        private readonly IProviderRepository _providerRepository;
+        private readonly IProviderPaymentRepository _providerRepository;
 
-        public GetProviderPaymentsPriorityQueryHandler(IProviderRepository providerRepository)
+        public GetProviderPaymentsPriorityQueryHandler(IProviderPaymentRepository providerRepository)
         {
             if (providerRepository == null)
                 throw new ArgumentNullException(nameof(providerRepository));

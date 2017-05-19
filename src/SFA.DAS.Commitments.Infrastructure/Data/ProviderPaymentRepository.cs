@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
-    public sealed class ProviderRepository : BaseRepository, IProviderRepository
+    public sealed class ProviderPaymentRepository : BaseRepository, IProviderPaymentRepository
     {
-        public ProviderRepository(string databaseConnectionString) : base(databaseConnectionString)
+        public ProviderPaymentRepository(string databaseConnectionString) : base(databaseConnectionString)
         { }
 
         public async Task<IList<ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long employerAccountId)
@@ -18,12 +18,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             var results = await WithConnection(async c =>
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@id", employerAccountId);
+                parameters.Add("@EmployerAccountId", employerAccountId);
 
                 return await c.QueryAsync<ProviderPaymentPriorityItem>(
-                    sql: $"SELECT * FROM [dbo].[CustomProviderPaymentPriority] WHERE EmployerAccountId = @id;",
+                    sql: $"[dbo].[GetCustomProviderPaymentPriority]",
                     param: parameters,
-                    commandType: CommandType.Text);
+                    commandType: CommandType.StoredProcedure);
             });
 
             return results.ToList();
