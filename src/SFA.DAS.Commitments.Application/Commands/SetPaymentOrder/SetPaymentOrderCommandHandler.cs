@@ -80,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             foreach (var changedApprenticeship in changedApprenticeships)
             {
                 var commitment = commitments[changedApprenticeship.CommitmentId];
-                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
+                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now.Date);
             }
             
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);

@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
         private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
         private Mock<ICommitmentsLogger> _commitmentsLogger;
         private Mock<ICurrentDateTime> _currentDateTime;
-        private readonly DateTime CurrentDateTime = new DateTime(2017, 05, 13);
+        private readonly DateTime CurrentDateTime = DateTime.UtcNow;
 
         [SetUp]
         public void Setup()
@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
 
             await _handler.Handle(command);
 
-            _apprenticeshipEventsList.Verify(x => x.Add(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", CurrentDateTime, null), Times.Once);
+            _apprenticeshipEventsList.Verify(x => x.Add(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", CurrentDateTime.Date, null), Times.Once);
             _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
         }
     }
