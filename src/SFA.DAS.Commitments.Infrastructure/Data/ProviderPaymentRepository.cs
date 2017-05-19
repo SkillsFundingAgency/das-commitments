@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -27,6 +28,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
 
             return results.ToList();
+        }
+
+        public Task UpdateProviderPaymentPriority(long employerAccountid, IList<long> newPriorityList)
+        {
+            return null;
         }
     }
 }
