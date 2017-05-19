@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Domain.Data;
 using System;
 using System.Linq;
@@ -29,8 +30,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPrior
 
             return new GetProviderPaymentsPriorityResponse
             {
-                // TODO: LWA - Map to Api Types
-                Data = priorityItems.Select(x => new object()).ToList()
+                Data = priorityItems.Select(x => new ProviderPaymentPriorityItem
+                {
+                    ProviderId = x.ProviderId,
+                    ProviderName = x.ProviderName,
+                    PriorityOrder = x.PriorityOrder
+                }).ToList()
             };
         }
     }

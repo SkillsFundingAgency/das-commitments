@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderPaymentsPriorityRequest>())).ReturnsAsync(mediatorResponse);
 
-            var result = await _controller.GetCustomProviderPaymentPriority(1234L) as OkNegotiatedContentResult<IList<object>>;
+            var result = await _controller.GetCustomProviderPaymentPriority(1234L) as OkNegotiatedContentResult<IList<ProviderPaymentPriorityItem>>;
 
             result.Should().NotBeNull();
             result.Content.Should().BeSameAs(mediatorResponse.Data);
@@ -46,7 +47,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public async Task ThenTheMediatorIsCalledWithTheEmployerAccountId()
         {
             const long testAccountId = 1234L;
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderPaymentsPriorityRequest>())).ReturnsAsync(new GetProviderPaymentsPriorityResponse { Data = new List<object>() });
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderPaymentsPriorityRequest>())).ReturnsAsync(new GetProviderPaymentsPriorityResponse { Data = new List<ProviderPaymentPriorityItem>() });
 
             var result = await _controller.GetCustomProviderPaymentPriority(testAccountId);
 

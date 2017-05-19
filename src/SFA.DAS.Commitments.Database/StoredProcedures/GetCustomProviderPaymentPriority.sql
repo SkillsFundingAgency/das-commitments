@@ -17,7 +17,7 @@ AS
 SELECT  
 	ppp.ProviderId,
 	n.ProviderName, 
-	ROW_NUMBER() OVER (ORDER BY ppp.ProviderOrder) AS ProviderOrder  
+	ROW_NUMBER() OVER (ORDER BY ppp.ProviderOrder) AS PriorityOrder  
 FROM 
 	ProviderPaymentPriority ppp
 INNER JOIN
