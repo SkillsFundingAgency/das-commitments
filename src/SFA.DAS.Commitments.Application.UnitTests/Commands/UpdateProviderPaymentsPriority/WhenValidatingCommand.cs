@@ -1,8 +1,11 @@
 ﻿using FluentAssertions;
 using FluentValidation;
+using MediatR;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -30,7 +33,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
                 }
             };
 
-            _handler = new UpdateProviderPaymentsPriorityCommandHandler(new UpdateProviderPaymentsPriorityCommandValidator());
+            _handler = new UpdateProviderPaymentsPriorityCommandHandler(
+                new UpdateProviderPaymentsPriorityCommandValidator(), 
+                Mock.Of<IProviderPaymentRepository>(), 
+                Mock.Of<IMediator>());
         }
 
         [Test]
