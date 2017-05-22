@@ -2,6 +2,8 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+
+using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -120,6 +122,30 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = commitmentId }, default(Commitment));
         }
+
+        [HttpPost]
+        [Route("{providerId}/apprenticeships/bulk/file")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PostBulkUploadFile(long providerId, [FromBody] BulkUploadFile bulkUploadFile)
+        {
+            var bulkUploadFileId = await _providerOrchestrator.PostBulkUploadFile(providerId, bulkUploadFile.Content);
+
+            return CreatedAtRoute("GetBulkUploadFile", new { providerId, bulkUploadFileId }, default(string));
+        }
+
+        [HttpGet]
+        [Route("{providerId}/apprenticeships/bulk/file/{bulkUploadFileId}", Name = "GetBulkUploadFile")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetBulkUploadFile(long providerId, long bulkUploadFileId)
+        {
+            var file = await _providerOrchestrator.GettBulkUploadFile(providerId, bulkUploadFileId);
+
+            if(file == null)
+                return NotFound();
+
+            return Ok(file);
+        }
+
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
