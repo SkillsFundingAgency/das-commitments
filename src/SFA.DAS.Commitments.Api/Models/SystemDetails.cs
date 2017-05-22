@@ -7,4 +7,9 @@ namespace SFA.DAS.Commitments.Api.Models
         public static string VersionNumber { get; set; }
         public static string EnvironmentName { get; set; }
     }
+
+    public class BulkUploadFile
+    {
+        public string Content { get; set; }
+    }
 }
