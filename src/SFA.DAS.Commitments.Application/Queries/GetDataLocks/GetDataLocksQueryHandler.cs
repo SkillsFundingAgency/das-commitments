@@ -58,7 +58,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetDataLocks
                 IlrTrainingType = (TrainingType) source.IlrTrainingType,
                 PriceEpisodeIdentifier = source.PriceEpisodeIdentifier,
                 Status = (Api.Types.DataLock.Types.Status) source.Status,
-                TriageStatus = (Api.Types.DataLock.Types.TriageStatus) source.TriageStatus
+                TriageStatus = (Api.Types.DataLock.Types.TriageStatus) source.TriageStatus,
+                ApprenticeshipUpdateId = source.ApprenticeshipUpdateId,
+                IsResolved = source.IsResolved
             }).ToList();
         }
     }
