@@ -30,9 +30,30 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return results.ToList();
         }
 
-        public Task UpdateProviderPaymentPriority(long employerAccountid, IList<long> newPriorityList)
+        public async Task UpdateProviderPaymentPriority(long employerAccountId, IList<ProviderPaymentPriorityUpdateItem> newPriorityList)
         {
-            return null;
+            var providerIdTable = new DataTable();
+
+            providerIdTable.Columns.Add("Id", typeof(long));
+            providerIdTable.Columns.Add("Priority", typeof(int));
+
+            foreach(var item in newPriorityList)
+            { 
+                providerIdTable.Rows.Add(item.ProviderId, item.PriorityOrder);
+            }
+
+            await WithTransaction(async (c, t) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@EmployerAccountId", employerAccountId);
+                parameters.Add("@ProviderIds", providerIdTable);
+
+                await c.ExecuteAsync(
+                    sql: "UpdateCustomProviderPaymentPriority",
+                    transaction: t,
+                    param: new { @EmployerAccountId = employerAccountId, @ProviderIds = providerIdTable.AsTableValuedParameter("dbo.ProviderPriorityTable") },
+                    commandType: CommandType.StoredProcedure);
+            });
         }
     }
 }

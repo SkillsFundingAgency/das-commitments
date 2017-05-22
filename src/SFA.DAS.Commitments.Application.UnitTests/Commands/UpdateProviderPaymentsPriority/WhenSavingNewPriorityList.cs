@@ -5,7 +5,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using SFA.DAS.Commitments.Domain.Data;
-using System;
+using SFA.DAS.Commitments.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -24,7 +24,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             _validCommand = new UpdateProviderPaymentsPriorityCommand
             {
                 EmployerAccountId = 123L,
-                ProviderPriorities = new List<long> { 99, 22, 66 }
+                ProviderPriorities = new List<ProviderPaymentPriorityUpdateItem>
+                {
+                    new ProviderPaymentPriorityUpdateItem { PriorityOrder = 1, ProviderId = 99 },
+                    new ProviderPaymentPriorityUpdateItem { PriorityOrder = 2, ProviderId = 22 },
+                    new ProviderPaymentPriorityUpdateItem { PriorityOrder = 3, ProviderId = 66 },
+                }
             };
 
             var validator = new UpdateProviderPaymentsPriorityCommandValidator();
@@ -36,11 +41,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
         [Test]
         public async Task ShouldCallTheProviderPaymentRepository()
         {
-            _mockProviderPaymentRepository.Setup(x => x.UpdateProviderPaymentPriority(It.IsAny<long>(), It.IsAny<IList<long>>()));
-
             await _handler.Handle(_validCommand);
 
-            _mockProviderPaymentRepository.Verify(x => x.UpdateProviderPaymentPriority(It.IsAny<long>(), It.IsAny<IList<long>>()));
+            _mockProviderPaymentRepository.Verify(x => x.UpdateProviderPaymentPriority(It.IsAny<long>(), It.IsAny<IList<ProviderPaymentPriorityUpdateItem>>()));
         }
     }
 }

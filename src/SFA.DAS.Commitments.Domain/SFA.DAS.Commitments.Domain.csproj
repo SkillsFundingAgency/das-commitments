@@ -58,6 +58,7 @@
     <Compile Include="Entities\ApprenticeshipResult.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
+    <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />
     <Compile Include="Entities\ProviderPaymentPriorityItem.cs" />
     <Compile Include="Entities\DataLock\DataLockErrorCode.cs" />
     <Compile Include="Entities\DataLock\DataLockEventError.cs" />

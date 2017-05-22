@@ -349,12 +349,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
         }
 
-        private List<long> CreateListOfProviders(IList<ProviderPaymentPriorityUpdateItem> priorities)
+        private List<Domain.Entities.ProviderPaymentPriorityUpdateItem> CreateListOfProviders(IList<Types.ProviderPayment.ProviderPaymentPriorityUpdateItem> priorities)
         {
             if (priorities == null)
                 new List<long>(0);
 
-            return priorities.OrderBy(x => x.PriorityOrder).Select(x => x.ProviderId).ToList();
+            return priorities.Select(x => new Domain.Entities.ProviderPaymentPriorityUpdateItem
+            {
+                ProviderId = x.ProviderId,
+                PriorityOrder = x.PriorityOrder
+            }).ToList();
         }
     }
 }

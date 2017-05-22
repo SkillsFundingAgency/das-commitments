@@ -3,6 +3,7 @@ using FluentValidation;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
+using SFA.DAS.Commitments.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             _validCommand = new UpdateProviderPaymentsPriorityCommand
             {
                 EmployerAccountId = 123L,
-                ProviderPriorities = new List<long> { 99, 22, 66 }
+                ProviderPriorities = new List<ProviderPaymentPriorityUpdateItem>
+                {
+                    new ProviderPaymentPriorityUpdateItem { PriorityOrder = 1, ProviderId = 99 },
+                    new ProviderPaymentPriorityUpdateItem { PriorityOrder = 2, ProviderId = 22 },
+                    new ProviderPaymentPriorityUpdateItem { PriorityOrder = 3, ProviderId = 66 },
+                }
             };
 
             _handler = new UpdateProviderPaymentsPriorityCommandHandler(new UpdateProviderPaymentsPriorityCommandValidator());
@@ -40,7 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
         [Test]
         public void ProviderIdsMustAllBeNonZero()
         {
-            _validCommand.ProviderPriorities = new List<long> { 22, 33, 0, 55 };
+            _validCommand.ProviderPriorities[1].ProviderId = 0;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
 
@@ -50,7 +56,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
         [Test]
         public void ProviderIdsMustAllHaveDistinctValues()
         {
-            _validCommand.ProviderPriorities = new List<long> { 22, 33, 22, 55 };
+            _validCommand.ProviderPriorities[1].ProviderId = 123;
+            _validCommand.ProviderPriorities[2].ProviderId = 123;
+
+            Func<Task> act = async () => { await _handler.Handle(_validCommand); };
+
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void PriorityValuesMustBeUnique()
+        {
+            _validCommand.ProviderPriorities[1].PriorityOrder = 2;
+            _validCommand.ProviderPriorities[2].PriorityOrder = 2;
+
+            Func<Task> act = async () => { await _handler.Handle(_validCommand); };
+
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void PriorityValuesMustBeSequentialStartingFromOne()
+        {
+            _validCommand.ProviderPriorities[0].PriorityOrder = 1;
+            _validCommand.ProviderPriorities[1].PriorityOrder = 2;
+            _validCommand.ProviderPriorities[2].PriorityOrder = 4;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
 

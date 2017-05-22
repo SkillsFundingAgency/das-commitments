@@ -26,17 +26,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _providerPaymentRepository = providerPaymentRepository;
         }
 
-        protected override Task HandleCore(UpdateProviderPaymentsPriorityCommand message)
+        protected override async Task HandleCore(UpdateProviderPaymentsPriorityCommand message)
         {
             _validator.ValidateAndThrow(message);
 
             // Save new order to the database
+            await _providerPaymentRepository.UpdateProviderPaymentPriority(message.EmployerAccountId, message.ProviderPriorities);
 
             // Re-prioritise the apprenticeships
 
             // Send update events to Events Api
-
-            return null;
         }
     }
 }
