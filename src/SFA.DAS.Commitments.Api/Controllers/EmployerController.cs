@@ -45,6 +45,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
+        
         [Route("{accountId}/apprenticeships")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeships(long accountId)
@@ -54,6 +55,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response.Data);
         }
 
+        [Route("{accountId}/apprenticeships/search")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetApprenticeships(long accountId, [FromUri] ApprenticeshipSearchQuery query)
+        {
+            var response = await _employerOrchestrator.GetApprenticeships(accountId, query);
+
+            return Ok(response);
+        }
+        
         [Route("{accountId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeship(long accountId, long apprenticeshipId)

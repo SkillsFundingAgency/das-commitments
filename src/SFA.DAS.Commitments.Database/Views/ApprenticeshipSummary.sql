@@ -5,7 +5,7 @@ SELECT
 	a.*,
 	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
 	au.Originator AS UpdateOriginator,
-	dataLock.TriageStatus AS DataLockTriage, dataLock.ErrorCode as DataLockErrorCode,
+	dl.TriageStatus AS DataLockTriage, dl.ErrorCode as DataLockErrorCode,
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
@@ -45,7 +45,11 @@ SELECT
 	LEFT JOIN
 		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
 		ON au.ApprenticeshipId = a.Id
-	LEFT JOIN
-	    (SELECT ApprenticeshipId, TriageStatus, ErrorCode FROM DataLockStatus WHERE IsResolved = 0) AS dataLock
-		ON 
-			dataLock.ApprenticeshipId = a.Id
+	LEFT JOIN DataLockStatus dl on dl.Id =
+		(
+			SELECT TOP 1 Id from DataLockStatus
+			where ApprenticeshipId = a.Id
+			and [Status] = 2 AND [IsResolved] = 0
+			and SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2017'
+			ORDER BY CONVERT(DATETIME,SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10),103) ASC 
+		)

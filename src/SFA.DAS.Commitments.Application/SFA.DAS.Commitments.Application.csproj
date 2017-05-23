@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.57.0.30997, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.57.0.30997\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
@@ -166,6 +167,8 @@
     <Compile Include="Queries\QueryResponse{T}.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
+    <Compile Include="Services\ApprenticeshipFilterService.cs" />
+    <Compile Include="Services\FacetMapper.cs" />
     <Compile Include="Services\HistoryService.cs" />
   </ItemGroup>
   <ItemGroup>

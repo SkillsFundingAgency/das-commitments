@@ -73,6 +73,7 @@
     </Reference>
     <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.57.0.30997, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.57.0.30997\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
@@ -93,6 +94,7 @@
     <Compile Include="Controllers\ApprenticeshipControllerTests\WhenUpdatingDataLock.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingACommitment.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenCreatingAnApprenticeship.cs" />
+    <Compile Include="Controllers\EmployerControllerTests\WhenGettingAllApprenticeships.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingAnApprenticeship.cs" />
@@ -104,6 +106,8 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipSearch.cs" />
+    <Compile Include="Orchestrators\Provider\WhenGettingApprenticeshipSearch.cs" />
     <Compile Include="Orchestrators\Provider\WhenBulkUploading.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

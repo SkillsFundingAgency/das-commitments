@@ -85,6 +85,7 @@
     <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Entities\UpdateOrigin.cs" />
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
+    <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />

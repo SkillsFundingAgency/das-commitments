@@ -74,6 +74,7 @@
     </Reference>
     <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.57.0.30997, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.57.0.30997\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
@@ -161,6 +162,11 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewAgreementStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineWhetherChangeRequireAgreement.cs" />
     <Compile Include="Rules\CommitmentRules\WhenDetermineAgreementStatus.cs" />
+    <Compile Include="Service\Facets\WhenExtractingApprenticeshipStatuses.cs" />
+    <Compile Include="Service\Facets\WhenExtractingProviders.cs" />
+    <Compile Include="Service\Facets\WhenExtractingRecordStatuses.cs" />
+    <Compile Include="Service\Facets\WhenExtractingTrainingCourse.cs" />
+    <Compile Include="Service\WhenFilterApprenticeships.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +189,7 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Queries\GetFilteredApprenticeship\" />
     <Folder Include="Rules\ApprenticeshipOverlapRules\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

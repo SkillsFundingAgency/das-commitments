@@ -15,13 +15,18 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICommitmentRepository _commitmentRepository;
-
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public SetPaymentOrderCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, ICommitmentsLogger logger)
+        public SetPaymentOrderCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            IApprenticeshipRepository apprenticeshipRepository, 
+            IApprenticeshipEventsList apprenticeshipEventsList, 
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, 
+            ICommitmentsLogger logger,
+            ICurrentDateTime currentDateTime)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -33,30 +38,27 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
                 throw new ArgumentNullException(nameof(apprenticeshipEventsPublisher));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (currentDateTime == null)
+                throw new ArgumentNullException(nameof(currentDateTime));
 
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _logger = logger;
+            _currentDateTime = currentDateTime;
         }
 
         protected override async Task HandleCore(SetPaymentOrderCommand command)
         {
             _logger.Info($"Called SetPaymentOrderCommand for employer account {command.AccountId}", accountId: command.AccountId);
 
-            var sw = Stopwatch.StartNew();
             var existingApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
-            _logger.Trace($"Getting existing apprenticeships took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
+            
             await _commitmentRepository.SetPaymentOrder(command.AccountId);
-            _logger.Trace($"Updating payment order took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
+            
             var updatedApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
-            _logger.Trace($"Getting updated apprenticeships took {sw.ElapsedMilliseconds}");
-
+            
             await PublishEventsForApprenticeshipsWithNewPaymentOrder(command.AccountId, existingApprenticeships, updatedApprenticeships);
         }
 
@@ -66,8 +68,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             var changedApprenticeships = updatedApprenticeships.Except(existingApprenticeships, new ComparerPaymentOrder()).ToList();
 
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
-            _logger.Trace($"Determining changed apprenticeships took {sw.ElapsedMilliseconds}");
-
+            
             await PublishEventsForChangesApprenticeships(changedApprenticeships);
         }
 
@@ -79,13 +80,10 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             foreach (var changedApprenticeship in changedApprenticeships)
             {
                 var commitment = commitments[changedApprenticeship.CommitmentId];
-                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED");
+                _apprenticeshipEventsList.Add(commitment, changedApprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now.Date);
             }
-            _logger.Trace($"Adding events took {sw.ElapsedMilliseconds}");
-
-            sw = Stopwatch.StartNew();
+            
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-            _logger.Trace($"Publishing events took {sw.ElapsedMilliseconds}");
         }
 
         private async Task<Dictionary<long, Commitment>> GetCommitmentsForApprenticeships(List<Apprenticeship> changedApprenticeships)
