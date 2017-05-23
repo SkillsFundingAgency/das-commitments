@@ -12,6 +12,7 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -30,7 +31,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _providerOrchestrator = new ProviderOrchestrator(
+                _mockMediator.Object, 
+                Mock.Of<ICommitmentsLogger>(), 
+                new FacetMapper(),
+                new ApprenticeshipFilterService(new FacetMapper()));
             _controller = new ProviderController(_providerOrchestrator);
         }
 
