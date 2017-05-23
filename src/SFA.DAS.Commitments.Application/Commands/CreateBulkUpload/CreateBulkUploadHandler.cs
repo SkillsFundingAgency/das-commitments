@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateBulkUpload
         {
             _logger.Trace($"Inserting file for provider: {message.ProviderId}");
 
-            return _repository.InsertBulkUploadFile(message.BulkUploadFile);
+            return _repository.InsertBulkUploadFile(message.BulkUploadFile, message.FileName, message.CommitmentId);
         }
     }
 }

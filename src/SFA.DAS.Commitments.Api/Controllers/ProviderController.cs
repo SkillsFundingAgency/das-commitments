@@ -120,23 +120,23 @@ namespace SFA.DAS.Commitments.Api.Controllers
             // TODO: What should we return to the caller? list of urls?
             await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, bulkRequest);
 
-            return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = commitmentId }, default(Commitment));
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         [HttpPost]
-        [Route("{providerId}/apprenticeships/bulk/file")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PostBulkUploadFile(long providerId, [FromBody] BulkUploadFile bulkUploadFile)
+        [Route("{providerId}/apprenticeships/bulkupload")]
+        //[Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> BulkUploadFile(long providerId, [FromBody] BulkUploadFile bulkUploadFile)
         {
-            var bulkUploadFileId = await _providerOrchestrator.PostBulkUploadFile(providerId, bulkUploadFile.Content);
+            var bulkUploadFileId = await _providerOrchestrator.PostBulkUploadFile(providerId, bulkUploadFile);
 
             return CreatedAtRoute("GetBulkUploadFile", new { providerId, bulkUploadFileId }, default(string));
         }
 
         [HttpGet]
-        [Route("{providerId}/apprenticeships/bulk/file/{bulkUploadFileId}", Name = "GetBulkUploadFile")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetBulkUploadFile(long providerId, long bulkUploadFileId)
+        [Route("{providerId}/apprenticeships/bulkupload/{bulkUploadFileId}", Name = "GetBulkUploadFile")]
+        //[Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> BulkUploadFile(long providerId, long bulkUploadFileId)
         {
             var file = await _providerOrchestrator.GettBulkUploadFile(providerId, bulkUploadFileId);
 

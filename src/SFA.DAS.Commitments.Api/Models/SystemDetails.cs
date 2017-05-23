@@ -10,6 +10,10 @@ namespace SFA.DAS.Commitments.Api.Models
 
     public class BulkUploadFile
     {
-        public string Content { get; set; }
+        public long CommitmentId { get; set; }
+
+        public string FileName { get; set; }
+
+        public string Data { get; set; }
     }
 }

@@ -16,19 +16,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
         }
 
-        public async Task<long> InsertBulkUploadFile(string file)
+        public async Task<long> InsertBulkUploadFile(string file, string fileName, long commitmentId)
         {
             return await WithTransaction(
                 async (connection, transaction) =>
                     {
+                        var truncatedFileName = fileName;
+                        if(fileName.Length > 50)
+                            truncatedFileName = fileName.Substring(0, 50);
                         var parameters = new DynamicParameters();
+                        parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+                        parameters.Add("@fileName", truncatedFileName, DbType.String);
                         parameters.Add("@fileContent", file, DbType.String);
                         parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
                         
                         var hej = (await connection
                             .QueryAsync<long>(
-                                sql:"INSERT INTO [dbo].[BulkUpload](FileContent,CreatedOn)"
-                                    + "VALUES (@fileContent,@createdOn)" 
+                                sql:"INSERT INTO [dbo].[BulkUpload](CommitmentId,FileName,FileContent,CreatedOn)"
+                                    + "VALUES (@commitmentId,@fileName,@fileContent,@createdOn)" 
                                     + "SELECT CAST(SCOPE_IDENTITY() as BIGINT);", 
                                 param:parameters,
                                 commandType: CommandType.Text,

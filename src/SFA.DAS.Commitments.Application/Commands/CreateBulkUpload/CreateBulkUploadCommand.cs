@@ -6,6 +6,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateBulkUpload
     {
         public long ProviderId { get; set; }
 
+        public long CommitmentId { get; set; }
+
+        public string FileName { get; set; }
+
         public string BulkUploadFile { get; set; }
     }
 }

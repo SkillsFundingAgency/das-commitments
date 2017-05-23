@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using MediatR;
 
+using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
@@ -357,11 +358,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId, apprenticeshipId: apprenticeshipId);
         }
                 
-        public async Task<long> PostBulkUploadFile(long providerId, string bulkUploadFile)
+        public async Task<long> PostBulkUploadFile(long providerId, BulkUploadFile bulkUploadFile)
         {
             _logger.Trace($"Saving bulk upload file for provider {providerId} ", providerId: providerId);
 
-            var result = await _mediator.SendAsync(new CreateBulkUploadCommand { ProviderId = providerId, BulkUploadFile = bulkUploadFile });
+            var result = await _mediator.SendAsync(
+                new CreateBulkUploadCommand
+                {
+                    ProviderId = providerId,
+                    CommitmentId = bulkUploadFile.CommitmentId,
+                    FileName = bulkUploadFile.FileName,
+                    BulkUploadFile = bulkUploadFile.Data
+                });
 
             return result;
         }
