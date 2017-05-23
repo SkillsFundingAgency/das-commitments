@@ -123,6 +123,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
                 cfg.For<IApprenticeshipEventsList>().Use(new TestApprenticeshipEventsList());
                 cfg.For<IApprenticeshipEventsPublisher>().Use(_mockApprenticeshipEventsPublisher.Object);
                 cfg.For<ICommitmentsLogger>().Use(_mockLogger.Object);
+                cfg.For<ICurrentDateTime>().Use(Mock.Of<ICurrentDateTime>());
             });
         }
 
@@ -138,6 +139,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
         private class TestApprenticeshipEventsList : IApprenticeshipEventsList
         {
             private IList<IApprenticeshipEvent> _events = new List<IApprenticeshipEvent>();
+
+            public void Clear()
+            {
+                throw new NotImplementedException();
+            }
 
             public IReadOnlyList<IApprenticeshipEvent> Events => _events.ToArray();
 
