@@ -46,8 +46,8 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.56.0.30683, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.56.0.30683\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.57.0.30997, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.57.0.30997\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Events.Api.Types, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
@@ -101,6 +101,9 @@
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandHandler.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\UpdateCommitmentAgreementCommandValidator.cs" />
+    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandHandler.cs" />
+    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommand.cs" />
+    <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandValidator.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommand.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandHandler.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandValidator.cs" />
@@ -110,6 +113,7 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityValidator.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />
@@ -132,6 +136,9 @@
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateRequest.cs" />
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateResponse.cs" />
     <Compile Include="Queries\GetPendingApprenticeshipUpdate\GetPendingApprenticeshipUpdateValidator.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityQueryHandler.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityRequest.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityResponse.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

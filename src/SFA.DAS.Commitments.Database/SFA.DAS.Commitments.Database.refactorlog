@@ -91,4 +91,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="CreatedDateTime" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="e63c2e6a-1c6e-4712-b6e5-9ee7de4a452f" ChangeDateTime="05/16/2017 13:05:26">
+    <Property Name="ElementName" Value="[dbo].[ProviderPaymentPriority].[Order]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ProviderPaymentPriority]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="PriorityOrder" />
+  </Operation>
 </Operations>
