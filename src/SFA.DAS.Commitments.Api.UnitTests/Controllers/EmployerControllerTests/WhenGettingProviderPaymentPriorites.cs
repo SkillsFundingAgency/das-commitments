@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 
+using SFA.DAS.Commitments.Application.Services;
+
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
     [TestFixture]
@@ -27,8 +29,13 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [SetUp]
         public void Setup()
         {
+            var mapper = new FacetMapper();
             _mockMediator = new Mock<IMediator>();
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _employerOrchestrator = new EmployerOrchestrator(
+                _mockMediator.Object, 
+                Mock.Of<ICommitmentsLogger>(), 
+                mapper, new ApprenticeshipFilterService(mapper));
+
             _controller = new EmployerController(_employerOrchestrator);
         }
 
