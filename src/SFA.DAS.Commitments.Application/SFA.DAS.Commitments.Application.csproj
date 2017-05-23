@@ -112,6 +112,7 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityValidator.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />

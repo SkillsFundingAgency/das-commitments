@@ -11,20 +11,22 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPrior
     public sealed class GetProviderPaymentsPriorityQueryHandler : IAsyncRequestHandler<GetProviderPaymentsPriorityRequest, GetProviderPaymentsPriorityResponse>
     {
         private readonly IProviderPaymentRepository _providerRepository;
+        private readonly AbstractValidator<GetProviderPaymentsPriorityRequest> _validator;
 
-        public GetProviderPaymentsPriorityQueryHandler(IProviderPaymentRepository providerRepository)
+        public GetProviderPaymentsPriorityQueryHandler(IProviderPaymentRepository providerRepository, AbstractValidator<GetProviderPaymentsPriorityRequest> validator)
         {
             if (providerRepository == null)
                 throw new ArgumentNullException(nameof(providerRepository));
+            if (validator == null)
+                throw new ArgumentNullException(nameof(validator));
 
             _providerRepository = providerRepository;
+            _validator = validator;
         }
 
         public async Task<GetProviderPaymentsPriorityResponse> Handle(GetProviderPaymentsPriorityRequest message)
         {
-            // TODO: LWA - Extract into validator
-            if (message == null || message.EmployerAccountId == 0)
-                throw new ValidationException("A valid EmployerAccountId must be set");
+            _validator.ValidateAndThrow(message);
 
             var priorityItems = await _providerRepository.GetCustomProviderPaymentPriority(message.EmployerAccountId);
 
