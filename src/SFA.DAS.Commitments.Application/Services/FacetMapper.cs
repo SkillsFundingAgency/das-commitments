@@ -159,7 +159,6 @@ namespace SFA.DAS.Commitments.Application.Services
                     Data = MapPaymentStatus(m.PaymentStatus, m.StartDate)
                 }
             )
-            //.Where(m => m.Data != ApprenticeshipStatus.None)
             .DistinctBy(m => m.Data)
             .ToList();
 
