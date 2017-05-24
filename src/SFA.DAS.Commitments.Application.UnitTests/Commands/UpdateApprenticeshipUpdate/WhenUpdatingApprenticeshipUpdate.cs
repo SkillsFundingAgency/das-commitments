@@ -351,13 +351,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
 
             // Old apprenticeship
+            // As change is effective on start date, no termination event should be emitted
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
                 It.Is<Apprenticeship>(m =>
                        m.StartDate == _apprenticeshipStartDate
                     && m.EndDate == _apprenticeshipStartDate.AddYears(2)
                     && m.FirstName == "Original first name"),
-                It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Once);
+                It.IsAny<string>(), null, _apprenticeshipStartDate.AddDays(-1)), Times.Never);
 
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
@@ -405,6 +406,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.IsAny<Caller>()), Times.Once);
 
             // Old apprenticeship
+            // TBC correct behaviour of this in v2
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
                 It.Is<Apprenticeship>(m =>

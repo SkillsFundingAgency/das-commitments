@@ -35,6 +35,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public int PaymentOrder { get; set; }
         public Originator? UpdateOriginator { get; set; }
         public string ProviderName { get; set; }
+        public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public TriageStatus? DataLockTriage { get; set; }
         public DataLockErrorCode DataLockErrorCode { get; set; }

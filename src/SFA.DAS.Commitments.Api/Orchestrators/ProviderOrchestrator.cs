@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MediatR;
@@ -23,9 +24,13 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+
+using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
+using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -34,15 +39,29 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
 
-        public ProviderOrchestrator(IMediator mediator, ICommitmentsLogger logger)
+        private readonly FacetMapper _facetMapper;
+
+        private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
+
+        public ProviderOrchestrator(
+            IMediator mediator, 
+            ICommitmentsLogger logger,
+            FacetMapper facetMapper,
+            ApprenticeshipFilterService apprenticeshipFilterService)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if (facetMapper == null)
+                throw new ArgumentNullException(nameof(facetMapper));
+            if (apprenticeshipFilterService == null)
+                throw new ArgumentNullException(nameof(apprenticeshipFilterService));
 
             _mediator = mediator;
             _logger = logger;
+            _facetMapper = facetMapper;
+            _apprenticeshipFilterService = apprenticeshipFilterService;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long providerId)
@@ -98,6 +117,34 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
 
             return response;
+        }
+
+        public async Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query)
+        {
+            _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}", providerId: providerId);
+
+            var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = providerId
+                }
+            });
+
+            var approvedApprenticeships = response.Data
+                .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
+
+            var facets = _facetMapper.BuildFacetes(approvedApprenticeships, query, Originator.Provider);
+
+            var filteredProviders = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Provider);
+
+            return new ApprenticeshipSearchResponse
+            {
+                Apprenticeships = filteredProviders,
+                Facets = facets,
+                TotalApprenticeships = approvedApprenticeships.Count
+            };
         }
 
         public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)
