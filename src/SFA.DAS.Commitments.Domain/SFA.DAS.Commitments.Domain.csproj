@@ -51,6 +51,7 @@
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\IBulkUploadRepository.cs" />
+    <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
@@ -58,6 +59,8 @@
     <Compile Include="Entities\ApprenticeshipResult.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
+    <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />
+    <Compile Include="Entities\ProviderPaymentPriorityItem.cs" />
     <Compile Include="Entities\DataLock\DataLockErrorCode.cs" />
     <Compile Include="Entities\DataLock\DataLockEventError.cs" />
     <Compile Include="Entities\DataLock\DataLockStatus.cs" />
@@ -83,6 +86,7 @@
     <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Entities\UpdateOrigin.cs" />
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
+    <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />

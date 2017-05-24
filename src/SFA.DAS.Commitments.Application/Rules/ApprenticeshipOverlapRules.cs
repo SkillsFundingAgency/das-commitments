@@ -20,9 +20,10 @@ namespace SFA.DAS.Commitments.Application.Rules
             }
 
             //Get the appropriate dates for the apprenticeship
-            //Additional logic to select other dates based on status can go here
             var apprenticeshipStartDate = apprenticeship.StartDate;
-            var apprenticeshipEndDate = apprenticeship.EndDate;
+            var apprenticeshipEndDate = apprenticeship.PaymentStatus == PaymentStatus.Withdrawn
+                ? apprenticeship.StopDate.Value
+                : apprenticeship.EndDate;
 
             var overlapsStart = IsApprenticeshipDateBetween(request.StartDate, apprenticeshipStartDate, apprenticeshipEndDate);
             var overlapsEnd = IsApprenticeshipDateBetween(request.EndDate, apprenticeshipStartDate, apprenticeshipEndDate);

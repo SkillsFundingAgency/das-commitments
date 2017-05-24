@@ -66,6 +66,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IHistoryRepository>().Use<HistoryRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IBulkUploadRepository>().Use<BulkUploadRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IProviderPaymentRepository>().Use<ProviderPaymentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
