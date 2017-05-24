@@ -51,12 +51,12 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             var employers =
                 apprenticeships
-                .DistinctBy(m => m.EmployerAccountId)
+                .DistinctBy(m => m.LegalEntityId)
                 .Select(m => new FacetItem<EmployerOrganisation>()
                 {
                     Data = new EmployerOrganisation()
                     {
-                        Id = m.EmployerAccountId,
+                        Id = m.LegalEntityId,
                         Name = m.LegalEntityName
                     },
                     Selected = false

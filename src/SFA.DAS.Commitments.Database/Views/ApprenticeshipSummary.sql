@@ -3,7 +3,7 @@ AS
 
 SELECT 
 	a.*,
-	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName,
+	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName, c.LegalEntityId,
 	au.Originator AS UpdateOriginator,
 	dl.TriageStatus AS DataLockTriage, dl.ErrorCode as DataLockErrorCode,
 	CASE 

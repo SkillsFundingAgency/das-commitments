@@ -279,7 +279,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                 FirstName = "Should find",
                 TrainingCode = "123-00-082",
                 EmployerAccountId = 999L,
-                LegalEntityName = "Employer 999"
+                LegalEntityName = "Employer 999",
+                LegalEntityId = "09990"
             });
 
             _apprenticeships.Add(new Apprenticeship
@@ -288,11 +289,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                 FirstName = "Should not find",
                 TrainingCode = "10",
                 EmployerAccountId = 001L,
-                LegalEntityName = "Employer 001"
+                LegalEntityName = "Employer 001",
+                LegalEntityId = "Abba-"
 
             });
 
-            var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<long> { 999 } };
+            var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<string> { "09990" } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Provider);
 
             result.Count().Should().Be(1);
@@ -321,7 +323,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
             });
 
-            var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<long> { 999 } };
+            var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<string> { "999" } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Employer);
 
             result.Count().Should().Be(_apprenticeships.Count);

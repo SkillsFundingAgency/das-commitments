@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
             if ((apprenticeshipQuery.EmployerOrganisationIds?.Any() ?? false) && caller == Originator.Provider)
             {
-                result = result.Where(m => apprenticeshipQuery.EmployerOrganisationIds.Contains(m.EmployerAccountId));
+                result = result.Where(m => apprenticeshipQuery.EmployerOrganisationIds.Contains(m.LegalEntityId));
             }
 
             if ((apprenticeshipQuery.TrainingProviderIds?.Any() ?? false) && caller == Originator.Employer)
