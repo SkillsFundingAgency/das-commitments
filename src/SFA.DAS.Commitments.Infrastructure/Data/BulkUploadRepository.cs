@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     var parameters = new DynamicParameters();
                     parameters.Add($"@id", bulkUploadId, DbType.Int64);
 
-                    var hej = (await connection
+                    var data = (await connection
                         .QueryAsync<string>(
                             sql: "SELECT FileContent FROM [dbo].[BulkUpload]"
                                 + "WHERE Id = @id;",
@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                             commandType: CommandType.Text,
                             transaction: transaction)).SingleOrDefault();
 
-                    return hej;
+                    return data;
                 });
         }
     }
