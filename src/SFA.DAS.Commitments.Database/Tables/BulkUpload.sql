@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[BulkUpload]
+(
+	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
+	[CommitmentId] BIGINT NOT NULL,
+	[FileName] VARCHAR(50) NOT NULL,
+	[FileContent] VARCHAR(MAX) NOT NULL,
+	[CreatedOn] DATETIME NULL
+)
+GO

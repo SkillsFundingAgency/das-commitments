@@ -68,6 +68,9 @@
     <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommandHandler.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateValidator.cs" />
+    <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadHandler.cs" />
+    <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadCommand.cs" />
+    <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadValidator.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
@@ -113,6 +116,9 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
+    <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
+    <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityValidator.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />

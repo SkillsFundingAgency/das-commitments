@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 
 using MediatR;
 
+using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
+using SFA.DAS.Commitments.Application.Commands.CreateBulkUpload;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
@@ -17,6 +19,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
+using SFA.DAS.Commitments.Application.Queries.GetBulkUploadFile;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
@@ -400,6 +403,31 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             await _mediator.SendAsync(command);
 
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId, apprenticeshipId: apprenticeshipId);
+        }
+                
+        public async Task<long> PostBulkUploadFile(long providerId, BulkUploadFileRequest bulkUploadFile)
+        {
+            _logger.Trace($"Saving bulk upload file for provider {providerId} ", providerId: providerId);
+
+            var result = await _mediator.SendAsync(
+                new CreateBulkUploadCommand
+                {
+                    ProviderId = providerId,
+                    CommitmentId = bulkUploadFile.CommitmentId,
+                    FileName = bulkUploadFile.FileName,
+                    BulkUploadFile = bulkUploadFile.Data
+                });
+
+            return result;
+        }
+
+        public async Task<string> GettBulkUploadFile(long providerId, long bulkUploadFileId)
+        {
+            _logger.Trace($"Saving bulk upload file for provider {providerId}, FileId {bulkUploadFileId} ", providerId: providerId);
+
+            var result = await _mediator.SendAsync(new GetBulkUploadFileQuery { ProviderId = providerId, BulkUploadFileId = bulkUploadFileId });
+
+            return result.Data;
         }
     }
 }

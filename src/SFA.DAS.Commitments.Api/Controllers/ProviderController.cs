@@ -2,6 +2,8 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+
+using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -127,7 +129,30 @@ namespace SFA.DAS.Commitments.Api.Controllers
             // TODO: What should we return to the caller? list of urls?
             await _providerOrchestrator.CreateApprenticeships(providerId, commitmentId, bulkRequest);
 
-            return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = commitmentId }, default(Commitment));
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [HttpPost]
+        [Route("{providerId}/bulkupload")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> BulkUploadFile(long providerId, [FromBody] BulkUploadFileRequest bulkUploadFile)
+        {
+            var bulkUploadFileId = await _providerOrchestrator.PostBulkUploadFile(providerId, bulkUploadFile);
+
+            return CreatedAtRoute("GetBulkUploadFile", new { providerId, bulkUploadFileId }, default(string));
+        }
+
+        [HttpGet]
+        [Route("{providerId}/bulkupload/{bulkUploadFileId}", Name = "GetBulkUploadFile")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> BulkUploadFile(long providerId, long bulkUploadFileId)
+        {
+            var file = await _providerOrchestrator.GettBulkUploadFile(providerId, bulkUploadFileId);
+
+            if(file == null)
+                return NotFound();
+
+            return Ok(file);
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
