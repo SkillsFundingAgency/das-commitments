@@ -139,7 +139,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var bulkUploadFileId = await _providerOrchestrator.PostBulkUploadFile(providerId, bulkUploadFile);
 
-            return CreatedAtRoute("GetBulkUploadFile", new { providerId, bulkUploadFileId }, default(string));
+            return CreatedAtRoute("GetBulkUploadFile", new { providerId, bulkUploadFileId }, bulkUploadFileId);
         }
 
         [HttpGet]
