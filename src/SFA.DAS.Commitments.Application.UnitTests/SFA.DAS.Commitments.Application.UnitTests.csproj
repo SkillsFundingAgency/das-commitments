@@ -99,6 +99,8 @@
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CreateBulkUpload\WhenCreatingBulkUpload.cs" />
+    <Compile Include="Commands\CreateBulkUpload\WhenValidatngCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
     <Compile Include="Commands\CreateRelationship\WhenCreatingRelationship.cs" />

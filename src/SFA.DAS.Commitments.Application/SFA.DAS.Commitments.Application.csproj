@@ -70,6 +70,7 @@
     <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateValidator.cs" />
     <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadHandler.cs" />
     <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadCommand.cs" />
+    <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadValidator.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />

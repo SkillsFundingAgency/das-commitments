@@ -405,7 +405,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId, apprenticeshipId: apprenticeshipId);
         }
                 
-        public async Task<long> PostBulkUploadFile(long providerId, BulkUploadFile bulkUploadFile)
+        public async Task<long> PostBulkUploadFile(long providerId, BulkUploadFileRequest bulkUploadFile)
         {
             _logger.Trace($"Saving bulk upload file for provider {providerId} ", providerId: providerId);
 

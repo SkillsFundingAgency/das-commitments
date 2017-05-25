@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         parameters.Add("@fileContent", file, DbType.String);
                         parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
                         
-                        var hej = (await connection
+                        var bulkUploadId = (await connection
                             .QueryAsync<long>(
                                 sql:"INSERT INTO [dbo].[BulkUpload](CommitmentId,FileName,FileContent,CreatedOn)"
                                     + "VALUES (@commitmentId,@fileName,@fileContent,@createdOn)" 
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                                 commandType: CommandType.Text,
                                 transaction: transaction)).Single();
 
-                        return hej;
+                        return bulkUploadId;
                     });
         }
 
