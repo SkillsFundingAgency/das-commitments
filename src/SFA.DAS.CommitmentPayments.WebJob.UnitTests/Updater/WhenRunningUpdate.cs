@@ -109,15 +109,18 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             {
                 new DataLockStatus
                 {
-                    DataLockEventId = 2
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.Dlock07
                 },
                 new DataLockStatus
                 {
-                    DataLockEventId = 3
+                    DataLockEventId = 3,
+                    ErrorCode = DataLockErrorCode.Dlock07
                 },
                 new DataLockStatus
                 {
-                    DataLockEventId = 4
+                    DataLockEventId = 4,
+                    ErrorCode = DataLockErrorCode.Dlock07
                 }
             };
 
@@ -145,7 +148,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             {
                 new DataLockStatus
                 {
-                    DataLockEventId = 2
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.Dlock07
                 }
             };
 
