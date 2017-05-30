@@ -201,5 +201,33 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             var expectedCalls = expectUpdate ? 1 : 0;
             _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>()), Times.Exactly(expectedCalls));
         }
+
+
+        [TestCase(DataLockErrorCode.Dlock01 | DataLockErrorCode.Dlock03, DataLockErrorCode.Dlock03)]
+        [TestCase(DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock10, DataLockErrorCode.Dlock07)]
+        [TestCase(DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04, DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04)]
+        public async Task ThenDataLocksWithMultipleErrorCodesAreFilteredUsingWhitelist(DataLockErrorCode errorCode,
+            DataLockErrorCode expectSavedErrorCode)
+        {
+            //Arrange
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    DataLockEventId = 2,
+                    ErrorCode = errorCode
+                }
+            };
+            _paymentEvents = new Mock<IPaymentEvents>();
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object);
+
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _dataLockRepository.Verify(x =>x.UpdateDataLockStatus(It.Is<DataLockStatus>(d =>d.ErrorCode == expectSavedErrorCode)), Times.Once);
+        }
     }
 }

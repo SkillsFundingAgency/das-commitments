@@ -71,16 +71,12 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
                 foreach (var dataLockStatus in page)
                 {
-                    var skip = _whiteList.All(w => !dataLockStatus.ErrorCode.HasFlag(w));
+                    _logger.Info($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                        $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
-                    if (skip)
-                    {
-                        _logger.Info($"Skipping datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                            $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
+                    ApplyErrorCodeWhiteList(dataLockStatus);
 
-                        lastId = dataLockStatus.DataLockEventId;
-                    }
-                    else
+                    if (dataLockStatus.ErrorCode != DataLockErrorCode.None)
                     {
                         _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
                              $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
@@ -92,12 +88,41 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         {
                             await _apprenticeshipUpdateRepository.SupercedeApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
                         }
-
+                       
                         await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
-                        lastId = dataLockStatus.DataLockEventId;
+                    }
+
+                    lastId = dataLockStatus.DataLockEventId;
+                }
+            }
+        }
+
+        private void ApplyErrorCodeWhiteList(DataLockStatus dataLockStatus)
+        {
+            var whitelisted = DataLockErrorCode.None;
+            var skipped = DataLockErrorCode.None;
+
+            foreach(DataLockErrorCode errorCode in Enum.GetValues(typeof(DataLockErrorCode)))
+            {
+                if (dataLockStatus.ErrorCode.HasFlag(errorCode))
+                {
+                    if (_whiteList.Contains(errorCode))
+                    {
+                        whitelisted = whitelisted == DataLockErrorCode.None ? errorCode : whitelisted | errorCode;
+                    }
+                    else
+                    {
+                        skipped = skipped == DataLockErrorCode.None ? errorCode : skipped | errorCode;
                     }
                 }
             }
+
+            if (skipped != DataLockErrorCode.None)
+            {
+                _logger.Info($"Skipping {skipped}");
+            }
+
+            dataLockStatus.ErrorCode = whitelisted;
         }
     }
 }
