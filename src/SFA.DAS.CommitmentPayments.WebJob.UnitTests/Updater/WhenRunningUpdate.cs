@@ -167,5 +167,39 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             var expectedCalls = expectSupercede ? Times.Once() : Times.Never();
             _apprenticeshipUpdateRepository.Verify(x => x.SupercedeApprenticeshipUpdate(It.IsAny<long>()), expectedCalls);
         }
+
+        [TestCase(DataLockErrorCode.Dlock01, false)]
+        [TestCase(DataLockErrorCode.Dlock02, false)]
+        [TestCase(DataLockErrorCode.Dlock03, true)]
+        [TestCase(DataLockErrorCode.Dlock04, true)]
+        [TestCase(DataLockErrorCode.Dlock05, true)]
+        [TestCase(DataLockErrorCode.Dlock06, true)]
+        [TestCase(DataLockErrorCode.Dlock07, true)]
+        [TestCase(DataLockErrorCode.Dlock08, false)]
+        [TestCase(DataLockErrorCode.Dlock09, false)]
+        [TestCase(DataLockErrorCode.Dlock10, false)]
+        public async Task ThenDataLocksAreSkippedIfNotOnTheWhitelist(DataLockErrorCode errorCode, bool expectUpdate)
+        {
+            //Arrange
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    DataLockEventId = 2,
+                    ErrorCode = errorCode
+                }
+            };
+            _paymentEvents = new Mock<IPaymentEvents>();
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object);
+
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            var expectedCalls = expectUpdate ? 1 : 0;
+            _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>()), Times.Exactly(expectedCalls));
+        }
     }
 }
