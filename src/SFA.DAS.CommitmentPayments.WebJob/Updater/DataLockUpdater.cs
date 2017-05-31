@@ -74,9 +74,14 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                     _logger.Info($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
                         $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
-                    ApplyErrorCodeWhiteList(dataLockStatus);
+                    var datalockSuccess = dataLockStatus.ErrorCode == DataLockErrorCode.None;
 
-                    if (dataLockStatus.ErrorCode != DataLockErrorCode.None)
+                    if (!datalockSuccess)
+                    {
+                        ApplyErrorCodeWhiteList(dataLockStatus);
+                    }
+
+                    if (datalockSuccess || dataLockStatus.ErrorCode != DataLockErrorCode.None)
                     {
                         _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
                              $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");

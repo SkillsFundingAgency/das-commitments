@@ -172,6 +172,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _apprenticeshipUpdateRepository.Verify(x => x.SupercedeApprenticeshipUpdate(It.IsAny<long>()), expectedCalls);
         }
 
+        [TestCase(DataLockErrorCode.None, true)]
         [TestCase(DataLockErrorCode.Dlock01, false)]
         [TestCase(DataLockErrorCode.Dlock02, false)]
         [TestCase(DataLockErrorCode.Dlock03, true)]
