@@ -368,6 +368,34 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<ApprenticeshipStatusSummary> GetApprenticeshipSummariesByEmployer(long employerAccountId)
+        {
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@employerAccountId", employerAccountId);
+
+                var results = await connection.QueryAsync(
+                    sql: $"[dbo].[GetApprenticeshipStatusSummaries]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                var statusSummaries = results.ToDictionary(o => (PaymentStatus)o.PaymentStatus, o => (int)o.Count);
+
+                var apprenticeshipStatusSummary = new ApprenticeshipStatusSummary
+                {
+                    PendingApprovalCount = statusSummaries.ContainsKey(PaymentStatus.PendingApproval) ? statusSummaries[PaymentStatus.PendingApproval] : 0,
+                    ActiveCount = statusSummaries.ContainsKey(PaymentStatus.Active) ? statusSummaries[PaymentStatus.Active] : 0,
+                    PausedCount = statusSummaries.ContainsKey(PaymentStatus.Paused) ? statusSummaries[PaymentStatus.Paused] : 0,
+                    WithdrawnCount = statusSummaries.ContainsKey(PaymentStatus.Withdrawn) ? statusSummaries[PaymentStatus.Withdrawn] : 0,
+                    CompletedCount = statusSummaries.ContainsKey(PaymentStatus.Completed) ? statusSummaries[PaymentStatus.Completed] : 0,
+                    DeletedCount = statusSummaries.ContainsKey(PaymentStatus.Deleted) ? statusSummaries[PaymentStatus.Deleted] : 0
+                };
+
+                return apprenticeshipStatusSummary;
+            });
+        }
+
         private static DataTable GenerateUlnDataTable(IEnumerable<string> ulns)
         {
             var result = new DataTable();
