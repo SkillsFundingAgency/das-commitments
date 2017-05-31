@@ -22,14 +22,12 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using System;
-using System.Threading.Tasks;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using System.Collections.Generic;
-using System.Linq;
+using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 
@@ -406,6 +404,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ProviderId = x.ProviderId,
                 PriorityOrder = x.PriorityOrder
             }).ToList();
+        }
+
+        public async Task<GetEmployerAccountSummaryResponse> GetAccountSummary(long accountId)
+        {
+            _logger.Trace($"Getting account summary for employer account {accountId}", accountId: accountId);
+
+            var response = await _mediator.SendAsync(new GetEmployerAccountSummaryRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                }
+            });
+
+            return response;
         }
     }
 }

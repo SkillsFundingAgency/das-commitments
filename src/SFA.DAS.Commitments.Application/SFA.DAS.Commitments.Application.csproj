@@ -131,6 +131,10 @@
     <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEvent.cs" />
     <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEventsList.cs" />
     <Compile Include="Interfaces\ApprenticeshipEvents\IApprenticeshipEventsPublisher.cs" />
+    <Compile Include="Queries\GetEmployerAccountSummary\GetEmployerAccountSummaryQueryHandler.cs" />
+    <Compile Include="Queries\GetEmployerAccountSummary\GetEmployerAccountSummaryResponse.cs" />
+    <Compile Include="Queries\GetEmployerAccountSummary\GetEmployerAccountSummaryValidator.cs" />
+    <Compile Include="Queries\GetEmployerAccountSummary\GetEmployerAccountSummaryRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsQueryHandler.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\GetOverlappingApprenticeshipsResponse.cs" />
