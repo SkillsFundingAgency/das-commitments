@@ -6,6 +6,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 {
     public class CommitmentNotificationConfiguration : IConfiguration
     {
+        public bool EnableJob { get; set; }
+
         public string DatabaseConnectionString { get; set; }
 
         public string ServiceBusConnectionString { get; set; }
@@ -13,7 +15,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
         public AccountApiConfiguration AccountApiConfiguration { get; set; }
 
         public NotificationsApiClientConfiguration NotificationApi { get; set; }
-
     }
 
     public class NotificationsApiClientConfiguration : INotificationsApiClientConfiguration
