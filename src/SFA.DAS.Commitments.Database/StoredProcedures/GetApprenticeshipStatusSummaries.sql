@@ -3,7 +3,7 @@
 AS
 
 SELECT 
-	a.PaymentStatus, COUNT(*) AS 'Count'
+	c.LegalEntityId, a.PaymentStatus, COUNT(*) AS 'Count'
 FROM 
 	Apprenticeship a
 INNER JOIN 
@@ -13,4 +13,4 @@ ON
 WHERE 
 	c.EmployerAccountId = @employerAccountId
 GROUP BY 
-	a.PaymentStatus
+	c.LegalEntityId, a.PaymentStatus

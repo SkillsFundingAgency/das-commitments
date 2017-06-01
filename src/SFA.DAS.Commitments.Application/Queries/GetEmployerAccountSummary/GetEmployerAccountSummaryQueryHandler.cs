@@ -24,11 +24,11 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var apprenticeshipSummary = await _apprenticeshipRepository.GetApprenticeshipSummariesByEmployer(message.Caller.Id);
+            var apprenticeshipSummaries = await _apprenticeshipRepository.GetApprenticeshipSummariesByEmployer(message.Caller.Id);
 
             return new GetEmployerAccountSummaryResponse
             {
-                Data = apprenticeshipSummary
+                Data = apprenticeshipSummaries
             };
         }
     }

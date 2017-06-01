@@ -368,7 +368,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<ApprenticeshipStatusSummary> GetApprenticeshipSummariesByEmployer(long employerAccountId)
+        public async Task<IEnumerable<ApprenticeshipStatusSummary>> GetApprenticeshipSummariesByEmployer(long employerAccountId)
         {
             return await WithConnection(async connection =>
             {
@@ -380,20 +380,53 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     commandType: CommandType.StoredProcedure);
 
-                var statusSummaries = results.ToDictionary(o => (PaymentStatus)o.PaymentStatus, o => (int)o.Count);
-
-                var apprenticeshipStatusSummary = new ApprenticeshipStatusSummary
-                {
-                    PendingApprovalCount = statusSummaries.ContainsKey(PaymentStatus.PendingApproval) ? statusSummaries[PaymentStatus.PendingApproval] : 0,
-                    ActiveCount = statusSummaries.ContainsKey(PaymentStatus.Active) ? statusSummaries[PaymentStatus.Active] : 0,
-                    PausedCount = statusSummaries.ContainsKey(PaymentStatus.Paused) ? statusSummaries[PaymentStatus.Paused] : 0,
-                    WithdrawnCount = statusSummaries.ContainsKey(PaymentStatus.Withdrawn) ? statusSummaries[PaymentStatus.Withdrawn] : 0,
-                    CompletedCount = statusSummaries.ContainsKey(PaymentStatus.Completed) ? statusSummaries[PaymentStatus.Completed] : 0,
-                    DeletedCount = statusSummaries.ContainsKey(PaymentStatus.Deleted) ? statusSummaries[PaymentStatus.Deleted] : 0
-                };
-
-                return apprenticeshipStatusSummary;
+                return  MapToApprenticeshipStatusSummaries(results);
             });
+        }
+
+        private static IEnumerable<ApprenticeshipStatusSummary> MapToApprenticeshipStatusSummaries(IEnumerable<dynamic> results)
+        {
+            var apprenticeshipsStatusSummaries = new Dictionary<string, ApprenticeshipStatusSummary>();
+
+            foreach (var result in results.ToList())
+            {
+                var legalEntityId = (string) result.LegalEntityId;
+                var paymentStatus = (PaymentStatus) result.PaymentStatus;
+                var count = (int) result.Count;
+
+                if (!apprenticeshipsStatusSummaries.ContainsKey(legalEntityId))
+                {
+                    apprenticeshipsStatusSummaries.Add(legalEntityId, new ApprenticeshipStatusSummary {LegalEntityIdentifier = legalEntityId});
+                }
+
+                var apprenticeshipStatusSummary = apprenticeshipsStatusSummaries[legalEntityId];
+
+                switch (paymentStatus)
+                {
+                    case PaymentStatus.PendingApproval:
+                        apprenticeshipStatusSummary.PendingApprovalCount = count;
+                        break;
+                    case PaymentStatus.Active:
+                        apprenticeshipStatusSummary.ActiveCount = count;
+                        break;
+                    case PaymentStatus.Paused:
+                        apprenticeshipStatusSummary.PausedCount = count;
+                        break;
+                    case PaymentStatus.Withdrawn:
+                        apprenticeshipStatusSummary.WithdrawnCount = count;
+                        break;
+                    case PaymentStatus.Completed:
+                        apprenticeshipStatusSummary.CompletedCount = count;
+                        break;
+                    case PaymentStatus.Deleted:
+                        apprenticeshipStatusSummary.DeletedCount = count;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"Unexpected payment status '{paymentStatus}' found when creating apprenticeship summary statuses");
+                }
+            }
+
+            return apprenticeshipsStatusSummaries.Values;
         }
 
         private static DataTable GenerateUlnDataTable(IEnumerable<string> ulns)
