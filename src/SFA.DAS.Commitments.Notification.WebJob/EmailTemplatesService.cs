@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NLog.Logger;
@@ -21,21 +22,28 @@ namespace SFA.DAS.Commitments.Notification.WebJob
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
+
+        private readonly IHashingService _hashingService;
+
         private readonly ILog _logger;
 
         public EmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
+            IHashingService hashingService,
             ILog logger)
         {
             if(apprenticeshipRepository == null)
                 throw new ArgumentNullException($"{nameof(apprenticeshipRepository)} is null");
             if (accountApi == null)
                 throw new ArgumentNullException($"{nameof(accountApi)} is null");
+            if (hashingService == null)
+                throw new ArgumentNullException($"{nameof(hashingService)} is null");
             if (logger == null)
                 throw new ArgumentNullException($"{nameof(logger)} is null");
             _apprenticeshipRepository = apprenticeshipRepository;
             _accountApi = accountApi;
+            _hashingService = hashingService;
             _logger = logger;
         }
 
@@ -49,26 +57,33 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                  alertSummaries
                 .Select(m => m.EmployerAccountId)
                 .Distinct()
-                .Select(async m =>
-                    new UserModel
-                    {
-                        AccountId = m,
-                        Users = (await _accountApi.GetAccountUsers(m.ToString()))
-                            .Where(u => u.Role != "")
-                    })
+                .Select(ToUserModel)
                 .ToList();
 
             var userPerAccount = await Task.WhenAll(userPerAccountTask);
             return 
                 userPerAccount.SelectMany(m =>
                     m.Users.SelectMany(userModel =>
-                        MapToEmail(userModel, alertSummaries.Where(sum => sum.EmployerAccountId == m.AccountId))
+                        MapToEmail(userModel, alertSummaries.Where(sum => sum.EmployerAccountId == m.AccountId), m.AccountId)
                     )
                 );
         }
 
-        private IEnumerable<Email> MapToEmail(TeamMemberViewModel userModel, IEnumerable<AlertSummary> alertSummary)
+        private async Task<UserModel> ToUserModel(long accountId)
         {
+            // Add catch /->. retry
+            var users = await _accountApi.GetAccountUsers(accountId.ToString());
+            
+            return new UserModel
+                       {
+                           AccountId = accountId,
+                           Users = users
+                       };
+        }
+
+        private IEnumerable<Email> MapToEmail(TeamMemberViewModel userModel, IEnumerable<AlertSummary> alertSummary, long accountId)
+        {
+            var hashedAccountId = _hashingService.HashValue(accountId);
             return alertSummary.Select(item => new Email
             {
                 RecipientsAddress = userModel.Email,
@@ -85,11 +100,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                             : $"are {item.TotalCount} apprentices" },
                                        { "legal_entity_name", item.LegalEntityName },
                                        { "changes_for_review", item.ChangeOfCircCount > 0 
-                                            ? $"{item.ChangeOfCircCount} with changes for review" 
+                                            ? $"* {item.ChangeOfCircCount} with changes for review" 
                                             : string.Empty },
                                        { "requested_changes", item.RestartRequestCount > 0 
-                                            ? $"{item.RestartRequestCount} with requested changes" 
+                                            ? $"* {item.RestartRequestCount} with requested changes" 
                                             : string.Empty },
+                                       { "link_to_mange_apprenticeships", $"https://manage-apprenticeships.service.gov.uk/accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" }
                                    }
                 });
         }
