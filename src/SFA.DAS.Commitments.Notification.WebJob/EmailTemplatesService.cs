@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -25,12 +26,15 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         private readonly IHashingService _hashingService;
 
+        private readonly RetryService _retryService;
+
         private readonly ILog _logger;
 
         public EmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
             IHashingService hashingService,
+            RetryService retryService,
             ILog logger)
         {
             if(apprenticeshipRepository == null)
@@ -39,11 +43,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 throw new ArgumentNullException($"{nameof(accountApi)} is null");
             if (hashingService == null)
                 throw new ArgumentNullException($"{nameof(hashingService)} is null");
+            if (retryService == null)
+                throw new ArgumentNullException($"{nameof(retryService)} is null");
             if (logger == null)
                 throw new ArgumentNullException($"{nameof(logger)} is null");
             _apprenticeshipRepository = apprenticeshipRepository;
             _accountApi = accountApi;
             _hashingService = hashingService;
+            _retryService = retryService;
             _logger = logger;
         }
 
@@ -60,7 +67,10 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 .Select(ToUserModel)
                 .ToList();
 
-            var userPerAccount = await Task.WhenAll(userPerAccountTask);
+            var userPerAccount = 
+                (await Task.WhenAll(userPerAccountTask))
+                .Where(u => u.Users != null);
+
             return 
                 userPerAccount.SelectMany(m =>
                     m.Users.SelectMany(userModel =>
@@ -71,9 +81,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         private async Task<UserModel> ToUserModel(long accountId)
         {
-            // Add catch /->. retry
-            var users = await _accountApi.GetAccountUsers(accountId.ToString());
-            
+            var users = await _retryService.Retry(3, () => _accountApi.GetAccountUsers(accountId.ToString()));
+
+            if (!users.Any())
+                _logger.Warn($"No users found for account: {accountId}");
+
             return new UserModel
                        {
                            AccountId = accountId,
