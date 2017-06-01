@@ -8,7 +8,6 @@ using Dapper;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 
@@ -222,15 +221,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetApprenticeshipsByIdentifier("ProviderId", providerId);
         }
 
-        public Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary()
+        public async Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary()
         {
-            return WithConnection(async connection =>
+            return await WithConnection(async connection =>
             {
                 var results = await connection.QueryAsync<AlertSummary>(
                     sql: $"[dbo].[GetAlertsSummary]",
                     commandType: CommandType.StoredProcedure);
 
-                return results as IList<AlertSummary>;
+                return results.ToList();
             });
         }
 

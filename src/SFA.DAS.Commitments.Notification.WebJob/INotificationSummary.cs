@@ -2,55 +2,40 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.NLog.Logger;
+using SFA.DAS.Notifications.Api.Client;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
-    internal interface INotificationSummary
+    public class NotificationJob : INotificationJob
     {
-        Task GenerateSummary();
-    }
+        private readonly IEmailTemplatesService _emailTemplatesService;
 
-    internal class NotificationSummary : INotificationSummary
-    {
-        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly INotificationsApi _notificationsApi;
 
-        public NotificationSummary(IApprenticeshipRepository apprenticeshipRepository)
+        private readonly ILog _logger;
+
+        public NotificationJob(
+            IEmailTemplatesService emailTemplatesService,
+            INotificationsApi notificationsApi,
+            ILog logger
+            )
         {
-            _apprenticeshipRepository = apprenticeshipRepository;
+            _emailTemplatesService = emailTemplatesService;
+            _notificationsApi = notificationsApi;
+            _logger = logger;
         }
 
-        public async Task GenerateSummary()
+        public async Task Run()
         {
-            var alertsummaries = await _apprenticeshipRepository.GetEmployerApprenticeshipAlertSummary();
+            var emails = await _emailTemplatesService.GetEmails();
 
-            var employerIds = alertsummaries
-                .Select(m => m.EmployerAccountId)
-                .Distinct();
-
-            foreach (var employerId in employerIds)
+            _logger.Trace($"Will start sending {emails.Count()} emails");
+            foreach (var email in emails)
             {
-                // GetEmailUsers
-                var apprenticeships = _apprenticeshipRepository.GetApprenticeshipsByEmployer(employerId);
-                var summaryModel = Map(apprenticeships);
+                await _notificationsApi.SendEmail(email);
             }
         }
-
-        private SummayModel Map(Task<IList<Apprenticeship>> apprenticeships)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-
-    internal class SummayModel
-    {
-        public long AccountId { get; set; }
-
-        public int TotalCount { get; set; }
-
-        public int ChangesForReviewCount { get; set; }
-
-        public int RequestedChangesCount { get; set; }
     }
 }

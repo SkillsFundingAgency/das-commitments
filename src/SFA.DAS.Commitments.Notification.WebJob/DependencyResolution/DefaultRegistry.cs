@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Reflection;
 
+using Microsoft.Azure;
 using Microsoft.WindowsAzure;
 
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.Notifications.Api.Client.Configuration;
 
 using StructureMap;
 
@@ -23,15 +28,19 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 });
 
-            var config = GetConfiguration("SFA.DAS.CommitmentPayments");
+            var config = GetConfiguration("SFA.DAS.CommitmentNotification");
 
-            //For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
-            //    .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
+            //For<IAccountApiClient>().Use<AccountApiClient>()
+            //    .Ctor<IAccountApiConfiguration>().Is(config.AccountApiConfiguration);
+            For<IAccountApiClient>().Use<FakeAccountApiClient>();
+
+            For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IEmailTemplatesService>().Use<EmailTemplatesService>();
+            For<INotificationJob>().Use<NotificationJob>();
+
+            For<INotificationsApiClientConfiguration>().Use(config.NotificationApi);
 
             For<IConfiguration>().Use(config);
-            //For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-            //For<IApprenticeshipUpdateRepository>().Use<ApprenticeshipUpdateRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-
             For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext(), null)).AlwaysUnique();
         }
         
