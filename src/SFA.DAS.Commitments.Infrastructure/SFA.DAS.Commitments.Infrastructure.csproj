@@ -71,6 +71,9 @@
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Polly, Version=5.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.5.1.0\lib\net45\Polly.dll</HintPath>
+    </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
       <Private>True</Private>

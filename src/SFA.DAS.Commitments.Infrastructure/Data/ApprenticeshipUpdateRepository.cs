@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             string connectionString, 
             ICommitmentsLogger logger, 
             IApprenticeshipUpdateTransactions apprenticeshipUpdateTransactions,
-            IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString)
+            IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
