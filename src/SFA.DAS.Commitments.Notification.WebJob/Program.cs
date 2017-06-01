@@ -1,5 +1,6 @@
 ﻿using System;
 
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Notification.WebJob.DependencyResolution;
 using SFA.DAS.NLog.Logger;
 
@@ -15,13 +16,20 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             var container = IoC.Initialize();
 
             var logger = container.GetInstance<ILog>();
-            var updater = container.GetInstance<INotificationJob>();
+            var config = container.GetInstance<CommitmentNotificationConfiguration>();
+            var notificationJob = container.GetInstance<INotificationJob>();
+
+            if (!config.EnableJob)
+            {
+                logger.Info("CommitmentNotification.WebJob job is turned off");
+                return;
+            }
 
             logger.Trace("Starting CommitmentNotification.WebJob");
 
             try
             {
-                updater.Run().Wait();
+                notificationJob.Run().Wait();
             }
              catch (Exception ex)
             {

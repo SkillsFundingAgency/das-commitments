@@ -30,6 +30,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
             var config = GetConfiguration("SFA.DAS.CommitmentNotification");
 
+            For<CommitmentNotificationConfiguration>().Use(config);
+
             //For<IAccountApiClient>().Use<AccountApiClient>()
             //    .Ctor<IAccountApiConfiguration>().Is(config.AccountApiConfiguration);
             For<IAccountApiClient>().Use<FakeAccountApiClient>();
