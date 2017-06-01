@@ -141,6 +141,7 @@
     <Compile Include="Queries\GetDataLocks\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetDataLock\WhenGettingDataLock.cs" />
     <Compile Include="Queries\GetDataLock\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetEmployerAccountSummary\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\WhenGettingOverlappingApprenticeships.cs" />
     <Compile Include="Queries\GetOverlappingApprenticeships\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetApprenticeship\WhenGettingApprenticeship.cs" />
