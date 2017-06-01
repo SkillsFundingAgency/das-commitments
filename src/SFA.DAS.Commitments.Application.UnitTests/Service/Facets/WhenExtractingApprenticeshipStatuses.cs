@@ -57,14 +57,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
             {
                 FirstName = "Pending approval",
                 PaymentStatus = PaymentStatus.Active,
-                StartDate = DateTime.Now.AddDays(-2)
+                StartDate = DateTime.Now.AddMonths(1)
             });
 
             _data.Add(new Apprenticeship
             {
                 FirstName = "Pending approval",
                 PaymentStatus = PaymentStatus.Active,
-                StartDate = DateTime.Now.AddDays(-2)
+                StartDate = DateTime.Now.AddMonths(1)
             });
 
             var result = _sut.BuildFacetes(_data, _userQuery, Originator.Provider);
