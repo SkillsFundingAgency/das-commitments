@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
-using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client;
 
@@ -11,9 +9,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
     public class NotificationJob : INotificationJob
     {
         private readonly IEmailTemplatesService _emailTemplatesService;
-
         private readonly INotificationsApi _notificationsApi;
-
         private readonly ILog _logger;
 
         public NotificationJob(

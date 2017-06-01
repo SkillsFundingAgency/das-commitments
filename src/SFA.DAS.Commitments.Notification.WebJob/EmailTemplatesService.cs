@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Notification.WebJob.Models;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NLog.Logger;
@@ -14,20 +15,12 @@ using SFA.DAS.Notifications.Api.Types;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
-    public interface IEmailTemplatesService
-    {
-        Task<IEnumerable<Email>> GetEmails();
-    }
-
     public class EmailTemplatesService : IEmailTemplatesService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
-
         private readonly IHashingService _hashingService;
-
         private readonly RetryService _retryService;
-
         private readonly ILog _logger;
 
         public EmailTemplatesService(
@@ -121,13 +114,5 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                    }
                 });
         }
-    }
-
-    internal class UserModel
-    {
-        public long AccountId { get; set; }
-
-        public IEnumerable<TeamMemberViewModel> Users { get; set; }
-
     }
 }

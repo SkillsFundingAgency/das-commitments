@@ -152,11 +152,12 @@
     <Compile Include="DependencyResolution\FakeAccountApiClient.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
     <Compile Include="EmailTemplatesService.cs" />
+    <Compile Include="IEmailTemplatesService.cs" />
     <Compile Include="INotificationJob.cs" />
     <Compile Include="INotificationSummary.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\UserModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
