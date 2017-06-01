@@ -419,6 +419,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
+            _logger.Info($"Retrieved {response.Data.Count()} account summary items for employer account {accountId}", accountId: accountId);
+
             return response;
         }
     }
