@@ -12,7 +12,7 @@ AS
 	FROM 
 		Commitment c
 	WHERE
-		c.EmployerAccountId = 5
+		c.EmployerAccountId = @EmployerAccountId
 )
 SELECT  
 	ppp.ProviderId,

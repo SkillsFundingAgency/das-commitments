@@ -237,7 +237,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
         {
-            _logger.Info($"Updating Provider Payment Priority for employer account {accountId}", accountId);
+            _logger.Trace($"Updating Provider Payment Priority for employer account {accountId}", accountId);
 
             var response = await _mediator.SendAsync(new UpdateProviderPaymentsPriorityCommand
             {
@@ -250,7 +250,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetProviderPaymentsPriorityResponse> GetCustomProviderPaymentPriority(long accountId)
         {
-            _logger.Info($"Getting Provider Payment Priority for employer account {accountId}", accountId);
+            _logger.Trace($"Getting Provider Payment Priority for employer account {accountId}", accountId);
 
             var response = await _mediator.SendAsync(new GetProviderPaymentsPriorityRequest
             {
