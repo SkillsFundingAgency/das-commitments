@@ -8,6 +8,7 @@ using NUnit.Framework;
 
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NLog.Logger;
@@ -29,7 +30,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             SetUpApprenticeshipRepostory(new List<AlertSummary>());
             SetUpAccountClient(5, new List<TeamMemberViewModel>());
 
-            _sut = new EmailTemplatesService(_apprenticeshipRepostory.Object, _accountApiClient.Object, Mock.Of<ILog>());
+            _sut = new EmailTemplatesService(_apprenticeshipRepostory.Object, _accountApiClient.Object, Mock.Of<IHashingService>(), Mock.Of<ILog>());
         }
 
         [Test]
