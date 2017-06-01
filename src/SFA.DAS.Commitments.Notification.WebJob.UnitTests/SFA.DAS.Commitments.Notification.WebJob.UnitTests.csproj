@@ -104,9 +104,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
+      <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
+      <Name>SFA.DAS.Commitments.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
+      <Project>{7C2C2688-ABF9-4A08-9FC3-BA169A5888C4}</Project>
+      <Name>SFA.DAS.Commitments.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj">
       <Project>{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}</Project>
