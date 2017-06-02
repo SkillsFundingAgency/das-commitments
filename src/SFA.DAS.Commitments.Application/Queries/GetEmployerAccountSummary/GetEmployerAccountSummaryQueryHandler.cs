@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
+using System.Linq;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary
 {
@@ -28,8 +32,22 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary
 
             return new GetEmployerAccountSummaryResponse
             {
-                Data = apprenticeshipSummaries
+                Data = MapFrom(apprenticeshipSummaries)
             };
+        }
+
+        private IEnumerable<Api.Types.ApprenticeshipStatusSummary> MapFrom(IEnumerable<Domain.Entities.ApprenticeshipStatusSummary> apprenticeshipSummaries)
+        {
+            return apprenticeshipSummaries.Select(s => new Api.Types.ApprenticeshipStatusSummary
+            {
+                LegalEntityIdentifier = s.LegalEntityIdentifier,
+                PendingApprovalCount = s.PendingApprovalCount,
+                ActiveCount = s.ActiveCount,
+                PausedCount = s.PausedCount,
+                WithdrawnCount = s.WithdrawnCount,
+                CompletedCount = s.CompletedCount,
+                DeletedCount = s.DeletedCount
+            });
         }
     }
 }
