@@ -205,7 +205,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             return hasChanged;
         }
 
-        private async void AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, IEnumerable<ApprenticeshipResult> existingApprenticeships)
+        private void AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, IEnumerable<ApprenticeshipResult> existingApprenticeships)
         {
             var effectiveFromDate = DetermineEffectiveFromDate(apprenticeship.AgreementStatus, existingApprenticeships, apprenticeship.StartDate);
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);

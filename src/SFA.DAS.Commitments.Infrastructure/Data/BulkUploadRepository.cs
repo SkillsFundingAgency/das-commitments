@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using Dapper;
 
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class BulkUploadRepository : BaseRepository, IBulkUploadRepository
     {
-        public BulkUploadRepository(string connectionString)
-            : base(connectionString)
+        public BulkUploadRepository(string connectionString, ICommitmentsLogger logger)
+            : base(connectionString, logger)
         {
         }
 

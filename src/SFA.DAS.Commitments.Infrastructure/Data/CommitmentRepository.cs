@@ -14,7 +14,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
 
-        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString)
+        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString, logger)
         {
             _logger = logger;
         }

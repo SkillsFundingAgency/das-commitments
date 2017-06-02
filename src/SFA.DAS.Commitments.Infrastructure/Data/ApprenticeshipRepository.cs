@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
-        public ApprenticeshipRepository(string connectionString, ICommitmentsLogger logger, IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString)
+        public ApprenticeshipRepository(string connectionString, ICommitmentsLogger logger, IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger)
         {
             _logger = logger;
             _apprenticeshipTransactions = apprenticeshipTransactions;

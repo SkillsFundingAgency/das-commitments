@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class HistoryRepository : BaseRepository, IHistoryRepository
     {
-        public HistoryRepository(string connectionString) : base(connectionString)
+        public HistoryRepository(string connectionString, ICommitmentsLogger logger) : base(connectionString, logger)
         {
         }
 
