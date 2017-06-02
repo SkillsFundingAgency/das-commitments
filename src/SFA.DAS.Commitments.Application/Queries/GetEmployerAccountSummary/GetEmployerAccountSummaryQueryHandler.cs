@@ -45,8 +45,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary
                 ActiveCount = s.ActiveCount,
                 PausedCount = s.PausedCount,
                 WithdrawnCount = s.WithdrawnCount,
-                CompletedCount = s.CompletedCount,
-                DeletedCount = s.DeletedCount
+                CompletedCount = s.CompletedCount
             });
         }
     }

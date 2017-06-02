@@ -419,8 +419,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         apprenticeshipStatusSummary.CompletedCount = count;
                         break;
                     case PaymentStatus.Deleted:
-                        apprenticeshipStatusSummary.DeletedCount = count;
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException($"Unexpected payment status '{paymentStatus}' found when creating apprenticeship summary statuses");
                 }

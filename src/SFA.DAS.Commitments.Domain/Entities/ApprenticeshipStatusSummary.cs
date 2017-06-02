@@ -11,6 +11,5 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public int PausedCount { get; set; }
         public int WithdrawnCount { get; set; }
         public int CompletedCount { get; set; }
-        public int DeletedCount { get; set; }
     }
 }
