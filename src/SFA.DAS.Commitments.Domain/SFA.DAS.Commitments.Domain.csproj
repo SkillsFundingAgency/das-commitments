@@ -57,6 +57,7 @@
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
+    <Compile Include="Entities\ApprenticeshipStatusSummary.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />

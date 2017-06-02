@@ -368,6 +368,65 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<IEnumerable<ApprenticeshipStatusSummary>> GetApprenticeshipSummariesByEmployer(long employerAccountId)
+        {
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@employerAccountId", employerAccountId);
+
+                var results = await connection.QueryAsync(
+                    sql: $"[dbo].[GetApprenticeshipStatusSummaries]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return  MapToApprenticeshipStatusSummaries(results);
+            });
+        }
+
+        private static IEnumerable<ApprenticeshipStatusSummary> MapToApprenticeshipStatusSummaries(IEnumerable<dynamic> results)
+        {
+            var apprenticeshipsStatusSummaries = new Dictionary<string, ApprenticeshipStatusSummary>();
+
+            foreach (var result in results.ToList())
+            {
+                var legalEntityId = (string) result.LegalEntityId;
+                var paymentStatus = (PaymentStatus) result.PaymentStatus;
+                var count = (int) result.Count;
+
+                if (!apprenticeshipsStatusSummaries.ContainsKey(legalEntityId))
+                {
+                    apprenticeshipsStatusSummaries.Add(legalEntityId, new ApprenticeshipStatusSummary {LegalEntityIdentifier = legalEntityId});
+                }
+
+                var apprenticeshipStatusSummary = apprenticeshipsStatusSummaries[legalEntityId];
+
+                switch (paymentStatus)
+                {
+                    case PaymentStatus.PendingApproval:
+                        apprenticeshipStatusSummary.PendingApprovalCount = count;
+                        break;
+                    case PaymentStatus.Active:
+                        apprenticeshipStatusSummary.ActiveCount = count;
+                        break;
+                    case PaymentStatus.Paused:
+                        apprenticeshipStatusSummary.PausedCount = count;
+                        break;
+                    case PaymentStatus.Withdrawn:
+                        apprenticeshipStatusSummary.WithdrawnCount = count;
+                        break;
+                    case PaymentStatus.Completed:
+                        apprenticeshipStatusSummary.CompletedCount = count;
+                        break;
+                    case PaymentStatus.Deleted:
+                    default:
+                        throw new ArgumentOutOfRangeException($"Unexpected payment status '{paymentStatus}' found when creating apprenticeship summary statuses");
+                }
+            }
+
+            return apprenticeshipsStatusSummaries.Values;
+        }
+
         private static DataTable GenerateUlnDataTable(IEnumerable<string> ulns)
         {
             var result = new DataTable();
