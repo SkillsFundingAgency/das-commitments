@@ -5,9 +5,9 @@ SELECT
 	  LegalEntityId
 	, LegalEntityName
 	, EmployerAccountId
-	, COUNT(*) as TotalCount
-	, COUNT(case UpdateOriginator when 1 then 1 else null end) as ChangeOfCircCount
-	, COUNT(case DataLockTriage when 2 then 1 else null end) as RestartRequestCount
+	, COUNT(*) AS TotalCount
+	, COUNT(CASE UpdateOriginator WHEN 1 THEN 1 ELSE NULL END) AS ChangeOfCircCount
+	, COUNT(CASE DataLockTriage WHEN 2 THEN 1 ELSE NULL END) AS RestartRequestCount
 	FROM (SELECT [Id]
 				, [PaymentStatus]
 				, [LegalEntityId]

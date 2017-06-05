@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Reflection;
 
-using Microsoft.Azure;
-using Microsoft.WindowsAzure;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
@@ -13,7 +10,9 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client.Configuration;
 
+using Microsoft.Azure;
 using StructureMap;
+using SFA.DAS.Commitments.Notification.WebJob.Configuration;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 {
