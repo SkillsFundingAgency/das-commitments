@@ -22,8 +22,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
         async Task<ICollection<TeamMemberViewModel>> IAccountApiClient.GetAccountUsers(string accountId)
         {
-            return await Task.Run(() => 
-            new List<TeamMemberViewModel>
+            return await Task.FromResult(new List<TeamMemberViewModel>
                 {
                     new TeamMemberViewModel
                         {
