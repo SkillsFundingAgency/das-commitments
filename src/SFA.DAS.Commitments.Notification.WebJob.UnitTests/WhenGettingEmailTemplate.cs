@@ -34,13 +34,10 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             SetUpApprenticeshipRepostory(new List<AlertSummary>());
             SetUpAccountClient(5, new List<TeamMemberViewModel>());
 
-            var retryService = new RetryService(Mock.Of<ICommitmentsLogger>()) { RetryWaitTimeInSeconds = 0 };
-
             _sut = new EmailTemplatesService(
                 _apprenticeshipRepostory.Object,
                 _accountApiClient.Object,
                 _hashingService.Object,
-                retryService,
                 Mock.Of<ILog>());
         }
 
@@ -167,7 +164,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             _accountApiClient.Setup(m => m.GetAccountUsers("5")).Throws<Exception>();
 
             var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Exactly(3));
+            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Exactly(4));
             emails.Length.Should().Be(0);
         }
 

@@ -8,24 +8,21 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using Polly;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
     public class PaymentEventsService : IPaymentEvents
     {
         private readonly IPaymentsEventsApiClient _paymentsEventsApi;
-
         private readonly IPaymentEventMapper _mapper;
-
         private readonly ILog _logger;
-
-        private readonly RetryService _retryService;
+        private readonly Policy _retryPolicy;
 
         public PaymentEventsService(
             IPaymentsEventsApiClient paymentsEventsApi,
             IPaymentEventMapper mapper,
-            ILog logger,
-            RetryService retryService)
+            ILog logger)
         {
             if(paymentsEventsApi == null)
                 throw new ArgumentNullException(nameof(paymentsEventsApi));
@@ -37,7 +34,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _paymentsEventsApi = paymentsEventsApi;
             _mapper = mapper;
             _logger = logger;
-            _retryService = retryService;
+            _retryPolicy =  Policy
+                .Handle<Exception>()
+                .RetryAsync(3,
+                    (exception, retryCount) =>
+                    {
+                        _logger.Warn($"Error connecting to Payment Event Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                    }
+                );
         }
 
         public async Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
@@ -49,11 +53,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         {
             //todo: remove cast to int once package fixed
 
-            var result = await  _retryService.Retry(
-                3, 
-                () => _paymentsEventsApi.GetDataLockEvents((int)sinceEventId, sinceTime, employerAccountId, ukprn, page)
-            );
-            // ToDo: Do we need to thow exception if GetDataLockEvents fails? 
+            var result = await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetDataLockEvents((int)sinceEventId, sinceTime, employerAccountId, ukprn, page));
 
             return 
                 result?.Items.Select(_mapper.Map) 

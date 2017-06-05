@@ -12,6 +12,7 @@ using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Types;
+using Polly;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
@@ -20,14 +21,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
         private readonly IHashingService _hashingService;
-        private readonly RetryService _retryService;
         private readonly ILog _logger;
+        private readonly Policy _retryPolicy;
 
         public EmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
             IHashingService hashingService,
-            RetryService retryService,
             ILog logger)
         {
             if(apprenticeshipRepository == null)
@@ -36,22 +36,27 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 throw new ArgumentNullException($"{nameof(accountApi)} is null");
             if (hashingService == null)
                 throw new ArgumentNullException($"{nameof(hashingService)} is null");
-            if (retryService == null)
-                throw new ArgumentNullException($"{nameof(retryService)} is null");
             if (logger == null)
                 throw new ArgumentNullException($"{nameof(logger)} is null");
             _apprenticeshipRepository = apprenticeshipRepository;
             _accountApi = accountApi;
             _hashingService = hashingService;
-            _retryService = retryService;
             _logger = logger;
+            _retryPolicy = Policy
+                .Handle<Exception>()
+                .RetryAsync(3,
+                    (exception, retryCount) =>
+                    {
+                        _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                    }
+                );
         }
 
         public async Task<IEnumerable<Email>> GetEmails()
         {
             var alertSummaries = await _apprenticeshipRepository.GetEmployerApprenticeshipAlertSummary();
 
-            _logger.Info($"Found {alertSummaries.Count} summery records.");
+            _logger.Info($"Found {alertSummaries.Count} summary records.");
 
             var userPerAccountTask =
                  alertSummaries
@@ -74,10 +79,19 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         private async Task<UserModel> ToUserModel(long accountId)
         {
-            var users = await _retryService.Retry(3, () => _accountApi.GetAccountUsers(accountId.ToString()));
+            ICollection<TeamMemberViewModel> users = null;
 
-            if (!users.Any())
-                _logger.Warn($"No users found for account: {accountId}");
+            try
+            {
+                users = await _retryPolicy.ExecuteAsync(() => _accountApi.GetAccountUsers(accountId.ToString()));
+
+                if (users == null || !users.Any())
+                    _logger.Warn($"No users found for account: {accountId}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Unable to get users for account: {accountId} from account api");
+            }
 
             return new UserModel
                        {

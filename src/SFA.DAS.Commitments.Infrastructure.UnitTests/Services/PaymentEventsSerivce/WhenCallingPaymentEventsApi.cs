@@ -12,6 +12,8 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Provider.Events.Api.Types;
+using System.Collections.Generic;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSerivce
 {
@@ -25,20 +27,20 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSer
         [SetUp]
         public void SetUp()
         {
-            var retryService = new RetryService(Mock.Of<ICommitmentsLogger>());
-            retryService.RetryWaitTimeInSeconds = 0;
             _paymentEventsApi = new Mock<IPaymentsEventsApiClient>();
-            _sut = new Infrastructure.Services.PaymentEventsService(_paymentEventsApi.Object, new Infrastructure.Services.PaymentEventMapper(), Mock.Of<ILog>(), retryService);
+            _sut = new Infrastructure.Services.PaymentEventsService(_paymentEventsApi.Object, new Infrastructure.Services.PaymentEventMapper(), Mock.Of<ILog>());
         }
 
         [Test]
-        public async Task WhenGettingExceptionsFromApi()
+        public void WhenGettingExceptionsFromApi()
         {
             _paymentEventsApi.Setup(m => m.GetDataLockEvents(0, null, null, 0L, 1)).Throws<Exception>();
-            var result = await _sut.GetDataLockEvents();
 
-            _paymentEventsApi.Verify(m => m.GetDataLockEvents(0, null, null, 0L, 1), Times.Exactly(3));
-            result.Count().Should().Be(0);
+            Func<Task<IEnumerable<DataLockStatus>>> act = async () => await _sut.GetDataLockEvents();
+
+            act.ShouldThrow<Exception>();
+
+            _paymentEventsApi.Verify(m => m.GetDataLockEvents(0, null, null, 0L, 1), Times.Exactly(4));
         }
 
         [Test]
