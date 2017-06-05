@@ -179,7 +179,6 @@
     <Compile Include="Services\ApprenticeshipFilterService.cs" />
     <Compile Include="Services\FacetMapper.cs" />
     <Compile Include="Services\HistoryService.cs" />
-    <Compile Include="Services\RetryService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
