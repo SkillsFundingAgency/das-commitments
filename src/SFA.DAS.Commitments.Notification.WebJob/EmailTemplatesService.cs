@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             IHashingService hashingService,
             ILog logger)
         {
-            if(apprenticeshipRepository == null)
+            if (apprenticeshipRepository == null)
                 throw new ArgumentNullException($"{nameof(apprenticeshipRepository)} is null");
             if (accountApi == null)
                 throw new ArgumentNullException($"{nameof(accountApi)} is null");
@@ -38,18 +38,24 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 throw new ArgumentNullException($"{nameof(hashingService)} is null");
             if (logger == null)
                 throw new ArgumentNullException($"{nameof(logger)} is null");
+
             _apprenticeshipRepository = apprenticeshipRepository;
             _accountApi = accountApi;
             _hashingService = hashingService;
             _logger = logger;
-            _retryPolicy = Policy
-                .Handle<Exception>()
-                .RetryAsync(3,
-                    (exception, retryCount) =>
-                    {
-                        _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
-                    }
-                );
+            _retryPolicy = GetRetryPolicy();
+        }
+
+        private Polly.Retry.RetryPolicy GetRetryPolicy()
+        {
+            return Policy
+                            .Handle<Exception>()
+                            .RetryAsync(3,
+                                (exception, retryCount) =>
+                                {
+                                    _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                                }
+                            );
         }
 
         public async Task<IEnumerable<Email>> GetEmails()
