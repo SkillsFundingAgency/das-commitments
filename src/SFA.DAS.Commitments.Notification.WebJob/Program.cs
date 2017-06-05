@@ -1,8 +1,7 @@
-﻿using System;
-
-using SFA.DAS.Commitments.Domain.Interfaces;
+﻿using SFA.DAS.Commitments.Notification.WebJob.Configuration;
 using SFA.DAS.Commitments.Notification.WebJob.DependencyResolution;
 using SFA.DAS.NLog.Logger;
+using System;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
