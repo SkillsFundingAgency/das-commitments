@@ -3,6 +3,9 @@
   "WebJobs": [
     {
       "filePath": "../SFA.DAS.CommitmentPayments.WebJob/SFA.DAS.CommitmentPayments.WebJob.csproj"
+    },
+    {
+      "filePath": "../SFA.DAS.Commitments.Notification.WebJob/SFA.DAS.Commitments.Notification.WebJob.csproj"
     }
   ]
 }
