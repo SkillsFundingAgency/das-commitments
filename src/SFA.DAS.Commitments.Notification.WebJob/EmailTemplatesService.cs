@@ -46,40 +46,45 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             _retryPolicy = GetRetryPolicy();
         }
 
-        private Polly.Retry.RetryPolicy GetRetryPolicy()
-        {
-            return Policy
-                            .Handle<Exception>()
-                            .RetryAsync(3,
-                                (exception, retryCount) =>
-                                {
-                                    _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
-                                }
-                            );
-        }
-
         public async Task<IEnumerable<Email>> GetEmails()
         {
             var alertSummaries = await _apprenticeshipRepository.GetEmployerApprenticeshipAlertSummary();
 
             _logger.Info($"Found {alertSummaries.Count} summary records.");
 
-            var userPerAccountTask =
-                 alertSummaries
+            var distinctAccountIds =
+                alertSummaries
                 .Select(m => m.EmployerAccountId)
                 .Distinct()
+                .ToList();
+
+            //TODO: LWA - Update with new api methods that pass accountId
+            var distinctAccountsTasks =
+                 distinctAccountIds
+                .Select(x => _accountApi.GetAccount<AccountDetailViewModel>(x))
+                .ToList();
+
+            var userPerAccountTasks =
+                 distinctAccountIds
                 .Select(ToUserModel)
                 .ToList();
 
-            var userPerAccount = 
-                (await Task.WhenAll(userPerAccountTask))
-                .Where(u => u.Users != null);
+            await Task.WhenAll(userPerAccountTasks, distinctAccountsTasks);
 
-            return 
-                userPerAccount.SelectMany(m =>
-                    m.Users.SelectMany(userModel =>
-                        MapToEmail(userModel, alertSummaries.Where(sum => sum.EmployerAccountId == m.AccountId), m.AccountId)
-                    )
+            var accounts = distinctAccountsTasks.Select(x => x.Result).ToList();
+
+            var accountsWithUsers = userPerAccountTasks
+                                        .Select(x => x.Result)
+                                        .Where(u => u.Users != null);
+
+            return accountsWithUsers.SelectMany(m =>
+                    {
+                        var account = accounts.Single(a => a.AccountId == m.AccountId);
+                        
+                        var alert = alertSummaries.Single(sum => sum.EmployerAccountId == m.AccountId);
+
+                        return m.Users.Select(userModel => MapToEmail(userModel, alert, account.HashedAccountId, account.DasAccountName));
+                    }
                 );
         }
 
@@ -89,6 +94,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             try
             {
+                //TODO: LWA - Update with new api methods that pass accountId
                 users = await _retryPolicy.ExecuteAsync(() => _accountApi.GetAccountUsers(accountId.ToString()));
 
                 if (users == null || !users.Any())
@@ -106,10 +112,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                        };
         }
 
-        private IEnumerable<Email> MapToEmail(TeamMemberViewModel userModel, IEnumerable<AlertSummary> alertSummary, long accountId)
+        private Email MapToEmail(TeamMemberViewModel userModel, AlertSummary alertSummary, string hashedAccountId, string accountName)
         {
-            var hashedAccountId = _hashingService.HashValue(accountId);
-            return alertSummary.Select(item => new Email
+            return new Email
             {
                 RecipientsAddress = userModel.Email,
                 TemplateId = "EmployerAlertSummaryNotification",
@@ -120,19 +125,31 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                new Dictionary<string, string>
                                    {
                                        { "name", userModel.Name },
-                                       { "total_count_text", item.TotalCount == 1 
+                                       { "total_count_text", alertSummary.TotalCount == 1 
                                             ? "is 1 apprentice" 
-                                            : $"are {item.TotalCount} apprentices" },
-                                       { "legal_entity_name", item.LegalEntityName },
-                                       { "changes_for_review", item.ChangeOfCircCount > 0 
-                                            ? $"* {item.ChangeOfCircCount} with changes for review" 
+                                            : $"are {alertSummary.TotalCount} apprentices" },
+                                       { "account_name", accountName },
+                                       { "changes_for_review", alertSummary.ChangeOfCircCount > 0 
+                                            ? $"* {alertSummary.ChangeOfCircCount} with changes for review" 
                                             : string.Empty },
-                                       { "requested_changes", item.RestartRequestCount > 0 
-                                            ? $"* {item.RestartRequestCount} with requested changes" 
+                                       { "requested_changes", alertSummary.RestartRequestCount > 0 
+                                            ? $"* {alertSummary.RestartRequestCount} with requested changes" 
                                             : string.Empty },
-                                       { "link_to_mange_apprenticeships", $"https://manage-apprenticeships.service.gov.uk/accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" }
+                                       { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" }
                                    }
-                });
+                };
+        }
+
+        private Polly.Retry.RetryPolicy GetRetryPolicy()
+        {
+            return Policy
+                    .Handle<Exception>()
+                    .RetryAsync(3,
+                        (exception, retryCount) =>
+                        {
+                            _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                        }
+                    );
         }
     }
 }
