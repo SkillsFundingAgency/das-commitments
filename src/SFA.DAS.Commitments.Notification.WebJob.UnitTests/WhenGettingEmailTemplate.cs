@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.NLog.Logger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 {
@@ -32,7 +29,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             _accountApiClient = new Mock<IAccountApiClient>();
             _hashingService = new Mock<IHashingService>();
             SetUpApprenticeshipRepostory(new List<AlertSummary>());
-            SetUpAccountClient(5, new List<TeamMemberViewModel>());
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>());
 
             _sut = new EmailTemplatesService(
                 _apprenticeshipRepostory.Object,
@@ -45,7 +42,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         public async Task ThenNoAlertSummary()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>());
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -68,14 +65,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
                                              });
-            SetUpAccountClient(5, new List<TeamMemberViewModel>());
+
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>());
 
             var emails = await _sut.GetEmails();
             _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
@@ -83,21 +79,19 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         }
 
         [Test]
-        public async Task Then1User1Org()
+        public async Task Then1UserWith1AccountWithAlerts()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>
                                              {
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
                                              });
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -108,11 +102,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = (await _sut.GetEmails()).ToArray();
+
             _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
             emails.Count().Should().Be(1);
+
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
-            emails[0].Tokens["legal_entity_name"].Should().Be("Super org");
+            emails[0].Tokens["account_name"].Should().Be("Account A");
             emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
             emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
 
@@ -123,29 +119,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         }
 
         [Test]
-        public async Task WhenReturnsNoUser()
-        {
-            SetUpApprenticeshipRepostory(new List<AlertSummary>
-                                             {
-                                                 new AlertSummary
-                                                     {
-                                                         EmployerAccountId = 5,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
-                                                         ChangeOfCircCount = 1,
-                                                         RestartRequestCount = 0,
-                                                         TotalCount = 1
-                                                     }
-                                             });
-
-            SetUpAccountClient(5, new List<TeamMemberViewModel>());
-
-            var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
-            emails.Length.Should().Be(0);
-        }
-
-        [Test]
         public async Task WhenAccountServiceThrowingAnException()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>
@@ -153,8 +126,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
@@ -177,14 +148,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
                                                      }
                                              });
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -197,25 +166,23 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             var emails = (await _sut.GetEmails()).ToArray();
             _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
             emails.Length.Should().Be(1);
-            emails[0].Tokens["link_to_mange_apprenticeships"].Should().Be("https://manage-apprenticeships.service.gov.uk/accounts/ABBA77/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested");
+            emails[0].Tokens["link_to_mange_apprenticeships"].Should().Be("accounts/ABBA77/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested");
         }
 
         [Test]
-        public async Task Then1User1OrgOneTotalCount()
+        public async Task Then1UserWith1AccountOneTotalCount()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>
                                              {
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
                                                      }
                                              });
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -226,11 +193,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = (await _sut.GetEmails()).ToArray();
+
             _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
             emails.Length.Should().Be(1);
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("is 1 apprentice");
-            emails[0].Tokens["legal_entity_name"].Should().Be("Super org");
+            emails[0].Tokens["account_name"].Should().Be("Account A");
             emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
             emails[0].Tokens["requested_changes"].Should().Be("");
 
@@ -241,21 +209,19 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         }
 
         [Test]
-        public async Task Then2User1Org()
+        public async Task Then2UsersInTheSameAccountWithAlerts()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>
                                              {
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
                                              });
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -277,37 +243,43 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[0].Tokens["name"].Should().Be("Test user 1");
             emails[1].Tokens["name"].Should().Be("Test user 2");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
-            emails[0].Tokens["legal_entity_name"].Should().Be("Super org");
+            emails[0].Tokens["account_name"].Should().Be("Account A");
             emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
             emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
         }
 
         [Test]
-        public async Task Then1User2Org()
+        public async Task Then1UserIn2AccountsWithChanges()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>
                                              {
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      },
                                                  new AlertSummary
                                                      {
-                                                         EmployerAccountId = 5L,
-                                                         LegalEntityId = "999111",
-                                                         LegalEntityName = "Tiny org",
+                                                         EmployerAccountId = 10L,
                                                          ChangeOfCircCount = 2,
                                                          RestartRequestCount = 3,
                                                          TotalCount = 5
                                                      }
                                              });
 
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
+                                   {
+                                       new TeamMemberViewModel
+                                           {
+                                               Name = "Test user",
+                                               Email = "user@email.com",
+                                               Role = "Owner"
+                                           }
+                                   });
+
+            SetUpAccountClient(10, "Account B", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -322,28 +294,25 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails.Count().Should().Be(2);
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
-            emails[0].Tokens["legal_entity_name"].Should().Be("Super org");
+            emails[0].Tokens["account_name"].Should().Be("Account A");
             emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
             emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
 
             emails[1].Tokens["name"].Should().Be("Test user");
             emails[1].Tokens["total_count_text"].Should().Be("are 5 apprentices");
-            emails[1].Tokens["legal_entity_name"].Should().Be("Tiny org");
+            emails[1].Tokens["account_name"].Should().Be("Account B");
             emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
             emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
         }
 
-
         [Test]
-        public async Task Then1User2Org2Accounts()
+        public async Task Then2UserIn2DifferentAccountWithAlerts()
         {
             SetUpApprenticeshipRepostory(new List<AlertSummary>
                                              {
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
@@ -351,15 +320,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 6L,
-                                                         LegalEntityId = "999111",
-                                                         LegalEntityName = "Tiny org",
                                                          ChangeOfCircCount = 2,
                                                          RestartRequestCount = 3,
                                                          TotalCount = 5
                                                      }
                                              });
 
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -368,67 +335,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                Role = "Owner"
                                            }
                                    });
-            SetUpAccountClient(6, new List<TeamMemberViewModel>
-                                   {
-                                       new TeamMemberViewModel
-                                           {
-                                               Name = "Test user",
-                                               Email = "user@email.com",
-                                               Role = "Owner"
-                                           }
-                                   });
-
-            var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
-            emails.Length.Should().Be(2);
-            emails[0].Tokens["name"].Should().Be("Test user");
-            emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
-            emails[0].Tokens["legal_entity_name"].Should().Be("Super org");
-            emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
-            emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
-
-            emails[1].Tokens["name"].Should().Be("Test user");
-            emails[1].Tokens["total_count_text"].Should().Be("are 5 apprentices");
-            emails[1].Tokens["legal_entity_name"].Should().Be("Tiny org");
-            emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
-            emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
-        }
-
-        [Test]
-        public async Task Then2User2Org()
-        {
-            SetUpApprenticeshipRepostory(new List<AlertSummary>
-                                             {
-                                                 new AlertSummary
-                                                     {
-                                                         EmployerAccountId = 5L,
-                                                         LegalEntityId = "123456",
-                                                         LegalEntityName = "Super org",
-                                                         ChangeOfCircCount = 1,
-                                                         RestartRequestCount = 2,
-                                                         TotalCount = 3
-                                                     },
-                                                 new AlertSummary
-                                                     {
-                                                         EmployerAccountId = 6L,
-                                                         LegalEntityId = "999111",
-                                                         LegalEntityName = "Tiny org",
-                                                         ChangeOfCircCount = 2,
-                                                         RestartRequestCount = 3,
-                                                         TotalCount = 5
-                                                     }
-                                             });
-
-            SetUpAccountClient(5, new List<TeamMemberViewModel>
-                                   {
-                                       new TeamMemberViewModel
-                                           {
-                                               Name = "Test user",
-                                               Email = "user@email.com",
-                                               Role = "Owner"
-                                           }
-                                   });
-            SetUpAccountClient(6, new List<TeamMemberViewModel>
+            SetUpAccountClient(6, "Account B", new List<TeamMemberViewModel>
                                    {
                                        new TeamMemberViewModel
                                            {
@@ -443,21 +350,24 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails.Length.Should().Be(2);
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
-            emails[0].Tokens["legal_entity_name"].Should().Be("Super org");
+            emails[0].Tokens["account_name"].Should().Be("Account A");
             emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
             emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
 
             emails[1].Tokens["name"].Should().Be("Test user 2");
             emails[1].Tokens["total_count_text"].Should().Be("are 5 apprentices");
-            emails[1].Tokens["legal_entity_name"].Should().Be("Tiny org");
+            emails[1].Tokens["account_name"].Should().Be("Acount B");
             emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
             emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
         }
 
-        private void SetUpAccountClient(int accountId, List<TeamMemberViewModel> accountDetailViewModels)
+        private void SetUpAccountClient(int accountId, string accountName, List<TeamMemberViewModel> accountDetailViewModels)
         {
             _accountApiClient.Setup(m => m.GetAccountUsers(accountId.ToString()))
                 .ReturnsAsync(accountDetailViewModels);
+
+            _accountApiClient.Setup(m => m.GetResource<AccountDetailViewModel>(accountId.ToString()))
+                .ReturnsAsync(new AccountDetailViewModel { AccountId = accountId, DasAccountName = accountName });
         }
 
         private void SetUpApprenticeshipRepostory(List<AlertSummary> alerts)
