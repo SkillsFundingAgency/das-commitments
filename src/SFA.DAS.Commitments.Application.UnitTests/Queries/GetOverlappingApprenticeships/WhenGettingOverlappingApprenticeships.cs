@@ -414,6 +414,48 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
             Assert.IsEmpty(result.Data);
         }
 
+        [Test]
+        public async Task ThenApprenticeshipStoppedBeforeStartedShouldBeIgnored()
+        {
+            //Arrange
+            _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
+                .ReturnsAsync(new List<ApprenticeshipResult>
+                {
+                    new ApprenticeshipResult
+                    {
+                        Id = 666,
+                        EmployerAccountId = 1,
+                        LegalEntityName = "Test Corp",
+                        ProviderId = 999,
+                        Uln = "123",
+                        StartDate = new DateTime(2018,01,01),
+                        EndDate = new DateTime(2018,06,01),
+                        StopDate = new DateTime(2018,01,01),
+                        PaymentStatus = PaymentStatus.Withdrawn
+                    }
+                });
+
+            var request = new GetOverlappingApprenticeshipsRequest
+            {
+                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
+                {
+                   new ApprenticeshipOverlapValidationRequest
+                   {
+                        ApprenticeshipId = 2345,
+                        Uln = "123",
+                        StartDate = new DateTime(2017,12,01),
+                        EndDate = new DateTime(2018,09,01)
+                   }
+                }
+            };
+
+            //Act
+            var result = await _handler.Handle(request);
+
+            //Assert
+            Assert.IsEmpty(result.Data);
+        }
+
         /// <summary>
         /// Creates a single apprenticeship running Feb-Nov 2018
         /// </summary>
