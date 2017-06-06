@@ -132,12 +132,28 @@ namespace SFA.DAS.Commitments.Application.Services
                             switch (m.DataLockTriageStatus)
                             {
                                 case TriageStatus.Unknown:
-                                    return new FacetItem<RecordStatus> { Data = RecordStatus.IlrDataMismatch};
+                                    return new FacetItem<RecordStatus>
+                                    {
+                                        Data = caller == Originator.Provider
+                                            ? RecordStatus.IlrDataMismatch
+                                            : RecordStatus.NoActionNeeded
+                                    };
                                 case TriageStatus.Change:
+                                    return new FacetItem<RecordStatus>
+                                    {
+                                        Data = caller == Originator.Provider
+                                            ? RecordStatus.ChangeRequested
+                                            : RecordStatus.NoActionNeeded
+                                    };
                                 case TriageStatus.Restart:
                                     return new FacetItem<RecordStatus> { Data = RecordStatus.ChangeRequested };
                                 case TriageStatus.FixIlr:
-                                    return new FacetItem<RecordStatus> { Data = RecordStatus.IlrChangesPending };
+                                    return new FacetItem<RecordStatus>
+                                    {
+                                        Data = caller == Originator.Provider
+                                            ? RecordStatus.IlrChangesPending
+                                            : RecordStatus.NoActionNeeded
+                                    };
                             }
                             return new FacetItem<RecordStatus> { Data = RecordStatus.NoActionNeeded };
                             
