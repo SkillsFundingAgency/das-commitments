@@ -25,6 +25,13 @@ namespace SFA.DAS.Commitments.Application.Rules
                 ? apprenticeship.StopDate.Value
                 : apprenticeship.EndDate;
 
+            //Stopped before or on start date (effectively deleted) should be ignored
+            if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn &&
+                apprenticeshipStartDate.Date.Equals(apprenticeship.StopDate.Value.Date))
+            {
+                return ValidationFailReason.None;
+            }
+
             var overlapsStart = IsApprenticeshipDateBetween(request.StartDate, apprenticeshipStartDate, apprenticeshipEndDate);
             var overlapsEnd = IsApprenticeshipDateBetween(request.EndDate, apprenticeshipStartDate, apprenticeshipEndDate);
 
