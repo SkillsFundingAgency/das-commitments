@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -16,6 +18,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
         private readonly IPaymentEvents _paymentEventsSerivce;
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
+
+        private readonly IList<DataLockErrorCode> _whiteList;
 
         public DataLockUpdater(ILog logger, IPaymentEvents paymentEventsService, IDataLockRepository dataLockRepository, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository)
         {
@@ -32,6 +36,16 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             _paymentEventsSerivce = paymentEventsService;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
+
+            _whiteList = new List<DataLockErrorCode>
+            {
+                DataLockErrorCode.Dlock03,
+                DataLockErrorCode.Dlock04,
+                DataLockErrorCode.Dlock05,
+                DataLockErrorCode.Dlock06,
+                DataLockErrorCode.Dlock07
+            };
+
         }
 
         public async Task RunUpdate()
@@ -53,26 +67,62 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                     break;
                 }
 
-                _logger.Info($"{page.Count} pages returned");
+                _logger.Info($"{page.Count} records returned in page");
 
                 foreach (var dataLockStatus in page)
                 {
-                    _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                                 $"Event Id {dataLockStatus.DataLockEventId} " + 
-                                 $"Status {dataLockStatus.ErrorCode}");
+                    _logger.Info($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                        $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
-                    var pendingApprenticeshipUpdate =
+                    ApplyErrorCodeWhiteList(dataLockStatus);
+
+                    if (dataLockStatus.ErrorCode != DataLockErrorCode.None)
+                    {
+                        _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                             $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
+
+                        var pendingApprenticeshipUpdate =
                         await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
 
-                    if (pendingApprenticeshipUpdate != null && pendingApprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
-                    {
-                        await _apprenticeshipUpdateRepository.SupercedeApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
+                        if (pendingApprenticeshipUpdate != null && pendingApprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
+                        {
+                            await _apprenticeshipUpdateRepository.SupercedeApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
+                        }
+                       
+                        await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
                     }
 
-                    await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
                     lastId = dataLockStatus.DataLockEventId;
                 }
             }
+        }
+
+        private void ApplyErrorCodeWhiteList(DataLockStatus dataLockStatus)
+        {
+            var whitelisted = DataLockErrorCode.None;
+            var skipped = DataLockErrorCode.None;
+
+            foreach(DataLockErrorCode errorCode in Enum.GetValues(typeof(DataLockErrorCode)))
+            {
+                if (dataLockStatus.ErrorCode.HasFlag(errorCode))
+                {
+                    if (_whiteList.Contains(errorCode))
+                    {
+                        whitelisted = whitelisted == DataLockErrorCode.None ? errorCode : whitelisted | errorCode;
+                    }
+                    else
+                    {
+                        skipped = skipped == DataLockErrorCode.None ? errorCode : skipped | errorCode;
+                    }
+                }
+            }
+
+            if (skipped != DataLockErrorCode.None)
+            {
+                _logger.Info($"Skipping {skipped}");
+            }
+
+            dataLockStatus.ErrorCode = whitelisted;
         }
     }
 }
