@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
 
         public string ServiceBusConnectionString { get; set; }
 
-        public AccountApiConfiguration AccountApiConfiguration { get; set; }
+        public AccountApiConfiguration AccountApi { get; set; }
 
         public NotificationsApiClientConfiguration NotificationApi { get; set; }
     }
