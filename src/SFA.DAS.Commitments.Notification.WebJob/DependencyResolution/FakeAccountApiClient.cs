@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             throw new NotImplementedException();
         }
 
-        async Task<ICollection<TeamMemberViewModel>> IAccountApiClient.GetAccountUsers(string accountId)
+        async Task<ICollection<TeamMemberViewModel>> IAccountApiClient.GetAccountUsers(long accountId)
         {
             return await Task.FromResult(new List<TeamMemberViewModel>
                 {
@@ -34,6 +34,41 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
         }
 
         Task<ICollection<AccountDetailViewModel>> IAccountApiClient.GetUserAccounts(string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AccountDetailViewModel> GetAccount(string hashedAccountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AccountDetailViewModel> GetAccount(long accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<TeamMemberViewModel>> GetAccountUsers(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<LegalEntityViewModel> GetLegalEntity(string accountId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<ResourceViewModel>> GetLegalEntitiesConnectedToAccount(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<ResourceViewModel>> GetPayeSchemesConnectedToAccount(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EmployerAgreementView> GetEmployerAgreement(string accountId, string legalEntityId, string agreementId)
         {
             throw new NotImplementedException();
         }
