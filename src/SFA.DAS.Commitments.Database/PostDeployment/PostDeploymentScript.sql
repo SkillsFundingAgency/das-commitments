@@ -18,3 +18,9 @@ WHERE
 	TrainingType = 0
 AND 
 	RIGHT(TrainingName, 10) <> '(Standard)' 
+
+
+INSERT INTO [SFA.DAS.Commitments.Database].[dbo].[PriceEpisode]
+	(ApprenticeshipId,Cost, FromDate)
+	SELECT Id, Cost, StartDate FROM [SFA.DAS.Commitments.Database].[dbo].[Apprenticeship] 
+	WHERE PaymentStatus <> 0

@@ -5,6 +5,7 @@ using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
+using SFA.DAS.Commitments.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -56,6 +57,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 TriageStatus = triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
+        }
+
+        public async Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId)
+        {
+            _logger.Info($"Getting price episodes for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+
+            var response = await _mediator.SendAsync(new GetPriceEpisodesRequest
+            {
+                ApprenticeshipId = apprenticeshipId
+            });
+
+            return response;
         }
     }
 }

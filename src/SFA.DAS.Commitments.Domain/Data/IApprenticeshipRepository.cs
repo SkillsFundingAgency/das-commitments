@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Domain.Entities;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace SFA.DAS.Commitments.Domain.Data
 {
@@ -35,5 +36,10 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<ApprenticeshipResult>> GetActiveApprenticeshipsByUlns(IEnumerable<string> ulns);
 
         Task<IEnumerable<ApprenticeshipStatusSummary>> GetApprenticeshipSummariesByEmployer(long employerAccountId);
+
+
+        Task InsertPriceEpisodes(long apprenticeshipId, IEnumerable<PriceEpisode> priceEpisodes);
+
+        Task<IEnumerable<PriceEpisode>> GetPriceEpisodes(long apprenticeshipId);
     }
 }

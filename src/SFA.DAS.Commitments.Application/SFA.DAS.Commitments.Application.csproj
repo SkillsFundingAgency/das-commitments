@@ -123,6 +123,8 @@
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksValidator.cs" />
+    <Compile Include="Queries\GetPriceEpisodes\GetPriceEpisodeQueryHandler.cs" />
+    <Compile Include="Queries\GetPriceEpisodes\GetPriceEpisodesRequest.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockRequest.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockQueryHandler.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockResponse.cs" />
@@ -148,6 +150,8 @@
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityQueryHandler.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityRequest.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityResponse.cs" />
+    <Compile Include="Queries\GetPriceEpisodes\GetPriceEpisodesResponse.cs" />
+    <Compile Include="Queries\GetPriceEpisodes\PriceEpisode.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

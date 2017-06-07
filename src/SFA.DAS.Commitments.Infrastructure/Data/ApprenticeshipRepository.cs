@@ -221,6 +221,57 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return await GetApprenticeshipsByIdentifier("ProviderId", providerId);
         }
 
+        public async Task InsertPriceEpisodes(long apprenticeshipId, IEnumerable<PriceEpisode> priceEpisodes)
+        {
+            // -> Delete all price episodes from apprenticeshipId
+            // -> Inser all new ones // Table?
+
+            await WithTransaction(
+                async (c, t) =>
+                    {
+                        await c.ExecuteAsync(
+                            sql: $"DELETE FROM [dbo].[PriceEpisode] WHERE ApprenticeshipId = {apprenticeshipId};",
+                            commandType: CommandType.Text,
+                            transaction: t);
+
+                        foreach (var priceEpisode in priceEpisodes)
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("@apprenticeshipId", apprenticeshipId, DbType.Int64);
+                            parameters.Add("@cost", priceEpisode.Cost, DbType.Decimal);
+                            parameters.Add("@fromDate", priceEpisode.FromDate, DbType.DateTime);
+                            parameters.Add("@endDate", priceEpisode.EndDate, DbType.DateTime);
+
+                            await
+                                c.ExecuteAsync(
+                                    sql:
+                                        "INSERT INTO [dbo].[PriceEpisode](ApprenticeshipId, Cost, FromDate, EndDate) "
+                                        + "VALUES (@apprenticeshipId, @cost, @fromDate, @endDate);",
+                                    param: parameters,
+                                    commandType: CommandType.Text,
+                                    transaction: t);
+                        }
+                    }
+                );
+        }
+
+        public async Task<IEnumerable<PriceEpisode>> GetPriceEpisodes(long apprenticeshipId)
+        {
+            var results = await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@apprenticeshipId", apprenticeshipId);
+
+                return await c.QueryAsync<PriceEpisode>(
+                    sql: $"SELECT * FROM [dbo].[PriceEpisode] WHERE ApprenticeshipId = @apprenticeshipId;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+
+            return results;
+
+        }
+
         private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, SqlConnection x, DataTable table)
         {
             IList<Apprenticeship> apprenticeships;

@@ -45,5 +45,14 @@ namespace SFA.DAS.Commitments.Api.Controllers
             await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("apprenticeships/{apprenticeshipId}/prices")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetPriceEpisodes(long apprenticeshipId)
+        {
+            var response = await _orchestrator.GetPriceEpisodes(apprenticeshipId);
+
+            return Ok(response.Data);
+        }
     }
 }
