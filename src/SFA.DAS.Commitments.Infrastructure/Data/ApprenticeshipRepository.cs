@@ -207,10 +207,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId);
 
+                var s = GetPriceEpisodes(apprenticeshipId);
                 return await c.QueryAsync<Apprenticeship>(
                     sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.Text);
+
             });
 
             return results.SingleOrDefault();
@@ -240,13 +242,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                             parameters.Add("@apprenticeshipId", apprenticeshipId, DbType.Int64);
                             parameters.Add("@cost", priceEpisode.Cost, DbType.Decimal);
                             parameters.Add("@fromDate", priceEpisode.FromDate, DbType.DateTime);
-                            parameters.Add("@endDate", priceEpisode.EndDate, DbType.DateTime);
+                            parameters.Add("@toDate", priceEpisode.ToDate, DbType.DateTime);
 
                             await
                                 c.ExecuteAsync(
                                     sql:
-                                        "INSERT INTO [dbo].[PriceEpisode](ApprenticeshipId, Cost, FromDate, EndDate) "
-                                        + "VALUES (@apprenticeshipId, @cost, @fromDate, @endDate);",
+                                        "INSERT INTO [dbo].[PriceEpisode](ApprenticeshipId, Cost, FromDate, ToDate) "
+                                        + "VALUES (@apprenticeshipId, @cost, @fromDate, @toDate);",
                                     param: parameters,
                                     commandType: CommandType.Text,
                                     transaction: t);
