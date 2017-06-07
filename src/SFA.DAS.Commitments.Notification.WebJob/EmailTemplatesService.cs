@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             var distinctAccountsTasks =
                  distinctAccountIds
-                .Select(x => _accountApi.GetAccount(x))
+                .Select(x => _retryPolicy.ExecuteAsync(() => _accountApi.GetAccount((long)x)))
                 .ToList();
 
             var userPerAccountTasks =
@@ -88,7 +88,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             try
             {
-                //TODO: LWA - Update with new api methods that pass accountId
                 users = await _retryPolicy.ExecuteAsync(() => _accountApi.GetAccountUsers(accountId));
 
                 if (users == null || !users.Any())
