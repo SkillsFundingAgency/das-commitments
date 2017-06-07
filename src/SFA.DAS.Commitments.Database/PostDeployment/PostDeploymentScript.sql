@@ -20,8 +20,10 @@ AND
 	RIGHT(TrainingName, 10) <> '(Standard)' 
 
 
-INSERT INTO [SFA.DAS.Commitments.Database].[dbo].[PriceEpisode]
+
+INSERT INTO [dbo].[PriceEpisode]
 	(ApprenticeshipId,Cost, FromDate)
-	SELECT Id, Cost, StartDate FROM [SFA.DAS.Commitments.Database].[dbo].[Apprenticeship] 
+	SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] 
 	WHERE PaymentStatus <> 0
--- AND Not in PriceEpisode table
+	AND Id NOT IN (SELECT ApprenticeshipId FROM [dbo].[PriceEpisode])
+
