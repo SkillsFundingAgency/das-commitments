@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -20,28 +19,23 @@ namespace SFA.DAS.Commitments.Notification.WebJob
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
-        private readonly IHashingService _hashingService;
         private readonly ILog _logger;
         private readonly Policy _retryPolicy;
 
         public EmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
-            IHashingService hashingService,
             ILog logger)
         {
             if (apprenticeshipRepository == null)
                 throw new ArgumentNullException($"{nameof(apprenticeshipRepository)} is null");
             if (accountApi == null)
                 throw new ArgumentNullException($"{nameof(accountApi)} is null");
-            if (hashingService == null)
-                throw new ArgumentNullException($"{nameof(hashingService)} is null");
             if (logger == null)
                 throw new ArgumentNullException($"{nameof(logger)} is null");
 
             _apprenticeshipRepository = apprenticeshipRepository;
             _accountApi = accountApi;
-            _hashingService = hashingService;
             _logger = logger;
             _retryPolicy = GetRetryPolicy();
         }
@@ -58,10 +52,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 .Distinct()
                 .ToList();
 
-            //TODO: LWA - Update with new api methods that pass accountId
             var distinctAccountsTasks =
                  distinctAccountIds
-                .Select(x => _accountApi.GetAccount<AccountDetailViewModel>(x))
+                .Select(x => _accountApi.GetAccount(x))
                 .ToList();
 
             var userPerAccountTasks =
@@ -69,7 +62,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 .Select(ToUserModel)
                 .ToList();
 
-            await Task.WhenAll(userPerAccountTasks, distinctAccountsTasks);
+            await Task.WhenAll(distinctAccountsTasks);
+            await Task.WhenAll(userPerAccountTasks);
 
             var accounts = distinctAccountsTasks.Select(x => x.Result).ToList();
 
@@ -95,7 +89,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             try
             {
                 //TODO: LWA - Update with new api methods that pass accountId
-                users = await _retryPolicy.ExecuteAsync(() => _accountApi.GetAccountUsers(accountId.ToString()));
+                users = await _retryPolicy.ExecuteAsync(() => _accountApi.GetAccountUsers(accountId));
 
                 if (users == null || !users.Any())
                     _logger.Warn($"No users found for account: {accountId}");

@@ -20,21 +20,18 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         private EmailTemplatesService _sut;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepostory;
         private Mock<IAccountApiClient> _accountApiClient;
-        private Mock<IHashingService> _hashingService;
 
         [SetUp]
         public void SetUp()
         {
             _apprenticeshipRepostory = new Mock<IApprenticeshipRepository>();
             _accountApiClient = new Mock<IAccountApiClient>();
-            _hashingService = new Mock<IHashingService>();
             SetUpApprenticeshipRepostory(new List<AlertSummary>());
             SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>());
 
             _sut = new EmailTemplatesService(
                 _apprenticeshipRepostory.Object,
                 _accountApiClient.Object,
-                _hashingService.Object,
                 Mock.Of<ILog>());
         }
 
@@ -53,7 +50,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = await _sut.GetEmails();
-            _accountApiClient.Verify(m => m.GetAccountUsers(It.IsAny<string>()), Times.Never);
+            _accountApiClient.Verify(m => m.GetAccountUsers(It.IsAny<long>()), Times.Never);
             emails.Count().Should().Be(0);
         }
 
@@ -74,7 +71,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>());
 
             var emails = await _sut.GetEmails();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Count().Should().Be(0);
         }
 
@@ -103,7 +100,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             var emails = (await _sut.GetEmails()).ToArray();
 
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Count().Should().Be(1);
 
             emails[0].Tokens["name"].Should().Be("Test user");
@@ -125,24 +122,23 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                              {
                                                  new AlertSummary
                                                      {
-                                                         EmployerAccountId = 5,
+                                                         EmployerAccountId = 5L,
                                                          ChangeOfCircCount = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
                                                      }
                                              });
 
-            _accountApiClient.Setup(m => m.GetAccountUsers("5")).Throws<Exception>();
+            _accountApiClient.Setup(m => m.GetAccountUsers(5L)).Throws<Exception>();
 
             var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Exactly(4));
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Exactly(4));
             emails.Length.Should().Be(0);
         }
 
         [Test]
         public async Task ThenShouldCreateLinkBackToFilteredManageApprenticeshipPage()
         {
-            _hashingService.Setup(m => m.HashValue(5)).Returns("ABBA77");
             SetUpApprenticeshipRepostory(new List<AlertSummary>
                                              {
                                                  new AlertSummary
@@ -164,9 +160,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Length.Should().Be(1);
-            emails[0].Tokens["link_to_mange_apprenticeships"].Should().Be("accounts/ABBA77/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested");
+            emails[0].Tokens["link_to_mange_apprenticeships"].Should().Be("accounts/ABC5/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested");
         }
 
         [Test]
@@ -194,7 +190,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             var emails = (await _sut.GetEmails()).ToArray();
 
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Length.Should().Be(1);
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("is 1 apprentice");
@@ -238,7 +234,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Length.Should().Be(2);
             emails[0].Tokens["name"].Should().Be("Test user 1");
             emails[1].Tokens["name"].Should().Be("Test user 2");
@@ -290,7 +286,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Count().Should().Be(2);
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
@@ -346,7 +342,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                    });
 
             var emails = (await _sut.GetEmails()).ToArray();
-            _accountApiClient.Verify(m => m.GetAccountUsers("5"), Times.Once);
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
             emails.Length.Should().Be(2);
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
@@ -356,18 +352,18 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             emails[1].Tokens["name"].Should().Be("Test user 2");
             emails[1].Tokens["total_count_text"].Should().Be("are 5 apprentices");
-            emails[1].Tokens["account_name"].Should().Be("Acount B");
+            emails[1].Tokens["account_name"].Should().Be("Account B");
             emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
             emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
         }
 
         private void SetUpAccountClient(int accountId, string accountName, List<TeamMemberViewModel> accountDetailViewModels)
         {
-            _accountApiClient.Setup(m => m.GetAccountUsers(accountId.ToString()))
+            _accountApiClient.Setup(m => m.GetAccountUsers(accountId))
                 .ReturnsAsync(accountDetailViewModels);
 
-            _accountApiClient.Setup(m => m.GetResource<AccountDetailViewModel>(accountId.ToString()))
-                .ReturnsAsync(new AccountDetailViewModel { AccountId = accountId, DasAccountName = accountName });
+            _accountApiClient.Setup(m => m.GetAccount(accountId))
+                .ReturnsAsync(new AccountDetailViewModel { AccountId = accountId, DasAccountName = accountName, HashedAccountId = $"ABC{accountId}" });
         }
 
         private void SetUpApprenticeshipRepostory(List<AlertSummary> alerts)
