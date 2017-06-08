@@ -286,7 +286,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     sql: "INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate) "
                     + "SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] "
                     + "WHERE CommitmentId = @commitmentId "
-                    + "AND Id NOT IN(SELECT ApprenticeshipId FROM[dbo].[PriceHistory])",
+                    + "AND Id NOT IN(SELECT ApprenticeshipId FROM [dbo].[PriceHistory])",
                     param: parameters,
                     transaction: transaction,
                     commandType: CommandType.Text);
