@@ -45,7 +45,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "User name",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -94,7 +95,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -155,7 +157,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -184,7 +187,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -223,13 +227,15 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user 1",
                                                Email = "user1@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            },
                                        new TeamMemberViewModel
                                            {
                                                Name = "Test user 2",
                                                Email = "user2@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -271,7 +277,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -281,7 +288,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -328,7 +336,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user",
                                                Email = "user@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
             SetUpAccountClient(6, "Account B", new List<TeamMemberViewModel>
@@ -337,7 +346,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                            {
                                                Name = "Test user 2",
                                                Email = "user2@email.com",
-                                               Role = "Owner"
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
                                            }
                                    });
 
@@ -355,6 +365,62 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[1].Tokens["account_name"].Should().Be("Account B");
             emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
             emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
+        }
+
+        [Test]
+        public async Task ThenOnlySendsEmailToUsersThatHaveNotificationsEnabled()
+        {
+            SetupRepoWithTwoAccounts();
+            SetupAccountsWithATestUserForEachWithOneHavingNotificationsEnabled();
+
+            var emails = (await _sut.GetEmails()).ToArray();
+
+            emails.Length.Should().Be(1);
+        }
+
+        private void SetupAccountsWithATestUserForEachWithOneHavingNotificationsEnabled()
+        {
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
+                                   {
+                                       new TeamMemberViewModel
+                                           {
+                                               Name = "Test user",
+                                               Email = "user@email.com",
+                                               Role = "Owner",
+                                               CanReceiveNotifications = false
+                                           }
+                                   });
+            SetUpAccountClient(6, "Account B", new List<TeamMemberViewModel>
+                                   {
+                                       new TeamMemberViewModel
+                                           {
+                                               Name = "Test user 2",
+                                               Email = "user2@email.com",
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
+                                           }
+                                   });
+        }
+
+        private void SetupRepoWithTwoAccounts()
+        {
+            SetUpApprenticeshipRepostory(new List<AlertSummary>
+                                             {
+                                                 new AlertSummary
+                                                     {
+                                                         EmployerAccountId = 5L,
+                                                         ChangeOfCircCount = 1,
+                                                         RestartRequestCount = 2,
+                                                         TotalCount = 3
+                                                     },
+                                                 new AlertSummary
+                                                     {
+                                                         EmployerAccountId = 6L,
+                                                         ChangeOfCircCount = 2,
+                                                         RestartRequestCount = 3,
+                                                         TotalCount = 5
+                                                     }
+                                             });
         }
 
         private void SetUpAccountClient(int accountId, string accountName, List<TeamMemberViewModel> accountDetailViewModels)

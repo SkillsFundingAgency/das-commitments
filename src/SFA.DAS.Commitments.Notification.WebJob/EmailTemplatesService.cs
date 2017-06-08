@@ -77,7 +77,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                         
                         var alert = alertSummaries.Single(sum => sum.EmployerAccountId == m.AccountId);
 
-                        return m.Users.Select(userModel => MapToEmail(userModel, alert, account.HashedAccountId, account.DasAccountName));
+                        return m.Users
+                            .Where(u => u.CanReceiveNotifications)
+                            .Select(userModel => MapToEmail(userModel, alert, account.HashedAccountId, account.DasAccountName));
                     }
                 );
         }
