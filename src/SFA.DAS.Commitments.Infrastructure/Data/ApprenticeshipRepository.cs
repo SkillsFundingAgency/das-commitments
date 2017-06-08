@@ -228,7 +228,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory)
         {
             // -> Delete all price episodes from apprenticeshipId
-            // -> Inser all new ones
+            // -> Insert all new ones
 
             await WithTransaction(
                 async (c, t) =>
@@ -277,19 +277,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task CreatePriceHistoryForApprenticeshipsInCommitment(long commitmentId)
         {
-            await WithTransaction(async (connection, transaction) =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+            await WithTransaction(
+                async (connection, transaction) =>
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@commitmentId", commitmentId, DbType.Int64);
 
-                await connection.ExecuteAsync(
-                    sql: "INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate) "
-                    + "SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] "
-                    + "WHERE CommitmentId = @commitmentId "
-                    + "AND Id NOT IN(SELECT ApprenticeshipId FROM [dbo].[PriceHistory])",
-                    param: parameters,
-                    transaction: transaction,
-                    commandType: CommandType.Text);
+                        await
+                            connection.ExecuteAsync(
+                                sql:
+                                    "INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate) "
+                                    + "SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] "
+                                    + "WHERE CommitmentId = @commitmentId "
+                                    + "AND Id NOT IN(SELECT ApprenticeshipId FROM [dbo].[PriceHistory])",
+                                param: parameters,
+                                transaction: transaction,
+                                commandType: CommandType.Text);
+                    });
+        }
 
         public async Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary()
         {
