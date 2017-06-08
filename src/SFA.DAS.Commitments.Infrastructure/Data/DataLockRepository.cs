@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 using Dapper;
+
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -15,15 +14,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class DataLockRepository : BaseRepository, IDataLockRepository
     {
-        private readonly IApprenticeshipUpdateTransactions _apprenticeshipUpdateTransactions;
         private readonly IDataLockTransactions _dataLockTransactions;
 
         public DataLockRepository(string connectionString,
-            IApprenticeshipUpdateTransactions apprenticeshipUpdateTransactions,
             IDataLockTransactions dataLockTransactions,
             ICommitmentsLogger logger) : base(connectionString, logger)
         {
-            _apprenticeshipUpdateTransactions = apprenticeshipUpdateTransactions;
             _dataLockTransactions = dataLockTransactions;
         }
 
@@ -97,20 +93,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus, ApprenticeshipUpdate apprenticeshipUpdate)
+        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus)
         {
             return await WithTransaction(async (connection, trans) =>
             {
-                var apprenticeshipUpdateId = default(long?);
-
-                if (triageStatus == TriageStatus.Change)
-                {
-                    apprenticeshipUpdateId = await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans,
-                        apprenticeshipUpdate);
-                }
-
                 await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
-                    dataLockEventId, triageStatus, apprenticeshipUpdateId);
+                    dataLockEventId, triageStatus);
                 
                 return 0;
             });
