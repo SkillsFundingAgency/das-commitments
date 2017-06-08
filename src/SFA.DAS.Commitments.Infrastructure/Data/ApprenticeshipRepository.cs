@@ -284,7 +284,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 await connection.ExecuteAsync(
                     sql: "INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate) "
-                    + "SELECT Id, Cost, StartDate FROM[dbo].[Apprenticeship] "
+                    + "SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] "
                     + "WHERE CommitmentId = @commitmentId "
                     + "AND Id NOT IN(SELECT ApprenticeshipId FROM[dbo].[PriceHistory])",
                     param: parameters,
