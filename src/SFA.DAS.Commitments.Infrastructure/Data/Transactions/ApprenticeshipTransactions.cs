@@ -81,5 +81,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 
             return returnCode;
         }
+
+        public async Task UpdateCurrentPrice(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
+        {
+            var paras = new DynamicParameters();
+            paras.Add("@apprenticeshipId", apprenticeship.Id, DbType.Int64);
+            paras.Add("@cost", apprenticeship.Cost, DbType.Decimal);
+
+            await connection.ExecuteAsync(
+                sql: " UPDATE[dbo].[PriceHistory] " 
+                     + "SET Cost = @cost"
+                     + "WHERE ApprenticeshipId = @apprenticeshipId "
+                     + "AND( (FromDate <=GETDATE() AND ToDate >= FORMAT(GETDATE(), 'yyyMMdd')) " 
+                     + "OR ToDate IS NULL);", 
+                param: paras,
+                transaction: trans,
+                commandType: CommandType.Text);
+        }
     }
 }

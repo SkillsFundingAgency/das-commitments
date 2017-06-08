@@ -17,8 +17,8 @@ SELECT
 		ELSE
 			(
 			SELECT TOP 1 Cost
-				FROM PriceEpisode
-				WHERE ApprenticeshipId = 2
+				FROM PriceHistory
+				WHERE ApprenticeshipId = a.Id
 				AND (
 					(FromDate <= GETDATE() AND ToDate >= FORMAT(GETDATE(),'yyyMMdd')) 
 					OR ToDate IS NULL

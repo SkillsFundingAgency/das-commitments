@@ -2,7 +2,7 @@ using System;
 
 namespace SFA.DAS.Commitments.Domain.Entities
 {
-    public class PriceEpisode
+    public class PriceHistory
     {
         public long ApprenticeshipId { get; set; }
 

@@ -15,5 +15,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
         DynamicParameters GetApprenticeshipUpdateCreateParameters(Apprenticeship apprenticeship);
 
         Task<int> UpdateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship, Caller caller);
+
+        Task UpdateCurrentPrice(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship);
     }
 }

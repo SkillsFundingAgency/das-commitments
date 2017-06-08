@@ -38,8 +38,8 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IEnumerable<ApprenticeshipStatusSummary>> GetApprenticeshipSummariesByEmployer(long employerAccountId);
 
 
-        Task InsertPriceEpisodes(long apprenticeshipId, IEnumerable<PriceEpisode> priceEpisodes);
+        Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory);
 
-        Task<IEnumerable<PriceEpisode>> GetPriceEpisodes(long apprenticeshipId);
+        Task<IEnumerable<PriceHistory>> GetPriceHistory(long apprenticeshipId);
     }
 }

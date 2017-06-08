@@ -21,9 +21,9 @@ AND
 
 
 
-INSERT INTO [dbo].[PriceEpisode]
+INSERT INTO [dbo].[PriceHistory]
 	(ApprenticeshipId,Cost, FromDate)
 	SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] 
 	WHERE PaymentStatus <> 0
-	AND Id NOT IN (SELECT ApprenticeshipId FROM [dbo].[PriceEpisode])
+	AND Id NOT IN (SELECT ApprenticeshipId FROM [dbo].[PriceHistory])
 

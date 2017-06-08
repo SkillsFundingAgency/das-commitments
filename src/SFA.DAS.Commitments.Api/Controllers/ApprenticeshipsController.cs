@@ -48,9 +48,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("apprenticeships/{apprenticeshipId}/prices")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetPriceEpisodes(long apprenticeshipId)
+        public async Task<IHttpActionResult> GetPriceHistory(long apprenticeshipId)
         {
-            var response = await _orchestrator.GetPriceEpisodes(apprenticeshipId);
+            var response = await _orchestrator.GetPriceHistory(apprenticeshipId);
 
             return Ok(response.Data);
         }

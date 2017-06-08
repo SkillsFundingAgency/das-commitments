@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
-using SFA.DAS.Commitments.Application.Queries.GetPriceEpisodes;
+using SFA.DAS.Commitments.Application.Queries.GetPriceHistory;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -59,11 +58,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task<GetPriceEpisodesResponse> GetPriceEpisodes(long apprenticeshipId)
+        public async Task<GetPriceHistoryResponse> GetPriceHistory(long apprenticeshipId)
         {
-            _logger.Info($"Getting price episodes for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Info($"Getting price history for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
-            var response = await _mediator.SendAsync(new GetPriceEpisodesRequest
+            var response = await _mediator.SendAsync(new GetPriceHistoryRequest
             {
                 ApprenticeshipId = apprenticeshipId
             });

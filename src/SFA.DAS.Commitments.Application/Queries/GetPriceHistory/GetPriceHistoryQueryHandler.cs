@@ -5,13 +5,13 @@ using MediatR;
 
 using SFA.DAS.Commitments.Domain.Data;
 
-namespace SFA.DAS.Commitments.Application.Queries.GetPriceEpisodes
+namespace SFA.DAS.Commitments.Application.Queries.GetPriceHistory
 {
-    public class GetPriceEpisodeQueryHandler : IAsyncRequestHandler<GetPriceEpisodesRequest, GetPriceEpisodesResponse>
+    public class GetPriceHistoryQueryHandler : IAsyncRequestHandler<GetPriceHistoryRequest, GetPriceHistoryResponse>
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        public GetPriceEpisodeQueryHandler(IApprenticeshipRepository apprenticeshipRepository)
+        public GetPriceHistoryQueryHandler(IApprenticeshipRepository apprenticeshipRepository)
         {
             if(apprenticeshipRepository == null)
                 throw new ArgumentNullException($"{nameof(IApprenticeshipUpdateRepository)} cannot be null");
@@ -19,12 +19,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPriceEpisodes
             _apprenticeshipRepository = apprenticeshipRepository;
         }
 
-        public async Task<GetPriceEpisodesResponse> Handle(GetPriceEpisodesRequest message)
+        public async Task<GetPriceHistoryResponse> Handle(GetPriceHistoryRequest message)
         {
             return new 
-                GetPriceEpisodesResponse
+                GetPriceHistoryResponse
                 {
-                    Data = await _apprenticeshipRepository.GetPriceEpisodes(message.ApprenticeshipId)
+                    Data = await _apprenticeshipRepository.GetPriceHistory(message.ApprenticeshipId)
                 };
         }
     }
