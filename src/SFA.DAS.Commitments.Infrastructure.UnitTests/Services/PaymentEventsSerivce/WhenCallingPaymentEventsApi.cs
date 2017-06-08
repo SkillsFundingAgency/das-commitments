@@ -7,9 +7,13 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 
+using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Provider.Events.Api.Types;
+using System.Collections.Generic;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSerivce
 {
@@ -28,14 +32,15 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSer
         }
 
         [Test]
-        public async Task WhenGettingExceptionsFromApi()
+        public void WhenGettingExceptionsFromApi()
         {
             _paymentEventsApi.Setup(m => m.GetDataLockEvents(0, null, null, 0L, 1)).Throws<Exception>();
-            _sut.RetryWaitTimeInSeconds = 0;
-            var result = await _sut.GetDataLockEvents();
 
-            _paymentEventsApi.Verify(m => m.GetDataLockEvents(0, null, null, 0L, 1), Times.Exactly(3));
-            result.Count().Should().Be(0);
+            Func<Task<IEnumerable<DataLockStatus>>> act = async () => await _sut.GetDataLockEvents();
+
+            act.ShouldThrow<Exception>();
+
+            _paymentEventsApi.Verify(m => m.GetDataLockEvents(0, null, null, 0L, 1), Times.Exactly(4));
         }
 
         [Test]
@@ -48,7 +53,6 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSer
                                       TotalNumberOfPages = 1,
                                       Items = new DataLockEvent[0]
                                   });
-            _sut.RetryWaitTimeInSeconds = 0;
 
             await _sut.GetDataLockEvents(2);
             _paymentEventsApi.Verify(m => m.GetDataLockEvents(2, null, null, 0L, 1), Times.Once);

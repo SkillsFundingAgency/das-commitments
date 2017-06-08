@@ -290,6 +290,16 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     transaction: transaction,
                     commandType: CommandType.Text);
+
+        public async Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary()
+        {
+            return await WithConnection(async connection =>
+            {
+                var results = await connection.QueryAsync<AlertSummary>(
+                    sql: $"[dbo].[GetAlertsSummary]",
+                    commandType: CommandType.StoredProcedure);
+
+                return results.ToList();
             });
         }
 

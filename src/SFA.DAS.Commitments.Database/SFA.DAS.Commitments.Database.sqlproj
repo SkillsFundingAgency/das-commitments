@@ -101,6 +101,7 @@
     <Build Include="StoredProcedures\UpdateCustomProviderPaymentPriority.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipStatusSummaries.sql" />
     <Build Include="Tables\PriceHistory.sql" />
+    <Build Include="StoredProcedures\GetAlertsSummary.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

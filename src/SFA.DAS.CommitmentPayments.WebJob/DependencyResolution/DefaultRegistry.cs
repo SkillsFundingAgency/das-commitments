@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Azure;
-using NLog;
+
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.CommitmentPayments.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;

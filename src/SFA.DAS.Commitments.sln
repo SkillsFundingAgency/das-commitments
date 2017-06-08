@@ -35,6 +35,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Host.We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentPayments.WebJob.UnitTests", "SFA.DAS.CommitmentPayments.WebJob.UnitTests\SFA.DAS.CommitmentPayments.WebJob.UnitTests.csproj", "{F682E16D-2919-4A26-8DF8-12C608F54E39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Notification.WebJob", "SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj", "{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Notification.WebJob.UnitTests", "SFA.DAS.Commitments.Notification.WebJob.UnitTests\SFA.DAS.Commitments.Notification.WebJob.UnitTests.csproj", "{824DD7A7-4E55-4056-846F-DE81D5AF8B9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +94,14 @@ Global
 		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F682E16D-2919-4A26-8DF8-12C608F54E39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59B9F340-4489-4942-8EA2-0DF38C4DB3B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{824DD7A7-4E55-4056-846F-DE81D5AF8B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{824DD7A7-4E55-4056-846F-DE81D5AF8B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{824DD7A7-4E55-4056-846F-DE81D5AF8B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{824DD7A7-4E55-4056-846F-DE81D5AF8B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,5 +111,6 @@ Global
 		{C0C88789-3229-4B47-8081-16D1B5D85D9A} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{6669C64D-7DAE-47C2-A469-7636C89C0974} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{F682E16D-2919-4A26-8DF8-12C608F54E39} = {AEF29222-4B94-48CB-9438-78E5A6333438}
+		{824DD7A7-4E55-4056-846F-DE81D5AF8B9C} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 EndGlobal

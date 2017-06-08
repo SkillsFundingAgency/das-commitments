@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using Polly;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
     public class PaymentEventsService : IPaymentEvents
     {
         private readonly IPaymentsEventsApiClient _paymentsEventsApi;
-
         private readonly IPaymentEventMapper _mapper;
-
         private readonly ILog _logger;
-
-        public int RetryWaitTimeInSeconds { get; set; } = 3;
+        private readonly Policy _retryPolicy;
 
         public PaymentEventsService(
             IPaymentsEventsApiClient paymentsEventsApi,
@@ -35,6 +34,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _paymentsEventsApi = paymentsEventsApi;
             _mapper = mapper;
             _logger = logger;
+            _retryPolicy =  Policy
+                .Handle<Exception>()
+                .RetryAsync(3,
+                    (exception, retryCount) =>
+                    {
+                        _logger.Warn($"Error connecting to Payment Event Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                    }
+                );
         }
 
         public async Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
@@ -46,37 +53,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         {
             //todo: remove cast to int once package fixed
 
-            var result = await  Retry(
-                3, 
-                () => _paymentsEventsApi.GetDataLockEvents((int)sinceEventId, sinceTime, employerAccountId, ukprn, page)
-            );
-            // ToDo: Do we need to thow exception if GetDataLockEvents fails? 
+            var result = await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetDataLockEvents((int)sinceEventId, sinceTime, employerAccountId, ukprn, page));
 
             return 
                 result?.Items.Select(_mapper.Map) 
                 ?? new DataLockStatus[0];
-        }
-
-        private async Task<T> Retry<T>(int retryCount, Func<Task<T>> action)
-        {
-            var exception = new List<Exception>();
-            do
-            {
-                --retryCount;
-                try
-                {
-                    return await action.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    exception.Add(ex);
-                    System.Threading.Thread.Sleep(TimeSpan.FromSeconds(RetryWaitTimeInSeconds));
-                }
-            }
-            while (retryCount > 0);
-
-            _logger.Warn(exception.FirstOrDefault(), $"Not able to call service, tried {exception.Count} times");
-            return default(T);
         }
     }
 }

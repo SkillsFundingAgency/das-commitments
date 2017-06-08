@@ -37,11 +37,12 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task<IEnumerable<ApprenticeshipStatusSummary>> GetApprenticeshipSummariesByEmployer(long employerAccountId);
 
-
         Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory);
 
         Task<IEnumerable<PriceHistory>> GetPriceHistory(long apprenticeshipId);
 
         Task CreatePriceHistoryForApprenticeshipsInCommitment(long commitmentId);
+
+        Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary();
     }
 }
