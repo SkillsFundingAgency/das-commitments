@@ -45,7 +45,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             await WithTransaction(async (connection, trans) =>
                 {
                     var returnCode = await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
-                    await _apprenticeshipTransactions.UpdateCurrentPrice(connection, trans, apprenticeship);
                     return returnCode;
             });
         }
@@ -229,7 +228,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory)
         {
             // -> Delete all price episodes from apprenticeshipId
-            // -> Inser all new ones // Table?
+            // -> Inser all new ones
 
             await WithTransaction(
                 async (c, t) =>
@@ -274,7 +273,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
 
             return results;
+        }
 
+        public async Task CreatePriceHistoryForApprenticeshipsInCommitment(long commitmentId)
+        {
+            await WithTransaction(async (connection, transaction) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+
+                await connection.ExecuteAsync(
+                    sql: "INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate) "
+                    + "SELECT Id, Cost, StartDate FROM[dbo].[Apprenticeship] "
+                    + "WHERE CommitmentId = @commitmentId "
+                    + "AND Id NOT IN(SELECT ApprenticeshipId FROM[dbo].[PriceHistory])",
+                    param: parameters,
+                    transaction: transaction,
+                    commandType: CommandType.Text);
+            });
         }
 
         private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, SqlConnection x, DataTable table)

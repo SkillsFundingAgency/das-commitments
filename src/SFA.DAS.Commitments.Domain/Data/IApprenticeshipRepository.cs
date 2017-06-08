@@ -41,5 +41,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory);
 
         Task<IEnumerable<PriceHistory>> GetPriceHistory(long apprenticeshipId);
+
+        Task CreatePriceHistoryForApprenticeshipsInCommitment(long commitmentId);
     }
 }
