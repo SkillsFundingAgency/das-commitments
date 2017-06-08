@@ -4,7 +4,7 @@
 	[ApprenticeshipId] BIGINT NOT NULL, 
 	[Cost] DECIMAL NOT NULL,
 	[FromDate] DateTime NOT NULL,
-	[ToDate] Date NULL,
+	[ToDate] DateTime NULL,
 	CONSTRAINT [FK_PriceHistory_Apprenticeship] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id])
 )
 GO
