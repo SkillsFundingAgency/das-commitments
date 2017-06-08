@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using MediatR;
 
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetPriceHistory
@@ -21,10 +23,21 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPriceHistory
 
         public async Task<GetPriceHistoryResponse> Handle(GetPriceHistoryRequest message)
         {
+            var priceHistoryItems = 
+                (await _apprenticeshipRepository.GetPriceHistory(message.ApprenticeshipId))
+                .Select(m => 
+                    new PriceHistory
+                    {
+                        ApprenticeshipId = m.ApprenticeshipId,
+                        Cost = m.Cost, 
+                        FromDate = m.FromDate,
+                        ToDate = m.ToDate
+                    });
+
             return new 
                 GetPriceHistoryResponse
                 {
-                    Data = await _apprenticeshipRepository.GetPriceHistory(message.ApprenticeshipId)
+                    Data = priceHistoryItems
                 };
         }
     }

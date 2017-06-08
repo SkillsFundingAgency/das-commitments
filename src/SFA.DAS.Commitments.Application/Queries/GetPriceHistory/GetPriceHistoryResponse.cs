@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetPriceHistory
 {
