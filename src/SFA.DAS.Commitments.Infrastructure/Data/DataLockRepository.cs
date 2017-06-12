@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public DataLockRepository(string connectionString,
             IApprenticeshipUpdateTransactions apprenticeshipUpdateTransactions,
             IDataLockTransactions dataLockTransactions,
-            ICommitmentsLogger logger) : base(connectionString, logger)
+            ICommitmentsLogger logger) : base(connectionString, logger.BaseLogger)
         {
             _apprenticeshipUpdateTransactions = apprenticeshipUpdateTransactions;
             _dataLockTransactions = dataLockTransactions;

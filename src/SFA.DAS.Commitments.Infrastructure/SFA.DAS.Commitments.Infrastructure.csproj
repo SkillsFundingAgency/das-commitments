@@ -93,6 +93,9 @@
       <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.27426\lib\net45\SFA.DAS.Provider.Events.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.32930, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.32930\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap, Version=4.2.0.402, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\structuremap.4.2.0.402\lib\net40\StructureMap.dll</HintPath>
       <Private>True</Private>
@@ -128,7 +131,6 @@
     <Compile Include="Data\Transactions\IApprenticeshipUpdateTransactions.cs" />
     <Compile Include="Data\Transactions\IDataLockTransactions.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipTransactions.cs" />
-    <Compile Include="Data\BaseRepository.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />
     <Compile Include="Data\ParentChildrenMapper.cs" />
     <Compile Include="Data\Transactions\IApprenticeshipTransactions.cs" />

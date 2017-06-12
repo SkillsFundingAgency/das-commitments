@@ -6,12 +6,13 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public sealed class ProviderPaymentRepository : BaseRepository, IProviderPaymentRepository
     {
-        public ProviderPaymentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString, logger)
+        public ProviderPaymentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString, logger.BaseLogger)
         { }
 
         public async Task<IList<ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long employerAccountId)
