@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -18,7 +19,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
-        public ApprenticeshipRepository(string connectionString, ICommitmentsLogger logger, IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger)
+        public ApprenticeshipRepository(
+            string connectionString,
+            ICommitmentsLogger logger,
+            IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger.BaseLogger)
         {
             _logger = logger;
             _apprenticeshipTransactions = apprenticeshipTransactions;
