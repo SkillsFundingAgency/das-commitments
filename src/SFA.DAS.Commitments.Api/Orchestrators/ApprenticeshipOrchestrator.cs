@@ -1,11 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResolution;
+using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
 using SFA.DAS.Commitments.Application.Queries.GetPriceHistory;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
+
+using TriageStatus = SFA.DAS.Commitments.Api.Types.DataLock.Types.TriageStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -53,6 +60,31 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
+                TriageStatus = triageSubmission.TriageStatus,
+                UserId = triageSubmission.UserId
+            });
+        }
+
+        public async Task PatchDataLocks(long apprenticeshipId, DataLocksTriageSubmission triageSubmission)
+        {
+            _logger.Info($"Updateing triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+
+            await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
+                UserId = triageSubmission.UserId
+            });
+        }
+
+        public async Task PatchDataLocks(long apprenticeshipId, DataLocksTriageResolutionSubmission triageSubmission)
+        {
+            _logger.Info($"Patching ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+
+            await _mediator.SendAsync(new UpdateDataLocksTriageResolutionCommand
+            {
+                ApprenticeshipId = apprenticeshipId,
+                DataLockUpdateType = triageSubmission.DataLockUpdateType,
                 TriageStatus = triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });

@@ -130,6 +130,7 @@
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
+    <Compile Include="Commands\UpdateDataLocks\WhenUpdateingDataLocks.cs" />
     <Compile Include="Commands\UpdateDataLock\WhenUpdatingDataLock.cs" />
     <Compile Include="Commands\UpdateDataLock\WhenValidatingRequest.cs" />
     <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenSavingNewPriorityList.cs" />

@@ -103,5 +103,19 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 return 0;
             });
         }
+
+        public async Task<long> UpdateDataLockTriageStatus(IEnumerable<long> dataLockEventIds, TriageStatus triageStatus)
+        {
+            return await WithTransaction(async (connection, trans) =>
+            {
+                foreach (var id in dataLockEventIds)
+                {    
+                    await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
+                        id, triageStatus);
+                }
+
+                return 0;
+            });
+        }
     }
 }

@@ -74,6 +74,7 @@
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
+    <Compile Include="Commands\DataLockValidation.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommand.cs" />
@@ -107,6 +108,12 @@
     <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandHandler.cs" />
     <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommand.cs" />
     <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandValidator.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageResolutionCommand.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageResolutionHandler.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageStatusCommandValidator.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommand.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommandHandler.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommandValidator.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommand.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandHandler.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandValidator.cs" />

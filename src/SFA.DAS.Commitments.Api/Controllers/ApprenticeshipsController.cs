@@ -5,6 +5,8 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using System.Net;
 
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+
 namespace SFA.DAS.Commitments.Api.Controllers
 {
     [RoutePrefix("api")]
@@ -39,10 +41,29 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
+        [HttpPatch]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
             await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/datalocks")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageSubmission triageSubmission)
+        {
+            await _orchestrator.PatchDataLocks(apprenticeshipId, triageSubmission);
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/datalocks/resolve")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageResolutionSubmission triageSubmission)
+        {
+            await _orchestrator.PatchDataLocks(apprenticeshipId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
