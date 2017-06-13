@@ -63,7 +63,5 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {emailsToSendCount} emails", new Dictionary<string, object> { { "emailCount", emailsToSendCount }, { "duration", stopwatch.ElapsedMilliseconds } });
         }
-
-
     }
 }
