@@ -55,10 +55,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            if (newPaymentStatus == PaymentStatus.Withdrawn || newPaymentStatus == PaymentStatus.Paused)
+            if (newPaymentStatus == PaymentStatus.Paused)
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveTo: command.DateOfChange.Date);
+            else if (newPaymentStatus == PaymentStatus.Withdrawn)
+            {
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
+            }
             else
+            {
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
+            }
         }
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
