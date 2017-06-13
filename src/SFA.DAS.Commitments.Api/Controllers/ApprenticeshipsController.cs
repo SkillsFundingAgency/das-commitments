@@ -7,6 +7,8 @@ using System.Net;
 
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
+using DataLocksTriageResolutionSubmission = SFA.DAS.Commitments.Api.Types.DataLock.DataLocksTriageResolutionSubmission;
+
 namespace SFA.DAS.Commitments.Api.Controllers
 {
     [RoutePrefix("api")]
@@ -37,7 +39,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _orchestrator.GetDataLocks(apprenticeshipId);
 
-            return Ok(response.Data);
+            return Ok(response);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/datalocksummary")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLockSummary(long apprenticeshipId)
+        {
+            var response = await _orchestrator.GetDataLockSummary(apprenticeshipId);
+
+            return Ok(response);
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]

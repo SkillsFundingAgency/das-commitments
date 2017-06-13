@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
                 .ToList();
 
 
-            if (command.DataLockUpdateType == DataLockUpdateType.ApproveChanges)
+            if (command.DataLockUpdateType == Api.Types.DataLock.Types.DataLockUpdateType.ApproveChanges)
             {
                 var newPriceHistory = dataLocksToBeUpdated
                     .Select(m => 
@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
                     TriageStatus.Unknown);
 
             }
-            else if (command.DataLockUpdateType == DataLockUpdateType.RejectChanges)
+            else if (command.DataLockUpdateType == Api.Types.DataLock.Types.DataLockUpdateType.RejectChanges)
             {
                 await _dataLockRepository.UpdateDataLockTriageStatus(
                     dataLocksToBeUpdated.Select(m => m.DataLockEventId),
