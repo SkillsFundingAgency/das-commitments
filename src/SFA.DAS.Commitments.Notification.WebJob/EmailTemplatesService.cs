@@ -79,6 +79,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
                         return m.Users
                             .Where(u => u.CanReceiveNotifications)
+                            .Where(u => u.Role == "Owner" || u.Role == "Transactor")
                             .Select(userModel => MapToEmail(userModel, alert, account.HashedAccountId, account.DasAccountName));
                     }
                 );
