@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             if (!started)
                 return true;
 
-            var isValid = 
+            var isValid =
                 apprenticeshipUpdate.ULN == null
                 && apprenticeshipUpdate.StartDate == null
                 && apprenticeshipUpdate.EndDate == null
@@ -114,7 +114,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 return false;
             }
 
+            if (apprenticeshipUpdate.Cost != null && !(IsCurrentMonthInSameMonthAsStartDate(apprenticeship)))
+            {
+                _logger.Warn($"Cannot update Cost for a started apprenticeship when not done in the same month as the start date; ULN {apprenticeshipUpdate.ULN}, StartDate: {apprenticeshipUpdate.StartDate}, EndDate: {apprenticeshipUpdate.EndDate}, TrainingCode: {apprenticeshipUpdate.TrainingCode}", apprenticeshipId: apprenticeship.Id);
+                return false;
+            }
+
             return true;
+        }
+
+        private bool IsCurrentMonthInSameMonthAsStartDate(Apprenticeship apprenticeship)
+        {
+            return _currentDateTime.Now.Year == apprenticeship.StartDate.Value.Year && _currentDateTime.Now.Month == apprenticeship.StartDate.Value.Month;
         }
 
         private void MapImmediateApprenticeshipUpdate(Apprenticeship apprenticeship, CreateApprenticeshipUpdateCommand command)
@@ -158,12 +169,21 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 EffectiveToDate = null
             };
 
-            if (apprenticeship.StartDate > _currentDateTime.Now) // Was waiting to start when created
+            if (apprenticeship.StartDate > _currentDateTime.Now // Was waiting to start when created
+                || IsInSameCalendarMonth(apprenticeship.StartDate.Value, _currentDateTime.Now)) 
             {
                 result.EffectiveFromDate = apprenticeship.StartDate.Value;
             }
 
             return result.HasChanges ? result : null;
+        }
+
+        private bool IsInSameCalendarMonth(DateTime first, DateTime second)
+        {
+            if (first.Year == second.Year && first.Month == second.Month)
+                return true;
+
+            return false;
         }
 
         private void CheckAuthorisation(CreateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship)
