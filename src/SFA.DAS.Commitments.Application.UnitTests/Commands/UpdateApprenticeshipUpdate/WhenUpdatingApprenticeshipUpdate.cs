@@ -156,7 +156,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _repository.Verify(m => m.RejectApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
             _repository.Verify(m => m.UndoApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
-            _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, _effectiveDate.AddDays(-1)), Times.Once);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), _effectiveDate, null), Times.Once);
         }
 
@@ -305,15 +304,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            // Old apprenticeship
-            _apprenticeshipEvents.Verify(x => x.PublishEvent(
-                It.IsAny<Commitment>(), 
-                It.Is<Apprenticeship>(m => 
-                       m.StartDate == _apprenticeshipStartDate
-                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
-                    && m.FirstName == "Original first name"), 
-                It.IsAny<string>(), null, createdOn.AddDays(-1)), Times.Once);
-
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
                 It.IsAny<Commitment>(),
@@ -405,19 +395,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     && p.FirstName == "Updated first name"
                     ),
                 It.IsAny<Caller>()), Times.Once);
-
-            // Old apprenticeship
-            // TBC correct behaviour of this in v2
-            _apprenticeshipEvents.Verify(x => x.PublishEvent(
-                It.IsAny<Commitment>(),
-                It.Is<Apprenticeship>(m =>
-                       m.StartDate == _apprenticeshipStartDate
-                    && m.EndDate == _apprenticeshipStartDate.AddYears(2)
-                    && m.FirstName == "Original first name"),
-                It.IsAny<string>(),
-                null,
-                newStartDate.AddDays(-1)),
-                Times.Once);
 
             // New apprenticeship
             _apprenticeshipEvents.Verify(x => x.PublishEvent(
