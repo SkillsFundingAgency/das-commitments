@@ -114,6 +114,11 @@ namespace SFA.DAS.Commitments.Application.Services
 
         private List<FacetItem<RecordStatus>> ExtractRecordStatus(IList<Apprenticeship> apprenticeships, Originator caller, ApprenticeshipSearchQuery apprenticeshipQuery)
         {
+            Action<List<FacetItem<RecordStatus>>, RecordStatus> addUnique = (x, y) =>
+            {
+                x.Add(new FacetItem<RecordStatus> { Data = y });
+            };
+
             var result = apprenticeships
                 .Where(m => m.PendingUpdateOriginator != null)
                 .Select(m => new FacetItem<RecordStatus>
@@ -124,43 +129,26 @@ namespace SFA.DAS.Commitments.Application.Services
                                     : RecordStatus.ChangesForReview
                         });
 
-            var dataLockStatuses = apprenticeships
-                .DistinctBy(m => m.DataLockTriageStatus)
-                .Select(
-                    m =>
-                        {
-                            switch (m.DataLockTriageStatus)
-                            {
-                                case TriageStatus.Unknown:
-                                    return new FacetItem<RecordStatus>
-                                    {
-                                        Data = caller == Originator.Provider
-                                            ? RecordStatus.IlrDataMismatch
-                                            : RecordStatus.NoActionNeeded
-                                    };
-                                case TriageStatus.Change:
-                                    return new FacetItem<RecordStatus>
-                                    {
-                                        Data = caller == Originator.Provider
-                                            ? RecordStatus.ChangeRequested
-                                            : RecordStatus.NoActionNeeded
-                                    };
-                                case TriageStatus.Restart:
-                                    return new FacetItem<RecordStatus> { Data = RecordStatus.ChangeRequested };
-                                case TriageStatus.FixIlr:
-                                    return new FacetItem<RecordStatus>
-                                    {
-                                        Data = caller == Originator.Provider
-                                            ? RecordStatus.IlrChangesPending
-                                            : RecordStatus.NoActionNeeded
-                                    };
-                            }
-                            return new FacetItem<RecordStatus> { Data = RecordStatus.NoActionNeeded };
-                            
-                        }
-                );
+            var statusFacets = new List<FacetItem<RecordStatus>>();
+            if (apprenticeships.Any(x => (x.DataLockPrice || x.DataLockCourse)))
+            {
+                addUnique(statusFacets,
+                    caller == Originator.Provider ? RecordStatus.IlrDataMismatch : RecordStatus.NoActionNeeded);
+            }
 
-            List<FacetItem<RecordStatus>> concatResult = result.Concat(dataLockStatuses).DistinctBy(m => m.Data).ToList();
+            if (apprenticeships.Any(x => x.DataLockPriceTriaged))
+            {
+                addUnique(statusFacets,
+                    caller == Originator.Provider ? RecordStatus.ChangeRequested : RecordStatus.NoActionNeeded);
+            }
+
+            if (apprenticeships.Any(x => x.DataLockCourseTriaged))
+            {
+                addUnique(statusFacets, RecordStatus.ChangeRequested);
+            }
+
+
+            List<FacetItem<RecordStatus>> concatResult = result.Concat(statusFacets).DistinctBy(m => m.Data).ToList();
 
             concatResult.ForEach(m => m.Selected = apprenticeshipQuery.RecordStatuses?.Contains(m.Data) ?? false);
 

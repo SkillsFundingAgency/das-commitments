@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
                                     FirstName = "Not started",
                                     PaymentStatus = PaymentStatus.Active,
                                     StartDate = DateTime.Now.AddDays(-30),
-                                    DataLockTriageStatus = TriageStatus.Unknown
+                                    DataLockCourse = true
                                 }
                         };
 
@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
         [TestCase(Originator.Employer)]
         public void ShouldHaveDataLockRestartFacetAndPendingWhenUpdateFromTheSameAsCaller(Originator caller)
         {
-            _data.Add(new Apprenticeship { PendingUpdateOriginator = caller, DataLockTriageStatus = TriageStatus.Restart});
+            _data.Add(new Apprenticeship { PendingUpdateOriginator = caller, DataLockCourseTriaged = true});
 
             var result = _sut.BuildFacetes(_data, _userQuery, caller);
 
@@ -96,7 +96,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
         [Test]
         public void ShouldHaveDataLockRestartFacetAndChangeForReviewForEmployer()
         {
-            _data.Add(new Apprenticeship { PendingUpdateOriginator = Originator.Provider, DataLockTriageStatus = TriageStatus.Restart });
+            _data.Add(new Apprenticeship { PendingUpdateOriginator = Originator.Provider, DataLockCourseTriaged = true });
 
             var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
 
@@ -108,7 +108,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
         [TestCase(Originator.Employer, Originator.Employer)]
         public void ShouldHaveDataLockRestartAndPendingUpdateAnd_AllShouldBeSelected(Originator updateFrom, Originator caller)
         {
-            _data.Add(new Apprenticeship { PendingUpdateOriginator = updateFrom, DataLockTriageStatus = TriageStatus.Restart });
+            _data.Add(new Apprenticeship { PendingUpdateOriginator = updateFrom, DataLockCourseTriaged = true });
             _userQuery.RecordStatuses = new EditableList<RecordStatus> { RecordStatus.ChangeRequested, RecordStatus.ChangesForReview, RecordStatus.ChangesPending  };
             var result = _sut.BuildFacetes(_data, _userQuery, caller);
 
@@ -125,7 +125,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
         [TestCase(Originator.Employer, Originator.Provider)]
         public void ShouldHaveDataLockRestartAndFacetChangesForReview_AllShouldBeSelected(Originator updateFrom, Originator caller)
         {
-            _data.Add(new Apprenticeship { PendingUpdateOriginator = updateFrom, DataLockTriageStatus = TriageStatus.Restart });
+            _data.Add(new Apprenticeship { PendingUpdateOriginator = updateFrom, DataLockCourseTriaged = true});
             _userQuery.RecordStatuses = new EditableList<RecordStatus> { RecordStatus.ChangeRequested, RecordStatus.ChangesForReview, RecordStatus.ChangesPending };
             var result = _sut.BuildFacetes(_data, _userQuery, caller);
 
