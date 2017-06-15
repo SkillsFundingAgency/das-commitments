@@ -31,6 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IMediator> _mediator;
         private Mock<IHistoryRepository> _historyRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
+        private Mock<ICurrentDateTime> _mockCurrentDateTime;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
@@ -75,10 +76,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _historyRepository = new Mock<IHistoryRepository>();
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
-            var mockCurrentDateTime = new Mock<ICurrentDateTime>();
-            mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
+            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object, mockCurrentDateTime.Object);
+            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object, _mockCurrentDateTime.Object);
         }
 
         [Test]
@@ -359,6 +360,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                           Id = 5,
                                           ApprenticeshipId = 42,
                                           EndDate = new DateTime(DateTime.Now.Year + 2, 5, 1)
+                                      }
+            };
+
+            //Act && Assert
+            Func<Task> act = async () => await _handler.Handle(request);
+            act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenIfApprenticeHasStartedAndNotInSameMonthAsStartDate_ValidationFailureExceptionIsThrown_IfCostIsChanged()
+        {
+            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 7, 13));
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    ULN = " 123",
+                    StartDate = new DateTime(2017, 6, 1),
+                    EndDate = new DateTime(2017, 5, 1),
+                    Id = 3
+                });
+
+            var request = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate =
+                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      {
+                                          Id = 5,
+                                          ApprenticeshipId = 42,
+                                          Cost = 1234
                                       }
             };
 

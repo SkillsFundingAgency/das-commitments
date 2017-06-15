@@ -36,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
         private Mock<IHistoryRepository> _historyRepository;
+        private Mock<ICurrentDateTime> _currentDateTime;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -202,7 +203,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenThereMustBeAPendingUpdate()
+        public void ThenThereMustBeAPendingUpdate()
         {
             var command = new UpdateApprenticeshipUpdateCommand
             {
@@ -256,7 +257,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenThereMustBeNoOverlapping()
+        public void ThenThereMustBeNoOverlapping()
         {
             var command = new UpdateApprenticeshipUpdateCommand
             {
@@ -476,24 +477,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.Last().UserId == command.UserId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
         }
-
-        /*
-         * 
-         * 
-            When confirming a change to an approved apprenticeship
-            When the change was requested:
-            if the apprenticeship was "waiting to start" then the change effective date is the start date of the apprenticeship
-
-            if the apprenticeship was "live" then the change effective date is the date that the change was requested
-            
-        The following occurs when a change of circumstances is approved:
-
-            using the "old" apprenticeship data, an event is emitted with the effective to date set to the change effective date minus 1 day
-            apprenticeship data is updated with the requested field changes applied
-            using the "new" apprenticeship data, an event is emitted with the effective from date set to the change effective date
-            (info) Note: a future iteration will capture a change effective date from the user which represents when the change of circumstances should be applied from - this will clearly identify the user's intent
-            When stopping an apprenticeship
-
-         */
     }
 }
