@@ -11,7 +11,6 @@ SELECT
 	CASE
 		WHEN
 			a.PaymentStatus = 0
-
 		THEN
 			a.Cost
 		ELSE

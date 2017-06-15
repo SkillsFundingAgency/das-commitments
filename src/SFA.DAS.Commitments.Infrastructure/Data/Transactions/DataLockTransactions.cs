@@ -20,5 +20,19 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
                 transaction: trans,
                 commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<long> ResolveDataLock(IDbConnection connection, IDbTransaction trans, long dataLockEventId)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@DataLockEventId", dataLockEventId);
+
+            return await connection.ExecuteAsync(
+                sql: "UPDATE [dbo].[DataLockStatus] " 
+                   + "SET IsResolved = 1 " 
+                   + "WHERE Id = @DataLockEventId",
+                param: parameters,
+                transaction: trans,
+                commandType: CommandType.Text);
+        }
     }
 }

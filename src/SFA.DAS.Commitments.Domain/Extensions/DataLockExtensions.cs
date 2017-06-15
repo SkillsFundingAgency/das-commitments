@@ -4,9 +4,9 @@ namespace SFA.DAS.Commitments.Domain.Extensions
 {
     public static class DataLockExtensions
     {
-        public static bool UnHandeled(this DataLockStatus dataLockStatus)
+        public static bool UnHandeled(this DataLockStatus dl)
         {
-            return !dataLockStatus.IsResolved && dataLockStatus.Status != Status.Pass;
+            return !dl.IsResolved && dl.Status != Status.Pass;
         }
 
         public static bool IsPriceOnly(this DataLockStatus dataLockStatus)

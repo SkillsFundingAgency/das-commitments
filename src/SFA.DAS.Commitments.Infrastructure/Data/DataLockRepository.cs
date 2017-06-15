@@ -117,5 +117,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 return 0;
             });
         }
+
+        public async Task<long> ResolveDataLock(IEnumerable<long> dataLockEventIds)
+        {
+            return await WithTransaction(async (connection, trans) =>
+            {
+                foreach (var id in dataLockEventIds)
+                {
+                    await _dataLockTransactions.ResolveDataLock(connection, trans, id);
+                }
+
+                return 0;
+            });
+        }
     }
 }
