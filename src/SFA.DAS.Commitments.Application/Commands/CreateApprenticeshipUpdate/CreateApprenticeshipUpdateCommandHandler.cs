@@ -165,14 +165,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 StartDate = update.StartDate,
                 EndDate = update.EndDate,
                 UpdateOrigin = (UpdateOrigin) update.UpdateOrigin,
-                EffectiveFromDate = _currentDateTime.Now,
+                EffectiveFromDate = apprenticeship.StartDate.Value,
                 EffectiveToDate = null
             };
 
-            if (apprenticeship.StartDate > _currentDateTime.Now // Was waiting to start when created
-                || IsInSameCalendarMonth(apprenticeship.StartDate.Value, _currentDateTime.Now)) 
+            // Update the effective from date if they've made a change to the Start Date value - can only be done when waiting to start.
+            if (update.StartDate.HasValue)
             {
-                result.EffectiveFromDate = apprenticeship.StartDate.Value;
+                result.EffectiveFromDate = update.StartDate.Value;
             }
 
             return result.HasChanges ? result : null;
