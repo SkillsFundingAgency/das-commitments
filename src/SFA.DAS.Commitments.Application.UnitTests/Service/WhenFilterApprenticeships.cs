@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                                                FirstName = "WaitingToStart",
                                                PaymentStatus = PaymentStatus.Active,
                                                StartDate = DateTime.Now.AddMonths(2),
-                                               DataLockTriageStatus = TriageStatus.Restart
+                                               DataLockCourseTriaged = true
                                            }
                                    };
             _sut = new ApprenticeshipFilterService(new FacetMapper());
@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
         [TestCase(Originator.Employer)]
         public void ShouldFilterRecordStatusOnIlrDataMismatch(Originator caller)
         {
-            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockTriageStatus = TriageStatus.Unknown });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockPrice = true});
             var query = new ApprenticeshipSearchQuery
             {
                 RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrDataMismatch })
@@ -135,10 +135,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
         [TestCase(Originator.Provider)]
         [TestCase(Originator.Employer)]
-        public void ShouldFilterRecordStatusOnIlrChangesPendingAndMisMatch(Originator caller)
+        public void ShouldFilterRecordStatusOnMisMatch(Originator caller)
         {
-            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockTriageStatus = TriageStatus.Unknown });
-            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Changes Pending", DataLockTriageStatus = TriageStatus.FixIlr });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockCourse = true});
 
             var query = new ApprenticeshipSearchQuery
             {
@@ -155,8 +154,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
         [TestCase(Originator.Employer)]
         public void ShouldFilterOnlyOneInstanceOfApprenticeship(Originator caller)
         {
-            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockTriageStatus = TriageStatus.Unknown, PendingUpdateOriginator = caller});
-            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Changes Pending", DataLockTriageStatus = TriageStatus.FixIlr });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "ILR Data Mismatch", DataLockCourseTriaged = true, PendingUpdateOriginator = caller});
 
             var query = new ApprenticeshipSearchQuery
             {

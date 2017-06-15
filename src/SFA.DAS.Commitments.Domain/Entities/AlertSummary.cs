@@ -6,7 +6,7 @@
 
         public int TotalCount { get; set; }
 
-        public int ChangeOfCircCount { get; set; }
+        public int ChangesForReview { get; set; }
 
         public int RestartRequestCount { get; set; }
     }

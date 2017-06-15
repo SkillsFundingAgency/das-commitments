@@ -124,8 +124,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                             ? "is 1 apprentice" 
                                             : $"are {alertSummary.TotalCount} apprentices" },
                                        { "account_name", accountName },
-                                       { "changes_for_review", alertSummary.ChangeOfCircCount > 0 
-                                            ? $"* {alertSummary.ChangeOfCircCount} with changes for review" 
+                                       { "changes_for_review", alertSummary.ChangesForReview > 0 
+                                            ? $"* {alertSummary.ChangesForReview} with changes for review" 
                                             : string.Empty },
                                        { "requested_changes", alertSummary.RestartRequestCount > 0 
                                             ? $"* {alertSummary.RestartRequestCount} with requested changes" 

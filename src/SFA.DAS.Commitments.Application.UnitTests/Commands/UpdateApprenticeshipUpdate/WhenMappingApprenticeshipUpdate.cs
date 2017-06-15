@@ -46,7 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     UpdateOriginator = Originator.Provider,
                     ProviderName = "Provider name",
                     LegalEntityName = "Legal entity name",
-                    DataLockTriage = TriageStatus.FixIlr
+                    DataLockCourse = true
             };
         }
 
@@ -69,7 +69,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _apprenticeship.ProviderName.Should().Be("Provider name");
             _apprenticeship.LegalEntityName.Should().Be("Legal entity name");
             _apprenticeship.TrainingType.Should().Be(TrainingType.Framework);
-            _apprenticeship.DataLockTriage.Should().Be(TriageStatus.FixIlr);
+            _apprenticeship.DataLockCourse.Should().Be(true);
         }
 
         [Test]
