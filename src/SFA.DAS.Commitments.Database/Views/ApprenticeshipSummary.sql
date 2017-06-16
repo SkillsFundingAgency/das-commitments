@@ -51,5 +51,5 @@ SELECT
 			where ApprenticeshipId = a.Id
 			and [Status] = 2 AND [IsResolved] = 0
 			and SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2017'
-			ORDER BY CONVERT(DATETIME,SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10),103) ASC 
+			ORDER BY IlrEffectiveFromDate ASC 
 		)
