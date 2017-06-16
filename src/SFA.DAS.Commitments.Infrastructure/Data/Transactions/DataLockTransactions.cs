@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             return await connection.ExecuteAsync(
                 sql: "UPDATE [dbo].[DataLockStatus] " 
                    + "SET IsResolved = 1 " 
-                   + "WHERE Id = @DataLockEventId",
+                   + "WHERE DataLockEventId = @DataLockEventId",
                 param: parameters,
                 transaction: trans,
                 commandType: CommandType.Text);
