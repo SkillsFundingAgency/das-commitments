@@ -2,10 +2,30 @@
 AS 
 
 SELECT 
-	a.*,
+	a.Id,a.CommitmentId,a.FirstName,a.LastName,a.ULN,a.TrainingType,a.TrainingCode,a.TrainingName,
+	a.StartDate,a.EndDate,a.AgreementStatus,a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
+	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate,
 	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName, c.LegalEntityId,
 	au.Originator AS UpdateOriginator,
 	dl.TriageStatus AS DataLockTriage, dl.ErrorCode as DataLockErrorCode,
+	CASE
+		WHEN
+			a.PaymentStatus = 0
+
+		THEN
+			a.Cost
+		ELSE
+			(
+			SELECT TOP 1 Cost
+				FROM PriceHistory
+				WHERE ApprenticeshipId = a.Id
+				AND (
+					(FromDate <= GETDATE() AND ToDate >= FORMAT(GETDATE(),'yyyMMdd')) 
+					OR ToDate IS NULL
+				)
+				ORDER BY FromDate
+			 )
+	END AS 'Cost',
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
