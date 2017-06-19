@@ -5,7 +5,7 @@ SELECT
 	EmployerAccountId
 	, COUNT(*) AS TotalCount
 	, COUNT(CASE UpdateOriginator WHEN 1 THEN 1 ELSE NULL END)
-		+ COUNT(CASE DataLockPriceTriaged WHEN 1 THEN 1 ELSE 0 END)
+		+ COUNT(CASE DataLockPriceTriaged WHEN 1 THEN 1 ELSE NULL END)
 		AS ChangesForReview
 	, COUNT(CASE DataLockCourseTriaged WHEN 1 THEN 1 ELSE NULL END) AS RestartRequestCount
 	FROM (SELECT [Id]
