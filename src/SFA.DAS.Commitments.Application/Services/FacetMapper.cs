@@ -139,7 +139,7 @@ namespace SFA.DAS.Commitments.Application.Services
             if (apprenticeships.Any(x => x.DataLockPriceTriaged))
             {
                 addUnique(statusFacets,
-                    caller == Originator.Provider ? RecordStatus.ChangeRequested : RecordStatus.NoActionNeeded);
+                    caller == Originator.Provider ? RecordStatus.ChangesPending : RecordStatus.NoActionNeeded);
             }
 
             if (apprenticeships.Any(x => x.DataLockCourseTriaged))
