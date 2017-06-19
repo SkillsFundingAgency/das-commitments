@@ -44,12 +44,15 @@ namespace SFA.DAS.Commitments.Application.Services
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesPending))
                 {
                     records.AddRange(result.Where(m => m.PendingUpdateOriginator == caller));
+                    if(caller == Originator.Provider)
+                        records.AddRange(result.Where(m => m.DataLockPriceTriaged));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesForReview))
                 {
                     records.AddRange(result.Where(m => m.PendingUpdateOriginator != null && m.PendingUpdateOriginator != caller));
-                    records.AddRange(result.Where(m => m.DataLockPriceTriaged));
+                    if(caller == Originator.Employer)
+                        records.AddRange(result.Where(m => m.DataLockPriceTriaged));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrDataMismatch))
