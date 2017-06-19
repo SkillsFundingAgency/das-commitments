@@ -6,6 +6,8 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using System.Collections.Generic;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -16,6 +18,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<ICurrentDateTime> MockCurrentDateTime;
         protected Mock<IApprenticeshipEvents> MockEventsApi;
         protected Mock<IHistoryRepository> MockHistoryRepository;
+        protected Mock<IDataLockRepository> MockDataLockRepository;
         protected UpdateApprenticeshipStatusCommandHandler Handler;
         protected UpdateApprenticeshipStatusCommand ExampleValidRequest;
         protected Apprenticeship TestApprenticeship;
@@ -47,10 +50,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockEventsApi = new Mock<IApprenticeshipEvents>();
             MockHistoryRepository = new Mock<IHistoryRepository>();
+            MockDataLockRepository = new Mock<IDataLockRepository>();
 
             MockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId))).ReturnsAsync(TestApprenticeship);
             MockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
+            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId)).ReturnsAsync(new List<DataLockStatus>());
 
             Handler = new UpdateApprenticeshipStatusCommandHandler(
                 MockCommitmentRespository.Object,
@@ -59,7 +64,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 MockCurrentDateTime.Object,
                 MockEventsApi.Object,
                 Mock.Of<ICommitmentsLogger>(),
-                MockHistoryRepository.Object);
+                MockHistoryRepository.Object,
+                MockDataLockRepository.Object);
         }
     }
 }
