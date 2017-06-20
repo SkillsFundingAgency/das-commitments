@@ -13,10 +13,10 @@ using SFA.DAS.Commitments.Domain.Data;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
-
+using SFA.DAS.Commitments.Domain.Interfaces;
 using DataLockUpdateType = SFA.DAS.Commitments.Api.Types.DataLock.Types.DataLockUpdateType;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTriageResolution
@@ -50,7 +50,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _sut = new UpdateDataLocksTriageResolutionHandler(
             _validator.Object,
             _dataLockRepository.Object,
-            _apprenticeshipRepository.Object);
+            _apprenticeshipRepository.Object,
+            Mock.Of<IApprenticeshipEventsPublisher>(),
+            Mock.Of<IApprenticeshipEventsList>(),
+            Mock.Of<ICommitmentRepository>(),
+            Mock.Of<ICurrentDateTime>());
         }
 
         [Test]

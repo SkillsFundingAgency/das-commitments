@@ -204,20 +204,30 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
         {
-            var results = await WithConnection(async c =>
+            return await WithConnection(async c =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId);
 
-                var s = GetPriceHistory(apprenticeshipId);
-                return await c.QueryAsync<Apprenticeship>(
-                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE Id = @id;",
-                    param: parameters,
-                    commandType: CommandType.Text);
+                var sql =
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.Id = @id;";
 
+                Apprenticeship result = null;
+
+                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship> (sql, (apprenticeship, history) =>
+                {
+                    if (result == null)
+                    {
+                        result = apprenticeship;
+                    }
+
+                    result.PriceHistory.Add(history);
+
+                    return apprenticeship;
+                }, parameters);
+
+                return result;
             });
-
-            return results.SingleOrDefault();
         }
 
         public async Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId)
@@ -432,11 +442,27 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var results = await c.QueryAsync<Apprenticeship>(
-                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE {identifierName} = @id AND PaymentStatus <> {(int)PaymentStatus.Deleted};",
-                    param: parameters);
+                var sql =
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted};";
 
-                return results.ToList();
+                var apprenticeships = new Dictionary<long, Apprenticeship>();
+
+                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship>(sql, (apprenticeship, history) =>
+                {
+                    Apprenticeship existing;
+                    if (!apprenticeships.TryGetValue(apprenticeship.Id, out existing))
+                    {
+                        apprenticeships.Add(apprenticeship.Id, apprenticeship);
+                        existing = apprenticeship;
+                    }
+                    existing.PriceHistory.Add(history);
+
+                    return existing;
+
+                }, parameters);
+
+                return apprenticeships.Values.ToList();
+
             });
         }
 

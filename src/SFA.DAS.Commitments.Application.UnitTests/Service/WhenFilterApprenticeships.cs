@@ -141,13 +141,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
             var query = new ApprenticeshipSearchQuery
             {
-                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrChangesPending, RecordStatus.IlrDataMismatch,  })
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.ChangeRequested, RecordStatus.IlrDataMismatch,  })
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
             result.Count().Should().Be(2);
             result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
-            result.Count(m => m.FirstName == "ILR Changes Pending").Should().Be(1);
+            result.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -158,13 +158,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
             var query = new ApprenticeshipSearchQuery
             {
-                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.IlrChangesPending, RecordStatus.IlrDataMismatch, })
+                RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.ChangeRequested, RecordStatus.IlrDataMismatch, })
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
             result.Count().Should().Be(2);
             result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
-            result.Count(m => m.FirstName == "ILR Changes Pending").Should().Be(1);
+            result.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
         }
 
 

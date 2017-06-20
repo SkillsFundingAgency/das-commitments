@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 using Newtonsoft.Json;
@@ -8,6 +8,11 @@ namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class Apprenticeship
     {
+        public Apprenticeship()
+        {
+            PriceHistory = new List<PriceHistory>();
+        }
+
         public long Id { get; set; }
         public long CommitmentId { get; set; }
         public long EmployerAccountId { get; set; }
@@ -41,6 +46,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public bool DataLockPriceTriaged { get; set; }
         public bool DataLockCourse { get; set; }
         public bool DataLockCourseTriaged { get; set; }
+        public List<PriceHistory> PriceHistory { get; set; }
 
         public Apprenticeship Clone()
         {

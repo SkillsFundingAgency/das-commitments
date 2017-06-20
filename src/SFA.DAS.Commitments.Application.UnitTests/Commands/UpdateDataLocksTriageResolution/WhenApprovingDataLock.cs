@@ -13,10 +13,10 @@ using SFA.DAS.Commitments.Domain.Data;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
-
+using SFA.DAS.Commitments.Domain.Interfaces;
 using DataLockUpdateType = SFA.DAS.Commitments.Api.Types.DataLock.Types.DataLockUpdateType;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTriageResolution
@@ -28,6 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
         private Mock<AbstractValidator<UpdateDataLocksTriageResolutionCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
+        private Mock<ICommitmentRepository> _commitmentRepository;
 
         private UpdateDataLocksTriageResolutionCommand _command;
 
@@ -37,6 +38,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _validator = new Mock<AbstractValidator<UpdateDataLocksTriageResolutionCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship());
+
+            _commitmentRepository = new Mock<ICommitmentRepository>();
+            _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>()))
+                .ReturnsAsync(new Commitment());
 
             _command = new UpdateDataLocksTriageResolutionCommand
                            {
@@ -50,7 +58,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _sut = new UpdateDataLocksTriageResolutionHandler(
             _validator.Object, 
             _dataLockRepository.Object, 
-            _apprenticeshipRepository.Object);
+            _apprenticeshipRepository.Object,
+            Mock.Of<IApprenticeshipEventsPublisher>(),
+            Mock.Of<IApprenticeshipEventsList>(),
+            _commitmentRepository.Object,
+            Mock.Of<ICurrentDateTime>());
+        }
+
+        [Test]
+        public async Task ShouldCallApprenticeshipRepositoryToGetDataForPublishingEvent()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+                .ReturnsAsync(new List<DataLockStatus>
+                                  {
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3}
+                                  });
+
+            await _sut.Handle(_command);
+
+            _apprenticeshipRepository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldCallCommitmentRepositoryToGetDataForPublishingEvent()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+                .ReturnsAsync(new List<DataLockStatus>
+                      {
+                            new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3}
+                      });
+
+            await _sut.Handle(_command);
+
+            _commitmentRepository.Verify(x => x.GetCommitmentById(It.IsAny<long>()), Times.Once);
         }
 
         [Test]
