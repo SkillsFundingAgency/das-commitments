@@ -147,8 +147,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AzureTableStorageNLogTarget.1.0.9\lib\NLog.Extensions.AzureTableStorage.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.62.0.32304, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.62.0.32304\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="Polly, Version=5.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.5.1.0\lib\net45\Polly.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.63.0.32764, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.63.0.32764\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Configuration, Version=1.0.0.6634, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.6634\lib\net45\SFA.DAS.Configuration.dll</HintPath>
@@ -179,6 +183,9 @@
     </Reference>
     <Reference Include="SFA.DAS.NLog.Targets.Redis, Version=1.0.0.26805, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Targets.Redis.1.0.0.26805\lib\net45\SFA.DAS.NLog.Targets.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.32930, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.32930\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
     </Reference>
     <Reference Include="StackExchange.Redis, Version=1.1.608.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\StackExchange.Redis.1.1.608\lib\net45\StackExchange.Redis.dll</HintPath>

@@ -10,6 +10,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
     {
         private readonly ILog _logger;
 
+        public ILog BaseLogger => _logger;
+
         public CommitmentsLogger(ILog logger)
         {
             _logger = logger;
