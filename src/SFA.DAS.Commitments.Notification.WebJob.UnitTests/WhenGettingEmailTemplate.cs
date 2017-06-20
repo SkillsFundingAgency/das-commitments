@@ -378,6 +378,52 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails.Length.Should().Be(1);
         }
 
+        [Test]
+        public async Task UserWithViewRoleShouldNotGetEmails()
+        {
+            SetUpApprenticeshipRepostory(new List<AlertSummary>
+                                             {
+                                                 new AlertSummary
+                                                     {
+                                                         EmployerAccountId = 5L,
+                                                         ChangesForReview = 1,
+                                                         RestartRequestCount = 2,
+                                                         TotalCount = 3
+                                                     }
+                                             });
+            SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>
+                                   {
+                                       new TeamMemberViewModel
+                                           {
+                                               Name = "Test user 1",
+                                               Email = "user1@email.com",
+                                               Role = "Owner",
+                                               CanReceiveNotifications = true
+                                           },
+                                       new TeamMemberViewModel
+                                           {
+                                               Name = "Test user 2",
+                                               Email = "user2@email.com",
+                                               Role = "Transactor",
+                                               CanReceiveNotifications = true
+                                           },
+                                       new TeamMemberViewModel
+                                           {
+                                               Name = "Test user 3",
+                                               Email = "user3@email.com",
+                                               Role = "Viewer",
+                                               CanReceiveNotifications = true
+                                           }
+                                   });
+
+            var emails = (await _sut.GetEmails()).ToArray();
+            _accountApiClient.Verify(m => m.GetAccountUsers(5L), Times.Once);
+            emails.Length.Should().Be(2);
+            emails.FirstOrDefault(m => m.Tokens["name"] == "Test user 1").Should().NotBeNull();
+            emails.FirstOrDefault(m => m.Tokens["name"] == "Test user 2").Should().NotBeNull();
+            emails.FirstOrDefault(m => m.Tokens["name"] == "Test user 3").Should().BeNull();
+        }
+
         private void SetupAccountsWithATestUserForEachWithOneHavingNotificationsEnabled()
         {
             SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>

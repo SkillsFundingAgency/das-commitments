@@ -7,6 +7,7 @@ using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -14,7 +15,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
 
-        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString, logger)
+        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString, logger.BaseLogger)
         {
             _logger = logger;
         }

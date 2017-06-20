@@ -202,7 +202,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenThereMustBeAPendingUpdate()
+        public void ThenThereMustBeAPendingUpdate()
         {
             var command = new UpdateApprenticeshipUpdateCommand
             {
@@ -256,7 +256,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenThereMustBeNoOverlapping()
+        public void ThenThereMustBeNoOverlapping()
         {
             var command = new UpdateApprenticeshipUpdateCommand
             {

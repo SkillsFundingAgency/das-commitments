@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             var distinctAccountsTasks =
                  distinctAccountIds
-                .Select(x => _retryPolicy.ExecuteAsync(() => _accountApi.GetAccount((long)x)))
+                .Select(x => _retryPolicy.ExecuteAsync(() => _accountApi.GetAccount(x)))
                 .ToList();
 
             var userPerAccountTasks =
@@ -74,11 +74,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             return accountsWithUsers.SelectMany(m =>
                     {
                         var account = accounts.Single(a => a.AccountId == m.AccountId);
-                        
+
                         var alert = alertSummaries.Single(sum => sum.EmployerAccountId == m.AccountId);
 
                         return m.Users
                             .Where(u => u.CanReceiveNotifications)
+                            .Where(u => u.Role == "Owner" || u.Role == "Transactor")
                             .Select(userModel => MapToEmail(userModel, alert, account.HashedAccountId, account.DasAccountName));
                     }
                 );

@@ -46,17 +46,22 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         private async Task SendEmails(IEnumerable<Email> emails)
         {
-            var totalEmail = emails.Count();
-            _logger.Debug($"About to send {totalEmail} emails");
+            var emailsToSendCount = emails?.Count();
+
+            if (emails == null || emailsToSendCount == 0)
+            {
+                _logger.Debug($"No emails to send");
+                return;
+            }
+
             var stopwatch = Stopwatch.StartNew();
 
-            var tasks = emails.Select(email => _notificationsApi.SendEmail(email));
+            _logger.Debug($"About to send {emailsToSendCount} emails");
 
+            var tasks = emails.Select(email => _notificationsApi.SendEmail(email));
             await Task.WhenAll(tasks);
 
-            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {totalEmail} email", new Dictionary<string, object> { { "emailCount", totalEmail }, { "duration", stopwatch.ElapsedMilliseconds } });
+            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to send {emailsToSendCount} emails", new Dictionary<string, object> { { "emailCount", emailsToSendCount }, { "duration", stopwatch.ElapsedMilliseconds } });
         }
-
-
     }
 }

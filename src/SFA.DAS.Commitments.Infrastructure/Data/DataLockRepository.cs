@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -18,7 +19,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public DataLockRepository(string connectionString,
             IDataLockTransactions dataLockTransactions,
-            ICommitmentsLogger logger) : base(connectionString, logger)
+            ICommitmentsLogger logger) : base(connectionString, logger.BaseLogger)
         {
             _dataLockTransactions = dataLockTransactions;
         }
