@@ -211,7 +211,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@id", apprenticeshipId);
 
                 var sql =
-                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.Id = @id;";
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.Id = @id;";
 
                 Apprenticeship result = null;
 
@@ -222,7 +222,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         result = apprenticeship;
                     }
 
-                    result.PriceHistory.Add(history);
+                    if (history.ApprenticeshipId != 0)
+                    {
+                        result.PriceHistory.Add(history);
+                    }
 
                     return apprenticeship;
                 }, parameters);
@@ -444,7 +447,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var sql =
-                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted};";
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted};";
 
                 var apprenticeships = new Dictionary<long, Apprenticeship>();
 
@@ -456,7 +459,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         apprenticeships.Add(apprenticeship.Id, apprenticeship);
                         existing = apprenticeship;
                     }
-                    existing.PriceHistory.Add(history);
+
+                    if (history.ApprenticeshipId != 0)
+                    {
+                        existing.PriceHistory.Add(history);
+                    }
 
                     return existing;
 
