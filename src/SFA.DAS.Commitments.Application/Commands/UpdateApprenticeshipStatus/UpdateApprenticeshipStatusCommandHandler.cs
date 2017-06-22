@@ -9,6 +9,8 @@ using System;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using System.Linq;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
@@ -21,8 +23,19 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEvents _eventsApi;
+        private readonly IDataLockRepository _dataLockRepository;
 
-        public UpdateApprenticeshipStatusCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, UpdateApprenticeshipStatusValidator validator, ICurrentDateTime currentDate, IApprenticeshipEvents eventsApi, ICommitmentsLogger logger, IHistoryRepository historyRepository)
+        private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
+
+        public UpdateApprenticeshipStatusCommandHandler(
+            ICommitmentRepository commitmentRepository, 
+            IApprenticeshipRepository apprenticeshipRepository, 
+            UpdateApprenticeshipStatusValidator validator, 
+            ICurrentDateTime currentDate, 
+            IApprenticeshipEvents eventsApi,
+            ICommitmentsLogger logger, 
+            IHistoryRepository historyRepository,
+            IDataLockRepository dataLockRepository)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -31,6 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _eventsApi = eventsApi;
             _logger = logger;
             _historyRepository = historyRepository;
+            _dataLockRepository = dataLockRepository;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand command)
@@ -55,10 +69,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            if (newPaymentStatus == PaymentStatus.Withdrawn || newPaymentStatus == PaymentStatus.Paused)
+            if (newPaymentStatus == PaymentStatus.Paused)
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveTo: command.DateOfChange.Date);
+            else if (newPaymentStatus == PaymentStatus.Withdrawn)
+            {
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
+            }
             else
+            {
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
+            }
         }
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
@@ -76,11 +96,40 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 case PaymentStatus.Withdrawn:
                     ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
                     await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
+                    await ResolveAnyTriagedCourseDataLocks(command.ApprenticeshipId);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(newPaymentStatus), "Not a valid value for change of status");
             }
             await historyService.Save();
+        }
+
+        private async Task ResolveAnyTriagedCourseDataLocks(long apprenticeshipId)
+        {
+            var dataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId))
+                                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode));
+
+            if (dataLocks.Any())
+            {
+                if (dataLocks.Count() > 1)
+                {
+                    _logger.Debug($"More than one unresolved data lock with triage status of reset found when stopping apprenticeship. ApprenticeshipId: {apprenticeshipId}", apprenticeshipId);
+                }
+
+                foreach(var dataLock in dataLocks)
+                {
+                    dataLock.IsResolved = true;
+                    await _dataLockRepository.UpdateDataLockStatus(dataLock);
+                }
+            }
+        }
+
+        private bool IsCourseChangeError(DataLockErrorCode errorCode)
+        {
+            if ((errorCode & CourseChangeErrors) > 0)
+                return true;
+
+            return false;
         }
 
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)

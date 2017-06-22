@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -48,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             await Handler.Handle(ExampleValidRequest);
 
-            MockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<PaymentStatus>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>()));
+            MockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<PaymentStatus>(), It.IsNotNull<DateTime?>(), It.IsAny<DateTime?>()));
         }
 
         [Test]
@@ -180,6 +181,51 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.First().UpdatedState == expectedNewApprenticeshipState &&
                                 y.First().UserId == ExampleValidRequest.UserId &&
                                 y.First().UpdatedByName == ExampleValidRequest.UserName)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenACourseDataLocksThatHaveBeenTriagedAsResetAreResolved()
+        {
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            });
+
+            var dataLocks = new List<DataLockStatus>
+            {
+                new DataLockStatus { TriageStatus = TriageStatus.Restart, IsResolved = false, ErrorCode = DataLockErrorCode.Dlock04 }
+            };
+
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+
+            await Handler.Handle(ExampleValidRequest);
+
+            MockDataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved == true)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenMultipleCourseDataLocksThatHaveBeenTriagedAsResetAreResolved()
+        {
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            });
+
+            var dataLocks = new List<DataLockStatus>
+            {
+                new DataLockStatus { TriageStatus = TriageStatus.Restart, IsResolved = false, ErrorCode = DataLockErrorCode.Dlock04 },
+                new DataLockStatus { TriageStatus = TriageStatus.Restart, IsResolved = false, ErrorCode = DataLockErrorCode.Dlock03 },
+                new DataLockStatus { TriageStatus = TriageStatus.Unknown, IsResolved = false, ErrorCode = DataLockErrorCode.Dlock07 }, // Is a price error
+                new DataLockStatus { TriageStatus = TriageStatus.Restart, IsResolved = false, ErrorCode = DataLockErrorCode.Dlock06 }
+            };
+
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+
+            await Handler.Handle(ExampleValidRequest);
+
+            MockDataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved == true)), Times.Exactly(3));
         }
     }
 }
