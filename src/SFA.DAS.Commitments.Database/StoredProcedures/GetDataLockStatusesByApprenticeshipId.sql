@@ -3,7 +3,8 @@
 AS
 
 	SELECT *
-	from DataLockStatus
-	where ApprenticeshipId = @ApprenticeshipId
+	FROM DataLockStatus
+	WHERE ApprenticeshipId = @ApprenticeshipId
+	ORDER BY IlrEffectiveFromDate
 
 

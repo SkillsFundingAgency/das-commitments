@@ -82,14 +82,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
         private async Task CreateEvents(Commitment commitment, Apprenticeship apprenticeship, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
         {
-            var changeEffective = pendingUpdate.EffectiveFromDate;
-
-            if (!changeEffective.Date.Equals(apprenticeship.StartDate.Value.Date))
-            {
-                await _eventsApi.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", null, changeEffective.AddDays(-1));
-            }
-
-            await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", changeEffective, null);
+            await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", pendingUpdate.EffectiveFromDate, null);
         }
 
         private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)

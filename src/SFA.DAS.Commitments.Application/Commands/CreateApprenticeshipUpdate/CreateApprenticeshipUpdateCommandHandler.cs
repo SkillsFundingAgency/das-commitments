@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             if (!started)
                 return true;
 
-            var isValid = 
+            var isValid =
                 apprenticeshipUpdate.ULN == null
                 && apprenticeshipUpdate.StartDate == null
                 && apprenticeshipUpdate.EndDate == null
@@ -114,7 +114,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 return false;
             }
 
+            if (apprenticeshipUpdate.Cost != null && !(IsCurrentMonthInSameMonthAsStartDate(apprenticeship)))
+            {
+                _logger.Warn($"Cannot update Cost for a started apprenticeship when not done in the same month as the start date; ULN {apprenticeshipUpdate.ULN}, StartDate: {apprenticeshipUpdate.StartDate}, EndDate: {apprenticeshipUpdate.EndDate}, TrainingCode: {apprenticeshipUpdate.TrainingCode}", apprenticeshipId: apprenticeship.Id);
+                return false;
+            }
+
             return true;
+        }
+
+        private bool IsCurrentMonthInSameMonthAsStartDate(Apprenticeship apprenticeship)
+        {
+            return _currentDateTime.Now.Year == apprenticeship.StartDate.Value.Year && _currentDateTime.Now.Month == apprenticeship.StartDate.Value.Month;
         }
 
         private void MapImmediateApprenticeshipUpdate(Apprenticeship apprenticeship, CreateApprenticeshipUpdateCommand command)
@@ -154,16 +165,25 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 StartDate = update.StartDate,
                 EndDate = update.EndDate,
                 UpdateOrigin = (UpdateOrigin) update.UpdateOrigin,
-                EffectiveFromDate = _currentDateTime.Now,
+                EffectiveFromDate = apprenticeship.StartDate.Value,
                 EffectiveToDate = null
             };
 
-            if (apprenticeship.StartDate > _currentDateTime.Now) // Was waiting to start when created
+            // Update the effective from date if they've made a change to the Start Date value - can only be done when waiting to start.
+            if (update.StartDate.HasValue)
             {
-                result.EffectiveFromDate = apprenticeship.StartDate.Value;
+                result.EffectiveFromDate = update.StartDate.Value;
             }
 
             return result.HasChanges ? result : null;
+        }
+
+        private bool IsInSameCalendarMonth(DateTime first, DateTime second)
+        {
+            if (first.Year == second.Year && first.Month == second.Month)
+                return true;
+
+            return false;
         }
 
         private void CheckAuthorisation(CreateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship)
