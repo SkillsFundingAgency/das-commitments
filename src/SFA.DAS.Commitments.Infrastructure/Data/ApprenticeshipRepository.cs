@@ -59,6 +59,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@paymentStatus", PaymentStatus.Withdrawn, DbType.Int16);
+                parameters.Add("@stopDate", dateOfChange, DbType.Date);
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
