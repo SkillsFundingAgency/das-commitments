@@ -93,8 +93,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                 PendingUpdateOriginator = (Originator?)matchingApprenticeship.UpdateOriginator,
                 ProviderName = matchingApprenticeship.ProviderName,
                 LegalEntityName = matchingApprenticeship.LegalEntityName,
-                DataLockTriageStatus = (TriageStatus?)matchingApprenticeship.DataLockTriage,
-                DataLockErrorCode = (DataLockErrorCode)matchingApprenticeship.DataLockErrorCode
+                DataLockCourse = matchingApprenticeship.DataLockCourse,
+                DataLockPrice = matchingApprenticeship.DataLockPrice,
+                DataLockCourseTriaged = matchingApprenticeship.DataLockCourseTriaged,
+                DataLockPriceTriaged = matchingApprenticeship.DataLockPriceTriaged,
             };
 
             return response;

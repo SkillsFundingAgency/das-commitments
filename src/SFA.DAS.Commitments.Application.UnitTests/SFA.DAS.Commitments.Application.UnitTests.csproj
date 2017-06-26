@@ -72,15 +72,16 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.62.0.32304, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.62.0.32304\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
-    </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.66.0.33236, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.66.0.33236\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.26.0.33437, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.26.0.33437\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.26.0.33437, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.26.0.33437\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="StructureMap, Version=4.4.5.0, Culture=neutral, processorArchitecture=MSIL">
@@ -129,6 +130,9 @@
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\WhenApprovingDataLock.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\WhenRejectingDataLock.cs" />
+    <Compile Include="Commands\UpdateDataLocks\WhenUpdatingDataLocks.cs" />
     <Compile Include="Commands\UpdateDataLock\WhenUpdatingDataLock.cs" />
     <Compile Include="Commands\UpdateDataLock\WhenValidatingRequest.cs" />
     <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenSavingNewPriorityList.cs" />

@@ -62,8 +62,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
                         PendingUpdateOriginator = (Originator?)x.UpdateOriginator,
                         ProviderName = x.ProviderName,
                         LegalEntityName = x.LegalEntityName,
-                        DataLockTriageStatus = (TriageStatus?)x.DataLockTriage,
-                        DataLockErrorCode = (DataLockErrorCode)x.DataLockErrorCode,
+                        DataLockCourse = x.DataLockCourse,
+                        DataLockPrice = x.DataLockPrice,
+                        DataLockCourseTriaged = x.DataLockCourseTriaged,
+                        DataLockPriceTriaged = x.DataLockPriceTriaged,
                         LegalEntityId = x.LegalEntityId
                     }
                     ).ToList()

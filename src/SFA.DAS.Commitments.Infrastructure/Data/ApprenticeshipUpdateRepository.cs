@@ -79,6 +79,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
 
+                await _apprenticeshipTransactions.UpdateCurrentPrice(connection, trans, apprenticeship);
+
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId, ApprenticeshipUpdateStatus.Approved);
 
                 if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)

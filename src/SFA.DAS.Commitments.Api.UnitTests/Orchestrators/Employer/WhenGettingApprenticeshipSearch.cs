@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 
             _mockMediator.Verify(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()), Times.Once);
-            _mockFacetMapper.Verify(m => m.BuildFacetes(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer), Times.Once);
+            _mockFacetMapper.Verify(m => m.BuildFacets(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer), Times.Once);
             _mockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer), Times.Once);
 
             result.Apprenticeships.Count().Should().Be(0);

@@ -136,7 +136,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             var approvedApprenticeships = response.Data
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
-            var facets = _facetMapper.BuildFacetes(approvedApprenticeships, query, Originator.Provider);
+            var facets = _facetMapper.BuildFacets(approvedApprenticeships, query, Originator.Provider);
 
             var filteredProviders = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Provider);
 

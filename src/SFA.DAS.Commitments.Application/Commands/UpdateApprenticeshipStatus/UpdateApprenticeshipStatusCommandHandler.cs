@@ -6,8 +6,10 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using System.Linq;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -28,12 +30,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
 
         public UpdateApprenticeshipStatusCommandHandler(
-            ICommitmentRepository commitmentRepository, 
-            IApprenticeshipRepository apprenticeshipRepository, 
-            UpdateApprenticeshipStatusValidator validator, 
-            ICurrentDateTime currentDate, 
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
+            UpdateApprenticeshipStatusValidator validator,
+            ICurrentDateTime currentDate,
             IApprenticeshipEvents eventsApi,
-            ICommitmentsLogger logger, 
+            ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
             IDataLockRepository dataLockRepository)
         {
@@ -116,7 +118,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                     _logger.Debug($"More than one unresolved data lock with triage status of reset found when stopping apprenticeship. ApprenticeshipId: {apprenticeshipId}", apprenticeshipId);
                 }
 
-                foreach(var dataLock in dataLocks)
+                foreach (var dataLock in dataLocks)
                 {
                     dataLock.IsResolved = true;
                     await _dataLockRepository.UpdateDataLockStatus(dataLock);
@@ -131,6 +133,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             return false;
         }
+
 
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {

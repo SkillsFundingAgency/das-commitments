@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
                             PaymentStatus = PaymentStatus.PendingApproval
                         });
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Provider);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Provider);
 
             result.ApprenticeshipStatuses.Count.Should().Be(0);
 
@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
                 StartDate = DateTime.Now.AddMonths(1)
             });
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Provider);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Provider);
 
             result.ApprenticeshipStatuses.Count.Should().Be(1);
             AssertStatus(result, ApprenticeshipStatus.WaitingToStart, 1);
@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 
             _userQuery.ApprenticeshipStatuses = new List<ApprenticeshipStatus> { ApprenticeshipStatus.Stopped };
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Provider);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Provider);
 
             var selected = result.ApprenticeshipStatuses.Where(m => m.Selected);
             selected.Count().Should().Be(1);
@@ -109,7 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 
             _userQuery.ApprenticeshipStatuses = new List<ApprenticeshipStatus> { ApprenticeshipStatus.Stopped, ApprenticeshipStatus.Live };
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Provider);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Provider);
 
             var selected = result.ApprenticeshipStatuses.Where(m => m.Selected);
             selected.Count().Should().Be(2);
@@ -134,7 +134,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 
             _userQuery.ApprenticeshipStatuses = new List<ApprenticeshipStatus> { ApprenticeshipStatus.Stopped, ApprenticeshipStatus.Live };
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Provider);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Provider);
 
             var selected = result.ApprenticeshipStatuses.Where(m => m.Selected);
             selected.Count().Should().Be(1);

@@ -32,33 +32,34 @@ namespace SFA.DAS.Commitments.Application.Services
                 var records = new List<Apprenticeship>();
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.NoActionNeeded))
                 {
-                    records.AddRange(result.Where(m => m.DataLockTriageStatus == null && m.PendingUpdateOriginator == null));
+                    records.AddRange(result.Where(m => !m.DataLockPriceTriaged && !m.DataLockCourseTriaged
+                        && m.PendingUpdateOriginator == null));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangeRequested))
                 {
-                    records.AddRange(result.Where(m => m.DataLockTriageStatus == TriageStatus.Restart));
+                    records.AddRange(result.Where(m => m.DataLockCourseTriaged));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesPending))
                 {
                     records.AddRange(result.Where(m => m.PendingUpdateOriginator == caller));
+                    if(caller == Originator.Provider)
+                        records.AddRange(result.Where(m => m.DataLockPriceTriaged));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.ChangesForReview))
                 {
                     records.AddRange(result.Where(m => m.PendingUpdateOriginator != null && m.PendingUpdateOriginator != caller));
+                    if(caller == Originator.Employer)
+                        records.AddRange(result.Where(m => m.DataLockPriceTriaged));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrDataMismatch))
                 {
-                    records.AddRange(result.Where(m => m.DataLockTriageStatus == TriageStatus.Unknown));
+                    records.AddRange(result.Where(m => m.DataLockPrice || m.DataLockCourse));
                 }
 
-                if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrChangesPending))
-                {
-                    records.AddRange(result.Where(m => m.DataLockTriageStatus == TriageStatus.FixIlr));
-                }
                 result = records;
             }
 

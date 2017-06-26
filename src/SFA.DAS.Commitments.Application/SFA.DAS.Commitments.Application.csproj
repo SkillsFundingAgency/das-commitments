@@ -46,11 +46,12 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.62.0.32304, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.62.0.32304\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.66.0.33236, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.66.0.33236\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.26.0.33437, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.26.0.33437\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -106,6 +107,12 @@
     <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandHandler.cs" />
     <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommand.cs" />
     <Compile Include="Commands\UpdateCustomProviderPaymentPriority\UpdateProviderPaymentsPriorityCommandValidator.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageResolutionCommand.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageResolutionHandler.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageStatusCommandValidator.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommand.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommandHandler.cs" />
+    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommandValidator.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommand.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandHandler.cs" />
     <Compile Include="Commands\UpdateDataLockTriageStatus\UpdateDataLockTriageStatusCommandValidator.cs" />
@@ -123,6 +130,8 @@
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksResponse.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksValidator.cs" />
+    <Compile Include="Queries\GetPriceHistory\GetPriceHistoryQueryHandler.cs" />
+    <Compile Include="Queries\GetPriceHistory\GetPriceHistoryRequest.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockRequest.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockQueryHandler.cs" />
     <Compile Include="Queries\GetDataLock\GetDataLockResponse.cs" />
@@ -148,6 +157,7 @@
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityQueryHandler.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityRequest.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityResponse.cs" />
+    <Compile Include="Queries\GetPriceHistory\GetPriceHistoryResponse.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentQueryHandler.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentRequest.cs" />
     <Compile Include="Queries\GetRelationshipByCommitment\GetRelationshipByCommitmentResponse.cs" />

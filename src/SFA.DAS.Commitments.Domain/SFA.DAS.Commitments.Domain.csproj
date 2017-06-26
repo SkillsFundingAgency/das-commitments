@@ -38,12 +38,12 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Client, Version=1.26.0.33437, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Client.1.26.0.33437\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.23.0.28215, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.23.0.28215\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=1.26.0.33437, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.1.26.0.33437\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.26805, Culture=neutral, processorArchitecture=MSIL">
@@ -67,6 +67,8 @@
     <Compile Include="Entities\ApprenticeshipStatusSummary.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
+    <Compile Include="Entities\DataLock\DataLocksTriageSubmission.cs" />
+    <Compile Include="Entities\PriceHistory.cs" />
     <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />
     <Compile Include="Entities\ProviderPaymentPriorityItem.cs" />
     <Compile Include="Entities\DataLock\DataLockErrorCode.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Entities\UpdateOrigin.cs" />
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
+    <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
