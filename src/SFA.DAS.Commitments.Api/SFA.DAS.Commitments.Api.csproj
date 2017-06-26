@@ -288,6 +288,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ApprenticeshipsController.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
+    <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\ValidationController.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
