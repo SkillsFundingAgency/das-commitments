@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
-            await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
+            await _orchestrator.TriageDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -65,7 +65,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageSubmission triageSubmission)
         {
-            await _orchestrator.PatchDataLocks(apprenticeshipId, triageSubmission);
+            await _orchestrator.TriageDataLocks(apprenticeshipId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -74,7 +74,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageResolutionSubmission triageSubmission)
         {
-            await _orchestrator.PatchDataLocks(apprenticeshipId, triageSubmission);
+            await _orchestrator.ResolveDataLock(apprenticeshipId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
         }
 

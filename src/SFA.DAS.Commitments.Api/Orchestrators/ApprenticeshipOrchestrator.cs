@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                        };
         }
 
-        public async Task PatchDataLock(long apprenticeshipId, long dataLockEventId, DataLockTriageSubmission triageSubmission)
+        public async Task TriageDataLock(long apprenticeshipId, long dataLockEventId, DataLockTriageSubmission triageSubmission)
         {
             _logger.Info($"Patching data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
@@ -92,7 +92,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task PatchDataLocks(long apprenticeshipId, DataLocksTriageSubmission triageSubmission)
+        public async Task TriageDataLocks(long apprenticeshipId, DataLocksTriageSubmission triageSubmission)
         {
             _logger.Info($"Updateing triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
@@ -104,7 +104,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
         }
 
-        public async Task PatchDataLocks(long apprenticeshipId, DataLocksTriageResolutionSubmission triageSubmission)
+        public async Task ResolveDataLock(long apprenticeshipId, DataLocksTriageResolutionSubmission triageSubmission)
         {
             _logger.Info($"Patching ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
