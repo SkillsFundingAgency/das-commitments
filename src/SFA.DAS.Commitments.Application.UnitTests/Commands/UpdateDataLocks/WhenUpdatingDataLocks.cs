@@ -28,8 +28,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
         private UpdateDataLocksTriageStatusCommand _validCommand;
 
-        private Mock<IDataLockValidation> _mockValidation;
-
         [SetUp]
         public void SetUp()
         {
@@ -59,8 +57,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
                 TriageStatus = TriageStatus.Change,
                 UserId = "testuser"
             };
-
-            _mockValidation = new Mock<IDataLockValidation>();
 
             _sut = new UpdateDataLocksTriageStatusCommandHandler(
                 _validator.Object,
