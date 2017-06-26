@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -35,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetDataLockResponse> GetDataLock(long apprenticeshipId, long dataLockEventId)
         {
-            _logger.Info($"Getting data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Getting data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             var response = await _mediator.SendAsync(new GetDataLockRequest
             {
@@ -43,23 +42,29 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 DataLockEventId = dataLockEventId
             });
 
+            _logger.Info($"Retrieved data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+
             return response;
         }
 
         public async Task<IList<Api.Types.DataLock.DataLockStatus>> GetDataLocks(long apprenticeshipId)
         {
-            _logger.Info($"Getting data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Getting data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             var response = await _mediator.SendAsync(new GetDataLocksRequest
             {
                 ApprenticeshipId = apprenticeshipId
             });
 
+            _logger.Info($"Retrieved {response.Data.Count} data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+
             return MapToApiType(response.Data);
         }
 
         public async Task<DataLockSummary> GetDataLockSummary(long apprenticeshipId)
         {
+            _logger.Trace($"Getting data lock summary for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+
             var response = await _mediator.SendAsync(new GetDataLocksRequest
             {
                 ApprenticeshipId = apprenticeshipId
@@ -72,16 +77,21 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             var withPriceOnly = response.Data
                 .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.IsPriceOnly).ToList();
-            return new DataLockSummary
-                       {
-                           DataLockWithCourseMismatch = MapToApiType(courseMismatch),
-                           DataLockWithOnlyPriceMismatch = MapToApiType(withPriceOnly)
-                       };
+
+            var summary = new DataLockSummary
+            {
+                DataLockWithCourseMismatch = MapToApiType(courseMismatch),
+                DataLockWithOnlyPriceMismatch = MapToApiType(withPriceOnly)
+            };
+
+            _logger.Info($"Retrieved data lock summary for apprenticeship: {apprenticeshipId}. {summary.DataLockWithCourseMismatch.Count(): CourseMismatch}, {summary.DataLockWithOnlyPriceMismatch}: Price Mismatch ", apprenticeshipId);
+
+            return summary;
         }
 
         public async Task TriageDataLock(long apprenticeshipId, long dataLockEventId, DataLockTriageSubmission triageSubmission)
         {
-            _logger.Info($"Patching data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
             {
@@ -90,11 +100,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 TriageStatus = triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
+
+            _logger.Trace($"Updated data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to status: {triageSubmission.TriageStatus}", apprenticeshipId);
         }
 
         public async Task TriageDataLocks(long apprenticeshipId, DataLocksTriageSubmission triageSubmission)
         {
-            _logger.Info($"Updateing triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
             {
@@ -102,11 +114,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
+
+            _logger.Info($"Updated all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
         }
 
         public async Task ResolveDataLock(long apprenticeshipId, DataLocksTriageResolutionSubmission triageSubmission)
         {
-            _logger.Info($"Patching ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Resolving datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateDataLocksTriageResolutionCommand
             {
@@ -115,16 +129,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 TriageStatus = triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
+
+            _logger.Info($"Resolved datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
         }
 
         public async Task<GetPriceHistoryResponse> GetPriceHistory(long apprenticeshipId)
         {
-            _logger.Info($"Getting price history for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Getting price history for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             var response = await _mediator.SendAsync(new GetPriceHistoryRequest
             {
                 ApprenticeshipId = apprenticeshipId
             });
+
+            _logger.Info($"Retrieved {response.Data.Count()} price history items for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             return response;
         }
