@@ -20,7 +20,7 @@ using TriageStatus = SFA.DAS.Commitments.Api.Types.DataLock.Types.TriageStatus;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
 {
     [TestFixture]
-    public class WhenUpdateingDataLocks
+    public class WhenUpdatingDataLocks
     {
         private UpdateDataLocksTriageStatusCommandHandler _sut;
         private Mock<AbstractValidator<UpdateDataLocksTriageStatusCommand>> _validator;
