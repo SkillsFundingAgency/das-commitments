@@ -4,7 +4,7 @@ namespace SFA.DAS.Commitments.Domain.Extensions
 {
     public static class DataLockExtensions
     {
-        public static bool UnHandeled(this DataLockStatus dl)
+        public static bool UnHandled(this DataLockStatus dl)
         {
             return !dl.IsResolved && dl.Status != Status.Pass;
         }

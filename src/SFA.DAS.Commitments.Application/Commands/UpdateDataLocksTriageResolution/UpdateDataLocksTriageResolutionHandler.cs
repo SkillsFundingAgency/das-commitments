@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
             var dataLocksToBeUpdated = (await _dataLockRepository.GetDataLocks(command.ApprenticeshipId))
-                .Where(DataLockExtensions.UnHandeled)
+                .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.IsPriceOnly)
                 .Where(m => m.TriageStatus == (TriageStatus)command.TriageStatus)
                 .ToList();

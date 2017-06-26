@@ -66,11 +66,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             var courseMismatch = response.Data
-                .Where(DataLockExtensions.UnHandeled)
+                .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.WithCourseError).ToList();
 
             var withPriceOnly = response.Data
-                .Where(DataLockExtensions.UnHandeled)
+                .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.IsPriceOnly).ToList();
             return new DataLockSummary
                        {

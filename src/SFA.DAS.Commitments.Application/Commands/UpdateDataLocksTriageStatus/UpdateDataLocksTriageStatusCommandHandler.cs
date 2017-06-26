@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus
 
             var dataLocksToBeUpdated = (await _dataLockRepository
                 .GetDataLocks(command.ApprenticeshipId))
-                .Where(DataLockExtensions.UnHandeled)
+                .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.IsPriceOnly)
                 .ToList();
 
