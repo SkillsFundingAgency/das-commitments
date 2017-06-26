@@ -10,17 +10,6 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-UPDATE 
-	[dbo].[Apprenticeship]
-SET 
-	TrainingName = TrainingName + ' (Standard)'
-WHERE
-	TrainingType = 0
-AND 
-	RIGHT(TrainingName, 10) <> '(Standard)' 
-
-
-
 INSERT INTO [dbo].[PriceHistory]
 	(ApprenticeshipId,Cost, FromDate)
 	SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] 
