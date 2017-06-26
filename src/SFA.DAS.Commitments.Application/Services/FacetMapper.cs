@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Application.Services
 {
     public class FacetMapper
     {
-        public virtual Facets BuildFacetes(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
+        public virtual Facets BuildFacets(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var facets = new Facets
                              {

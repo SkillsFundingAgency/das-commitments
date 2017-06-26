@@ -86,7 +86,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
         }
 
         [Test]
-        public async Task ShouldNotResetWhenDataLockIsUnhandeled()
+        public async Task ShouldNotResetWhenDataLockIsUnhandled()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
