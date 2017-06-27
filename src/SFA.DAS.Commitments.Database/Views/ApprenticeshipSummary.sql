@@ -47,9 +47,18 @@ SELECT
 		ON au.ApprenticeshipId = a.Id
 	LEFT JOIN DataLockStatus dl on dl.Id =
 		(
-			SELECT TOP 1 Id from DataLockStatus
-			where ApprenticeshipId = a.Id
-			and [Status] = 2 AND [IsResolved] = 0
-			and SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2017'
-			ORDER BY IlrEffectiveFromDate ASC 
+			SELECT TOP 1 
+				Id 
+			FROM 
+				DataLockStatus
+			WHERE 
+				ApprenticeshipId = a.Id
+			AND 
+				[Status] = 2 
+			AND 
+				[IsResolved] = 0
+			AND 
+				SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2017' -- TODO: Remove for datalock v2
+			ORDER BY 
+				IlrEffectiveFromDate, Id 
 		)
