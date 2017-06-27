@@ -48,12 +48,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
             {
                 case CallerType.Provider:
                     if (apprenticeship.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view apprenticeship {message.ApprenticeshipId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access apprenticeship {message.ApprenticeshipId}, expected provider {apprenticeship.ProviderId}");
                     break;
                 case CallerType.Employer:
                 default:
                     if (apprenticeship.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view apprenticeship {message.ApprenticeshipId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access apprenticeship {message.ApprenticeshipId}, expected employer {apprenticeship.EmployerAccountId}");
                     break;
             }
         }

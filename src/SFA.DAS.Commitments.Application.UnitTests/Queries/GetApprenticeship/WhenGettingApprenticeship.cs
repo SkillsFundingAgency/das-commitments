@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
                 ApprenticeshipId = _fakeRepositoryApprenticeship.Id
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerId} unauthorized to view apprenticeship {_fakeRepositoryApprenticeship.Id}");
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerId} not authorised to access apprenticeship {_fakeRepositoryApprenticeship.Id}");
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeship
                 ApprenticeshipId = _fakeRepositoryApprenticeship.Id
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} unauthorized to view apprenticeship {_fakeRepositoryApprenticeship.Id}");
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} not authorised to access apprenticeship {_fakeRepositoryApprenticeship.Id}");
         }
     }
 }
