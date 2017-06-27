@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
             if (commitment == null)
-                throw new ResourceNotFoundException($"Provider { command.Caller.Id } specified a non-existant Commitment { command.CommitmentId}");
+                throw new ResourceNotFoundException($"Provider { command.Caller.Id } specified a non-existent Commitment { command.CommitmentId}");
 
             // TODO: This logic can be shared between handlers.
             CheckAuthorization(command, commitment);
@@ -171,20 +171,14 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             {
                 case CallerType.Provider:
                     if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                 default:
                     if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
-        }
-
-        private static void CheckCommitmentStatus(Commitment commitment)
-        {
-            if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
-                throw new InvalidOperationException($"Cannot add apprenticeship in commitment {commitment.Id} because status is {commitment.CommitmentStatus}");
         }
 
         private static void CheckEditStatus(BulkUploadApprenticeshipsCommand message, Commitment commitment)
@@ -193,13 +187,19 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to add apprenticeships to commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not allowed to add apprenticeships to commitment {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to add apprenticeship to commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not allowed to add apprenticeship to commitment {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
+        }
+
+        private static void CheckCommitmentStatus(Commitment commitment)
+        {
+            if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
+                throw new InvalidOperationException($"Cannot add apprenticeship to commitment {commitment.Id} because status is {commitment.CommitmentStatus}");
         }
     }
 }

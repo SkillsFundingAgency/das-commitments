@@ -161,7 +161,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
-                throw new UnauthorizedException($"Employer {message.AccountId} unauthorized to view commitment {commitment.Id}");
+                throw new UnauthorizedException($"Employer {message.AccountId} not authorised to access commitment {commitment.Id}, expected employer {commitment.EmployerAccountId}");
         }
     }
 }

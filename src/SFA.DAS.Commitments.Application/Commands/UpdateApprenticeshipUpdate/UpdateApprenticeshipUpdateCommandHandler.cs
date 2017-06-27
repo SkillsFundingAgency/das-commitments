@@ -134,7 +134,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                     break;
                 case CallerType.Provider:
                     if (apprenticeship.ProviderId != command.Caller.Id)
-                        throw new UnauthorizedException($"Provider {command.Caller.Id} not authorised to update apprenticeship {apprenticeship.Id}");
+                        throw new UnauthorizedException($"Provider {command.Caller.Id} not authorised to update apprenticeship {apprenticeship.Id}, expected provider {apprenticeship.ProviderId}");
                     break;
             }
         }
