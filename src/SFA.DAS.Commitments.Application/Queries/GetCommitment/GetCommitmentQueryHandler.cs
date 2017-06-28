@@ -126,12 +126,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
             {
                 case CallerType.Provider:
                     if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access commitment {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                 default:
                     if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access commitment {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
         }

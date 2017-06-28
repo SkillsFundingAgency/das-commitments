@@ -31,7 +31,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
             For<IAccountApiClient>().Use<AccountApiClient>()
                 .Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
-            // For<IAccountApiClient>().Use<FakeAccountApiClient>();
 
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IEmailTemplatesService>().Use<EmailTemplatesService>();

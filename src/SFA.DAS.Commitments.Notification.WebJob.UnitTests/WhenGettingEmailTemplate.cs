@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
@@ -84,7 +84,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
@@ -125,7 +125,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
                                                      }
@@ -146,7 +146,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
                                                      }
@@ -176,7 +176,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 0,
                                                          TotalCount = 1
                                                      }
@@ -216,7 +216,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
@@ -258,14 +258,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      },
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 10L,
-                                                         ChangeOfCircCount = 2,
+                                                         ChangesForReview = 2,
                                                          RestartRequestCount = 3,
                                                          TotalCount = 5
                                                      }
@@ -317,14 +317,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      },
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 6L,
-                                                         ChangeOfCircCount = 2,
+                                                         ChangesForReview = 2,
                                                          RestartRequestCount = 3,
                                                          TotalCount = 5
                                                      }
@@ -386,7 +386,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      }
@@ -455,14 +455,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 5L,
-                                                         ChangeOfCircCount = 1,
+                                                         ChangesForReview = 1,
                                                          RestartRequestCount = 2,
                                                          TotalCount = 3
                                                      },
                                                  new AlertSummary
                                                      {
                                                          EmployerAccountId = 6L,
-                                                         ChangeOfCircCount = 2,
+                                                         ChangesForReview = 2,
                                                          RestartRequestCount = 3,
                                                          TotalCount = 5
                                                      }

@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -18,7 +19,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
 
-        public ApprenticeshipRepository(string connectionString, ICommitmentsLogger logger, IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger)
+        public ApprenticeshipRepository(
+            string connectionString, 
+            ICommitmentsLogger logger, 
+        	IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger.BaseLogger)
         {
             _logger = logger;
             _apprenticeshipTransactions = apprenticeshipTransactions;
@@ -202,23 +206,109 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
         {
-            var results = await WithConnection(async c =>
+            return await WithConnection(async c =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId);
 
-                return await c.QueryAsync<Apprenticeship>(
-                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE Id = @id;",
-                    param: parameters,
-                    commandType: CommandType.Text);
-            });
+                var sql =
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.Id = @id;";
 
-            return results.SingleOrDefault();
+                Apprenticeship result = null;
+
+                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship> (sql, (apprenticeship, history) =>
+                {
+                    if (result == null)
+                    {
+                        result = apprenticeship;
+                    }
+
+                    if (history.ApprenticeshipId != 0)
+                    {
+                        result.PriceHistory.Add(history);
+                    }
+
+                    return apprenticeship;
+                }, parameters);
+
+                return result;
+            });
         }
 
         public async Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId)
         {
             return await GetApprenticeshipsByIdentifier("ProviderId", providerId);
+        }
+
+        public async Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory)
+        {
+            // -> Delete all price episodes from apprenticeshipId
+            // -> Insert all new ones
+
+            await WithTransaction(
+                async (c, t) =>
+                    {
+                        await c.ExecuteAsync(
+                            sql: $"DELETE FROM [dbo].[PriceHistory] WHERE ApprenticeshipId = {apprenticeshipId};",
+                            commandType: CommandType.Text,
+                            transaction: t);
+
+                        foreach (var item in priceHistory)
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("@apprenticeshipId", apprenticeshipId, DbType.Int64);
+                            parameters.Add("@cost", item.Cost, DbType.Decimal);
+                            parameters.Add("@fromDate", item.FromDate, DbType.DateTime);
+                            parameters.Add("@toDate", item.ToDate, DbType.DateTime);
+
+                            await
+                                c.ExecuteAsync(
+                                    sql:
+                                        "INSERT INTO [dbo].[PriceHistory](ApprenticeshipId, Cost, FromDate, ToDate) "
+                                        + "VALUES (@apprenticeshipId, @cost, @fromDate, @toDate);",
+                                    param: parameters,
+                                    commandType: CommandType.Text,
+                                    transaction: t);
+                        }
+                    }
+                );
+        }
+
+        public async Task<IEnumerable<PriceHistory>> GetPriceHistory(long apprenticeshipId)
+        {
+            var results = await WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@apprenticeshipId", apprenticeshipId);
+
+                return await c.QueryAsync<PriceHistory>(
+                    sql: $"SELECT * FROM [dbo].[PriceHistory] WHERE ApprenticeshipId = @apprenticeshipId;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+
+            return results;
+        }
+
+        public async Task CreatePriceHistoryForApprenticeshipsInCommitment(long commitmentId)
+        {
+            await WithTransaction(
+                async (connection, transaction) =>
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+
+                        await
+                            connection.ExecuteAsync(
+                                sql:
+                                    "INSERT INTO [dbo].[PriceHistory] (ApprenticeshipId, Cost, FromDate) "
+                                    + "SELECT Id, Cost, StartDate FROM [dbo].[Apprenticeship] "
+                                    + "WHERE CommitmentId = @commitmentId "
+                                    + "AND Id NOT IN(SELECT ApprenticeshipId FROM [dbo].[PriceHistory])",
+                                param: parameters,
+                                transaction: transaction,
+                                commandType: CommandType.Text);
+                    });
         }
 
         public async Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary()
@@ -357,11 +447,31 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add($"@id", identifierValue);
 
-                var results = await c.QueryAsync<Apprenticeship>(
-                    sql: $"SELECT * FROM [dbo].[ApprenticeshipSummary] WHERE {identifierName} = @id AND PaymentStatus <> {(int)PaymentStatus.Deleted};",
-                    param: parameters);
+                var sql =
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted};";
 
-                return results.ToList();
+                var apprenticeships = new Dictionary<long, Apprenticeship>();
+
+                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship>(sql, (apprenticeship, history) =>
+                {
+                    Apprenticeship existing;
+                    if (!apprenticeships.TryGetValue(apprenticeship.Id, out existing))
+                    {
+                        apprenticeships.Add(apprenticeship.Id, apprenticeship);
+                        existing = apprenticeship;
+                    }
+
+                    if (history.ApprenticeshipId != 0)
+                    {
+                        existing.PriceHistory.Add(history);
+                    }
+
+                    return existing;
+
+                }, parameters);
+
+                return apprenticeships.Values.ToList();
+
             });
         }
 

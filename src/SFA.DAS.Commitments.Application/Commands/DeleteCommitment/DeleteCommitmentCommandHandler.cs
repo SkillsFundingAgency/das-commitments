@@ -71,12 +71,12 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             {
                 case CallerType.Provider:
                     if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to delete commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                 default:
                     if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to delete commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
         }
@@ -84,7 +84,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private static void CheckCommitmentStatus(Commitment commitment)
         {
             if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
-                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be delete because status is {commitment.CommitmentStatus}");
+                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be deleted because status is {commitment.CommitmentStatus}");
         }
 
         private static void CheckEditStatus(DeleteCommitmentCommand message, Commitment commitment)
@@ -93,11 +93,11 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to edit commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not allowed to delete commitment {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to edit commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not allowed to delete commitment {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
         }

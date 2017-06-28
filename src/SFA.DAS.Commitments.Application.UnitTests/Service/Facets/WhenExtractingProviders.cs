@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
             _data.Add(new Apprenticeship { ProviderName = "Valtech LTD", ProviderId = 007});
             _data.Add(new Apprenticeship { ProviderName = "Command & Conquer", ProviderId = 008});
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Employer);
 
             result.TrainingProviders.Count.Should().Be(3);
             result.TrainingProviders.Count(m => m.Selected).Should().Be(0);
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 
             _userQuery.TrainingProviderIds = new List<long> { 008, 001 };
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Employer);
 
             result.TrainingProviders.Count.Should().Be(3);
             result.TrainingProviders.Count(m => m.Selected).Should().Be(1);

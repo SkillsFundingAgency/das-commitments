@@ -1,9 +1,10 @@
 using System;
 using System.Threading.Tasks;
+
 using FluentValidation;
 using MediatR;
+
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -13,7 +14,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
     {
         private readonly AbstractValidator<UpdateDataLockTriageStatusCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
-        private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository; 
 
         private readonly ICommitmentsLogger _logger;
@@ -21,24 +21,20 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
         public UpdateDataLockTriageStatusCommandHandler(
             AbstractValidator<UpdateDataLockTriageStatusCommand> validator,
             IDataLockRepository dataLockRepository, 
-            IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             ICommitmentsLogger logger)
         {
-            if (validator == null)
+            if(validator == null)
                 throw new ArgumentNullException(nameof(AbstractValidator<UpdateDataLockTriageStatusCommand>));
             if(dataLockRepository == null)
                 throw new ArgumentNullException(nameof(IDataLockRepository));
-            if(apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(IApprenticeshipRepository));
-            if (logger == null)
+            if(logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if(apprenticeshipUpdateRepository == null)
                 throw new ArgumentNullException(nameof(IApprenticeshipUpdateRepository));
 
             _validator = validator;
             _dataLockRepository = dataLockRepository;
-            _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _logger = logger;
         }
@@ -67,32 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
             AssertValidTriageStatus(triageStatus, dataLock);
             await AssertNoPendingApprenticeshipUpdate(dataLock, message.ApprenticeshipId);
 
-            ApprenticeshipUpdate apprenticeshipUpdate = null;
-            if (triageStatus == TriageStatus.Change)
-            {
-                var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(message.ApprenticeshipId);
-
-                apprenticeshipUpdate = new ApprenticeshipUpdate
-                {
-                    ApprenticeshipId = dataLock.ApprenticeshipId,
-                    Originator = Originator.Provider,
-                    UpdateOrigin = UpdateOrigin.DataLock,
-                    EffectiveFromDate = dataLock.IlrEffectiveFromDate.Value,
-                    EffectiveToDate = null
-                };
-
-                if ((dataLock.ErrorCode & DataLockErrorCode.Dlock07) == DataLockErrorCode.Dlock07)
-                {
-                    apprenticeshipUpdate.Cost = dataLock.IlrTotalCost;
-                }
-
-                if ((dataLock.ErrorCode & DataLockErrorCode.Dlock09) == DataLockErrorCode.Dlock09)
-                {
-                    apprenticeshipUpdate.StartDate = dataLock.IlrActualStartDate;
-                }
-            }
-
-            await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus, apprenticeshipUpdate);
+            await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus);
         }
 
         private void AssertDataLockBelongsToApprenticeship(long apprenticeshipId, DataLockStatus dataLockStatus)

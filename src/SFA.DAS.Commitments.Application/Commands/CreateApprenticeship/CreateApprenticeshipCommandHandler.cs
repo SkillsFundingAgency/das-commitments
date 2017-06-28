@@ -116,12 +116,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             {
                 case CallerType.Provider:
                     if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                 default:
                     if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
         }
@@ -138,11 +138,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to add apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not allowed to add apprenticeship {message.Apprenticeship.Id} to commitment {message.CommitmentId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != Domain.Entities.EditStatus.Both && commitment.EditStatus != Domain.Entities.EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to add apprenticeship {message.Apprenticeship.Id} in commitment {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not allowed to add apprenticeship {message.Apprenticeship.Id} to commitment {message.CommitmentId}");
                     break;
             }
         }

@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -22,7 +23,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             string connectionString, 
             ICommitmentsLogger logger, 
             IApprenticeshipUpdateTransactions apprenticeshipUpdateTransactions,
-            IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger)
+            IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger.BaseLogger)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -77,6 +78,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             await WithTransaction(async (connection, trans) =>
             {
                 await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
+
+                await _apprenticeshipTransactions.UpdateCurrentPrice(connection, trans, apprenticeship);
 
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId, ApprenticeshipUpdateStatus.Approved);
 

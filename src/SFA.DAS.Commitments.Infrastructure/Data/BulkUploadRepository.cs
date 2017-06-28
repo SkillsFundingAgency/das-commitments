@@ -7,13 +7,14 @@ using Dapper;
 
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Sql.Client;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class BulkUploadRepository : BaseRepository, IBulkUploadRepository
     {
         public BulkUploadRepository(string connectionString, ICommitmentsLogger logger)
-            : base(connectionString, logger)
+            : base(connectionString, logger.BaseLogger)
         {
         }
 

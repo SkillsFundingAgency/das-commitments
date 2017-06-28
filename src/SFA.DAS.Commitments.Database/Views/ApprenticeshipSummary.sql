@@ -2,10 +2,32 @@
 AS 
 
 SELECT 
-	a.*,
+	a.Id,a.CommitmentId,a.FirstName,a.LastName,a.ULN,a.TrainingType,a.TrainingCode,a.TrainingName,
+	a.StartDate,a.EndDate,a.AgreementStatus,a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
+	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate,
 	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName, c.LegalEntityId,
 	au.Originator AS UpdateOriginator,
-	dl.TriageStatus AS DataLockTriage, dl.ErrorCode as DataLockErrorCode,
+	CASE WHEN dlPrice.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPrice',
+	CASE WHEN dlPriceTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPriceTriaged',
+	CASE WHEN dlCourse.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourse',
+	CASE WHEN dlCourseTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourseTriaged',
+	CASE
+		WHEN
+			a.PaymentStatus = 0
+		THEN
+			a.Cost
+		ELSE
+			(
+			SELECT TOP 1 Cost
+				FROM PriceHistory
+				WHERE ApprenticeshipId = a.Id
+				AND (
+					(FromDate <= GETDATE() AND ToDate >= FORMAT(GETDATE(),'yyyMMdd')) 
+					OR ToDate IS NULL
+				)
+				ORDER BY FromDate
+			 )
+	END AS 'Cost',
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
@@ -45,20 +67,44 @@ SELECT
 	LEFT JOIN
 		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
 		ON au.ApprenticeshipId = a.Id
-	LEFT JOIN DataLockStatus dl on dl.Id =
+	LEFT JOIN DataLockStatus dlPrice on dlPrice.Id =
 		(
 			SELECT TOP 1 
-				Id 
-			FROM 
-				DataLockStatus
+        Id 
+      FROM 
+        DataLockStatus
 			WHERE 
-				ApprenticeshipId = a.Id
-			AND 
-				[Status] = 2 
-			AND 
-				[IsResolved] = 0
-			AND 
-				SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2017' -- TODO: Remove for datalock v2
-			ORDER BY 
-				IlrEffectiveFromDate, Id 
+        ApprenticeshipId = a.Id 
+      AND 
+        ErrorCode = 64 
+      AND 
+        TriageStatus = 0
+			AND
+        [Status] = 2 
+      AND 
+        [IsResolved] = 0
+      ORDER BY 
+        IlrEffectiveFromDate, Id
 		)
+	LEFT JOIN DataLockStatus dlPriceTriaged on dlPriceTriaged.Id =
+	(
+		SELECT TOP 1 Id from DataLockStatus
+		where ApprenticeshipId = a.Id and ErrorCode = 64 and TriageStatus = 1
+		and [Status] = 2 AND [IsResolved] = 0
+	)
+	LEFT JOIN DataLockStatus dlCourse on dlCourse.Id =
+	(
+		SELECT TOP 1 Id from DataLockStatus
+		where ApprenticeshipId = a.Id
+		and (ErrorCode & 4 = 4  OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
+		and TriageStatus = 0
+		and [Status] = 2 AND [IsResolved] = 0
+	)
+	LEFT JOIN DataLockStatus dlCourseTriaged on dlCourseTriaged.Id =
+	(
+		SELECT TOP 1 Id from DataLockStatus
+		where ApprenticeshipId = a.Id
+		and (ErrorCode & 4 = 4 OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
+		and TriageStatus = 2
+		and [Status] = 2 AND [IsResolved] = 0
+	)

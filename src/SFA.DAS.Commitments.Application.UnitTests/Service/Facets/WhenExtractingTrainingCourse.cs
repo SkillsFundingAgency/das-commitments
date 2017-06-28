@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
             _data.Add(new Apprenticeship { TrainingCode = "2", TrainingName = "Software tester", TrainingType = TrainingType.Standard });
             _data.Add(new Apprenticeship { TrainingCode = "22-166-0", TrainingName = "Fake framework", TrainingType = TrainingType.Framework });
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Employer);
 
             result.TrainingCourses.Count.Should().Be(2);
             result.TrainingCourses.Count(m => m.Selected).Should().Be(0);
@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.Facets
 
             _userQuery.TrainingCourses = new List<string> { "33-33-3", "22-166-0", "3" };
 
-            var result = _sut.BuildFacetes(_data, _userQuery, Originator.Employer);
+            var result = _sut.BuildFacets(_data, _userQuery, Originator.Employer);
 
             result.TrainingCourses.Count.Should().Be(2);
             result.TrainingCourses.Count(m => m.Selected).Should().Be(1);

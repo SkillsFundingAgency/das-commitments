@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using MediatR;
+
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
@@ -20,8 +20,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         private UpdateDataLockTriageStatusCommandHandler _handler;
         private Mock<AbstractValidator<UpdateDataLockTriageStatusCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
-        private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
-        private Apprenticeship _existingApprenticeship;
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
 
         [SetUp]
@@ -39,27 +37,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
                     ErrorCode = DataLockErrorCode.Dlock03
                 });
 
-            _dataLockRepository.Setup(x => x.UpdateDataLockTriageStatus(It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()))
+            _dataLockRepository.Setup(x => x.UpdateDataLockTriageStatus(It.IsAny<long>(), It.IsAny<TriageStatus>()))
                 .Returns(() => Task.FromResult(1L));
-
-            _existingApprenticeship = new Apprenticeship
-            {
-                Id = 1,
-                //StartDate = new DateTime(2018, 5, 1)
-            };
-
-            _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(_existingApprenticeship);
 
             _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(null);
 
             _handler = new UpdateDataLockTriageStatusCommandHandler(
-                _validator.Object,
+                _validator.Object,  
                 _dataLockRepository.Object,
-                _apprenticeshipRepository.Object,
                 _apprenticeshipUpdateRepository.Object,
                 Mock.Of<ICommitmentsLogger>());
         }
@@ -105,7 +92,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 
             //Assert
             _dataLockRepository.Verify(x => x.UpdateDataLockTriageStatus(
-                It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()),
+                It.IsAny<long>(), It.IsAny<TriageStatus>()),
                 Times.Once);
         }
 
@@ -129,75 +116,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 
             //Assert
             _dataLockRepository.Verify(x => x.UpdateDataLockTriageStatus(
-                It.IsAny<long>(), It.IsAny<TriageStatus>(), It.IsAny<ApprenticeshipUpdate>()),
+                It.IsAny<long>(), It.IsAny<TriageStatus>()),
                 Times.Never);
-        }
-
-        [Test]
-        public async Task ThenIfTriageStatusIsChangeThenApprenticeshipRepositoryIsCalledToRetrieveApprenticeship()
-        {
-            //Arrange
-            var command = new UpdateDataLockTriageStatusCommand
-            {
-                ApprenticeshipId = 1,
-                UserId = "USER",
-                DataLockEventId = 2,
-                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Change
-            };
-
-            _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
-                .ReturnsAsync(new DataLockStatus
-                {
-                    ApprenticeshipId = 1,
-                    DataLockEventId = 2,
-                    TriageStatus = TriageStatus.Unknown,
-                    ErrorCode = DataLockErrorCode.Dlock07,
-                    IlrEffectiveFromDate = new DateTime(2018, 5, 1)
-                });
-
-            //Act
-            await _handler.Handle(command);
-
-            //Assert
-            _apprenticeshipRepository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfTriageStatusIsChangeAChangeOfCircumstancesIsCreated()
-        {
-            //Arrange
-            var command = new UpdateDataLockTriageStatusCommand
-            {
-                ApprenticeshipId = 1,
-                UserId = "USER",
-                DataLockEventId = 2,
-                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Change
-            };
-
-            _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
-                .ReturnsAsync(new DataLockStatus
-                {
-                    ApprenticeshipId = 1,
-                    DataLockEventId = 2,
-                    TriageStatus = TriageStatus.Unknown,
-                    ErrorCode = DataLockErrorCode.Dlock07,
-                    IlrEffectiveFromDate = new DateTime(2018,6,1)
-                });
-
-            //Act
-            await _handler.Handle(command);
-
-            //Assert
-            _dataLockRepository.Verify(x => x.UpdateDataLockTriageStatus(
-                It.IsAny<long>(), It.IsAny<TriageStatus>(),
-                It.Is<ApprenticeshipUpdate>(
-                    u => u.ApprenticeshipId == 1
-                    && u.Originator == Originator.Provider
-                    && u.UpdateOrigin == UpdateOrigin.DataLock
-                    && u.EffectiveFromDate == new DateTime(2018, 6, 1)
-                    && u.EffectiveToDate.HasValue == false
-                )),
-                Times.Once);
         }
 
         [Test]

@@ -10,5 +10,12 @@ namespace SFA.DAS.Commitments.Domain.Extensions
         {
             return items.GroupBy(property).Select(x => x.First());
         }
+
+        public static string ToListString<T>(this IEnumerable<T> items)
+        {
+            return items == null 
+                ? string.Empty 
+                : string.Join(",", items);
+        }
     }
 }

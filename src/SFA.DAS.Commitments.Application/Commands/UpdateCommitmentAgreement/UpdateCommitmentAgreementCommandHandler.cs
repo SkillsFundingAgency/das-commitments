@@ -65,7 +65,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
 
-            if (command.LatestAction == Api.Types.Commitment.Types.LastAction.Approve)
+            var latestAction = (LastAction)command.LatestAction;
+
+            if(latestAction == LastAction.Approve)
             {
                 CheckStateForApproval(commitment, command.Caller);
                 var overlaps = await GetOverlappingApprenticeships(commitment);
@@ -75,15 +77,19 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 }
             }
 
-            var latestAction = (LastAction) command.LatestAction;
-
             await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
 
-            var areAnyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
-            await UpdateCommitmentStatuses(command, commitment, areAnyApprenticeshipsPendingAgreement, latestAction);
+            var anyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+            await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, latestAction);
             await CreateCommitmentMessage(command, commitment);
 
-            await SetPaymentOrderIfNeeded(command.Caller, commitment.EmployerAccountId, commitment.Apprenticeships.Count, latestAction, areAnyApprenticeshipsPendingAgreement);
+            // If final approval
+            if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0
+                && !anyApprenticeshipsPendingAgreement)
+            {
+                await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = commitment.EmployerAccountId });
+                await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
+            }
         }
 
         private async Task CreateCommitmentMessage(UpdateCommitmentAgreementCommand command, Commitment commitment)
@@ -281,11 +287,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to edit commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not allowed to edit commitment: {message.CommitmentId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to edit commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not allowed to edit commitment: {message.CommitmentId}");
                     break;
             }
         }
@@ -296,11 +302,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             {
                 case CallerType.Provider:
                     if (commitment.ProviderId != message.Caller.Id)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
                 case CallerType.Employer:
                     if (commitment.EmployerAccountId != message.Caller.Id)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} unauthorized to view commitment: {message.CommitmentId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
         }
@@ -313,14 +319,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             if (!canBeApprovedByParty)
                 throw new InvalidOperationException($"Commitment {commitment.Id} cannot be approved because apprentice information is incomplete");
-        }
-
-        private async Task SetPaymentOrderIfNeeded(Caller caller, long employerAccountId, int apprenticeshipsCount, LastAction latestAction, bool areAnyApprenticeshipsPendingAgreement)
-        {
-            if (latestAction == LastAction.Approve && apprenticeshipsCount > 0 && !areAnyApprenticeshipsPendingAgreement)
-            {
-                await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = employerAccountId});
-            }
         }
 
         private async Task<GetOverlappingApprenticeshipsResponse> GetOverlappingApprenticeships(Commitment commitment)

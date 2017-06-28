@@ -5,6 +5,10 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using System.Net;
 
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+
+using DataLocksTriageResolutionSubmission = SFA.DAS.Commitments.Api.Types.DataLock.DataLocksTriageResolutionSubmission;
+
 namespace SFA.DAS.Commitments.Api.Controllers
 {
     [RoutePrefix("api")]
@@ -35,15 +39,52 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _orchestrator.GetDataLocks(apprenticeshipId);
 
-            return Ok(response.Data);
+            return Ok(response);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/datalocksummary")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLockSummary(long apprenticeshipId)
+        {
+            var response = await _orchestrator.GetDataLockSummary(apprenticeshipId);
+
+            return Ok(response);
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
+        [HttpPatch]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
-            await _orchestrator.PatchDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
+            await _orchestrator.TriageDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/datalocks")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageSubmission triageSubmission)
+        {
+            await _orchestrator.TriageDataLocks(apprenticeshipId, triageSubmission);
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/datalocks/resolve")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageResolutionSubmission triageSubmission)
+        {
+            await _orchestrator.ResolveDataLock(apprenticeshipId, triageSubmission);
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("apprenticeships/{apprenticeshipId}/prices")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetPriceHistory(long apprenticeshipId)
+        {
+            var response = await _orchestrator.GetPriceHistory(apprenticeshipId);
+
+            return Ok(response.Data);
         }
     }
 }

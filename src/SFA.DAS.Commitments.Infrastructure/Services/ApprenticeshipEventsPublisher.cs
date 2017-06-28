@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
@@ -8,6 +9,7 @@ using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Types;
 using AgreementStatus = SFA.DAS.Events.Api.Types.AgreementStatus;
 using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
+using PriceHistory = SFA.DAS.Events.Api.Types.PriceHistory;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
@@ -24,12 +26,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task Publish(IApprenticeshipEventsList events)
         {
-            var apiEvents = events.Events.Select(x => CreateEvent(x.Commitment, x.Apprenticeship, x.Event, x.EffectiveFrom, x.EffectiveTo));
+            var apiEvents = events.Events.Select(x => CreateEvent(x.Commitment, x.Apprenticeship, x.Event, x.EffectiveFrom, x.EffectiveTo, x.PriceHistory));
             await _eventsApi.BulkCreateApprenticeshipEvent(apiEvents.ToList());
             events.Clear();
         }
 
-        private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo)
+        private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo, IEnumerable<Domain.Entities.PriceHistory> priceHistory)
         {
             return new Events.Api.Types.ApprenticeshipEvent
             {
@@ -43,7 +45,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 ProviderId = commitment.ProviderId?.ToString(),
                 TrainingEndDate = apprenticeship.EndDate,
                 TrainingStartDate = apprenticeship.StartDate,
-                TrainingTotalCost = apprenticeship.Cost,
+                TrainingTotalCost = apprenticeship.Cost, //todo: current or latest?
                 TrainingType = apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard,
                 PaymentOrder = apprenticeship.PaymentOrder,
                 LegalEntityId = commitment.LegalEntityId,
@@ -51,8 +53,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
                 DateOfBirth = apprenticeship.DateOfBirth,
                 EffectiveFrom = effectiveFrom,
-                EffectiveTo = effectiveTo
+                EffectiveTo = effectiveTo,
+                PriceHistory = MapPriceHistory(apprenticeship.PriceHistory)
             };
+        }
+
+        private static IEnumerable<PriceHistory> MapPriceHistory(IEnumerable<Domain.Entities.PriceHistory> source)
+        {
+            return source.Select(x => new PriceHistory
+            {
+                TotalCost = x.Cost, EffectiveFrom = x.FromDate, EffectiveTo = x.ToDate
+            });
         }
     }
 }
