@@ -7,7 +7,6 @@ using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Service
@@ -51,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(2);
+            result.Results.Count.Should().Be(2);
         }
 
         [TestCase(Originator.Provider)]
@@ -66,8 +65,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("Live");
+            result.Results.Count.Should().Be(1);
+            result.Results.Single().FirstName.Should().Be("Live");
         }
 
         [TestCase(Originator.Provider)]
@@ -88,8 +87,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("Live");
+            result.Results.Count.Should().Be(1);
+            result.Results.Single().FirstName.Should().Be("Live");
         }
 
         [TestCase(Originator.Provider)]
@@ -102,7 +101,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
+            result.Results.Count.Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -115,7 +114,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
+            result.Results.Count.Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -129,8 +128,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().FirstName.Should().Be("ILR Data Mismatch");
+            result.Results.Count.Should().Be(1);
+            result.Results.FirstOrDefault().FirstName.Should().Be("ILR Data Mismatch");
         }
 
         [TestCase(Originator.Provider)]
@@ -145,9 +144,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(2);
-            result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
-            result.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
+            result.Results.Count.Should().Be(2);
+            result.Results.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
+            result.Results.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -162,9 +161,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(2);
-            result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
-            result.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
+            result.Results.Count.Should().Be(2);
+            result.Results.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
+            result.Results.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
         }
 
 
@@ -175,7 +174,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new [] { RecordStatus.ChangesPending, } ) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(0);
+            result.Results.Count.Should().Be(0);
         }
 
         [TestCase(Originator.Provider)]
@@ -192,8 +191,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.ChangesPending, }) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("ChangesPending");
+            result.Results.Count.Should().Be(1);
+            result.Results.Single().FirstName.Should().Be("ChangesPending");
         }
 
         [TestCase(Originator.Provider, Originator.Employer)]
@@ -210,8 +209,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.ChangesForReview, }) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("ChangesForReview");
+            result.Results.Count.Should().Be(1);
+            result.Results.Single().FirstName.Should().Be("ChangesForReview");
         }
 
         [TestCase(Originator.Provider)]
@@ -237,8 +236,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingCourses = new List<string>(new [] { "123-00-009", "35", "2" } )};
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().Id.Should().Be(009);
+            result.Results.Count.Should().Be(1);
+            result.Results.Single().Id.Should().Be(009);
         }
 
         [TestCase(Originator.Provider)]
@@ -264,7 +263,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingCourses = new List<string>(new[] { "123-00-009", "35", "2" }) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(0);
+            result.Results.Count.Should().Be(0);
         }
 
 
@@ -295,8 +294,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<string> { "09990" } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Provider);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().LegalEntityName.Should().Be("Employer 999");
+            result.Results.Count.Should().Be(1);
+            result.Results.FirstOrDefault().LegalEntityName.Should().Be("Employer 999");
         }
 
         [Test]
@@ -324,7 +323,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<string> { "999" } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Employer);
 
-            result.Count().Should().Be(_apprenticeships.Count);
+            result.Results.Count.Should().Be(_apprenticeships.Count);
         }
 
         [Test]
@@ -356,8 +355,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingProviderIds = new List<long> { 007 } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Employer);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().ProviderName.Should().Be("Provider 007");
+            result.Results.Count.Should().Be(1);
+            result.Results.FirstOrDefault().ProviderName.Should().Be("Provider 007");
         }
 
         [Test]
@@ -389,8 +388,111 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingProviderIds = new List<long> { 007 } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Provider);
 
-            result.Count().Should().Be(_apprenticeships.Count);
+            result.Results.Count.Should().Be(_apprenticeships.Count);
         }
 
+        [Test]
+        public void ShouldReturnFirstPageOfApprenticeships()
+        {
+            const int RequestedPageNumber = 1;
+            const int RequestedPageSize = 4;
+
+            var apprenticeships = CreatePaginiationApprenticeships(20);
+            var query = new ApprenticeshipSearchQuery { PageNumber = RequestedPageNumber, PageSize = RequestedPageSize };
+
+            var result = _sut.Filter(apprenticeships, query, Originator.Provider);
+
+            result.Results.Count.Should().Be(RequestedPageSize);
+            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 1, 2, 3, 4 });
+        }
+
+        [Test]
+        public void ShouldReturnSecondPageOfApprenticeships()
+        {
+            const int RequestedPageNumber = 2;
+            const int RequestedPageSize = 4;
+
+            var apprenticeships = CreatePaginiationApprenticeships(20);
+            var query = new ApprenticeshipSearchQuery { PageNumber = RequestedPageNumber, PageSize = RequestedPageSize };
+
+            var result = _sut.Filter(apprenticeships, query, Originator.Provider);
+
+            result.Results.Count.Should().Be(RequestedPageSize);
+            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 5, 6, 7, 8 });
+        }
+
+        [Test]
+        public void ShouldReturnFullPageForLastPage()
+        {
+            const int RequestedPageNumber = 5;
+            const int RequestedPageSize = 4;
+
+            var apprenticeships = CreatePaginiationApprenticeships(20);
+            var query = new ApprenticeshipSearchQuery { PageNumber = RequestedPageNumber, PageSize = RequestedPageSize };
+
+            var result = _sut.Filter(apprenticeships, query, Originator.Provider);
+
+            result.Results.Count.Should().Be(RequestedPageSize);
+            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 17, 18, 19, 20 });
+        }
+
+        [Test]
+        public void ShouldReturnPartialPageForLastPage()
+        {
+            const int RequestedPageNumber = 5;
+            const int RequestedPageSize = 4;
+
+            var apprenticeships = CreatePaginiationApprenticeships(18);
+            var query = new ApprenticeshipSearchQuery { PageNumber = RequestedPageNumber, PageSize = RequestedPageSize };
+
+            var result = _sut.Filter(apprenticeships, query, Originator.Provider);
+
+            result.Results.Count.Should().Be(RequestedPageSize - 2);
+            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 17, 18 });
+        }
+
+        [TestCase(1, 100, 10, 1, Description = "Returns first page number if first page number passed in")]
+        [TestCase(14, 100, 10, 10, Description = "Returns last page number if page is not within range of total pages")]
+        [TestCase(10, 100, 10, 10, Description = "Returns page number if page is not within range of total pages")]
+        [TestCase(0, 100, 10, 1, Description = "Returns first page if page is not set (0)")]
+        public void ShouldReturnThePageNumber(int requestedPageNumber, int totalApprenticeships, int requestedPageSize, int expectedPageNumber)
+        {
+            var apprenticeships = CreatePaginiationApprenticeships(totalApprenticeships);
+
+            var query = new ApprenticeshipSearchQuery { PageNumber = requestedPageNumber, PageSize = requestedPageSize };
+
+            var result = _sut.Filter(apprenticeships, query, Originator.Provider);
+
+            result.PageNumber.Should().Be(expectedPageNumber);
+        }
+
+        [TestCase(5, 5, Description = "Returns page size from query if > 0")]
+        [TestCase(0, 25, Description = "Defaults page size to 25 if the page size is not set (0)")]
+        public void ShouldReturnThePageSize(int requestedPageSize, int expectedPageSize)
+        {
+            var apprenticeships = CreatePaginiationApprenticeships(20);
+
+            var query = new ApprenticeshipSearchQuery { PageNumber = 1, PageSize = requestedPageSize };
+
+            var result = _sut.Filter(apprenticeships, query, Originator.Provider);
+
+            result.PageSize.Should().Be(expectedPageSize);
+        }
+
+        private static IList<Apprenticeship> CreatePaginiationApprenticeships(int count)
+        {
+            var apprenticeships = new List<Apprenticeship>(count);
+
+            for (int i = 1; i <= count; i++)
+            {
+                apprenticeships.Add(new Apprenticeship
+                {
+                    Id = i,
+                    PaymentStatus = PaymentStatus.Active
+                });
+            }
+
+            return apprenticeships;
+        }
     }
 }

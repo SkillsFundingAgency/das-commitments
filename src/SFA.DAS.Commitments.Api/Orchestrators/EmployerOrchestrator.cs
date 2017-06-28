@@ -154,15 +154,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships , query, Originator.Employer);
 
-            var filteredProviders = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Employer);
+            var filteredApprenticeships = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Employer);
 
             return new Apprenticeship.ApprenticeshipSearchResponse
             {
-                Apprenticeships = filteredProviders,
+                Apprenticeships = filteredApprenticeships.Results,
                 Facets = facets,
                 TotalApprenticeships = approvedApprenticeships.Count,
-                PageNumber = query.PageNumber,
-                PageSize = query.PageSize
+                PageNumber = filteredApprenticeships.PageNumber,
+                PageSize = filteredApprenticeships.PageSize
             };
         }
 

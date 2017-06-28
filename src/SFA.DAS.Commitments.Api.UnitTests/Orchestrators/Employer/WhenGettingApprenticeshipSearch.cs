@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             // Return same IList<Apprenticeship> as input.
             _mockApprenticeshipFilter.Setup(m => 
                 m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer))
-                .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery,Originator>((aps, q, o) => aps);
+                .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery,Originator>((aps, q, o) => new FilterResult(aps.ToList(), 1, 25));
 
             var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 
@@ -68,6 +68,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         {
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse { Data = new List<Apprenticeship>() });
+            _mockApprenticeshipFilter.Setup(m =>
+                m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer))
+                .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(aps.ToList(), 1, 25));
 
             var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 
