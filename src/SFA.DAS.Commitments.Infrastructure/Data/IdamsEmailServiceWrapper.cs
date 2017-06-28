@@ -17,20 +17,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class IdamsEmailServiceWrapper : IProviderEmailServiceWrapper
     {
         private readonly ICommitmentsLogger _logger;
-
         private readonly IHttpClientWrapper _httpClientWrapper;
-
         private readonly ProviderUserApiConfiguration _config;
-
         private readonly RetryPolicy _retryPolicy;
 
         public IdamsEmailServiceWrapper(
             ICommitmentsLogger logger,
-            CommitmentsApiConfiguration configuration,
+            ProviderUserApiConfiguration configuration,
             IHttpClientWrapper httpClientWrapper)
         {
             _logger = logger;
-            _config = configuration.ProviderUserApiConfiguration;
+            _config = configuration;
             _httpClientWrapper = httpClientWrapper;
             _retryPolicy = GetRetryPolicy();
         }

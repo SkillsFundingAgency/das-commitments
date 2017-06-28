@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.Services
                 {
                     new ProviderUser
                         {
-                            Email = _config.TestUserEmail,
+                            Email = _config.ProviderUserApi.ProviderTestEmail,
                             GivenName = "First name",
                             FamilyName = "Family Name",
                             Title = "Dr",

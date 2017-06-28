@@ -18,27 +18,29 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             var logger = container.GetInstance<ILog>();
             var config = container.GetInstance<CommitmentNotificationConfiguration>();
             var notificationJob = container.GetInstance<INotificationJob>();
-
+            var notificationJobId = $"Notification.WJ.{DateTime.UtcNow.Ticks}";
             if (!config.EnableJob)
             {
-                logger.Info("CommitmentNotification.WebJob job is turned off");
+                logger.Info($"CommitmentNotification.WebJob job is turned off, JobId: {notificationJobId}");
                 return;
             }
 
-            logger.Trace("Starting CommitmentNotification.WebJob");
+            logger.Trace($"Starting CommitmentNotification.WebJob, JobId: {notificationJobId}");
 
-            var t1 = notificationJob.RunEmployerNotification()
-                .ContinueWith(t => OnException(t, logger, "Employer"));
-            var t2 = notificationJob.RunProviderNotification()
-                .ContinueWith(t => OnException(t, logger, "Provider"));
+            var t1 = notificationJob.RunEmployerNotification($"{notificationJobId}.Employer")
+                .ContinueWith(t => WhenDone(t, logger, "Employer"));
+            var t2 = notificationJob.RunProviderNotification($"{notificationJobId}.Provider")
+                .ContinueWith(t => WhenDone(t, logger, "Provider"));
 
             Task.WaitAll(t1, t2);
         }
 
-        private static void OnException(Task task, ILog logger, string identifier)
+        private static void WhenDone(Task task, ILog logger, string identifier)
         {
             if(task.IsFaulted)
                 logger.Error(task.Exception, $"Error running {identifier} CommitmentNotification.WebJob");
+            else
+                logger.Info($"Successfully ran CommitmentNotification.WebJob for {identifier}");
         }
     }
 }

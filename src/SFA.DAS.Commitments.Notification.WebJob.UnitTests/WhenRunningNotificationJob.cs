@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 
+using SFA.DAS.Commitments.Notification.WebJob.Configuration;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client;
 using SFA.DAS.Notifications.Api.Types;
@@ -28,7 +29,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                 _mockEmailService.Object, 
                 _providerEmailService.Object, 
                 _mockNotificationApi.Object, 
-                Mock.Of<ILog>());
+                Mock.Of<ILog>(),
+                new CommitmentNotificationConfiguration {SendEmail = true});
         }
 
         [Test]
@@ -37,7 +39,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             var fixture = new Fixture();
             var emails = fixture.CreateMany<Email>(5);
             _mockEmailService.Setup(m => m.GetEmails()).ReturnsAsync(emails);
-            await _sur.RunEmployerNotification();
+            await _sur.RunEmployerNotification("JobId");
 
             _mockEmailService.Verify(m => m.GetEmails(), Times.Once);
             _mockNotificationApi.Verify(m => m.SendEmail(It.IsAny<Email>()), Times.Exactly(5));
@@ -49,7 +51,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             var fixture = new Fixture();
             var emails = fixture.CreateMany<Email>(3);
             _providerEmailService.Setup(m => m.GetEmails()).ReturnsAsync(emails);
-            await _sur.RunProviderNotification();
+            await _sur.RunProviderNotification("JobId");
 
             _providerEmailService.Verify(m => m.GetEmails(), Times.Once);
             _mockNotificationApi.Verify(m => m.SendEmail(It.IsAny<Email>()), Times.Exactly(3));

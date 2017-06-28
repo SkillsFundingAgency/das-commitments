@@ -12,6 +12,7 @@ using StructureMap;
 using System;
 using System.Reflection;
 
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Notification.WebJob.Services;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
@@ -33,6 +34,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
             For<IAccountApiClient>().Use<AccountApiClient>()
                 .Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
+            For<ProviderUserApiConfiguration>().Use(config.ProviderUserApi);
 
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
