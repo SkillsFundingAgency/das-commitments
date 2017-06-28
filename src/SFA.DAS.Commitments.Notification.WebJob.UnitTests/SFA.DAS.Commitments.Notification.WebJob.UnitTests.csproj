@@ -110,6 +110,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WhenGettingEmailTemplate.cs" />
+    <Compile Include="WhenGettingProviderEmails.cs" />
     <Compile Include="WhenRunningNotificationJob.cs" />
   </ItemGroup>
   <ItemGroup>

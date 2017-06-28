@@ -323,6 +323,18 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<IList<ProviderAlertSummary>> GetProviderApprenticeshipAlertSummary()
+        {
+            return await WithConnection(async connection =>
+            {
+                var results = await connection.QueryAsync<ProviderAlertSummary>(
+                    sql: $"[dbo].[GetProviderAlertsSummary]",
+                    commandType: CommandType.StoredProcedure);
+
+                return results.ToList();
+            });
+        }
+
         private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, SqlConnection x, DataTable table)
         {
             IList<Apprenticeship> apprenticeships;

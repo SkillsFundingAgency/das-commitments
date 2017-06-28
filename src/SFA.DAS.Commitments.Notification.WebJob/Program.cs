@@ -2,6 +2,7 @@
 using SFA.DAS.Commitments.Notification.WebJob.DependencyResolution;
 using SFA.DAS.NLog.Logger;
 using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
@@ -12,8 +13,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         // AzureWebJobsDashboard and AzureWebJobsStorage
         static void Main()
         {
-            var container = IoC.Initialize();
 
+            var container = IoC.Initialize();
             var logger = container.GetInstance<ILog>();
             var config = container.GetInstance<CommitmentNotificationConfiguration>();
             var notificationJob = container.GetInstance<INotificationJob>();
@@ -26,14 +27,18 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             logger.Trace("Starting CommitmentNotification.WebJob");
 
-            try
-            {
-                notificationJob.Run().Wait();
-            }
-             catch (Exception ex)
-            {
-                logger.Error(ex, "Error running CommitmentNotification.WebJob");
-            }
+            var t1 = notificationJob.RunEmployerNotification()
+                .ContinueWith(t => OnException(t, logger, "Employer"));
+            var t2 = notificationJob.RunProviderNotification()
+                .ContinueWith(t => OnException(t, logger, "Provider"));
+
+            Task.WaitAll(t1, t2);
+        }
+
+        private static void OnException(Task task, ILog logger, string identifier)
+        {
+            if(task.IsFaulted)
+                logger.Error(task.Exception, $"Error running {identifier} CommitmentNotification.WebJob");
         }
     }
 }

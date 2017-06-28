@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using SFA.DAS.NLog.Logger;
@@ -11,33 +12,52 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 {
     public class NotificationJob : INotificationJob
     {
-        private readonly IEmailTemplatesService _emailTemplatesService;
+        private readonly IEmployerEmailTemplatesService _emailTemplatesService;
+        private readonly IProviderEmailTemplatesService _providerEmailTemplatesService;
         private readonly INotificationsApi _notificationsApi;
         private readonly ILog _logger;
 
         public NotificationJob(
-            IEmailTemplatesService emailTemplatesService,
+            IEmployerEmailTemplatesService emailTemplatesService,
+            IProviderEmailTemplatesService providerEmailTemplatesService,
             INotificationsApi notificationsApi,
             ILog logger
             )
         {
             _emailTemplatesService = emailTemplatesService;
+            _providerEmailTemplatesService = providerEmailTemplatesService;
             _notificationsApi = notificationsApi;
             _logger = logger;
         }
 
-        public async Task Run()
+        public async Task RunEmployerNotification()
         {
-            IEnumerable<Email> emails = await GetEmails();
-
+            var emails = await GetEmployerEmails();
             await SendEmails(emails);
         }
 
-        private async Task<IEnumerable<Email>> GetEmails()
+        public async Task RunProviderNotification()
+        {
+            var emails = await GetProviderEmails();
+            await SendEmails(emails);
+        }
+
+        private async Task<IEnumerable<Email>> GetEmployerEmails()
         {
             var stopwatch = Stopwatch.StartNew();
 
             var emails = await _emailTemplatesService.GetEmails();
+
+            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine emails to send", new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
+
+            return emails;
+        }
+
+        private async Task<IEnumerable<Email>> GetProviderEmails()
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var emails = await _providerEmailTemplatesService.GetEmails();
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine emails to send", new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
 

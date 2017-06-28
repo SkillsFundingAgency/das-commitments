@@ -4,6 +4,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 {
     public interface INotificationJob
     {
-        Task Run();
+        Task RunEmployerNotification();
+
+        Task RunProviderNotification();
     }
 }

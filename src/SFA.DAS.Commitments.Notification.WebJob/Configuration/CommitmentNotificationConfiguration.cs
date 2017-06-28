@@ -6,6 +6,10 @@ namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
     {
         public bool EnableJob { get; set; }
 
+        public bool UseIdamsService { get; set; }
+
+        public string TestUserEmail { get; set; }
+
         public string DatabaseConnectionString { get; set; }
 
         public string ServiceBusConnectionString { get; set; }
@@ -13,5 +17,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
         public AccountApiConfiguration AccountApi { get; set; }
 
         public NotificationsApiClientConfiguration NotificationApi { get; set; }
+
     }
 }
