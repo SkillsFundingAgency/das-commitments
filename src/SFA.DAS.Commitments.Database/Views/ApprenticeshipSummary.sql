@@ -69,9 +69,22 @@ SELECT
 		ON au.ApprenticeshipId = a.Id
 	LEFT JOIN DataLockStatus dlPrice on dlPrice.Id =
 		(
-			SELECT TOP 1 Id from DataLockStatus
-			where ApprenticeshipId = a.Id and ErrorCode = 64 and TriageStatus = 0
-			and [Status] = 2 AND [IsResolved] = 0
+			SELECT TOP 1 
+        Id 
+      FROM 
+        DataLockStatus
+			WHERE 
+        ApprenticeshipId = a.Id 
+      AND 
+        ErrorCode = 64 
+      AND 
+        TriageStatus = 0
+			AND
+        [Status] = 2 
+      AND 
+        [IsResolved] = 0
+      ORDER BY 
+        IlrEffectiveFromDate, Id
 		)
 	LEFT JOIN DataLockStatus dlPriceTriaged on dlPriceTriaged.Id =
 	(

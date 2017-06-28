@@ -4,7 +4,9 @@ AS
 BEGIN
 	
 	SELECT *
-	from DataLockStatus
-	where DataLockEventId = @DataLockEventId
+	FROM 
+		DataLockStatus
+	WHERE 
+		DataLockEventId = @DataLockEventId
 
 END
