@@ -32,6 +32,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -124,14 +125,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}", providerId: providerId);
 
-            var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
+            var request = new GetApprenticeshipsRequest
             {
                 Caller = new Caller
                 {
                     CallerType = CallerType.Provider,
-                    Id = providerId
-                }
-            });
+                    Id = providerId,
+                },
+                PageNumber = query.PageNumber == 0 ? GetApprenticeshipsRequest.DefaultPageNumber : query.PageNumber,
+                PageSize = query.PageSize == 0 ? GetApprenticeshipsRequest.DefaultPageSize : query.PageSize
+            };
+
+            var response = await _mediator.SendAsync(request);
 
             var approvedApprenticeships = response.Data
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
@@ -144,7 +149,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Apprenticeships = filteredProviders,
                 Facets = facets,
-                TotalApprenticeships = approvedApprenticeships.Count
+                TotalApprenticeships = approvedApprenticeships.Count,
+                PageNumber = DeterminePageNumberBasedOnTotalHits(request, approvedApprenticeships),
+                PageSize = request.PageSize
             };
         }
 
@@ -428,6 +435,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             var result = await _mediator.SendAsync(new GetBulkUploadFileQuery { ProviderId = providerId, BulkUploadFileId = bulkUploadFileId });
 
             return result.Data;
+        }
+
+        private static int DeterminePageNumberBasedOnTotalHits(GetApprenticeshipsRequest request, List<Types.Apprenticeship.Apprenticeship> approvedApprenticeships)
+        {
+            if (request.PageNumber == 0 || request.PageNumber > (approvedApprenticeships.Count + request.PageSize - 1) / request.PageSize)
+                return 1;
+
+            return request.PageNumber;
         }
     }
 }

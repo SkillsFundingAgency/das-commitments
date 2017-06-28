@@ -77,5 +77,60 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
 
             result.Apprenticeships.Count().Should().Be(0);
         }
+
+        [TestCase(1, 100, 10, 1, Description = "Returns first page number if first page number passed in")]
+        [TestCase(14, 100, 10, 1, Description = "Returns first page number if page is not within range of total pages")]
+        [TestCase(10, 100, 10, 10, Description = "Returns page number if page is not within range of total pages")]
+        [TestCase(0, 100, 10, 1, Description = "Returns first page if page is not set (0)")]
+        public async Task ShouldReturnThePageNumber(int requestedPageNumber, int totalApprenticeships, int requestedPageSize, int expectedPageNumber)
+        {
+            var apprenticeships = CreateApprenticeships(totalApprenticeships);
+
+            _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetApprenticeshipsResponse { Data = apprenticeships });
+
+            var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery { PageNumber = requestedPageNumber, PageSize = requestedPageSize });
+
+            result.PageNumber.Should().Be(expectedPageNumber);
+        }
+
+        [TestCase(5, 5, Description = "Returns page size from query if > 0")]
+        [TestCase(0, 25, Description = "Defaults page size to 25 if the page size is not set (0)")]
+        public async Task ShouldReturnThePageSize(int requestedPageSize, int expectedPageSize)
+        {
+            var apprenticeships = CreateApprenticeships(20);
+
+            _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetApprenticeshipsResponse { Data = apprenticeships });
+
+            var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery { PageNumber = 1, PageSize = requestedPageSize });
+
+            result.PageSize.Should().Be(expectedPageSize);
+        }
+
+        [Test]
+        public async Task ShouldDefaultPagingValuesIfNotSet()
+        {
+            var apprenticeships = CreateApprenticeships(20);
+
+            _mockMediator.Setup(m => m.SendAsync(It.Is<GetApprenticeshipsRequest>(x => x.PageNumber == 1 && x.PageSize == 25)))
+                .ReturnsAsync(new GetApprenticeshipsResponse { Data = apprenticeships });
+
+            var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery { PageNumber = 0, PageSize = 0 });
+
+            _mockMediator.Verify();
+        }
+
+        private static List<Apprenticeship> CreateApprenticeships(int totalApprenticeships)
+        {
+            var apprenticeships = new List<Apprenticeship>(totalApprenticeships);
+
+            for (int i = 0; i < totalApprenticeships - 1; i++)
+            {
+                apprenticeships.Add(new Apprenticeship { PaymentStatus = PaymentStatus.Active });
+            }
+
+            return apprenticeships;
+        }
     }
 }
