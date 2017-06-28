@@ -5,6 +5,6 @@ AS
 	SELECT *
 	FROM DataLockStatus
 	WHERE ApprenticeshipId = @ApprenticeshipId
-	ORDER BY IlrEffectiveFromDate
+	ORDER BY IlrEffectiveFromDate, Id
 
 
