@@ -51,8 +51,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.IsAny<Commitment>(), 
                 It.IsAny<Apprenticeship>(), 
                 It.Is<PaymentStatus>(a => a == PaymentStatus.Paused), 
-                null, 
-                It.Is<DateTime?>(a => a.Equals(ExampleValidRequest.DateOfChange))));
+                It.Is<DateTime?>(a => a.Equals(ExampleValidRequest.DateOfChange)),
+                null));
         }
 
         [TestCase(PaymentStatus.Withdrawn)]

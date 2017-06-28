@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
-            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 unauthorized");
+            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 not authorised");
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
-            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Employer 123 unauthorized");
+            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Employer 123 not authorised");
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
-            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 unauthorized");
+            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 not allowed");
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
-            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Employer 123 unauthorized");
+            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Employer 123 not allowed");
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             Func<Task> act = async () => await _handler.Handle(_validCommand);
 
-            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 unauthorized");
+            act.ShouldThrow<UnauthorizedException>().And.Message.Should().Contain("Provider 123 not authorised");
         }
 
         [Test]

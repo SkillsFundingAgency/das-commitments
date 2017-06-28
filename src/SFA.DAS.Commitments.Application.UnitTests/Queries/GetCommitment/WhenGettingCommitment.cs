@@ -109,7 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
                 }
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} unauthorized to view commitment {_fakeRepositoryCommitment.Id}");
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Provider {providerId} not authorised to access commitment {_fakeRepositoryCommitment.Id}, expected provider {_fakeRepositoryCommitment.ProviderId}");
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
                 }
             });
 
-            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerAccountId} unauthorized to view commitment {_fakeRepositoryCommitment.Id}"); ;
+            act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerAccountId} not authorised to access commitment {_fakeRepositoryCommitment.Id}, expected employer {_fakeRepositoryCommitment.EmployerAccountId}"); ;
         }
 
         [TestCase(AgreementStatus.NotAgreed)]

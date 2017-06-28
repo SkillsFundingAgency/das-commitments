@@ -71,9 +71,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            if (newPaymentStatus == PaymentStatus.Paused)
-                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveTo: command.DateOfChange.Date);
-            else if (newPaymentStatus == PaymentStatus.Withdrawn)
+            if (newPaymentStatus == PaymentStatus.Paused || newPaymentStatus == PaymentStatus.Withdrawn)
             {
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
             }
@@ -134,7 +132,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             return false;
         }
 
-
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {
             if (apprenticeship.IsWaitingToStart(_currentDate))
@@ -161,7 +158,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
-                throw new UnauthorizedException($"Employer {message.AccountId} unauthorized to view commitment {commitment.Id}");
+                throw new UnauthorizedException($"Employer {message.AccountId} not authorised to access commitment {commitment.Id}, expected employer {commitment.EmployerAccountId}");
         }
     }
 }
