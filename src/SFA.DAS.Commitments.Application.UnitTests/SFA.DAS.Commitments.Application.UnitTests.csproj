@@ -167,11 +167,12 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewAgreementStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineWhetherChangeRequireAgreement.cs" />
     <Compile Include="Rules\CommitmentRules\WhenDetermineAgreementStatus.cs" />
+    <Compile Include="Service\ApprenticeshipFilterService\WhenPagingFilterResults.cs" />
     <Compile Include="Service\Facets\WhenExtractingApprenticeshipStatuses.cs" />
     <Compile Include="Service\Facets\WhenExtractingProviders.cs" />
     <Compile Include="Service\Facets\WhenExtractingRecordStatuses.cs" />
     <Compile Include="Service\Facets\WhenExtractingTrainingCourse.cs" />
-    <Compile Include="Service\WhenFilterApprenticeships.cs" />
+    <Compile Include="Service\ApprenticeshipFilterService\WhenFilterApprenticeships.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
   </ItemGroup>
   <ItemGroup>
