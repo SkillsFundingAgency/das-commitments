@@ -88,6 +88,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilter
         [TestCase(14, 100, 10, 10, Description = "Returns last page number if page is not within range of total pages")]
         [TestCase(10, 100, 10, 10, Description = "Returns page number if page is not within range of total pages")]
         [TestCase(0, 100, 10, 1, Description = "Returns first page if page is not set (0)")]
+        [TestCase(-3, 100, 10, 1, Description = "Returns first page if page less than zero")]
         public void ShouldReturnThePageNumber(int requestedPageNumber, int totalApprenticeships, int requestedPageSize, int expectedPageNumber)
         {
             var apprenticeships = CreatePaginiationApprenticeships(totalApprenticeships);
@@ -101,6 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilter
 
         [TestCase(5, 5, Description = "Returns page size from query if > 0")]
         [TestCase(0, 25, Description = "Defaults page size to 25 if the page size is not set (0)")]
+        [TestCase(-34, 25, Description = "Defaults page size to 25 if the page size is set to negative number")]
         public void ShouldReturnThePageSize(int requestedPageSize, int expectedPageSize)
         {
             var apprenticeships = CreatePaginiationApprenticeships(20);

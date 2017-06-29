@@ -79,11 +79,11 @@ namespace SFA.DAS.Commitments.Application.Services
 
             var filteredResults = result.ToList();
 
-            var pageSize = apprenticeshipQuery.PageSize == 0 ? 25 : apprenticeshipQuery.PageSize;
+            var pageSize = apprenticeshipQuery.PageSize <= 0 ? 25 : apprenticeshipQuery.PageSize;
             var pageNumber = DeterminePageNumber(apprenticeshipQuery.PageNumber, pageSize, result);
 
             filteredResults = filteredResults
-                .Skip(apprenticeshipQuery.PageSize * (apprenticeshipQuery.PageNumber - 1))
+                .Skip(apprenticeshipQuery.PageSize * (pageNumber - 1))
                 .Take(apprenticeshipQuery.PageSize)
                 .ToList();
 
@@ -92,7 +92,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         private static int DeterminePageNumber(int pageNumber, int pageSize, IEnumerable<Apprenticeship> approvedApprenticeships)
         {
-            if (pageNumber == 0)
+            if (pageNumber <= 0)
                 return 1;
 
             var totalPages = (approvedApprenticeships.Count() + pageSize - 1) / pageSize;
