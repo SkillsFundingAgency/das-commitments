@@ -111,6 +111,7 @@
       <HintPath>..\packages\System.Spatial.5.7.0\lib\net40\System.Spatial.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -120,10 +121,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
+    <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\BulkUploadRepository.cs" />
     <Compile Include="Data\DataLockRepository.cs" />
+    <Compile Include="Data\IdamsEmailServiceWrapper.cs" />
+    <Compile Include="Data\IProviderEmailServiceWrapper.cs" />
     <Compile Include="Data\ProviderPaymentRepository.cs" />
     <Compile Include="Data\Transactions\DataLockTransactions.cs" />
     <Compile Include="Data\HistoryRepository.cs" />
@@ -135,6 +139,7 @@
     <Compile Include="Data\ParentChildrenMapper.cs" />
     <Compile Include="Data\Transactions\IApprenticeshipTransactions.cs" />
     <Compile Include="Logging\CommitmentsLogger.cs" />
+    <Compile Include="Models\UserResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ApprenticeshipEvent.cs" />
     <Compile Include="Services\ApprenticeshipEvents.cs" />
@@ -142,6 +147,7 @@
     <Compile Include="Services\ApprenticeshipEventsPublisher.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
     <Compile Include="Services\HashingService.cs" />
+    <Compile Include="Services\HttpClientWrapper.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />
     <Compile Include="Services\PaymentEventMapper.cs" />
     <Compile Include="Services\PaymentEventsDocumentSerivce.cs" />

@@ -44,5 +44,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task CreatePriceHistoryForApprenticeshipsInCommitment(long commitmentId);
 
         Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary();
+
+        Task<IList<ProviderAlertSummary>> GetProviderApprenticeshipAlertSummary();
     }
 }

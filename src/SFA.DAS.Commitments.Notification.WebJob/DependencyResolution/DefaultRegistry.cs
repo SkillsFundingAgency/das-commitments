@@ -12,6 +12,9 @@ using StructureMap;
 using System;
 using System.Reflection;
 
+using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Commitments.Notification.WebJob.Services;
+
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 {
     public class DefaultRegistry : Registry
@@ -26,14 +29,17 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
                 });
 
             var config = GetConfiguration("SFA.DAS.CommitmentNotification");
-
             For<CommitmentNotificationConfiguration>().Use(config);
+            ConfigureEmailWrapper(config);
 
             For<IAccountApiClient>().Use<AccountApiClient>()
                 .Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
+            For<ProviderUserApiConfiguration>().Use(config.ProviderUserApi);
 
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-            For<IEmailTemplatesService>().Use<EmailTemplatesService>();
+
+            For<IEmployerEmailTemplatesService>().Use<EmployerEmailTemplatesService>();
+            For<IProviderEmailTemplatesService>().Use<ProviderEmailTemplatesService>();
             For<INotificationJob>().Use<NotificationJob>();
 
             For<INotificationsApiClientConfiguration>().Use(config.NotificationApi);
@@ -41,7 +47,14 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<IConfiguration>().Use(config);
             For<ILog>().Use(x => new NLogLogger(x.ParentType, null, null)).AlwaysUnique();
         }
-        
+
+        private void ConfigureEmailWrapper(CommitmentNotificationConfiguration config)
+        {
+            if (config.UseIdamsService)
+                For<IProviderEmailServiceWrapper>().Use<IdamsEmailServiceWrapper>();
+            else
+                For<IProviderEmailServiceWrapper>().Use<FakeProviderEmailServiceWrapper>();
+        }
 
         private CommitmentNotificationConfiguration GetConfiguration(string serviceName)
         {
