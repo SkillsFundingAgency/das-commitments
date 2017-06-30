@@ -35,8 +35,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilter
 
             var result = _sut.Filter(apprenticeships, query, Originator.Provider);
 
-            result.Results.Count.Should().Be(RequestedPageSize);
-            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 1, 2, 3, 4 });
+            result.PageOfResults.Count.Should().Be(RequestedPageSize);
+            result.PageOfResults.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 1, 2, 3, 4 });
         }
 
         [Test]
@@ -50,8 +50,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilter
 
             var result = _sut.Filter(apprenticeships, query, Originator.Provider);
 
-            result.Results.Count.Should().Be(RequestedPageSize);
-            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 5, 6, 7, 8 });
+            result.PageOfResults.Count.Should().Be(RequestedPageSize);
+            result.PageOfResults.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 5, 6, 7, 8 });
         }
 
         [Test]
@@ -65,8 +65,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilter
 
             var result = _sut.Filter(apprenticeships, query, Originator.Provider);
 
-            result.Results.Count.Should().Be(RequestedPageSize);
-            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 17, 18, 19, 20 });
+            result.PageOfResults.Count.Should().Be(RequestedPageSize);
+            result.PageOfResults.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 17, 18, 19, 20 });
         }
 
         [Test]
@@ -80,8 +80,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilter
 
             var result = _sut.Filter(apprenticeships, query, Originator.Provider);
 
-            result.Results.Count.Should().Be(RequestedPageSize - 2);
-            result.Results.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 17, 18 });
+            result.PageOfResults.Count.Should().Be(RequestedPageSize - 2);
+            result.PageOfResults.Select(x => x.Id).ShouldAllBeEquivalentTo(new List<int> { 17, 18 });
         }
 
         [TestCase(1, 100, 10, 1, Description = "Returns first page number if first page number passed in")]

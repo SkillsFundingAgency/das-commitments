@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
 
             _mockApprenticeshipFilter.Setup(m =>
                m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider))
-               .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(aps.ToList(), 1, 25));
+               .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));
         }
 
         [Test]

@@ -78,6 +78,7 @@ namespace SFA.DAS.Commitments.Application.Services
             }
 
             var filteredResults = result.ToList();
+            var totalResults = filteredResults.Count;
 
             var pageSize = apprenticeshipQuery.PageSize <= 0 ? 25 : apprenticeshipQuery.PageSize;
             var pageNumber = DeterminePageNumber(apprenticeshipQuery.PageNumber, pageSize, result);
@@ -87,7 +88,7 @@ namespace SFA.DAS.Commitments.Application.Services
                 .Take(apprenticeshipQuery.PageSize)
                 .ToList();
 
-            return new FilterResult(filteredResults, pageNumber, pageSize);
+            return new FilterResult(totalResults, filteredResults, pageNumber, pageSize);
         }
 
         private static int DeterminePageNumber(int pageNumber, int pageSize, IEnumerable<Apprenticeship> approvedApprenticeships)
@@ -106,17 +107,20 @@ namespace SFA.DAS.Commitments.Application.Services
 
     public class FilterResult
     {
-        public FilterResult(List<Apprenticeship> results, int pageNumber, int pageSize)
+        public FilterResult(int totalResults, List<Apprenticeship> pageOfResults, int pageNumber, int pageSize)
         {
-            Results = results;
+            PageOfResults = pageOfResults;
             PageNumber = pageNumber;
             PageSize = pageSize;
+            TotalResults = totalResults;
         }
 
-        public IReadOnlyCollection<Apprenticeship> Results { get; private set; }
+        public IReadOnlyCollection<Apprenticeship> PageOfResults { get; private set; }
 
         public int PageNumber { get; private set; }
 
         public int PageSize { get; private set; }
+
+        public int TotalResults { get; private set; }
     }
 }
