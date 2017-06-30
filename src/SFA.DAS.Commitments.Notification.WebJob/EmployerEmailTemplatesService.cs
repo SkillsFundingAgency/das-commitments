@@ -80,7 +80,6 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             return accountsWithUsers.SelectMany(m =>
                     {
                         var account = accounts.FirstOrDefault(a => a.AccountId == m.AccountId);
-
                         var alert = alertSummaries.Single(sum => sum.EmployerAccountId == m.AccountId);
 
                         return m.Users
@@ -131,7 +130,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                             { "requested_changes", alertSummary.RestartRequestCount > 0 
                                 ? $"* {alertSummary.RestartRequestCount} with requested changes" 
                                 : string.Empty },
-                            { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" }
+                            { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                            { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
                         }
                 };
         }
