@@ -116,7 +116,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             email.Tokens["provider_name"].Should().Be("Test Provider 1");
 
             email.Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
-            email.Tokens["mismatch_changes"].Should().Be("* 2 with an data mismatch");
+            email.Tokens["mismatch_changes"].Should().Be("* 2 with an ILR data mismatch");
 
             email.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
         }
@@ -147,7 +147,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             email.Tokens["provider_name"].Should().Be("Test Provider 1");
 
             email.Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
-            email.Tokens["mismatch_changes"].Should().Be("* 1 with an data mismatch");
+            email.Tokens["mismatch_changes"].Should().Be("* 1 with an ILR data mismatch");
 
             email.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
         }

@@ -74,7 +74,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                 ? $"* {alert.ChangesForReview} with changes for review"
                                 : string.Empty },
                             { "mismatch_changes", alert.DataMismatchCount > 0
-                                ? $"* {alert.DataMismatchCount} with an data mismatch"
+                                ? $"* {alert.DataMismatchCount} with an ILR data mismatch"
                                 : string.Empty },
                             { "link_to_mange_apprenticeships", $"{user.Ukprn}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested" }
                         }
