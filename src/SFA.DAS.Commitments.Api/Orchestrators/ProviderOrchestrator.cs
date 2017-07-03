@@ -165,7 +165,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             if (response.Data == null)
             {
-                _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+                _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: apprenticeshipId);
                 return null;
             }
 

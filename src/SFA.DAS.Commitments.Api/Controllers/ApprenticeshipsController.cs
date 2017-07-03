@@ -5,8 +5,6 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using System.Net;
 
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
-
 using DataLocksTriageResolutionSubmission = SFA.DAS.Commitments.Api.Types.DataLock.DataLocksTriageResolutionSubmission;
 
 namespace SFA.DAS.Commitments.Api.Controllers

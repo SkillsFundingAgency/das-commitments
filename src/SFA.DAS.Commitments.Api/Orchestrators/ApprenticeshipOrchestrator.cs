@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<GetDataLockResponse> GetDataLock(long apprenticeshipId, long dataLockEventId)
         {
-            _logger.Trace($"Getting data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Getting data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
             var response = await _mediator.SendAsync(new GetDataLockRequest
             {
@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 DataLockEventId = dataLockEventId
             });
 
-            _logger.Info($"Retrieved data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Info($"Retrieved data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
             return response;
         }
@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            _logger.Info($"Retrieved {response.Data.Count} data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Info($"Retrieved {response.Data.Count} data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
             return MapToApiType(response.Data);
         }
@@ -82,14 +82,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 DataLockWithOnlyPriceMismatch = MapToApiType(withPriceOnly)
             };
 
-            _logger.Info($"Retrieved data lock summary for apprenticeship: {apprenticeshipId}. {summary.DataLockWithCourseMismatch.Count(): CourseMismatch}, {summary.DataLockWithOnlyPriceMismatch}: Price Mismatch ", apprenticeshipId);
+            _logger.Info($"Retrieved data lock summary for apprenticeship: {apprenticeshipId}. {summary.DataLockWithCourseMismatch.Count(): CourseMismatch}, {summary.DataLockWithOnlyPriceMismatch}: Price Mismatch ", apprenticeshipId: apprenticeshipId);
 
             return summary;
         }
 
         public async Task TriageDataLock(long apprenticeshipId, long dataLockEventId, DataLockTriageSubmission triageSubmission)
         {
-            _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId);
+            _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId: apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
             {
@@ -99,12 +99,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = triageSubmission.UserId
             });
 
-            _logger.Info($"Updated data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to status: {triageSubmission.TriageStatus}", apprenticeshipId);
+            _logger.Info($"Updated data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to status: {triageSubmission.TriageStatus}", apprenticeshipId: apprenticeshipId);
         }
 
         public async Task TriageDataLocks(long apprenticeshipId, DataLockTriageSubmission triageSubmission)
         {
-            _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
             {
@@ -113,7 +113,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = triageSubmission.UserId
             });
 
-            _logger.Info($"Updated all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Info($"Updated all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
         }
 
         public async Task ResolveDataLock(long apprenticeshipId, DataLocksTriageResolutionSubmission triageSubmission)
@@ -128,7 +128,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = triageSubmission.UserId
             });
 
-            _logger.Info($"Resolved datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Info($"Resolved datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
         }
 
         public async Task<GetPriceHistoryResponse> GetPriceHistory(long apprenticeshipId)
@@ -140,7 +140,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            _logger.Info($"Retrieved {response.Data.Count()} price history items for apprenticeship: {apprenticeshipId}", apprenticeshipId);
+            _logger.Info($"Retrieved {response.Data.Count()} price history items for apprenticeship: {apprenticeshipId}"
+                , apprenticeshipId: apprenticeshipId);
 
             return response;
         }
