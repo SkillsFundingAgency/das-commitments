@@ -145,7 +145,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> BulkUploadFile(long providerId, long bulkUploadFileId)
         {
-            var file = await _providerOrchestrator.GettBulkUploadFile(providerId, bulkUploadFileId);
+            var file = await _providerOrchestrator.GetBulkUploadFile(providerId, bulkUploadFileId);
 
             if(file == null)
                 return NotFound();

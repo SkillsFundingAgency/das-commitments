@@ -67,7 +67,6 @@
     <Compile Include="Entities\ApprenticeshipStatusSummary.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
-    <Compile Include="Entities\DataLock\DataLocksTriageSubmission.cs" />
     <Compile Include="Entities\PriceHistory.cs" />
     <Compile Include="Entities\ProviderAlertSummary.cs" />
     <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />

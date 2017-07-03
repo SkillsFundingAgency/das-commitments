@@ -4,6 +4,7 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -62,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
             //Act
             await _handler.Handle(new GetRelationshipByCommitmentRequest
             {
-                ProviderId = 1,
+                Caller = new Caller(1, CallerType.Provider),
                 CommitmentId = 2
             });
 
@@ -79,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
             //Act
             await _handler.Handle(new GetRelationshipByCommitmentRequest
             {
-                ProviderId = 1,
+                Caller = new Caller(1, CallerType.Provider),
                 CommitmentId = 2
             });
 
@@ -93,7 +94,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
             //Act
             await _handler.Handle(new GetRelationshipByCommitmentRequest
             {
-                ProviderId = 1,
+                Caller = new Caller(1, CallerType.Provider),
                 CommitmentId = 2
             });
 
@@ -108,7 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
             //Act
             var result = await _handler.Handle(new GetRelationshipByCommitmentRequest
             {
-                ProviderId = 1,
+                Caller = new Caller(1, CallerType.Provider),
                 CommitmentId = 2
             });
 
@@ -133,7 +134,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationshipByCom
             //Act
             var result = await _handler.Handle(new GetRelationshipByCommitmentRequest
             {
-                ProviderId = 1,
+                Caller = new Caller(1, CallerType.Provider),
                 CommitmentId = 2
             });
 

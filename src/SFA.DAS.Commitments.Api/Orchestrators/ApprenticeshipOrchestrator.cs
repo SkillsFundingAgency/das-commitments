@@ -11,13 +11,11 @@ using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
 using SFA.DAS.Commitments.Application.Queries.GetPriceHistory;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Extensions;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 using DataLocksTriageResolutionSubmission = SFA.DAS.Commitments.Api.Types.DataLock.DataLocksTriageResolutionSubmission;
 using DataLockStatus = SFA.DAS.Commitments.Domain.Entities.DataLock.DataLockStatus;
-using TriageStatus = SFA.DAS.Commitments.Api.Types.DataLock.Types.TriageStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -101,17 +99,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = triageSubmission.UserId
             });
 
-            _logger.Trace($"Updated data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to status: {triageSubmission.TriageStatus}", apprenticeshipId);
+            _logger.Info($"Updated data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to status: {triageSubmission.TriageStatus}", apprenticeshipId);
         }
 
-        public async Task TriageDataLocks(long apprenticeshipId, DataLocksTriageSubmission triageSubmission)
+        public async Task TriageDataLocks(long apprenticeshipId, DataLockTriageSubmission triageSubmission)
         {
             _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
             await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
             {
                 ApprenticeshipId = apprenticeshipId,
-                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
+                TriageStatus = triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 

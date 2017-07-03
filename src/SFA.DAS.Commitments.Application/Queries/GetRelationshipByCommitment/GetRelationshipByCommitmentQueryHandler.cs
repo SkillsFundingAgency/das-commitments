@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain.Data;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
@@ -36,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment
 
             var commitment = await _commitmentRepository.GetCommitmentById(message.CommitmentId);
 
-            CheckAuthorisation(message.ProviderId, commitment);
+            CheckAuthorisation(message.Caller.Id, commitment);
 
             var entity = await _commitmentRepository.GetRelationship(commitment.EmployerAccountId,
                 commitment.ProviderId.Value, commitment.LegalEntityId);

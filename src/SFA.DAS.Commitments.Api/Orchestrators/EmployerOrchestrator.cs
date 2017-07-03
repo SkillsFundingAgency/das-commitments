@@ -37,9 +37,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
-
         private readonly FacetMapper _facetMapper;
-
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
         public EmployerOrchestrator(
@@ -108,9 +106,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var id = await _mediator.SendAsync(new CreateCommitmentCommand
             {
+                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
                 Commitment = commitmentRequest.Commitment,
                 UserId = commitmentRequest.UserId,
-                CallerType = CallerType.Employer,
                 Message = commitmentRequest.Message
             });
 
@@ -125,11 +123,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                }
+                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
             });
 
             _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Data.Count} apprenticeships found", accountId: accountId);
@@ -242,8 +236,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating Provider Payment Priority for employer account {accountId}", accountId);
 
-            var response = await _mediator.SendAsync(new UpdateProviderPaymentsPriorityCommand
+            await _mediator.SendAsync(new UpdateProviderPaymentsPriorityCommand
             {
+                Caller = new Caller(accountId, CallerType.Employer),
                 EmployerAccountId = accountId,
                 ProviderPriorities = CreateListOfProviders(submission.Priorities)
             });
@@ -257,6 +252,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetProviderPaymentsPriorityRequest
             {
+                Caller = new Caller(accountId, CallerType.Employer),
                 EmployerAccountId = accountId
             });
 
@@ -271,11 +267,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             await _mediator.SendAsync(new UpdateCommitmentAgreementCommand
             {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                },
+                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
                 CommitmentId = commitmentId,
                 LatestAction = submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
@@ -293,6 +285,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
             {
+                Caller = new Caller(accountId, CallerType.Employer),
                 AccountId = accountId,
                 ApprenticeshipId = apprenticeshipId,
                 PaymentStatus = apprenticeshipSubmission.PaymentStatus,
@@ -399,18 +392,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
         }
 
-        private List<Domain.Entities.ProviderPaymentPriorityUpdateItem> CreateListOfProviders(IList<Types.ProviderPayment.ProviderPaymentPriorityUpdateItem> priorities)
-        {
-            if (priorities == null)
-                new List<long>(0);
-
-            return priorities.Select(x => new Domain.Entities.ProviderPaymentPriorityUpdateItem
-            {
-                ProviderId = x.ProviderId,
-                PriorityOrder = x.PriorityOrder
-            }).ToList();
-        }
-
         public async Task<GetEmployerAccountSummaryResponse> GetAccountSummary(long accountId)
         {
             _logger.Trace($"Getting account summary for employer account {accountId}", accountId: accountId);
@@ -427,6 +408,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved {response.Data.Count()} account summary items for employer account {accountId}", accountId: accountId);
 
             return response;
+        }
+
+        private List<Domain.Entities.ProviderPaymentPriorityUpdateItem> CreateListOfProviders(IList<Types.ProviderPayment.ProviderPaymentPriorityUpdateItem> priorities)
+        {
+            if (priorities == null)
+                new List<long>(0);
+
+            return priorities.Select(x => new Domain.Entities.ProviderPaymentPriorityUpdateItem
+            {
+                ProviderId = x.ProviderId,
+                PriorityOrder = x.PriorityOrder
+            }).ToList();
         }
     }
 }
