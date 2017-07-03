@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using MediatR;
 
-using SFA.DAS.Commitments.Api.Models;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
@@ -32,6 +31,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -122,14 +122,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query)
         {
-            _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}", providerId: providerId);
+            _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", providerId: providerId);
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
                 Caller = new Caller
                 {
                     CallerType = CallerType.Provider,
-                    Id = providerId
+                    Id = providerId,
                 }
             });
 
@@ -138,13 +138,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships, query, Originator.Provider);
 
-            var filteredProviders = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Provider);
+            var filteredApprenticeships = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Provider);
+
+            _logger.Info($"Retrieved {approvedApprenticeships.Count} apprenticeships with filter query for provider {providerId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", providerId: providerId);
 
             return new ApprenticeshipSearchResponse
             {
-                Apprenticeships = filteredProviders,
+                Apprenticeships = filteredApprenticeships.PageOfResults,
                 Facets = facets,
-                TotalApprenticeships = approvedApprenticeships.Count
+                TotalApprenticeships = filteredApprenticeships.TotalResults,
+                PageNumber = filteredApprenticeships.PageNumber,
+                PageSize = filteredApprenticeships.PageSize
             };
         }
 
