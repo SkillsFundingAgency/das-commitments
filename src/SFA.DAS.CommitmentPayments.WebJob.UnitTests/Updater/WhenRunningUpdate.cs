@@ -5,12 +5,12 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.CommitmentPayments.WebJob.Updater;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.Commitments.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 {
@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             _config = new CommitmentPaymentsConfiguration();
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
             _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(page2);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -139,7 +139,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
             _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(page2);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                     UpdateOrigin = updateOrigin
                 });
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -206,7 +206,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents = new Mock<IPaymentEvents>();
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -235,7 +235,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents = new Mock<IPaymentEvents>();
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -243,44 +243,10 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             //Assert
             _dataLockRepository.Verify(x =>x.UpdateDataLockStatus(It.Is<DataLockStatus>(d =>d.ErrorCode == expectSavedErrorCode)), Times.Once);
         }
-
-        [TestCase(true)]
-        [TestCase(false)]
-        public async Task ThenApprenticeshipIsValidatedAccordingToConfiguration(bool disableValidation)
-        {
-            //Arrange
-            var page1 = new List<DataLockStatus>
-            {
-                new DataLockStatus
-                {
-                    ApprenticeshipId = 1,
-                    DataLockEventId = 2,
-                    ErrorCode = DataLockErrorCode.Dlock07
-                }
-            };
-            _paymentEvents = new Mock<IPaymentEvents>();
-            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
-
-            _config = new CommitmentPaymentsConfiguration
-            {
-                DisableApprenticeshipValidation = disableValidation
-            };
-
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
-
-            //Act
-            await _dataLockUpdater.RunUpdate();
-
-            //Assert
-            var expectedTimes = disableValidation ? 0 : 1;
-            _apprenticeshipRepository.Verify(x => x.GetApprenticeship(It.Is<long>(id => id == 1)), Times.Exactly(expectedTimes));
-        }
         
-        [TestCase(true)]
-        [TestCase(false)]
-        public void ThenIfApprenticeshipIsNotFoundExceptionIsThrown(bool apprenticeshipExists)
+        [Test]
+        public void ThenThrowsExceptionIfDbConstraintErrorOccurs()
         {
-            //Arrange
             var page1 = new List<DataLockStatus>
             {
                 new DataLockStatus
@@ -292,21 +258,34 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             };
             _paymentEvents = new Mock<IPaymentEvents>();
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+            _dataLockRepository.Setup(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>())).Throws(new RepositoryConstraintException());
 
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(apprenticeshipExists ? new Apprenticeship() : null);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _apprenticeshipRepository.Object, _config);
+            Assert.ThrowsAsync<RepositoryConstraintException>(async () => await _dataLockUpdater.RunUpdate());
+        }
 
-            //Act & Assert
-            if (!apprenticeshipExists)
+        [Test]
+        public void ThenIgnoresDbConstraintErrorIfConfigSettingSet()
+        {
+            var page1 = new List<DataLockStatus>
             {
-                Assert.ThrowsAsync<ResourceNotFoundException>(async () => await _dataLockUpdater.RunUpdate());
-            }
-            else
-            {
-                Assert.DoesNotThrowAsync(async () => await _dataLockUpdater.RunUpdate());
-            }
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 1,
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                }
+            };
+            _paymentEvents = new Mock<IPaymentEvents>();
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+            _dataLockRepository.Setup(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>())).Throws(new RepositoryConstraintException());
+
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+
+            _config.IgnoreDataLockStatusConstraintErrors = true;
+
+            Assert.DoesNotThrowAsync(async () => await _dataLockUpdater.RunUpdate());
         }
     }
 }

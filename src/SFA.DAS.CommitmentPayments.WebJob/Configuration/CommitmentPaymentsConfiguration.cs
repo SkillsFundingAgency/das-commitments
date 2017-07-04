@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Configuration
 
         public string StorageConnectionString { get; set; }
 
-        public bool DisableApprenticeshipValidation { get; set; }
+        public bool IgnoreDataLockStatusConstraintErrors { get; set; }
     }
 
     public class PaymentEventsApi : IPaymentsEventsApiConfiguration
