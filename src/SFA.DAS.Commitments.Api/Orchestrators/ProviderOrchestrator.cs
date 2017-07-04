@@ -166,7 +166,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             if (response.Data == null)
             {
                 _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: apprenticeshipId);
-                return null;
+                return response;
             }
 
             _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
@@ -314,7 +314,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             if (response.Data == null)
             {
                 _logger.Info($"Relationship not found for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-                return null;
+                return response;
             }
 
             _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
