@@ -10,4 +10,4 @@
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Message_CommitmentId] ON [dbo].[Apprenticeship] ([CommitmentId])
+CREATE NONCLUSTERED INDEX [IX_Message_CommitmentId] ON [dbo].[Message] ([CommitmentId]) INCLUDE ([Author], [CreatedBy], [CreatedDateTime], [Text]) WITH (ONLINE = ON)
