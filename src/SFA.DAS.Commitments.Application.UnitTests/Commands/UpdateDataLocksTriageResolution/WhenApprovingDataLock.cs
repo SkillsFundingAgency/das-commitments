@@ -166,6 +166,68 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
                 It.Is<IEnumerable<long>>(d => d.Contains(3L) && d.Count() == 1)), Times.Once);
         }
 
+        [Test]
+        public async Task ShouldSetEndDateForNewPriceHistory()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+                    .ReturnsAsync(new List<DataLockStatus>
+                      {
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-06-01"),  DataLockEventId = 1},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1600,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-07-01"), DataLockEventId = 2},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1700,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-12-01"), DataLockEventId = 3}
+                      });
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
+
+            _command.DataLockUpdateType = DataLockUpdateType.ApproveChanges;
+            IEnumerable<PriceHistory> prices = null;
+            _apprenticeshipRepository.Setup(
+                m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))
+                .Callback<long, IEnumerable<PriceHistory>>((i, l) => prices = l)
+                .Returns(Task.FromResult(1L));
+
+            await _sut.Handle(_command);
+
+            var p1 = prices.Single(m => m.Cost == 1500);
+            var p2 = prices.Single(m => m.Cost == 1600);
+            var p3 = prices.Single(m => m.Cost == 1700);
+
+            p1.ToDate.Should().Be(p2.FromDate.AddDays(-1));
+            p2.ToDate.Should().Be(p3.FromDate.AddDays(-1));
+            p3.ToDate.Should().Be(null);
+        }
+
+        [Test]
+        public async Task ShouldSetEndDateForNewPriceHistoryOneRecord()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+                    .ReturnsAsync(new List<DataLockStatus>
+                      {
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-06-01"),  DataLockEventId = 1}
+                      });
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
+
+            _command.DataLockUpdateType = DataLockUpdateType.ApproveChanges;
+            IEnumerable<PriceHistory> prices = null;
+            _apprenticeshipRepository.Setup(
+                m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))
+                .Callback<long, IEnumerable<PriceHistory>>((i, l) => prices = l)
+                .Returns(Task.FromResult(1L));
+
+            await _sut.Handle(_command);
+
+            var p1 = prices.Single(m => m.Cost == 1500);
+
+            p1.ToDate.Should().Be(null);
+        }
+
         private bool AssertPriceHistory(IEnumerable<PriceHistory> ph, int expectedTotal)
         {
             return

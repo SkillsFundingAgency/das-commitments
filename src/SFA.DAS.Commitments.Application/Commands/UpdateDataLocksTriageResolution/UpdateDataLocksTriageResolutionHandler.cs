@@ -74,14 +74,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
                             Cost = (decimal)m.IlrTotalCost,
                             FromDate = (DateTime)m.IlrEffectiveFromDate,
                             ToDate = null
+                        })
+                        .ToArray();
 
-                        });
-
+                for (int i = 0; i < newPriceHistory.Length - 1; i++)
+                {
+                    newPriceHistory[i].ToDate = newPriceHistory[i + 1].FromDate.AddDays(-1);
+                }
                 
-                    // One call to repository?
-                    await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
-                    await _dataLockRepository.ResolveDataLock(
-                        dataLocksToBeUpdated.Select(m => m.DataLockEventId));
+                // One call to repository?
+                await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
+                await _dataLockRepository.ResolveDataLock(
+                    dataLocksToBeUpdated.Select(m => m.DataLockEventId));
 
                 await PublishEvents(command.ApprenticeshipId);
 
@@ -99,7 +103,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
         {
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeshipId);
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
-
 
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
 
