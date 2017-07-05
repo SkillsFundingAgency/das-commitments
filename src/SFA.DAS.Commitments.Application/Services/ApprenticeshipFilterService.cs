@@ -3,7 +3,6 @@ using System.Linq;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 
 namespace SFA.DAS.Commitments.Application.Services
 {
@@ -16,7 +15,7 @@ namespace SFA.DAS.Commitments.Application.Services
             _facetMapper = facetMapper;
         }
 
-        public virtual IEnumerable<Apprenticeship> Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
+        public virtual FilterResult Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var apps = new Apprenticeship[apprenticeships.Count];
             apprenticeships.CopyTo(apps, 0);
@@ -78,7 +77,50 @@ namespace SFA.DAS.Commitments.Application.Services
                 result = result.Where(m => apprenticeshipQuery.TrainingProviderIds.Contains(m.ProviderId));
             }
 
-            return result;
+            var filteredResults = result.ToList();
+            var totalResults = filteredResults.Count;
+
+            var pageSize = apprenticeshipQuery.PageSize <= 0 ? 25 : apprenticeshipQuery.PageSize;
+            var pageNumber = DeterminePageNumber(apprenticeshipQuery.PageNumber, pageSize, result);
+
+            filteredResults = filteredResults
+                .Skip(apprenticeshipQuery.PageSize * (pageNumber - 1))
+                .Take(apprenticeshipQuery.PageSize)
+                .ToList();
+
+            return new FilterResult(totalResults, filteredResults, pageNumber, pageSize);
         }
+
+        private static int DeterminePageNumber(int pageNumber, int pageSize, IEnumerable<Apprenticeship> approvedApprenticeships)
+        {
+            if (pageNumber <= 0)
+                return 1;
+
+            var totalPages = (approvedApprenticeships.Count() + pageSize - 1) / pageSize;
+
+            if (pageNumber > totalPages)
+                return totalPages;
+
+            return pageNumber;
+        }
+    }
+
+    public class FilterResult
+    {
+        public FilterResult(int totalResults, List<Apprenticeship> pageOfResults, int pageNumber, int pageSize)
+        {
+            PageOfResults = pageOfResults;
+            PageNumber = pageNumber;
+            PageSize = pageSize;
+            TotalResults = totalResults;
+        }
+
+        public IReadOnlyCollection<Apprenticeship> PageOfResults { get; private set; }
+
+        public int PageNumber { get; private set; }
+
+        public int PageSize { get; private set; }
+
+        public int TotalResults { get; private set; }
     }
 }

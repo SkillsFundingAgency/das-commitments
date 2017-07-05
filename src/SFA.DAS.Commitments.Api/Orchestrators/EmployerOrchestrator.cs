@@ -139,7 +139,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<Apprenticeship.ApprenticeshipSearchResponse> GetApprenticeships(long accountId, Apprenticeship.ApprenticeshipSearchQuery query)
         {
-            _logger.Trace($"Getting apprenticeships with filtered query for employer account {accountId}", accountId: accountId);
+            _logger.Trace($"Getting apprenticeships with filter query for employer {accountId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", accountId: accountId);
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
@@ -150,17 +150,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var approvedApprenticeships = response.Data.Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
+            var approvedApprenticeships = response.Data
+                .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships , query, Originator.Employer);
 
-            var filteredProviders = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Employer);
+            var filteredApprenticeships = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Employer);
+
+            _logger.Info($"Retrieved {approvedApprenticeships.Count} apprenticeships with filter query for employer {accountId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", accountId: accountId);
 
             return new Apprenticeship.ApprenticeshipSearchResponse
-                       {
-                           Apprenticeships = filteredProviders,
-                           Facets = facets,
-                           TotalApprenticeships = approvedApprenticeships.Count
+            {
+                Apprenticeships = filteredApprenticeships.PageOfResults,
+                Facets = facets,
+                TotalApprenticeships = approvedApprenticeships.Count,
+                PageNumber = filteredApprenticeships.PageNumber,
+                PageSize = filteredApprenticeships.PageSize
             };
         }
 

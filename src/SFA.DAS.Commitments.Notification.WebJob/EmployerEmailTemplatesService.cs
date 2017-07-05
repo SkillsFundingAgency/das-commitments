@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Notification.WebJob.Models;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
@@ -15,14 +14,14 @@ using Polly;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
-    public class EmailTemplatesService : IEmailTemplatesService
+    public class EmployerEmailTemplatesService : IEmployerEmailTemplatesService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
         private readonly ILog _logger;
         private readonly Policy _retryPolicy;
 
-        public EmailTemplatesService(
+        public EmployerEmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
             ILog logger)
@@ -46,35 +45,41 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             _logger.Info($"Found {alertSummaries.Count} summary records.");
 
-            var distinctAccountIds =
+            var distinctAccountIdsFromAlert =
                 alertSummaries
                 .Select(m => m.EmployerAccountId)
                 .Distinct()
                 .ToList();
 
             var distinctAccountsTasks =
-                 distinctAccountIds
-                .Select(x => _retryPolicy.ExecuteAsync(() => _accountApi.GetAccount(x)))
+                 distinctAccountIdsFromAlert
+                .Select(x => _retryPolicy.ExecuteAndCaptureAsync(() => _accountApi.GetAccount(x)))
                 .ToList();
 
             var userPerAccountTasks =
-                 distinctAccountIds
+                 distinctAccountIdsFromAlert
                 .Select(ToUserModel)
                 .ToList();
 
             await Task.WhenAll(distinctAccountsTasks);
             await Task.WhenAll(userPerAccountTasks);
 
-            var accounts = distinctAccountsTasks.Select(x => x.Result).ToList();
+            var accounts = distinctAccountsTasks
+                .Select(x => x.Result)
+                .Where(x => x.Outcome == OutcomeType.Successful)
+                .Select(x => x.Result).ToList();
+
+            // Only accountIds where user in DB
+            var accountIds = accounts.Select(m => m.AccountId);
 
             var accountsWithUsers = userPerAccountTasks
-                                        .Select(x => x.Result)
-                                        .Where(u => u.Users != null);
+                .Select(x => x.Result)
+                .Where(u => u.Users != null)
+                .Where(x => accountIds.Contains(x.AccountId));
 
             return accountsWithUsers.SelectMany(m =>
                     {
-                        var account = accounts.Single(a => a.AccountId == m.AccountId);
-
+                        var account = accounts.FirstOrDefault(a => a.AccountId == m.AccountId);
                         var alert = alertSummaries.Single(sum => sum.EmployerAccountId == m.AccountId);
 
                         return m.Users
@@ -87,25 +92,19 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         private async Task<UserModel> ToUserModel(long accountId)
         {
-            ICollection<TeamMemberViewModel> users = null;
-
-            try
+            var usersResult = await _retryPolicy.ExecuteAndCaptureAsync(() => _accountApi.GetAccountUsers(accountId));
+            if (usersResult.Outcome == OutcomeType.Failure )
+                _logger.Error(usersResult.FinalException, $"Unable to get users for account: {accountId} from account api");
+            if (usersResult.Result == null || !usersResult.Result.Any())
             {
-                users = await _retryPolicy.ExecuteAsync(() => _accountApi.GetAccountUsers(accountId));
-
-                if (users == null || !users.Any())
-                    _logger.Warn($"No users found for account: {accountId}");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, $"Unable to get users for account: {accountId} from account api");
+                _logger.Warn($"No users found for account: {accountId}");
             }
 
             return new UserModel
-                       {
-                           AccountId = accountId,
-                           Users = users
-                       };
+            {
+                AccountId = accountId,
+                Users = usersResult.Result
+            };
         }
 
         private Email MapToEmail(TeamMemberViewModel userModel, AlertSummary alertSummary, string hashedAccountId, string accountName)
@@ -118,21 +117,22 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 Subject = "Items for your attention: apprenticeship service",
                 SystemId = "x",
                 Tokens =
-                               new Dictionary<string, string>
-                                   {
-                                       { "name", userModel.Name },
-                                       { "total_count_text", alertSummary.TotalCount == 1 
-                                            ? "is 1 apprentice" 
-                                            : $"are {alertSummary.TotalCount} apprentices" },
-                                       { "account_name", accountName },
-                                       { "changes_for_review", alertSummary.ChangesForReview > 0 
-                                            ? $"* {alertSummary.ChangesForReview} with changes for review" 
-                                            : string.Empty },
-                                       { "requested_changes", alertSummary.RestartRequestCount > 0 
-                                            ? $"* {alertSummary.RestartRequestCount} with requested changes" 
-                                            : string.Empty },
-                                       { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" }
-                                   }
+                    new Dictionary<string, string>
+                        {
+                            { "name", userModel.Name },
+                            { "total_count_text", alertSummary.TotalCount == 1 
+                                ? "is 1 apprentice" 
+                                : $"are {alertSummary.TotalCount} apprentices" },
+                            { "account_name", accountName },
+                            { "changes_for_review", alertSummary.ChangesForReview > 0 
+                                ? $"* {alertSummary.ChangesForReview} with changes for review" 
+                                : string.Empty },
+                            { "requested_changes", alertSummary.RestartRequestCount > 0 
+                                ? $"* {alertSummary.RestartRequestCount} with requested changes" 
+                                : string.Empty },
+                            { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
+                            { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
+                        }
                 };
         }
 

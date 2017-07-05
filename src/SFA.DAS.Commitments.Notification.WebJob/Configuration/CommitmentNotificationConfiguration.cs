@@ -1,10 +1,15 @@
 ﻿using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
 {
     public class CommitmentNotificationConfiguration : IConfiguration
     {
         public bool EnableJob { get; set; }
+
+        public bool SendEmail { get; set; }
+
+        public bool UseIdamsService { get; set; }
 
         public string DatabaseConnectionString { get; set; }
 
@@ -13,5 +18,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
         public AccountApiConfiguration AccountApi { get; set; }
 
         public NotificationsApiClientConfiguration NotificationApi { get; set; }
+
+        public ProviderUserApiConfiguration ProviderUserApi { get; set; }
     }
 }

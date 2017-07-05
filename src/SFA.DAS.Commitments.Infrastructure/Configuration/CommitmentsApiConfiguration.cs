@@ -8,7 +8,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
         public string Hashstring { get; set; }
-
         public EventsApiClientConfiguration EventsApi { get; set; }
     }
 }

@@ -37,27 +37,26 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                 Mock.Of<ICommitmentsLogger>(),
                 _mockFacetMapper.Object,
                 _mockApprenticeshipFilter.Object);
+
+            _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetApprenticeshipsResponse
+                {
+                    Data = new List<Apprenticeship>
+                                                 {
+                                                                 new Apprenticeship { PaymentStatus = PaymentStatus.Active },
+                                                                 new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
+                                                                 new Apprenticeship { PaymentStatus = PaymentStatus.Paused }
+                                                 }
+                });
+
+            _mockApprenticeshipFilter.Setup(m =>
+               m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider))
+               .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));
         }
 
         [Test]
         public async Task ShouldFilterListFromNotApproved()
         {
-            _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetApprenticeshipsResponse
-                                  {
-                                      Data = new List<Apprenticeship>
-                                                 {
-                                                     new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                                                     new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
-                                                     new Apprenticeship { PaymentStatus = PaymentStatus.Paused }
-                                                 }
-                                  });
-
-            // Return same IList<Apprenticeship> as input.
-            _mockApprenticeshipFilter.Setup(m => 
-                m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider))
-                .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery,Originator>((aps, q, o) => aps);
-
             var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 
             result.Apprenticeships.Count().Should().Be(2);
@@ -67,7 +66,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         public async Task ShouldCallGetFacetAndMapper()
         {
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetApprenticeshipsResponse { Data = new List<Apprenticeship>() });
+                .ReturnsAsync(new GetApprenticeshipsResponse
+                {
+                    Data = new List<Apprenticeship>()
+                });
 
             var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 

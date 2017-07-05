@@ -7,11 +7,11 @@ using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
-using SFA.DAS.Commitments.Application.Services;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Service
+namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilterService
 {
+    using SFA.DAS.Commitments.Application.Services;
+
     [TestFixture]
     public class WhenFilterApprenticeships
     {
@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
 
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(2);
+            result.PageOfResults.Count.Should().Be(2);
         }
 
         [TestCase(Originator.Provider)]
@@ -66,8 +66,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("Live");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.Single().FirstName.Should().Be("Live");
         }
 
         [TestCase(Originator.Provider)]
@@ -88,8 +88,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
                             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("Live");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.Single().FirstName.Should().Be("Live");
         }
 
         [TestCase(Originator.Provider)]
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
+            result.PageOfResults.Count.Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -115,7 +115,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
+            result.PageOfResults.Count.Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -129,8 +129,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().FirstName.Should().Be("ILR Data Mismatch");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.FirstOrDefault().FirstName.Should().Be("ILR Data Mismatch");
         }
 
         [TestCase(Originator.Provider)]
@@ -145,9 +145,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(2);
-            result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
-            result.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
+            result.PageOfResults.Count.Should().Be(2);
+            result.PageOfResults.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
+            result.PageOfResults.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
         }
 
         [TestCase(Originator.Provider)]
@@ -162,9 +162,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(2);
-            result.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
-            result.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
+            result.PageOfResults.Count.Should().Be(2);
+            result.PageOfResults.Count(m => m.FirstName == "ILR Data Mismatch").Should().Be(1);
+            result.PageOfResults.Count(m => m.FirstName == "WaitingToStart").Should().Be(1);
         }
 
 
@@ -175,7 +175,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new [] { RecordStatus.ChangesPending, } ) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(0);
+            result.PageOfResults.Count.Should().Be(0);
         }
 
         [TestCase(Originator.Provider)]
@@ -192,8 +192,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.ChangesPending, }) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("ChangesPending");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.Single().FirstName.Should().Be("ChangesPending");
         }
 
         [TestCase(Originator.Provider, Originator.Employer)]
@@ -210,8 +210,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { RecordStatuses = new List<RecordStatus>(new[] { RecordStatus.ChangesForReview, }) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().FirstName.Should().Be("ChangesForReview");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.Single().FirstName.Should().Be("ChangesForReview");
         }
 
         [TestCase(Originator.Provider)]
@@ -237,8 +237,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingCourses = new List<string>(new [] { "123-00-009", "35", "2" } )};
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(1);
-            result.Single().Id.Should().Be(009);
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.Single().Id.Should().Be(009);
         }
 
         [TestCase(Originator.Provider)]
@@ -264,7 +264,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingCourses = new List<string>(new[] { "123-00-009", "35", "2" }) };
             var result = _sut.Filter(_apprenticeships, query, caller);
 
-            result.Count().Should().Be(0);
+            result.PageOfResults.Count.Should().Be(0);
         }
 
 
@@ -295,8 +295,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<string> { "09990" } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Provider);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().LegalEntityName.Should().Be("Employer 999");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.FirstOrDefault().LegalEntityName.Should().Be("Employer 999");
         }
 
         [Test]
@@ -324,7 +324,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { EmployerOrganisationIds = new List<string> { "999" } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Employer);
 
-            result.Count().Should().Be(_apprenticeships.Count);
+            result.PageOfResults.Count.Should().Be(_apprenticeships.Count);
         }
 
         [Test]
@@ -356,8 +356,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingProviderIds = new List<long> { 007 } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Employer);
 
-            result.Count().Should().Be(1);
-            result.FirstOrDefault().ProviderName.Should().Be("Provider 007");
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.FirstOrDefault().ProviderName.Should().Be("Provider 007");
         }
 
         [Test]
@@ -389,8 +389,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Service
             var query = new ApprenticeshipSearchQuery { TrainingProviderIds = new List<long> { 007 } };
             var result = _sut.Filter(_apprenticeships, query, Originator.Provider);
 
-            result.Count().Should().Be(_apprenticeships.Count);
+            result.PageOfResults.Count.Should().Be(_apprenticeships.Count);
         }
-
     }
 }
