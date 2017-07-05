@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.Commitments.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 {
@@ -18,10 +20,15 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
         private readonly IPaymentEvents _paymentEventsSerivce;
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
+        private readonly CommitmentPaymentsConfiguration _config;
 
         private readonly IList<DataLockErrorCode> _whiteList;
 
-        public DataLockUpdater(ILog logger, IPaymentEvents paymentEventsService, IDataLockRepository dataLockRepository, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository)
+        public DataLockUpdater(ILog logger,
+            IPaymentEvents paymentEventsService,
+            IDataLockRepository dataLockRepository,
+            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
+            CommitmentPaymentsConfiguration config)
         {
             if(logger==null)
                 throw new ArgumentNullException(nameof(ILog));
@@ -31,11 +38,14 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 throw new ArgumentNullException(nameof(IDataLockRepository));
             if(apprenticeshipUpdateRepository == null)
                 throw new ArgumentNullException(nameof(IApprenticeshipUpdateRepository));
+            if(config == null)
+                throw new ArgumentNullException(nameof(CommitmentPaymentsConfiguration));
 
             _logger = logger;
             _paymentEventsSerivce = paymentEventsService;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
+            _config = config;
 
             _whiteList = new List<DataLockErrorCode>
             {
@@ -93,8 +103,14 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         {
                             await _apprenticeshipUpdateRepository.SupercedeApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
                         }
-                       
-                        await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
+
+                        try
+                        {
+                            await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
+                        }
+                        catch(RepositoryConstraintException) when (_config.IgnoreDataLockStatusConstraintErrors)
+                        {
+                        }
                     }
 
                     lastId = dataLockStatus.DataLockEventId;

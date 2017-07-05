@@ -86,6 +86,10 @@
       <Project>{42c9280d-cdaa-45b8-9a02-eb629288798d}</Project>
       <Name>SFA.DAS.CommitmentPayments.WebJob</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
+      <Project>{880cdaf6-d9ee-481b-b4d8-7de9c215a770}</Project>
+      <Name>SFA.DAS.Commitments.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{c4c803af-747e-4747-a23b-da43219009a4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>

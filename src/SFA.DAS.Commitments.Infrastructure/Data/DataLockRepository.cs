@@ -10,6 +10,9 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Sql.Client;
+using System.Data.SqlClient;
+using SFA.DAS.Commitments.Domain.Exceptions;
+using System;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -40,30 +43,44 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> UpdateDataLockStatus(DataLockStatus dataLockStatus)
         {
-            return await WithConnection(async connection =>
+            try
             {
-                var parameters = new DynamicParameters();
+                var result = await WithConnection(async connection =>
+                {
+                    var parameters = new DynamicParameters();
 
-                parameters.Add("@DataLockEventId", dataLockStatus.DataLockEventId);
-                parameters.Add("@DataLockEventDatetime", dataLockStatus.DataLockEventDatetime);
-                parameters.Add("@PriceEpisodeIdentifier", dataLockStatus.PriceEpisodeIdentifier);
-                parameters.Add("@ApprenticeshipId", dataLockStatus.ApprenticeshipId);
-                parameters.Add("@IlrTrainingCourseCode", dataLockStatus.IlrTrainingCourseCode);
-                parameters.Add("@IlrTrainingType", dataLockStatus.IlrTrainingType);
-                parameters.Add("@IlrActualStartDate", dataLockStatus.IlrActualStartDate);
-                parameters.Add("@IlrEffectiveFromDate", dataLockStatus.IlrEffectiveFromDate);
-                parameters.Add("@IlrTotalCost", dataLockStatus.IlrTotalCost);
-                parameters.Add("@ErrorCode", dataLockStatus.ErrorCode);
-                parameters.Add("@Status", dataLockStatus.Status);
-                parameters.Add("@TriageStatus", dataLockStatus.TriageStatus);
-                parameters.Add("@ApprenticeshipUpdateId", dataLockStatus.ApprenticeshipUpdateId);
-                parameters.Add("@IsResolved", dataLockStatus.IsResolved);
+                    parameters.Add("@DataLockEventId", dataLockStatus.DataLockEventId);
+                    parameters.Add("@DataLockEventDatetime", dataLockStatus.DataLockEventDatetime);
+                    parameters.Add("@PriceEpisodeIdentifier", dataLockStatus.PriceEpisodeIdentifier);
+                    parameters.Add("@ApprenticeshipId", dataLockStatus.ApprenticeshipId);
+                    parameters.Add("@IlrTrainingCourseCode", dataLockStatus.IlrTrainingCourseCode);
+                    parameters.Add("@IlrTrainingType", dataLockStatus.IlrTrainingType);
+                    parameters.Add("@IlrActualStartDate", dataLockStatus.IlrActualStartDate);
+                    parameters.Add("@IlrEffectiveFromDate", dataLockStatus.IlrEffectiveFromDate);
+                    parameters.Add("@IlrTotalCost", dataLockStatus.IlrTotalCost);
+                    parameters.Add("@ErrorCode", dataLockStatus.ErrorCode);
+                    parameters.Add("@Status", dataLockStatus.Status);
+                    parameters.Add("@TriageStatus", dataLockStatus.TriageStatus);
+                    parameters.Add("@ApprenticeshipUpdateId", dataLockStatus.ApprenticeshipUpdateId);
+                    parameters.Add("@IsResolved", dataLockStatus.IsResolved);
 
-                return await connection.ExecuteAsync(
-                    sql: $"[dbo].[UpdateDataLockStatus]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-            });
+                    return await connection.ExecuteAsync(
+                        sql: $"[dbo].[UpdateDataLockStatus]",
+                        param: parameters,
+                        commandType: CommandType.StoredProcedure);
+                });
+
+                return result;
+            }
+            catch (Exception ex) when (ex.InnerException is SqlException && IsConstraintError(ex.InnerException as SqlException))
+            {
+                throw new RepositoryConstraintException("Unable to insert datalockstatus record", ex);
+            }
+        }
+
+        private static bool IsConstraintError(SqlException ex)
+        {
+            return ex.Errors?.Count == 2 && ex.Errors[0].Number == 547;
         }
 
         public async Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId)

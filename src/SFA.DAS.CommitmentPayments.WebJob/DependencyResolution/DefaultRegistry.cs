@@ -34,8 +34,10 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
                 .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
 
             For<IConfiguration>().Use(config);
+            For<CommitmentPaymentsConfiguration>().Use(config);
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipUpdateRepository>().Use<ApprenticeshipUpdateRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<IDataLockUpdater>().Use<DataLockUpdater>();
 

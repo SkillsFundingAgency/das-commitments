@@ -97,6 +97,7 @@
     <Compile Include="Entities\ProviderUser.cs" />
     <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Entities\UpdateOrigin.cs" />
+    <Compile Include="Exceptions\RepositoryConstraintException.cs" />
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
     <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
