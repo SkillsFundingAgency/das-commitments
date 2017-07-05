@@ -31,12 +31,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
 
         private UpdateDataLocksTriageResolutionCommand _command;
 
+        private Mock<ICommitmentRepository> _commitmentRepository;
+
         [SetUp]
         public void SetUp()
         {
             _validator = new Mock<AbstractValidator<UpdateDataLocksTriageResolutionCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _commitmentRepository = new Mock<ICommitmentRepository>();
 
             _command = new UpdateDataLocksTriageResolutionCommand
             {
@@ -53,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _apprenticeshipRepository.Object,
             Mock.Of<IApprenticeshipEventsPublisher>(),
             Mock.Of<IApprenticeshipEventsList>(),
-            Mock.Of<ICommitmentRepository>(),
+            _commitmentRepository.Object,
             Mock.Of<ICurrentDateTime>());
         }
 

@@ -53,15 +53,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckCommitmentStatus(commitment);
 
             var apprenticeship = MapFrom(command.Apprenticeship, command);
-            apprenticeship.Id = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
+            var apprenticeshipId = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
+            var savedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeshipId);
 
             await Task.WhenAll(
-                _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-CREATED"),
+                _apprenticeshipEvents.PublishEvent(commitment, savedApprenticeship, "APPRENTICESHIP-CREATED"),
                 UpdateStatusOfApprenticeship(commitment),
-                CreateHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
+                CreateHistory(commitment, savedApprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
             );
 
-            return apprenticeship.Id;
+            return apprenticeshipId;
         }
 
         private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
