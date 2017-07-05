@@ -1,8 +1,8 @@
 ﻿using SFA.DAS.Commitments.Domain.Entities;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
+namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 {
-    public class UpdateApprenticeshipUpdateMapper : IUpdateApprenticeshipUpdateMapper
+    public class AcceptApprenticeshipUpdateMapper : IAcceptApprenticeshipUpdateMapper
     {
         public void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
         {
@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
         }
     }
 
-    public interface IUpdateApprenticeshipUpdateMapper
+    public interface IAcceptApprenticeshipUpdateMapper
     {
         void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate);
     }

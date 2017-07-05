@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,12 +8,9 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
-using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 {
@@ -24,21 +20,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IMediator _mediator;
-        private readonly IUpdateApprenticeshipUpdateMapper _mapper;
-        private readonly IApprenticeshipEvents _eventsApi;
-        private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IHistoryRepository _historyRepository;
 
-        public UpdateApprenticeshipUpdateCommandHandler(AbstractValidator<UpdateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IUpdateApprenticeshipUpdateMapper mapper, IApprenticeshipEvents eventsApi, ICommitmentRepository commitmentRepository, IHistoryRepository historyRepository)
+
+        public UpdateApprenticeshipUpdateCommandHandler(AbstractValidator<UpdateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _mediator = mediator;
-            _mapper = mapper;
-            _eventsApi = eventsApi;
-            _commitmentRepository = commitmentRepository;
-            _historyRepository = historyRepository;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipUpdateCommand command)
@@ -47,11 +36,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
 
             await ValidateCommand(command, pendingUpdate, apprenticeship);
-
-            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
-            {
-                await ApproveApprenticeshipUpdate(command, apprenticeship, pendingUpdate);
-            }
 
             if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
             {
@@ -63,27 +47,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
                 await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
             }
         }
-
-        private async Task ApproveApprenticeshipUpdate(UpdateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate)
-        {
-            var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
-            var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", command.Caller.CallerType, command.UserId, command.UserName);
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", command.Caller.CallerType, command.UserId, command.UserName);
-            var originalApprenticeship = apprenticeship.Clone();
-            _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
-
-            await Task.WhenAll(
-                _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate, command.UserId, apprenticeship, command.Caller),
-                CreateEvents(commitment, originalApprenticeship, apprenticeship, pendingUpdate),
-                historyService.Save()
-            );
-        }
-
-        private async Task CreateEvents(Commitment commitment, Apprenticeship apprenticeship, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
-        {
-            await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", pendingUpdate.EffectiveFromDate, null);
-        }
+       
 
         private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
         {

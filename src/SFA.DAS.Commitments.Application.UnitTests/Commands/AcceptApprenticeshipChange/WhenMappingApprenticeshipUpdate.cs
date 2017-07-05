@@ -1,24 +1,21 @@
 ﻿using System;
-
 using FluentAssertions;
 using NUnit.Framework;
-
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
+using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipUpdate
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshipChange
 {
     [TestFixture]
     public class WhenMappingApprenticeshipUpdate
     {
-        private UpdateApprenticeshipUpdateMapper _sut;
+        private AcceptApprenticeshipUpdateMapper _sut;
         private Apprenticeship _apprenticeship;
 
         [SetUp]
         public void SetUp()
         {
-            _sut = new UpdateApprenticeshipUpdateMapper();
+            _sut = new AcceptApprenticeshipUpdateMapper();
             _apprenticeship = new Apprenticeship
                 {
                     Id = 55,
