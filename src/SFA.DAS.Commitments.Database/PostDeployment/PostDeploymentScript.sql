@@ -16,3 +16,29 @@ INSERT INTO [dbo].[PriceHistory]
 	WHERE PaymentStatus <> 0
 	AND Id NOT IN (SELECT ApprenticeshipId FROM [dbo].[PriceHistory])
 
+
+WITH result (id, jsonApp)
+AS
+(SELECT id, jsonApp FROM (SELECT * FROM [dbo].[ApprenticeshipSummary]
+	WHERE Id in (
+		SELECT EntityId FROM [SFA.DAS.Commitments.Database].[dbo].[History]
+		WHERE EntityType = 'Apprenticeship'
+		AND UpdatedByRole = 'Employer'
+		AND ChangeType = 'Created'
+		AND UpdatedState like '%providerId":0,%'
+		)) a
+	CROSS apply
+	(
+		SELECT * FROM [dbo].[ApprenticeshipSummary] d
+		where d.Id = a.Id
+		FOR JSON AUTO, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES
+	) d(jsonApp)
+)
+
+UPDATE [dbo].[History]
+SET UpdatedState = c.jsonApp
+FROM
+[dbo].[History] hi
+INNER JOIN
+result c
+ON c.Id = hi.EntityId
