@@ -127,8 +127,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, IlrTotalCost = 505, ErrorCode = DataLockErrorCode.Dlock07, DataLockEventId = 1},
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Pass, IlrTotalCost = 506, ErrorCode = DataLockErrorCode.Dlock07, DataLockEventId = 2},
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3}
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Pass, IlrTotalCost = 499, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 2},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), DataLockEventId = 3}
                                   });
 
             await _sut.Handle(_command);
@@ -136,7 +136,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _apprenticeshipRepository.Verify(
                 m => m.InsertPriceHistory(
                     _command.ApprenticeshipId,
-                    It.Is<IEnumerable<PriceHistory>>(ph => AssertPriceHistory(ph, 1))),
+                    It.Is<IEnumerable<PriceHistory>>(ph => AssertPriceHistory(ph, 2))),
                     Times.Once);
             _dataLockRepository.Verify(m => m.ResolveDataLock(
                 It.Is<IEnumerable<long>>(d => d.Contains(3L) && d.Count() == 1)), Times.Once);

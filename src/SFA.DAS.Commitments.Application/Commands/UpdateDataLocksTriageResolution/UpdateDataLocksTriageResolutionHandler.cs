@@ -55,18 +55,23 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
             var validationResult = _validator.Validate(command);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
-            var dataLocksToBeUpdated = (await _dataLockRepository.GetDataLocks(command.ApprenticeshipId))
+
+            var datalocks = await _dataLockRepository.GetDataLocks(command.ApprenticeshipId);
+
+            var dataLockPriceErrors = datalocks
                 .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.IsPriceOnly)
                 .Where(m => m.TriageStatus == (TriageStatus)command.TriageStatus)
                 .ToList();
 
-            if (!dataLocksToBeUpdated.Any())
+            var dataLockPasses = datalocks.Where(x => x.Status == Status.Pass);
+
+            if (!dataLockPriceErrors.Any())
                 return;
 
             if (command.DataLockUpdateType == Api.Types.DataLock.Types.DataLockUpdateType.ApproveChanges)
             {
-                var newPriceHistory = dataLocksToBeUpdated
+                var newPriceHistory = dataLockPriceErrors.Concat(dataLockPasses)
                     .Select(m => 
                         new PriceHistory
                         {
@@ -75,6 +80,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
                             FromDate = (DateTime)m.IlrEffectiveFromDate,
                             ToDate = null
                         })
+                        .OrderBy(x => x.FromDate)
                         .ToArray();
 
                 for (int i = 0; i < newPriceHistory.Length - 1; i++)
@@ -85,16 +91,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
                 // One call to repository?
                 await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
                 await _dataLockRepository.ResolveDataLock(
-                    dataLocksToBeUpdated.Select(m => m.DataLockEventId));
+                    dataLockPriceErrors.Select(m => m.DataLockEventId));
 
                 await PublishEvents(command.ApprenticeshipId);
-
-
             }
             else if (command.DataLockUpdateType == Api.Types.DataLock.Types.DataLockUpdateType.RejectChanges)
             {
                 await _dataLockRepository.UpdateDataLockTriageStatus(
-                    dataLocksToBeUpdated.Select(m => m.DataLockEventId),
+                    dataLockPriceErrors.Select(m => m.DataLockEventId),
                     TriageStatus.Unknown);
             }
         }
