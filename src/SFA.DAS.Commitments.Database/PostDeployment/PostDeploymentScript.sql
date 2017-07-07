@@ -21,7 +21,7 @@ WITH result (id, jsonApp)
 AS
 (SELECT id, jsonApp FROM (SELECT * FROM [dbo].[ApprenticeshipSummary]
 	WHERE Id in (
-		SELECT EntityId FROM [SFA.DAS.Commitments.Database].[dbo].[History]
+		SELECT EntityId FROM [dbo].[History]
 		WHERE EntityType = 'Apprenticeship'
 		AND UpdatedByRole = 'Employer'
 		AND ChangeType = 'Created'
