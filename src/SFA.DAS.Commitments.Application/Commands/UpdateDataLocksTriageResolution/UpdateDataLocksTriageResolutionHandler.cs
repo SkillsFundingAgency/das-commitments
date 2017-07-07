@@ -64,7 +64,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
                 .Where(m => m.TriageStatus == (TriageStatus)command.TriageStatus)
                 .ToList();
 
-            var dataLockPasses = datalocks.Where(x => x.Status == Status.Pass);
+            var dataLockPasses = datalocks
+                .Where(x => x.Status == Status.Pass
+                            || (x.ErrorCode == DataLockErrorCode.Dlock07
+                                && x.Status == Status.Fail
+                                && x.TriageStatus == TriageStatus.Change
+                                && x.IsResolved)
+                );
 
             if (!dataLockPriceErrors.Any())
                 return;
