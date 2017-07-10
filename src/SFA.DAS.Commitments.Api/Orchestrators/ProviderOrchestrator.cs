@@ -400,7 +400,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     await _mediator.SendAsync(new AcceptApprenticeshipChangeCommand
                     {
                         ApprenticeshipId = apprenticeshipId,
-                        Caller = new Caller(providerId, CallerType.Employer),
+                        Caller = new Caller(providerId, CallerType.Provider),
                         UserId = submission.UserId,
                         UserName = submission.LastUpdatedByInfo?.Name
                     });
@@ -409,7 +409,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     await _mediator.SendAsync(new RejectApprenticeshipChangeCommand
                     {
                         ApprenticeshipId = apprenticeshipId,
-                        Caller = new Caller(providerId, CallerType.Employer),
+                        Caller = new Caller(providerId, CallerType.Provider),
                         UserId = submission.UserId,
                         UserName = submission.LastUpdatedByInfo?.Name
                     });
@@ -418,7 +418,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     await _mediator.SendAsync(new UndoApprenticeshipChangeCommand
                     {
                         ApprenticeshipId = apprenticeshipId,
-                        Caller = new Caller(providerId, CallerType.Employer),
+                        Caller = new Caller(providerId, CallerType.Provider),
                         UserId = submission.UserId,
                         UserName = submission.LastUpdatedByInfo?.Name
                     });
