@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IMediator _mediator;
-        private readonly IAcceptApprenticeshipUpdateMapper _mapper;
+        private readonly IAcceptApprenticeshipChangeMapper _mapper;
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHistoryRepository _historyRepository;
@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             IApprenticeshipRepository apprenticeshipRepository,
             IMediator mediator,
-            IAcceptApprenticeshipUpdateMapper mapper,
+            IAcceptApprenticeshipChangeMapper mapper,
             IApprenticeshipEvents eventsApi,
             ICommitmentRepository commitmentRepository,
             IHistoryRepository historyRepository)

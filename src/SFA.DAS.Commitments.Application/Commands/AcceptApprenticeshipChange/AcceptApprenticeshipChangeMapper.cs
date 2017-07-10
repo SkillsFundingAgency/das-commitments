@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 {
-    public class AcceptApprenticeshipUpdateMapper : IAcceptApprenticeshipUpdateMapper
+    public class AcceptApprenticeshipChangeMapper : IAcceptApprenticeshipChangeMapper
     {
         public void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
         {
@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
         }
     }
 
-    public interface IAcceptApprenticeshipUpdateMapper
+    public interface IAcceptApprenticeshipChangeMapper
     {
         void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate);
     }

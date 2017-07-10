@@ -9,13 +9,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
     [TestFixture]
     public class WhenMappingApprenticeshipUpdate
     {
-        private AcceptApprenticeshipUpdateMapper _sut;
+        private AcceptApprenticeshipChangeMapper _sut;
         private Apprenticeship _apprenticeship;
 
         [SetUp]
         public void SetUp()
         {
-            _sut = new AcceptApprenticeshipUpdateMapper();
+            _sut = new AcceptApprenticeshipChangeMapper();
             _apprenticeship = new Apprenticeship
                 {
                     Id = 55,
