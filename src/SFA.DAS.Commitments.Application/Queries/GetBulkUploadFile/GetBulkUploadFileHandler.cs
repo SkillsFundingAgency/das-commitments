@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 
+using FluentValidation;
 using MediatR;
 
 using SFA.DAS.Commitments.Domain.Data;
@@ -18,9 +19,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetBulkUploadFile
 
         public async Task<GetBulkUploadFileResponse> Handle(GetBulkUploadFileQuery message)
         {
-            var file = await _repository.GetBulkUploadFile(message.BulkUploadFileId);
+            var result = await _repository.GetBulkUploadFile(message.BulkUploadFileId);
 
-            return new GetBulkUploadFileResponse { Data = file };
+            if (result.ProviderId != message.ProviderId)
+                throw new ValidationException($"Provider {message.ProviderId} cannot access bulk upload {message.BulkUploadFileId}");
+            
+            return new GetBulkUploadFileResponse { Data = result.FileContent };
         }
     }
 }
