@@ -6,7 +6,9 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -14,12 +16,17 @@ namespace SFA.DAS.Commitments.Api.Controllers
     public class EmployerController : ApiController
     {
         private readonly EmployerOrchestrator _employerOrchestrator;
+        private readonly ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
-        public EmployerController(EmployerOrchestrator employerOrchestrator)
+        public EmployerController(EmployerOrchestrator employerOrchestrator, ApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
             if (employerOrchestrator == null)
                 throw new ArgumentNullException(nameof(employerOrchestrator));
+            if (apprenticeshipsOrchestrator == null)
+                throw new ArgumentNullException(nameof(apprenticeshipsOrchestrator));
+
             _employerOrchestrator = employerOrchestrator;
+            _apprenticeshipsOrchestrator = apprenticeshipsOrchestrator;
         }
 
         [Route("{accountId}")]
@@ -195,6 +202,43 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             await _employerOrchestrator.UpdateCustomProviderPaymentPriority(accountId, submission);
 
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}/prices")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetPriceHistory(long accountId, long apprenticeshipId)
+        {
+            var response = await _apprenticeshipsOrchestrator.GetPriceHistory(apprenticeshipId, new Caller(accountId, CallerType.Employer));
+
+            return Ok(response.Data);
+        }
+
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}/datalocks")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLocks(long accountId, long apprenticeshipId)
+        {
+            var response = await _apprenticeshipsOrchestrator.GetDataLocks(apprenticeshipId, new Caller(accountId, CallerType.Employer));
+
+            return Ok(response);
+        }
+
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}/datalocksummary")]
+        [Authorize(Roles = "Role1")]
+        [Obsolete("Use provider / employer API")]
+        public async Task<IHttpActionResult> GetDataLockSummary(long accountId, long apprenticeshipId)
+        {
+            var response = await _apprenticeshipsOrchestrator.GetDataLockSummary(apprenticeshipId, new Caller(accountId, CallerType.Employer));
+
+            return Ok(response);
+        }
+
+        [Route("{accountId}/apprenticeships/{apprenticeshipId}/datalocks/resolve")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long accountId, long apprenticeshipId, [FromBody] DataLocksTriageResolutionSubmission triageSubmission)
+        {
+            await _apprenticeshipsOrchestrator.ResolveDataLock(apprenticeshipId, triageSubmission, new Caller(accountId, CallerType.Employer));
             return StatusCode(HttpStatusCode.NoContent);
         }
     }

@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.TrainingName, string.Empty)
             );
             var populatedCommitment = fixture.Build<Api.Types.Commitment.Commitment>().Create();
-            _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment, CallerType = CallerType.Employer, UserId = "UserId"};
+            _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment, Caller = new Caller(1L, CallerType.Employer), UserId = "UserId"};
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
                .ReturnsAsync(new GetRelationshipResponse
@@ -202,7 +202,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 x =>
                     x.SaveMessage(expectedCommitmentId,
                         It.Is<Message>(
-                            m => m.Author == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name && m.CreatedBy == _exampleValidRequest.CallerType && m.Text == _exampleValidRequest.Message)),
+                            m => m.Author == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name && m.CreatedBy == _exampleValidRequest.Caller.CallerType && m.Text == _exampleValidRequest.Message)),
                 Times.Once);
         }
 
@@ -223,7 +223,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                 y.First().ChangeType == CommitmentChangeType.Created.ToString() && 
                                 y.First().EntityType == "Commitment" && 
                                 y.First().OriginalState == null &&
-                                y.First().UpdatedByRole == _exampleValidRequest.CallerType.ToString() &&
+                                y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState != null &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
                                 y.First().UpdatedByName == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name)), Times.Once);

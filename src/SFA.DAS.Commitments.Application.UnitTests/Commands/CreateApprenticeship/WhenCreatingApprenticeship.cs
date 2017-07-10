@@ -35,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IHistoryRepository> _mockHistoryRepository;
 
+        private long expectedApprenticeshipId = 12;
         [SetUp]
         public void SetUp()
         {
@@ -66,6 +67,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .With(x => x.TrainingCode, string.Empty)
                 .With(x => x.TrainingName, string.Empty)
                 .Create();
+
+            _mockApprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Domain.Entities.Apprenticeship {Id = expectedApprenticeshipId });
 
             _exampleValidRequest = new CreateApprenticeshipCommand
             {
@@ -250,7 +254,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 Id = _exampleValidRequest.CommitmentId
             };
             var expectedOriginalState = JsonConvert.SerializeObject(testCommitment);
-            var expectedApprenticeshipId = 12;
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
             _mockApprenticeshipRepository.Setup(x => x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>())).ReturnsAsync(expectedApprenticeshipId);
 

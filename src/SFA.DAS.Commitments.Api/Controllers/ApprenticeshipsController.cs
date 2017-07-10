@@ -5,8 +5,6 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using System.Net;
 
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
-
 using DataLocksTriageResolutionSubmission = SFA.DAS.Commitments.Api.Types.DataLock.DataLocksTriageResolutionSubmission;
 
 namespace SFA.DAS.Commitments.Api.Controllers
@@ -26,6 +24,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
         [Authorize(Roles = "Role1")]
+        [Obsolete("Not in use")]
         public async Task<IHttpActionResult> GetDataLock(long apprenticeshipId, long dataLockEventId)
         {
             var response = await _orchestrator.GetDataLock(apprenticeshipId, dataLockEventId);
@@ -35,6 +34,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks")]
         [Authorize(Roles = "Role1")]
+        [Obsolete("Use provider / employer API")]
         public async Task<IHttpActionResult> GetDataLocks(long apprenticeshipId)
         {
             var response = await _orchestrator.GetDataLocks(apprenticeshipId);
@@ -44,6 +44,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("apprenticeships/{apprenticeshipId}/datalocksummary")]
         [Authorize(Roles = "Role1")]
+        [Obsolete("Use provider / employer API")]
         public async Task<IHttpActionResult> GetDataLockSummary(long apprenticeshipId)
         {
             var response = await _orchestrator.GetDataLockSummary(apprenticeshipId);
@@ -54,6 +55,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
         [HttpPatch]
         [Authorize(Roles = "Role1")]
+        [Obsolete("Use provider API")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
             await _orchestrator.TriageDataLock(apprenticeshipId, dataLockEventId, triageSubmission);
@@ -63,7 +65,8 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("apprenticeships/{apprenticeshipId}/datalocks")]
         [HttpPatch]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageSubmission triageSubmission)
+        [Obsolete("Use provider API")]
+        public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
             await _orchestrator.TriageDataLocks(apprenticeshipId, triageSubmission);
             return StatusCode(HttpStatusCode.NoContent);
@@ -72,6 +75,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("apprenticeships/{apprenticeshipId}/datalocks/resolve")]
         [HttpPatch]
         [Authorize(Roles = "Role1")]
+        [Obsolete("Use Employer API")]
         public async Task<IHttpActionResult> PatchDataLock(long apprenticeshipId, [FromBody] DataLocksTriageResolutionSubmission triageSubmission)
         {
             await _orchestrator.ResolveDataLock(apprenticeshipId, triageSubmission);
@@ -80,6 +84,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("apprenticeships/{apprenticeshipId}/prices")]
         [Authorize(Roles = "Role1")]
+        [Obsolete("Use Provider/Employer API")]
         public async Task<IHttpActionResult> GetPriceHistory(long apprenticeshipId)
         {
             var response = await _orchestrator.GetPriceHistory(apprenticeshipId);
