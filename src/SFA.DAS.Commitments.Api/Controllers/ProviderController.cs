@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -151,14 +153,18 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [HttpGet]
         [Route("{providerId}/bulkupload/{bulkUploadFileId}", Name = "GetBulkUploadFile")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> BulkUploadFile(long providerId, long bulkUploadFileId)
+        public async Task<HttpResponseMessage> BulkUploadFile(long providerId, long bulkUploadFileId)
         {
             var file = await _providerOrchestrator.GetBulkUploadFile(providerId, bulkUploadFileId);
 
-            if(file == null)
-                return NotFound();
+            if (file == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
 
-            return Ok(file);
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StringContent(file, Encoding.UTF8, "application/json");
+            return response;
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
