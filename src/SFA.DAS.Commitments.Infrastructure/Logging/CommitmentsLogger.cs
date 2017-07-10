@@ -17,19 +17,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
             _logger = logger;
         }
 
-        public void Trace(string message, long? accountId = default(long?), long? providerId = default(long?), long? commitmentId = default(long?), long? apprenticeshipId = default(long?), int? recordCount = default(int?))
+        public void Trace(string message, long? accountId = default(long?), long? providerId = default(long?), long? commitmentId = default(long?), long? apprenticeshipId = default(long?), int? recordCount = default(int?), Caller caller = null)
         {
+            ExtractIdsFromCaller(ref accountId, ref providerId, caller);
             IDictionary<string, object> properties = BuildPropertyDictionary(accountId, providerId, commitmentId, apprenticeshipId, recordCount);
             _logger.Trace(message, properties);
         }
 
-        public void Debug(string message, long? accountId = default(long?), long? providerId = default(long?), long? commitmentId = default(long?), long? apprenticeshipId = default(long?), int? recordCount = default(int?))
+        public void Debug(string message, long? accountId = default(long?), long? providerId = default(long?), long? commitmentId = default(long?), long? apprenticeshipId = default(long?), int? recordCount = default(int?), Caller caller = null)
         {
             IDictionary<string, object> properties = BuildPropertyDictionary(accountId, providerId, commitmentId, apprenticeshipId, recordCount);
             _logger.Debug(message, properties);
         }
 
-        public void Info(string message, long? accountId = default(long?), long? providerId = default(long?), long? commitmentId = default(long?), long? apprenticeshipId = default(long?), int? recordCount = default(int?))
+        public void Info(string message, long? accountId = default(long?), long? providerId = default(long?), long? commitmentId = default(long?), long? apprenticeshipId = default(long?), int? recordCount = default(int?), Caller caller = null)
         {
             IDictionary<string, object> properties = BuildPropertyDictionary(accountId, providerId, commitmentId, apprenticeshipId, recordCount);
             _logger.Info(message, properties);
@@ -70,6 +71,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Logging
             if (recordCount.HasValue) properties.Add("recordCount", recordCount.Value);
 
             return properties;
+        }
+
+        private static void ExtractIdsFromCaller(ref long? accountId, ref long? providerId, Caller caller)
+        {
+            if (caller != null)
+            {
+                if (caller.CallerType == CallerType.Employer)
+                {
+                    accountId = caller.Id;
+                }
+                else
+                {
+                    providerId = caller.Id;
+                }
+            }
         }
     }
 }

@@ -20,11 +20,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
     [TestFixture]
     public sealed class WhenGettingProviderPaymentPriorites
     {
-        private const long TestProviderId = 1L;
-        private const long TestApprenticeshipId = 3L;
         private EmployerController _controller;
         private Mock<IMediator> _mockMediator;
         private EmployerOrchestrator _employerOrchestrator;
+        private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
 
         [SetUp]
         public void Setup()
@@ -35,8 +34,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
                 mapper, new ApprenticeshipFilterService(mapper));
+            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
 
-            _controller = new EmployerController(_employerOrchestrator);
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
         }
 
         [Test, AutoData]

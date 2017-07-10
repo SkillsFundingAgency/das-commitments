@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -46,7 +45,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 });
             }
 
-            _logger.Trace($"Validated {requests.Count} overlapping validation requests");
+            _logger.Info($"Validated {requests.Count} overlapping validation requests");
 
             return result;
         }

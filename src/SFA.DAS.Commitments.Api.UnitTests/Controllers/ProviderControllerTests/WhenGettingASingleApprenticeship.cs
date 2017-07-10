@@ -27,6 +27,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private ProviderController _controller;
         private ProviderOrchestrator _providerOrchestrator;
 
+        private ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
+
         [SetUp]
         public void Setup()
         {
@@ -36,7 +38,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
                 Mock.Of<ICommitmentsLogger>(), 
                 new FacetMapper(),
                 new ApprenticeshipFilterService(new FacetMapper()));
-            _controller = new ProviderController(_providerOrchestrator);
+
+            _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
         }
 
         [Test, AutoData]
