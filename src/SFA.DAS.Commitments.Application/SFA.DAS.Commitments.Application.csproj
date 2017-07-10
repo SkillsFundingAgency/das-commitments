@@ -63,6 +63,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeCommand.cs" />
+    <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeCommandHandler.cs" />
+    <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeValidator.cs" />
     <Compile Include="Commands\ApprenticeshipValidator.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\CreateApprenticeshipUpdateCommandHandler.cs" />
@@ -79,6 +82,9 @@
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipValidator.cs" />
+    <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommand.cs" />
+    <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommandHandler.cs" />
+    <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeValidator.cs" />
     <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommand.cs" />
     <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
@@ -90,13 +96,13 @@
     <Compile Include="Commands\CreateCommitment\CreateCommitmentCommand.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentCommandHandler.cs" />
     <Compile Include="Commands\CreateCommitment\CreateCommitmentValidator.cs" />
+    <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeCommand.cs" />
+    <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeCommandHandler.cs" />
+    <Compile Include="Commands\UndoApprenticeshipChange\UndoApprenticeshipChangeValidator.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusValidator.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateCommand.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateCommandHandler.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateMapper.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipUpdate\UpdateApprenticeshipUpdateValidator.cs" />
+    <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeMapper.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />

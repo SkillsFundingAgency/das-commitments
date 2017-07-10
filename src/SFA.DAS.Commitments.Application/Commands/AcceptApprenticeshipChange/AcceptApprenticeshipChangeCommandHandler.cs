@@ -1,11 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using FluentValidation;
 using MediatR;
-
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
@@ -16,20 +14,28 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
+namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 {
-    public class UpdateApprenticeshipUpdateCommandHandler : AsyncRequestHandler<UpdateApprenticeshipUpdateCommand>
+    public class AcceptApprenticeshipChangeCommandHandler : AsyncRequestHandler<AcceptApprenticeshipChangeCommand>
     {
-        private readonly AbstractValidator<UpdateApprenticeshipUpdateCommand> _validator;
+        private readonly AbstractValidator<AcceptApprenticeshipChangeCommand> _validator;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IMediator _mediator;
-        private readonly IUpdateApprenticeshipUpdateMapper _mapper;
+        private readonly IAcceptApprenticeshipChangeMapper _mapper;
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHistoryRepository _historyRepository;
 
-        public UpdateApprenticeshipUpdateCommandHandler(AbstractValidator<UpdateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IUpdateApprenticeshipUpdateMapper mapper, IApprenticeshipEvents eventsApi, ICommitmentRepository commitmentRepository, IHistoryRepository historyRepository)
+        public AcceptApprenticeshipChangeCommandHandler(
+            AbstractValidator<AcceptApprenticeshipChangeCommand> validator,
+            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
+            IMediator mediator,
+            IAcceptApprenticeshipChangeMapper mapper,
+            IApprenticeshipEvents eventsApi,
+            ICommitmentRepository commitmentRepository,
+            IHistoryRepository historyRepository)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -41,30 +47,18 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             _historyRepository = historyRepository;
         }
 
-        protected override async Task HandleCore(UpdateApprenticeshipUpdateCommand command)
+        protected override async Task HandleCore(AcceptApprenticeshipChangeCommand command)
         {
             var pendingUpdate = await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(command.ApprenticeshipId);
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
 
             await ValidateCommand(command, pendingUpdate, apprenticeship);
 
-            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
-            {
-                await ApproveApprenticeshipUpdate(command, apprenticeship, pendingUpdate);
-            }
+            await ApproveApprenticeshipUpdate(command, apprenticeship, pendingUpdate);
 
-            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Rejected)
-            {
-                await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate, command.UserId);
-            }
-
-            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Deleted)
-            {
-                await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
-            }
         }
 
-        private async Task ApproveApprenticeshipUpdate(UpdateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate)
+        private async Task ApproveApprenticeshipUpdate(AcceptApprenticeshipChangeCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate)
         {
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             var historyService = new HistoryService(_historyRepository);
@@ -85,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", pendingUpdate.EffectiveFromDate, null);
         }
 
-        private async Task ValidateCommand(UpdateApprenticeshipUpdateCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
+        private async Task ValidateCommand(AcceptApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
         {
             var result = _validator.Validate(command);
             if (!result.IsValid)
@@ -93,13 +87,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
 
             if (pendingUpdate == null)
                 throw new ValidationException($"No existing apprenticeship update pending for apprenticeship {command.ApprenticeshipId}");
-            
+
             CheckAuthorisation(command, apprenticeship);
 
-            if (command.UpdateStatus == ApprenticeshipUpdateStatus.Approved)
-            {
-                await CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
-            }
+            await CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
+
         }
 
         private async Task CheckOverlappingApprenticeships(ApprenticeshipUpdate pendingUpdate, Apprenticeship originalApprenticeship)
@@ -124,7 +116,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate
             }
         }
 
-        private void CheckAuthorisation(UpdateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship)
+
+        private void CheckAuthorisation(AcceptApprenticeshipChangeCommand command, Apprenticeship apprenticeship)
         {
             switch (command.Caller.CallerType)
             {

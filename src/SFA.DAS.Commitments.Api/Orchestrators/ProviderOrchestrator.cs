@@ -13,7 +13,6 @@ using SFA.DAS.Commitments.Application.Commands.CreateBulkUpload;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -26,11 +25,14 @@ using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
+using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -395,17 +397,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Patching update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
-            var command =
-                new UpdateApprenticeshipUpdateCommand
-                {
-                    ApprenticeshipId = apprenticeshipId,
-                    Caller = new Caller(providerId, CallerType.Provider),
-                    UserId = submission.UserId,
-                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus,
-                    UserName = submission.LastUpdatedByInfo?.Name
-                };
-
-            await _mediator.SendAsync(command);
+            switch (submission.UpdateStatus)
+            {
+                case Types.Apprenticeship.Types.ApprenticeshipUpdateStatus.Approved:
+                    await _mediator.SendAsync(new AcceptApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(providerId, CallerType.Provider),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                case Types.Apprenticeship.Types.ApprenticeshipUpdateStatus.Rejected:
+                    await _mediator.SendAsync(new RejectApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(providerId, CallerType.Provider),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                case Types.Apprenticeship.Types.ApprenticeshipUpdateStatus.Deleted:
+                    await _mediator.SendAsync(new UndoApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(providerId, CallerType.Provider),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid update status {submission.UpdateStatus}");
+            }
 
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId, apprenticeshipId: apprenticeshipId);
         }

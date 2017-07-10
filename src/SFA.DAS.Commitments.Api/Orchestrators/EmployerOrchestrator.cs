@@ -10,7 +10,6 @@ using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
@@ -20,13 +19,15 @@ using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using System.Collections.Generic;
+using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
@@ -377,17 +378,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Info($"Patching update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
 
-            var command = 
-                new UpdateApprenticeshipUpdateCommand
-                {
-                    ApprenticeshipId = apprenticeshipId,
-                    Caller = new Caller(accountId, CallerType.Employer),
-                    UserId = submission.UserId,
-                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus,
-                    UserName = submission.LastUpdatedByInfo?.Name
-                };
-
-            await _mediator.SendAsync(command);
+            switch (submission.UpdateStatus)
+            {
+                case Apprenticeship.Types.ApprenticeshipUpdateStatus.Approved:
+                    await _mediator.SendAsync(new AcceptApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(accountId, CallerType.Employer),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                case Apprenticeship.Types.ApprenticeshipUpdateStatus.Rejected:
+                    await _mediator.SendAsync(new RejectApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(accountId, CallerType.Employer),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                case Apprenticeship.Types.ApprenticeshipUpdateStatus.Deleted:
+                    await _mediator.SendAsync(new UndoApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(accountId, CallerType.Employer),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid update status {submission.UpdateStatus}");
+            }
 
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
         }
