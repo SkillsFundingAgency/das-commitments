@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -8,15 +9,16 @@ using Newtonsoft.Json;
 using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types.Validation;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    public class ValidationApi : HttpClientBase, IValidationApi
+    public class ValidationApi : ApiClientBase, IValidationApi
     {
         private readonly ICommitmentsApiClientConfiguration _configuration;
 
-        public ValidationApi(ICommitmentsApiClientConfiguration configuration)
-            : base(configuration.ClientToken)
+        public ValidationApi(HttpClient client, ICommitmentsApiClientConfiguration configuration)
+            : base(client)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));

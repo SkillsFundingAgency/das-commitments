@@ -6,28 +6,32 @@ using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 
 using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    public class EmployerCommitmentApi : HttpClientBase, IEmployerCommitmentApi
+    public class EmployerCommitmentApi : ApiClientBase, IEmployerCommitmentApi
     {
         private readonly ICommitmentsApiClientConfiguration _configuration;
 
         private readonly IHttpCommitmentHelper _commitmentHelper;
 
-        public EmployerCommitmentApi(ICommitmentsApiClientConfiguration configuration)
-            : base(configuration.ClientToken)
+        public EmployerCommitmentApi(HttpClient client, ICommitmentsApiClientConfiguration configuration)
+            : base(client)
         {
             if(configuration == null)
                 throw new ArgumentException(nameof(configuration));
-            _configuration = configuration;
+            if (client == null)
+                throw new ArgumentNullException(nameof(client));
 
-            _commitmentHelper = new HttpCommitmentHelper(configuration.ClientToken);
+            _configuration = configuration;
+            _commitmentHelper = new HttpCommitmentHelper(client);
         }
 
         public async Task<List<ApprenticeshipStatusSummary>> GetEmployerAccountSummary(long employerAccountId)
@@ -166,19 +170,22 @@ namespace SFA.DAS.Commitments.Api.Client
         public async Task<List<DataLockStatus>> GetDataLocks(long employerAccountId, long apprenticeshipId)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}/datalocks";
-            return await GetData<List<DataLockStatus>>(url);
+            var content = await GetAsync(url);
+            return JsonConvert.DeserializeObject<List<DataLockStatus>>(content);
         }
 
         public async Task<DataLockSummary> GetDataLockSummary(long employerAccountId, long apprenticeshipId)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}/datalocksummary";
-            return await GetData<DataLockSummary>(url);
+            var content = await GetAsync(url);
+            return JsonConvert.DeserializeObject<DataLockSummary>(content);
         }
 
         public async Task PatchDataLocks(long employerAccountId, long apprenticeshipId, DataLocksTriageResolutionSubmission submission)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}/datalocks/resolve";
-            await PatchModel(url, submission);
+            var data = JsonConvert.SerializeObject(submission);
+            await PatchAsync(url, data);
         }
     }
 }
