@@ -158,7 +158,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Apprenticeships = filteredApprenticeships.PageOfResults,
                 Facets = facets,
-                TotalApprenticeships = approvedApprenticeships.Count,
+                TotalApprenticeships = filteredApprenticeships.TotalResults,
                 PageNumber = filteredApprenticeships.PageNumber,
                 PageSize = filteredApprenticeships.PageSize
             };
