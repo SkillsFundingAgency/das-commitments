@@ -16,14 +16,6 @@ INSERT INTO [dbo].[PriceHistory]
 	WHERE PaymentStatus <> 0
 	AND Id NOT IN (SELECT ApprenticeshipId FROM [dbo].[PriceHistory])
 
--- Setting ApprenticeshipUpdate (CoC) to deleted if 
--- From DataLock origin and Satus is pending
--- The DataLock should still be marked as a TriageChange and be picked by Employer.
-UPDATE dbo.ApprenticeshipUpdate
-SET Status = 3 -- Delete
-WHERE UpdateOrigin = 2 -- DataLock
-AND Status = 0 -- Pending
-
 -- Can remove ApprenticeshipUpdateId if we want.
 UPDATE dbo.DataLockStatus
 SET ApprenticeshipUpdateId = NULL
@@ -31,3 +23,11 @@ WHERE ApprenticeshipUpdateId in
 	(SELECT Id FROM dbo.ApprenticeshipUpdate
 		WHERE UpdateOrigin = 2 -- DataLock
 		AND Status = 0) -- Pending
+		
+-- Setting ApprenticeshipUpdate (CoC) to deleted if 
+-- From DataLock origin and Satus is pending
+-- The DataLock should still be marked as a TriageChange and be picked by Employer.
+UPDATE dbo.ApprenticeshipUpdate
+SET Status = 3 -- Delete
+WHERE UpdateOrigin = 2 -- DataLock
+AND Status = 0 -- Pending
