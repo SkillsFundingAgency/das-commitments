@@ -7,14 +7,16 @@ using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
+using System.Net.Http;
+
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    internal class HttpCommitmentHelper : HttpClientBase, IHttpCommitmentHelper
+    internal class HttpCommitmentHelper : ApiClientBase, IHttpCommitmentHelper
     {
-        internal HttpCommitmentHelper(string clientToken)
-            : base(clientToken)
+        internal HttpCommitmentHelper(HttpClient client)
+            : base(client)
         {
         }
 

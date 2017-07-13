@@ -38,16 +38,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
 
         Task DeleteCommitment(string url, DeleteRequest deleteRequest);
 
-        Task<string> GetAsync(string url);
-
-        Task<string> PostAsync(string url, string data);
-
-        Task<string> PutAsync(string url, string data);
-
-        Task<string> PatchAsync(string url, string data);
-
-        Task DeleteAsync(string url, string data);
-
         Task PostApprenticeshipUpdate(string url, ApprenticeshipUpdateRequest apprenticeshipUpdate);
 
         Task<ApprenticeshipUpdate> GetApprenticeshipUpdate(string url);

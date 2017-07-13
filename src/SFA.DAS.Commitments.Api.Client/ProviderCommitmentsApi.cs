@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -10,23 +11,26 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    public class ProviderCommitmentsApi : HttpClientBase, IProviderCommitmentsApi
+    public class ProviderCommitmentsApi : ApiClientBase, IProviderCommitmentsApi
     {
         private readonly ICommitmentsApiClientConfiguration _configuration;
 
         private readonly IHttpCommitmentHelper _commitmentHelper;
 
-        public ProviderCommitmentsApi(ICommitmentsApiClientConfiguration configuration)
-            : base(configuration.ClientToken)
+        public ProviderCommitmentsApi(HttpClient client, ICommitmentsApiClientConfiguration configuration)
+            : base(client)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
-            _configuration = configuration;
+            if (client == null)
+                throw new ArgumentNullException(nameof(client));
 
-            _commitmentHelper = new HttpCommitmentHelper(configuration.ClientToken);
+            _configuration = configuration;
+            _commitmentHelper = new HttpCommitmentHelper(client);
         }
 
         public async Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentSubmission submission)
@@ -101,6 +105,7 @@ namespace SFA.DAS.Commitments.Api.Client
 
         public async Task<long> BulkUploadFile(long providerId, BulkUploadFileRequest bulkUploadFileRequest)
         {
+            // ToDo: Do we need the commitment id?
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/bulkupload";
             return await _commitmentHelper.PostBulkuploadFile(url, bulkUploadFileRequest);
         }
@@ -149,25 +154,29 @@ namespace SFA.DAS.Commitments.Api.Client
         public async Task<List<DataLockStatus>> GetDataLocks(long providerId, long apprenticeshipId)
         {
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/apprenticeships/{apprenticeshipId}/datalocks";
-            return await GetData<List<DataLockStatus>>(url);
+            var content = await GetAsync(url);
+            return JsonConvert.DeserializeObject<List<DataLockStatus>>(content);
         }
 
         public async Task<DataLockSummary> GetDataLockSummary(long providerId, long apprenticeshipId)
         {
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/apprenticeships/{apprenticeshipId}/datalocksummary";
-            return await GetData<DataLockSummary>(url);
+            var content = await GetAsync(url);
+            return JsonConvert.DeserializeObject<DataLockSummary>(content);
         }
 
         public async Task PatchDataLock(long providerId, long apprenticeshipId, long dataLockEventId, DataLockTriageSubmission triageSubmission)
         {
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}";
-            await PatchModel(url, triageSubmission);
+            var data = JsonConvert.SerializeObject(triageSubmission);
+            await PatchAsync(url, data);
         }
 
         public async Task PatchDataLocks(long providerId, long apprenticeshipId, DataLockTriageSubmission triageSubmission)
         {
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/apprenticeships/{apprenticeshipId}/datalocks";
-            await PatchModel(url, triageSubmission);
+            var data = JsonConvert.SerializeObject(triageSubmission);
+            await PatchAsync(url, data);
         }
     }
 }

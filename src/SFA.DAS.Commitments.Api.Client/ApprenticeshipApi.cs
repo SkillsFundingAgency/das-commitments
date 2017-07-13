@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -7,15 +8,16 @@ using Newtonsoft.Json;
 using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    public class ApprenticeshipApi : HttpClientBase, IApprenticeshipApi
+    public class ApprenticeshipApi : ApiClientBase, IApprenticeshipApi
     {
         private readonly ICommitmentsApiClientConfiguration _configuration;
 
-        public ApprenticeshipApi(ICommitmentsApiClientConfiguration configuration)
-            : base(configuration.ClientToken)
+        public ApprenticeshipApi(HttpClient httpClient, ICommitmentsApiClientConfiguration configuration)
+            : base(httpClient)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));

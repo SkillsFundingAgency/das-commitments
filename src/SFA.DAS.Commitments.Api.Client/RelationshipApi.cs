@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -6,15 +7,16 @@ using Newtonsoft.Json;
 using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    public class RelationshipApi : HttpClientBase, IRelationshipApi
+    public class RelationshipApi : ApiClientBase, IRelationshipApi
     {
         private readonly ICommitmentsApiClientConfiguration _configuration;
 
-        public RelationshipApi(ICommitmentsApiClientConfiguration configuration)
-            : base(configuration.ClientToken)
+        public RelationshipApi(HttpClient client, ICommitmentsApiClientConfiguration configuration)
+            : base(client)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
