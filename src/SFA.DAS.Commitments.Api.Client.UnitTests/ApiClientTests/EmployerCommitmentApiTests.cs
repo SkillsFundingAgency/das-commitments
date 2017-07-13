@@ -236,12 +236,20 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         [Test]
         public async Task GetPriceHistory()
         {
-            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/{ApprenticeshipId}/prices"), string.Empty);
-            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<PriceHistory>())) });
+            var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/{ApprenticeshipId}/prices"), string.Empty);
+            var priceHistoryJson = JsonConvert.SerializeObject(
+                new List<PriceHistory>
+                {
+                    new PriceHistory { ApprenticeshipId = ApprenticeshipId, Cost = 2000, FromDate = new DateTime(1998, 12, 8), ToDate = null },
+                    new PriceHistory { ApprenticeshipId = ApprenticeshipId, Cost = 3000, FromDate = new DateTime(1882, 9, 5), ToDate = null }
+                });
+            _fakeHandler.AddFakeResponse(request, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(priceHistoryJson) });
 
-            var priceHistory  = await _employerApiClient.GetPriceHistory(EmployerAccountId, ApprenticeshipId);
+            var priceHistory = (await _employerApiClient.GetPriceHistory(EmployerAccountId, ApprenticeshipId)).ToArray();
 
-            Assert.Pass();
+            priceHistory.Length.Should().Be(2);
+            priceHistory[0].Cost.Should().Be(2000);
+            priceHistory[1].Cost.Should().Be(3000);
         }
 
         [Test]
@@ -275,25 +283,6 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
             await _employerApiClient.PatchDataLocks(EmployerAccountId, ApprenticeshipId, new DataLocksTriageResolutionSubmission());
 
             Assert.Pass();
-        }
-
-        [Test]
-        public async Task GetPriceHistory()
-        {
-            var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/{ApprenticeshipId}/prices"), string.Empty);
-            var priceHistoryJson = JsonConvert.SerializeObject(
-                new List<PriceHistory>
-                {
-                    new PriceHistory { ApprenticeshipId = ApprenticeshipId, Cost = 2000, FromDate = new DateTime(1998, 12, 8), ToDate = null },
-                    new PriceHistory { ApprenticeshipId = ApprenticeshipId, Cost = 3000, FromDate = new DateTime(1882, 9, 5), ToDate = null }
-                });
-            _fakeHandler.AddFakeResponse(request, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(priceHistoryJson) });
-
-            var priceHistory = (await _employerApiClient.GetPriceHistory(EmployerAccountId, ApprenticeshipId)).ToArray();
-
-            priceHistory.Length.Should().Be(2);
-            priceHistory[0].Cost.Should().Be(2000);
-            priceHistory[1].Cost.Should().Be(3000);
         }
     }
 }
