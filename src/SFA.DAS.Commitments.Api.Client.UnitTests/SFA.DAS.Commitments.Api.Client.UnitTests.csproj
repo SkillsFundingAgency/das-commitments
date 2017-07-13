@@ -82,6 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiClientTests\EmployerCommitmentApiTests.cs" />
+    <Compile Include="ApiClientTests\EmployerHttpCommitmentHelperTests.cs" />
+    <Compile Include="ApiClientTests\ProviderHttpCommitmentHelperTests.cs" />
     <Compile Include="ApiClientTests\ProviderCommitmentApiTests.cs" />
     <Compile Include="FakeResponseHandler.cs" />
     <Compile Include="TestRequest.cs" />
