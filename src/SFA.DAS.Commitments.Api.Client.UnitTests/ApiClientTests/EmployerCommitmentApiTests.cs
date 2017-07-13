@@ -278,7 +278,7 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
-        public async Task GettingProceHistory()
+        public async Task GetPriceHistory()
         {
             var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/{ApprenticeshipId}/prices"), string.Empty);
             var priceHistoryJson = JsonConvert.SerializeObject(
