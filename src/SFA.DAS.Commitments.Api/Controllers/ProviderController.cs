@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -14,11 +18,17 @@ namespace SFA.DAS.Commitments.Api.Controllers
     {
         private readonly ProviderOrchestrator _providerOrchestrator;
 
-        public ProviderController(ProviderOrchestrator providerOrchestrator)
+        private readonly ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
+
+        public ProviderController(ProviderOrchestrator providerOrchestrator, ApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
             if (providerOrchestrator == null)
                 throw new ArgumentNullException(nameof(providerOrchestrator));
+            if (apprenticeshipsOrchestrator == null)
+                throw new ArgumentNullException(nameof(apprenticeshipsOrchestrator));
+
             _providerOrchestrator = providerOrchestrator;
+            _apprenticeshipsOrchestrator = apprenticeshipsOrchestrator;
         }
 
         [Route("{providerId}/commitments")]
@@ -143,14 +153,18 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [HttpGet]
         [Route("{providerId}/bulkupload/{bulkUploadFileId}", Name = "GetBulkUploadFile")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> BulkUploadFile(long providerId, long bulkUploadFileId)
+        public async Task<HttpResponseMessage> BulkUploadFile(long providerId, long bulkUploadFileId)
         {
-            var file = await _providerOrchestrator.GettBulkUploadFile(providerId, bulkUploadFileId);
+            var file = await _providerOrchestrator.GetBulkUploadFile(providerId, bulkUploadFileId);
 
-            if(file == null)
-                return NotFound();
+            if (file == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
 
-            return Ok(file);
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StringContent(file, Encoding.UTF8, "application/json");
+            return response;
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}")]
@@ -210,6 +224,51 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             await _providerOrchestrator.PatchApprenticeshipUpdate(providerId, apprenticeshipId, apprenticeshipSubmission);
 
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/prices")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetPriceHistory(long providerId, long apprenticeshipId)
+        {
+            var response = await _apprenticeshipsOrchestrator.GetPriceHistory(apprenticeshipId, new Caller(providerId, CallerType.Provider));
+
+            return Ok(response.Data);
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocks")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLocks(long providerId, long apprenticeshipId)
+        {
+            var response = await _apprenticeshipsOrchestrator.GetDataLocks(apprenticeshipId, new Caller(providerId, CallerType.Provider));
+
+            return Ok(response);
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocksummary")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetDataLockSummary(long providerId, long apprenticeshipId)
+        {
+            var response = await _apprenticeshipsOrchestrator.GetDataLockSummary(apprenticeshipId, new Caller(providerId, CallerType.Provider));
+
+            return Ok(response);
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocks/{dataLockEventId}")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long providerId, long apprenticeshipId, long dataLockEventId, [FromBody] DataLockTriageSubmission triageSubmission)
+        {
+            await _apprenticeshipsOrchestrator.TriageDataLock(apprenticeshipId, dataLockEventId, triageSubmission, new Caller(providerId, CallerType.Provider));
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocks")]
+        [HttpPatch]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PatchDataLock(long providerId, long apprenticeshipId, [FromBody] DataLockTriageSubmission triageSubmission)
+        {
+            await _apprenticeshipsOrchestrator.TriageDataLocks(apprenticeshipId, triageSubmission, new Caller(providerId, CallerType.Provider));
             return StatusCode(HttpStatusCode.NoContent);
         }
     }

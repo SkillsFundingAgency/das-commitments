@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
-    public class DataLockApi : HttpClientBase, IDataLockApi
+    public class DataLockApi : ApiClientBase, IDataLockApi
     {
         private readonly ICommitmentsApiClientConfiguration _configuration;
 
-        public DataLockApi(ICommitmentsApiClientConfiguration configuration) : base(configuration.ClientToken)
+        public DataLockApi(HttpClient httpClient, ICommitmentsApiClientConfiguration configuration) : base(httpClient)
         {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
@@ -60,6 +62,18 @@ namespace SFA.DAS.Commitments.Api.Client
         {
             var url = $"{_configuration.BaseUrl}api/apprenticeships/{apprenticeshipId}/datalocks/resolve";
             await PatchModel(url, submission);
+        }
+
+        protected async Task<T> GetData<T>(string url)
+        {
+            var content = await GetAsync(url);
+            return JsonConvert.DeserializeObject<T>(content);
+        }
+
+        protected async Task PatchModel<T>(string url, T obj)
+        {
+            var data = JsonConvert.SerializeObject(obj);
+            await PatchAsync(url, data);
         }
     }
 }

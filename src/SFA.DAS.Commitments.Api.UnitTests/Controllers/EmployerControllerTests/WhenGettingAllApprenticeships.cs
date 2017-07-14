@@ -23,9 +23,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
     public class WhenGettingAllApprenticeships
     {
         private Mock<IMediator> _mockMediator;
-
         private EmployerOrchestrator _employerOrchestrator;
-
+        private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
         private EmployerController _controller;
 
         [SetUp]
@@ -39,7 +38,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                                   });
 
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()));
-            _controller = new EmployerController(_employerOrchestrator);
+            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
         }
 
         [Test]

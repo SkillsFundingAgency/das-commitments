@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             await CreateMessageIfNeeded(newCommitment.Id, message);
 
-            await CreateHistory(newCommitment, message.CallerType, message.UserId, message.Commitment.EmployerLastUpdateInfo.Name);
+            await CreateHistory(newCommitment, message.Caller.CallerType, message.UserId, message.Commitment.EmployerLastUpdateInfo.Name);
 
             return newCommitment.Id;
         }
@@ -108,7 +108,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             {
                 Author = command.Commitment.EmployerLastUpdateInfo.Name,
                 Text = command.Message,
-                CreatedBy = command.CallerType
+                CreatedBy = command.Caller.CallerType
             };
 
             await _commitmentRepository.SaveMessage(commitmentId, message);

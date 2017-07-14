@@ -13,7 +13,6 @@ using SFA.DAS.Commitments.Application.Commands.CreateBulkUpload;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -26,11 +25,13 @@ using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -39,9 +40,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
-
         private readonly FacetMapper _facetMapper;
-
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
         public ProviderOrchestrator(
@@ -166,10 +165,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            if (response.Data != null)
-                _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
-            else
-                _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
+            if (response.Data == null)
+            {
+                _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: apprenticeshipId);
+                return response;
+            }
+
+            _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
 
             return response;
         }
@@ -305,16 +307,19 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetRelationshipRequest
             {
+                Caller = new Caller(providerId, CallerType.Provider),
                 ProviderId = providerId,
                 EmployerAccountId = employerAccountId,
                 LegalEntityId = legalEntityId
             });
 
-            if (response.Data != null)
-                _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-            else
+            if (response.Data == null)
+            {
                 _logger.Info($"Relationship not found for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
+                return response;
+            }
 
+            _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
             return response;
         }
 
@@ -324,6 +329,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetRelationshipByCommitmentRequest
             {
+                Caller = new Caller(providerId, CallerType.Provider),
                 ProviderId = providerId,
                 CommitmentId = commitmentId
             });
@@ -342,6 +348,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             await _mediator.SendAsync(new VerifyRelationshipCommand
             {
+                Caller = new Caller(providerId, CallerType.Provider),
                 ProviderId = providerId,
                 EmployerAccountId = employerAccountId,
                 LegalEntityId = legalEntityId,
@@ -358,11 +365,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetPendingApprenticeshipUpdateRequest
             {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Provider,
-                    Id = providerId
-                },
+                Caller = new Caller { CallerType = CallerType.Provider, Id = providerId },
                 ApprenticeshipId = apprenticeshipId
             });
 
@@ -394,17 +397,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Patching update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
-            var command =
-                new UpdateApprenticeshipUpdateCommand
-                {
-                    ApprenticeshipId = apprenticeshipId,
-                    Caller = new Caller(providerId, CallerType.Provider),
-                    UserId = submission.UserId,
-                    UpdateStatus = (ApprenticeshipUpdateStatus)submission.UpdateStatus,
-                    UserName = submission.LastUpdatedByInfo?.Name
-                };
-
-            await _mediator.SendAsync(command);
+            switch (submission.UpdateStatus)
+            {
+                case Types.Apprenticeship.Types.ApprenticeshipUpdateStatus.Approved:
+                    await _mediator.SendAsync(new AcceptApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(providerId, CallerType.Provider),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                case Types.Apprenticeship.Types.ApprenticeshipUpdateStatus.Rejected:
+                    await _mediator.SendAsync(new RejectApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(providerId, CallerType.Provider),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                case Types.Apprenticeship.Types.ApprenticeshipUpdateStatus.Deleted:
+                    await _mediator.SendAsync(new UndoApprenticeshipChangeCommand
+                    {
+                        ApprenticeshipId = apprenticeshipId,
+                        Caller = new Caller(providerId, CallerType.Provider),
+                        UserId = submission.UserId,
+                        UserName = submission.LastUpdatedByInfo?.Name
+                    });
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid update status {submission.UpdateStatus}");
+            }
 
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for provider {providerId} with status {submission.UpdateStatus}", providerId, apprenticeshipId: apprenticeshipId);
         }
@@ -416,21 +440,29 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             var result = await _mediator.SendAsync(
                 new CreateBulkUploadCommand
                 {
+                    Caller = new Caller(providerId, CallerType.Provider),
                     ProviderId = providerId,
                     CommitmentId = bulkUploadFile.CommitmentId,
                     FileName = bulkUploadFile.FileName,
                     BulkUploadFile = bulkUploadFile.Data
                 });
 
+            _logger.Info($"Saved bulk upload for provider {providerId}", providerId: providerId);
             return result;
         }
 
-        public async Task<string> GettBulkUploadFile(long providerId, long bulkUploadFileId)
+        public async Task<string> GetBulkUploadFile(long providerId, long bulkUploadFileId)
         {
-            _logger.Trace($"Saving bulk upload file for provider {providerId}, FileId {bulkUploadFileId} ", providerId: providerId);
+            _logger.Trace($"Getting bulk upload file for provider {providerId}, FileId {bulkUploadFileId} ", providerId: providerId);
 
-            var result = await _mediator.SendAsync(new GetBulkUploadFileQuery { ProviderId = providerId, BulkUploadFileId = bulkUploadFileId });
+            var result = await _mediator.SendAsync(
+                new GetBulkUploadFileQuery
+                {
+                    Caller = new Caller(providerId, CallerType.Provider),
+                    ProviderId = providerId, BulkUploadFileId = bulkUploadFileId
+                });
 
+            _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
         }
     }

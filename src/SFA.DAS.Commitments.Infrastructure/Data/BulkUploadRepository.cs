@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.BulkUpload;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Sql.Client;
 
@@ -45,7 +46,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     });
         }
 
-        public async Task<string> GetBulkUploadFile(long bulkUploadId)
+        public async Task<BulkUploadResult> GetBulkUploadFile(long bulkUploadId)
         {
             return await WithTransaction(
                 async (connection, transaction) =>
@@ -54,9 +55,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     parameters.Add($"@id", bulkUploadId, DbType.Int64);
 
                     var data = (await connection
-                        .QueryAsync<string>(
-                            sql: "SELECT FileContent FROM [dbo].[BulkUpload]"
-                                + "WHERE Id = @id;",
+                        .QueryAsync<BulkUploadResult>(
+                            sql:  "SELECT ProviderId, FileContent FROM [dbo].[BulkUpload] as b "
+                                + "LEFT JOIN [dbo].[Commitment] as c "
+                                + "ON b.CommitmentId = c.Id "
+                                + "WHERE b.Id = @id; ",
                             param: parameters,
                             commandType: CommandType.Text,
                             transaction: transaction)).SingleOrDefault();
