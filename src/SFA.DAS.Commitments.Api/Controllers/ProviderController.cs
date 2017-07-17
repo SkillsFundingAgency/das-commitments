@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitments(providerId);
 
-            var commitments = response.Data;
+            var commitments = response;
 
             return Ok(commitments);
         }

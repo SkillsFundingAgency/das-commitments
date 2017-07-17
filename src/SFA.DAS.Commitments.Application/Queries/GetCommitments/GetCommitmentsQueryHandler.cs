@@ -38,39 +38,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 
             return new GetCommitmentsResponse
             {
-                Data = commitments?.Select(
-                    x => new CommitmentListItem
-                    {
-                        Id = x.Id,
-                        Reference = x.Reference,
-                        ProviderId = x.ProviderId,
-                        ProviderName = x.ProviderName,
-                        EmployerAccountId = x.EmployerAccountId,
-                        LegalEntityId = x.LegalEntityId,
-                        LegalEntityName = x.LegalEntityName,
-                        CommitmentStatus = (CommitmentStatus) x.CommitmentStatus,
-                        EditStatus = (EditStatus) x.EditStatus,
-                        ApprenticeshipCount = x.ApprenticeshipCount,
-                        AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                        LastAction = (LastAction) x.LastAction,
-                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveCommitment : x.ProviderCanApproveCommitment,
-                        EmployerLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByEmployerName, EmailAddress = x.LastUpdatedByEmployerEmail },
-                        ProviderLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByProviderName, EmailAddress = x.LastUpdatedByProviderEmail },
-                        Messages = MapMessagesFrom(x.Messages)
-                    }
-                    ).ToList()
+                Data = commitments
             };
-        }
-
-        private List<MessageView> MapMessagesFrom(List<Message> messages)
-        {
-            return messages.Select(x => new MessageView
-            {
-                Message = x.Text,
-                Author = x.Author,
-                CreatedBy = x.CreatedBy == CallerType.Employer ? MessageCreator.Employer : MessageCreator.Provider,
-                CreatedDateTime = x.CreatedDateTime
-            }).ToList();
         }
 
         private async Task<IList<CommitmentSummary>> GetCommitments(Caller caller)

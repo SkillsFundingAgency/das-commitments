@@ -34,6 +34,7 @@ using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -42,6 +43,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
+        private readonly ICommitmentMapper _commitmentMapper;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -50,7 +52,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             ICommitmentsLogger logger,
             FacetMapper facetMapper,
             ApprenticeshipFilterService apprenticeshipFilterService,
-            IApprenticeshipMapper apprenticeshipMapper)
+            IApprenticeshipMapper apprenticeshipMapper,
+            ICommitmentMapper commitmentMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
@@ -62,15 +65,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 throw new ArgumentNullException(nameof(apprenticeshipFilterService));
             if(apprenticeshipMapper == null)
                 throw new ArgumentNullException(nameof(apprenticeshipMapper));
+            if(commitmentMapper == null)
+                throw new ArgumentNullException(nameof(commitmentMapper));
 
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
             _apprenticeshipFilterService = apprenticeshipFilterService;
             _apprenticeshipMapper = apprenticeshipMapper;
+            _commitmentMapper = commitmentMapper;
         }
 
-        public async Task<GetCommitmentsResponse> GetCommitments(long providerId)
+        public async Task<IEnumerable<CommitmentListItem>> GetCommitments(long providerId)
         {
             _logger.Trace($"Getting commitments for provider {providerId}", providerId: providerId);
 
@@ -85,7 +91,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitments for provider {providerId}. {response.Data?.Count} commitments found", providerId: providerId, recordCount: response.Data?.Count);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Provider);
+
         }
 
         public async Task<GetCommitmentResponse> GetCommitment(long providerId, long commitmentId)

@@ -36,7 +36,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 Mock.Of<ICommitmentsLogger>(),
                 new FacetMapper(),
                 new ApprenticeshipFilterService(new FacetMapper()),
-                Mock.Of<IApprenticeshipMapper>()
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentMapper>()
                 );
         }
 

@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitments(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/commitments/{commitmentId}", Name = "GetCommitmentForEmployer")]

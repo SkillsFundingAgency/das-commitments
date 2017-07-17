@@ -40,6 +40,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
+        private readonly ICommitmentMapper _commitmentMapper;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -48,7 +49,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             ICommitmentsLogger logger,
             FacetMapper facetMapper,
             ApprenticeshipFilterService apprenticeshipFilterService,
-            IApprenticeshipMapper apprenticeshipMapper)
+            IApprenticeshipMapper apprenticeshipMapper,
+            ICommitmentMapper commitmentMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
@@ -66,9 +68,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _facetMapper = facetMapper;
             _apprenticeshipFilterService = apprenticeshipFilterService;
             _apprenticeshipMapper = apprenticeshipMapper;
+            _commitmentMapper = commitmentMapper;
         }
 
-        public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
+        public async Task<IEnumerable<Commitment.CommitmentListItem>> GetCommitments(long accountId)
         {
             _logger.Trace($"Getting commitments for employer account {accountId}", accountId: accountId);
 
@@ -83,7 +86,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitments for employer account {accountId}. {response.Data?.Count} commitments found", accountId: accountId);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<GetCommitmentResponse> GetCommitment(long accountId, long commitmentId)

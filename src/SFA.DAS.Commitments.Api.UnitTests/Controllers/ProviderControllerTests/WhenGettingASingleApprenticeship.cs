@@ -25,6 +25,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private const long TestProviderId = 1;
         private const long TestApprenticeshipId = 3L;
         private Mock<IMediator> _mockMediator;
+        private Mock<IApprenticeshipMapper> _mockApprenticeshipMapper;
         private ProviderController _controller;
         private ProviderOrchestrator _providerOrchestrator;
 
@@ -34,26 +35,33 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
+            _mockApprenticeshipMapper = new Mock<IApprenticeshipMapper>();
+            _mockApprenticeshipMapper.Setup(x => x.MapFrom(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>()))
+                .Returns(new Apprenticeship());
+
             _providerOrchestrator = new ProviderOrchestrator(
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
                 new FacetMapper(),
                 new ApprenticeshipFilterService(new FacetMapper()),
-                Mock.Of<IApprenticeshipMapper>());
+                _mockApprenticeshipMapper.Object,
+                Mock.Of<ICommitmentMapper>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
         }
 
         [Test, AutoData]
-        public async Task ThenReturnsASingleApprenticeship(GetApprenticeshipResponse mediatorResponse)
+        public async Task ThenReturnsASingleMappedApprenticeship(GetApprenticeshipResponse mediatorResponse)
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
 
             var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship>;
 
             result.Content.Should().NotBeNull();
-            result.Content.Should().BeSameAs(mediatorResponse.Data);
+
+            _mockApprenticeshipMapper.Verify(x => x.MapFrom(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>())
+                ,Times.Once);
         }
 
         [Test]

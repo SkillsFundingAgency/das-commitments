@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
-    public sealed class GetCommitmentsResponse : QueryResponse<IList<CommitmentListItem>>
+    public sealed class GetCommitmentsResponse : QueryResponse<IList<CommitmentSummary>>
     {
     }
 }

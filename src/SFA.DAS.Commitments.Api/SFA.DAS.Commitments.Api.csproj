@@ -303,7 +303,9 @@
     <Compile Include="Orchestrators\ApprenticeshipOrchestrator.cs" />
     <Compile Include="Orchestrators\EmployerOrchestrator.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\CommitmentMapper.cs" />
     <Compile Include="Orchestrators\Mappers\IApprenticeshipMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\ICommitmentMapper.cs" />
     <Compile Include="Orchestrators\ProviderOrchestrator.cs" />
     <Compile Include="Orchestrators\ValidationOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -15,6 +15,7 @@ using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
@@ -23,6 +24,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
     public class WhenIGetAllProviderCommitments
     {
         private Mock<IMediator> _mockMediator;
+        private Mock<ICommitmentMapper> _commitmentMapper;
         private ProviderController _controller;
         private ProviderOrchestrator _providerOrchestrator;
 
@@ -32,12 +34,17 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
+            _commitmentMapper = new Mock<ICommitmentMapper>();
+            _commitmentMapper.Setup(x => x.MapFrom(It.IsAny<IEnumerable<CommitmentSummary>>(), It.IsAny<CallerType>()))
+                .Returns(() => new List<CommitmentListItem>());
+
             _providerOrchestrator = new ProviderOrchestrator(
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
                 Mock.Of<FacetMapper>(),
                 new ApprenticeshipFilterService(new FacetMapper()),
-                Mock.Of<IApprenticeshipMapper>());
+                Mock.Of<IApprenticeshipMapper>(),
+                _commitmentMapper.Object);
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
@@ -48,10 +55,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentsRequest>())).ReturnsAsync(mediatorResponse);
 
-            var result = await _controller.GetCommitments(1235L) as OkNegotiatedContentResult<IList<CommitmentListItem>>;
+            var result = await _controller.GetCommitments(1235L) as OkNegotiatedContentResult<IEnumerable<CommitmentListItem>>;
 
             result.Should().NotBeNull();
-            result.Content.Should().BeSameAs(mediatorResponse.Data);
+            _commitmentMapper.Verify(x => x.MapFrom(It.IsAny<IEnumerable<CommitmentSummary>>(), It.IsAny<CallerType>()));
         }
 
         [Test]

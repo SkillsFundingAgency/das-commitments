@@ -38,7 +38,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                 Mock.Of<ICommitmentsLogger>(),
                 _mockFacetMapper.Object,
                 _mockApprenticeshipFilter.Object,
-                Mock.Of<IApprenticeshipMapper>());
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentMapper>());
 
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
