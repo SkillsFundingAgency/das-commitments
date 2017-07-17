@@ -1,14 +1,10 @@
 ﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-
-using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 {
@@ -39,7 +35,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
             CheckAuthorization(message, apprenticeship);
 
-            return MapResponseFrom(apprenticeship, message.Caller.CallerType);
+            return new GetApprenticeshipResponse
+            {
+                Data = apprenticeship
+            };
         }
 
         private static void CheckAuthorization(GetApprenticeshipRequest message, Apprenticeship apprenticeship)
@@ -56,50 +55,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
                         throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access apprenticeship {message.ApprenticeshipId}, expected employer {apprenticeship.EmployerAccountId}");
                     break;
             }
-        }
-
-        private static GetApprenticeshipResponse MapResponseFrom(Apprenticeship matchingApprenticeship, CallerType callerType)
-        {
-            var response = new GetApprenticeshipResponse();
-
-            if (matchingApprenticeship == null)
-            {
-                return response;
-            }
-
-            response.Data = new Api.Types.Apprenticeship.Apprenticeship
-            {
-                Id = matchingApprenticeship.Id,
-                CommitmentId = matchingApprenticeship.CommitmentId,
-                EmployerAccountId = matchingApprenticeship.EmployerAccountId,
-                ProviderId = matchingApprenticeship.ProviderId,
-                Reference = matchingApprenticeship.Reference,
-                FirstName = matchingApprenticeship.FirstName,
-                LastName = matchingApprenticeship.LastName,
-                ULN = matchingApprenticeship.ULN,
-                TrainingType = (Api.Types.Apprenticeship.Types.TrainingType)matchingApprenticeship.TrainingType,
-                TrainingCode = matchingApprenticeship.TrainingCode,
-                TrainingName = matchingApprenticeship.TrainingName,
-                Cost = matchingApprenticeship.Cost,
-                StartDate = matchingApprenticeship.StartDate,
-                EndDate = matchingApprenticeship.EndDate,
-                PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus)matchingApprenticeship.PaymentStatus,
-                AgreementStatus = (Api.Types.AgreementStatus)matchingApprenticeship.AgreementStatus,
-                DateOfBirth = matchingApprenticeship.DateOfBirth,
-                NINumber = matchingApprenticeship.NINumber,
-                EmployerRef = matchingApprenticeship.EmployerRef,
-                ProviderRef = matchingApprenticeship.ProviderRef,
-                CanBeApproved = callerType == CallerType.Employer ? matchingApprenticeship.EmployerCanApproveApprenticeship : matchingApprenticeship.ProviderCanApproveApprenticeship,
-                PendingUpdateOriginator = (Originator?)matchingApprenticeship.UpdateOriginator,
-                ProviderName = matchingApprenticeship.ProviderName,
-                LegalEntityName = matchingApprenticeship.LegalEntityName,
-                DataLockCourse = matchingApprenticeship.DataLockCourse,
-                DataLockPrice = matchingApprenticeship.DataLockPrice,
-                DataLockCourseTriaged = matchingApprenticeship.DataLockCourseTriaged,
-                DataLockPriceTriaged = matchingApprenticeship.DataLockPriceTriaged,
-            };
-
-            return response;
         }
     }
 }

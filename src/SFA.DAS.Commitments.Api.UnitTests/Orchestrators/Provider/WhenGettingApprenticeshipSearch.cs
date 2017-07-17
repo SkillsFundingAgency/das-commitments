@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
@@ -36,7 +37,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                 _mockMediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 _mockFacetMapper.Object,
-                _mockApprenticeshipFilter.Object);
+                _mockApprenticeshipFilter.Object,
+                Mock.Of<IApprenticeshipMapper>());
 
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse

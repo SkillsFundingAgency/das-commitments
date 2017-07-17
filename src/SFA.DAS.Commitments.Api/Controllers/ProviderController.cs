@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetApprenticeship(providerId, apprenticeshipId);
 
-            var apprenticeship = response.Data;
+            var apprenticeship = response;
 
             if (apprenticeship == null)
             {

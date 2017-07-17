@@ -12,7 +12,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
-
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Services;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
@@ -33,7 +33,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _employerOrchestrator = new EmployerOrchestrator(
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
-                mapper, new ApprenticeshipFilterService(mapper));
+                mapper, new ApprenticeshipFilterService(mapper),
+                Mock.Of<IApprenticeshipMapper>());
             _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);

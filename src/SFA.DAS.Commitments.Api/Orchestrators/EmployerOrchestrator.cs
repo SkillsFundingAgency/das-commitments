@@ -25,6 +25,7 @@ using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using System.Collections.Generic;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
@@ -38,6 +39,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
+        private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -45,7 +47,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             IMediator mediator, 
             ICommitmentsLogger logger,
             FacetMapper facetMapper,
-            ApprenticeshipFilterService apprenticeshipFilterService)
+            ApprenticeshipFilterService apprenticeshipFilterService,
+            IApprenticeshipMapper apprenticeshipMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
@@ -55,11 +58,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 throw new ArgumentNullException(nameof(facetMapper));
             if (apprenticeshipFilterService == null)
                 throw new ArgumentNullException(nameof(apprenticeshipFilterService));
+            if(apprenticeshipMapper == null)
+                throw new ArgumentNullException(nameof(apprenticeshipMapper));
 
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
             _apprenticeshipFilterService = apprenticeshipFilterService;
+            _apprenticeshipMapper = apprenticeshipMapper;
         }
 
         public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
@@ -164,7 +170,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             };
         }
 
-        public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
+        public async Task<Api.Types.Apprenticeship.Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
@@ -183,7 +189,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             else
                 _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)

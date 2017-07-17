@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -21,6 +22,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         private const long TestProviderId = 1L;
         private const long TestApprenticeshipId = 3L;
         private Mock<IMediator> _mockMediator;
+        private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
         private EmployerController _controller;
         private EmployerOrchestrator _employerOrchestrator;
         private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
@@ -29,7 +31,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()));
+            _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), _apprenticeshipMapper.Object);
             _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);

@@ -4,6 +4,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
@@ -34,7 +35,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 _mediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 new FacetMapper(),
-                new ApprenticeshipFilterService(new FacetMapper())
+                new ApprenticeshipFilterService(new FacetMapper()),
+                Mock.Of<IApprenticeshipMapper>()
                 );
         }
 
