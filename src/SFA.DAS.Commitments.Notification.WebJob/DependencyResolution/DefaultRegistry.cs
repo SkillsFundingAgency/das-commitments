@@ -10,10 +10,12 @@ using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client.Configuration;
 using StructureMap;
 using System;
+using System.Net.Http;
 using System.Reflection;
 
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Notification.WebJob.Services;
+using SFA.DAS.Http.TokenGenerators;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 {
@@ -41,6 +43,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<IEmployerEmailTemplatesService>().Use<EmployerEmailTemplatesService>();
             For<IProviderEmailTemplatesService>().Use<ProviderEmailTemplatesService>();
             For<INotificationJob>().Use<NotificationJob>();
+
+            For<HttpClient>().Use(
+                new Http.HttpClientBuilder()
+                .WithBearerAuthorisationHeader(new JwtBearerTokenGenerator(config.NotificationApi))
+                .Build());
 
             For<INotificationsApiClientConfiguration>().Use(config.NotificationApi);
 
