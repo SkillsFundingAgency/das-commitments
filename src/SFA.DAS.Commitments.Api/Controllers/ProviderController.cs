@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetApprenticeships(providerId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/apprenticeships/search")]

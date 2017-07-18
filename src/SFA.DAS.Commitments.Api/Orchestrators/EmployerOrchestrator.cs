@@ -127,7 +127,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return id;
         }
 
-        public async Task<GetApprenticeshipsResponse> GetApprenticeships(long accountId)
+        public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)
         {
             _logger.Trace($"Getting apprenticeships for employer account {accountId}", accountId: accountId);
 
@@ -138,7 +138,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Data.Count} apprenticeships found", accountId: accountId);
 
-            return response;
+            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<Apprenticeship.ApprenticeshipSearchResponse> GetApprenticeships(long accountId, Apprenticeship.ApprenticeshipSearchQuery query)
@@ -154,7 +154,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var approvedApprenticeships = response.Data
+            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships , query, Originator.Employer);

@@ -48,11 +48,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                                   {
-                                      Data = new List<Apprenticeship>
+                                      Data = new List<Domain.Entities.Apprenticeship>
                                                  {
-                                                     new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                                                     new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
-                                                     new Apprenticeship { PaymentStatus = PaymentStatus.Paused }
+                                                     new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
+                                                     new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.PendingApproval },
+                                                     new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Paused }
                                                  }
                                   });
 
@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         public async Task ShouldCallGetFacetAndMapper()
         {
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetApprenticeshipsResponse { Data = new List<Apprenticeship>() });
+                .ReturnsAsync(new GetApprenticeshipsResponse { Data = new List<Domain.Entities.Apprenticeship>() });
             _mockApprenticeshipFilter.Setup(m =>
                 m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer))
                 .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));

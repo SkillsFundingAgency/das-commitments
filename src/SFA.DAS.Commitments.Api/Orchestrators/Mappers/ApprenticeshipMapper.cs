@@ -31,12 +31,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 NINumber = source.NINumber,
                 EmployerRef = source.EmployerRef,
                 ProviderRef = source.ProviderRef,
-                CanBeApproved =
-                    callerType == CallerType.Employer
+                CanBeApproved = callerType == CallerType.Employer
                         ? source.EmployerCanApproveApprenticeship
                         : source.ProviderCanApproveApprenticeship,
                 PendingUpdateOriginator = (Api.Types.Apprenticeship.Types.Originator?) source.UpdateOriginator,
                 ProviderName = source.ProviderName,
+                LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
                 DataLockCourse = source.DataLockCourse,
                 DataLockPrice = source.DataLockPrice,

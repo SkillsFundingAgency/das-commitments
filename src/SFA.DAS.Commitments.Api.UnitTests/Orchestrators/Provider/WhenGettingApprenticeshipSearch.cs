@@ -44,12 +44,12 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                 {
-                    Data = new List<Apprenticeship>
-                                                 {
-                                                                 new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                                                                 new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
-                                                                 new Apprenticeship { PaymentStatus = PaymentStatus.Paused }
-                                                 }
+                    Data = new List<Domain.Entities.Apprenticeship>
+                            {
+                                new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
+                                new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.PendingApproval },
+                                new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Paused }
+                            }
                 });
 
             _mockApprenticeshipFilter.Setup(m =>
@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                 {
-                    Data = new List<Apprenticeship>()
+                    Data = new List<Domain.Entities.Apprenticeship>()
                 });
 
             var result = await _orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
