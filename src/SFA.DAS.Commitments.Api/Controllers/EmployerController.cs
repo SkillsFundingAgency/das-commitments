@@ -53,12 +53,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitment(accountId, commitmentId);
 
-            if (response.Data == null)
+            if (response == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         

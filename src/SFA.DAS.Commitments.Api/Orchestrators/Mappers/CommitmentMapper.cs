@@ -2,13 +2,22 @@
 using System.Linq;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
+using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class CommitmentMapper : ICommitmentMapper
     {
+        private readonly ICommitmentRules _commitmentRules;
+
+        public CommitmentMapper(ICommitmentRules commitmentRules)
+        {
+            _commitmentRules = commitmentRules;
+        }
+
         public CommitmentListItem MapFrom(CommitmentSummary source, CallerType callerType)
         {
             return new CommitmentListItem
@@ -49,6 +58,57 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 Author = x.Author,
                 CreatedBy = x.CreatedBy == CallerType.Employer ? MessageCreator.Employer : MessageCreator.Provider,
                 CreatedDateTime = x.CreatedDateTime
+            }).ToList();
+        }
+
+        public CommitmentView MapFrom(Commitment commitment, CallerType callerType)
+        {
+            return new CommitmentView
+            {
+                Id = commitment.Id,
+                Reference = commitment.Reference,
+                ProviderId = commitment.ProviderId,
+                ProviderName = commitment.ProviderName,
+                EmployerAccountId = commitment.EmployerAccountId,
+                LegalEntityId = commitment.LegalEntityId,
+                LegalEntityName = commitment.LegalEntityName,
+                EditStatus = (Types.Commitment.Types.EditStatus)commitment.EditStatus,
+                AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
+                LastAction = (Types.Commitment.Types.LastAction)commitment.LastAction,
+                CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
+                EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
+                ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
+                Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
+                Messages = MapMessagesFrom(commitment.Messages)
+            };
+        }
+
+        //todo: could we reuse the apprenticeship mapper?       
+        private static List<Types.Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Apprenticeship> apprenticeships, CallerType callerType)
+        {
+            return apprenticeships.Select(x => new Types.Apprenticeship.Apprenticeship
+            {
+                Id = x.Id,
+                ULN = x.ULN,
+                CommitmentId = x.CommitmentId,
+                EmployerAccountId = x.EmployerAccountId,
+                ProviderId = x.ProviderId,
+                Reference = x.Reference,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                TrainingType = (Types.Apprenticeship.Types.TrainingType)x.TrainingType,
+                TrainingCode = x.TrainingCode,
+                TrainingName = x.TrainingName,
+                Cost = x.Cost,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                AgreementStatus = (Types.AgreementStatus)x.AgreementStatus,
+                PaymentStatus = (Types.Apprenticeship.Types.PaymentStatus)x.PaymentStatus,
+                DateOfBirth = x.DateOfBirth,
+                NINumber = x.NINumber,
+                EmployerRef = x.EmployerRef,
+                ProviderRef = x.ProviderRef,
+                CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
             }).ToList();
         }
     }

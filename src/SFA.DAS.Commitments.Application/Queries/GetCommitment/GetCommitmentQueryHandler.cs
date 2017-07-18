@@ -52,73 +52,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 
             CheckAuthorization(message, commitment);
 
-
-            return MapResponseFrom(commitment, message.Caller.CallerType);
-        }
-
-        private GetCommitmentResponse MapResponseFrom(Domain.Entities.Commitment commitment, CallerType callerType)
-        {
             return new GetCommitmentResponse
             {
-                Data = new Commitment.CommitmentView
-                {
-                    Id = commitment.Id,
-                    Reference = commitment.Reference,
-                    ProviderId = commitment.ProviderId,
-                    ProviderName = commitment.ProviderName,
-                    EmployerAccountId = commitment.EmployerAccountId,
-                    LegalEntityId = commitment.LegalEntityId,
-                    LegalEntityName = commitment.LegalEntityName,
-                    EditStatus = (EditStatus)commitment.EditStatus,
-                    AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
-                    LastAction = (LastAction)commitment.LastAction,
-                    CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
-                    EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
-                    ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
-                    Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
-                    Messages = MapMessagesFrom(commitment.Messages)
-                }
+                Data = commitment
             };
         }
 
-        private List<Commitment.MessageView> MapMessagesFrom(List<Message> messages)
-        {
-            return messages.Select(x => new Commitment.MessageView
-            {
-                Message = x.Text,
-                Author = x.Author,
-                CreatedBy = x.CreatedBy == CallerType.Employer ? MessageCreator.Employer : MessageCreator.Provider,
-                CreatedDateTime = x.CreatedDateTime
-            }).ToList();
-        }
-
-        private static List<Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Domain.Entities.Apprenticeship> apprenticeships, CallerType callerType)
-        {
-            return apprenticeships.Select(x => new Apprenticeship.Apprenticeship
-            {
-                Id = x.Id,
-                ULN = x.ULN,
-                CommitmentId = x.CommitmentId,
-                EmployerAccountId = x.EmployerAccountId,
-                ProviderId = x.ProviderId,
-                Reference = x.Reference,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                TrainingType = (TrainingType)x.TrainingType,
-                TrainingCode = x.TrainingCode,
-                TrainingName = x.TrainingName,
-                Cost = x.Cost,
-                StartDate = x.StartDate,
-                EndDate = x.EndDate,
-                AgreementStatus = (AgreementStatus)x.AgreementStatus,
-                PaymentStatus = (PaymentStatus)x.PaymentStatus,
-                DateOfBirth = x.DateOfBirth,
-                NINumber = x.NINumber,
-                EmployerRef = x.EmployerRef,
-                ProviderRef = x.ProviderRef,
-                CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
-            }).ToList();
-        }
 
         private static void CheckAuthorization(GetCommitmentRequest message, Domain.Entities.Commitment commitment)
         {

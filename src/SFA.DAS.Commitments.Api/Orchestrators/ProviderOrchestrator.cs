@@ -95,7 +95,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         }
 
-        public async Task<GetCommitmentResponse> GetCommitment(long providerId, long commitmentId)
+        public async Task<CommitmentView> GetCommitment(long providerId, long commitmentId)
         {
             _logger.Trace($"Getting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
@@ -111,7 +111,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Provider);
         }
 
         public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId)

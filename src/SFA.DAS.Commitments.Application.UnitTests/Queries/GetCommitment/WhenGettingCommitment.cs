@@ -167,7 +167,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 
             commitment.Apprenticeships.Should()
                 .OnlyContain(x => response.Data.Apprenticeships.All(y =>
-                   y.AgreementStatus == (Api.Types.AgreementStatus)agreementStatus ));
+                   y.AgreementStatus == agreementStatus ));
         }
     }
 }

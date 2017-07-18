@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
-        public async Task<GetCommitmentResponse> GetCommitment(long accountId, long commitmentId)
+        public async Task<Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId)
         {
             _logger.Trace($"Getting commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
@@ -105,7 +105,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<long> CreateCommitment(long accountId, Commitment.CommitmentRequest commitmentRequest)
