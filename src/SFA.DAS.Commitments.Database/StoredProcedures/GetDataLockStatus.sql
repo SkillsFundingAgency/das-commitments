@@ -8,5 +8,5 @@ BEGIN
 		DataLockStatus
 	WHERE 
 		DataLockEventId = @DataLockEventId
-
+	
 END

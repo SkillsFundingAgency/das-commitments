@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 }
             }
 
-            await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
+            var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
 
             var anyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
             await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, latestAction);
@@ -87,8 +87,30 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0
                 && !anyApprenticeshipsPendingAgreement)
             {
-                await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = commitment.EmployerAccountId });
                 await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
+
+                //create price history for purposes of event creation
+                foreach (var updatedApprenticeship in updatedApprenticeships)
+                {
+                    updatedApprenticeship.PriceHistory = new List<PriceHistory>
+                    {
+                        new PriceHistory
+                        {
+                            ApprenticeshipId = updatedApprenticeship.Id,
+                            Cost = updatedApprenticeship.Cost.Value,
+                            FromDate = updatedApprenticeship.StartDate.Value
+                        }
+                    };
+                }
+            }
+
+            await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
+            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+
+            if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0
+                && !anyApprenticeshipsPendingAgreement)
+            {
+                await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = commitment.EmployerAccountId });
             }
         }
 
@@ -147,7 +169,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             }
         }
 
-        private async Task UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
+        private async Task<IList<Apprenticeship>> UpdateApprenticeshipAgreementStatuses(UpdateCommitmentAgreementCommand command, Commitment commitment, LastAction latestAction)
         {
             var updatedApprenticeships = new List<Apprenticeship>();
             foreach (var apprenticeship in commitment.Apprenticeships)
@@ -160,16 +182,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                     updatedApprenticeships.Add(apprenticeship);
                 }
             }
-            
-            await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
 
-            await Task.WhenAll(
-                _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships),
-                _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList)
-            );
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(updatedApprenticeships);
+
+            return updatedApprenticeships;
         }
 
-        private async Task CreateEventsForUpdatedApprenticeships(Commitment commitment, List<Apprenticeship> updatedApprenticeships)
+        private async Task CreateEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
         {
             var existingApprenticeships = await GetActiveApprenticeshipsForLearners(updatedApprenticeships);
 
@@ -179,7 +198,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             });
         }
 
-        private async Task<IEnumerable<ApprenticeshipResult>>  GetActiveApprenticeshipsForLearners(List<Apprenticeship> updatedApprenticeships)
+        private async Task<IEnumerable<ApprenticeshipResult>>  GetActiveApprenticeshipsForLearners(IList<Apprenticeship> updatedApprenticeships)
         {
             var ulns = updatedApprenticeships.Select(x => x.ULN);
             var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(ulns);

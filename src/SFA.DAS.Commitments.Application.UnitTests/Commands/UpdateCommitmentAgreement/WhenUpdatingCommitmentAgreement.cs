@@ -270,7 +270,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public async Task ThenIfAnApprenticeshipAgreementStatusIsBothAgreedTheAgreedOnDateIsUpdated()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
-            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now.AddDays(10)};
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now.AddDays(10), Cost = 1000};
             commitment.Apprenticeships.Add(apprenticeship);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -291,7 +291,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
             var expectedAgreedOnDate = DateTime.Now.AddDays(-10);
-            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, AgreedOn = expectedAgreedOnDate, StartDate = DateTime.Now.AddDays(10) };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, AgreedOn = expectedAgreedOnDate, StartDate = DateTime.Now.AddDays(10), Cost = 1000 };
             commitment.Apprenticeships.Add(apprenticeship);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -344,7 +344,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public async Task ThenIfAnApprenticeshipIsApprovedAndTheLearnerHasNoPreviousApprenticeshipsAnEventIsPublishedWithTheFirstOfTheStartMonthAsTheEffectiveFromDate()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
-            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now, ULN = "1234567" };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now, ULN = "1234567", Cost = 1000 };
             commitment.Apprenticeships.Add(apprenticeship);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -370,7 +370,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 PaymentStatus = PaymentStatus.PendingApproval,
                 Id = 1234,
                 StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 13),
-                ULN = "1234567"
+                ULN = "1234567",
+                Cost = 1000
             };
             commitment.Apprenticeships.Add(apprenticeship);
 
@@ -401,7 +402,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 PaymentStatus = PaymentStatus.PendingApproval,
                 Id = 1234,
                 StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 13),
-                ULN = "1234567"
+                ULN = "1234567",
+                Cost = 1000
             };
             commitment.Apprenticeships.Add(apprenticeship);
 
@@ -530,7 +532,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public async Task ThenIfTheCommitmentIsSentForFinalApprovalThenAHistoryRecordIsCreated()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
-            commitment.Apprenticeships.Add(new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, StartDate = DateTime.Now.AddMonths(1) });
+            commitment.Apprenticeships.Add(new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, StartDate = DateTime.Now.AddMonths(1), Cost = 1000 });
             var expectedOriginalState = JsonConvert.SerializeObject(commitment);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
