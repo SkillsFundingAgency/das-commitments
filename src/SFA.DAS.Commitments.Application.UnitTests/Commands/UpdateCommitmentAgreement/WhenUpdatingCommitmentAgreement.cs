@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
                 {
-                    Data = new List<OverlappingApprenticeship>()
+                    Data = new List<ApprenticeshipResult>()
                 });
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
@@ -235,9 +235,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
                 {
-                    Data = new List<OverlappingApprenticeship>
+                    Data = new List<ApprenticeshipResult>
                     {
-                        new OverlappingApprenticeship()
+                        new ApprenticeshipResult()
                     }
                 });
 

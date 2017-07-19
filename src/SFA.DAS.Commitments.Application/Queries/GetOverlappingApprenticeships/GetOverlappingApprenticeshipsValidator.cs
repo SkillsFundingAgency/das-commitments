@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using FluentValidation;
-using SFA.DAS.Commitments.Api.Types.Validation;
+﻿using FluentValidation;
+
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 {

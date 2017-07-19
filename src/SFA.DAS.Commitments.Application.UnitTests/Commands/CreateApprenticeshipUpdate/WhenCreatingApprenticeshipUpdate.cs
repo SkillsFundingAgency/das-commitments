@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
                 {
-                    Data = new List<OverlappingApprenticeship>()
+                    Data = new List<ApprenticeshipResult>()
                 });
 
             _historyRepository = new Mock<IHistoryRepository>();

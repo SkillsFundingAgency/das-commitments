@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
@@ -223,7 +222,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             {
                 foreach (var overlap in overlapResult.Data)
                 {
-                    _logger.Info($"ApprenticeshipUpdate overlaps with apprenticeship {overlap.Apprenticeship.Id}");
+                    _logger.Info($"ApprenticeshipUpdate overlaps with apprenticeship {overlap.Id}");
                 }
                 throw new ValidationException("Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }

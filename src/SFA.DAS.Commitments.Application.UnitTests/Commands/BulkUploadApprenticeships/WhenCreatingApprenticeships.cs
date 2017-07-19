@@ -20,6 +20,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
+using ValidationFailReason = SFA.DAS.Commitments.Domain.Entities.Validation.ValidationFailReason;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -82,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_existingCommitment);
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse {Data = new List<OverlappingApprenticeship>()});
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse {Data = new List<ApprenticeshipResult>()});
         }
 
         [Test]
@@ -198,13 +199,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ThenShouldThrowExceptionIfAnyOverlapsExist()
         {
+            var app = _exampleValidRequest.Apprenticeships.First();
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<ApprenticeshipResult>
                 {
-                    new OverlappingApprenticeship
+                    new ApprenticeshipResult
                     {
-                        Apprenticeship = _exampleValidRequest.Apprenticeships.First(),
-                        ValidationFailReason = ValidationFailReason.OverlappingEndDate
+                        Id = app.Id,
+                        AgreementStatus = (AgreementStatus)app.AgreementStatus,
+                        ValidationFailReason = (ValidationFailReason)Api.Types.Validation.Types.ValidationFailReason.OverlappingEndDate
                     }
                 } });
 
