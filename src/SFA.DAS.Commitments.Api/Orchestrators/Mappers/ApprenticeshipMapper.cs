@@ -96,5 +96,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ToDate = domainPrice.ToDate
             };
         }
+
+        public ApprenticeshipUpdate MapApprenticeshipUpdate(Types.Apprenticeship.ApprenticeshipUpdate update)
+        {
+            var result = new ApprenticeshipUpdate
+            {
+                Id = update.Id,
+                ApprenticeshipId = update.ApprenticeshipId,
+                Originator = (Originator)update.Originator,
+                FirstName = update.FirstName,
+                LastName = update.LastName,
+                DateOfBirth = update.DateOfBirth,
+                TrainingCode = update.TrainingCode,
+                TrainingType = update.TrainingType.HasValue ? (TrainingType)update.TrainingType : default(TrainingType?),
+                TrainingName = update.TrainingName,
+                Cost = update.Cost,
+                StartDate = update.StartDate,
+                EndDate = update.EndDate,
+                UpdateOrigin = (UpdateOrigin)update.UpdateOrigin,
+                EffectiveFromDate = update.EffectiveFromDate,
+                EffectiveToDate = null,
+                ULN = update.ULN,
+                ProviderRef = update.ProviderRef,
+                EmployerRef = update.EmployerRef
+            };
+
+            // Update the effective from date if they've made a change to the Start Date value - can only be done when waiting to start.
+            if (update.StartDate.HasValue)
+            {
+                result.EffectiveFromDate = update.StartDate.Value;
+            }
+
+            return result.HasChanges ? result : null;
+        }
     }
 }

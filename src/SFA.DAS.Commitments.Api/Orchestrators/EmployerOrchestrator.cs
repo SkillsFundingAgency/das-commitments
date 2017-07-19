@@ -375,10 +375,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         CallerType = CallerType.Employer,
                         Id = accountId
                     },
-                    ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate,
+                    ApprenticeshipUpdate = _apprenticeshipMapper.MapApprenticeshipUpdate(updateRequest.ApprenticeshipUpdate),
                     UserName = updateRequest.LastUpdatedByInfo?.Name,
                     UserId = updateRequest.UserId
             });
+
 
             _logger.Info($"Created update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: updateRequest.ApprenticeshipUpdate.ApprenticeshipId);
         }

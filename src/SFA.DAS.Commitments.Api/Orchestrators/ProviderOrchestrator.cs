@@ -398,7 +398,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CallerType = CallerType.Provider,
                     Id = providerId
                 },
-                ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate,
+                ApprenticeshipUpdate = _apprenticeshipMapper.MapApprenticeshipUpdate(updateRequest.ApprenticeshipUpdate),
                 UserName = updateRequest.LastUpdatedByInfo?.Name,
                 UserId = updateRequest.UserId
             });

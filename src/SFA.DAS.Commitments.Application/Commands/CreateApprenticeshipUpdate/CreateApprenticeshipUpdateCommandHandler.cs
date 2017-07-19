@@ -67,8 +67,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 MapImmediateApprenticeshipUpdate(apprenticeship, command);
                 immediateUpdate = apprenticeship;
             }
-            
-            var pendingUpdate = MapToPendingApprenticeshipUpdate(apprenticeship, command.ApprenticeshipUpdate);
+
+            var pendingUpdate = command.ApprenticeshipUpdate;
+            pendingUpdate.EffectiveFromDate = apprenticeship.StartDate.Value;
 
 
             await Task.WhenAll(
@@ -93,7 +94,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
         }
 
-        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate apprenticeshipUpdate)
+        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var started = apprenticeship.StartDate.HasValue && apprenticeship.StartDate.Value <=
                                       new DateTime(_currentDateTime.Now.Year, _currentDateTime.Now.Month, 1);
