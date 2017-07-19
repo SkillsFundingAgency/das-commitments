@@ -21,16 +21,20 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         private EmployerController _controller;
         private Mock<IMediator> _mockMediator;
         private EmployerOrchestrator _employerOrchestrator;
-        private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentMapper>());
-            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
 
-            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
+            var apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
+                _mockMediator.Object,
+                Mock.Of<IDataLockMapper>(),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentsLogger>());
+
+            _controller = new EmployerController(_employerOrchestrator, apprenticeshipsOrchestrator);
         }
 
         [Test]

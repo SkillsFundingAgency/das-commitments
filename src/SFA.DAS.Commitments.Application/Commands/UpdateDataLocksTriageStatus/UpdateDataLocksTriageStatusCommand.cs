@@ -1,6 +1,6 @@
 using MediatR;
 
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus
 {

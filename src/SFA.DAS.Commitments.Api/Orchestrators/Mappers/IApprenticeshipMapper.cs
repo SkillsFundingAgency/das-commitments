@@ -8,5 +8,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
     {
         Apprenticeship MapFrom(Domain.Entities.Apprenticeship source, CallerType callerType);
         IEnumerable<Apprenticeship> MapFrom(IEnumerable<Domain.Entities.Apprenticeship> source, CallerType callerType);
+
+        PriceHistory MapPriceHistory(Domain.Entities.PriceHistory domainPrice);
     }
 }

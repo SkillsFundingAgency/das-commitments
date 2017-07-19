@@ -84,7 +84,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
             //Arrange
             var command = new UpdateDataLockTriageStatusCommand
             {
-                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Restart
+                TriageStatus = TriageStatus.Restart
             };
 
             //Act
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
             //Arrange
             var command = new UpdateDataLockTriageStatusCommand
             {
-                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Restart
+                TriageStatus = TriageStatus.Restart
             };
 
             _dataLockRepository.Setup(x => x.GetDataLock(It.IsAny<long>()))
@@ -129,7 +129,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
 
             var command = new UpdateDataLockTriageStatusCommand
             {
-                TriageStatus = Api.Types.DataLock.Types.TriageStatus.Restart
+                TriageStatus = TriageStatus.Restart
             };
 
             //Act & Assert

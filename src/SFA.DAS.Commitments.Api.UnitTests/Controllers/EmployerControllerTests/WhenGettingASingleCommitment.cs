@@ -35,7 +35,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 .Returns(new CommitmentView());
 
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), Mock.Of<IApprenticeshipMapper>(), _commitmentMapper.Object);
-            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(
+                _mockMediator.Object,
+                Mock.Of<IDataLockMapper>(),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentsLogger>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
         }

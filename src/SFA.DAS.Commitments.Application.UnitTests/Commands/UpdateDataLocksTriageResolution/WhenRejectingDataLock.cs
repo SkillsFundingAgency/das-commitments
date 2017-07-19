@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
 
             _command = new UpdateDataLocksTriageResolutionCommand
             {
-                DataLockUpdateType = DataLockUpdateType.RejectChanges,
+                DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.RejectChanges,
                 ApprenticeshipId = 4321
             };
 

@@ -6,13 +6,12 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Controllers;
 using Ploeh.AutoFixture.NUnit3;
 using System.Web.Http.Results;
-using SFA.DAS.Commitments.Api.Types;
+
 using FluentAssertions;
 using FluentValidation;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -26,16 +25,21 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         private Mock<IMediator> _mockMediator;
         private EmployerController _controller;
         private EmployerOrchestrator _employerOrchestrator;
-        private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
+        private ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentMapper>());
-            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
 
-            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
+            _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
+                _mockMediator.Object,
+                Mock.Of<IDataLockMapper>(),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentsLogger>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
         }
 
         [Test, AutoData]

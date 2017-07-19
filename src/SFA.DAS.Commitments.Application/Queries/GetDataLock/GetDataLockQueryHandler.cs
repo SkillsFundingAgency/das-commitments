@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
@@ -39,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetDataLock
 
             return new GetDataLockResponse
             {
-                Data = MapFrom(data)
+                Data = data
             };
         }
 
@@ -49,27 +48,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetDataLock
             {
                 throw new ValidationException($"Data lock {dataLockStatus.DataLockEventId} does not belong to Apprenticeship {apprenticeshipId}");
             }
-        }
-
-        private Api.Types.DataLock.DataLockStatus MapFrom(DataLockStatus source)
-        {
-            return new Api.Types.DataLock.DataLockStatus
-            {
-                ApprenticeshipId  = source.ApprenticeshipId,
-                DataLockEventDatetime  = source.DataLockEventDatetime,
-                DataLockEventId = source.DataLockEventId,
-                ErrorCode = (Api.Types.DataLock.Types.DataLockErrorCode) source.ErrorCode,
-                IlrActualStartDate = source.IlrActualStartDate,
-                IlrEffectiveFromDate = source.IlrEffectiveFromDate,
-                IlrTotalCost = source.IlrTotalCost,
-                IlrTrainingCourseCode = source.IlrTrainingCourseCode,
-                IlrTrainingType = (TrainingType) source.IlrTrainingType,
-                PriceEpisodeIdentifier = source.PriceEpisodeIdentifier,
-                Status = (Api.Types.DataLock.Types.Status) source.Status,
-                TriageStatus = (Api.Types.DataLock.Types.TriageStatus) source.TriageStatus,
-                ApprenticeshipUpdateId = source.ApprenticeshipUpdateId,
-                IsResolved  = source.IsResolved
-            };
         }
     }
 }

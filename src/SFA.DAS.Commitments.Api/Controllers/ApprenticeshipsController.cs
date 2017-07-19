@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _orchestrator.GetDataLock(apprenticeshipId, dataLockEventId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("apprenticeships/{apprenticeshipId}/datalocks")]
@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _orchestrator.GetPriceHistory(apprenticeshipId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
     }
 }

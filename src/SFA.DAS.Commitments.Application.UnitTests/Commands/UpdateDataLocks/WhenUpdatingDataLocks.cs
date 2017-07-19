@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
             _validCommand = new UpdateDataLocksTriageStatusCommand
             {
                 ApprenticeshipId = 10082,
-                TriageStatus = TriageStatus.Change,
+                TriageStatus = Domain.Entities.DataLock.TriageStatus.Change,
                 UserId = "testuser"
             };
 

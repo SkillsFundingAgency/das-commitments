@@ -49,5 +49,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         {
             return source.Select(sourceItem => MapFrom(sourceItem, callerType));
         }
+
+        public PriceHistory MapPriceHistory(Domain.Entities.PriceHistory domainPrice)
+        {
+            return new PriceHistory
+            {
+                ApprenticeshipId = domainPrice.ApprenticeshipId,
+                Cost = domainPrice.Cost,
+                FromDate = domainPrice.FromDate,
+                ToDate = domainPrice.ToDate
+            };
+        }
     }
 }

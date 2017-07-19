@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResolution;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus;
@@ -14,25 +14,33 @@ using SFA.DAS.Commitments.Application.Queries.GetPriceHistory;
 using SFA.DAS.Commitments.Domain.Extensions;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-using DataLocksTriageResolutionSubmission = SFA.DAS.Commitments.Api.Types.DataLock.DataLocksTriageResolutionSubmission;
-using DataLockStatus = SFA.DAS.Commitments.Domain.Entities.DataLock.DataLockStatus;
 using SFA.DAS.Commitments.Domain;
-using System;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
     public class ApprenticeshipsOrchestrator
     {
         private readonly IMediator _mediator;
+        private readonly IDataLockMapper _dataLockMapper;
+        private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly ICommitmentsLogger _logger;
 
-        public ApprenticeshipsOrchestrator(IMediator mediator, ICommitmentsLogger logger)
+        public ApprenticeshipsOrchestrator(
+            IMediator mediator, 
+            IDataLockMapper dataLockMapper,
+            IApprenticeshipMapper apprenticeshipMapper,
+            ICommitmentsLogger logger)
         {
             _mediator = mediator;
+            _dataLockMapper = dataLockMapper;
+            _apprenticeshipMapper = apprenticeshipMapper;
             _logger = logger;
         }
 
-        public async Task<GetDataLockResponse> GetDataLock(long apprenticeshipId, long dataLockEventId)
+        public async Task<Types.DataLock.DataLockStatus> GetDataLock(long apprenticeshipId, long dataLockEventId)
         {
             _logger.Trace($"Getting data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
@@ -44,11 +52,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return _dataLockMapper.Map(response.Data);
         }
 
         [Obsolete]
-        public async Task<IList<Types.DataLock.DataLockStatus>> GetDataLocks(long apprenticeshipId)
+        public async Task<IEnumerable<Types.DataLock.DataLockStatus>> GetDataLocks(long apprenticeshipId)
         {
             _logger.Trace($"Getting data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
@@ -59,10 +67,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved {response.Data.Count} data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
-            return MapToApiType(response.Data);
+            return response.Data.Select(_dataLockMapper.Map);
         }
 
-        public async Task<IList<Types.DataLock.DataLockStatus>> GetDataLocks(long apprenticeshipId, Caller caller)
+        public async Task<IEnumerable<Types.DataLock.DataLockStatus>> GetDataLocks(long apprenticeshipId, Caller caller)
         {
             _logger.Trace($"Getting data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId, caller: caller);
 
@@ -73,7 +81,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved {response.Data.Count} data locks for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
 
-            return MapToApiType(response.Data);
+            return response.Data.Select(_dataLockMapper.Map);
         }
 
         [Obsolete]
@@ -96,8 +104,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var summary = new DataLockSummary
             {
-                DataLockWithCourseMismatch = MapToApiType(courseMismatch),
-                DataLockWithOnlyPriceMismatch = MapToApiType(withPriceOnly)
+                DataLockWithCourseMismatch = courseMismatch.Select(_dataLockMapper.Map),
+                DataLockWithOnlyPriceMismatch = withPriceOnly.Select(_dataLockMapper.Map)
             };
 
             _logger.Info($"Retrieved data lock summary for apprenticeship: {apprenticeshipId}. {summary.DataLockWithCourseMismatch.Count(): CourseMismatch}, {summary.DataLockWithOnlyPriceMismatch}: Price Mismatch ", apprenticeshipId: apprenticeshipId);
@@ -124,8 +132,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var summary = new DataLockSummary
             {
-                DataLockWithCourseMismatch = MapToApiType(courseMismatch),
-                DataLockWithOnlyPriceMismatch = MapToApiType(withPriceOnly)
+                DataLockWithCourseMismatch = courseMismatch.Select(_dataLockMapper.Map),
+                DataLockWithOnlyPriceMismatch = withPriceOnly.Select(_dataLockMapper.Map)
             };
 
             _logger.Info($"Retrieved data lock summary for apprenticeship: {apprenticeshipId}. {summary.DataLockWithCourseMismatch.Count(): CourseMismatch}, {summary.DataLockWithOnlyPriceMismatch}: Price Mismatch ", apprenticeshipId: apprenticeshipId, caller: caller);
@@ -142,7 +150,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
-                TriageStatus = triageSubmission.TriageStatus,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 
@@ -157,7 +165,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
-                TriageStatus = triageSubmission.TriageStatus,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 
@@ -172,7 +180,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
             {
                 ApprenticeshipId = apprenticeshipId,
-                TriageStatus = triageSubmission.TriageStatus,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 
@@ -186,7 +194,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
             {
                 ApprenticeshipId = apprenticeshipId,
-                TriageStatus = triageSubmission.TriageStatus,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 
@@ -201,8 +209,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             await _mediator.SendAsync(new UpdateDataLocksTriageResolutionCommand
             {
                 ApprenticeshipId = apprenticeshipId,
-                DataLockUpdateType = triageSubmission.DataLockUpdateType,
-                TriageStatus = triageSubmission.TriageStatus,
+                DataLockUpdateType = (DataLockUpdateType)triageSubmission.DataLockUpdateType,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 
@@ -216,8 +224,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             await _mediator.SendAsync(new UpdateDataLocksTriageResolutionCommand
             {
                 ApprenticeshipId = apprenticeshipId,
-                DataLockUpdateType = triageSubmission.DataLockUpdateType,
-                TriageStatus = triageSubmission.TriageStatus,
+                DataLockUpdateType = (DataLockUpdateType)triageSubmission.DataLockUpdateType,
+                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
                 UserId = triageSubmission.UserId
             });
 
@@ -225,7 +233,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         }
 
         [Obsolete]
-        public async Task<GetPriceHistoryResponse> GetPriceHistory(long apprenticeshipId)
+        public async Task<IEnumerable<Types.Apprenticeship.PriceHistory>> GetPriceHistory(long apprenticeshipId)
         {
             _logger.Trace($"Getting price history for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
@@ -237,10 +245,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved {response.Data.Count()} price history items for apprenticeship: {apprenticeshipId}"
                 , apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return response.Data.Select(_apprenticeshipMapper.MapPriceHistory);
         }
 
-        public async Task<GetPriceHistoryResponse> GetPriceHistory(long apprenticeshipId, Caller caller)
+        public async Task<IEnumerable<Types.Apprenticeship.PriceHistory>> GetPriceHistory(long apprenticeshipId, Caller caller)
         {
             _logger.Trace($"Getting price history for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
 
@@ -253,28 +261,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved {response.Data.Count()} price history items for apprenticeship: {apprenticeshipId}"
                 , apprenticeshipId: apprenticeshipId, caller: caller);
 
-            return response;
-        }
-
-        private IList<Types.DataLock.DataLockStatus> MapToApiType(IList<DataLockStatus> sourceList)
-        {
-            return sourceList.Select(source => new Types.DataLock.DataLockStatus
-            {
-                ApprenticeshipId = source.ApprenticeshipId,
-                DataLockEventDatetime = source.DataLockEventDatetime,
-                DataLockEventId = source.DataLockEventId,
-                ErrorCode = (Api.Types.DataLock.Types.DataLockErrorCode)source.ErrorCode,
-                IlrActualStartDate = source.IlrActualStartDate,
-                IlrEffectiveFromDate = source.IlrEffectiveFromDate,
-                IlrTotalCost = source.IlrTotalCost,
-                IlrTrainingCourseCode = source.IlrTrainingCourseCode,
-                IlrTrainingType = (TrainingType)source.IlrTrainingType,
-                PriceEpisodeIdentifier = source.PriceEpisodeIdentifier,
-                Status = (Api.Types.DataLock.Types.Status)source.Status,
-                TriageStatus = (Api.Types.DataLock.Types.TriageStatus)source.TriageStatus,
-                ApprenticeshipUpdateId = source.ApprenticeshipUpdateId,
-                IsResolved = source.IsResolved
-            }).ToList();
+            return response.Data.Select(_apprenticeshipMapper.MapPriceHistory);
         }
     }
 }
