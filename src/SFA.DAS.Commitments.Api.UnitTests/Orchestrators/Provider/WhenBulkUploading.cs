@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using MediatR;
 using Moq;
@@ -6,6 +7,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Application.Services;
@@ -38,9 +40,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         {
             var providerId = 1L;
             var commitmentId = 2L;
-            var request = new BulkApprenticeshipRequest { LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@email.com", Name = "Bob" }, UserId = "User" };
-            await _orchestrator.CreateApprenticeships(providerId, commitmentId, request);
+            var request = new BulkApprenticeshipRequest
+                              {
+                                    LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@email.com", Name = "Bob" },
+                                    UserId = "User",
+                                    Apprenticeships = new List<Apprenticeship>()
+                              };
 
+            await _orchestrator.CreateApprenticeships(providerId, commitmentId, request);
             _mockMediator.Verify(
                 x =>
                     x.SendAsync(

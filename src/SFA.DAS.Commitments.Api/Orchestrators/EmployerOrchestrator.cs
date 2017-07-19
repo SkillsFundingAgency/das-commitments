@@ -209,7 +209,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = accountId
                 },
                 CommitmentId = commitmentId,
-                Apprenticeship = apprenticeshipRequest.Apprenticeship,
+                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
@@ -234,7 +234,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
-                Apprenticeship = apprenticeshipRequest.Apprenticeship,
+                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });

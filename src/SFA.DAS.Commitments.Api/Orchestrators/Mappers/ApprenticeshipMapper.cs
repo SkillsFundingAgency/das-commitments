@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities;
+
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
+using PriceHistory = SFA.DAS.Commitments.Api.Types.Apprenticeship.PriceHistory;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -44,6 +48,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 DataLockPriceTriaged = source.DataLockPriceTriaged,
             };
         }
+
+        public Domain.Entities.Apprenticeship Map(Apprenticeship apprenticeship, CallerType callerType)
+        {
+            // ToDo: Test
+            var domainApprenticeship = new Domain.Entities.Apprenticeship
+            {
+                Id = apprenticeship.Id,
+                FirstName = apprenticeship.FirstName,
+                LastName = apprenticeship.LastName,
+                DateOfBirth = apprenticeship.DateOfBirth,
+                NINumber = apprenticeship.NINumber,
+                ULN = apprenticeship.ULN,
+                CommitmentId = apprenticeship.CommitmentId,
+                PaymentStatus = (PaymentStatus)apprenticeship.PaymentStatus,
+                AgreementStatus = (AgreementStatus)apprenticeship.AgreementStatus,
+                TrainingType = (TrainingType)apprenticeship.TrainingType,
+                TrainingCode = apprenticeship.TrainingCode,
+                TrainingName = apprenticeship.TrainingName,
+                Cost = apprenticeship.Cost,
+                StartDate = apprenticeship.StartDate,
+                EndDate = apprenticeship.EndDate
+            };
+
+            if (callerType.IsEmployer())
+                domainApprenticeship.EmployerRef = apprenticeship.EmployerRef;
+            else
+                domainApprenticeship.ProviderRef = apprenticeship.ProviderRef;
+
+            return domainApprenticeship;
+        }
+
+
 
         public IEnumerable<Apprenticeship> MapFrom(IEnumerable<Domain.Entities.Apprenticeship> source, CallerType callerType)
         {

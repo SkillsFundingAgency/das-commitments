@@ -2,16 +2,14 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
-using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
@@ -52,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
-            var apprenticeship = MapFrom(command.Apprenticeship, command);
+            var apprenticeship = UpdateApprenticeship(command.Apprenticeship, command);
             var apprenticeshipId = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
             var savedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeshipId);
 
@@ -63,6 +61,13 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             );
 
             return apprenticeshipId;
+        }
+
+        private Apprenticeship UpdateApprenticeship(Apprenticeship apprenticeship, CreateApprenticeshipCommand command)
+        {
+            apprenticeship.CommitmentId = command.CommitmentId;
+            apprenticeship.PaymentStatus = PaymentStatus.PendingApproval;
+            return apprenticeship;
         }
 
         private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
@@ -83,32 +88,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                     await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, Domain.Entities.AgreementStatus.NotAgreed);
                 }
             }
-        }
-
-        private Domain.Entities.Apprenticeship MapFrom(Apprenticeship apprenticeship, CreateApprenticeshipCommand message)
-        {
-            var domainApprenticeship = new Domain.Entities.Apprenticeship
-            {
-                Id = apprenticeship.Id,
-                FirstName = apprenticeship.FirstName,
-                LastName = apprenticeship.LastName,
-                DateOfBirth = apprenticeship.DateOfBirth,
-                NINumber = apprenticeship.NINumber,
-                ULN = apprenticeship.ULN,
-                CommitmentId = message.CommitmentId,
-                PaymentStatus = PaymentStatus.PendingApproval,
-                AgreementStatus = (Domain.Entities.AgreementStatus)apprenticeship.AgreementStatus,
-                TrainingType = (Domain.Entities.TrainingType)apprenticeship.TrainingType,
-                TrainingCode = apprenticeship.TrainingCode,
-                TrainingName = apprenticeship.TrainingName,
-                Cost = apprenticeship.Cost,
-                StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate,
-                EmployerRef = apprenticeship.EmployerRef,
-                ProviderRef = apprenticeship.ProviderRef
-            };
-
-            return domainApprenticeship;
         }
 
         private static void CheckAuthorization(CreateApprenticeshipCommand message, Commitment commitment)

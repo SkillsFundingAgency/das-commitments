@@ -3,7 +3,6 @@ using Ploeh.AutoFixture;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Domain;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
@@ -21,7 +20,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             _validator = new UpdateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
 
-            var populatedCommitment = fixture.Build<Apprenticeship.Apprenticeship>().Create();
+            var populatedCommitment = fixture.Build<Domain.Entities.Apprenticeship>().Create();
             _exampleCommand = new UpdateApprenticeshipCommand
             {
                 Caller = new Caller
