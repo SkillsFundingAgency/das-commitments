@@ -233,7 +233,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _apprenticeshipsOrchestrator.GetPriceHistory(apprenticeshipId, new Caller(providerId, CallerType.Provider));
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocks")]
