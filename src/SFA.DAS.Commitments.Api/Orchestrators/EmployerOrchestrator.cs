@@ -394,7 +394,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Deleted commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
         }
 
-        public async Task<GetPendingApprenticeshipUpdateResponse> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
+        public async Task<Types.Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting pending update for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: apprenticeshipId );
 
@@ -410,7 +410,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved pending update for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return _apprenticeshipMapper.MapApprenticeshipUpdate(response?.Data);
+            
         }
 
         public async Task CreateApprenticeshipUpdate(long accountId, Apprenticeship.ApprenticeshipUpdateRequest updateRequest)

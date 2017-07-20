@@ -5,6 +5,8 @@ using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+
+using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
@@ -76,7 +78,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 EditStatus = (Types.Commitment.Types.EditStatus)commitment.EditStatus,
-                AgreementStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
+                AgreementStatus = (AgreementStatus)_commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
                 LastAction = (Types.Commitment.Types.LastAction)commitment.LastAction,
                 CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
                 EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },

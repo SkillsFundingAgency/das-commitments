@@ -7,7 +7,7 @@ using FluentValidation.Results;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
+
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;

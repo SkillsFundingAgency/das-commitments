@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected UpdateApprenticeshipStatusCommand ExampleValidRequest;
         protected Apprenticeship TestApprenticeship;
 
-        protected abstract Api.Types.Apprenticeship.Types.PaymentStatus RequestPaymentStatus { get; }
+        protected abstract PaymentStatus RequestPaymentStatus { get; }
         protected abstract PaymentStatus ApprenticeshipPaymentStatus { get; }
 
         [SetUp]
@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                PaymentStatus = (PaymentStatus?)RequestPaymentStatus,
+                PaymentStatus = RequestPaymentStatus,
                 DateOfChange = DateTime.Now.Date,
                 UserName = "Bob"
             };

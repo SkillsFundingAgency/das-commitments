@@ -1,21 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Commitment.Types;
+
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Application.Rules;
-using SFA.DAS.Commitments.Domain.Entities;
-using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
-using EditStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.EditStatus;
-using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
-using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
-using TrainingType = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.TrainingType;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
 {

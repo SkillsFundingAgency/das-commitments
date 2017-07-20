@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus

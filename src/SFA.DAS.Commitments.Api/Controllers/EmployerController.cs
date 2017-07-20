@@ -165,7 +165,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
         {
             var response = await _employerOrchestrator.GetPendingApprenticeshipUpdate(accountId, apprenticeshipId);
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/apprenticeships/{apprenticeshipId}/update")]

@@ -148,44 +148,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             return true;
         }
 
-        private ApprenticeshipUpdate MapToPendingApprenticeshipUpdate(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate update)
-        {
-            var result =  new ApprenticeshipUpdate
-            {
-                Id = update.Id,
-                ApprenticeshipId = update.ApprenticeshipId,
-                Originator = (Originator) update.Originator,
-                FirstName = update.FirstName,
-                LastName = update.LastName,
-                DateOfBirth = update.DateOfBirth,
-                TrainingCode = update.TrainingCode,
-                TrainingType = update.TrainingType.HasValue ? (TrainingType) update.TrainingType : default(TrainingType?),
-                TrainingName = update.TrainingName,
-                Cost = update.Cost,
-                StartDate = update.StartDate,
-                EndDate = update.EndDate,
-                UpdateOrigin = (UpdateOrigin) update.UpdateOrigin,
-                EffectiveFromDate = apprenticeship.StartDate.Value,
-                EffectiveToDate = null
-            };
-
-            // Update the effective from date if they've made a change to the Start Date value - can only be done when waiting to start.
-            if (update.StartDate.HasValue)
-            {
-                result.EffectiveFromDate = update.StartDate.Value;
-            }
-
-            return result.HasChanges ? result : null;
-        }
-
-        private bool IsInSameCalendarMonth(DateTime first, DateTime second)
-        {
-            if (first.Year == second.Year && first.Month == second.Month)
-                return true;
-
-            return false;
-        }
-
         private void CheckAuthorisation(CreateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship)
         {
             switch (command.Caller.CallerType)

@@ -129,5 +129,30 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
             return result.HasChanges ? result : null;
         }
+
+        public Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(ApprenticeshipUpdate data)
+        {
+            if (data == null)
+            {
+                return new Types.Apprenticeship.ApprenticeshipUpdate();
+            }
+
+            return new Types.Apprenticeship.ApprenticeshipUpdate
+            {
+                Id = data.Id,
+                ApprenticeshipId = data.ApprenticeshipId,
+                Originator = (Types.Apprenticeship.Types.Originator)data.Originator,
+                FirstName = data.FirstName,
+                LastName = data.LastName,
+                DateOfBirth = data.DateOfBirth,
+                TrainingCode = data.TrainingCode,
+                TrainingType = data.TrainingType.HasValue ? (Types.Apprenticeship.Types.TrainingType)data.TrainingType
+                                                            : default(Types.Apprenticeship.Types.TrainingType?),
+                TrainingName = data.TrainingName,
+                Cost = data.Cost,
+                StartDate = data.StartDate,
+                EndDate = data.EndDate
+            };
+        }
     }
 }

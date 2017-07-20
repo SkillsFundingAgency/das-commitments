@@ -17,7 +17,6 @@ using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using DataLockUpdateType = SFA.DAS.Commitments.Api.Types.DataLock.Types.DataLockUpdateType;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTriageResolution
 {

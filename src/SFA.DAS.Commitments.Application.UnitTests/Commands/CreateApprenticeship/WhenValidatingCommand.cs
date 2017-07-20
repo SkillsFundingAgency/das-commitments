@@ -3,7 +3,6 @@ using NUnit.Framework;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship

@@ -45,27 +45,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate
 
             return new GetPendingApprenticeshipUpdateResponse
             {
-                Data = result == null ? null : MapFrom(result)
-            };
-        }
-
-        private Api.Types.Apprenticeship.ApprenticeshipUpdate MapFrom(ApprenticeshipUpdate source)
-        {
-            return new Api.Types.Apprenticeship.ApprenticeshipUpdate
-            {
-                Id = source.Id,
-                ApprenticeshipId = source.ApprenticeshipId,
-                Originator = (Api.Types.Apprenticeship.Types.Originator) source.Originator,
-                FirstName = source.FirstName,
-                LastName = source.LastName,
-                DateOfBirth = source.DateOfBirth,
-                TrainingCode = source.TrainingCode,
-                TrainingType = source.TrainingType.HasValue ? (Api.Types.Apprenticeship.Types.TrainingType) source.TrainingType
-                                                            : default(Api.Types.Apprenticeship.Types.TrainingType?),
-                TrainingName = source.TrainingName,
-                Cost = source.Cost,
-                StartDate = source.StartDate,
-                EndDate = source.EndDate
+                Data = result
             };
         }
 

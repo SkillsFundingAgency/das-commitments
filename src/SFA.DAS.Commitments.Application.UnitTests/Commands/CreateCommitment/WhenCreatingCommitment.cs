@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 _mockHistoryRepository.Object);
 
             Fixture fixture = new Fixture();
-            fixture.Customize<Api.Types.Apprenticeship.Apprenticeship>(ob => ob
+            fixture.Customize<Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
                 .With(x => x.FirstName, "First name")

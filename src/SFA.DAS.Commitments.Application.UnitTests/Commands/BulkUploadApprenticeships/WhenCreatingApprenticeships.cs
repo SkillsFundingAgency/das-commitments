@@ -204,8 +204,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                     new ApprenticeshipResult
                     {
                         Id = app.Id,
-                        AgreementStatus = (AgreementStatus)app.AgreementStatus,
-                        ValidationFailReason = (ValidationFailReason)Api.Types.Validation.Types.ValidationFailReason.OverlappingEndDate
+                        AgreementStatus = app.AgreementStatus,
+                        ValidationFailReason = ValidationFailReason.OverlappingEndDate
                     }
                 } });
 
