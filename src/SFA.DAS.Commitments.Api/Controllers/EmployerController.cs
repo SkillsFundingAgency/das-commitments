@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetAccountSummary(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/commitments")]
@@ -193,7 +193,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCustomProviderPaymentPriority(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/customproviderpaymentpriority")]

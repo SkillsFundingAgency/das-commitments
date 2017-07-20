@@ -8,7 +8,7 @@ using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
+
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
@@ -18,7 +18,6 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgreement
 {
@@ -64,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _validCommand = new UpdateCommitmentAgreementCommand
             {
                 Caller = new Domain.Caller { Id = 444, CallerType = Domain.CallerType.Employer },
-                LatestAction = Api.Types.Commitment.Types.LastAction.Amend,
+                LatestAction = LastAction.Amend,
                 CommitmentId = 123L,
                 LastUpdatedByName = "Test Tester",
                 LastUpdatedByEmail = "test@tester.com"
@@ -74,7 +73,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public void ShouldThrowExceptionIfActionIsNotSetToValidValue()
         {
-            _validCommand.LatestAction = (Api.Types.Commitment.Types.LastAction)99;
+            _validCommand.LatestAction = (Domain.Entities.LastAction)99;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
 
@@ -172,7 +171,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _validCommand.Caller.Id = 444;
             _validCommand.Caller.CallerType = Domain.CallerType.Employer;
-            _validCommand.LatestAction = Api.Types.Commitment.Types.LastAction.Approve;
+            _validCommand.LatestAction = LastAction.Approve;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
             act.ShouldThrow<InvalidOperationException>().WithMessage("Commitment 123 cannot be approved because apprentice information is incomplete");
@@ -186,7 +185,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             _validCommand.Caller.Id = 333;
             _validCommand.Caller.CallerType = Domain.CallerType.Provider;
-            _validCommand.LatestAction = Api.Types.Commitment.Types.LastAction.Approve;
+            _validCommand.LatestAction = LastAction.Approve;
 
             Func<Task> act = async () => { await _handler.Handle(_validCommand); };
             act.ShouldThrow<InvalidOperationException>().WithMessage("Commitment 123 cannot be approved because apprentice information is incomplete");

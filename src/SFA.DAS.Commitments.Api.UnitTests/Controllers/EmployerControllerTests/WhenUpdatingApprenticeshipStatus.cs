@@ -57,7 +57,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             await _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
                 new ApprenticeshipSubmission { PaymentStatus = PaymentStatus.Active, LastUpdatedByInfo = new LastUpdateInfo { Name = userName } });
 
-            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateApprenticeshipStatusCommand>(y => y.PaymentStatus == PaymentStatus.Active && y.UserName == userName)));
+            _mockMediator.Verify(x => x.SendAsync(It.Is<UpdateApprenticeshipStatusCommand>(y => y.PaymentStatus == Domain.Entities.PaymentStatus.Active && y.UserName == userName)));
         }
 
         [Test]

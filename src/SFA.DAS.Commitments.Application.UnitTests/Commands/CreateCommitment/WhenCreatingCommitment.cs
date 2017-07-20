@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
                .ReturnsAsync(new GetRelationshipResponse
                {
-                   Data = new Api.Types.Relationship()
+                   Data = new Domain.Entities.Relationship()
                });
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateRelationshipCommand>()))
@@ -164,7 +164,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
                .ReturnsAsync(new GetRelationshipResponse
                {
-                   Data = new Relationship()
+                   Data = new Domain.Entities.Relationship()
                });
 
             //Act

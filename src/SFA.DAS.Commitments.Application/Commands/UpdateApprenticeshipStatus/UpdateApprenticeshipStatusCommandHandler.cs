@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
-using System.Linq;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
@@ -62,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             CheckAuthorization(command, commitment);
 
-            var newPaymentStatus = (PaymentStatus)command.PaymentStatus.GetValueOrDefault((Api.Types.Apprenticeship.Types.PaymentStatus)apprenticeship.PaymentStatus);
+            var newPaymentStatus = command.PaymentStatus.GetValueOrDefault(apprenticeship.PaymentStatus);
 
             await SaveChange(command, commitment, apprenticeship, newPaymentStatus);
 

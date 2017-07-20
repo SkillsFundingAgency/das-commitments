@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
@@ -32,19 +31,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
                 return new GetRelationshipResponse();
             }
 
-            var result = new GetRelationshipResponse
-            {
-                Data = new Relationship
-                {
-                    EmployerAccountId = entity.EmployerAccountId,
-                    Id = entity.Id,
-                    LegalEntityId = entity.LegalEntityId,
-                    LegalEntityName = entity.LegalEntityName,
-                    ProviderId = entity.ProviderId,
-                    ProviderName = entity.ProviderName,
-                    Verified = entity.Verified,
-                }
-            };
+            var result = new GetRelationshipResponse { Data = entity };
 
             return result;
         }

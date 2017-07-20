@@ -34,7 +34,10 @@ using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Domain.Entities;
 
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
+using OrganisationType = SFA.DAS.Commitments.Api.Types.OrganisationType;
 using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -267,7 +270,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = providerId
                 },
                 CommitmentId = commitmentId,
-                LatestAction = submission.Action,
+                LatestAction = (LastAction)submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
                 LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
                 UserId = submission.UserId,
@@ -315,7 +318,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Deleted commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
         }
 
-        public async Task<GetRelationshipResponse> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
+        public async Task<Types.Relationship> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
         {
             _logger.Trace($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
 
@@ -330,11 +333,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             if (response.Data == null)
             {
                 _logger.Info($"Relationship not found for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-                return response;
+                return null;
             }
 
             _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-            return response;
+
+            return Map(response.Data);
         }
 
         public async Task<Types.Relationship> GetRelationship(long providerId, long commitmentId)
@@ -354,22 +358,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 _logger.Info($"Relationship not found for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
             return Map(response.Data);
-        }
-
-        private Types.Relationship Map(Relationship entity)
-        {
-            return new Types.Relationship
-                       {
-                           EmployerAccountId = entity.EmployerAccountId,
-                           Id = entity.Id,
-                           LegalEntityId = entity.LegalEntityId,
-                           LegalEntityName = entity.LegalEntityName,
-                           LegalEntityAddress = entity.LegalEntityAddress,
-                           LegalEntityOrganisationType = (OrganisationType)entity.LegalEntityOrganisationType,
-                           ProviderId = entity.ProviderId,
-                           ProviderName = entity.ProviderName,
-                           Verified = entity.Verified,
-                       };
         }
 
         public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
@@ -494,6 +482,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
+        }
+
+        private Types.Relationship Map(Relationship entity)
+        {
+            return new Types.Relationship
+            {
+                EmployerAccountId = entity.EmployerAccountId,
+                Id = entity.Id,
+                LegalEntityId = entity.LegalEntityId,
+                LegalEntityName = entity.LegalEntityName,
+                LegalEntityAddress = entity.LegalEntityAddress,
+                LegalEntityOrganisationType = (OrganisationType)entity.LegalEntityOrganisationType,
+                ProviderId = entity.ProviderId,
+                ProviderName = entity.ProviderName,
+                Verified = entity.Verified,
+            };
         }
     }
 }

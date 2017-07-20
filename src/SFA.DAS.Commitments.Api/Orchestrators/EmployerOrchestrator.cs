@@ -29,8 +29,12 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
+using SFA.DAS.Commitments.Domain.Entities;
+
+using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipStatusSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -255,7 +259,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Updated Provider Payment Priorities with {submission.Priorities.Count} providers for employer account {accountId}", accountId);
         }
 
-        public async Task<GetProviderPaymentsPriorityResponse> GetCustomProviderPaymentPriority(long accountId)
+        public async Task<IEnumerable<Types.ProviderPayment.ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId)
         {
             _logger.Trace($"Getting Provider Payment Priority for employer account {accountId}", accountId);
 
@@ -265,9 +269,19 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 EmployerAccountId = accountId
             });
 
-            _logger.Info($"Retrieved {response.Data.Count} Provider Payment Priorities for employer account {accountId}", accountId);
+            _logger.Info($"Retrieved {response.Data.Count()} Provider Payment Priorities for employer account {accountId}", accountId);
 
-            return response;
+            return response.Data.Select(Map);
+        }
+
+        private ProviderPaymentPriorityItem Map(Domain.Entities.ProviderPaymentPriorityItem data)
+        {
+            return new ProviderPaymentPriorityItem
+                {
+                    ProviderId = data.ProviderId,
+                    ProviderName = data.ProviderName,
+                    PriorityOrder = data.PriorityOrder
+                };
         }
 
         public async Task PatchCommitment(long accountId, long commitmentId, CommitmentSubmission submission)
@@ -278,7 +292,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
                 CommitmentId = commitmentId,
-                LatestAction = submission.Action,
+                LatestAction = (LastAction)submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
                 LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
                 UserId = submission.UserId,
@@ -297,7 +311,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Caller = new Caller(accountId, CallerType.Employer),
                 AccountId = accountId,
                 ApprenticeshipId = apprenticeshipId,
-                PaymentStatus = apprenticeshipSubmission.PaymentStatus,
+                PaymentStatus = (Domain.Entities.PaymentStatus?)apprenticeshipSubmission.PaymentStatus,
                 DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId,
                 UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
@@ -423,7 +437,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
         }
 
-        public async Task<GetEmployerAccountSummaryResponse> GetAccountSummary(long accountId)
+        public async Task<IEnumerable<Types.ApprenticeshipStatusSummary>> GetAccountSummary(long accountId)
         {
             _logger.Trace($"Getting account summary for employer account {accountId}", accountId: accountId);
 
@@ -438,7 +452,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved {response.Data.Count()} account summary items for employer account {accountId}", accountId: accountId);
 
-            return response;
+            return Map(response.Data);
+        }
+
+        private IEnumerable<Types.ApprenticeshipStatusSummary> Map(IEnumerable<ApprenticeshipStatusSummary> data)
+        {
+            return data.Select(s => new Types.ApprenticeshipStatusSummary
+            {
+                LegalEntityIdentifier = s.LegalEntityIdentifier,
+                PendingApprovalCount = s.PendingApprovalCount,
+                ActiveCount = s.ActiveCount,
+                PausedCount = s.PausedCount,
+                WithdrawnCount = s.WithdrawnCount,
+                CompletedCount = s.CompletedCount
+            });
         }
 
         private List<Domain.Entities.ProviderPaymentPriorityUpdateItem> CreateListOfProviders(IList<Types.ProviderPayment.ProviderPaymentPriorityUpdateItem> priorities)
