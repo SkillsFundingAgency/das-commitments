@@ -112,7 +112,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
         {
             return new CreateRelationshipCommand
             {
-                Relationship = new Relationship
+                Relationship = new Domain.Entities.Relationship
                 {
                     EmployerAccountId = 1,
                     ProviderId = 2,

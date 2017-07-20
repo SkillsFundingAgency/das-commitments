@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
@@ -35,25 +34,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var newRelationship = MapFrom(message.Relationship);
-
-            await _commitmentRepository.CreateRelationship(newRelationship);
-        }
-
-        private static Relationship MapFrom(Api.Types.Relationship source)
-        {
-            return new Relationship
-            {
-                Id = source.Id,
-                EmployerAccountId  = source.EmployerAccountId,
-                LegalEntityId  = source.LegalEntityId,
-                LegalEntityName  = source.LegalEntityName,
-                LegalEntityAddress = source.LegalEntityAddress,
-                LegalEntityOrganisationType = (OrganisationType) source.LegalEntityOrganisationType,
-                ProviderId = source.ProviderId,
-                ProviderName  = source.ProviderName,
-                Verified = source.Verified
-            };
+            await _commitmentRepository.CreateRelationship(message.Relationship);
         }
     }
 }

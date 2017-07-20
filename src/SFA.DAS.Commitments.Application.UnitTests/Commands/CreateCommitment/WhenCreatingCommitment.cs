@@ -4,13 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
-using MediatR;
+
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
-using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -18,7 +16,6 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
-using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -29,7 +26,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private CreateCommitmentCommandHandler _handler;
         private CreateCommitmentCommand _exampleValidRequest;
         private Mock<IHashingService> _mockHashingService;
-        private Mock<IMediator> _mockMediator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
 
         [SetUp]
@@ -38,13 +34,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockHashingService = new Mock<IHashingService>();
 			var commandValidator = new CreateCommitmentValidator();
-			_mockMediator = new Mock<IMediator>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, 
                 _mockHashingService.Object,
                 commandValidator,
                 Mock.Of<ICommitmentsLogger>(),
-                _mockMediator.Object,
                 _mockHistoryRepository.Object);
 
             Fixture fixture = new Fixture();
@@ -61,17 +55,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.TrainingCode, string.Empty)
                 .With(x => x.TrainingName, string.Empty)
             );
-            var populatedCommitment = fixture.Build<Api.Types.Commitment.Commitment>().Create();
-            _exampleValidRequest = new CreateCommitmentCommand { Commitment = populatedCommitment, Caller = new Caller(1L, CallerType.Employer), UserId = "UserId"};
+            var populatedCommitment = fixture.Build<Commitment>().Create();
+           populatedCommitment.Apprenticeships = new List<Apprenticeship>();
 
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
-               .ReturnsAsync(new GetRelationshipResponse
-               {
-                   Data = new Domain.Entities.Relationship()
-               });
-
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<CreateRelationshipCommand>()))
-                .ReturnsAsync(new Unit());
+            _exampleValidRequest = new CreateCommitmentCommand
+                                       {
+                                           Commitment = populatedCommitment,
+                                           Caller = new Caller(1L, CallerType.Employer),
+                                           UserId = "UserId"
+                                       };
         }
 
         [Test]
@@ -85,12 +77,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [Test]
         public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromRequest()
         {
-            Domain.Entities.Commitment argument = null;
+            Commitment argument = null;
             _mockCommitmentRespository.Setup(
-                    x => x.Create(It.IsAny<Domain.Entities.Commitment>()))
+                    x => x.Create(It.IsAny<Commitment>()))
                 .ReturnsAsync(4)
-                .Callback<Domain.Entities.Commitment>(
-                    ((commitment) => argument = commitment));
+                .Callback<Commitment>(
+                    commitment => argument = commitment);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -117,61 +109,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
-        }
-
-        [Test]
-        public async Task ThenShouldGetProviderLegalEntityRelationship()
-        {
-            //Act
-            await _handler.Handle(_exampleValidRequest);
-
-            //Assert
-            _mockMediator.Verify(x=> x.SendAsync(It.Is<GetRelationshipRequest>
-                (r=> r.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId
-                && r.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value
-                && r.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId
-                )));
-        }
-
-        [Test]
-        public async Task ThenIfProviderLegalEntityRelationshipDoesNotExistThenShouldCreateIt()
-        {
-            //Arrange
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
-               .ReturnsAsync(new GetRelationshipResponse
-               {
-                   Data = null
-               });
-
-            //Act
-            await _handler.Handle(_exampleValidRequest);
-
-            //Assert
-            _mockMediator.Verify(x => x.SendAsync(It.Is<CreateRelationshipCommand>(
-                r=> r.Relationship != null
-                && r.Relationship.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value
-                && r.Relationship.ProviderName == _exampleValidRequest.Commitment.ProviderName
-                && r.Relationship.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId
-                && r.Relationship.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId
-                && r.Relationship.LegalEntityName == _exampleValidRequest.Commitment.LegalEntityName
-                )), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfProviderLegalEntityRelationshipExistsThenShouldNotCreateAnother()
-        {
-            //Arrange
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
-               .ReturnsAsync(new GetRelationshipResponse
-               {
-                   Data = new Domain.Entities.Relationship()
-               });
-
-            //Act
-            await _handler.Handle(_exampleValidRequest);
-
-            //Assert
-            _mockMediator.Verify(x=> x.SendAsync(It.IsAny<CreateRelationshipCommand>()), Times.Never);
         }
 
         [Test]
@@ -202,7 +139,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 x =>
                     x.SaveMessage(expectedCommitmentId,
                         It.Is<Message>(
-                            m => m.Author == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name && m.CreatedBy == _exampleValidRequest.Caller.CallerType && m.Text == _exampleValidRequest.Message)),
+                            m => m.Author == _exampleValidRequest.Commitment.LastUpdatedByEmployerName && m.CreatedBy == _exampleValidRequest.Caller.CallerType && m.Text == _exampleValidRequest.Message)),
                 Times.Once);
         }
 
@@ -226,7 +163,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState != null &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
-                                y.First().UpdatedByName == _exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name)), Times.Once);
+                                y.First().UpdatedByName == _exampleValidRequest.Commitment.LastUpdatedByEmployerName)), Times.Once);
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
@@ -239,8 +176,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);
-            argument.LastUpdatedByEmployerName.Should().Be(_exampleValidRequest.Commitment.EmployerLastUpdateInfo.Name);
-            argument.LastUpdatedByEmployerEmail.Should().Be(_exampleValidRequest.Commitment.EmployerLastUpdateInfo.EmailAddress);
+            argument.LastUpdatedByEmployerName.Should().Be(_exampleValidRequest.Commitment.LastUpdatedByEmployerName);
+            argument.LastUpdatedByEmployerEmail.Should().Be(_exampleValidRequest.Commitment.LastUpdatedByEmployerEmail);
             argument.Apprenticeships.Should().BeEmpty();
         }
     }

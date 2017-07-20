@@ -6,6 +6,9 @@ using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -82,6 +85,29 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 Messages = MapMessagesFrom(commitment.Messages)
             };
         }
+
+        public Commitment MapFrom(Types.Commitment.Commitment commitment)
+        {
+            var domainCommitment = new Commitment
+            {
+                Reference = commitment.Reference,
+                EmployerAccountId = commitment.EmployerAccountId,
+                LegalEntityId = commitment.LegalEntityId,
+                LegalEntityName = commitment.LegalEntityName,
+                LegalEntityAddress = commitment.LegalEntityAddress,
+                LegalEntityOrganisationType = (OrganisationType)commitment.LegalEntityOrganisationType,
+                ProviderId = commitment.ProviderId,
+                ProviderName = commitment.ProviderName,
+                CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
+                EditStatus = (EditStatus)commitment.EditStatus,
+                LastAction = LastAction.None,
+                LastUpdatedByEmployerName = commitment.EmployerLastUpdateInfo.Name,
+                LastUpdatedByEmployerEmail = commitment.EmployerLastUpdateInfo.EmailAddress,
+            };
+
+            return domainCommitment;
+        
+    }
 
         //todo: could we reuse the apprenticeship mapper?       
         private static List<Types.Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Apprenticeship> apprenticeships, CallerType callerType)

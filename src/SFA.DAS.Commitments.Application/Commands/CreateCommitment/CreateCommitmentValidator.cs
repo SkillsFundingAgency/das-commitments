@@ -1,7 +1,4 @@
 ﻿using FluentValidation;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
-using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {

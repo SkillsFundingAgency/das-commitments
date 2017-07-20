@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );
             _validator = new CreateCommitmentValidator();
-            var populatedCommitment = fixture.Build<Commitment>().Create();
+            var populatedCommitment = fixture.Build<Domain.Entities.Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }
 

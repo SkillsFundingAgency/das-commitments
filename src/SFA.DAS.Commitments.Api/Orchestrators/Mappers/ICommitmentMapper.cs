@@ -11,5 +11,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         IEnumerable<CommitmentListItem> MapFrom(IEnumerable<CommitmentSummary> source, CallerType callerType);
         CommitmentListItem MapFrom(CommitmentSummary source, CallerType callerType);
         CommitmentView MapFrom(Commitment commitment, CallerType callerType);
+
+        Commitment MapFrom(Types.Commitment.Commitment commitment);
     }
 }
