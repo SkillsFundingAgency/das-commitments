@@ -70,29 +70,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<CommitmentView>>();
         }
 
-        //[Test]
-        //public async Task ()
-        //{
-        //    //Arrange
-        //    _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
-        //       .ReturnsAsync(new GetRelationshipResponse
-        //       {
-        //           Data = null
-        //       });
-
-        //    //Act
-        //    await _handler.Handle(_exampleValidRequest);
-
-        //    //Assert
-        //    _mockMediator.Verify(x => x.SendAsync(It.Is<CreateRelationshipCommand>(
-        //        r => r.Relationship != null
-        //        && r.Relationship.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value
-        //        && r.Relationship.ProviderName == _exampleValidRequest.Commitment.ProviderName
-        //        && r.Relationship.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId
-        //        && r.Relationship.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId
-        //        && r.Relationship.LegalEntityName == _exampleValidRequest.Commitment.LegalEntityName
-        //        )), Times.Once);
-        //}
 
         [Test]
         public async Task ThenIfProviderLegalEntityRelationshipDoesNotExistThenShouldCreateIt()
