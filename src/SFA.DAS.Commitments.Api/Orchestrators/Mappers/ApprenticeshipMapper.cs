@@ -51,7 +51,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
         public Domain.Entities.Apprenticeship Map(Apprenticeship apprenticeship, CallerType callerType)
         {
-            // ToDo: Test
             var domainApprenticeship = new Domain.Entities.Apprenticeship
             {
                 Id = apprenticeship.Id,
