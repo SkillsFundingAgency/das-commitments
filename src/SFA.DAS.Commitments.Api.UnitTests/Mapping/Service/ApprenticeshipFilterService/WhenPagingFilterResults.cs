@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using FluentAssertions;
+
 using NUnit.Framework;
 
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
-
-namespace SFA.DAS.Commitments.Application.UnitTests.Service.ApprenticeshipFilterService
+namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilterService
 {
-    using SFA.DAS.Commitments.Application.Services;
-
     [TestFixture]
     public class WhenPagingFilterResults
     {
-        private ApprenticeshipFilterService _sut;
+        private Api.Orchestrators.Mappers.ApprenticeshipFilterService _sut;
 
         [SetUp]
         public void SetUp()
         {
-            _sut = new ApprenticeshipFilterService(new FacetMapper());
+            _sut = new Api.Orchestrators.Mappers.ApprenticeshipFilterService(new FacetMapper());
         }
 
         [Test]

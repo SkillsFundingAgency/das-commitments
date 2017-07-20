@@ -17,7 +17,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;

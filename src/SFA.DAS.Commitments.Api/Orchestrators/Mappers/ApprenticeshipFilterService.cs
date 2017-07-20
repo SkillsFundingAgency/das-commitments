@@ -4,7 +4,7 @@ using System.Linq;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
-namespace SFA.DAS.Commitments.Application.Services
+namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class ApprenticeshipFilterService
     {

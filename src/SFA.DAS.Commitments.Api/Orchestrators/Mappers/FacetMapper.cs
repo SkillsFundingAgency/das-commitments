@@ -4,10 +4,9 @@ using System.Linq;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Domain.Extensions;
 
-namespace SFA.DAS.Commitments.Application.Services
+namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class FacetMapper
     {
