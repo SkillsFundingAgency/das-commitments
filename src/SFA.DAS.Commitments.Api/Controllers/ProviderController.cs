@@ -189,7 +189,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetRelationshipByCommitment(long providerId, long commitmentId)
         {
             var response = await _providerOrchestrator.GetRelationship(providerId, commitmentId);
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]

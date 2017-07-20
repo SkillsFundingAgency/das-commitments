@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain.Data;
-using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
-using Relationship = SFA.DAS.Commitments.Api.Types.Relationship;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment
 {
@@ -43,18 +41,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment
 
             return new GetRelationshipByCommitmentResponse
             {
-                Data = new Relationship
-                {
-                    EmployerAccountId = entity.EmployerAccountId,
-                    Id = entity.Id,
-                    LegalEntityId = entity.LegalEntityId,
-                    LegalEntityName = entity.LegalEntityName,
-                    LegalEntityAddress = entity.LegalEntityAddress,
-                    LegalEntityOrganisationType = (OrganisationType) entity.LegalEntityOrganisationType,
-                    ProviderId = entity.ProviderId,
-                    ProviderName = entity.ProviderName,
-                    Verified = entity.Verified,
-                }
+                Data = entity
             };
         }
 

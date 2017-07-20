@@ -23,7 +23,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -35,6 +34,8 @@ using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
+
+using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -336,7 +337,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return response;
         }
 
-        public async Task<GetRelationshipByCommitmentResponse> GetRelationship(long providerId, long commitmentId)
+        public async Task<Types.Relationship> GetRelationship(long providerId, long commitmentId)
         {
             _logger.Trace($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
@@ -352,7 +353,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             else
                 _logger.Info($"Relationship not found for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
-            return response;
+            return Map(response.Data);
+        }
+
+        private Types.Relationship Map(Relationship entity)
+        {
+            return new Types.Relationship
+                       {
+                           EmployerAccountId = entity.EmployerAccountId,
+                           Id = entity.Id,
+                           LegalEntityId = entity.LegalEntityId,
+                           LegalEntityName = entity.LegalEntityName,
+                           LegalEntityAddress = entity.LegalEntityAddress,
+                           LegalEntityOrganisationType = (OrganisationType)entity.LegalEntityOrganisationType,
+                           ProviderId = entity.ProviderId,
+                           ProviderName = entity.ProviderName,
+                           Verified = entity.Verified,
+                       };
         }
 
         public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
