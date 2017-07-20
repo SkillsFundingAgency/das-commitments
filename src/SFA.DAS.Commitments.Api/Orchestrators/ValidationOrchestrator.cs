@@ -59,7 +59,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         private Domain.Entities.ApprenticeshipOverlapValidationRequest Map(ApprenticeshipOverlapValidationRequest requests)
         {
-            return new Domain.Entities.ApprenticeshipOverlapValidationRequest { };
+            return new Domain.Entities.ApprenticeshipOverlapValidationRequest
+            {
+                ApprenticeshipId = requests.ApprenticeshipId,
+                EndDate = requests.EndDate,
+                StartDate = requests.StartDate,
+                Uln = requests.Uln
+            };
         }
 
         private OverlappingApprenticeship MapFrom(ApprenticeshipResult source)

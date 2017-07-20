@@ -134,7 +134,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         {
             if (data == null)
             {
-                return new Types.Apprenticeship.ApprenticeshipUpdate();
+                return null;
             }
 
             return new Types.Apprenticeship.ApprenticeshipUpdate

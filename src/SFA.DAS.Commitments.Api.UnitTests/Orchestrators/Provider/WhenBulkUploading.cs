@@ -1,40 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
 {
     [TestFixture]
-    public sealed class WhenBulkUploading
+    public sealed class WhenBulkUploading : ProviderOrchestratorTestBase
     {
-        private Mock<IMediator> _mockMediator;
-        private ProviderOrchestrator _orchestrator;
-
-        [SetUp]
-        public void Setup()
-        {
-            _mockMediator = new Mock<IMediator>();
-            _orchestrator = new ProviderOrchestrator(
-                _mockMediator.Object, 
-                Mock.Of<ICommitmentsLogger>(), 
-                Mock.Of<FacetMapper>(),
-                new ApprenticeshipFilterService(new FacetMapper()),
-                Mock.Of<IApprenticeshipMapper>(),
-                Mock.Of<ICommitmentMapper>());
-        }
-
         [Test]
         public async Task ShouldCallTheMediatorBulkUpload()
         {
@@ -47,8 +27,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                                     Apprenticeships = new List<Apprenticeship>()
                               };
 
-            await _orchestrator.CreateApprenticeships(providerId, commitmentId, request);
-            _mockMediator.Verify(
+            await Orchestrator.CreateApprenticeships(providerId, commitmentId, request);
+            MockMediator.Verify(
                 x =>
                     x.SendAsync(
                         It.Is<BulkUploadApprenticeshipsCommand>(
