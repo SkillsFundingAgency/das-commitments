@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
@@ -121,43 +120,20 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             }
         }
 
-        private Apprenticeship MapFrom(Api.Types.Apprenticeship.Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
+        // Rename to update apprenticehips status
+        private Apprenticeship MapFrom(Apprenticeship apprenticeship, BulkUploadApprenticeshipsCommand message)
         {
-            var domainApprenticeship = new Apprenticeship
-            {
-                Id = apprenticeship.Id,
-                FirstName = apprenticeship.FirstName,
-                LastName = apprenticeship.LastName,
-                DateOfBirth = apprenticeship.DateOfBirth,
-                NINumber = apprenticeship.NINumber,
-                ULN = apprenticeship.ULN,
-                CommitmentId = message.CommitmentId,
-                PaymentStatus = PaymentStatus.PendingApproval,
-                AgreementStatus = AgreementStatus.NotAgreed,
-                TrainingType = (TrainingType)apprenticeship.TrainingType,
-                TrainingCode = apprenticeship.TrainingCode,
-                TrainingName = apprenticeship.TrainingName,
-                Cost = apprenticeship.Cost,
-                StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate
-            };
+            // ToDo: Test
+            apprenticeship.CommitmentId = message.CommitmentId;
+            apprenticeship.PaymentStatus = PaymentStatus.PendingApproval;
+            apprenticeship.AgreementStatus = AgreementStatus.NotAgreed;
 
-            SetCallerSpecificReference(domainApprenticeship, apprenticeship, message.Caller.CallerType);
-
-            return domainApprenticeship;
-        }
-
-        private static void SetCallerSpecificReference(Apprenticeship domainApprenticeship, Api.Types.Apprenticeship.Apprenticeship apiApprenticeship, CallerType callerType)
-        {
-            if (callerType.IsEmployer())
-                domainApprenticeship.EmployerRef = apiApprenticeship.EmployerRef;
-            else
-                domainApprenticeship.ProviderRef = apiApprenticeship.ProviderRef;
+            return apprenticeship;
         }
 
         private void LogMessage(BulkUploadApprenticeshipsCommand command)
         {
-            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called BulkUploadApprenticeshipsCommand with {command.Apprenticeships?.Count ?? 0} apprenticeships";
+            string messageTemplate = $"{command.Caller.CallerType}: {command.Caller.Id} has called BulkUploadApprenticeshipsCommand with {command.Apprenticeships?.Count() ?? 0} apprenticeships";
 
             if (command.Caller.CallerType == CallerType.Employer)
                 _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);

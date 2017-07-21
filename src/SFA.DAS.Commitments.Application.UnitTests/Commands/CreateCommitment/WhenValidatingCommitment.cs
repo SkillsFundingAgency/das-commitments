@@ -1,12 +1,10 @@
-﻿using System;
-
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Api.Types;
+
 using Ploeh.AutoFixture;
 using FluentAssertions;
-using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Application.Commands;
+
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -20,11 +18,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public void Setup()
         {
             Fixture fixture = new Fixture();
-            fixture.Customize<Api.Types.Apprenticeship.Apprenticeship>(ob => ob
+            fixture.Customize<Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );
             _validator = new CreateCommitmentValidator();
-            var populatedCommitment = fixture.Build<Commitment>().Create();
+            var populatedCommitment = fixture.Build<Domain.Entities.Commitment>().Create();
             _exampleCommand = new CreateCommitmentCommand { Commitment = populatedCommitment };
         }
 

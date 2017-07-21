@@ -11,6 +11,7 @@ using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
@@ -24,8 +25,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
     {
         private Mock<IMediator> _mockMediator;
         private EmployerOrchestrator _employerOrchestrator;
-        private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
         private EmployerController _controller;
+        private ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
         [SetUp]
         public void SetUp()
@@ -34,13 +35,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                                   {
-                                      Data = new List<Apprenticeship>(),
+                                      Data = new List<Domain.Entities.Apprenticeship>()
                                   });
 
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()));
-            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>());
 
-            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
+            _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
+                _mockMediator.Object,
+                Mock.Of<IDataLockMapper>(),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentsLogger>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
         }
 
         [Test]
@@ -56,13 +62,13 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                 {
-                    Data = new List<Apprenticeship>
+                    Data = new List<Domain.Entities.Apprenticeship>
                                {
-                                   new Apprenticeship { PaymentStatus = PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(-2) },
-                                   new Apprenticeship { PaymentStatus = PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(2) },
-                                   new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                                   new Apprenticeship { PaymentStatus = PaymentStatus.Active },
-                                   new Apprenticeship { PaymentStatus = PaymentStatus.Active }
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(-2) },
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(2) },
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active }
                                },
                 });
 

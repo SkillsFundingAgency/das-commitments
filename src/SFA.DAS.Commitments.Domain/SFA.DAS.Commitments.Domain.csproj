@@ -63,11 +63,13 @@
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\AlertSummary.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
+    <Compile Include="Entities\ApprenticeshipOverlapValidationRequest.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
     <Compile Include="Entities\ApprenticeshipStatusSummary.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="Entities\DataLock\DataLockUpdateType.cs" />
     <Compile Include="Entities\PriceHistory.cs" />
     <Compile Include="Entities\ProviderAlertSummary.cs" />
     <Compile Include="Entities\ProviderPaymentPriorityUpdateItem.cs" />
@@ -97,6 +99,7 @@
     <Compile Include="Entities\ProviderUser.cs" />
     <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Entities\UpdateOrigin.cs" />
+    <Compile Include="Entities\Validation\ValidationFailReason.cs" />
     <Compile Include="Exceptions\RepositoryConstraintException.cs" />
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
     <Compile Include="Extensions\DataLockExtensions.cs" />

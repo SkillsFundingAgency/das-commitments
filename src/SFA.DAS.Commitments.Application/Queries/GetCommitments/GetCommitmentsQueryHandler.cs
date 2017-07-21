@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.Commitment.Types;
+
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
-using CommitmentStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.CommitmentStatus;
-using EditStatus = SFA.DAS.Commitments.Api.Types.Commitment.Types.EditStatus;
-using LastAction = SFA.DAS.Commitments.Api.Types.Commitment.Types.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 {
@@ -38,39 +32,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitments
 
             return new GetCommitmentsResponse
             {
-                Data = commitments?.Select(
-                    x => new CommitmentListItem
-                    {
-                        Id = x.Id,
-                        Reference = x.Reference,
-                        ProviderId = x.ProviderId,
-                        ProviderName = x.ProviderName,
-                        EmployerAccountId = x.EmployerAccountId,
-                        LegalEntityId = x.LegalEntityId,
-                        LegalEntityName = x.LegalEntityName,
-                        CommitmentStatus = (CommitmentStatus) x.CommitmentStatus,
-                        EditStatus = (EditStatus) x.EditStatus,
-                        ApprenticeshipCount = x.ApprenticeshipCount,
-                        AgreementStatus = (AgreementStatus) x.AgreementStatus,
-                        LastAction = (LastAction) x.LastAction,
-                        CanBeApproved = message.Caller.CallerType == CallerType.Employer ? x.EmployerCanApproveCommitment : x.ProviderCanApproveCommitment,
-                        EmployerLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByEmployerName, EmailAddress = x.LastUpdatedByEmployerEmail },
-                        ProviderLastUpdateInfo = new LastUpdateInfo { Name = x.LastUpdatedByProviderName, EmailAddress = x.LastUpdatedByProviderEmail },
-                        Messages = MapMessagesFrom(x.Messages)
-                    }
-                    ).ToList()
+                Data = commitments
             };
-        }
-
-        private List<MessageView> MapMessagesFrom(List<Message> messages)
-        {
-            return messages.Select(x => new MessageView
-            {
-                Message = x.Text,
-                Author = x.Author,
-                CreatedBy = x.CreatedBy == CallerType.Employer ? MessageCreator.Employer : MessageCreator.Provider,
-                CreatedDateTime = x.CreatedDateTime
-            }).ToList();
         }
 
         private async Task<IList<CommitmentSummary>> GetCommitments(Caller caller)

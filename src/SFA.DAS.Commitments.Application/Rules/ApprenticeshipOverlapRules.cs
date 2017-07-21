@@ -1,7 +1,7 @@
 ﻿using System;
-using SFA.DAS.Commitments.Api.Types.Validation;
-using SFA.DAS.Commitments.Api.Types.Validation.Types;
+
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.Validation;
 
 namespace SFA.DAS.Commitments.Application.Rules
 {

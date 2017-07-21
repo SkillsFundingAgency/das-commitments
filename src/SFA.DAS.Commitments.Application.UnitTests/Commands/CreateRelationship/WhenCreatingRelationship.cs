@@ -3,7 +3,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
+
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
                 _validator.Object, Mock.Of<ICommitmentsLogger>());
         }
 
-
+        [Test]
         public async Task ThenIfRequestIsValidThenTheRepositoryIsCalled()
         {
             //Arrange
@@ -42,32 +42,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
             //Act
             await _handler.Handle(new CreateRelationshipCommand
             {
-                Relationship = new Relationship()
+                Relationship = new Domain.Entities.Relationship()
             });
 
             //Assert
             _mockCommitmentRespository.Verify(
                 x => x.CreateRelationship(It.IsAny<Domain.Entities.Relationship>()), Times.Once);
-        }
-
-        public async Task ThenIfRequestIsNotValidThenTheRepositoryIsNotCalled()
-        {
-            //Arrange
-            _validator.Setup(x => x.Validate(It.IsAny<CreateRelationshipCommand>()))
-                .Returns(() => new ValidationResult
-                {
-                    Errors = { new ValidationFailure("Test", "Test Error")}
-                });
-
-            //Act
-            await _handler.Handle(new CreateRelationshipCommand
-            {
-                Relationship = new Relationship()
-            });
-
-            //Assert
-            _mockCommitmentRespository.Verify(
-                x => x.CreateRelationship(It.IsAny<Domain.Entities.Relationship>()), Times.Never);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -61,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
             var dataLockPriceErrors = datalocks
                 .Where(DataLockExtensions.UnHandled)
                 .Where(DataLockExtensions.IsPriceOnly)
-                .Where(m => m.TriageStatus == (TriageStatus)command.TriageStatus)
+                .Where(m => m.TriageStatus == command.TriageStatus)
                 .ToList();
 
             var dataLockPasses = datalocks
@@ -75,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
             if (!dataLockPriceErrors.Any())
                 return;
 
-            if (command.DataLockUpdateType == Api.Types.DataLock.Types.DataLockUpdateType.ApproveChanges)
+            if (command.DataLockUpdateType == DataLockUpdateType.ApproveChanges)
             {
                 var newPriceHistory = dataLockPriceErrors.Concat(dataLockPasses)
                     .Select(m => 
@@ -101,7 +100,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResoluti
 
                 await PublishEvents(command.ApprenticeshipId);
             }
-            else if (command.DataLockUpdateType == Api.Types.DataLock.Types.DataLockUpdateType.RejectChanges)
+            else if (command.DataLockUpdateType == DataLockUpdateType.RejectChanges)
             {
                 await _dataLockRepository.UpdateDataLockTriageStatus(
                     dataLockPriceErrors.Select(m => m.DataLockEventId),

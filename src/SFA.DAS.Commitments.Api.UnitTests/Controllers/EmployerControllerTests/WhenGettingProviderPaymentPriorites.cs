@@ -10,10 +10,13 @@ using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
 
-using SFA.DAS.Commitments.Application.Services;
+using Castle.Components.DictionaryAdapter.Xml;
+
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
@@ -33,8 +36,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _employerOrchestrator = new EmployerOrchestrator(
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
-                mapper, new ApprenticeshipFilterService(mapper));
-            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+                mapper, new ApprenticeshipFilterService(mapper),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentMapper>());
+            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<IDataLockMapper>(), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentsLogger>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
         }
@@ -44,17 +49,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderPaymentsPriorityRequest>())).ReturnsAsync(mediatorResponse);
 
-            var result = await _controller.GetCustomProviderPaymentPriority(1234L) as OkNegotiatedContentResult<IList<ProviderPaymentPriorityItem>>;
+            var result = await _controller.GetCustomProviderPaymentPriority(1234L) as OkNegotiatedContentResult<IEnumerable<ProviderPaymentPriorityItem>>;
 
             result.Should().NotBeNull();
-            result.Content.Should().BeSameAs(mediatorResponse.Data);
+            result.Content.FirstOrDefault().PriorityOrder.Should().Be(mediatorResponse.Data.FirstOrDefault().PriorityOrder);
         }
 
         [Test]
         public async Task ThenTheMediatorIsCalledWithTheEmployerAccountId()
         {
             const long testAccountId = 1234L;
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderPaymentsPriorityRequest>())).ReturnsAsync(new GetProviderPaymentsPriorityResponse { Data = new List<ProviderPaymentPriorityItem>() });
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetProviderPaymentsPriorityRequest>()))
+                .ReturnsAsync(new GetProviderPaymentsPriorityResponse { Data = new List<Domain.Entities.ProviderPaymentPriorityItem>() });
 
             var result = await _controller.GetCustomProviderPaymentPriority(testAccountId);
 

@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitments(providerId);
 
-            var commitments = response.Data;
+            var commitments = response;
 
             return Ok(commitments);
         }
@@ -48,7 +48,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitment(providerId, commitmentId);
 
-            var commitment = response.Data;
+            var commitment = response;
 
             if (commitment == null)
             {
@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetApprenticeships(providerId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/apprenticeships/search")]
@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetApprenticeship(providerId, apprenticeshipId);
 
-            var apprenticeship = response.Data;
+            var apprenticeship = response;
 
             if (apprenticeship == null)
             {
@@ -181,7 +181,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetRelationshipByProviderAndLegalEntityId(long providerId, long employerAccountId, string legalEntityId)
         {
             var response = await _providerOrchestrator.GetRelationship(providerId, employerAccountId, legalEntityId);
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/relationships/{commitmentId}")]
@@ -189,7 +189,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetRelationshipByCommitment(long providerId, long commitmentId)
         {
             var response = await _providerOrchestrator.GetRelationship(providerId, commitmentId);
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]
@@ -205,7 +205,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
         {
             var response = await _providerOrchestrator.GetPendingApprenticeshipUpdate(providerId, apprenticeshipId);
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}/update")]
@@ -233,7 +233,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _apprenticeshipsOrchestrator.GetPriceHistory(apprenticeshipId, new Caller(providerId, CallerType.Provider));
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocks")]

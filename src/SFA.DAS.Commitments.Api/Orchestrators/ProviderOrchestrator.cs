@@ -23,7 +23,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -33,6 +32,13 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using System.Collections.Generic;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Domain.Entities;
+
+using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
+using OrganisationType = SFA.DAS.Commitments.Api.Types.OrganisationType;
+using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -40,6 +46,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
+        private readonly IApprenticeshipMapper _apprenticeshipMapper;
+        private readonly ICommitmentMapper _commitmentMapper;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -47,7 +55,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             IMediator mediator, 
             ICommitmentsLogger logger,
             FacetMapper facetMapper,
-            ApprenticeshipFilterService apprenticeshipFilterService)
+            ApprenticeshipFilterService apprenticeshipFilterService,
+            IApprenticeshipMapper apprenticeshipMapper,
+            ICommitmentMapper commitmentMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
@@ -57,14 +67,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 throw new ArgumentNullException(nameof(facetMapper));
             if (apprenticeshipFilterService == null)
                 throw new ArgumentNullException(nameof(apprenticeshipFilterService));
+            if(apprenticeshipMapper == null)
+                throw new ArgumentNullException(nameof(apprenticeshipMapper));
+            if(commitmentMapper == null)
+                throw new ArgumentNullException(nameof(commitmentMapper));
 
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
             _apprenticeshipFilterService = apprenticeshipFilterService;
+            _apprenticeshipMapper = apprenticeshipMapper;
+            _commitmentMapper = commitmentMapper;
         }
 
-        public async Task<GetCommitmentsResponse> GetCommitments(long providerId)
+        public async Task<IEnumerable<CommitmentListItem>> GetCommitments(long providerId)
         {
             _logger.Trace($"Getting commitments for provider {providerId}", providerId: providerId);
 
@@ -79,10 +95,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitments for provider {providerId}. {response.Data?.Count} commitments found", providerId: providerId, recordCount: response.Data?.Count);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Provider);
+
         }
 
-        public async Task<GetCommitmentResponse> GetCommitment(long providerId, long commitmentId)
+        public async Task<CommitmentView> GetCommitment(long providerId, long commitmentId)
         {
             _logger.Trace($"Getting commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
@@ -98,10 +115,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Provider);
         }
 
-        public async Task<GetApprenticeshipsResponse> GetApprenticeships(long providerId)
+        public async Task<IEnumerable<Apprenticeship>> GetApprenticeships(long providerId)
         {
             _logger.Trace($"Getting apprenticeships for provider {providerId}", providerId: providerId);
 
@@ -116,7 +133,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
 
-            return response;
+            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider);
         }
 
         public async Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query)
@@ -132,7 +149,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var approvedApprenticeships = response.Data
+            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships, query, Originator.Provider);
@@ -151,7 +168,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             };
         }
 
-        public async Task<GetApprenticeshipResponse> GetApprenticeship(long providerId, long apprenticeshipId)
+        public async Task<Apprenticeship> GetApprenticeship(long providerId, long apprenticeshipId)
         {
             _logger.Trace($"Getting apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
@@ -168,12 +185,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             if (response.Data == null)
             {
                 _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: apprenticeshipId);
-                return response;
+                return null;
             }
 
             _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
 
-            return response;
+            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider);
         }
 
         public async Task<long> CreateApprenticeship(long providerId, long commitmentId, ApprenticeshipRequest apprenticeshipRequest)
@@ -190,7 +207,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = providerId
                 },
                 CommitmentId = commitmentId,
-                Apprenticeship = apprenticeshipRequest.Apprenticeship,
+                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Provider),
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
@@ -215,7 +232,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
-                Apprenticeship = apprenticeshipRequest.Apprenticeship,
+                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Provider),
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
@@ -232,7 +249,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Caller = new Caller(providerId, CallerType.Provider),
                 CommitmentId = commitmentId,
-                Apprenticeships = bulkRequest.Apprenticeships,
+                Apprenticeships = bulkRequest.Apprenticeships.Select(x => _apprenticeshipMapper.Map(x, CallerType.Provider)),
                 UserId = bulkRequest.UserId,
                 UserName = bulkRequest.LastUpdatedByInfo?.Name
             });
@@ -253,7 +270,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = providerId
                 },
                 CommitmentId = commitmentId,
-                LatestAction = submission.Action,
+                LatestAction = (LastAction)submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
                 LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
                 UserId = submission.UserId,
@@ -301,7 +318,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Deleted commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
         }
 
-        public async Task<GetRelationshipResponse> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
+        public async Task<Types.Relationship> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
         {
             _logger.Trace($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
 
@@ -316,14 +333,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             if (response.Data == null)
             {
                 _logger.Info($"Relationship not found for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-                return response;
+                return null;
             }
 
             _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-            return response;
+
+            return Map(response.Data);
         }
 
-        public async Task<GetRelationshipByCommitmentResponse> GetRelationship(long providerId, long commitmentId)
+        public async Task<Types.Relationship> GetRelationship(long providerId, long commitmentId)
         {
             _logger.Trace($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
@@ -339,7 +357,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             else
                 _logger.Info($"Relationship not found for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
 
-            return response;
+            return Map(response.Data);
         }
 
         public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
@@ -359,7 +377,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Verified relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
         }
 
-        public async Task<GetPendingApprenticeshipUpdateResponse> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
+        public async Task<Types.Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
         {
             _logger.Trace($"Getting pending update for apprenticeship {apprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
 
@@ -371,7 +389,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved pending update for apprenticeship {apprenticeshipId} for provider {providerId}", providerId, apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return _apprenticeshipMapper.MapApprenticeshipUpdate(response?.Data);
         }
 
         public async Task CreateApprenticeshipUpdate(long providerId, ApprenticeshipUpdateRequest updateRequest)
@@ -385,7 +403,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     CallerType = CallerType.Provider,
                     Id = providerId
                 },
-                ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate,
+                ApprenticeshipUpdate = _apprenticeshipMapper.MapApprenticeshipUpdate(updateRequest.ApprenticeshipUpdate),
                 UserName = updateRequest.LastUpdatedByInfo?.Name,
                 UserId = updateRequest.UserId
             });
@@ -464,6 +482,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
+        }
+
+        private Types.Relationship Map(Relationship entity)
+        {
+            return new Types.Relationship
+            {
+                EmployerAccountId = entity.EmployerAccountId,
+                Id = entity.Id,
+                LegalEntityId = entity.LegalEntityId,
+                LegalEntityName = entity.LegalEntityName,
+                LegalEntityAddress = entity.LegalEntityAddress,
+                LegalEntityOrganisationType = (OrganisationType)entity.LegalEntityOrganisationType,
+                ProviderId = entity.ProviderId,
+                ProviderName = entity.ProviderName,
+                Verified = entity.Verified,
+            };
         }
     }
 }

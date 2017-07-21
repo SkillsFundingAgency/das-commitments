@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
@@ -25,7 +26,12 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ApprenticeshipController
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<UpdateDataLockTriageStatusCommand>()))
                 .ReturnsAsync(new Unit());
 
-            _orchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _orchestrator = new ApprenticeshipsOrchestrator(
+                _mockMediator.Object,
+                Mock.Of<IDataLockMapper>(),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentsLogger>());
+
             _controller = new ApprenticeshipsController(_orchestrator);
         }
 
@@ -45,7 +51,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ApprenticeshipController
             //Assert
             _mockMediator.Verify(x => x.SendAsync(
                 It.Is<UpdateDataLockTriageStatusCommand>(
-                    t => t.TriageStatus == TriageStatus.Restart
+                    t => t.TriageStatus == Domain.Entities.DataLock.TriageStatus.Restart
                     && t.UserId == "USER"
                     && t.ApprenticeshipId == 1
                     && t.DataLockEventId == 2

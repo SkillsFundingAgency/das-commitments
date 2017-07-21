@@ -1,10 +1,9 @@
-﻿namespace SFA.DAS.Commitments.Application.Rules
+﻿using SFA.DAS.Commitments.Domain.Entities;
+
+namespace SFA.DAS.Commitments.Application.Rules
 {
     using System.Collections.Generic;
-
-    using Api.Types;
-
-    using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
+    using Apprenticeship = Domain.Entities.Apprenticeship;
 
     public interface ICommitmentRules
     {

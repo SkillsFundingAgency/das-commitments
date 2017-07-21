@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetDataLock
 {
-    public class GetDataLockResponse : QueryResponse<Api.Types.DataLock.DataLockStatus>
+    public class GetDataLockResponse : QueryResponse<DataLockStatus>
     {
     }
 }

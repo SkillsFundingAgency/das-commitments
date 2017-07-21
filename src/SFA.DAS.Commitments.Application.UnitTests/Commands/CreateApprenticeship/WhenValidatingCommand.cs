@@ -3,7 +3,6 @@ using NUnit.Framework;
 using FluentAssertions;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
@@ -18,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public void Setup()
         {
             _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
-            var exampleValidApprenticeship = new Apprenticeship.Apprenticeship
+            var exampleValidApprenticeship = new Domain.Entities.Apprenticeship
             {
                 FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),
                 ULN = ApprenticeshipTestDataHelper.CreateValidULN(),
@@ -102,7 +101,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [Test]
         public void ShouldValidateApprenticeship()
         {
-            _exampleCommand.Apprenticeship = new Apprenticeship.Apprenticeship(); // Empty apprenticeship has invalid fields
+            _exampleCommand.Apprenticeship = new Domain.Entities.Apprenticeship(); // Empty apprenticeship has invalid fields
 
             var result = _validator.Validate(_exampleCommand);
 

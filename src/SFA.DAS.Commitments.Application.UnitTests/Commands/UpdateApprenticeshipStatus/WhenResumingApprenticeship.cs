@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenResumingApprenticeship : UpdateApprenticeshipStatusBase
     {
-        protected override Api.Types.Apprenticeship.Types.PaymentStatus RequestPaymentStatus => Api.Types.Apprenticeship.Types.PaymentStatus.Active;
+        protected override PaymentStatus RequestPaymentStatus => PaymentStatus.Active;
         protected override PaymentStatus ApprenticeshipPaymentStatus => PaymentStatus.Paused;
 
         [Test]

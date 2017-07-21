@@ -9,7 +9,6 @@ using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
@@ -70,7 +69,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
                 {
-                    Data = new List<OverlappingApprenticeship>()
+                    Data = new List<ApprenticeshipResult>()
                 });
 
             _historyRepository = new Mock<IHistoryRepository>();
@@ -89,7 +88,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(1, CallerType.Employer),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             //Act
@@ -106,7 +105,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(666, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             //Act && Assert
@@ -121,7 +120,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(666, CallerType.Employer),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             //Act && Assert
@@ -154,7 +153,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             //Act
@@ -171,7 +170,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
@@ -201,7 +200,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             var command = new CreateApprenticeshipUpdateCommand
             {
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate()
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
             };
 
             //Act && Assert
@@ -219,7 +218,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                     FirstName = "Test",
                     LastName = "Tester"
@@ -243,7 +242,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                 }
             };
@@ -265,7 +264,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                     ULN = "123"
                 }
@@ -295,7 +294,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var request = new CreateApprenticeshipUpdateCommand
                               {
                                   ApprenticeshipUpdate =
-                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      new ApprenticeshipUpdate
                                           {
                                               Id = 5,
                                               ApprenticeshipId = 42,
@@ -325,7 +324,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var request = new CreateApprenticeshipUpdateCommand
                               {
                                   ApprenticeshipUpdate =
-                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      new ApprenticeshipUpdate
                                           {
                                               Id = 5,
                                               ApprenticeshipId = 42,
@@ -355,7 +354,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var request = new CreateApprenticeshipUpdateCommand
             {
                 ApprenticeshipUpdate =
-                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      new ApprenticeshipUpdate
                                       {
                                           Id = 5,
                                           ApprenticeshipId = 42,
@@ -388,7 +387,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             {
                 Caller = new Caller(2, CallerType.Provider),
                 ApprenticeshipUpdate =
-                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      new ApprenticeshipUpdate
                                       {
                                           Id = 5,
                                           ApprenticeshipId = 42,
@@ -418,7 +417,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var request = new CreateApprenticeshipUpdateCommand
             {
                 ApprenticeshipUpdate =
-                                      new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                                      new ApprenticeshipUpdate
                                       {
                                           Id = 5,
                                           ApprenticeshipId = 42,
@@ -439,7 +438,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                     FirstName = "Test",
                     LastName = "Tester"
@@ -460,7 +459,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                     ULN = "123",
                     Cost = 100
@@ -484,7 +483,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             var command = new CreateApprenticeshipUpdateCommand
             {
                 Caller = new Caller(2, CallerType.Provider),
-                ApprenticeshipUpdate = new Api.Types.Apprenticeship.ApprenticeshipUpdate
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
                 {
                     ULN = "Test",
                     ApprenticeshipId = 3

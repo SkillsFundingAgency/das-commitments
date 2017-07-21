@@ -4,13 +4,14 @@ using System.Threading.Tasks;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
-using SFA.DAS.Commitments.Api.Types.Validation.Types;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.Validation;
 using SFA.DAS.Commitments.Domain.Interfaces;
+
+using ApprenticeshipOverlapValidationRequest = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipOverlapValidationRequest;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingApprenticeships
 {

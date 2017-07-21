@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.Commitments.Api.Types;
-using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
+
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Rules
 {
@@ -17,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.Rules
                 return AgreementStatus.NotAgreed;
             }
 
-            return (AgreementStatus) first.AgreementStatus;
+            return first.AgreementStatus;
         }
     }
 }

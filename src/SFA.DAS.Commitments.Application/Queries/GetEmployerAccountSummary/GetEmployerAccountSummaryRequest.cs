@@ -1,4 +1,3 @@
-using System;
 using MediatR;
 using SFA.DAS.Commitments.Domain;
 

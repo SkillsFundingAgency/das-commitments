@@ -1,5 +1,7 @@
 ﻿using System;
 
+using SFA.DAS.Commitments.Domain.Entities.Validation;
+
 namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class ApprenticeshipResult
@@ -25,5 +27,9 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }
         public DateTime? StopDate { get; set; }
+
+
+        public ValidationFailReason ValidationFailReason { get; set; }
+        public long? RequestApprenticeshipId { get; set; }
     }
 }

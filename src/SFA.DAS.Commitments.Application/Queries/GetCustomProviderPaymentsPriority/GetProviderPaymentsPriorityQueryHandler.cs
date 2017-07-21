@@ -1,10 +1,11 @@
-﻿using FluentValidation;
-using MediatR;
-using SFA.DAS.Commitments.Api.Types.ProviderPayment;
-using SFA.DAS.Commitments.Domain.Data;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
+using FluentValidation;
+using MediatR;
+
+using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority
 {
@@ -32,12 +33,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPrior
 
             return new GetProviderPaymentsPriorityResponse
             {
-                Data = priorityItems.Select(x => new ProviderPaymentPriorityItem
-                {
-                    ProviderId = x.ProviderId,
-                    ProviderName = x.ProviderName,
-                    PriorityOrder = x.PriorityOrder
-                }).ToList()
+                Data = priorityItems
             };
         }
     }

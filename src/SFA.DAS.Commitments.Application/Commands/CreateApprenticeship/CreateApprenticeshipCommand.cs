@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.Commitments.Domain;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 {
@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
         public long CommitmentId { get; set; }
 
-        public Apprenticeship.Apprenticeship Apprenticeship { get; set; }
+        public Apprenticeship Apprenticeship { get; set; }
 
         public string UserId { get; set; }
         public string UserName { get; set; }

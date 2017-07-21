@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetAccountSummary(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/commitments")]
@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitments(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/commitments/{commitmentId}", Name = "GetCommitmentForEmployer")]
@@ -53,12 +53,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCommitment(accountId, commitmentId);
 
-            if (response.Data == null)
+            if (response == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         
@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetApprenticeships(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/apprenticeships/search")]
@@ -86,12 +86,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetApprenticeship(accountId, apprenticeshipId);
 
-            if (response.Data == null)
+            if (response == null)
             {
                 return NotFound();
             }
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
 
@@ -165,7 +165,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
         {
             var response = await _employerOrchestrator.GetPendingApprenticeshipUpdate(accountId, apprenticeshipId);
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/apprenticeships/{apprenticeshipId}/update")]
@@ -193,7 +193,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _employerOrchestrator.GetCustomProviderPaymentPriority(accountId);
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/customproviderpaymentpriority")]
@@ -211,7 +211,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _apprenticeshipsOrchestrator.GetPriceHistory(apprenticeshipId, new Caller(accountId, CallerType.Employer));
 
-            return Ok(response.Data);
+            return Ok(response);
         }
 
         [Route("{accountId}/apprenticeships/{apprenticeshipId}/datalocks")]

@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
             updatedApprenticeship = CreateApiApprenticeship();
 
-            updatedApprenticeship.TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Standard;
+            updatedApprenticeship.TrainingType = TrainingType.Standard;
             Assert.IsTrue(_rules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship));
 
             updatedApprenticeship.TrainingName += "X";
@@ -110,18 +110,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             };
         }
 
-        private static Api.Types.Apprenticeship.Apprenticeship CreateApiApprenticeship()
+        private static Apprenticeship CreateApiApprenticeship()
         {
-            return new Api.Types.Apprenticeship.Apprenticeship
+            return new Apprenticeship
             {
-                AgreementStatus = Api.Types.AgreementStatus.NotAgreed,
-                PaymentStatus = Api.Types.Apprenticeship.Types.PaymentStatus.PendingApproval,
+                AgreementStatus = AgreementStatus.NotAgreed,
+                PaymentStatus = PaymentStatus.PendingApproval,
                 Cost = 1000,
                 FirstName = "First name",
                 LastName = "Last name",
                 NINumber = "NINO",
                 ULN = "ULN",
-                TrainingType = Api.Types.Apprenticeship.Types.TrainingType.Framework,
+                TrainingType = TrainingType.Framework,
                 TrainingName = "TRAINING",
                 TrainingCode = "CODE",
                 StartDate = DateTime.Now.AddMonths(1),

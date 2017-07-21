@@ -8,8 +8,7 @@ using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
-using SFA.DAS.Commitments.Api.Types.Validation.Types;
+
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Application.Exceptions;
@@ -19,7 +18,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
+using ValidationFailReason = SFA.DAS.Commitments.Domain.Entities.Validation.ValidationFailReason;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -35,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private Mock<IMediator> _mockMediator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Commitment _existingCommitment;
-        private List<Domain.Entities.Apprenticeship> _existingApprenticeships;
+        private List<Apprenticeship> _existingApprenticeships;
 
         [SetUp]
         public void SetUp()
@@ -76,29 +75,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                 UserName = "Bob"
             };
 
-            _existingApprenticeships = new List<Domain.Entities.Apprenticeship>();
+            _existingApprenticeships = new List<Apprenticeship>();
             _existingCommitment = new Commitment { ProviderId = 111L, EditStatus = EditStatus.ProviderOnly, Apprenticeships = _existingApprenticeships };
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_existingCommitment);
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse {Data = new List<OverlappingApprenticeship>()});
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse {Data = new List<ApprenticeshipResult>()});
         }
 
         [Test]
         public async Task ShouldCallCommitmentRepository()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>()), Times.Once);
+            _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>()), Times.Once);
         }
 
         [Test]
         public async Task ShouldPublishApprenticeshipDeletedEvents()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -108,8 +107,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldPublishApprenticeshipCreatedEvents()
         {
-            var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship() };
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
+            var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship() };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
             
             await _handler.Handle(_exampleValidRequest);
 
@@ -119,10 +118,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ShouldThrowExceptionIfEditStatusIncorrect()
         {
-            var existingCommitment = new Domain.Entities.Commitment
+            var existingCommitment = new Commitment
             {
                 ProviderId = 111L,
-                EditStatus = Domain.Entities.EditStatus.EmployerOnly // Expecting ProviderOnly
+                EditStatus = EditStatus.EmployerOnly // Expecting ProviderOnly
             };
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(existingCommitment);
 
@@ -134,11 +133,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ShouldThrowExceptionIfCommitmentInIncorrectState()
         {
-            var existingCommitment = new Domain.Entities.Commitment
+            var existingCommitment = new Commitment
             {
                 ProviderId = 111L,
-                EditStatus = Domain.Entities.EditStatus.ProviderOnly,
-                CommitmentStatus = Domain.Entities.CommitmentStatus.Deleted // Expecting Active or New
+                EditStatus = EditStatus.ProviderOnly,
+                CommitmentStatus = CommitmentStatus.Deleted // Expecting Active or New
             }; 
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(existingCommitment);
@@ -151,11 +150,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ShouldThrowExceptionIfCallerIdIsNotOwner()
         {
-            var existingCommitment = new Domain.Entities.Commitment
+            var existingCommitment = new Commitment
             {
                 ProviderId = 999L, // Expecting 111L
-                EditStatus = Domain.Entities.EditStatus.ProviderOnly,
-                CommitmentStatus = Domain.Entities.CommitmentStatus.Active 
+                EditStatus = EditStatus.ProviderOnly,
+                CommitmentStatus = CommitmentStatus.Active 
             };
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(existingCommitment);
@@ -178,7 +177,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ThenOverlappingApprenticeshipValidationShouldBePerformed()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(new List<Domain.Entities.Apprenticeship>());
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
 
             //Act
             await _handler.Handle(_exampleValidRequest);
@@ -198,12 +197,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ThenShouldThrowExceptionIfAnyOverlapsExist()
         {
+            var app = _exampleValidRequest.Apprenticeships.First();
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<OverlappingApprenticeship>
+                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<ApprenticeshipResult>
                 {
-                    new OverlappingApprenticeship
+                    new ApprenticeshipResult
                     {
-                        Apprenticeship = _exampleValidRequest.Apprenticeships.First(),
+                        Id = app.Id,
+                        AgreementStatus = app.AgreementStatus,
                         ValidationFailReason = ValidationFailReason.OverlappingEndDate
                     }
                 } });
@@ -218,8 +219,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         {
             var expectedOriginalCommitmentState = JsonConvert.SerializeObject(_existingCommitment);
 
-            var insertedApprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship { Id = 1234 } };
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Domain.Entities.Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
+            var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship { Id = 1234 } };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
 
             await _handler.Handle(_exampleValidRequest);
 

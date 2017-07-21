@@ -105,10 +105,20 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenFilterApprenticeships.cs" />
+    <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenPagingFilterResults.cs" />
+    <Compile Include="Mapping\Service\Facets\WhenExtractingApprenticeshipStatuses.cs" />
+    <Compile Include="Mapping\Service\Facets\WhenExtractingProviders.cs" />
+    <Compile Include="Mapping\Service\Facets\WhenExtractingRecordStatuses.cs" />
+    <Compile Include="Mapping\Service\Facets\WhenExtractingTrainingCourse.cs" />
+    <Compile Include="Orchestrators\Employer\EmployerOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipSearch.cs" />
+    <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipUpdate.cs" />
     <Compile Include="Orchestrators\Employer\WhenPatchingApprenticeshipChange.cs" />
+    <Compile Include="Orchestrators\Provider\ProviderOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Provider\WhenGettingApprenticeshipSearch.cs" />
     <Compile Include="Orchestrators\Provider\WhenBulkUploading.cs" />
+    <Compile Include="Orchestrators\Provider\WhenGettingApprenticeshipUpdate.cs" />
     <Compile Include="Orchestrators\Provider\WhenPatchingApprenticeshipChange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

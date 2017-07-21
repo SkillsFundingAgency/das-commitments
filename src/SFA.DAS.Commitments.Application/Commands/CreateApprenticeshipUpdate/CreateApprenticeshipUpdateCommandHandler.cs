@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
@@ -68,8 +67,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 MapImmediateApprenticeshipUpdate(apprenticeship, command);
                 immediateUpdate = apprenticeship;
             }
-            
-            var pendingUpdate = MapToPendingApprenticeshipUpdate(apprenticeship, command.ApprenticeshipUpdate);
+
+            var pendingUpdate = command.ApprenticeshipUpdate;
+            pendingUpdate.EffectiveFromDate = apprenticeship.StartDate.Value;
 
 
             await Task.WhenAll(
@@ -94,7 +94,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
         }
 
-        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate apprenticeshipUpdate)
+        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var started = apprenticeship.StartDate.HasValue && apprenticeship.StartDate.Value <=
                                       new DateTime(_currentDateTime.Now.Year, _currentDateTime.Now.Month, 1);
@@ -148,44 +148,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             return true;
         }
 
-        private ApprenticeshipUpdate MapToPendingApprenticeshipUpdate(Apprenticeship apprenticeship, Api.Types.Apprenticeship.ApprenticeshipUpdate update)
-        {
-            var result =  new ApprenticeshipUpdate
-            {
-                Id = update.Id,
-                ApprenticeshipId = update.ApprenticeshipId,
-                Originator = (Originator) update.Originator,
-                FirstName = update.FirstName,
-                LastName = update.LastName,
-                DateOfBirth = update.DateOfBirth,
-                TrainingCode = update.TrainingCode,
-                TrainingType = update.TrainingType.HasValue ? (TrainingType) update.TrainingType : default(TrainingType?),
-                TrainingName = update.TrainingName,
-                Cost = update.Cost,
-                StartDate = update.StartDate,
-                EndDate = update.EndDate,
-                UpdateOrigin = (UpdateOrigin) update.UpdateOrigin,
-                EffectiveFromDate = apprenticeship.StartDate.Value,
-                EffectiveToDate = null
-            };
-
-            // Update the effective from date if they've made a change to the Start Date value - can only be done when waiting to start.
-            if (update.StartDate.HasValue)
-            {
-                result.EffectiveFromDate = update.StartDate.Value;
-            }
-
-            return result.HasChanges ? result : null;
-        }
-
-        private bool IsInSameCalendarMonth(DateTime first, DateTime second)
-        {
-            if (first.Year == second.Year && first.Month == second.Month)
-                return true;
-
-            return false;
-        }
-
         private void CheckAuthorisation(CreateApprenticeshipUpdateCommand command, Apprenticeship apprenticeship)
         {
             switch (command.Caller.CallerType)
@@ -223,7 +185,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             {
                 foreach (var overlap in overlapResult.Data)
                 {
-                    _logger.Info($"ApprenticeshipUpdate overlaps with apprenticeship {overlap.Apprenticeship.Id}");
+                    _logger.Info($"ApprenticeshipUpdate overlaps with apprenticeship {overlap.Id}");
                 }
                 throw new ValidationException("Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }

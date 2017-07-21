@@ -9,13 +9,11 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 
-using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 using DataLockErrorCode = SFA.DAS.Commitments.Domain.Entities.DataLock.DataLockErrorCode;
-using TriageStatus = SFA.DAS.Commitments.Api.Types.DataLock.Types.TriageStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
 {
@@ -54,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
             _validCommand = new UpdateDataLocksTriageStatusCommand
             {
                 ApprenticeshipId = 10082,
-                TriageStatus = TriageStatus.Change,
+                TriageStatus = Domain.Entities.DataLock.TriageStatus.Change,
                 UserId = "testuser"
             };
 

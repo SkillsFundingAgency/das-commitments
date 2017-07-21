@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types;
+
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
@@ -112,7 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
         {
             return new CreateRelationshipCommand
             {
-                Relationship = new Relationship
+                Relationship = new Domain.Entities.Relationship
                 {
                     EmployerAccountId = 1,
                     ProviderId = 2,

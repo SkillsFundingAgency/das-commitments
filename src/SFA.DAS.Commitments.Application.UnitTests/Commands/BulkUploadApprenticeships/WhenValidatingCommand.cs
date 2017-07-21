@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
 using FluentAssertions;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
-using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -121,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ThenOneOfTheULNsIsInValid()
         {
-            _exampleCommand.Apprenticeships[1].ULN = "abc123";
+            _exampleCommand.Apprenticeships.ToList()[1].ULN = "abc123";
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -131,7 +132,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ThenOneOfTheCostsIsInValid()
         {
-            _exampleCommand.Apprenticeships[0].Cost = 123.1232M;
+            _exampleCommand.Apprenticeships.ToList()[0].Cost = 123.1232M;
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -142,7 +143,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [TestCase(null)]
         public void ThenApprenticeshipWithoutFirstNameIsNotSet(string firstName)
         {
-            _exampleCommand.Apprenticeships[1].FirstName = firstName;
+            _exampleCommand.Apprenticeships.ToList()[1].FirstName = firstName;
 
             var result = _validator.Validate(_exampleCommand);
 
@@ -153,7 +154,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [TestCase(null)]
         public void ThenApprenticeshipWithoutLastNameIsNotSet(string lastName)
         {
-            _exampleCommand.Apprenticeships[1].LastName = lastName;
+            _exampleCommand.Apprenticeships.ToList()[1].LastName = lastName;
 
             var result = _validator.Validate(_exampleCommand);
 

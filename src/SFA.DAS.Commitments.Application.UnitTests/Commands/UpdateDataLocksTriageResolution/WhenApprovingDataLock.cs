@@ -17,7 +17,6 @@ using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using DataLockUpdateType = SFA.DAS.Commitments.Api.Types.DataLock.Types.DataLockUpdateType;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTriageResolution
 {
@@ -48,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
 
             _command = new UpdateDataLocksTriageResolutionCommand
                            {
-                               DataLockUpdateType = DataLockUpdateType.ApproveChanges,
+                               DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.ApproveChanges,
                                ApprenticeshipId = 4321
                            };
 
@@ -183,7 +182,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
 
-            _command.DataLockUpdateType = DataLockUpdateType.ApproveChanges;
+            _command.DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.ApproveChanges;
             IEnumerable<PriceHistory> prices = null;
             _apprenticeshipRepository.Setup(
                 m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))
@@ -214,7 +213,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
 
-            _command.DataLockUpdateType = DataLockUpdateType.ApproveChanges;
+            _command.DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.ApproveChanges;
             IEnumerable<PriceHistory> prices = null;
             _apprenticeshipRepository.Setup(
                 m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))

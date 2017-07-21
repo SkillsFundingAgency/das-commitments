@@ -7,7 +7,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Services;
@@ -26,18 +26,23 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         private Mock<IMediator> _mockMediator;
         private ProviderOrchestrator _providerOrchestrator;
         private ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
+        private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
+            _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
+
             _providerOrchestrator = new ProviderOrchestrator(
                 _mockMediator.Object, 
                 Mock.Of<ICommitmentsLogger>(), 
                 Mock.Of<FacetMapper>(),
-                new ApprenticeshipFilterService(new FacetMapper()));
+                new ApprenticeshipFilterService(new FacetMapper()),
+                _apprenticeshipMapper.Object,
+                Mock.Of<ICommitmentMapper>());
 
-            _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<IDataLockMapper>(), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
         }
 
@@ -73,15 +78,19 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
                 Apprenticeship = new Apprenticeship.Apprenticeship(),
                 LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@email.com", Name = "Bob" }
             };
-            await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, newApprenticeship);
+            var expectedApprenticeship = new Domain.Entities.Apprenticeship();
 
+            _apprenticeshipMapper.Setup(m => m.Map(newApprenticeship.Apprenticeship, CallerType.Provider))
+                .Returns(expectedApprenticeship);
+
+            await _controller.CreateApprenticeship(TestProviderId, TestCommitmentId, newApprenticeship);
             _mockMediator.Verify(
                 x =>
                     x.SendAsync(
                         It.Is<CreateApprenticeshipCommand>(
                             a =>
                                 a.Caller.CallerType == CallerType.Provider && a.Caller.Id == TestProviderId && a.CommitmentId == TestCommitmentId &&
-                                a.Apprenticeship == newApprenticeship.Apprenticeship && a.UserName == newApprenticeship.LastUpdatedByInfo.Name)));
+                                a.Apprenticeship == expectedApprenticeship  && a.UserName == newApprenticeship.LastUpdatedByInfo.Name)));
         }
 
         [Test]

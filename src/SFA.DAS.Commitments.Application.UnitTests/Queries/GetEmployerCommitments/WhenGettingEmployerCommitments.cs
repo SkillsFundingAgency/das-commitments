@@ -95,7 +95,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitmen
             response.Data[0].Messages.Should().HaveSameCount(commitmentsFromRepository[0].Messages);
             commitmentsFromRepository.Should()
                 .OnlyContain(x => response.Data.All(y =>
-                   y.AgreementStatus == (Api.Types.AgreementStatus)agreementStatus
+                   y.AgreementStatus == agreementStatus
                 && y.ApprenticeshipCount == x.ApprenticeshipCount ));
         }
 

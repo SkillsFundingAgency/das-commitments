@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using FluentValidation;
+
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands
 {
-    public sealed class ApprenticeshipValidator : AbstractValidator<Api.Types.Apprenticeship.Apprenticeship>
+    public sealed class ApprenticeshipValidator : AbstractValidator<Apprenticeship>
     {
         private static Func<string, int, bool> _lengthLessThanFunc = (str, length) => (str?.Length ?? length) < length;
         private readonly ICurrentDateTime _currentDateTime;
@@ -61,12 +63,12 @@ namespace SFA.DAS.Commitments.Application.Commands
                 RuleFor(x => x.TrainingCode).NotEmpty();
                 RuleFor(x => x.TrainingName).NotEmpty();
 
-                When(x => x.TrainingType == Api.Types.Apprenticeship.Types.TrainingType.Framework, () =>
+                When(x => x.TrainingType == TrainingType.Framework, () =>
                 {
                     RuleFor(x => x.TrainingCode).Matches(@"^[1-9]\d{0,2}-[1-9]\d{0,1}-[1-9]\d{0,2}$");
                 });
 
-                When(x => x.TrainingType == Api.Types.Apprenticeship.Types.TrainingType.Standard, () =>
+                When(x => x.TrainingType == TrainingType.Standard, () =>
                 {
                     RuleFor(x => x.TrainingCode).Must(x =>
                     {
@@ -114,7 +116,7 @@ namespace SFA.DAS.Commitments.Application.Commands
             RuleFor(x => x.EmployerRef).Length(0, 20);
         }
 
-        private static bool WillApprenticeBeAtLeast15AtStartOfTraining(Api.Types.Apprenticeship.Apprenticeship apprenticship, DateTime? dob)
+        private static bool WillApprenticeBeAtLeast15AtStartOfTraining(Apprenticeship apprenticship, DateTime? dob)
         {
             DateTime startDate = apprenticship.StartDate.Value;
             DateTime dobDate = dob.Value;
@@ -140,7 +142,7 @@ namespace SFA.DAS.Commitments.Application.Commands
             return decimal.GetBits(cost)[3] >> 16 > 2;
         }
 
-        private bool BeGreaterThenStartDate(Api.Types.Apprenticeship.Apprenticeship viewModel, DateTime? date)
+        private bool BeGreaterThenStartDate(Apprenticeship viewModel, DateTime? date)
         {
             if (viewModel.StartDate == null || viewModel.EndDate == null) return true;
 

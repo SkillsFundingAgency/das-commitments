@@ -31,5 +31,10 @@ namespace SFA.DAS.Commitments.Domain.Entities
                                   || Cost.HasValue
                                   || StartDate.HasValue
                                   || EndDate.HasValue;
+
+
+        public string ULN { get; set; }
+        public string ProviderRef { get; set; }
+        public string EmployerRef { get; set; }
     }
 }

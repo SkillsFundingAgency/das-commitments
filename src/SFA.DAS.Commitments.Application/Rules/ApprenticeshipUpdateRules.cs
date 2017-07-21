@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Application.Rules
             return doChangesRequireAgreement ? PaymentStatus.PendingApproval : currentPaymentStatus;
         }
 
-        public bool DetermineWhetherChangeRequiresAgreement(Apprenticeship existingApprenticeship, Api.Types.Apprenticeship.Apprenticeship updatedApprenticeship)
+        public bool DetermineWhetherChangeRequiresAgreement(Apprenticeship existingApprenticeship, Apprenticeship updatedApprenticeship)
         {
             if (existingApprenticeship.Cost != updatedApprenticeship.Cost) return true;
             if (existingApprenticeship.DateOfBirth != updatedApprenticeship.DateOfBirth) return true;
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Rules
             if (existingApprenticeship.StartDate != updatedApprenticeship.StartDate) return true;
             if (existingApprenticeship.EndDate != updatedApprenticeship.EndDate) return true;
             if (existingApprenticeship.TrainingCode != updatedApprenticeship.TrainingCode) return true;
-            if (existingApprenticeship.TrainingType != (TrainingType)updatedApprenticeship.TrainingType) return true;
+            if (existingApprenticeship.TrainingType != updatedApprenticeship.TrainingType) return true;
             if (existingApprenticeship.TrainingName != updatedApprenticeship.TrainingName) return true;
 
             return false;

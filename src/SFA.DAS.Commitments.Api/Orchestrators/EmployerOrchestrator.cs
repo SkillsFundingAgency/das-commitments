@@ -17,7 +17,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetCustomProviderPaymentsPriority;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -25,12 +24,20 @@ using Commitment = SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using System.Collections.Generic;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
+using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Domain.Entities;
+
+using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipStatusSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
+using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
+using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -38,6 +45,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
+        private readonly IApprenticeshipMapper _apprenticeshipMapper;
+        private readonly ICommitmentMapper _commitmentMapper;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -45,7 +54,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             IMediator mediator, 
             ICommitmentsLogger logger,
             FacetMapper facetMapper,
-            ApprenticeshipFilterService apprenticeshipFilterService)
+            ApprenticeshipFilterService apprenticeshipFilterService,
+            IApprenticeshipMapper apprenticeshipMapper,
+            ICommitmentMapper commitmentMapper)
         {
             if (mediator == null)
                 throw new ArgumentNullException(nameof(mediator));
@@ -55,14 +66,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 throw new ArgumentNullException(nameof(facetMapper));
             if (apprenticeshipFilterService == null)
                 throw new ArgumentNullException(nameof(apprenticeshipFilterService));
+            if(apprenticeshipMapper == null)
+                throw new ArgumentNullException(nameof(apprenticeshipMapper));
 
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
             _apprenticeshipFilterService = apprenticeshipFilterService;
+            _apprenticeshipMapper = apprenticeshipMapper;
+            _commitmentMapper = commitmentMapper;
         }
 
-        public async Task<GetCommitmentsResponse> GetCommitments(long accountId)
+        public async Task<IEnumerable<Commitment.CommitmentListItem>> GetCommitments(long accountId)
         {
             _logger.Trace($"Getting commitments for employer account {accountId}", accountId: accountId);
 
@@ -77,10 +92,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitments for employer account {accountId}. {response.Data?.Count} commitments found", accountId: accountId);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
-        public async Task<GetCommitmentResponse> GetCommitment(long accountId, long commitmentId)
+        public async Task<Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId)
         {
             _logger.Trace($"Getting commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
@@ -96,7 +111,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
-            return response;
+            return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<long> CreateCommitment(long accountId, Commitment.CommitmentRequest commitmentRequest)
@@ -105,20 +120,53 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             commitmentRequest.Commitment.EmployerAccountId = accountId;
 
+            var commitment = _commitmentMapper.MapFrom(commitmentRequest.Commitment);
             var id = await _mediator.SendAsync(new CreateCommitmentCommand
             {
                 Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
-                Commitment = commitmentRequest.Commitment,
+                Commitment = commitment,
                 UserId = commitmentRequest.UserId,
                 Message = commitmentRequest.Message
             });
+            await CreateRelationshipIfDoesNotAlreadyExist(commitment);
 
             _logger.Info($"Created commitment {id} for employer account {accountId}", accountId: accountId);
 
             return id;
         }
 
-        public async Task<GetApprenticeshipsResponse> GetApprenticeships(long accountId)
+        private  async Task CreateRelationshipIfDoesNotAlreadyExist(Domain.Entities.Commitment commitment)
+        {
+            var relationship = await _mediator.SendAsync(new GetRelationshipRequest
+            {
+                EmployerAccountId = commitment.EmployerAccountId,
+                ProviderId = commitment.ProviderId.Value,
+                LegalEntityId = commitment.LegalEntityId
+            });
+
+            if (relationship.Data == null)
+            {
+                _logger.Info($"Creating relationship between employer account {commitment.EmployerAccountId}," +
+                             $" legal entity {commitment.LegalEntityId}," +
+                             $" and provider {commitment.ProviderId}");
+
+                await _mediator.SendAsync(new CreateRelationshipCommand
+                {
+                    Relationship = new Relationship
+                    {
+                        EmployerAccountId = commitment.EmployerAccountId,
+                        LegalEntityId = commitment.LegalEntityId,
+                        LegalEntityName = commitment.LegalEntityName,
+                        LegalEntityAddress = commitment.LegalEntityAddress,
+                        LegalEntityOrganisationType = commitment.LegalEntityOrganisationType,
+                        ProviderId = commitment.ProviderId.Value,
+                        ProviderName = commitment.ProviderName,
+                    }
+                });
+            }
+        }
+
+        public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)
         {
             _logger.Trace($"Getting apprenticeships for employer account {accountId}", accountId: accountId);
 
@@ -129,7 +177,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Data.Count} apprenticeships found", accountId: accountId);
 
-            return response;
+            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<Apprenticeship.ApprenticeshipSearchResponse> GetApprenticeships(long accountId, Apprenticeship.ApprenticeshipSearchQuery query)
@@ -145,7 +193,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var approvedApprenticeships = response.Data
+            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships , query, Originator.Employer);
@@ -164,7 +212,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             };
         }
 
-        public async Task<GetApprenticeshipResponse> GetApprenticeship(long accountId, long apprenticeshipId)
+        public async Task<Api.Types.Apprenticeship.Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
@@ -183,7 +231,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             else
                 _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
         public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
@@ -200,7 +248,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                     Id = accountId
                 },
                 CommitmentId = commitmentId,
-                Apprenticeship = apprenticeshipRequest.Apprenticeship,
+                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
@@ -225,7 +273,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 },
                 CommitmentId = commitmentId,
                 ApprenticeshipId = apprenticeshipId,
-                Apprenticeship = apprenticeshipRequest.Apprenticeship,
+                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
                 UserId = apprenticeshipRequest.UserId,
                 UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
             });
@@ -247,7 +295,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Updated Provider Payment Priorities with {submission.Priorities.Count} providers for employer account {accountId}", accountId);
         }
 
-        public async Task<GetProviderPaymentsPriorityResponse> GetCustomProviderPaymentPriority(long accountId)
+        public async Task<IEnumerable<Types.ProviderPayment.ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId)
         {
             _logger.Trace($"Getting Provider Payment Priority for employer account {accountId}", accountId);
 
@@ -257,9 +305,19 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 EmployerAccountId = accountId
             });
 
-            _logger.Info($"Retrieved {response.Data.Count} Provider Payment Priorities for employer account {accountId}", accountId);
+            _logger.Info($"Retrieved {response.Data.Count()} Provider Payment Priorities for employer account {accountId}", accountId);
 
-            return response;
+            return response.Data.Select(Map);
+        }
+
+        private ProviderPaymentPriorityItem Map(Domain.Entities.ProviderPaymentPriorityItem data)
+        {
+            return new ProviderPaymentPriorityItem
+                {
+                    ProviderId = data.ProviderId,
+                    ProviderName = data.ProviderName,
+                    PriorityOrder = data.PriorityOrder
+                };
         }
 
         public async Task PatchCommitment(long accountId, long commitmentId, CommitmentSubmission submission)
@@ -270,7 +328,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
                 CommitmentId = commitmentId,
-                LatestAction = submission.Action,
+                LatestAction = (LastAction)submission.Action,
                 LastUpdatedByName = submission.LastUpdatedByInfo.Name,
                 LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
                 UserId = submission.UserId,
@@ -289,7 +347,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Caller = new Caller(accountId, CallerType.Employer),
                 AccountId = accountId,
                 ApprenticeshipId = apprenticeshipId,
-                PaymentStatus = apprenticeshipSubmission.PaymentStatus,
+                PaymentStatus = (Domain.Entities.PaymentStatus?)apprenticeshipSubmission.PaymentStatus,
                 DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId,
                 UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
@@ -336,7 +394,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Deleted commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
         }
 
-        public async Task<GetPendingApprenticeshipUpdateResponse> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
+        public async Task<Types.Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting pending update for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: apprenticeshipId );
 
@@ -352,7 +410,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved pending update for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: apprenticeshipId);
 
-            return response;
+            return _apprenticeshipMapper.MapApprenticeshipUpdate(response?.Data);
+            
         }
 
         public async Task CreateApprenticeshipUpdate(long accountId, Apprenticeship.ApprenticeshipUpdateRequest updateRequest)
@@ -366,10 +425,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         CallerType = CallerType.Employer,
                         Id = accountId
                     },
-                    ApprenticeshipUpdate = updateRequest.ApprenticeshipUpdate,
+                    ApprenticeshipUpdate = _apprenticeshipMapper.MapApprenticeshipUpdate(updateRequest.ApprenticeshipUpdate),
                     UserName = updateRequest.LastUpdatedByInfo?.Name,
                     UserId = updateRequest.UserId
             });
+
 
             _logger.Info($"Created update for apprenticeship {updateRequest.ApprenticeshipUpdate.ApprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: updateRequest.ApprenticeshipUpdate.ApprenticeshipId);
         }
@@ -414,7 +474,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Patched update for apprenticeship {apprenticeshipId} for employer account {accountId} with status {submission.UpdateStatus}", accountId, apprenticeshipId: apprenticeshipId);
         }
 
-        public async Task<GetEmployerAccountSummaryResponse> GetAccountSummary(long accountId)
+        public async Task<IEnumerable<Types.ApprenticeshipStatusSummary>> GetAccountSummary(long accountId)
         {
             _logger.Trace($"Getting account summary for employer account {accountId}", accountId: accountId);
 
@@ -429,7 +489,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved {response.Data.Count()} account summary items for employer account {accountId}", accountId: accountId);
 
-            return response;
+            return Map(response.Data);
+        }
+
+        private IEnumerable<Types.ApprenticeshipStatusSummary> Map(IEnumerable<ApprenticeshipStatusSummary> data)
+        {
+            return data.Select(s => new Types.ApprenticeshipStatusSummary
+            {
+                LegalEntityIdentifier = s.LegalEntityIdentifier,
+                PendingApprovalCount = s.PendingApprovalCount,
+                ActiveCount = s.ActiveCount,
+                PausedCount = s.PausedCount,
+                WithdrawnCount = s.WithdrawnCount,
+                CompletedCount = s.CompletedCount
+            });
         }
 
         private List<Domain.Entities.ProviderPaymentPriorityUpdateItem> CreateListOfProviders(IList<Types.ProviderPayment.ProviderPaymentPriorityUpdateItem> priorities)

@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -21,18 +22,30 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         private const long TestProviderId = 1L;
         private const long TestApprenticeshipId = 3L;
         private Mock<IMediator> _mockMediator;
+        private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
+        private Mock<ICommitmentMapper> _commitmentMapper;
         private EmployerController _controller;
         private EmployerOrchestrator _employerOrchestrator;
-        private ApprenticeshipsOrchestrator _apprenticeshipOrchestor;
+        private ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
         [SetUp]
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()));
-            _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>());
+            _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
+            _commitmentMapper = new Mock<ICommitmentMapper>();
+            _apprenticeshipMapper.Setup(x => x.MapFrom(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>()))
+                .Returns(new Apprenticeship.Apprenticeship());
 
-            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), _apprenticeshipMapper.Object, _commitmentMapper.Object);
+
+            _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
+                _mockMediator.Object,
+                Mock.Of<IDataLockMapper>(),
+                Mock.Of<IApprenticeshipMapper>(),
+                Mock.Of<ICommitmentsLogger>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
         }
 
         [Test, AutoData]
@@ -43,7 +56,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship.Apprenticeship>;
 
             result.Content.Should().NotBeNull();
-            result.Content.Should().BeSameAs(mediatorResponse.Data);
+            _apprenticeshipMapper.Verify(
+                x => x.MapFrom(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>()), Times.Once);
         }
 
         [Test]
@@ -72,6 +86,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public async Task ThenReturnsANotFoundIfMediatorReturnsANullForTheCommitement()
         {
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(new GetApprenticeshipResponse { Data = null });
+
+            _apprenticeshipMapper.Setup(x => x.MapFrom(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>()))
+                .Returns(() => null);
 
             var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId);
 

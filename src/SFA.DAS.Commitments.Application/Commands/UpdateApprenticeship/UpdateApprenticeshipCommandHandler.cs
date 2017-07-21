@@ -147,7 +147,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             }
         }
 
-        private void UpdateApprenticeshipEntity(Apprenticeship existingApprenticeship, Api.Types.Apprenticeship.Apprenticeship updatedApprenticeship, UpdateApprenticeshipCommand message)
+        private void UpdateApprenticeshipEntity(Apprenticeship existingApprenticeship, Apprenticeship updatedApprenticeship, UpdateApprenticeshipCommand message)
         {
             var doChangesRequireAgreement = _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(existingApprenticeship, updatedApprenticeship);
 
@@ -157,7 +157,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             existingApprenticeship.NINumber = updatedApprenticeship.NINumber;
             existingApprenticeship.ULN = updatedApprenticeship.ULN;
             existingApprenticeship.CommitmentId = message.CommitmentId;
-            existingApprenticeship.TrainingType = (TrainingType)updatedApprenticeship.TrainingType;
+            existingApprenticeship.TrainingType = updatedApprenticeship.TrainingType;
             existingApprenticeship.TrainingCode = updatedApprenticeship.TrainingCode;
             existingApprenticeship.TrainingName = updatedApprenticeship.TrainingName;
             existingApprenticeship.Cost = updatedApprenticeship.Cost;
