@@ -3,30 +3,29 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
+using SFA.DAS.Commitments.Application.Commands.TriageDataLock;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLock
 {
     [TestFixture]
-    public class WhenUpdatingDataLock
+    public class WhenTriagingDataLock
     {
-        private UpdateDataLockTriageStatusCommandHandler _handler;
-        private Mock<AbstractValidator<UpdateDataLockTriageStatusCommand>> _validator;
+        private TriageDataLockCommandHandler _handler;
+        private Mock<AbstractValidator<TriageDataLockCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
 
         [SetUp]
         public void Arrange()
         {
-            _validator = new Mock<AbstractValidator<UpdateDataLockTriageStatusCommand>>();
-            _validator.Setup(x => x.Validate(It.IsAny<UpdateDataLockTriageStatusCommand>()))
+            _validator = new Mock<AbstractValidator<TriageDataLockCommand>>();
+            _validator.Setup(x => x.Validate(It.IsAny<TriageDataLockCommand>()))
                 .Returns(() => new ValidationResult());
 
             _dataLockRepository = new Mock<IDataLockRepository>();
@@ -44,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(null);
 
-            _handler = new UpdateDataLockTriageStatusCommandHandler(
+            _handler = new TriageDataLockCommandHandler(
                 _validator.Object,  
                 _dataLockRepository.Object,
                 _apprenticeshipUpdateRepository.Object,
@@ -55,13 +54,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         public async Task ThenTheCommandIsValidated()
         {
             //Arrange
-            var command = new UpdateDataLockTriageStatusCommand();
+            var command = new TriageDataLockCommand();
 
             //Act
             await _handler.Handle(command);
 
             //Assert
-            _validator.Verify(x => x.Validate(It.IsAny<UpdateDataLockTriageStatusCommand>()), Times.Once);
+            _validator.Verify(x => x.Validate(It.IsAny<TriageDataLockCommand>()), Times.Once);
         }
 
 
@@ -69,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         public async Task ThenTheRepositoryIsCalledToRetrieveDataLock()
         {
             //Arrange
-            var command = new UpdateDataLockTriageStatusCommand();
+            var command = new TriageDataLockCommand();
 
             //Act
             await _handler.Handle(command);
@@ -82,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         public async Task ThenTheRepositoryIsCalledToUpdateTriageStatus()
         {
             //Arrange
-            var command = new UpdateDataLockTriageStatusCommand
+            var command = new TriageDataLockCommand
             {
                 TriageStatus = TriageStatus.Restart
             };
@@ -100,7 +99,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
         public async Task ThenIfTriageStatusIsUnchangedThenNoUpdateIsMade()
         {
             //Arrange
-            var command = new UpdateDataLockTriageStatusCommand
+            var command = new TriageDataLockCommand
             {
                 TriageStatus = TriageStatus.Restart
             };
@@ -127,7 +126,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLock
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(new ApprenticeshipUpdate());
 
-            var command = new UpdateDataLockTriageStatusCommand
+            var command = new TriageDataLockCommand
             {
                 TriageStatus = TriageStatus.Restart
             };

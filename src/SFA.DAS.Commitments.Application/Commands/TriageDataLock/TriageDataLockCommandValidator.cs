@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
+namespace SFA.DAS.Commitments.Application.Commands.TriageDataLock
 {
-    public sealed class UpdateDataLockTriageStatusCommandValidator : AbstractValidator<UpdateDataLockTriageStatusCommand>
+    public sealed class TriageDataLockCommandValidator : AbstractValidator<TriageDataLockCommand>
     {
-        public UpdateDataLockTriageStatusCommandValidator()
+        public TriageDataLockCommandValidator()
         {
             RuleFor(x => x.ApprenticeshipId).NotEmpty();
             RuleFor(x => x.DataLockEventId).NotEmpty();

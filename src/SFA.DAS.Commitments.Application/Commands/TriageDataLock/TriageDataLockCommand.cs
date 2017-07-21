@@ -1,10 +1,9 @@
 using MediatR;
-
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
+namespace SFA.DAS.Commitments.Application.Commands.TriageDataLock
 {
-    public sealed class UpdateDataLockTriageStatusCommand : IAsyncRequest
+    public sealed class TriageDataLockCommand : IAsyncRequest
     {
         public long ApprenticeshipId { get; set; }
         public long DataLockEventId { get; set; }

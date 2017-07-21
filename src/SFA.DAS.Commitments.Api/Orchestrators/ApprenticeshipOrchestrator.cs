@@ -7,7 +7,6 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResolution;
 using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus;
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
 using SFA.DAS.Commitments.Application.Queries.GetPriceHistory;
@@ -16,6 +15,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.Commitments.Application.Commands.TriageDataLock;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 
@@ -146,7 +146,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId: apprenticeshipId);
 
-            await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
+            await _mediator.SendAsync(new TriageDataLockCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
@@ -161,7 +161,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId: apprenticeshipId, caller: caller);
 
-            await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
+            await _mediator.SendAsync(new TriageDataLockCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
