@@ -1,27 +1,25 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-
 using FluentValidation;
 using MediatR;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Extensions;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus
+namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
 {
-    public sealed class UpdateDataLocksTriageStatusCommandHandler : AsyncRequestHandler<UpdateDataLocksTriageStatusCommand>
+    public sealed class TriageDataLockCommandHandler : AsyncRequestHandler<TriageDataLockCommand>
     {
-        private readonly AbstractValidator<UpdateDataLocksTriageStatusCommand> _validator;
+        private readonly AbstractValidator<TriageDataLockCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
 
-        public UpdateDataLocksTriageStatusCommandHandler(
-            AbstractValidator<UpdateDataLocksTriageStatusCommand> validator,
+        public TriageDataLockCommandHandler(
+            AbstractValidator<TriageDataLockCommand> validator,
             IDataLockRepository dataLockRepository)
         {
             if(validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<UpdateDataLocksTriageStatusCommand>));
+                throw new ArgumentNullException(nameof(AbstractValidator<TriageDataLockCommand>));
             if(dataLockRepository == null)
                 throw new ArgumentNullException(nameof(IDataLockRepository));
 
@@ -29,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus
             _dataLockRepository = dataLockRepository;
         }
 
-        protected override async Task HandleCore(UpdateDataLocksTriageStatusCommand command)
+        protected override async Task HandleCore(TriageDataLockCommand command)
         {
             var validationResult = _validator.Validate(command);
             if (!validationResult.IsValid)

@@ -112,9 +112,9 @@
     <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageResolutionCommand.cs" />
     <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageResolutionHandler.cs" />
     <Compile Include="Commands\UpdateDataLocksTriageResolution\UpdateDataLocksTriageStatusCommandValidator.cs" />
-    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommand.cs" />
-    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommandHandler.cs" />
-    <Compile Include="Commands\UpdateDataLocksTriageStatus\UpdateDataLocksTriageStatusCommandValidator.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommand.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommandHandler.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommandValidator.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommand.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandHandler.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandValidator.cs" />
