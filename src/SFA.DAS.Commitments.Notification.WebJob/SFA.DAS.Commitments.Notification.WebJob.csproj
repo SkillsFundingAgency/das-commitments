@@ -157,7 +157,6 @@
   <ItemGroup>
     <Compile Include="Configuration\AccountApiConfiguration.cs" />
     <Compile Include="Configuration\CommitmentNotificationConfiguration.cs" />
-    <Compile Include="Configuration\NotificationsApiClientConfiguration.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\FakeAccountApiClient.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />

@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Notifications.Api.Client.Configuration;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
 {
