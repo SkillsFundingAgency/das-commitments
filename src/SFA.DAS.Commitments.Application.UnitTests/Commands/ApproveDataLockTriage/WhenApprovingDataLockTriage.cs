@@ -1,40 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
-
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResolution;
-using SFA.DAS.Commitments.Domain.Data;
-
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTriageResolution
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTriage
 {
     [TestFixture]
     public class WhenApprovingDataLock
     {
-        private UpdateDataLocksTriageResolutionHandler _sut;
-        private Mock<AbstractValidator<UpdateDataLocksTriageResolutionCommand>> _validator;
+        private ApproveDataLockTriageCommandHandler _sut;
+        private Mock<AbstractValidator<ApproveDataLockTriageCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
 
-        private UpdateDataLocksTriageResolutionCommand _command;
+        private ApproveDataLockTriageCommand _command;
 
         [SetUp]
         public void SetUp()
         {
-            _validator = new Mock<AbstractValidator<UpdateDataLocksTriageResolutionCommand>>();
+            _validator = new Mock<AbstractValidator<ApproveDataLockTriageCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
 
@@ -45,16 +42,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>()))
                 .ReturnsAsync(new Commitment());
 
-            _command = new UpdateDataLocksTriageResolutionCommand
-                           {
-                               DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.ApproveChanges,
-                               ApprenticeshipId = 4321
-                           };
+            _command = new ApproveDataLockTriageCommand
+            {
+                ApprenticeshipId = 4321
+            };
 
             _validator.Setup(m => m.Validate(_command))
                 .Returns(new ValidationResult());
 
-            _sut = new UpdateDataLocksTriageResolutionHandler(
+            _sut = new ApproveDataLockTriageCommandHandler(
             _validator.Object, 
             _dataLockRepository.Object, 
             _apprenticeshipRepository.Object,
@@ -70,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3}
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
                                   });
 
             await _sut.Handle(_command);
@@ -84,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
                 .ReturnsAsync(new List<DataLockStatus>
                       {
-                            new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3}
+                            new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
                       });
 
             await _sut.Handle(_command);
@@ -125,9 +121,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, IlrTotalCost = 505, ErrorCode = DataLockErrorCode.Dlock07, DataLockEventId = 1},
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, IlrTotalCost = 505, ErrorCode = DataLockErrorCode.Dlock07, DataLockEventId = 1, TriageStatus = TriageStatus.Change},
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Pass, IlrTotalCost = 499, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 2},
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), DataLockEventId = 3}
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), DataLockEventId = 3, TriageStatus = TriageStatus.Change}
                                   });
 
             await _sut.Handle(_command);
@@ -151,7 +147,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 505, ErrorCode = (DataLockErrorCode)76, DataLockEventId = 1},
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 506, ErrorCode = DataLockErrorCode.Dlock06, DataLockEventId = 2},
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3}
+                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
                                   });
 
             await _sut.Handle(_command);
@@ -172,17 +168,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
-                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-06-01"),  DataLockEventId = 1},
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-06-01"),  DataLockEventId = 1, TriageStatus = TriageStatus.Change},
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1600,
-                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-07-01"), DataLockEventId = 2},
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-07-01"), DataLockEventId = 2, TriageStatus = TriageStatus.Change},
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1700,
-                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-12-01"), DataLockEventId = 3}
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-12-01"), DataLockEventId = 3, TriageStatus = TriageStatus.Change}
                       });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
 
-            _command.DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.ApproveChanges;
             IEnumerable<PriceHistory> prices = null;
             _apprenticeshipRepository.Setup(
                 m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))
@@ -207,13 +202,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocksTria
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
-                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-06-01"),  DataLockEventId = 1}
+                                          ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Parse("2017-06-01"),  DataLockEventId = 1, TriageStatus = TriageStatus.Change}
                       });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L });
 
-            _command.DataLockUpdateType = Domain.Entities.DataLock.DataLockUpdateType.ApproveChanges;
             IEnumerable<PriceHistory> prices = null;
             _apprenticeshipRepository.Setup(
                 m => m.InsertPriceHistory(_command.ApprenticeshipId, It.IsAny<IEnumerable<PriceHistory>>()))

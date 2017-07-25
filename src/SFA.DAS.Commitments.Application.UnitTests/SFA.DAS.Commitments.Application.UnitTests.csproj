@@ -128,8 +128,8 @@
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
-    <Compile Include="Commands\UpdateDataLocksTriageResolution\WhenApprovingDataLock.cs" />
-    <Compile Include="Commands\UpdateDataLocksTriageResolution\WhenRejectingDataLock.cs" />
+    <Compile Include="Commands\ApproveDataLockTriage\WhenApprovingDataLockTriage.cs" />
+    <Compile Include="Commands\RejectDataLockTriage\WhenRejectingDataLockTriage.cs" />
     <Compile Include="Commands\TriageDataLocks\WhenTriagingDataLocks.cs" />
     <Compile Include="Commands\TriageDataLock\WhenTriagingDataLock.cs" />
     <Compile Include="Commands\TriageDataLock\WhenValidatingRequest.cs" />
