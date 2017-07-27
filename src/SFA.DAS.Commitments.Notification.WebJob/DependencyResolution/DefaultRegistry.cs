@@ -54,9 +54,20 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
         private void ConfigureNotificationsApi(CommitmentNotificationConfiguration config)
         {
-            var httpClient = new Http.HttpClientBuilder()
-                            .WithBearerAuthorisationHeader(new JwtBearerTokenGenerator(config.NotificationApi))
-                            .Build();
+            HttpClient httpClient;
+
+            if (string.IsNullOrWhiteSpace(config.NotificationApi.ClientId))
+            {
+                httpClient = new Http.HttpClientBuilder()
+                .WithBearerAuthorisationHeader(new JwtBearerTokenGenerator(config.NotificationApi))
+                .Build();
+            }
+            else
+            {
+                httpClient = new Http.HttpClientBuilder()
+                .WithBearerAuthorisationHeader(new AzureADBearerTokenGenerator(config.NotificationApi))
+                .Build();
+            }
 
             For<INotificationsApi>().Use<NotificationsApi>().Ctor<HttpClient>().Is(httpClient);
 
