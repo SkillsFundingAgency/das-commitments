@@ -2,35 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
-
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus;
+using SFA.DAS.Commitments.Application.Commands.TriageDataLocks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
-
 using DataLockErrorCode = SFA.DAS.Commitments.Domain.Entities.DataLock.DataLockErrorCode;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
 {
     [TestFixture]
-    public class WhenUpdatingDataLocks
+    public class WhenTriagingDataLocks
     {
-        private UpdateDataLocksTriageStatusCommandHandler _sut;
-        private Mock<AbstractValidator<UpdateDataLocksTriageStatusCommand>> _validator;
+        private TriageDataLockCommandHandler _sut;
+        private Mock<AbstractValidator<TriageDataLockCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
-        private UpdateDataLocksTriageStatusCommand _validCommand;
+        private TriageDataLockCommand _validCommand;
 
         [SetUp]
         public void SetUp()
         {
-            _validator = new Mock<AbstractValidator<UpdateDataLocksTriageStatusCommand>>();
-            _validator.Setup(x => x.Validate(It.IsAny<UpdateDataLocksTriageStatusCommand>()))
+            _validator = new Mock<AbstractValidator<TriageDataLockCommand>>();
+            _validator.Setup(x => x.Validate(It.IsAny<TriageDataLockCommand>()))
                 .Returns(() => new ValidationResult());
 
             _dataLockRepository = new Mock<IDataLockRepository>();
@@ -49,14 +46,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateDataLocks
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(null);
 
-            _validCommand = new UpdateDataLocksTriageStatusCommand
+            _validCommand = new TriageDataLockCommand
             {
                 ApprenticeshipId = 10082,
                 TriageStatus = Domain.Entities.DataLock.TriageStatus.Change,
                 UserId = "testuser"
             };
 
-            _sut = new UpdateDataLocksTriageStatusCommandHandler(
+            _sut = new TriageDataLockCommandHandler(
                 _validator.Object,
                 _dataLockRepository.Object);
         }

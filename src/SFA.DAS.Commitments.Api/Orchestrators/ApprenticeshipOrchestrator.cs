@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
 
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageResolution;
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLocksTriageStatus;
-using SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus;
 using SFA.DAS.Commitments.Application.Queries.GetDataLock;
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
 using SFA.DAS.Commitments.Application.Queries.GetPriceHistory;
@@ -16,7 +14,12 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage;
+using SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage;
+using SFA.DAS.Commitments.Application.Commands.TriageDataLock;
+using SFA.DAS.Commitments.Application.Commands.TriageDataLocks;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using TriageDataLockCommand = SFA.DAS.Commitments.Application.Commands.TriageDataLocks.TriageDataLockCommand;
 
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -146,7 +149,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId: apprenticeshipId);
 
-            await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
+            await _mediator.SendAsync(new Application.Commands.TriageDataLock.TriageDataLockCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
@@ -161,7 +164,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating data lock: {dataLockEventId} for apprenticeship: {apprenticeshipId} to triage status {triageSubmission.TriageStatus}", apprenticeshipId: apprenticeshipId, caller: caller);
 
-            await _mediator.SendAsync(new UpdateDataLockTriageStatusCommand
+            await _mediator.SendAsync(new Application.Commands.TriageDataLock.TriageDataLockCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 DataLockEventId = dataLockEventId,
@@ -177,7 +180,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
-            await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
+            await _mediator.SendAsync(new TriageDataLockCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
@@ -191,7 +194,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
 
-            await _mediator.SendAsync(new UpdateDataLocksTriageStatusCommand
+            await _mediator.SendAsync(new TriageDataLockCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
@@ -206,13 +209,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Resolving datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId);
 
-            await _mediator.SendAsync(new UpdateDataLocksTriageResolutionCommand
+            if (triageSubmission.DataLockUpdateType == Types.DataLock.Types.DataLockUpdateType.ApproveChanges)
             {
-                ApprenticeshipId = apprenticeshipId,
-                DataLockUpdateType = (DataLockUpdateType)triageSubmission.DataLockUpdateType,
-                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
-                UserId = triageSubmission.UserId
-            });
+                await _mediator.SendAsync(new ApproveDataLockTriageCommand
+                {
+                    ApprenticeshipId = apprenticeshipId,
+                    UserId = triageSubmission.UserId
+                });
+            }
+            else
+            {
+                await _mediator.SendAsync(new RejectDataLockTriageCommand
+                {
+                    ApprenticeshipId = apprenticeshipId,
+                    UserId = triageSubmission.UserId
+                });
+            }
 
             _logger.Info($"Resolved datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
         }
@@ -221,13 +233,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Resolving datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
 
-            await _mediator.SendAsync(new UpdateDataLocksTriageResolutionCommand
+            if (triageSubmission.DataLockUpdateType == Types.DataLock.Types.DataLockUpdateType.ApproveChanges)
             {
-                ApprenticeshipId = apprenticeshipId,
-                DataLockUpdateType = (DataLockUpdateType)triageSubmission.DataLockUpdateType,
-                TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
-                UserId = triageSubmission.UserId
-            });
+                await _mediator.SendAsync(new ApproveDataLockTriageCommand
+                {
+                    ApprenticeshipId = apprenticeshipId,
+                    UserId = triageSubmission.UserId
+                });
+            }
+            else
+            {
+                await _mediator.SendAsync(new RejectDataLockTriageCommand
+                {
+                    ApprenticeshipId = apprenticeshipId,
+                    UserId = triageSubmission.UserId
+                });
+            }
 
             _logger.Info($"Resolved datalock to: ({triageSubmission.DataLockUpdateType}), for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
         }

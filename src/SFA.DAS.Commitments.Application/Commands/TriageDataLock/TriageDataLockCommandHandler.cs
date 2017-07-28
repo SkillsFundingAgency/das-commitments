@@ -1,31 +1,29 @@
 using System;
 using System.Threading.Tasks;
-
 using FluentValidation;
 using MediatR;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
+namespace SFA.DAS.Commitments.Application.Commands.TriageDataLock
 {
-    public sealed class UpdateDataLockTriageStatusCommandHandler : AsyncRequestHandler<UpdateDataLockTriageStatusCommand>
+    public sealed class TriageDataLockCommandHandler : AsyncRequestHandler<TriageDataLockCommand>
     {
-        private readonly AbstractValidator<UpdateDataLockTriageStatusCommand> _validator;
+        private readonly AbstractValidator<TriageDataLockCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository; 
 
         private readonly ICommitmentsLogger _logger;
 
-        public UpdateDataLockTriageStatusCommandHandler(
-            AbstractValidator<UpdateDataLockTriageStatusCommand> validator,
+        public TriageDataLockCommandHandler(
+            AbstractValidator<TriageDataLockCommand> validator,
             IDataLockRepository dataLockRepository, 
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             ICommitmentsLogger logger)
         {
             if(validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<UpdateDataLockTriageStatusCommand>));
+                throw new ArgumentNullException(nameof(AbstractValidator<TriageDataLockCommand>));
             if(dataLockRepository == null)
                 throw new ArgumentNullException(nameof(IDataLockRepository));
             if(logger == null)
@@ -39,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateDataLockTriageStatus
             _logger = logger;
         }
 
-        protected override async Task HandleCore(UpdateDataLockTriageStatusCommand message)
+        protected override async Task HandleCore(TriageDataLockCommand message)
         {
             var validationResult = _validator.Validate(message);
 
