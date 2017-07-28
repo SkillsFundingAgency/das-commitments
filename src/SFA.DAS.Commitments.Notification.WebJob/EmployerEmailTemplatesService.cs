@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         {
             var alertSummaries = await _apprenticeshipRepository.GetEmployerApprenticeshipAlertSummary();
 
-            _logger.Info($"Found {alertSummaries.Count} summary records.");
+            _logger.Info($"Found {alertSummaries.Count} employer summary records.");
 
             var distinctAccountIdsFromAlert =
                 alertSummaries

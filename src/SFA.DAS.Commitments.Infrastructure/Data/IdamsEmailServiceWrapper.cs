@@ -111,7 +111,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     .RetryAsync(3,
                         (exception, retryCount) =>
                         {
-                            _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                            _logger.Warn($"Error connecting to Provider Idams Api: ({exception.Message}). Retrying...attempt {retryCount})");
                         }
                     );
         }
