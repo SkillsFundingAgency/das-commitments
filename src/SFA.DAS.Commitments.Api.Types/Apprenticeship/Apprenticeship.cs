@@ -37,6 +37,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public bool DataLockPriceTriaged { get; set; }
         public bool DataLockCourse { get; set; }
         public bool DataLockCourseTriaged { get; set; }
+        public bool DataLockTriagedAsRestart { get; set; }
 
         public string ApprenticeshipName => $"{FirstName} {LastName}";
     }
