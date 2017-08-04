@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -7,6 +8,7 @@ using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Types;
 using ApprenticeshipEvent = SFA.DAS.Events.Api.Types.ApprenticeshipEvent;
+using System.Linq;
 
 namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEventsTests
 {
@@ -48,7 +50,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                 PaymentStatus = Domain.Entities.PaymentStatus.Active,
                 TrainingType = TrainingType.Framework,
                 PaymentOrder = 213,
-                DateOfBirth = DateTime.Now.AddYears(-18)
+                DateOfBirth = DateTime.Now.AddYears(-18),
+                PriceHistory = new List<Domain.Entities.PriceHistory> { new Domain.Entities.PriceHistory { ApprenticeshipId = 34875, Cost = 123.45m, FromDate = DateTime.Now.AddDays(1), ToDate = null } }
             };
         }
 
@@ -70,7 +73,25 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.LegalEntityId == Commitment.LegalEntityId &&
                    apprenticeshipEvent.LegalEntityName == Commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == Commitment.LegalEntityOrganisationType.ToString() &&
-                   apprenticeshipEvent.DateOfBirth == Apprenticeship.DateOfBirth;
+                   apprenticeshipEvent.DateOfBirth == Apprenticeship.DateOfBirth &&
+                   PriceHistoryIsValid(apprenticeshipEvent.PriceHistory);
+        }
+
+        private bool PriceHistoryIsValid(IEnumerable<Events.Api.Types.PriceHistory> priceHistory)
+        {
+            if (Apprenticeship.PriceHistory == null && (priceHistory != null && priceHistory.Count() != 0))
+                return false;
+
+            if (Apprenticeship.PriceHistory != null)
+            {
+                if (priceHistory == null)
+                    return false;
+
+                if (Apprenticeship.PriceHistory.Count != priceHistory.Count())
+                    return false;
+            }
+
+            return true;
         }
     }
 }

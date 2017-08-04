@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Events.Api.Client;
@@ -102,8 +103,19 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
                 DateOfBirth = apprenticeship.DateOfBirth,
                 EffectiveFrom = effectiveFrom,
-                EffectiveTo = effectiveTo
+                EffectiveTo = effectiveTo,
+                PriceHistory = MapPriceHistory(apprenticeship.PriceHistory),
             };
+        }
+
+        private static IEnumerable<Events.Api.Types.PriceHistory> MapPriceHistory(IEnumerable<Domain.Entities.PriceHistory> source)
+        {
+            return source.Select(x => new Events.Api.Types.PriceHistory
+            {
+                TotalCost = x.Cost,
+                EffectiveFrom = x.FromDate,
+                EffectiveTo = x.ToDate
+            });
         }
     }
 }
