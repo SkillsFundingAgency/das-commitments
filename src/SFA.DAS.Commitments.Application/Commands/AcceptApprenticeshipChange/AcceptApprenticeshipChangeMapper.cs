@@ -1,4 +1,6 @@
 ﻿using SFA.DAS.Commitments.Domain.Entities;
+using System;
+using System.Linq;
 
 namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 {
@@ -25,10 +27,24 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 
             apprenticeship.DateOfBirth = update.DateOfBirth ?? apprenticeship.DateOfBirth;
 
-            apprenticeship.Cost = update.Cost ?? apprenticeship.Cost;
-
             apprenticeship.StartDate = update.StartDate ?? apprenticeship.StartDate;
             apprenticeship.EndDate = update.EndDate ?? apprenticeship.EndDate;
+
+            UpdatePrice(apprenticeship, update);
+
+        }
+
+        private static void UpdatePrice(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
+        {
+            apprenticeship.Cost = update.Cost ?? apprenticeship.Cost;
+
+            if (update.Cost.HasValue)
+            {
+                if (apprenticeship.PriceHistory.Count > 1)
+                    throw new InvalidOperationException("Multiple Prices History Items not expected.");
+
+                apprenticeship.PriceHistory.Single().Cost = update.Cost.Value;
+            }
         }
     }
 
