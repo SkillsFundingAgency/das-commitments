@@ -10,10 +10,13 @@ using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client.Configuration;
 using StructureMap;
 using System;
+using System.Net.Http;
 using System.Reflection;
 
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Notification.WebJob.Services;
+using SFA.DAS.Http.TokenGenerators;
+using SFA.DAS.Notifications.Api.Client;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 {
@@ -34,6 +37,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 
             For<IAccountApiClient>().Use<AccountApiClient>()
                 .Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
+
             For<ProviderUserApiConfiguration>().Use(config.ProviderUserApi);
 
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
@@ -42,10 +46,32 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<IProviderEmailTemplatesService>().Use<ProviderEmailTemplatesService>();
             For<INotificationJob>().Use<NotificationJob>();
 
-            For<INotificationsApiClientConfiguration>().Use(config.NotificationApi);
+            ConfigureNotificationsApi(config);
 
             For<IConfiguration>().Use(config);
             For<ILog>().Use(x => new NLogLogger(x.ParentType, null, null)).AlwaysUnique();
+        }
+
+        private void ConfigureNotificationsApi(CommitmentNotificationConfiguration config)
+        {
+            HttpClient httpClient;
+
+            if (string.IsNullOrWhiteSpace(config.NotificationApi.ClientId))
+            {
+                httpClient = new Http.HttpClientBuilder()
+                .WithBearerAuthorisationHeader(new JwtBearerTokenGenerator(config.NotificationApi))
+                .Build();
+            }
+            else
+            {
+                httpClient = new Http.HttpClientBuilder()
+                .WithBearerAuthorisationHeader(new AzureADBearerTokenGenerator(config.NotificationApi))
+                .Build();
+            }
+
+            For<INotificationsApi>().Use<NotificationsApi>().Ctor<HttpClient>().Is(httpClient);
+
+            For<INotificationsApiClientConfiguration>().Use(config.NotificationApi);
         }
 
         private void ConfigureEmailWrapper(CommitmentNotificationConfiguration config)
