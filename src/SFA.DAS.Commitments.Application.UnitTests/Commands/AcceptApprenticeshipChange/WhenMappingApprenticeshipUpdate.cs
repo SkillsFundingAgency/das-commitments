@@ -3,6 +3,8 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Domain.Entities;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshipChange
 {
@@ -43,7 +45,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     UpdateOriginator = Originator.Provider,
                     ProviderName = "Provider name",
                     LegalEntityName = "Legal entity name",
-                    DataLockCourse = true
+                    DataLockCourse = true,
+
+                    PriceHistory = new List<PriceHistory>
+                    {
+                        new PriceHistory { FromDate = new DateTime(2020, 12, 01), Cost = 1234, ApprenticeshipId = 55 }
+                    }
             };
         }
 
@@ -128,6 +135,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             _apprenticeship.Cost.Should().Be(1500);
 
             EnsureNoOtherChanges();
+        }
+
+        [Test]
+        public void UpdateCostWhenSinglePriceHistory()
+        {
+            var update = new ApprenticeshipUpdate
+            {
+                Cost = 32333
+            };
+
+            _sut.ApplyUpdate(_apprenticeship, update);
+
+
+            _apprenticeship.PriceHistory.Single().Cost.Should().Be(32333);
+        }
+
+        [Test]
+        public void UpdateCostWhenMultiplePriceHistory()
+        {
+            _apprenticeship.PriceHistory = new List<PriceHistory>
+                    {
+                        new PriceHistory { FromDate = new DateTime(2020, 12, 01), ToDate = new DateTime(2021, 01, 31), Cost = 1234, ApprenticeshipId = 55 },
+                        new PriceHistory { FromDate = new DateTime(2021, 02, 01), Cost = 1234, ApprenticeshipId = 55 }
+                    };
+
+            var update = new ApprenticeshipUpdate
+            {
+                Cost = 32333
+            };
+
+            Action act = () => _sut.ApplyUpdate(_apprenticeship, update);
+
+            act.ShouldThrow<InvalidOperationException>().Which.Message.Should().Be("Multiple Prices History Items not expected.");
         }
     }
 }
