@@ -144,7 +144,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [TestCase(".email @example.com")]
         [TestCase("email.@example.com")]
         [TestCase("email..email @example.com")]
-        [TestCase("あいうえお@example.com")]
         [TestCase("email@example.com (Joe Smith)")]
         [TestCase("email @example")]
         [TestCase("email@-example.com")]
