@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             var emails = await _emailTemplatesService.GetEmails();
 
-            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine emails to send, JobId: {jobId}", 
+            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine employer emails to send, JobId: {jobId}", 
                 new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
 
             return emails;
@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             var emails = await _providerEmailTemplatesService.GetEmails();
 
-            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine emails to send, JobId: {jobId}", 
+            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine provider emails to send, JobId: {jobId}", 
                 new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
 
             return emails;
