@@ -460,7 +460,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var sql =
-                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted};";
+                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted} ORDER BY a.FirstName asc, a.LastName asc;";
 
                 var apprenticeships = new Dictionary<long, Apprenticeship>();
 
