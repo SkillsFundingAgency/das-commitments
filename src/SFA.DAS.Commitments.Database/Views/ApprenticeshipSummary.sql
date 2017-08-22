@@ -83,6 +83,8 @@ SELECT
         [Status] = 2 
       AND 
         [IsResolved] = 0
+	  AND 
+		SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2018' -- TODO: 17/07/2018 - Temporary Fix for new academic year data lock errors.
       ORDER BY 
         IlrEffectiveFromDate, Id
 		)
@@ -91,6 +93,7 @@ SELECT
 		SELECT TOP 1 Id from DataLockStatus
 		where ApprenticeshipId = a.Id and ErrorCode = 64 and TriageStatus = 1
 		and [Status] = 2 AND [IsResolved] = 0
+		and SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2018' -- TODO: 17/07/2018 - Temporary Fix for new academic year data lock errors.
 	)
 	LEFT JOIN DataLockStatus dlCourse on dlCourse.Id =
 	(
@@ -99,6 +102,7 @@ SELECT
 		and (ErrorCode & 4 = 4  OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
 		and TriageStatus = 0
 		and [Status] = 2 AND [IsResolved] = 0
+		and SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2018' -- TODO: 17/07/2018 - Temporary Fix for new academic year data lock errors.
 	)
 	LEFT JOIN DataLockStatus dlCourseTriaged on dlCourseTriaged.Id =
 	(
@@ -107,4 +111,5 @@ SELECT
 		and (ErrorCode & 4 = 4 OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
 		and TriageStatus = 2
 		and [Status] = 2 AND [IsResolved] = 0
+		and SUBSTRING(PriceEpisodeIdentifier,LEN(PriceEpisodeIdentifier)-9,10) <> '01/08/2018' -- TODO: 17/07/2018 - Temporary Fix for new academic year data lock errors.
 	)
