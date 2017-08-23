@@ -20,7 +20,13 @@
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId] ON [dbo].[Commitment] ([ProviderId])
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId] ON [dbo].[Commitment] ([ProviderId]) include([CommitmentStatus])
 GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId] ON [dbo].[Commitment] ([EmployerAccountId])
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_Status]
+ON [dbo].[Commitment] ([ProviderId],[CommitmentStatus])
+INCLUDE ([Reference],[EmployerAccountId],[LegalEntityId],[LegalEntityName],[LegalEntityAddress],[LegalEntityOrganisationType],[ProviderName],[EditStatus],[CreatedOn],[LastAction],[LastUpdatedByEmployerName],[LastUpdatedByEmployerEmail],[LastUpdatedByProviderName],[LastUpdatedByProviderEmail])
+GO
