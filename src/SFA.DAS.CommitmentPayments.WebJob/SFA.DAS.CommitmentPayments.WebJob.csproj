@@ -127,6 +127,9 @@
     <Compile Include="Configuration\CommitmentPaymentsConfiguration.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
+    <Compile Include="Updater\AcademicYearFilterException.cs" />
+    <Compile Include="Updater\FilterOutAcademicYearRollOverDataLocks.cs" />
+    <Compile Include="Updater\IFilterOutAcademicYearRollOverDataLocks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Updater\DataLockUpdater.cs" />

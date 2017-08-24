@@ -21,14 +21,15 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly CommitmentPaymentsConfiguration _config;
-
+        private readonly IFilterOutAcademicYearRollOverDataLocks _filterAcademicYearRolloverDataLocks;
         private readonly IList<DataLockErrorCode> _whiteList;
 
         public DataLockUpdater(ILog logger,
             IPaymentEvents paymentEventsService,
             IDataLockRepository dataLockRepository,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
-            CommitmentPaymentsConfiguration config)
+            CommitmentPaymentsConfiguration config,
+            IFilterOutAcademicYearRollOverDataLocks filter)
         {
             if(logger==null)
                 throw new ArgumentNullException(nameof(ILog));
@@ -40,12 +41,15 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 throw new ArgumentNullException(nameof(IApprenticeshipUpdateRepository));
             if(config == null)
                 throw new ArgumentNullException(nameof(CommitmentPaymentsConfiguration));
+            if (filter == null)
+                throw new ArgumentNullException(nameof(IFilterOutAcademicYearRollOverDataLocks));
 
             _logger = logger;
             _paymentEventsSerivce = paymentEventsService;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _config = config;
+            _filterAcademicYearRolloverDataLocks = filter;
 
             _whiteList = new List<DataLockErrorCode>
             {
@@ -55,7 +59,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 DataLockErrorCode.Dlock06,
                 DataLockErrorCode.Dlock07
             };
-
         }
 
         public async Task RunUpdate()
@@ -107,6 +110,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         try
                         {
                             await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
+
+                            await _filterAcademicYearRolloverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
                         }
                         catch(RepositoryConstraintException) when (_config.IgnoreDataLockStatusConstraintErrors)
                         {
