@@ -29,7 +29,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 .GroupBy(x => x.IlrEffectiveFromDate)
                 .Where(g => g.Count() > 1);
             
-
             foreach(var group in haveDuplicates)
             {
                 var augustDataLock = group.OrderByDescending(x => x.PriceEpisodeIdentifier).First();
