@@ -135,5 +135,23 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
             _mockLogger.Verify(x => x.Error(It.IsAny<AcademicYearFilterException>(), It.IsAny<string>()), Times.Never);
         }
+
+        [Test(Description = "When there data lock roll over events for next year it should delete these")]
+        public async Task WhenHasDuplicateDataLocksButForNextYear()
+        {
+            DateTime duplicatIlreEffectiveFromDate = new DateTime(2017, 07, 01);
+
+            List<DataLockStatus> apprenticeshipDataLocks = new List<DataLockStatus>
+            {
+                new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/09/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 },
+                new DataLockStatus { DataLockEventId = 2, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2018", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
+            };
+
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+
+            await _filter.Filter(123);
+
+            _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 2)), Times.Once);
+        }
     }
 }
