@@ -265,7 +265,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add($"@id", identifierValue);
 
                 var results = await c.QueryAsync(
-                    sql: $"SELECT * FROM [dbo].[CommitmentSummaryWithMessages] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted};",
+                    sql: $"SELECT * FROM [dbo].[CommitmentSummaryWithMessages] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted} ORDER BY CreatedOn DESC;",
                     param: parameters,
                     map: mapper.Map(lookup, x => x.Id, x => x.Messages),
                     splitOn: "CommitmentId");
