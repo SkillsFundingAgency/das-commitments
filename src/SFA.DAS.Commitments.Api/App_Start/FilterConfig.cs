@@ -6,9 +6,8 @@ namespace SFA.DAS.Commitments.Api
     {
         public static void RegisterGlobalFilters(HttpFilterCollection filters)
         {
-            // ToDo: Add action filter from NLog
-            // Request and session
-            //filters.Add(new HeaderTestActionFilter());
+            filters.Add(new NLog.Logger.Web.RequestIdHttpActionFilter());
+            filters.Add(new NLog.Logger.Web.SessionIdHttpActionFilter());
         }
     }
 }
