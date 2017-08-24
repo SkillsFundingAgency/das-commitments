@@ -26,16 +26,29 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 return;
 
             var haveDuplicates = apprenticeshipDataLocks
-                .GroupBy(x => x.IlrEffectiveFromDate)
+                .GroupBy(x => new
+                    {
+                        x.IlrTrainingCourseCode,
+                        x.IlrTrainingType,
+                        x.IlrActualStartDate,
+                        x.IlrEffectiveFromDate,
+                        x.IlrTotalCost
+                    })
                 .Where(g => g.Count() > 1);
             
             foreach(var group in haveDuplicates)
             {
-                var augustDataLock = group.OrderByDescending(x => x.PriceEpisodeIdentifier).First();
+                var augustDataLock = group
+                    .Select(x => new
+                        {
+                            DataLockEventId = x.DataLockEventId,
+                            PriceEpisodeIdentifier = x.PriceEpisodeIdentifier,
+                            PriceEpisodeIdMonthYear = x.PriceEpisodeIdentifier.Substring(x.PriceEpisodeIdentifier.Length - 7),
+                            IsAugustPriceEpisode = _augustPricePeriodFormat.IsMatch(x.PriceEpisodeIdentifier)
+                    })
+                    .OrderByDescending(x => x.PriceEpisodeIdMonthYear).First();
 
-                var isAugustPriceEpisodeId = _augustPricePeriodFormat.IsMatch(augustDataLock.PriceEpisodeIdentifier);
-
-                if (!isAugustPriceEpisodeId)
+                if (!augustDataLock.IsAugustPriceEpisode)
                 {
                     var message = $"Unexpected price episode identifier matched: {augustDataLock.PriceEpisodeIdentifier} for apprenticeship: {apprenticeshipId}";
                     var exception = new AcademicYearFilterException(message);
