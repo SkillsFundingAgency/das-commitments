@@ -148,5 +148,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 return 0;
             });
         }
+
+        public async Task Delete(long dataLockEventId)
+        {
+            await WithConnection(async (connection) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@DataLockEventId", dataLockEventId);
+
+                return await connection.ExecuteAsync(
+                    sql: "DELETE [dbo].[DataLockStatus] "
+                       + "WHERE DataLockEventId = @DataLockEventId",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+        }
     }
 }

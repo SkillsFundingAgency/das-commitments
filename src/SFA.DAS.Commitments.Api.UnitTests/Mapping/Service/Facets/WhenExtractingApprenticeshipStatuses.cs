@@ -29,28 +29,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.Facets
         }
 
         [Test]
-        [Ignore("Should never get apprenticeships with payment status -> PendingApproval <- ")]
-        public void ShouldNotAddFacetPendingApproval()
-        {
-            _data.Add(new Apprenticeship
-                        {
-                            FirstName = "Pending approval",
-                            PaymentStatus = PaymentStatus.PendingApproval
-                        });
-
-            var result = _sut.BuildFacets(_data, _userQuery, Originator.Provider);
-
-            result.ApprenticeshipStatuses.Count.Should().Be(0);
-
-            AssertStatus(result, ApprenticeshipStatus.WaitingToStart, 0);
-            AssertStatus(result, ApprenticeshipStatus.Live, 0);
-            AssertStatus(result, ApprenticeshipStatus.Paused, 0);
-            AssertStatus(result, ApprenticeshipStatus.Stopped, 0);
-            AssertStatus(result, ApprenticeshipStatus.Finished, 0);
-        }
-
-
-        [Test]
         public void ShouldOnlyCreateOneFacetPerStatus()
         {
             _data.Add(new Apprenticeship

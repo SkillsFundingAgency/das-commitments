@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             _config = new CommitmentPaymentsConfiguration();
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
             _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(page2);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -139,7 +139,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
             _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(page2);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                     UpdateOrigin = updateOrigin
                 });
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -206,7 +206,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents = new Mock<IPaymentEvents>();
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -235,7 +235,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents = new Mock<IPaymentEvents>();
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -260,7 +260,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
             _dataLockRepository.Setup(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>())).Throws(new RepositoryConstraintException());
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             Assert.ThrowsAsync<RepositoryConstraintException>(async () => await _dataLockUpdater.RunUpdate());
         }
@@ -281,7 +281,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
             _dataLockRepository.Setup(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>())).Throws(new RepositoryConstraintException());
 
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config);
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             _config.IgnoreDataLockStatusConstraintErrors = true;
 
