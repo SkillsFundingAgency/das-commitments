@@ -8,10 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater.FilterOutAcademicYearRolloverDataLocks
+namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 {
     [TestFixture]
-    public sealed class WhenCurrentDataLockIsForAugustPeriod
+    public sealed class WhenFilteringAcademicYearRolloverDatalocks
     {
         private Mock<IDataLockRepository> _mockDataLockRepository;
         private Mock<ILog> _mockLogger;
@@ -25,8 +25,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater.FilterOutAcademicY
             _filter = new FilterOutAcademicYearRollOverDataLocks(_mockDataLockRepository.Object, _mockLogger.Object);
         }
 
-        [Test]
-        public async Task WhenRepoHasNoDataLocksThenNothingIsDeleted()
+        [Test(Description = "No datalocks for apprenticeship so nothing to do")]
+        public async Task WhenNoDataLocks()
         {
             List<DataLockStatus> apprenticeshipDataLocks = new List<DataLockStatus>();
 
@@ -35,8 +35,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater.FilterOutAcademicY
             _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
         }
 
-        [Test]
-        public async Task WhenRepoDoesNotHaveLocksWithTheSameEffectiveFromDateThenNothingIsDeleted()
+        [Test(Description = "When has data locks but there are none with the same effective date then do nothing")]
+        public async Task WhenNoDuplicateDatalocksForEffectiveDate()
         {
             List<DataLockStatus> apprenticeshipDataLocks = new List<DataLockStatus>
             {
@@ -53,8 +53,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater.FilterOutAcademicY
             _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Never);
         }
 
-        [Test]
-        public async Task WhenRepoHasDataLocksWithTheSameEffectiveFromDateWithSameStatusThenShouldDeleteTheLatestOne()
+        [Test(Description = "When there are duplicate datalocks with the same effective date then delete the latest if it's for August price period.")]
+        public async Task WhenHasDuplicateDatalocksForEffectiveDate()
         {
             DateTime duplicatIlreEffectiveFromDate = new DateTime(2017, 07, 01);
 
@@ -73,8 +73,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater.FilterOutAcademicY
             _mockDataLockRepository.Verify(x => x.Delete(It.Is<long>(a => a == 4)), Times.Once);
         }
 
-        [Test]
-        public async Task WhenRepoHasDataLocksWithTheSameEffectiveButLatestIsNotAugustShouldLogAndNotDeleteAnythig()
+        [Test(Description = "When there are duplicate datalocks with the same effective date but the price episode isn't august do nothing other than log an error")]
+        public async Task WhenHasDuplicateDataLocksButLatestIsntAugust()
         {
             DateTime duplicatIlreEffectiveFromDate = new DateTime(2017, 07, 01);
 
