@@ -19,3 +19,6 @@
 	[EffectiveToDate] DATETIME NULL
 )
 GO
+
+CREATE INDEX [IDX_APPRENTICESHIPUPDATE_APPRENTICESHIPID] ON [dbo].[ApprenticeshipUpdate] ([ApprenticeshipId]) WITH(ONLINE=ON)
+GO
