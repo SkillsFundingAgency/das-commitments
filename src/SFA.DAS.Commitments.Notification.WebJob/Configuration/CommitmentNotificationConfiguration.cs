@@ -21,5 +21,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
         public NotificationsApiClientConfiguration NotificationApi { get; set; }
 
         public ProviderUserApiConfiguration ProviderUserApi { get; set; }
+
+        public PasAccountApiConfiguration ProviderAccountUserApi { get; set; }
     }
 }

@@ -10,6 +10,10 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
+using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.PAS.Account.Api.Types;
+
+using IAccountApiClient = SFA.DAS.PAS.Account.Api.Client.IAccountApiClient;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 {
@@ -21,6 +25,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
         private Mock<IProviderEmailServiceWrapper> _providerUserService;
 
         private ProviderEmailTemplatesService _sut;
+
+        private Mock<IAccountApiClient> _accountService;
 
         [SetUp]
         public void SetUp()
@@ -54,10 +60,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
                                 }
                         });
 
+            _accountService = new Mock<PAS.Account.Api.Client.IAccountApiClient>();
+
             _sut = new ProviderEmailTemplatesService(
                 _apprenticeshipRepostory.Object,
                 Mock.Of<ICommitmentsLogger>(),
-                _providerUserService.Object
+                _providerUserService.Object,
+                _accountService.Object
                 );
         }
 
@@ -150,6 +159,133 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             email.Tokens["mismatch_changes"].Should().Be("* 1 with an ILR data mismatch");
 
             email.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
+        }
+
+        [Test]
+        public async Task WhenOneUserFromAccountsIsReturndBothGetsEmail()
+        {
+            _apprenticeshipRepostory.Setup(m => m.GetProviderApprenticeshipAlertSummary())
+                .ReturnsAsync(new List<ProviderAlertSummary>
+                                  {
+                                      new ProviderAlertSummary
+                                          {
+                                              ChangesForReview = 1,
+                                              DataMismatchCount = 1,
+                                              ProviderId = 12345,
+                                              ProviderName = "Test Provider 1",
+                                              TotalCount = 1
+                                          }
+                                  });
+
+            _providerUserService.Setup(m => m.GetUsersAsync(12345))
+                .ReturnsAsync(
+                    new List<ProviderUser>
+                        {
+                            new ProviderUser
+                                {
+                                    Email = "notfound@email.com",
+                                    FamilyName = "Testerson",
+                                    GivenName = "NotFound",
+                                    Title = "Mr",
+                                    Ukprn = 12345
+                                },
+                            new ProviderUser
+                                {
+                                    Email = "found@email.com",
+                                    FamilyName = "Testerson",
+                                    GivenName = "Found",
+                                    Title = "Mr",
+                                    Ukprn = 12345
+                                }
+                        });
+
+            _accountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
+                new List<User>
+                {
+                    new User
+                        {
+                            EmailAddress = "found@email.COM",
+                            ReceiveNotifications = true,
+                            UserRef = "user1"
+                        }
+                });
+
+            var emails = (await _sut.GetEmails()).ToArray();
+
+            emails.Length.Should().Be(2);
+            var first = emails[0];
+            var second = emails[1];
+
+            first.Tokens["name"].Should().Be("NotFound");
+            first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
+            first.Tokens["provider_name"].Should().Be("Test Provider 1");
+
+            first.Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
+            first.Tokens["mismatch_changes"].Should().Be("* 1 with an ILR data mismatch");
+
+            first.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
+
+            second.Tokens["name"].Should().Be("Found");
+        }
+
+        [Test]
+        public async Task WhenUserFromAccountsAPIHaveTurnedOffNotification()
+        {
+            _apprenticeshipRepostory.Setup(m => m.GetProviderApprenticeshipAlertSummary())
+                .ReturnsAsync(new List<ProviderAlertSummary>
+                                  {
+                                      new ProviderAlertSummary
+                                          {
+                                              ChangesForReview = 1,
+                                              DataMismatchCount = 1,
+                                              ProviderId = 12345,
+                                              ProviderName = "Test Provider 1",
+                                              TotalCount = 1
+                                          }
+                                  });
+
+            _providerUserService.Setup(m => m.GetUsersAsync(12345))
+                .ReturnsAsync(
+                    new List<ProviderUser>
+                        {
+                            new ProviderUser
+                                {
+                                    Email = "found-on@email.com",
+                                    FamilyName = "Testerson",
+                                    GivenName = "Found-ON",
+                                    Title = "Mr",
+                                    Ukprn = 12345
+                                },
+                            new ProviderUser
+                                {
+                                    Email = "found-off@email.com",
+                                    FamilyName = "Testerson",
+                                    GivenName = "Found-OFF",
+                                    Title = "Mr",
+                                    Ukprn = 12345
+                                }
+                        });
+
+            _accountService.Setup(m => m.GetAccountUsers(12345)).ReturnsAsync(
+                new List<User>
+                {
+                    new User { EmailAddress = "found-on@email.COM", ReceiveNotifications = true, UserRef = "user1" },
+                    new User { EmailAddress = "found-off@email.COM", ReceiveNotifications = false, UserRef = "user2" }
+                });
+
+            var emails = (await _sut.GetEmails()).ToArray();
+
+            emails.Length.Should().Be(1);
+            var first = emails[0];
+
+            first.Tokens["name"].Should().Be("Found-ON");
+            first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
+            first.Tokens["provider_name"].Should().Be("Test Provider 1");
+
+            first.Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
+            first.Tokens["mismatch_changes"].Should().Be("* 1 with an ILR data mismatch");
+
+            first.Tokens["link_to_mange_apprenticeships"].Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");
         }
     }
 }
