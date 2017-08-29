@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
+    <Compile Include="Configuration\CurrentDatePolicy.cs" />
     <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
