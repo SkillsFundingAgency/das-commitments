@@ -7,7 +7,8 @@
 	@LegalEntityName NVARCHAR(100),
 	@LegalEntityAddress NVARCHAR(256),
 	@LegalEntityOrganisationType TINYINT,
-	@Verified BIT
+	@Verified BIT,
+	@CreatedOn DATETIME
 )
 as
 
@@ -33,7 +34,7 @@ values
 	@LegalEntityAddress,
 	@LegalEntityOrganisationType,
 	@Verified,
-	GETDATE()
+	@CreatedOn
 )
 
 SELECT SCOPE_IDENTITY()

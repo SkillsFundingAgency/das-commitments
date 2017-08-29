@@ -14,13 +14,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
     public class ApprenticeshipTransactions : IApprenticeshipTransactions
     {
         private readonly ICommitmentsLogger _logger;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public ApprenticeshipTransactions(ICommitmentsLogger logger)
+        public ApprenticeshipTransactions(ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
         {
             if(logger == null)
                 throw new ArgumentNullException(nameof(logger));
+            if(currentDateTime == null)
+                throw new ArgumentNullException(nameof(currentDateTime));
 
             _logger = logger;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<long> CreateApprenticeship(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
@@ -87,12 +91,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             var paras = new DynamicParameters();
             paras.Add("@apprenticeshipId", apprenticeship.Id, DbType.Int64);
             paras.Add("@cost", apprenticeship.Cost, DbType.Decimal);
+            paras.Add("@now", _currentDateTime.Now.ToString("o"), DbType.DateTime);
 
             await connection.ExecuteAsync(
                 sql: " UPDATE[dbo].[PriceHistory] " 
                      + "SET Cost = @cost "
                      + "WHERE ApprenticeshipId = @apprenticeshipId "
-                     + "AND( (FromDate <=GETDATE() AND ToDate >= FORMAT(GETDATE(), 'yyyMMdd')) " 
+                     + "AND( (FromDate <= @now AND ToDate >= FORMAT(@now, 'yyyMMdd')) "
                      + "OR ToDate IS NULL);", 
                 param: paras,
                 transaction: trans,

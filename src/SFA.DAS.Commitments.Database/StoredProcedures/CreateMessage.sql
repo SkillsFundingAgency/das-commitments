@@ -2,10 +2,11 @@
 	@CommitmentId BIGINT,
 	@Author NVARCHAR(255),
 	@Text NVARCHAR(MAX),
-	@CreatedBy TINYINT
+	@CreatedBy TINYINT,
+	@CreatedDateTime DATETIME
 AS
 
 INSERT INTO [dbo].[Message]
 	(CommitmentId, Author, [Text], CreatedBy, CreatedDateTime)
 VALUES
-	(@CommitmentId, @Author, @Text, @CreatedBy, GETDATE())
+	(@CommitmentId, @Author, @Text, @CreatedBy, @CreatedDateTime)

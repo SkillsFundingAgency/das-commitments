@@ -6,10 +6,11 @@
     @changeType NVARCHAR(50),
     @updatedByName NVARCHAR(255), 
     @originalState NVARCHAR(MAX), 
-    @updatedState NVARCHAR(MAX)
+    @updatedState NVARCHAR(MAX),
+	@createdOn DATETIME
 AS
 
 INSERT INTO [dbo].[History]
 	(EntityType, EntityId, UserId, UpdatedByRole, ChangeType, CreatedOn, UpdatedByName, OriginalState, UpdatedState)
 VALUES
-	(@entityType, @entityId, @userId, @updatedByRole, @changeType, GETDATE(), @updatedByName, @originalState, @updatedState)
+	(@entityType, @entityId, @userId, @updatedByRole, @changeType, @createdOn, @updatedByName, @originalState, @updatedState)

@@ -5,11 +5,19 @@ using System.Linq;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Domain.Extensions;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class FacetMapper
     {
+        private ICurrentDateTime _currentDateTime;
+
+        public FacetMapper(ICurrentDateTime currentDateTime)
+        {
+            _currentDateTime = currentDateTime;
+        }
+
         public virtual Facets BuildFacets(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var facets = new Facets
@@ -26,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
         public ApprenticeshipStatus MapPaymentStatus(PaymentStatus paymentStatus, DateTime? apprenticeshipStartDate)
         {
-            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            var now = new DateTime(_currentDateTime.Now.Year, _currentDateTime.Now.Month, 1);
             var waitingToStart = apprenticeshipStartDate.HasValue && apprenticeshipStartDate.Value > now;
 
             switch (paymentStatus)
