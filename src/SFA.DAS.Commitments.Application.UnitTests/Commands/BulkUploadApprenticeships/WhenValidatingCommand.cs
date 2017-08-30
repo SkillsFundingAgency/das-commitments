@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Learners.Validators;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -18,6 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
     {
         private BulkUploadApprenticeshipsValidator _validator;
         private BulkUploadApprenticeshipsCommand _exampleCommand;
+        private Mock<IUlnValidator> _mockUlnValidator;
 
         [SetUp]
         public void Setup()
@@ -25,7 +27,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             var fixture = new Fixture();
             var mockApprenticeshipValidator = new Mock<AbstractValidator<Apprenticeship>>();
 
-            _validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
+            _mockUlnValidator = new Mock<IUlnValidator>();
+
+            _validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object));
 
             var exampleValidApprenticeships = new List<Apprenticeship>
             {
@@ -122,7 +126,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ThenOneOfTheULNsIsInValid()
         {
-            _exampleCommand.Apprenticeships.ToList()[1].ULN = "abc123";
+            var ulnNumber = "abc123";
+
+            _exampleCommand.Apprenticeships.ToList()[1].ULN = ulnNumber;
+
+            _mockUlnValidator
+              .Setup(m => m.Validate(ulnNumber))
+              .Returns(UlnValidationResult.IsInValidTenDigitUlnNumber);
 
             var result = _validator.Validate(_exampleCommand);
 
