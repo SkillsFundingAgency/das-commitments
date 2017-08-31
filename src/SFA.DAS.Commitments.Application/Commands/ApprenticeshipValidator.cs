@@ -4,6 +4,7 @@ using FluentValidation;
 
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Learners.Validators;
 
 namespace SFA.DAS.Commitments.Application.Commands
 {
@@ -11,10 +12,12 @@ namespace SFA.DAS.Commitments.Application.Commands
     {
         private static Func<string, int, bool> _lengthLessThanFunc = (str, length) => (str?.Length ?? length) < length;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IUlnValidator _ulnValidator;
 
-        public ApprenticeshipValidator(ICurrentDateTime currentDate)
+        public ApprenticeshipValidator(ICurrentDateTime currentDate, IUlnValidator ulnValidator)
         {
             _currentDateTime = currentDate;
+            _ulnValidator = ulnValidator;
 
             ValidateFirstName();
             ValidateLastName();
@@ -41,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands
 
         private void ValidateUln()
         {
-            RuleFor(x => x.ULN).Matches("^$|^[1-9]{1}[0-9]{9}$").Must(m => m != "9999999999");
+            RuleFor(x => x.ULN).Must(BeValidUlnNumber);
         }
 
         private void ValidateDateOfBirth()
@@ -148,5 +151,12 @@ namespace SFA.DAS.Commitments.Application.Commands
 
             return viewModel.StartDate < viewModel.EndDate;
         }
+
+        private bool BeValidUlnNumber(string uln)
+        {
+            var result = _ulnValidator.Validate(uln);
+            return (result == UlnValidationResult.Success || result == UlnValidationResult.IsEmptyUlnNumber);
+        }
+
     }
 }
