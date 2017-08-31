@@ -11,5 +11,7 @@
         public string Email { get; set; }
 
         public string Title { get; set; }
+
+        public bool ReceiveNotifications { get; set; }
     }
 }

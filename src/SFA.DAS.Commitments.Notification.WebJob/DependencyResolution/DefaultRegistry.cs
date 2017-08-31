@@ -46,6 +46,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<IProviderEmailTemplatesService>().Use<ProviderEmailTemplatesService>();
             For<INotificationJob>().Use<NotificationJob>();
 
+            For<PAS.Account.Api.Client.IAccountApiClient>().Use<PAS.Account.Api.Client.AccountApiClient>()
+                .Ctor<PAS.Account.Api.Client.IAccountApiConfiguration>().Is(config.ProviderAccountUserApi);
+
             ConfigureNotificationsApi(config);
 
             For<IConfiguration>().Use(config);

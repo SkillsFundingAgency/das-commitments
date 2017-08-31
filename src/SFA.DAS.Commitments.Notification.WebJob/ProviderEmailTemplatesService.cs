@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Notifications.Api.Types;
+using SFA.DAS.PAS.Account.Api.Client;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
@@ -16,14 +17,18 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         private readonly ICommitmentsLogger _logger;
         private readonly IProviderEmailServiceWrapper   _emailService;
 
+        private readonly IAccountApiClient _providerAccountClient;
+
         public ProviderEmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
             ICommitmentsLogger logger,
-            IProviderEmailServiceWrapper emailService)
+            IProviderEmailServiceWrapper emailService,
+            IAccountApiClient providerAccountClient)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _logger = logger;
             _emailService = emailService;
+            _providerAccountClient = providerAccountClient;
         }
 
         public async Task<IEnumerable<Email>> GetEmails()
@@ -46,8 +51,10 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             await Task.WhenAll(providerTasks);
             var providers = providerTasks.Select(x => x.Result).ToList();
 
-            var emails = providers.SelectMany(
-                p => p.Select(m => MapToEmail(m, alertSummaries)));
+            var emails = providers
+                .SelectMany(p => p
+                     .Where(m => m.ReceiveNotifications)
+                     .Select(m => MapToEmail(m, alertSummaries)));
 
             return emails;
         }
@@ -83,14 +90,25 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
         private async Task<IEnumerable<ProviderUser>> GetProvider(long ukprn)
         {
-            var  users = await _emailService.GetUsersAsync(ukprn);
+            var users = await _emailService.GetUsersAsync(ukprn);
             if (users == null)
             {
                 _logger.Warn($"Can't find and user for provider {ukprn}.");
                 return new List<ProviderUser>();
             }
 
-            users.ForEach(m => m.Ukprn = ukprn);
+            var accountUser = (await _providerAccountClient.GetAccountUsers(ukprn))?.ToArray();
+
+            foreach (var user in users)
+            {
+                var u = accountUser
+                    ?.FirstOrDefault(m => user.Email.Trim().ToLower() == m.EmailAddress.Trim()
+                    ?.ToLower());
+
+                user.ReceiveNotifications = u == null || u.ReceiveNotifications;
+                user.Ukprn = ukprn;
+            }
+
             return users;
         }
     }

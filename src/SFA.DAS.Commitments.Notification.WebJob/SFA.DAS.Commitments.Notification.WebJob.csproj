@@ -127,6 +127,14 @@
       <HintPath>..\packages\SFA.DAS.Notifications.Api.Types.2.0.0.35919\lib\net45\SFA.DAS.Notifications.Api.Types.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SFA.DAS.PAS.Account.Api.Client, Version=1.0.0.39266, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.PAS.Account.Api.Client.1.0.0.39266\lib\net45\SFA.DAS.PAS.Account.Api.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.PAS.Account.Api.Types, Version=1.0.0.39266, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.PAS.Account.Api.Types.1.0.0.39266\lib\net45\SFA.DAS.PAS.Account.Api.Types.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.32930, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.32930\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
     </Reference>
@@ -169,6 +177,7 @@
   <ItemGroup>
     <Compile Include="Configuration\AccountApiConfiguration.cs" />
     <Compile Include="Configuration\CommitmentNotificationConfiguration.cs" />
+    <Compile Include="Configuration\PasAccountApiConfiguration.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\FakeAccountApiClient.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />

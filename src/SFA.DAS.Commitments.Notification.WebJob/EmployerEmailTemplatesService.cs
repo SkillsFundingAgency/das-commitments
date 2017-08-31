@@ -94,7 +94,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         {
             var usersResult = await _retryPolicy.ExecuteAndCaptureAsync(() => _accountApi.GetAccountUsers(accountId));
             if (usersResult.Outcome == OutcomeType.Failure )
-                _logger.Error(usersResult.FinalException, $"Unable to get users for account: {accountId} from account api");
+                _logger.Error(usersResult.FinalException, $"Unable to get employer users for account: {accountId} from account api");
             if (usersResult.Result == null || !usersResult.Result.Any())
             {
                 _logger.Warn($"No users found for account: {accountId}");
@@ -143,7 +143,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                     .RetryAsync(3,
                         (exception, retryCount) =>
                         {
-                            _logger.Warn($"Error connecting to Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                            _logger.Warn($"Error connecting to EAS Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
                         }
                     );
         }
