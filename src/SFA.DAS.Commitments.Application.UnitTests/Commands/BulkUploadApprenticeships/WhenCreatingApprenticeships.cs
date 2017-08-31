@@ -19,6 +19,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using ValidationFailReason = SFA.DAS.Commitments.Domain.Entities.Validation.ValidationFailReason;
+using SFA.DAS.Learners.Validators;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -33,8 +34,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IMediator> _mockMediator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<IUlnValidator> _mockUlnValidator;
+
         private Commitment _existingCommitment;
         private List<Apprenticeship> _existingApprenticeships;
+
 
         [SetUp]
         public void SetUp()
@@ -44,8 +48,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _mockMediator = new Mock<IMediator>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _mockUlnValidator = new Mock<IUlnValidator>();
 
-            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
+            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object));
 
             _handler = new BulkUploadApprenticeshipsCommandHandler(
                 _mockCommitmentRespository.Object,

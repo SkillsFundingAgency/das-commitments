@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Learners.Validators;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Apprenticeships
 {
@@ -12,6 +13,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         protected ApprenticeshipValidator Validator;
         protected Apprenticeship ExampleValidApprenticeship;
         protected Mock<ICurrentDateTime> MockCurrentDateTime;
+        protected  Mock<IUlnValidator> MockUlnValidator;
 
         [SetUp]
         public void BaseSetup()
@@ -19,7 +21,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
             MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 10));
 
-            Validator = new ApprenticeshipValidator(MockCurrentDateTime.Object);
+            MockUlnValidator = new Mock<IUlnValidator>();
+
+            Validator = new ApprenticeshipValidator(MockCurrentDateTime.Object, MockUlnValidator.Object);
 
             ExampleValidApprenticeship = new Apprenticeship
             {

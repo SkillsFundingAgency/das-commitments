@@ -22,6 +22,7 @@ using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
+using SFA.DAS.Learners.Validators;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -34,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private CreateApprenticeshipCommand _exampleValidRequest;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<IUlnValidator> _mockUlnValidator;
 
         private long expectedApprenticeshipId = 12;
         [SetUp]
@@ -43,7 +45,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
-            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime()));
+            _mockUlnValidator = new Mock<IUlnValidator>();
+
+            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object));
             _handler = new CreateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRepository.Object,
