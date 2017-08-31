@@ -8,7 +8,7 @@ SELECT
 FROM 
 	[dbo].[CommitmentSummary] c 
 LEFT JOIN 
-	[dbo].[ApprenticeshipSummary] a 
+	[dbo].[Apprenticeship] a 
 ON 
 	a.CommitmentId = c.Id 
 WHERE 

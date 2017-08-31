@@ -11,23 +11,6 @@ SELECT
 	CASE WHEN dlPriceTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPriceTriaged',
 	CASE WHEN dlCourse.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourse',
 	CASE WHEN dlCourseTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourseTriaged',
-	CASE
-		WHEN
-			a.PaymentStatus = 0
-		THEN
-			a.Cost
-		ELSE
-			(
-			SELECT TOP 1 Cost
-				FROM PriceHistory
-				WHERE ApprenticeshipId = a.Id
-				AND (
-					(FromDate <= GETDATE() AND ToDate >= FORMAT(GETDATE(),'yyyMMdd')) 
-					OR ToDate IS NULL
-				)
-				ORDER BY FromDate
-			 )
-	END AS 'Cost',
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 

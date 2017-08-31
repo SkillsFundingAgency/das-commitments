@@ -18,14 +18,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipTransactions _apprenticeshipTransactions;
+        private readonly ICurrentDateTime _currentDateTime;
 
         public ApprenticeshipRepository(
             string connectionString, 
             ICommitmentsLogger logger, 
-        	IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger.BaseLogger)
+        	IApprenticeshipTransactions apprenticeshipTransactions,
+            ICurrentDateTime currentDateTime) : base(connectionString, logger.BaseLogger)
         {
             _logger = logger;
             _apprenticeshipTransactions = apprenticeshipTransactions;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<long> CreateApprenticeship(Apprenticeship apprenticeship)
@@ -201,7 +204,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId)
         {
-            return await GetApprenticeshipsByIdentifier("EmployerAccountId", accountId);
+            return await GetApprenticeshipsByIdentifier("@employerId", accountId);
         }
 
         public async Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
@@ -210,13 +213,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId);
+                parameters.Add("@now", _currentDateTime.Now);
 
-                var sql =
-                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.Id = @id;";
+                var sql = "GetApprenticeshipWithPriceHistory";
 
                 Apprenticeship result = null;
 
-                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship> (sql, (apprenticeship, history) =>
+                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship>
+                (sql, (apprenticeship, history) =>
                 {
                     if (result == null)
                     {
@@ -229,7 +233,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     }
 
                     return apprenticeship;
-                }, parameters);
+                }, parameters, commandType: CommandType.StoredProcedure);
 
                 return result;
             });
@@ -237,7 +241,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId)
         {
-            return await GetApprenticeshipsByIdentifier("ProviderId", providerId);
+            return await GetApprenticeshipsByIdentifier("@providerId", providerId);
         }
 
         public async Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory)
@@ -457,10 +461,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return WithConnection<IList<Apprenticeship>>(async c =>
             {
                 var parameters = new DynamicParameters();
-                parameters.Add($"@id", identifierValue);
+                parameters.Add("@now", _currentDateTime.Now);
+                parameters.Add(identifierName, identifierValue, DbType.Int64);
 
-                var sql =
-                    $"SELECT * FROM [dbo].[ApprenticeshipSummary] a left join PriceHistory p on p.ApprenticeshipId = a.Id WHERE a.{identifierName} = @id AND a.PaymentStatus <> {(int) PaymentStatus.Deleted} ORDER BY a.FirstName asc, a.LastName asc;";
+                var sql = "[GetApprenticeshipsWithPriceHistory]";
 
                 var apprenticeships = new Dictionary<long, Apprenticeship>();
 
@@ -480,7 +484,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                     return existing;
 
-                }, parameters);
+                }, parameters, commandType: CommandType.StoredProcedure);
 
                 return apprenticeships.Values.ToList();
 
