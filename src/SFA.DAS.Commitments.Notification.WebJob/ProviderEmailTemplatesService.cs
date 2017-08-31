@@ -97,12 +97,13 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 return new List<ProviderUser>();
             }
 
-            var accountUser = (await _providerAccountClient.GetAccountUsers(ukprn)).ToArray();
+            var accountUser = (await _providerAccountClient.GetAccountUsers(ukprn))?.ToArray();
 
             foreach (var user in users)
             {
                 var u = accountUser
-                    .FirstOrDefault(m => user.Email.Trim().ToLower() == m.EmailAddress.Trim().ToLower());
+                    ?.FirstOrDefault(m => user.Email.Trim().ToLower() == m.EmailAddress.Trim()
+                    ?.ToLower());
 
                 user.ReceiveNotifications = u == null || u.ReceiveNotifications;
                 user.Ukprn = ukprn;
