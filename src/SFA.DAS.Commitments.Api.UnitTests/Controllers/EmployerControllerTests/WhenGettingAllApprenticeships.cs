@@ -27,10 +27,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         private EmployerOrchestrator _employerOrchestrator;
         private EmployerController _controller;
         private ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
+        private Mock<ICurrentDateTime> _currentDateTime;
 
         [SetUp]
         public void SetUp()
         {
+            _currentDateTime = new Mock<ICurrentDateTime>();
+            _currentDateTime.Setup(x => x.Now).Returns(new DateTime(2018, 1, 1));
+
             _mockMediator = new Mock<IMediator>();
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
@@ -38,7 +42,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                                       Data = new List<Domain.Entities.Apprenticeship>()
                                   });
 
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(), new ApprenticeshipFilterService(new FacetMapper()), new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>());
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(_currentDateTime.Object), new ApprenticeshipFilterService(new FacetMapper(_currentDateTime.Object)), new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
                 _mockMediator.Object,
@@ -64,8 +68,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 {
                     Data = new List<Domain.Entities.Apprenticeship>
                                {
-                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(-2) },
-                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(2) },
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(-2) },
+                                   new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(2) },
                                    new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
                                    new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
                                    new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active }

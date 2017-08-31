@@ -32,6 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private Mock<IApprenticeshipEventsList> _mockApprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _mockApprenticeshipEventsPublisher;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<ICurrentDateTime> _currentDateTime;
 
         [SetUp]
         public void Setup()
@@ -42,6 +43,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 {
                     Data = new List<ApprenticeshipResult>()
                 });
+
+            _currentDateTime = new Mock<ICurrentDateTime>();
+            _currentDateTime.Setup(x => x.Now).Returns(new DateTime(2018,1,1));
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
@@ -58,7 +62,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 new UpdateCommitmentAgreementCommandValidator(),
                 _mockApprenticeshipEventsList.Object,
                 _mockApprenticeshipEventsPublisher.Object,
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                _currentDateTime.Object);
 
             _validCommand = new UpdateCommitmentAgreementCommand
             {
@@ -268,7 +273,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public async Task ThenIfAnApprenticeshipAgreementStatusIsBothAgreedTheAgreedOnDateIsUpdated()
         {
             var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
-            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now.AddDays(10), Cost = 1000};
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = new DateTime(2018,1,11), Cost = 1000};
             commitment.Apprenticeships.Add(apprenticeship);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -281,7 +286,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
 
             await _handler.Handle(_validCommand);
 
-            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatuses(It.Is<List<Apprenticeship>>(y => y.First().AgreedOn.Value.Date == DateTime.Now.Date)), Times.Once);
+            _mockApprenticeshipRespository.Verify(x => x.UpdateApprenticeshipStatuses(It.Is<List<Apprenticeship>>(y => y.First().AgreedOn.Value.Date == new DateTime(2018,1,1).Date)), Times.Once);
         }
 
         [Test]

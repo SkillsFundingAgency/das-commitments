@@ -2,12 +2,13 @@
 using System.Linq;
 
 using FluentAssertions;
-
+using Moq;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilterService
 {
@@ -19,7 +20,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
         [SetUp]
         public void SetUp()
         {
-            _sut = new Api.Orchestrators.Mappers.ApprenticeshipFilterService(new FacetMapper());
+            _sut = new Api.Orchestrators.Mappers.ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>()));
         }
 
         [Test]

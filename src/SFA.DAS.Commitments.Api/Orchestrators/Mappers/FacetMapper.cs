@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class FacetMapper
     {
-        private ICurrentDateTime _currentDateTime;
+        private readonly ICurrentDateTime _currentDateTime;
 
         public FacetMapper(ICurrentDateTime currentDateTime)
         {

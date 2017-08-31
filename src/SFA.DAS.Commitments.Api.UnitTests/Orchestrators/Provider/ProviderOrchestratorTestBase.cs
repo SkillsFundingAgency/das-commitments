@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         public void SetUp()
         {
             MockMediator = new Mock<IMediator>();
-            MockFacetMapper = new Mock<FacetMapper>();
+            MockFacetMapper = new Mock<FacetMapper>(Mock.Of<ICurrentDateTime>());
             MockApprenticeshipFilter = new Mock<ApprenticeshipFilterService>(MockFacetMapper.Object);
             Orchestrator = new ProviderOrchestrator(
                 MockMediator.Object,

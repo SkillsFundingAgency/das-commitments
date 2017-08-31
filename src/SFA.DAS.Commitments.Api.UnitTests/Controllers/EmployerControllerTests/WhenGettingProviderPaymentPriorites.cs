@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [SetUp]
         public void Setup()
         {
-            var mapper = new FacetMapper();
+            var mapper = new FacetMapper(Mock.Of<ICurrentDateTime>());
             _mockMediator = new Mock<IMediator>();
             _employerOrchestrator = new EmployerOrchestrator(
                 _mockMediator.Object, 
