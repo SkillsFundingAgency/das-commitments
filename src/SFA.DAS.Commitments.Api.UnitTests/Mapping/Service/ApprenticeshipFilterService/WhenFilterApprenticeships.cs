@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 
 using FluentAssertions;
-
+using Moq;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilterService
 {
@@ -17,11 +18,16 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
     {
         private Api.Orchestrators.Mappers.ApprenticeshipFilterService _sut;
 
+        private Mock<ICurrentDateTime> _currentDateTime;
+
         private List<Apprenticeship> _apprenticeships;
 
         [SetUp]
         public void SetUp()
         {
+            _currentDateTime = new Mock<ICurrentDateTime>();
+            _currentDateTime.Setup(x => x.Now).Returns(new DateTime(2017, 3, 1));
+
             _apprenticeships = new List<Apprenticeship>
                                    {
                                        new Apprenticeship
@@ -29,18 +35,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
                                                Id = 006,
                                                FirstName = "Live",
                                                PaymentStatus = PaymentStatus.Active,
-                                               StartDate = DateTime.Now.AddMonths(-2)
+                                               StartDate = _currentDateTime.Object.Now.AddMonths(-2)
                                            },
                                        new Apprenticeship
                                            {
                                                Id = 007,
                                                FirstName = "WaitingToStart",
                                                PaymentStatus = PaymentStatus.Active,
-                                               StartDate = DateTime.Now.AddMonths(2),
+                                               StartDate = _currentDateTime.Object.Now.AddMonths(2),
                                                DataLockCourseTriaged = true
                                            }
                                    };
-            _sut = new Api.Orchestrators.Mappers.ApprenticeshipFilterService(new FacetMapper());
+            _sut = new Api.Orchestrators.Mappers.ApprenticeshipFilterService(new FacetMapper(_currentDateTime.Object));
         }
 
         [TestCase(Originator.Provider)]

@@ -11,8 +11,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class HistoryRepository : BaseRepository, IHistoryRepository
     {
-        public HistoryRepository(string connectionString, ICommitmentsLogger logger) : base(connectionString, logger.BaseLogger)
+        private readonly ICurrentDateTime _currentDateTime;
+
+        public HistoryRepository(string connectionString, ICommitmentsLogger logger, ICurrentDateTime currentDateTime) : base(connectionString, logger.BaseLogger)
         {
+            _currentDateTime = currentDateTime;
         }
 
         public async Task InsertHistory(IEnumerable<HistoryItem> historyItems)
@@ -30,6 +33,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     parameters.Add("@updatedByName", historyItem.UpdatedByName, DbType.String);
                     parameters.Add("@originalState", historyItem.OriginalState, DbType.String);
                     parameters.Add("@updatedState", historyItem.UpdatedState, DbType.String);
+                    parameters.Add("@createdOn", _currentDateTime.Now, DbType.DateTime);
 
                     await connection.ExecuteAsync(
                         sql: "InsertHistory",

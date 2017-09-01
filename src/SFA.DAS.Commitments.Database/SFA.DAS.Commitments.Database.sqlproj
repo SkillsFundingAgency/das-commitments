@@ -103,6 +103,8 @@
     <Build Include="Tables\PriceHistory.sql" />
     <Build Include="StoredProcedures\GetAlertsSummary.sql" />
     <Build Include="StoredProcedures\GetProviderAlertsSummary.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipWithPriceHistory.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipsWithPriceHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

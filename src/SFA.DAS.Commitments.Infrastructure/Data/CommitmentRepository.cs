@@ -14,10 +14,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class CommitmentRepository : BaseRepository, ICommitmentRepository
     {
         private readonly ICommitmentsLogger _logger;
+        private readonly ICurrentDateTime _currentDateTime;
 
-        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger) : base(databaseConnectionString, logger.BaseLogger)
+        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger, ICurrentDateTime currentDateTime) : base(databaseConnectionString, logger.BaseLogger)
         {
             _logger = logger;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<long> Create(Commitment commitment)
@@ -171,6 +173,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@LegalEntityOrganisationType", relationship.LegalEntityOrganisationType, DbType.Int16);
                 parameters.Add("@EmployerAccountId", relationship.EmployerAccountId, DbType.String);
                 parameters.Add("@Verified", relationship.Verified, DbType.Boolean);
+                parameters.Add("@CreatedOn", _currentDateTime.Now, DbType.DateTime);
 
                 return await connection.ExecuteAsync(
                     sql: "[dbo].[CreateRelationship]",
@@ -223,6 +226,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@Author", message.Author);
                 parameters.Add("@Text", message.Text);
                 parameters.Add("@CreatedBy", message.CreatedBy);
+                parameters.Add("@CreatedDateTime", _currentDateTime.Now, DbType.DateTime);
 
                 return await connection.ExecuteAsync(
                     sql: $"[dbo].[CreateMessage]",

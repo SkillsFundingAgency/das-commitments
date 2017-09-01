@@ -4,11 +4,13 @@ using System.Linq;
 
 using Castle.Components.DictionaryAdapter;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.Facets
 {
@@ -34,7 +36,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.Facets
                         };
 
             _userQuery = new ApprenticeshipSearchQuery();
-            _sut = new FacetMapper();
+            _sut = new FacetMapper(Mock.Of<ICurrentDateTime>());
         }
 
         [TestCase(Originator.Provider)]

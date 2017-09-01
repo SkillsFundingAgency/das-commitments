@@ -17,6 +17,7 @@
 
 using System;
 using StructureMap;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -24,7 +25,11 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
     {
         public static IContainer Initialize()
         {
-            return new Container(c => { c.AddRegistry<DefaultRegistry>(); });
+            return new Container(c =>
+            {
+                c.AddRegistry<DefaultRegistry>();
+                c.Policies.Add<CurrentDatePolicy>();
+            });
         }
     }
 }
