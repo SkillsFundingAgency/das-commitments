@@ -18,6 +18,7 @@
       <Setting name="LoggingRedisConnectionString"/>
       <Setting name="LoggingRedisKey"/>
       <Setting name="InstrumentationKey"/>
+      <Setting name="CurrentTime"/>
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert" loadBalancer="das-prd-comt-lb"/>
