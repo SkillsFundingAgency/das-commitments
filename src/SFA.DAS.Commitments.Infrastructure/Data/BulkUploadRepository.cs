@@ -14,9 +14,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 {
     public class BulkUploadRepository : BaseRepository, IBulkUploadRepository
     {
-        public BulkUploadRepository(string connectionString, ICommitmentsLogger logger)
+        private readonly ICurrentDateTime _currentDateTime;
+
+        public BulkUploadRepository(string connectionString, ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
             : base(connectionString, logger.BaseLogger)
         {
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<long> InsertBulkUploadFile(string file, string fileName, long commitmentId)
@@ -31,7 +34,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         parameters.Add("@commitmentId", commitmentId, DbType.Int64);
                         parameters.Add("@fileName", truncatedFileName, DbType.String);
                         parameters.Add("@fileContent", file, DbType.String);
-                        parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
+                        parameters.Add("@createdOn", _currentDateTime.Now, DbType.DateTime);
                         
                         var bulkUploadId = (await connection
                             .QueryAsync<long>(

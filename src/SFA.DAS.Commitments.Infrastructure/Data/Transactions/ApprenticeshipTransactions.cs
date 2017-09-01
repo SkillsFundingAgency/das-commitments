@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@agreementStatus", apprenticeship.AgreementStatus, DbType.Int16);
             parameters.Add("@employerRef", apprenticeship.EmployerRef, DbType.String);
             parameters.Add("@providerRef", apprenticeship.ProviderRef, DbType.String);
-            parameters.Add("@createdOn", DateTime.UtcNow, DbType.DateTime);
+            parameters.Add("@createdOn", _currentDateTime.Now, DbType.DateTime);
             return parameters;
         }
 
