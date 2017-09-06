@@ -127,7 +127,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@agreementStatus", agreementStatus, DbType.Int16);
-                parameters.Add("@agreedOn", DateTime.UtcNow, DbType.DateTime);
+                parameters.Add("@agreedOn", _currentDateTime.Now, DbType.DateTime);
 
                 var returnCode = await connection.ExecuteAsync(
                     "UPDATE [dbo].[Apprenticeship] SET AgreementStatus = @agreementStatus " +
@@ -431,11 +431,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return apprenticeshipsTable;
         }
 
-        private static DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, long commitmentId, Apprenticeship a)
+        private DataRow AddApprenticeshipToTable(DataTable apprenticeshipsTable, long commitmentId, Apprenticeship a)
         {
             return apprenticeshipsTable.Rows.Add(commitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                a.EmployerRef, a.ProviderRef, DateTime.UtcNow);
+                a.EmployerRef, a.ProviderRef, _currentDateTime.Now);
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)
