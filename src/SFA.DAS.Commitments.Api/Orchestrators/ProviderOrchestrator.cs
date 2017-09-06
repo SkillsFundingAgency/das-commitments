@@ -146,7 +146,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 {
                     CallerType = CallerType.Provider,
                     Id = providerId,
-                    // ToDo: Add searchkeyword
                 }
             });
 
