@@ -71,8 +71,9 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.1\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=1.67.0.34274, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.1.67.0.34274\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=2.0.0.39970, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.2.0.0.39970\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="SFA.DAS.Learners, Version=1.0.0.39408, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Learners.1.0.0.39408\lib\net45\SFA.DAS.Learners.dll</HintPath>
@@ -108,8 +109,10 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenFilterApprenticeships.cs" />
     <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenPagingFilterResults.cs" />
+    <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenSearchingWithAKeyword.cs" />
     <Compile Include="Mapping\Service\Facets\WhenExtractingApprenticeshipStatuses.cs" />
     <Compile Include="Mapping\Service\Facets\WhenExtractingProviders.cs" />
     <Compile Include="Mapping\Service\Facets\WhenExtractingRecordStatuses.cs" />
