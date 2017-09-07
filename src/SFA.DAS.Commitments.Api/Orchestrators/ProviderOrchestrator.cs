@@ -152,6 +152,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
+            _logger.Info($"Searching for {query.SearchKeyword} by Provider {providerId}", providerId: providerId);
             var apprenticeshipsAfterSerach = _apprenticeshipFilterService.Search(approvedApprenticeships, query.SearchKeyword ?? string.Empty, Originator.Provider);
 
             var facets = _facetMapper.BuildFacets(apprenticeshipsAfterSerach, query, Originator.Provider);
