@@ -4,11 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
     public class ApprenticeshipUpdateTransactions : IApprenticeshipUpdateTransactions
     {
+        private readonly ICurrentDateTime _currentDateTime;
+
+        public ApprenticeshipUpdateTransactions(ICurrentDateTime currentDateTime)
+        {
+            _currentDateTime = currentDateTime;
+        }
+
         public async Task<long> CreateApprenticeshipUpdate(IDbConnection connection, IDbTransaction trans, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var parameters = new DynamicParameters();
@@ -23,7 +31,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             parameters.Add("@StartDate", apprenticeshipUpdate.StartDate);
             parameters.Add("@EndDate", apprenticeshipUpdate.EndDate);
             parameters.Add("@DateOfBirth", apprenticeshipUpdate.DateOfBirth);
-            parameters.Add("@CreatedOn", DateTime.UtcNow);
+            parameters.Add("@CreatedOn", _currentDateTime.Now);
             parameters.Add("@UpdateOrigin", apprenticeshipUpdate.UpdateOrigin);
             parameters.Add("@EffectiveFromDate", apprenticeshipUpdate.EffectiveFromDate);
             parameters.Add("@EffectiveToDate", apprenticeshipUpdate.EffectiveToDate);

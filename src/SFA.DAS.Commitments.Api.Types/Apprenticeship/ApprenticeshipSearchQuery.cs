@@ -28,5 +28,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         /// Number of results per page. Default: 25
         /// </summary>
         public int PageSize { get; set; }
+
+        public string SearchKeyword { get; set; }
     }
 }
