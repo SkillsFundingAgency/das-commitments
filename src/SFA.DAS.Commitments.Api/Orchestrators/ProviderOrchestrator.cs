@@ -163,8 +163,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return new ApprenticeshipSearchResponse
             {
                 Apprenticeships = filteredApprenticeships.PageOfResults,
+                SearchKeyword = query.SearchKeyword,
                 Facets = facets,
                 TotalApprenticeships = filteredApprenticeships.TotalResults,
+                TotalApprenticeshipsBeforeFilter = approvedApprenticeships.Count,
                 PageNumber = filteredApprenticeships.PageNumber,
                 PageSize = filteredApprenticeships.PageSize
     };
