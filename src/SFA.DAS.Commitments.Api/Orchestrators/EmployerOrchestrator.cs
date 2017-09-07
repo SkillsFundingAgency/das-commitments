@@ -196,17 +196,21 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
-            var facets = _facetMapper.BuildFacets(approvedApprenticeships , query, Originator.Employer);
+            var apprenticeshipsAfterSerach = _apprenticeshipFilterService.Search(approvedApprenticeships, query.SearchKeyword ?? string.Empty, Originator.Provider);
 
-            var filteredApprenticeships = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Employer);
+            var facets = _facetMapper.BuildFacets(apprenticeshipsAfterSerach, query, Originator.Employer);
 
-            _logger.Info($"Retrieved {approvedApprenticeships.Count} apprenticeships with filter query for employer {accountId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", accountId: accountId);
+            var filteredApprenticeships = _apprenticeshipFilterService.Filter(apprenticeshipsAfterSerach, query, Originator.Employer);
+
+            _logger.Info($"Retrieved {apprenticeshipsAfterSerach.Count} apprenticeships with filter query for employer {accountId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", accountId: accountId);
 
             return new Apprenticeship.ApprenticeshipSearchResponse
             {
                 Apprenticeships = filteredApprenticeships.PageOfResults,
+                SearchKeyword = query.SearchKeyword,
                 Facets = facets,
                 TotalApprenticeships = filteredApprenticeships.TotalResults,
+                TotalApprenticeshipsBeforeFilter = approvedApprenticeships.Count,
                 PageNumber = filteredApprenticeships.PageNumber,
                 PageSize = filteredApprenticeships.PageSize
             };
