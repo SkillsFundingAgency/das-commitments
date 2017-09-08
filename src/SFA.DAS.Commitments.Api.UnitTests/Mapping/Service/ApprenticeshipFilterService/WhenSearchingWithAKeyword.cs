@@ -57,15 +57,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
                                    };
         }
 
-        [TestCase("Chris", 2, Description = "Serach firstname only")]
-        [TestCase("Hayashi", 1, Description = "Serach lastname only")]
-        [TestCase("Foster", 1, Description = "Serach lastname only")]
-        [TestCase("HAYAshI", 1, Description = "Serach lastname only - Should ignore case")]
-        [TestCase("Chris Foster", 1, Description = "Serach first and lastname")]
-        [TestCase("Foster Chris", 0, Description = "Serach first and lastname - should care about order")]
-        [TestCase("YAsh", 1, Description = "Serach partial lastname")]
-        [TestCase("hias Haya", 1, Description = "Serach partial first and lastname")]
-        [TestCase("", 3, Description = "Serach with empty string should return all apprenticeships")]
+        [TestCase("Chris", 2, Description = "Search firstname only")]
+        [TestCase("Hayashi", 1, Description = "Search lastname only")]
+        [TestCase("Foster", 1, Description = "Search lastname only")]
+        [TestCase("HAYAshI", 1, Description = "Search lastname only - Should ignore case")]
+        [TestCase("Chris Foster", 1, Description = "Search first and lastname")]
+        [TestCase("Foster Chris", 0, Description = "Search first and lastname - should care about order")]
+        [TestCase("YAsh", 1, Description = "Search partial lastname")]
+        [TestCase("hias Haya", 1, Description = "Search partial first and lastname")]
+        [TestCase("", 3, Description = "Search with empty string should return all apprenticeships")]
         public void SearchForProvider(string searchTerm, int expectedResultCount)
         {
             var result = _sut.Search(_apprenticeships, searchTerm, Originator.Provider);
@@ -87,15 +87,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
             }
         }
 
-        [TestCase("Chris", 2, Description = "Serach firstname only")]
-        [TestCase("Hayashi", 1, Description = "Serach lastname only")]
-        [TestCase("Foster", 1, Description = "Serach lastname only")]
-        [TestCase("HAYAshI", 1, Description = "Serach lastname only - Should ignore case")]
-        [TestCase("Chris Foster", 1, Description = "Serach first and lastname")]
-        [TestCase("Foster Chris", 0, Description = "Serach first and lastname - should care about order")]
-        [TestCase("YAsh", 1, Description = "Serach partial lastname")]
-        [TestCase("hias Haya", 1, Description = "Serach partial first and lastname")]
-        [TestCase("", 3, Description = "Serach with empty string should return all apprenticeships")]
+        [TestCase("Chris", 2, Description = "Search firstname only")]
+        [TestCase("Hayashi", 1, Description = "Search lastname only")]
+        [TestCase("Foster", 1, Description = "Search lastname only")]
+        [TestCase("HAYAshI", 1, Description = "Search lastname only - Should ignore case")]
+        [TestCase("Chris Foster", 1, Description = "Search first and lastname")]
+        [TestCase("Foster Chris", 0, Description = "Search first and lastname - should care about order")]
+        [TestCase("YAsh", 1, Description = "Search partial lastname")]
+        [TestCase("hias Haya", 1, Description = "Search partial first and lastname")]
+        [TestCase("", 3, Description = "Search with empty string should return all apprenticeships")]
         public void SearchForEmployer(string searchTerm, int expectedResultCount)
         {
             var result = _sut.Search(_apprenticeships, searchTerm, Originator.Employer);
