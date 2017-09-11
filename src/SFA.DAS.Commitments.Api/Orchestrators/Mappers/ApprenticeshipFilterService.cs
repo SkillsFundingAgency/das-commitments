@@ -16,19 +16,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             _facetMapper = facetMapper;
         }
 
-        public List<Apprenticeship> Search(List<Apprenticeship> apprenticeships, string searchTerm, Originator originator)
-        {
-            var isUln = Regex.Match(searchTerm, "[0-9]{10}");
-            if (originator == Originator.Provider && isUln.Success)
-            {
-                return apprenticeships.Where(m => m.ULN == searchTerm)
-                    .ToList();
-            }
-            return apprenticeships
-                .Where(m => m.ApprenticeshipName.ToLower().Contains(searchTerm.ToLower()))
-                .ToList();
-        }
-
         public virtual FilterResult Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var apps = new Apprenticeship[apprenticeships.Count];

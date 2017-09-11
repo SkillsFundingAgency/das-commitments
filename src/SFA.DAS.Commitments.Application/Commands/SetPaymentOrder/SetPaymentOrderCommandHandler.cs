@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             
             var updatedApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
             
-            await PublishEventsForApprenticeshipsWithNewPaymentOrder(command.AccountId, existingApprenticeships, updatedApprenticeships);
+            await PublishEventsForApprenticeshipsWithNewPaymentOrder(command.AccountId, existingApprenticeships.Apprenticeships, updatedApprenticeships.Apprenticeships);
         }
 
         private async Task PublishEventsForApprenticeshipsWithNewPaymentOrder(long employerAccountId, IEnumerable<Apprenticeship> existingApprenticeships, IEnumerable<Apprenticeship> updatedApprenticeships)

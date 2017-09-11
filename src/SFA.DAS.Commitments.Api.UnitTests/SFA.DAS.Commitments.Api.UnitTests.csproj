@@ -112,7 +112,6 @@
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenFilterApprenticeships.cs" />
     <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenPagingFilterResults.cs" />
-    <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenSearchingWithAKeyword.cs" />
     <Compile Include="Mapping\Service\Facets\WhenExtractingApprenticeshipStatuses.cs" />
     <Compile Include="Mapping\Service\Facets\WhenExtractingProviders.cs" />
     <Compile Include="Mapping\Service\Facets\WhenExtractingRecordStatuses.cs" />

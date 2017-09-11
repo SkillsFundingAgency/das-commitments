@@ -3,16 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using FluentAssertions;
-using MediatR;
+
 using Moq;
 using NUnit.Framework;
 
-using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
-using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
 {
@@ -34,7 +31,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
             MockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                 {
-                    Data = new List<Domain.Entities.Apprenticeship>()
+                    Apprenticeships = new List<Domain.Entities.Apprenticeship>()
                 });
 
             var result = await Orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());

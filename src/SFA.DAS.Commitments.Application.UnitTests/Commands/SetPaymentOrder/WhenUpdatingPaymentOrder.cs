@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
         public async Task ThenThePaymentOrderIsUpdatedForTheAccount()
         {
             var command = new SetPaymentOrderCommand { AccountId = 123 };
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeshipsByEmployer(command.AccountId)).ReturnsAsync(new List<Apprenticeship>());
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeshipsByEmployer(command.AccountId, "")).ReturnsAsync(new ApprenticeshipsResult {Apprenticeships = new List<Apprenticeship>()});
 
             await _handler.Handle(command);
 
@@ -61,9 +61,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
 
             var existingApprenticeship = new Apprenticeship { Id = 123, PaymentOrder = 2, CommitmentId = 3245 };
             var updatedApprenticeship = new Apprenticeship { Id = 123, PaymentOrder = 5, CommitmentId = 3245 };
-            _apprenticeshipRepository.SetupSequence(x => x.GetApprenticeshipsByEmployer(command.AccountId))
-                .ReturnsAsync(new List<Apprenticeship> { existingApprenticeship })
-                .ReturnsAsync(new List<Apprenticeship> { updatedApprenticeship });
+            _apprenticeshipRepository.SetupSequence(x => x.GetApprenticeshipsByEmployer(command.AccountId, ""))
+                .ReturnsAsync(new ApprenticeshipsResult { Apprenticeships = new List<Apprenticeship> { existingApprenticeship } })
+                .ReturnsAsync(new ApprenticeshipsResult { Apprenticeships = new List<Apprenticeship> { updatedApprenticeship } });
             
             var commitment = new Commitment { Id = 3245 };
             _commitmentRepository.Setup(x => x.GetCommitmentById(updatedApprenticeship.CommitmentId)).ReturnsAsync(commitment);

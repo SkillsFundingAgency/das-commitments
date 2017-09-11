@@ -175,9 +175,9 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
             });
 
-            _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Data.Count} apprenticeships found", accountId: accountId);
+            _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Apprenticeships.Count} apprenticeships found", accountId: accountId);
 
-            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
+            return _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Employer);
         }
 
         public async Task<Apprenticeship.ApprenticeshipSearchResponse> GetApprenticeships(long accountId, Apprenticeship.ApprenticeshipSearchQuery query)
@@ -186,6 +186,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
+                SearchKeyword = query.SearchKeyword,
                 Caller = new Caller
                 {
                     CallerType = CallerType.Employer,
@@ -193,17 +194,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer)
+            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Employer)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
             _logger.Info($"Searching for {query.SearchKeyword} by Employer {accountId}", accountId: accountId);
-            var apprenticeshipsAfterSerach = _apprenticeshipFilterService.Search(approvedApprenticeships, query.SearchKeyword ?? string.Empty, Originator.Employer);
 
-            var facets = _facetMapper.BuildFacets(apprenticeshipsAfterSerach, query, Originator.Employer);
+            var facets = _facetMapper.BuildFacets(approvedApprenticeships, query, Originator.Employer);
 
-            var filteredApprenticeships = _apprenticeshipFilterService.Filter(apprenticeshipsAfterSerach, query, Originator.Employer);
+            var filteredApprenticeships = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Employer);
 
-            _logger.Info($"Retrieved {apprenticeshipsAfterSerach.Count} apprenticeships with filter query for employer {accountId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", accountId: accountId);
+            _logger.Info($"Retrieved {approvedApprenticeships.Count} apprenticeships with filter query for employer {accountId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", accountId: accountId);
 
             return new Apprenticeship.ApprenticeshipSearchResponse
             {
@@ -211,7 +211,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 SearchKeyword = query.SearchKeyword,
                 Facets = facets,
                 TotalApprenticeships = filteredApprenticeships.TotalResults,
-                TotalApprenticeshipsBeforeFilter = approvedApprenticeships.Count,
+                TotalApprenticeshipsBeforeFilter = response.TotalCount,
                 PageNumber = filteredApprenticeships.PageNumber,
                 PageSize = filteredApprenticeships.PageSize
             };

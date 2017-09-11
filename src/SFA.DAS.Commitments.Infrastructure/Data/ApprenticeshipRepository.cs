@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain;
@@ -202,9 +203,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return insertedApprenticeships;
         }
 
-        public async Task<IList<Apprenticeship>> GetApprenticeshipsByEmployer(long accountId)
+        public async Task<ApprenticeshipsResult> GetApprenticeshipsByEmployer(long accountId, string searchKeyword)
         {
-            return await GetApprenticeshipsByIdentifier("@employerId", accountId);
+            return await GetApprenticeshipsByIdentifier("@employerId", accountId, searchKeyword);
         }
 
         public async Task<Apprenticeship> GetApprenticeship(long apprenticeshipId)
@@ -239,9 +240,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<IList<Apprenticeship>> GetApprenticeshipsByProvider(long providerId)
+        public async Task<ApprenticeshipsResult> GetApprenticeshipsByProvider(long providerId, string searchKeyword)
         {
-            return await GetApprenticeshipsByIdentifier("@providerId", providerId);
+            return await GetApprenticeshipsByIdentifier("@providerId", providerId, searchKeyword);
         }
 
         public async Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory)
@@ -456,37 +457,59 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return lookup.Values.SingleOrDefault();
         }
 
-        private Task<IList<Apprenticeship>> GetApprenticeshipsByIdentifier(string identifierName, long identifierValue)
+        private Task<ApprenticeshipsResult> GetApprenticeshipsByIdentifier(string identifierName, long identifierValue, string searchKeyword)
         {
-            return WithConnection<IList<Apprenticeship>>(async c =>
-            {
+            return WithConnection(async c =>
+                {
+                    var s = searchKeyword?.Trim() ?? string.Empty;
                 var parameters = new DynamicParameters();
                 parameters.Add("@now", _currentDateTime.Now);
                 parameters.Add(identifierName, identifierValue, DbType.Int64);
 
+                var isUln = Regex.Match(s, "^[0-9]{10}$");
+                if (identifierName == "@providerId" && isUln.Success)
+                {
+                    _logger.Info($"Searching for ULN: {s}");
+                    parameters.Add("@uln", s, DbType.Int64);
+                }
+                else
+                {
+                    _logger.Info($"Searching for Full name: {s}");
+                    parameters.Add("@searchTerm ", s, DbType.String);
+                }
+
+
                 var sql = "[GetApprenticeshipsWithPriceHistory]";
 
                 var apprenticeships = new Dictionary<long, Apprenticeship>();
-
-                await c.QueryAsync<Apprenticeship, PriceHistory, Apprenticeship>(sql, (apprenticeship, history) =>
+                int count;
+                using (var multi = await c.QueryMultipleAsync(sql, parameters, commandType: CommandType.StoredProcedure))
                 {
-                    Apprenticeship existing;
-                    if (!apprenticeships.TryGetValue(apprenticeship.Id, out existing))
-                    {
-                        apprenticeships.Add(apprenticeship.Id, apprenticeship);
-                        existing = apprenticeship;
-                    }
+                    multi.Read<Apprenticeship, PriceHistory, Apprenticeship>(
+                        (apprenticeship, history) =>
+                            {
+                                Apprenticeship existing;
+                                if (!apprenticeships.TryGetValue(apprenticeship.Id, out existing))
+                                {
+                                    apprenticeships.Add(apprenticeship.Id, apprenticeship);
+                                    existing = apprenticeship;
+                                }
 
-                    if (history.ApprenticeshipId != 0)
-                    {
-                        existing.PriceHistory.Add(history);
-                    }
+                                if (history.ApprenticeshipId != 0)
+                                {
+                                    existing.PriceHistory.Add(history);
+                                }
 
-                    return existing;
+                                return existing;
+                            });
+                    count = multi.Read<int>().First();
+                }
 
-                }, parameters, commandType: CommandType.StoredProcedure);
-
-                return apprenticeships.Values.ToList();
+                return new ApprenticeshipsResult
+                {
+                    Apprenticeships = apprenticeships.Values.ToList(),
+                    TotalCount = count
+                };
 
             });
         }
