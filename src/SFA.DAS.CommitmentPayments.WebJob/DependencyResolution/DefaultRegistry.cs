@@ -35,6 +35,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
 
             For<IConfiguration>().Use(config);
             For<CommitmentPaymentsConfiguration>().Use(config);
+            For<ICurrentDateTime>().Use(x => new CurrentDateTime());
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipUpdateRepository>().Use<ApprenticeshipUpdateRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
