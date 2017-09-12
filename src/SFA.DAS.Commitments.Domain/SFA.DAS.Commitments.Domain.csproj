@@ -75,6 +75,7 @@
     <Compile Include="Entities\Apprenticeship.cs" />
     <Compile Include="Entities\ApprenticeshipOverlapValidationRequest.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
+    <Compile Include="Entities\ApprenticeshipsResult.cs" />
     <Compile Include="Entities\ApprenticeshipStatusSummary.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />

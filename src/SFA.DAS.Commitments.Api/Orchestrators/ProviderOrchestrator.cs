@@ -131,17 +131,19 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Data.Count} apprenticeships found", providerId: providerId, recordCount: response.Data.Count);
+            _logger.Info($"Retrieved apprenticeships for provider {providerId}. {response.Apprenticeships.Count} apprenticeships found", providerId: providerId, recordCount: response.Apprenticeships.Count);
 
-            return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider);
+            return _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Provider);
         }
 
         public async Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query)
         {
             _logger.Trace($"Getting apprenticeships with filter query for provider {providerId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", providerId: providerId);
+            _logger.Info($"Searching for {query.SearchKeyword} by Provider {providerId}", providerId: providerId);
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
+                SearchKeyword = query.SearchKeyword,
                 Caller = new Caller
                 {
                     CallerType = CallerType.Provider,
@@ -149,7 +151,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider)
+            var approvedApprenticeships = _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Provider)
                 .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships, query, Originator.Provider);
@@ -161,8 +163,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return new ApprenticeshipSearchResponse
             {
                 Apprenticeships = filteredApprenticeships.PageOfResults,
+                SearchKeyword = query.SearchKeyword,
                 Facets = facets,
                 TotalApprenticeships = filteredApprenticeships.TotalResults,
+                TotalApprenticeshipsBeforeFilter = response.TotalCount,
                 PageNumber = filteredApprenticeships.PageNumber,
                 PageSize = filteredApprenticeships.PageSize
             };

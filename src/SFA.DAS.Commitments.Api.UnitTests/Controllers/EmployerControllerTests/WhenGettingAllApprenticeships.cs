@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                                   {
-                                      Data = new List<Domain.Entities.Apprenticeship>()
+                                      Apprenticeships = new List<Domain.Entities.Apprenticeship>()
                                   });
 
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(_currentDateTime.Object), new ApprenticeshipFilterService(new FacetMapper(_currentDateTime.Object)), new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>());
@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                 {
-                    Data = new List<Domain.Entities.Apprenticeship>
+                    Apprenticeships = new List<Domain.Entities.Apprenticeship>
                                {
                                    new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(-2) },
                                    new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(2) },

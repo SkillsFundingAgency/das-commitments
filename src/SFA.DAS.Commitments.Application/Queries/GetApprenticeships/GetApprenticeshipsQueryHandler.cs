@@ -19,22 +19,23 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
 
         public async Task<GetApprenticeshipsResponse> Handle(GetApprenticeshipsRequest message)
         {
-            var apprenticeships = await GetApprenticeships(message.Caller);
+            var apprenticeshipsResult = await GetApprenticeships(message.Caller, message.SearchKeyword);
 
             return new GetApprenticeshipsResponse
             {
-                Data = apprenticeships
+                Apprenticeships = apprenticeshipsResult.Apprenticeships,
+                TotalCount = apprenticeshipsResult.TotalCount
             };
         }
 
-        private async Task<IList<Apprenticeship>> GetApprenticeships(Caller caller)
+        private async Task<ApprenticeshipsResult> GetApprenticeships(Caller caller, string searchKeyword)
         {
             switch (caller.CallerType)
             {
                 case CallerType.Employer:
-                    return await _apprenticeshipRepository.GetApprenticeshipsByEmployer(caller.Id);
+                    return await _apprenticeshipRepository.GetApprenticeshipsByEmployer(caller.Id, searchKeyword);
                 case CallerType.Provider:
-                    return await _apprenticeshipRepository.GetApprenticeshipsByProvider(caller.Id);
+                    return await _apprenticeshipRepository.GetApprenticeshipsByProvider(caller.Id, searchKeyword);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
             MockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                 {
-                    Data = new List<Domain.Entities.Apprenticeship>
+                    Apprenticeships = new List<Domain.Entities.Apprenticeship>
                             {
                                 new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
                                 new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.PendingApproval },

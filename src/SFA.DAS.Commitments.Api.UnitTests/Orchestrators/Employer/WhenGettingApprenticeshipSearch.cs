@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             MockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse
                                   {
-                                      Data = new List<Domain.Entities.Apprenticeship>
+                                      Apprenticeships = new List<Domain.Entities.Apprenticeship>
                                                  {
                                                      new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.Active },
                                                      new Domain.Entities.Apprenticeship { PaymentStatus = Domain.Entities.PaymentStatus.PendingApproval },
@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         public async Task ShouldCallGetFacetAndMapper()
         {
             MockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetApprenticeshipsResponse { Data = new List<Domain.Entities.Apprenticeship>() });
+                .ReturnsAsync(new GetApprenticeshipsResponse { Apprenticeships = new List<Domain.Entities.Apprenticeship>() });
             MockApprenticeshipFilter.Setup(m =>
                 m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer))
                 .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));

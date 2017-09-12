@@ -81,9 +81,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
                 new Apprenticeship { Id = 3, CommitmentId = 1, PaymentOrder = 1 },
             };
 
-            _mockApprenticeshipRepository.SetupSequence(x => x.GetApprenticeshipsByEmployer(It.IsAny<long>()))
-                .ReturnsAsync(intialApprenticeships)
-                .ReturnsAsync(afterUpdateApprenticeships);
+            _mockApprenticeshipRepository.SetupSequence(x => x.GetApprenticeshipsByEmployer(It.IsAny<long>(), It.IsAny<string>()))
+                .ReturnsAsync(new ApprenticeshipsResult { Apprenticeships = intialApprenticeships })
+                .ReturnsAsync(new ApprenticeshipsResult { Apprenticeships = afterUpdateApprenticeships });
 
             _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>()))
                 .ReturnsAsync(new Commitment { Id = 1 });
