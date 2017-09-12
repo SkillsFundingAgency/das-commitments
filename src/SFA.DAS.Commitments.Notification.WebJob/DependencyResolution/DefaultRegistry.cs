@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Reflection;
 
 using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.Notifications.Api.Client;
@@ -39,7 +40,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
                 .Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
 
             For<ProviderUserApiConfiguration>().Use(config.ProviderUserApi);
-
+            For<ICurrentDateTime>().Use(x => new CurrentDateTime());
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<IEmployerEmailTemplatesService>().Use<EmployerEmailTemplatesService>();
