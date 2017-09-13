@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using FluentAssertions;
@@ -10,7 +11,6 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
-using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.PAS.Account.Api.Types;
 
 using IAccountApiClient = SFA.DAS.PAS.Account.Api.Client.IAccountApiClient;
@@ -227,6 +227,55 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             second.Tokens["name"].Should().Be("Found");
         }
+
+        [Test]
+        public async Task WhenUserNotFoundInAccountsApi()
+        {
+            _apprenticeshipRepostory.Setup(m => m.GetProviderApprenticeshipAlertSummary())
+                .ReturnsAsync(new List<ProviderAlertSummary>
+                                  {
+                                      new ProviderAlertSummary
+                                          {
+                                              ChangesForReview = 1,
+                                              DataMismatchCount = 1,
+                                              ProviderId = 12345,
+                                              ProviderName = "Test Provider 1",
+                                              TotalCount = 1
+                                          }
+                                  });
+
+            _providerUserService.Setup(m => m.GetUsersAsync(12345))
+                .ReturnsAsync(
+                    new List<ProviderUser>
+                        {
+                            new ProviderUser
+                                {
+                                    Email = "notfound@email.com",
+                                    FamilyName = "Testerson",
+                                    GivenName = "NotFound",
+                                    Title = "Mr",
+                                    Ukprn = 12345
+                                }
+                        });
+
+            _accountService.Setup(m => m.GetAccountUsers(12345)).Throws<HttpRequestException>();
+
+            var emails = (await _sut.GetEmails()).ToArray();
+
+            emails.Length.Should().Be(1);
+            var first = emails[0];
+
+            first.Tokens["name"].Should().Be("NotFound");
+            first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
+            first.Tokens["provider_name"].Should().Be("Test Provider 1");
+
+            first.Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
+            first.Tokens["mismatch_changes"].Should().Be("* 1 with an ILR data mismatch");
+
+            first.Tokens["link_to_mange_apprenticeships"]
+                .Should().Be("12345/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested");            
+        }
+
 
         [Test]
         public async Task WhenUserFromAccountsAPIHaveTurnedOffNotification()

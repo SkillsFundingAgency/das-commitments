@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Polly;
+using Polly.Retry;
 
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -16,8 +20,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentsLogger _logger;
         private readonly IProviderEmailServiceWrapper   _emailService;
-
         private readonly IAccountApiClient _providerAccountClient;
+        private RetryPolicy _retryPolicy;
 
         public ProviderEmailTemplatesService(
             IApprenticeshipRepository apprenticeshipRepository,
@@ -29,6 +33,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             _logger = logger;
             _emailService = emailService;
             _providerAccountClient = providerAccountClient;
+            _retryPolicy = GetRetryPolicy();
         }
 
         public async Task<IEnumerable<Email>> GetEmails()
@@ -97,7 +102,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                 return new List<ProviderUser>();
             }
 
-            var accountUser = (await _providerAccountClient.GetAccountUsers(ukprn))?.ToArray();
+            var accountUserResult = (await _retryPolicy.ExecuteAndCaptureAsync(() => _providerAccountClient.GetAccountUsers(ukprn)));
+            var accountUser = accountUserResult.Result?.ToArray();
 
             foreach (var user in users)
             {
@@ -110,6 +116,18 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             }
 
             return users;
+        }
+
+        private RetryPolicy GetRetryPolicy()
+        {
+            return Policy
+                    .Handle<Exception>()
+                    .RetryAsync(3,
+                        (exception, retryCount) =>
+                        {
+                            _logger.Warn($"Error connecting to PAS Account Api: ({exception.Message}). Retrying...attempt {retryCount})");
+                        }
+                    );
         }
     }
 }
