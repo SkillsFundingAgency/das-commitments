@@ -126,7 +126,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 result.EffectiveFromDate = update.StartDate.Value;
             }
 
-            return result.HasChanges ? result : null;
+            return result;
         }
 
         public Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(ApprenticeshipUpdate data)

@@ -61,6 +61,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             await CheckOverlappingApprenticeships(command, apprenticeship);
 
             Apprenticeship immediateUpdate = null;
+            ApprenticeshipUpdate pendingUpdate = null;
+
             if (HasImmediateUpdate(command))
             {
                 await StartHistoryTracking(apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
@@ -68,14 +70,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 immediateUpdate = apprenticeship;
             }
 
-            var pendingUpdate = command.ApprenticeshipUpdate;
-            pendingUpdate.EffectiveFromDate = apprenticeship.StartDate.Value;
-
+            if (command.ApprenticeshipUpdate.HasChanges)
+            {
+                pendingUpdate = command.ApprenticeshipUpdate;
+                pendingUpdate.EffectiveFromDate = apprenticeship.StartDate.Value;
+            }
 
             await Task.WhenAll(
-                _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
-                SaveHistory()
-            );
+                    _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
+                    SaveHistory()
+                );
         }
 
         private async Task SaveHistory()
