@@ -163,5 +163,27 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     commandType: CommandType.Text);
             });
         }
+
+        public async Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate, DataLockErrorCode expirableErrorCodes)
+        {
+            return await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@BeforeDate", beforeDate);
+                parameters.Add("@ExpirableErrorCodes", expirableErrorCodes);
+                 var results = await connection.QueryAsync<DataLockStatus>(
+                    sql: $"[dbo].[GetDataLockStatusExpiryCandidates]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+                return results.ToList();
+            });
+
+
+        }
+
+        public Task<bool> UpdateExpirableDataLocks(long expirableDatalockDataLockEventId)
+        {
+            return Task.FromResult(false);
+        }
     }
 }
