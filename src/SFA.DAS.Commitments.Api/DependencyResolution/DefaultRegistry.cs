@@ -33,6 +33,7 @@ using SFA.DAS.NLog.Logger;
 using StructureMap;
 using StructureMap.Graph;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -61,7 +62,9 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 .Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi)
                 .SelectConstructor(() => new EventsApi(null)); // The default one isn't the one we want to use.
 
+            For<IAcademicYearDateProvider>().Use<AcademicYearDateProvider>();
             For<IUlnValidator>().Use<UlnValidator>();
+            For<IAcademicYearValidator>().Use<AcademicYearValidator>();
 
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
