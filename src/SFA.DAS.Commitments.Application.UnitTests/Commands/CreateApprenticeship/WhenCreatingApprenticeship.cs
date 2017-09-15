@@ -36,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IUlnValidator> _mockUlnValidator;
+        private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
 
         private long expectedApprenticeshipId = 12;
         [SetUp]
@@ -46,8 +47,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockUlnValidator = new Mock<IUlnValidator>();
+            _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
-            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object));
+            var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
             _handler = new CreateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRepository.Object,

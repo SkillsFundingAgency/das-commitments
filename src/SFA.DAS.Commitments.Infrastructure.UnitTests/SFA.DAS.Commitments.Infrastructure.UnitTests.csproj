@@ -98,6 +98,8 @@
   <ItemGroup>
     <Compile Include="Data\ParentChildrenMapperTests\WhenMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AcademicYear\WhenDeterminingTheAcademicYear.cs" />
+    <Compile Include="Services\AcademicYear\WhenValidatingAcademicYear.cs" />
     <Compile Include="Services\ApprenticeshipEventsListTest\WhenClearingEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsListTest\WhenIAddAnEvent.cs" />
     <Compile Include="Services\ApprenticeshipEventsPublisherTests\WhenIPublishEvents.cs" />

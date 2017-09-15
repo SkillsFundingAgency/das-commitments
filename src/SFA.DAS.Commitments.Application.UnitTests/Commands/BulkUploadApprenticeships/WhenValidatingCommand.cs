@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -20,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private BulkUploadApprenticeshipsValidator _validator;
         private BulkUploadApprenticeshipsCommand _exampleCommand;
         private Mock<IUlnValidator> _mockUlnValidator;
-
+        private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         [SetUp]
         public void Setup()
         {
@@ -28,8 +29,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             var mockApprenticeshipValidator = new Mock<AbstractValidator<Apprenticeship>>();
 
             _mockUlnValidator = new Mock<IUlnValidator>();
+            _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
-            _validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object));
+            _validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
 
             var exampleValidApprenticeships = new List<Apprenticeship>
             {

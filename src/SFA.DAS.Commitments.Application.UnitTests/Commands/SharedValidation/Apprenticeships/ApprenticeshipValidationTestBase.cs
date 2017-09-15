@@ -14,6 +14,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
         protected Apprenticeship ExampleValidApprenticeship;
         protected Mock<ICurrentDateTime> MockCurrentDateTime;
         protected  Mock<IUlnValidator> MockUlnValidator;
+        protected Mock<IAcademicYearValidator> MockAcademicYearValidator;
 
         [SetUp]
         public void BaseSetup()
@@ -22,8 +23,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 10));
 
             MockUlnValidator = new Mock<IUlnValidator>();
+            MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
-            Validator = new ApprenticeshipValidator(MockCurrentDateTime.Object, MockUlnValidator.Object);
+            Validator = new ApprenticeshipValidator(MockCurrentDateTime.Object, MockUlnValidator.Object, MockAcademicYearValidator.Object);
 
             ExampleValidApprenticeship = new Apprenticeship
             {
