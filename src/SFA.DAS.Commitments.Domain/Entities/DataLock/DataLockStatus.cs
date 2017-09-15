@@ -18,5 +18,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.DataLock
         public DataLockErrorCode ErrorCode { get; set; }
         public long? ApprenticeshipUpdateId { get; set; }
         public bool IsResolved { get; set; }
+        public bool IsExpired { get; set; }
+        public DateTime? Expired { get; set; }
     }
 }

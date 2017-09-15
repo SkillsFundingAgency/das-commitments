@@ -37,34 +37,36 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 {
                     DataLockEventId = 3,
                     IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock04// of interest
+                    ErrorCode = DataLockErrorCode.Dlock04, // of interest
+                    IsExpired = true,
+                    Expired = DateTime.MaxValue
                 }
                 ,
                 new DataLockStatus
                 {
                     DataLockEventId = 4,
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
+                    IlrEffectiveFromDate = new DateTime(2017, 6, 2), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock05// of interest
                 }
                 ,
                 new DataLockStatus
                 {
                     DataLockEventId = 5,
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
+                    IlrEffectiveFromDate = new DateTime(2017, 6, 3), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock06// of interest
                 }
                 ,
                 new DataLockStatus
                 {
                     DataLockEventId = 6,
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
+                    IlrEffectiveFromDate = new DateTime(2017, 6, 4), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock07// of interest
                 }
                 ,
                 new DataLockStatus
                 {
                     DataLockEventId = 7,
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
+                    IlrEffectiveFromDate = new DateTime(2017, 6, 5), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock03 |
                                 DataLockErrorCode.Dlock04 |
                                 DataLockErrorCode.Dlock05 |
@@ -104,9 +106,9 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
         [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", false, 0)]
         [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", false, 0)]
         [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", false, 0)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 6)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5)]
         [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", false, 0)]
-        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 7)]
+        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6)]
 
         //[TestCase("At the last second of R14 Acc.Yr 2016/17", "2017-10-19 17:59:59", "2017-8-01", "2018-7-31", "2017-10-19 18:00:00", false, 0)] // acc.yr 2017/18 just before cutoff 
         //[TestCase("R14 Acc.Yr 2016/17 After cutoff", "2017-10-19 18:00:00", "2017-8-01", "2018-7-31", "2017-10-19 18:00:00", true, 6)] // acc.yr 2017/18 after cutoff
@@ -138,7 +140,8 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 
                 fakeResults = _testDatalockStatusItems.Where(
                     x => x.IlrEffectiveFromDate < _academicYearProvider.Object.CurrentAcademicYearStartDate &&
-                         _expirableDataLockErrorCode.HasFlag(x.ErrorCode)
+                         _expirableDataLockErrorCode.HasFlag(x.ErrorCode) &&
+                            ! x.IsExpired
                 ).ToList();
             }
 
