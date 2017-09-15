@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Application.Commands;
 using Moq;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -18,7 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [SetUp]
         public void Setup()
         {
-            _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), Mock.Of<IUlnValidator>()));
+            _validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), Mock.Of<IUlnValidator>(), Mock.Of<IAcademicYearValidator>()));
             var exampleValidApprenticeship = new Domain.Entities.Apprenticeship
             {
                 FirstName = "Bob", LastName = "Smith", NINumber = ApprenticeshipTestDataHelper.CreateValidNino(),

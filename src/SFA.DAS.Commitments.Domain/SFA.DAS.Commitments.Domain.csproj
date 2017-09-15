@@ -70,6 +70,7 @@
     <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
+    <Compile Include="Entities\AcademicYear\AcademicYearValidationResult.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\AlertSummary.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
@@ -115,6 +116,8 @@
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
     <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Interfaces\IAcademicYearDateProvider.cs" />
+    <Compile Include="Interfaces\IAcademicYearValidator.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />

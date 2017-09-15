@@ -5,6 +5,7 @@ using FluentValidation;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 
 namespace SFA.DAS.Commitments.Application.Commands
 {
@@ -13,11 +14,13 @@ namespace SFA.DAS.Commitments.Application.Commands
         private static Func<string, int, bool> _lengthLessThanFunc = (str, length) => (str?.Length ?? length) < length;
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IUlnValidator _ulnValidator;
+        IAcademicYearValidator _academicYearValidator;
 
-        public ApprenticeshipValidator(ICurrentDateTime currentDate, IUlnValidator ulnValidator)
+        public ApprenticeshipValidator(ICurrentDateTime currentDate, IUlnValidator ulnValidator, IAcademicYearValidator academicYearValidator)
         {
             _currentDateTime = currentDate;
             _ulnValidator = ulnValidator;
+            _academicYearValidator = academicYearValidator;
 
             ValidateFirstName();
             ValidateLastName();
@@ -87,7 +90,9 @@ namespace SFA.DAS.Commitments.Application.Commands
 
         private void ValidateStartDate()
         {
-            RuleFor(x => x.StartDate).GreaterThanOrEqualTo(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null);
+            RuleFor(x => x.StartDate)
+                .GreaterThanOrEqualTo(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null)
+                .Must(BeWithinAcademicYearFundingPeriod);
         }
 
         private void ValidateEndDate()
@@ -156,6 +161,23 @@ namespace SFA.DAS.Commitments.Application.Commands
         {
             var result = _ulnValidator.Validate(uln);
             return (result == UlnValidationResult.Success || result == UlnValidationResult.IsEmptyUlnNumber);
+        }
+
+         private bool BeWithinAcademicYearFundingPeriod(DateTime? startDate)
+        {
+            if (!startDate.HasValue)
+            {
+                return true;
+            }
+
+            var result = _academicYearValidator.Validate(startDate.Value);
+
+            if (result == AcademicYearValidationResult.NotWithinFundingPeriod)
+            {
+                return false;
+            }
+
+            return true;
         }
 
     }

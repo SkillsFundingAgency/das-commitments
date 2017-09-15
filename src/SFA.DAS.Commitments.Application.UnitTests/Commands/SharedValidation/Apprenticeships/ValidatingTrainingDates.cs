@@ -1,6 +1,8 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
+using Moq;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Apprenticeships
 {
@@ -49,5 +51,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SharedValidation.Ap
 
             result.IsValid.Should().BeFalse();
         }
+
+        [Test]
+        public void ShouldBeInvalidIfAcademicYearValidatorIsNotSucessful()
+        {
+            ExampleValidApprenticeship.StartDate = new DateTime(2017, 7, 22);
+            MockAcademicYearValidator
+                .Setup(x => x.Validate(ExampleValidApprenticeship.StartDate.Value))
+                .Returns(AcademicYearValidationResult.NotWithinFundingPeriod);
+
+            var result = Validator.Validate(ExampleValidApprenticeship);
+            MockAcademicYearValidator.Verify(x => x.Validate(ExampleValidApprenticeship.StartDate.Value), Times.AtLeastOnce);
+
+            result.IsValid.Should().BeFalse();
+        }
+
     }
 }
