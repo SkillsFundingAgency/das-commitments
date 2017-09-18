@@ -282,7 +282,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             act.ShouldThrow<ValidationException>()
                 .WithMessage("Invalid Date of Change. Date cannot be before the training start date.");
-            //y => y.ErrorMessage.Contains()));
         }
     }
 }
