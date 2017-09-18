@@ -57,12 +57,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     parameters.Add("@IlrTrainingType", dataLockStatus.IlrTrainingType);
                     parameters.Add("@IlrActualStartDate", dataLockStatus.IlrActualStartDate);
                     parameters.Add("@IlrEffectiveFromDate", dataLockStatus.IlrEffectiveFromDate);
+                    parameters.Add("@IlrPriceEffectiveToDate", dataLockStatus.IlrPriceEffectiveToDate);
                     parameters.Add("@IlrTotalCost", dataLockStatus.IlrTotalCost);
                     parameters.Add("@ErrorCode", dataLockStatus.ErrorCode);
                     parameters.Add("@Status", dataLockStatus.Status);
                     parameters.Add("@TriageStatus", dataLockStatus.TriageStatus);
                     parameters.Add("@ApprenticeshipUpdateId", dataLockStatus.ApprenticeshipUpdateId);
                     parameters.Add("@IsResolved", dataLockStatus.IsResolved);
+                    parameters.Add("@EventStatus", dataLockStatus.EventStatus);
 
                     return await connection.ExecuteAsync(
                         sql: $"[dbo].[UpdateDataLockStatus]",

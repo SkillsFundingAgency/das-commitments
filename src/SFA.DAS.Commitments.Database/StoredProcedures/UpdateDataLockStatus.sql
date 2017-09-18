@@ -8,12 +8,15 @@
     @IlrTrainingType TINYINT,
 	@IlrActualStartDate DATETIME,
 	@IlrEffectiveFromDate DATETIME,
+	@IlrPriceEffectiveToDate DATETIME,
 	@IlrTotalCost DECIMAL,
     @ErrorCode INT,
     @Status TINYINT,
     @TriageStatus TINYINT,
 	@ApprenticeshipUpdateId BIGINT,
-	@IsResolved BIT
+	@IsResolved BIT,
+	@EventStatus BIT
+	
 )
 AS
 
@@ -32,12 +35,14 @@ AS
 		IlrTrainingType = @IlrTrainingType,
 		IlrActualStartDate = @IlrActualStartDate,
 		IlrEffectiveFromDate = @IlrEffectiveFromDate,
+		IlrPriceEffectiveToDate = @IlrPriceEffectiveToDate,
 		IlrTotalCost = @IlrTotalCost,
 		ErrorCode = @ErrorCode,
 		[Status] = @Status,
 		TriageStatus = @TriageStatus,
 		ApprenticeshipUpdateId = @ApprenticeshipUpdateId,
-		IsResolved = @IsResolved
+		IsResolved = @IsResolved,
+		EventStatus = @EventStatus
 		where
 		ApprenticeshipId = @ApprenticeshipId
 		and PriceEpisodeIdentifier = @PriceEpisodeIdentifier
@@ -56,12 +61,14 @@ AS
 			IlrTrainingType,
 			IlrActualStartDate,
 			IlrEffectiveFromDate,
+			IlrPriceEffectiveToDate,
 			IlrTotalCost,
 			ErrorCode,
 			[Status],
 			TriageStatus,
 			ApprenticeshipUpdateId,
-			IsResolved
+			IsResolved,
+			EventStatus
 		)
 		values
 		(
@@ -73,12 +80,14 @@ AS
 			@IlrTrainingType,
 			@IlrActualStartDate,
 			@IlrEffectiveFromDate,
+			@IlrPriceEffectiveToDate,
 			@IlrTotalCost,
 			@ErrorCode,
 			@Status,
 			@TriageStatus,
 			@ApprenticeshipUpdateId,
-			@IsResolved
+			@IsResolved,
+			@EventStatus
 		)
 
 	END
