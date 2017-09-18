@@ -15,7 +15,7 @@
     @TriageStatus TINYINT,
 	@ApprenticeshipUpdateId BIGINT,
 	@IsResolved BIT,
-	@EventStatus BIT
+	@EventStatus TINYINT
 	
 )
 AS

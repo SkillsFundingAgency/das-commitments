@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 foreach (var dataLockStatus in page)
                 {
                     _logger.Info($"Read datalock Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                        $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
+                        $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode} and EventStatus: {dataLockStatus.EventStatus}");
 
                     var datalockSuccess = dataLockStatus.ErrorCode == DataLockErrorCode.None;
 
@@ -113,8 +113,9 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
                             await _filterAcademicYearRolloverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
                         }
-                        catch(RepositoryConstraintException) when (_config.IgnoreDataLockStatusConstraintErrors)
+                        catch(RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
                         {
+                            _logger.Warn(ex, $"Exception in DataLock updater");
                         }
                     }
 

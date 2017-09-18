@@ -19,12 +19,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class DataLockRepository : BaseRepository, IDataLockRepository
     {
         private readonly IDataLockTransactions _dataLockTransactions;
+        private readonly ICommitmentsLogger _logger;
 
         public DataLockRepository(string connectionString,
             IDataLockTransactions dataLockTransactions,
             ICommitmentsLogger logger) : base(connectionString, logger.BaseLogger)
         {
             _dataLockTransactions = dataLockTransactions;
+            _logger = logger;
         }
 
         public async Task<long> GetLastDataLockEventId()
@@ -43,6 +45,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> UpdateDataLockStatus(DataLockStatus dataLockStatus)
         {
+            _logger.Info($"Updating or inserting data lock status {dataLockStatus.DataLockEventId}, EventsStatus: {dataLockStatus.EventStatus}");
             try
             {
                 var result = await WithConnection(async connection =>
