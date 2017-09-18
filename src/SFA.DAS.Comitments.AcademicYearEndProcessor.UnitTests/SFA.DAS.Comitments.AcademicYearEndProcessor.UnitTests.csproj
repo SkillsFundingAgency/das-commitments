@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AcademicYearEndExpiryProcessor.cs" />
-    <Compile Include="IAcademicYearDateProvider.cs" />
     <Compile Include="IAcademicYearEndExpiryProcessor.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="WhenRunningUpdate.cs" />

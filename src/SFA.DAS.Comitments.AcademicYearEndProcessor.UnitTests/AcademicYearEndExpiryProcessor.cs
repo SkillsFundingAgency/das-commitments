@@ -31,7 +31,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 
             if (_currentDateTime.Now > _academicYearProvider.CurrentAcademicYearEndDate)
             {
-                throw new InvalidAcademicYearException($"The accademic year dates are not valid for the current time: {_currentDateTime.Now}.");
+                throw new InvalidAcademicYearException($"The academic year dates are not valid for the current time: {_currentDateTime.Now}.");
             }
 
             if (
