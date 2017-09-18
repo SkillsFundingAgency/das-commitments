@@ -28,6 +28,11 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 
         public async Task RunUpdate()
         {
+
+            if (_currentDateTime.Now > _academicYearProvider.CurrentAcademicYearEndDate)
+            {
+                throw new InvalidAcademicYearException($"The accademic year dates are not valid for the current time {_currentDateTime.Now}.");
+            }
             if (
                 _currentDateTime.Now >= _academicYearProvider.CurrentAcademicYearStartDate
                 && _currentDateTime.Now < _academicYearProvider.LastAcademicYearFundingPeriod)
@@ -40,6 +45,14 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             if (_expirableDatalocks.Any())
                 foreach (var expirableDatalock in _expirableDatalocks)
                     await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.DataLockEventId);
+        }
+    }
+
+    public class InvalidAcademicYearException : Exception
+    {
+        public InvalidAcademicYearException(string message): base(message)
+        {
+            
         }
     }
 }
