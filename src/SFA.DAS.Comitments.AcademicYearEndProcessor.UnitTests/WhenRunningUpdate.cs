@@ -30,39 +30,34 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 {
                     DataLockEventId = 2,
                     IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock03// of interest
-                }
-                ,
+                    ErrorCode = DataLockErrorCode.Dlock03 // of interest
+                },
                 new DataLockStatus
                 {
                     DataLockEventId = 3,
                     IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock04, // of interest
                     IsExpired = true,
-                    Expired = DateTime.MaxValue  // but already expired
-                }
-                ,
+                    Expired = DateTime.MaxValue // but already expired
+                },
                 new DataLockStatus
                 {
                     DataLockEventId = 4,
                     IlrEffectiveFromDate = new DateTime(2017, 6, 2), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock05// of interest
-                }
-                ,
+                    ErrorCode = DataLockErrorCode.Dlock05 // of interest
+                },
                 new DataLockStatus
                 {
                     DataLockEventId = 5,
                     IlrEffectiveFromDate = new DateTime(2017, 6, 3), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock06// of interest
-                }
-                ,
+                    ErrorCode = DataLockErrorCode.Dlock06 // of interest
+                },
                 new DataLockStatus
                 {
                     DataLockEventId = 6,
                     IlrEffectiveFromDate = new DateTime(2017, 6, 4), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock07// of interest
-                }
-                ,
+                    ErrorCode = DataLockErrorCode.Dlock07 // of interest
+                },
                 new DataLockStatus
                 {
                     DataLockEventId = 7,
@@ -72,8 +67,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                                 DataLockErrorCode.Dlock05 |
                                 DataLockErrorCode.Dlock06 |
                                 DataLockErrorCode.Dlock07 // of interest
-                }
-                ,
+                },
                 new DataLockStatus
                 {
                     DataLockEventId = 8,
@@ -83,7 +77,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                                 DataLockErrorCode.Dlock05 |
                                 DataLockErrorCode.Dlock06 |
                                 DataLockErrorCode.Dlock07 // of interest
-                }// NOTE: Should NOT BE EXPIRED as inside the latest current year
+                } // NOTE: Should NOT BE EXPIRED as inside the latest current year
             };
         }
 
@@ -93,7 +87,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 
         private List<DataLockStatus> _testDatalockStatusItems = new List<DataLockStatus>();
 
-        private DataLockErrorCode _expirableDataLockErrorCode =
+        private readonly DataLockErrorCode _expirableDataLockErrorCode =
                 DataLockErrorCode.Dlock03 |
                 DataLockErrorCode.Dlock04 |
                 DataLockErrorCode.Dlock05 |
@@ -101,24 +95,26 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 DataLockErrorCode.Dlock07
             ;
 
-        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-7-31", true, 0)]
-        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-9-1", false, 0)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", false, 0)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", false, 0)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", false, 0)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5)]
-        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", false, 0)]
-        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6)]
+        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-7-31", true, 0, null)]
+        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-9-1", false, 0, typeof(InvalidAcademicYearException))]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5, null)]
+        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", false, 0, null)]
+        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6, null)]
         public async Task ThenExpirableItemsAreRetrievedAndExpired(
             DateTime thisAcademicYearStartDate,
             DateTime thisAcademicYearEndDate,
             DateTime lastAcademicYearFundingPeriod,
-            DateTime onTheDate, 
+            DateTime onTheDate,
             bool expectRetrieval,
-            int expectedUpdates)
+            int expectedUpdates,
+            Type expectedExceptionType)
         {
-            var scenarioDescription = $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  on {onTheDate} there will be {(expectRetrieval ? "" : "no ")}data retrieval and {expectedUpdates} updates";
-            
+            var scenarioDescription =
+                $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  on {onTheDate} there will be {(expectRetrieval ? "" : "no ")}data retrieval and {expectedUpdates} updates";
+
             // ARRANGE
             var currentDatetime = new StubCurrentDateTime(onTheDate);
 
@@ -128,26 +124,36 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             _academicYearProvider.Setup(y => y.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
 
 
-            List<DataLockStatus> fakeResults = new List<DataLockStatus>();
+            var fakeResults = new List<DataLockStatus>();
 
-            if (currentDatetime.Now >=_academicYearProvider.Object.LastAcademicYearFundingPeriod)
+            if (currentDatetime.Now >= _academicYearProvider.Object.LastAcademicYearFundingPeriod)
             {
                 fakeResults = _testDatalockStatusItems.Where(
                     x => x.IlrEffectiveFromDate < _academicYearProvider.Object.CurrentAcademicYearStartDate &&
                          _expirableDataLockErrorCode.HasFlag(x.ErrorCode) &&
-                            ! x.IsExpired
+                         !x.IsExpired
                 ).ToList();
             }
 
             _dataLockRepository.Setup(r => r.GetExpirableDataLocks(
-                    _academicYearProvider.Object.CurrentAcademicYearStartDate,
-                    _expirableDataLockErrorCode)).ReturnsAsync(fakeResults);
+                _academicYearProvider.Object.CurrentAcademicYearStartDate,
+                _expirableDataLockErrorCode)).ReturnsAsync(fakeResults);
 
+            _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(_academicYearProvider.Object,
+                _dataLockRepository.Object, _expirableDataLockErrorCode, currentDatetime);
 
-            _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(_academicYearProvider.Object, _dataLockRepository.Object, _expirableDataLockErrorCode, currentDatetime);
-
-            // ACT
-            await _academicYearEndProcessor.RunUpdate();
+            Type actualExceptionType = null;
+            Exception actualException = null;
+            try
+            {
+                // ACT
+                await _academicYearEndProcessor.RunUpdate();
+            }
+            catch (Exception e)
+            {
+                actualException = e;
+                actualExceptionType = e.GetType();
+            }
 
             //ASSERT
             if (expectRetrieval)
@@ -156,20 +162,30 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
                         _expirableDataLockErrorCode), Times.Once, scenarioDescription);
                 if (expectedUpdates == 0)
-                {
-
-                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>()), Times.Never, scenarioDescription);
-                }
+                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>()), Times.Never,
+                        scenarioDescription);
                 else
-                {
-                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>()), Times.Exactly(expectedUpdates), scenarioDescription);
-                }
+                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>()),
+                        Times.Exactly(expectedUpdates), scenarioDescription);
             }
             else
             {
                 _dataLockRepository.Verify(x =>
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
                         _expirableDataLockErrorCode), Times.Never, scenarioDescription);
+            }
+            if (actualException != null)
+            {
+                if (actualExceptionType != expectedExceptionType)
+                {
+                    Assert.Fail($"An unexpected Exception has occured {actualException.Message}");
+                }
+                else
+                {
+                    Assert.True(
+                        actualException.Message.StartsWith(
+                            "The accademic year dates are not valid for the current time:"));
+                }
             }
         }
     }
