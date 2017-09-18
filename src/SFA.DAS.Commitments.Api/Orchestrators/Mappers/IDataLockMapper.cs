@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock;
+using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -18,17 +19,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ApprenticeshipId = domainDataLock.ApprenticeshipId,
                 DataLockEventDatetime = domainDataLock.DataLockEventDatetime,
                 DataLockEventId = domainDataLock.DataLockEventId,
-                ErrorCode = (Api.Types.DataLock.Types.DataLockErrorCode)domainDataLock.ErrorCode,
+                ErrorCode = (DataLockErrorCode)domainDataLock.ErrorCode,
                 IlrActualStartDate = domainDataLock.IlrActualStartDate,
                 IlrEffectiveFromDate = domainDataLock.IlrEffectiveFromDate,
+                IlrEffectiveToDate = domainDataLock.IlrPriceEffectiveToDate,
                 IlrTotalCost = domainDataLock.IlrTotalCost,
                 IlrTrainingCourseCode = domainDataLock.IlrTrainingCourseCode,
                 IlrTrainingType = (TrainingType)domainDataLock.IlrTrainingType,
                 PriceEpisodeIdentifier = domainDataLock.PriceEpisodeIdentifier,
-                Status = (Api.Types.DataLock.Types.Status)domainDataLock.Status,
-                TriageStatus = (Api.Types.DataLock.Types.TriageStatus)domainDataLock.TriageStatus,
+                Status = (Status)domainDataLock.Status,
+                TriageStatus = (TriageStatus)domainDataLock.TriageStatus,
                 ApprenticeshipUpdateId = domainDataLock.ApprenticeshipUpdateId,
-                IsResolved = domainDataLock.IsResolved
+                IsResolved = domainDataLock.IsResolved,
+                EventStatus = domainDataLock.EventStatus == Domain.Entities.EventStatus.None 
+                    ? EventStatus.New : (EventStatus)domainDataLock.EventStatus
             };
         }
     }
