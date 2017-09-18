@@ -37,23 +37,21 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             if (
                 _currentDateTime.Now >= _academicYearProvider.CurrentAcademicYearStartDate
                 && _currentDateTime.Now < _academicYearProvider.LastAcademicYearFundingPeriod)
+            {
                 return;
-           
+            }
 
             _expirableDatalocks =
                 await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate,
                     _expirableErrorCodes);
-            if (_expirableDatalocks.Any())
-                foreach (var expirableDatalock in _expirableDatalocks)
-                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.DataLockEventId);
-        }
-    }
 
-    public class InvalidAcademicYearException : Exception
-    {
-        public InvalidAcademicYearException(string message): base(message)
-        {
-            
+            if (_expirableDatalocks.Any())
+            {
+                foreach (var expirableDatalock in _expirableDatalocks)
+                {
+                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId, expirableDatalock.PriceEpisodeIdentifier);
+                }
+            }
         }
     }
 }

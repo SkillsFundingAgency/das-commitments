@@ -15,6 +15,8 @@
     [TriageStatus] TINYINT NOT NULL,
 	[ApprenticeshipUpdateId] BIGINT NULL,
 	[IsResolved] BIT NOT NULL,
+	[IsExpired] BIT NOT NULL DEFAULT(0),
+	[Expired] DATETIME NULL,
 	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
 	CONSTRAINT [FK_DataLockStatus_ApprenticeshipUpdateId] FOREIGN KEY ([ApprenticeshipUpdateId]) REFERENCES [ApprenticeshipUpdate]([Id])
 )

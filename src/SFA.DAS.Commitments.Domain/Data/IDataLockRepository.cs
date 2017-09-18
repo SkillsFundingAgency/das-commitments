@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> ResolveDataLock(IEnumerable<long> dataLockEventIds);
         Task Delete(long dataLockEventId);
         Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate, DataLockErrorCode expirableErrorCodes);
-        Task<bool> UpdateExpirableDataLocks(long expirableDatalockDataLockEventIds);
+        Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier);
     }
     
 }

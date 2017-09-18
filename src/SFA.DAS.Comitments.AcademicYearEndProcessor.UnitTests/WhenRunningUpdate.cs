@@ -163,10 +163,10 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
                         _expirableDataLockErrorCode), Times.Once, scenarioDescription);
                 if (expectedUpdates == 0)
-                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>()), Times.Never,
+                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()), Times.Never,
                         scenarioDescription);
                 else
-                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>()),
+                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()),
                         Times.Exactly(expectedUpdates), scenarioDescription);
             }
             else

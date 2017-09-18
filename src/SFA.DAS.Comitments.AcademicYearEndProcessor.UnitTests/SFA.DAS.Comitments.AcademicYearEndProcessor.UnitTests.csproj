@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="AcademicYearEndExpiryProcessor.cs" />
     <Compile Include="IAcademicYearEndExpiryProcessor.cs" />
+    <Compile Include="InvalidAcademicYearException.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="WhenRunningUpdate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
