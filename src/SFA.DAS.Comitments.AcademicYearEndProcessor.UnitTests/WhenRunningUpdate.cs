@@ -39,7 +39,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                     IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock04, // of interest
                     IsExpired = true,
-                    Expired = DateTime.MaxValue
+                    Expired = DateTime.MaxValue  // but already expired
                 }
                 ,
                 new DataLockStatus
@@ -109,11 +109,6 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
         [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5)]
         [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", false, 0)]
         [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6)]
-
-        //[TestCase("At the last second of R14 Acc.Yr 2016/17", "2017-10-19 17:59:59", "2017-8-01", "2018-7-31", "2017-10-19 18:00:00", false, 0)] // acc.yr 2017/18 just before cutoff 
-        //[TestCase("R14 Acc.Yr 2016/17 After cutoff", "2017-10-19 18:00:00", "2017-8-01", "2018-7-31", "2017-10-19 18:00:00", true, 6)] // acc.yr 2017/18 after cutoff
-        //[TestCase("R14 Acc.Yr 2016/17 Well after cutoff", "2017-11-01", "2017-8-01", "2018-7-31", "2017-10-19 18:00", true, 6)] // acc.yr 2017/18 well after cutoff 
-        //[TestCase("Last time point in R14 Acc.yr 2017/18", "2018-10-19 17:59:59", "2018-8-01", "2019-7-31", "2018-10-19 18:00:00", true, 7)] // acc.yr 2018/19 well after cutoff 
         public async Task ThenExpirableItemsAreRetrievedAndExpired(
             DateTime thisAcademicYearStartDate,
             DateTime thisAcademicYearEndDate,
