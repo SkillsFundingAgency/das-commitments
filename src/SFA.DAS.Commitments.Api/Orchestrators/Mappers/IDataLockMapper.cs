@@ -32,7 +32,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ApprenticeshipUpdateId = domainDataLock.ApprenticeshipUpdateId,
                 IsResolved = domainDataLock.IsResolved,
                 EventStatus = domainDataLock.EventStatus == Domain.Entities.EventStatus.None 
-                    ? EventStatus.New : (EventStatus)domainDataLock.EventStatus
+                    ? EventStatus.New 
+                    : (EventStatus)domainDataLock.EventStatus
             };
         }
     }
