@@ -157,6 +157,10 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             }
 
             //ASSERT
+            if (actualException != null)
+            {
+                Assert.AreEqual(actualExceptionType, expectedExceptionType);
+            }
             if (expectRetrieval)
             {
                 _dataLockRepository.Verify(x =>
@@ -174,19 +178,6 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 _dataLockRepository.Verify(x =>
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
                         _expirableDataLockErrorCode), Times.Never, scenarioDescription);
-            }
-            if (actualException != null)
-            {
-                if (actualExceptionType != expectedExceptionType)
-                {
-                    Assert.Fail($"An unexpected Exception has occured {actualException.Message}");
-                }
-                else
-                {
-                    Assert.True(
-                        actualException.Message.StartsWith(
-                            "The academic year dates are not valid for the current time:"));
-                }
             }
         }
     }
