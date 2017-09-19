@@ -4,7 +4,9 @@ using StructureMap;
 using System;
 using System.Reflection;
 using Microsoft.Azure;
+using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Services;
@@ -34,6 +36,20 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolutio
 
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
+
+            //config.CurrentStartTime = DateTime.UtcNow.AddDays(79);
+            //config.ExpirableDataLockErrorCodes = DataLockErrorCode.Dlock03 |
+            //                                     DataLockErrorCode.Dlock04 |
+            //                                     DataLockErrorCode.Dlock05 |
+            //                                     DataLockErrorCode.Dlock06 |
+            //                                     DataLockErrorCode.Dlock07;
+
+            //System.IO.File.WriteAllText(@"d:\test.json", JsonConvert.SerializeObject(config));
+
+
+            For<IAcademicYearEndExpiryProcessor>()
+                .Use<AcademicYearEndExpiryProcessor>()
+                .Ctor<DataLockErrorCode>().Is(config.ExpirableDataLockErrorCodes);
 
 
         }

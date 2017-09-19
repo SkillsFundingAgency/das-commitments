@@ -97,7 +97,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 
         private List<DataLockStatus> _testDatalockStatusItems = new List<DataLockStatus>();
 
-        private readonly DataLockErrorCode _expirableDataLockErrorCode =
+        private readonly DataLockErrorCode _expirableDataLockErrorCodes =
                 DataLockErrorCode.Dlock03 |
                 DataLockErrorCode.Dlock04 |
                 DataLockErrorCode.Dlock05 |
@@ -140,17 +140,17 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             {
                 fakeResults = _testDatalockStatusItems.Where(
                     x => x.IlrEffectiveFromDate < _academicYearProvider.Object.CurrentAcademicYearStartDate &&
-                         _expirableDataLockErrorCode.HasFlag(x.ErrorCode) &&
+                         _expirableDataLockErrorCodes.HasFlag(x.ErrorCode) &&
                          !x.IsExpired
                 ).ToList();
             }
 
             _dataLockRepository.Setup(r => r.GetExpirableDataLocks(
                 _academicYearProvider.Object.CurrentAcademicYearStartDate,
-                _expirableDataLockErrorCode)).ReturnsAsync(fakeResults);
+                _expirableDataLockErrorCodes)).ReturnsAsync(fakeResults);
 
             _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(_academicYearProvider.Object,
-                _dataLockRepository.Object, _expirableDataLockErrorCode, currentDatetime);
+                _dataLockRepository.Object, _expirableDataLockErrorCodes, currentDatetime);
 
             Type actualExceptionType = null;
             Exception actualException = null;
@@ -174,7 +174,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             {
                 _dataLockRepository.Verify(x =>
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
-                        _expirableDataLockErrorCode), Times.Once, scenarioDescription);
+                        _expirableDataLockErrorCodes), Times.Once, scenarioDescription);
                 if (expectedUpdates == 0)
                     _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()), Times.Never,
                         scenarioDescription);
@@ -186,7 +186,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             {
                 _dataLockRepository.Verify(x =>
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
-                        _expirableDataLockErrorCode), Times.Never, scenarioDescription);
+                        _expirableDataLockErrorCodes), Times.Never, scenarioDescription);
             }
         }
     }
