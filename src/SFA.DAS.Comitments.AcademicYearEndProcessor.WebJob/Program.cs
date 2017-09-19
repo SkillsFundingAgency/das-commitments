@@ -12,9 +12,9 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob
             var container = IoC.Initialize();
 
             var logger = container.GetInstance<ILog>();
-            var updater = container.GetInstance<IDummyTask>();
+            var updater = container.GetInstance<IAcademicYearEndExpiryProcessor>();
 
-            logger.Info($"Starting {nameof(DummyTask)}.WebJob");
+            logger.Info($"Starting {nameof(AcademicYearEndExpiryProcessor)}.WebJob");
 
             try
             {
@@ -22,7 +22,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Error running {nameof(DummyTask)}.WebJob");
+                logger.Error(ex, $"Error running {nameof(AcademicYearEndExpiryProcessor)}.WebJob");
             }
         }
     }

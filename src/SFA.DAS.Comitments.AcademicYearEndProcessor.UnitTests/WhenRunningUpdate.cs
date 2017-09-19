@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -24,18 +25,21 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 new DataLockStatus
                 {
                     DataLockEventId = 1,
+                    ApprenticeshipId = 121, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2016, 6, 1), // in Acc.Yr 2015/16
                     ErrorCode = DataLockErrorCode.Dlock01 // not of interest
                 },
                 new DataLockStatus
                 {
                     DataLockEventId = 2,
+                    ApprenticeshipId = 122, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock03 // of interest
                 },
                 new DataLockStatus
                 {
                     DataLockEventId = 3,
+                    ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock04, // of interest
                     IsExpired = true,
@@ -44,24 +48,28 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 new DataLockStatus
                 {
                     DataLockEventId = 4,
+                    ApprenticeshipId = 124, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 6, 2), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock05 // of interest
                 },
                 new DataLockStatus
                 {
                     DataLockEventId = 5,
+                    ApprenticeshipId = 125, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 6, 3), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock06 // of interest
                 },
                 new DataLockStatus
                 {
                     DataLockEventId = 6,
+                    ApprenticeshipId = 126, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 6, 4), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock07 // of interest
                 },
                 new DataLockStatus
                 {
                     DataLockEventId = 7,
+                    ApprenticeshipId = 127, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 6, 5), // in Acc.Yr 2016/17
                     ErrorCode = DataLockErrorCode.Dlock03 |
                                 DataLockErrorCode.Dlock04 |
@@ -72,13 +80,14 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 new DataLockStatus
                 {
                     DataLockEventId = 8,
+                    ApprenticeshipId = 128, PriceEpisodeIdentifier = "25-6-01/05/2017",
                     IlrEffectiveFromDate = new DateTime(2017, 8, 1), // in Acc.Yr 2017/18
                     ErrorCode = DataLockErrorCode.Dlock03 |
                                 DataLockErrorCode.Dlock04 |
                                 DataLockErrorCode.Dlock05 |
                                 DataLockErrorCode.Dlock06 |
                                 DataLockErrorCode.Dlock07 // of interest
-                } // NOTE: Should NOT BE EXPIRED as inside the latest current year
+                } 
             };
         }
 

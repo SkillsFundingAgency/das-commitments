@@ -6,7 +6,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
+namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater
 {
     public class AcademicYearEndExpiryProcessor : IAcademicYearEndExpiryProcessor
     {
