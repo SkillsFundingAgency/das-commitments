@@ -23,8 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected UpdateApprenticeshipStatusCommandHandler Handler;
         protected UpdateApprenticeshipStatusCommand ExampleValidRequest;
         protected Apprenticeship TestApprenticeship;
-        private Mock<IAcademicYearDateProvider> _academicYearDateProvider;
-        private IAcademicYearValidator _academicYearValidator;
+        protected Mock<IAcademicYearValidator> MockAcademicYearValidator;
 
         protected abstract PaymentStatus RequestPaymentStatus { get; }
         protected abstract PaymentStatus ApprenticeshipPaymentStatus { get; }
@@ -63,12 +62,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _academicYearDateProvider = new Mock<IAcademicYearDateProvider>();
-            _academicYearValidator = new AcademicYearValidator(MockCurrentDateTime.Object, _academicYearDateProvider.Object);
+            MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
-            _academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(new DateTime(2016, 8, 1));
-            _academicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2017, 7, 31));
-            _academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(new DateTime(2016, 10, 18));
+            //_academicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate).Returns(new DateTime(2016, 8, 1));
+            //_academicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2017, 7, 31));
+            //_academicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod).Returns(new DateTime(2016, 10, 18));
 
 
             Handler = new UpdateApprenticeshipStatusCommandHandler(
@@ -80,8 +78,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 Mock.Of<ICommitmentsLogger>(),
                 MockHistoryRepository.Object,
                 MockDataLockRepository.Object,
-                _academicYearDateProvider.Object,
-                _academicYearValidator);
+                MockAcademicYearValidator.Object);
         }
     }
 }

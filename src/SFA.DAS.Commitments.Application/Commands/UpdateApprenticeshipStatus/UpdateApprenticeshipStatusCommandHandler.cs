@@ -25,7 +25,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly IDataLockRepository _dataLockRepository;
-        private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IAcademicYearValidator _academicYearValidator;
 
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
@@ -39,7 +38,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
             IDataLockRepository dataLockRepository,
-            IAcademicYearDateProvider academicYearDateProvider,
             IAcademicYearValidator academicYearValidator
             )
         {
@@ -51,7 +49,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _logger = logger;
             _historyRepository = historyRepository;
             _dataLockRepository = dataLockRepository;
-            _academicYearDateProvider = academicYearDateProvider;
             _academicYearValidator = academicYearValidator;
         }
 
