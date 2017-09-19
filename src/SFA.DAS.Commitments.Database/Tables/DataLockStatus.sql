@@ -9,12 +9,14 @@
     [IlrTrainingType] TINYINT NOT NULL,
 	[IlrActualStartDate] DATETIME NULL,
 	[IlrEffectiveFromDate] DATETIME NULL,
+	[IlrPriceEffectiveToDate] DATETIME NULL,
 	[IlrTotalCost] DECIMAL NULL,
     [ErrorCode] INT NOT NULL,
     [Status] TINYINT NOT NULL,
     [TriageStatus] TINYINT NOT NULL,
 	[ApprenticeshipUpdateId] BIGINT NULL,
 	[IsResolved] BIT NOT NULL,
+	[EventStatus] TINYINT NOT NULL default 1,
 	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
 	CONSTRAINT [FK_DataLockStatus_ApprenticeshipUpdateId] FOREIGN KEY ([ApprenticeshipUpdateId]) REFERENCES [ApprenticeshipUpdate]([Id])
 )

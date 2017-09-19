@@ -6,6 +6,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Provider.Events.Api.Types;
 
+using EventStatus = SFA.DAS.Commitments.Domain.Entities.EventStatus;
+
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
     public class PaymentEventMapper : IPaymentEventMapper
@@ -21,10 +23,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                            IlrTrainingCourseCode = DeriveTrainingCourseCode(dataLockEvent),
                            IlrTrainingType = DeriveTrainingType(dataLockEvent),
                            IlrActualStartDate = dataLockEvent.IlrStartDate,
-                           IlrEffectiveFromDate = dataLockEvent.IlrPriceEffectiveDate,
+                           IlrEffectiveFromDate = dataLockEvent.IlrPriceEffectiveFromDate,
+                           IlrPriceEffectiveToDate = dataLockEvent.IlrPriceEffectiveToDate,
                            IlrTotalCost = dataLockEvent.IlrTrainingPrice + dataLockEvent.IlrEndpointAssessorPrice,
                            ErrorCode = DetermineErrorCode(dataLockEvent.Errors),
-                           Status = dataLockEvent.Errors?.Any() ?? false ? Status.Fail : Status.Pass
+                           Status = dataLockEvent.Errors?.Any() ?? false ? Status.Fail : Status.Pass,
+                           EventStatus = (EventStatus)dataLockEvent.Status
                        };
         }
 
