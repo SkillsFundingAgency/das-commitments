@@ -28,7 +28,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
         {
             var processDateTime = new DateTime(1998, 12, 08);
             var ilrStartDate = new DateTime(2020, 12, 08);
-            var lrPriceEffectiveDate = new DateTime(2020, 12, 12);
+            var lrPriceEffectiveFromDate = new DateTime(2020, 12, 12);
+            var lrPriceEffectiveToDate = new DateTime(2022, 12, 24);
             var result = _sut.Map(
                 new DataLockEvent
                     {
@@ -37,7 +38,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
                         PriceEpisodeIdentifier = "price-episode-identifier",
                         ApprenticeshipId = 12399L,
                         IlrStartDate = ilrStartDate,
-                        IlrPriceEffectiveDate = new DateTime(2020, 12, 12),
+                        IlrPriceEffectiveFromDate = lrPriceEffectiveFromDate,
+                        IlrPriceEffectiveToDate = lrPriceEffectiveToDate,
                         IlrTrainingPrice = 1600,
                         IlrEndpointAssessorPrice = 500,
                         Errors = new[]
@@ -53,7 +55,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventMapp
             result.PriceEpisodeIdentifier.Should().Be("price-episode-identifier");
             result.ApprenticeshipId.Should().Be(12399L);
             result.IlrActualStartDate.Should().Be(ilrStartDate);
-            result.IlrEffectiveFromDate.Should().Be(lrPriceEffectiveDate);
+            result.IlrEffectiveFromDate.Should().Be(lrPriceEffectiveFromDate);
+            result.IlrPriceEffectiveToDate.Should().Be(lrPriceEffectiveToDate);
             result.IlrTotalCost.Should().Be(2100M);
 
             result.Status.Should().Be(Status.Fail);
