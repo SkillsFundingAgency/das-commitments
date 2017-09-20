@@ -253,7 +253,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             }
             else
             {
-                act.ShouldThrow<ValidationException>().WithMessage("Invalid Date of Change. Date cannot be before the academnic year start date.");
+                act.ShouldThrow<ValidationException>().WithMessage("Invalid Date of Change. Date cannot be before the academic year start date.");
             }
         }
 
