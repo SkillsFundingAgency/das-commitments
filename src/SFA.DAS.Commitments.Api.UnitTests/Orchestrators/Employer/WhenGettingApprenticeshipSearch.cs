@@ -13,6 +13,8 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
 
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
+
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
 {
     [TestFixture]
@@ -59,6 +61,33 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             MockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer), Times.Once);
 
             result.Apprenticeships.Count().Should().Be(0);
+        }
+
+        [Test]
+        public async Task ShouldRemovePendingApprovalFromTotalCount()
+        {
+            MockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
+                .ReturnsAsync(new GetApprenticeshipsResponse {
+                    Apprenticeships = new List<Domain.Entities.Apprenticeship>
+                        {
+                            new Domain.Entities.Apprenticeship { PaymentStatus = PaymentStatus.Active },
+                            new Domain.Entities.Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval }
+                        },
+                    TotalCount = 50
+                });
+            MockApprenticeshipFilter.Setup(m =>
+                m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer))
+                .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(2, aps.ToList(), 1, 25));
+
+            var result = await Orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
+
+            MockMediator.Verify(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()), Times.Once);
+            MockFacetMapper.Verify(m => m.BuildFacets(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer), Times.Once);
+            MockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Employer), Times.Once);
+
+            result.Apprenticeships.Count().Should().Be(1);
+            result.TotalApprenticeships.Should().Be(2);
+            result.TotalApprenticeshipsBeforeFilter.Should().Be(49);
         }
     }
 }
