@@ -4,7 +4,7 @@ using StructureMap;
 using System;
 using System.Reflection;
 using Microsoft.Azure;
-using Newtonsoft.Json;
+using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -32,24 +32,22 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolutio
             For<IConfiguration>().Use(config);
             For<CommitmentsAcademicYearEndProcessorConfiguration>().Use(config);
             For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext(), null)).AlwaysUnique();
-            For<ICurrentDateTime>().Use(x => new CurrentDateTime(config.CurrentStartTime));
+
+            DateTime? currentDatetime = null;
+            if (!string.IsNullOrWhiteSpace(config.CurrentStartTime))
+            {
+                currentDatetime = DateTime.Parse(config.CurrentStartTime);
+            }
+            DataLockErrorCode expirableDataLockErrorCodes = (DataLockErrorCode)Enum.Parse(typeof(DataLockErrorCode), config.ExpirableDataLockErrorCodes);
+
+
+            For<ICurrentDateTime>().Use(x => new CurrentDateTime(currentDatetime));
 
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
-
-            //config.CurrentStartTime = DateTime.UtcNow.AddDays(79);
-            //config.ExpirableDataLockErrorCodes = DataLockErrorCode.Dlock03 |
-            //                                     DataLockErrorCode.Dlock04 |
-            //                                     DataLockErrorCode.Dlock05 |
-            //                                     DataLockErrorCode.Dlock06 |
-            //                                     DataLockErrorCode.Dlock07;
-
-            //System.IO.File.WriteAllText(@"d:\test.json", JsonConvert.SerializeObject(config));
-
-
             For<IAcademicYearEndExpiryProcessor>()
                 .Use<AcademicYearEndExpiryProcessor>()
-                .Ctor<DataLockErrorCode>().Is(config.ExpirableDataLockErrorCodes);
+                .Ctor<DataLockErrorCode>().Is(expirableDataLockErrorCodes);
 
 
         }
@@ -67,7 +65,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolutio
             }
 
             var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository, 
+            var configurationService = new ConfigurationService(configurationRepository,
                 new ConfigurationOptions(serviceName, environment, "1.0"));
 
             var result = configurationService.Get<CommitmentsAcademicYearEndProcessorConfiguration>();
@@ -85,21 +83,5 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolutio
             SystemDetails.VersionNumber = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
-        public static class SystemDetails
-        {
-            public static string VersionNumber { get; set; }
-            public static string EnvironmentName { get; set; }
-        }
-    }
-
-
-
-
-
-    public class DummyRequestContext : IRequestContext
-    {
-        public string Url { get; }
-
-        public string IpAddress { get; }
     }
 }

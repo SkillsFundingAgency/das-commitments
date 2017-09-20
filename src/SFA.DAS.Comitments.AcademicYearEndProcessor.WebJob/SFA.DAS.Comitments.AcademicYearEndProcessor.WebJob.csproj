@@ -99,8 +99,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DependencyResolution\DummyRequestContext.cs" />
+    <Compile Include="DependencyResolution\SystemDetails.cs" />
     <Compile Include="Updater\AcademicYearEndExpiryProcessor.cs" />
-    <Compile Include="Updater\CommitmentsAcademicYearEndProcessorConfiguration.cs" />
+    <Compile Include="Configuration\CommitmentsAcademicYearEndProcessorConfiguration.cs" />
     <Compile Include="Updater\IAcademicYearEndExpiryProcessor.cs" />
     <Compile Include="Updater\InvalidAcademicYearException.cs" />
     <Compile Include="Program.cs" />

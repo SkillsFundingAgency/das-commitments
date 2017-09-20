@@ -29,9 +29,10 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater
         public async Task RunUpdate()
         {
 
-            if (_currentDateTime.Now > _academicYearProvider.CurrentAcademicYearEndDate)
+            if (_currentDateTime.Now > _academicYearProvider.CurrentAcademicYearEndDate ||
+                _currentDateTime.Now < _academicYearProvider.CurrentAcademicYearStartDate)
             {
-                throw new InvalidAcademicYearException($"The academic year dates are not valid for the current time: {_currentDateTime.Now}.");
+                throw new InvalidAcademicYearException($"The current time {_currentDateTime.Now} does not fall within the specified Academic Year: {_academicYearProvider.CurrentAcademicYearStartDate}-{_academicYearProvider.CurrentAcademicYearEndDate}.");
             }
 
             if (
