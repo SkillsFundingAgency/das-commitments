@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 
@@ -24,6 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly IDataLockRepository _dataLockRepository;
+        private readonly IAcademicYearValidator _academicYearValidator;
 
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
 
@@ -35,7 +37,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             IApprenticeshipEvents eventsApi,
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
-            IDataLockRepository dataLockRepository)
+            IDataLockRepository dataLockRepository,
+            IAcademicYearValidator academicYearValidator
+            )
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -45,6 +49,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _logger = logger;
             _historyRepository = historyRepository;
             _dataLockRepository = dataLockRepository;
+            _academicYearValidator = academicYearValidator;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStatusCommand command)
@@ -144,6 +149,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
                 if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
+
+                if (_academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
+                    throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
             }
         }
 
