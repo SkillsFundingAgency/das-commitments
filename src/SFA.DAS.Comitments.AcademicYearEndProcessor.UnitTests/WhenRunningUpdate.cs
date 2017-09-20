@@ -121,17 +121,17 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
                 DataLockErrorCode.Dlock07
             ;
 
-        //[TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-7-31", true, 0, null)]
-        //[TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2016-7-31", false, 0, typeof(InvalidAcademicYearException))]
-        //[TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-9-1", false, 0, typeof(InvalidAcademicYearException))]
+        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-7-31", true, 0, null)]
+        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2016-7-31", false, 0, typeof(InvalidAcademicYearException))]
+        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-9-1", false, 0, typeof(InvalidAcademicYearException))]
 
-        //[TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", false, 0, null)]
-        //[TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", false, 0, null)]
-        //[TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", false, 0, null)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5, null)]
 
         [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", false, 0, null)]
-        //[TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5, null)]
-        //[TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6, null)]
+        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6, null)]
         public async Task ThenExpirableItemsAreRetrievedAndExpired(
             DateTime thisAcademicYearStartDate,
             DateTime thisAcademicYearEndDate,
@@ -141,7 +141,7 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             int expectedUpdates,
             Type expectedExceptionType)
         {
-            var scenarioDescription =
+            var expectationFailureNotes =
                 $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  at {atTheTime} there will be {(expectRetrieval ? "" : "no ")}data retrieval and {expectedUpdates} updates";
 
             // ARRANGE
@@ -192,19 +192,24 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             {
                 _dataLockRepository.Verify(x =>
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
-                        _expirableDataLockErrorCodes), Times.Once, scenarioDescription);
+                        _expirableDataLockErrorCodes), Times.Once, expectationFailureNotes);
+
                 if (expectedUpdates == 0)
+                {
                     _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()), Times.Never,
-                        scenarioDescription);
+                        expectationFailureNotes);
+                }
                 else
+                {
                     _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()),
-                        Times.Exactly(expectedUpdates), scenarioDescription);
+                        Times.Exactly(expectedUpdates), expectationFailureNotes);
+                }
             }
             else
             {
                 _dataLockRepository.Verify(x =>
                     x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
-                        _expirableDataLockErrorCodes), Times.Never, scenarioDescription);
+                        _expirableDataLockErrorCodes), Times.Never, expectationFailureNotes);
             }
             if (expectedExceptionType != null && actualException == null)
             {

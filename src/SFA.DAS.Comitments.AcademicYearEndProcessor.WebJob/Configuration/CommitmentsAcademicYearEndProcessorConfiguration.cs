@@ -1,6 +1,4 @@
-﻿using System;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
-using SFA.DAS.Commitments.Domain.Interfaces;
+﻿using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Configuration
 {
