@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -76,6 +77,25 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             if ((apprenticeshipQuery.TrainingProviderIds?.Any() ?? false) && caller == Originator.Employer)
             {
                 result = result.Where(m => apprenticeshipQuery.TrainingProviderIds.Contains(m.ProviderId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(apprenticeshipQuery.SearchKeyword))
+            {
+                var isUln = Regex.Match(apprenticeshipQuery.SearchKeyword, "^[0-9]{10}$");
+
+                if (isUln.Success)
+                {
+                    result =
+                        result.Where(
+                            m =>
+                                m.ULN.Equals(apprenticeshipQuery.SearchKeyword,
+                                    StringComparison.InvariantCultureIgnoreCase));
+                }
+                else
+                {
+                    result = result.Where(m => m.ApprenticeshipName.ToUpper()
+                        .Contains(apprenticeshipQuery.SearchKeyword.ToUpper()));
+                }
             }
 
             var filteredResults = result.ToList();
