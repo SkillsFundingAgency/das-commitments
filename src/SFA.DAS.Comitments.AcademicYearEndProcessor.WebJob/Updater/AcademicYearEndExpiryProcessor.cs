@@ -6,7 +6,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
+namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater
 {
     public class AcademicYearEndExpiryProcessor : IAcademicYearEndExpiryProcessor
     {
@@ -28,18 +28,31 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 
         public async Task RunUpdate()
         {
+
+            if (_currentDateTime.Now > _academicYearProvider.CurrentAcademicYearEndDate ||
+                _currentDateTime.Now < _academicYearProvider.CurrentAcademicYearStartDate)
+            {
+                throw new InvalidAcademicYearException($"The current time {_currentDateTime.Now} does not fall within the specified Academic Year: {_academicYearProvider.CurrentAcademicYearStartDate}-{_academicYearProvider.CurrentAcademicYearEndDate}.");
+            }
+
             if (
                 _currentDateTime.Now >= _academicYearProvider.CurrentAcademicYearStartDate
                 && _currentDateTime.Now < _academicYearProvider.LastAcademicYearFundingPeriod)
+            {
                 return;
-           
+            }
 
             _expirableDatalocks =
                 await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate,
                     _expirableErrorCodes);
+
             if (_expirableDatalocks.Any())
+            {
                 foreach (var expirableDatalock in _expirableDatalocks)
-                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.DataLockEventId);
+                {
+                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId, expirableDatalock.PriceEpisodeIdentifier);
+                }
+            }
         }
     }
 }

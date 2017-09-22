@@ -186,9 +186,30 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         }
 
-        public Task<bool> UpdateExpirableDataLocks(long expirableDatalockDataLockEventId)
+        public async Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier)
         {
-            return Task.FromResult(false);
+            try
+            {
+                var result = await WithConnection(async connection =>
+                {
+                    var parameters = new DynamicParameters();
+
+                    parameters.Add("@ApprenticeshipId", apprenticeshipId);
+                    parameters.Add("@PriceEpisodeIdentifier", priceEpisodeIdentifier);
+
+
+                    return await connection.ExecuteAsync(
+                        sql: $"[dbo].[UpdateDatalockStatusIsExpired]",
+                        param: parameters,
+                        commandType: CommandType.StoredProcedure);
+                });
+
+                return result == 0;
+            }
+            catch (Exception ex) when (ex.InnerException is SqlException && IsConstraintError(ex.InnerException as SqlException))
+            {
+                throw new RepositoryConstraintException("Unable to update datalockstatus record to expire record", ex);
+            }
         }
     }
 }
