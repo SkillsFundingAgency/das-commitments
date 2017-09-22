@@ -169,6 +169,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId)
         {
+            _logger.Info($"Supercede apprenticeship update {apprenticeshipUpdateId}");
             await WithTransaction(async (connection, trans) =>
             {
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,

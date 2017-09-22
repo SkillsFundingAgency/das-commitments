@@ -19,12 +19,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     public class DataLockRepository : BaseRepository, IDataLockRepository
     {
         private readonly IDataLockTransactions _dataLockTransactions;
+        private readonly ICommitmentsLogger _logger;
 
         public DataLockRepository(string connectionString,
             IDataLockTransactions dataLockTransactions,
             ICommitmentsLogger logger) : base(connectionString, logger.BaseLogger)
         {
             _dataLockTransactions = dataLockTransactions;
+            _logger = logger;
         }
 
         public async Task<long> GetLastDataLockEventId()
@@ -43,6 +45,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long> UpdateDataLockStatus(DataLockStatus dataLockStatus)
         {
+            _logger.Info($"Updating or inserting data lock status {dataLockStatus.DataLockEventId}, EventsStatus: {dataLockStatus.EventStatus}");
             try
             {
                 var result = await WithConnection(async connection =>
@@ -57,12 +60,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     parameters.Add("@IlrTrainingType", dataLockStatus.IlrTrainingType);
                     parameters.Add("@IlrActualStartDate", dataLockStatus.IlrActualStartDate);
                     parameters.Add("@IlrEffectiveFromDate", dataLockStatus.IlrEffectiveFromDate);
+                    parameters.Add("@IlrPriceEffectiveToDate", dataLockStatus.IlrPriceEffectiveToDate);
                     parameters.Add("@IlrTotalCost", dataLockStatus.IlrTotalCost);
                     parameters.Add("@ErrorCode", dataLockStatus.ErrorCode);
                     parameters.Add("@Status", dataLockStatus.Status);
                     parameters.Add("@TriageStatus", dataLockStatus.TriageStatus);
                     parameters.Add("@ApprenticeshipUpdateId", dataLockStatus.ApprenticeshipUpdateId);
                     parameters.Add("@IsResolved", dataLockStatus.IsResolved);
+                    parameters.Add("@EventStatus", dataLockStatus.EventStatus);
 
                     return await connection.ExecuteAsync(
                         sql: $"[dbo].[UpdateDataLockStatus]",
