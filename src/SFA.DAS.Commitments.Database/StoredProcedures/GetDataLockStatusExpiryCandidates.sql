@@ -6,23 +6,7 @@
 AS
 
 	SELECT 
-		[Id] ,
-		[DataLockEventId],
-		[DataLockEventDatetime],
-		[PriceEpisodeIdentifier],
-		[ApprenticeshipId],
-		[IlrTrainingCourseCode],
-		[IlrTrainingType] ,
-		[IlrActualStartDate],
-		[IlrEffectiveFromDate] ,
-		[IlrTotalCost] ,
-		[ErrorCode],
-		[Status] ,
-		[TriageStatus],
-		[ApprenticeshipUpdateId],
-		[IsResolved],
-		[IsExpired],
-		[Expired] 
+		*
 	FROM 
 		[dbo].[DataLockStatus]
 	WHERE 

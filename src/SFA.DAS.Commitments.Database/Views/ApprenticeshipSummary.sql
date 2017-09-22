@@ -62,6 +62,7 @@ SELECT
 			AND [Status] = 2
 			AND [IsResolved] = 0
 			AND [EventStatus] <> 3
+			AND [IsExpired] = 0
       ORDER BY 
         IlrEffectiveFromDate, Id
 		)
@@ -72,6 +73,7 @@ SELECT
 		and [Status] = 2
 		AND [IsResolved] = 0
 		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
 	)
 	LEFT JOIN DataLockStatus dlCourse on dlCourse.Id =
 	(
@@ -82,6 +84,7 @@ SELECT
 		and [Status] = 2
 		AND [IsResolved] = 0
 		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
 	)
 	LEFT JOIN DataLockStatus dlCourseTriaged on dlCourseTriaged.Id =
 	(
@@ -91,4 +94,5 @@ SELECT
 		and TriageStatus = 2
 		and [Status] = 2 AND [IsResolved] = 0
 		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
 	)
