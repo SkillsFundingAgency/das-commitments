@@ -169,13 +169,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate, DataLockErrorCode expirableErrorCodes)
+        public async Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate)
         {
             return await WithConnection(async connection =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@BeforeDate", beforeDate);
-                parameters.Add("@ExpirableErrorCodes", expirableErrorCodes);
                  var results = await connection.QueryAsync<DataLockStatus>(
                     sql: $"[dbo].[GetDataLockStatusExpiryCandidates]",
                     param: parameters,
@@ -186,7 +185,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         }
 
-        public async Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier)
+        public async Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier, DateTime expiredDateTime)
         {
             try
             {
@@ -196,6 +195,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                     parameters.Add("@ApprenticeshipId", apprenticeshipId);
                     parameters.Add("@PriceEpisodeIdentifier", priceEpisodeIdentifier);
+                    parameters.Add("@ExpiredDateTime", expiredDateTime);
 
 
                     return await connection.ExecuteAsync(
@@ -206,7 +206,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 return result == 0;
             }
-            catch (Exception ex) when (ex.InnerException is SqlException && IsConstraintError(ex.InnerException as SqlException))
+            catch (Exception ex) when (ex.InnerException is SqlException )
             {
                 throw new RepositoryConstraintException("Unable to update datalockstatus record to expire record", ex);
             }

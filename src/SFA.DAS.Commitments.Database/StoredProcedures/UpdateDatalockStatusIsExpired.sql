@@ -1,16 +1,15 @@
 ﻿CREATE PROCEDURE [dbo].[UpdateDatalockStatusIsExpired]
 	@ApprenticeshipId bigint ,
-	@PriceEpisodeIdentifier NVARCHAR(255)
-	WITH RECOMPILE
+	@PriceEpisodeIdentifier NVARCHAR(255),
+	@ExpiredDateTime DATETIME
 AS
 	UPDATE [dbo].[DataLockStatus]
 	SET
 		[IsExpired]  = 1,
-		[Expired] = GETDATE()
+		[Expired] = @ExpiredDateTime
 	WHERE 
 		[ApprenticeshipId]  = @ApprenticeshipId
 	AND
-		[PriceEpisodeIdentifier] = @PriceEpisodeIdentifier
-	
+		[PriceEpisodeIdentifier] = @PriceEpisodeIdentifier	
 
 RETURN 0

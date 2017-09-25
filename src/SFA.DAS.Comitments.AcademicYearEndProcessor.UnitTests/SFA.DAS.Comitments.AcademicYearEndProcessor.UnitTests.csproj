@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatalockStatusTestData.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="WhenRunningUpdate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

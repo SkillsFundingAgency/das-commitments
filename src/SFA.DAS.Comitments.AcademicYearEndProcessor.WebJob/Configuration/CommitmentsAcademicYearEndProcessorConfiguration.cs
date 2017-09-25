@@ -7,6 +7,5 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Configuration
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
         public string CurrentStartTime { get; set; }
-        public string ExpirableDataLockErrorCodes { get; set; }
     }
 }

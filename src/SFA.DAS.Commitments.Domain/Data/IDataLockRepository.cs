@@ -16,8 +16,8 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> UpdateDataLockTriageStatus(IEnumerable<long> dataLockEventIds, TriageStatus triageStatus);
         Task<long> ResolveDataLock(IEnumerable<long> dataLockEventIds);
         Task Delete(long dataLockEventId);
-        Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate, DataLockErrorCode expirableErrorCodes);
-        Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier);
+        Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate);
+        Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier, DateTime expiredDateTime);
     }
     
 }

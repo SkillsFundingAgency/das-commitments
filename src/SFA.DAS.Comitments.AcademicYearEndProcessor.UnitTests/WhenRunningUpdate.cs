@@ -8,6 +8,7 @@ using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
 {
@@ -18,131 +19,29 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
         public void Arrange()
         {
             // ARRANGE
+            _logger = new Mock<ILog>();
             _academicYearProvider = new Mock<IAcademicYearDateProvider>();
             _dataLockRepository = new Mock<IDataLockRepository>();
-            _testDatalockStatusItems = new List<DataLockStatus>
-            {
-                // Is in previous Academic year and not price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 0,
-                    ApprenticeshipId = 120, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2016, 6, 1), // in Acc.Yr 2015/16
-                    ErrorCode = DataLockErrorCode.Dlock01 // not of interest
-                },
-                // is in current academic year and is not price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 1,
-                    ApprenticeshipId = 121, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2015/16
-                    ErrorCode = DataLockErrorCode.Dlock01 // not of interest
-                },
-                // is in current academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 2,
-                    ApprenticeshipId = 122, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock03 // of interest
-                },
-                // is in current academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 3,
-                    ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 1), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock04, // of interest
-                    IsExpired = true, // but is already expired
-                    Expired = DateTime.MaxValue // but already expired
-                },
-                // is in current academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 4,
-                    ApprenticeshipId = 124, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 2), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock05 // of interest
-                },
-                // is in current academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 5,
-                    ApprenticeshipId = 125, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 3), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock06 // of interest
-                },
-                // is in current academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 6,
-                    ApprenticeshipId = 126, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 4), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock07 // of interest
-                },
-                // is in current academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 7,
-                    ApprenticeshipId = 127, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 6, 5), // in Acc.Yr 2016/17
-                    ErrorCode = DataLockErrorCode.Dlock03 |
-                                DataLockErrorCode.Dlock04 |
-                                DataLockErrorCode.Dlock05 |
-                                DataLockErrorCode.Dlock06 |
-                                DataLockErrorCode.Dlock07 // of interest
-                },
-                // is in next academic year and is price based
-                new DataLockStatus
-                {
-                    DataLockEventId = 8,
-                    ApprenticeshipId = 128, PriceEpisodeIdentifier = "25-6-01/05/2017",
-                    IlrEffectiveFromDate = new DateTime(2017, 8, 1), // in Acc.Yr 2017/18
-                    ErrorCode = DataLockErrorCode.Dlock03 |
-                                DataLockErrorCode.Dlock04 |
-                                DataLockErrorCode.Dlock05 |
-                                DataLockErrorCode.Dlock06 |
-                                DataLockErrorCode.Dlock07 // of interest
-                } 
-            };
+            _testDatalockStatusItems = DatalockStatusTestData.GetData();
         }
 
+        private Mock<ILog> _logger;
         private Mock<IAcademicYearDateProvider> _academicYearProvider;
         private Mock<IDataLockRepository> _dataLockRepository;
         private IAcademicYearEndExpiryProcessor _academicYearEndProcessor;
-
         private List<DataLockStatus> _testDatalockStatusItems = new List<DataLockStatus>();
 
-        private readonly DataLockErrorCode _expirableDataLockErrorCodes =
-                DataLockErrorCode.Dlock03 |
-                DataLockErrorCode.Dlock04 |
-                DataLockErrorCode.Dlock05 |
-                DataLockErrorCode.Dlock06 |
-                DataLockErrorCode.Dlock07
-            ;
-
-        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-7-31", true, 0, null)]
-        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2016-7-31", false, 0, typeof(InvalidAcademicYearException))]
-        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-9-1", false, 0, typeof(InvalidAcademicYearException))]
-
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", false, 0, null)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", false, 0, null)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", false, 0, null)]
-        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", true, 5, null)]
-
-        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", false, 0, null)]
-        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", true, 6, null)]
-        public async Task ThenExpirableItemsAreRetrievedAndExpired(
+        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 17:59:59", 0)]
+        [TestCase("2018-8-01", "2019-7-31", "2018-10-19 18:00", "2018-10-19 18:00:00", 5)]
+        public async Task OnNextAcademicYearThenExpirableItemsAreRetrievedAndExpired(
             DateTime thisAcademicYearStartDate,
             DateTime thisAcademicYearEndDate,
             DateTime lastAcademicYearFundingPeriod,
             DateTime atTheTime,
-            bool expectRetrieval,
-            int expectedUpdates,
-            Type expectedExceptionType)
+            int expectedUpdates)
         {
-            var expectationFailureNotes =
-                $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  at {atTheTime} there will be {(expectRetrieval ? "" : "no ")}data retrieval and {expectedUpdates} updates";
+            var explainFailure =
+                $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  at {atTheTime} there will be {expectedUpdates} updates";
 
             // ARRANGE
             var currentDatetime = new StubCurrentDateTime(atTheTime);
@@ -151,70 +50,135 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
             _academicYearProvider.Setup(y => y.CurrentAcademicYearEndDate).Returns(thisAcademicYearEndDate);
             _academicYearProvider.Setup(y => y.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
 
+            SetRepositoryResults(currentDatetime);
 
+            _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(_logger.Object, _academicYearProvider.Object,
+                                                                            _dataLockRepository.Object,currentDatetime);
+            // ACT
+            await _academicYearEndProcessor.RunUpdate();
+
+            //ASSERT
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {currentDatetime.Now} for Academic Year CurrentAcademicYearStartDate: {thisAcademicYearStartDate}, CurrentAcademicYearEndDate: {thisAcademicYearEndDate}, LastAcademicYearFundingPeriod: {lastAcademicYearFundingPeriod}"), Times.Once);
+
+            _dataLockRepository.Verify(x =>
+                x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate), Times.Once, explainFailure);
+
+            _dataLockRepository.Verify(
+                r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<DateTime>()),
+                Times.Exactly(expectedUpdates), explainFailure);
+
+
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expectedUpdates} items"), Times.Once);
+
+        }
+
+        private void SetRepositoryResults(StubCurrentDateTime currentDatetime)
+        {
             var fakeResults = new List<DataLockStatus>();
 
             if (currentDatetime.Now >= _academicYearProvider.Object.LastAcademicYearFundingPeriod)
             {
                 fakeResults = _testDatalockStatusItems.Where(
                     x => x.IlrEffectiveFromDate < _academicYearProvider.Object.CurrentAcademicYearStartDate &&
-                         _expirableDataLockErrorCodes.HasFlag(x.ErrorCode) &&
                          !x.IsExpired
                 ).ToList();
             }
 
-            _dataLockRepository.Setup(r => r.GetExpirableDataLocks(
-                                                _academicYearProvider.Object.CurrentAcademicYearStartDate,
-                                                _expirableDataLockErrorCodes))
-                                        .ReturnsAsync(fakeResults);
+            _dataLockRepository.Setup(r => r.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate))
+                 .ReturnsAsync(fakeResults);
 
-            _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(
-                                                _academicYearProvider.Object,
-                                                _dataLockRepository.Object, 
-                                                _expirableDataLockErrorCodes, 
-                                                currentDatetime);
+        }
 
-            Exception actualException = null;
-            try
-            {
-                // ACT
-                await _academicYearEndProcessor.RunUpdate();
-            }
-            catch (Exception e)
-            {
-                actualException = e;
-                //ASSERT
-                Assert.AreEqual(e.GetType(), expectedExceptionType);
-            }
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-8-1", 0)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-9-1", 0)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 17:59:59", 0)]
+        [TestCase("2017-8-01", "2018-7-31", "2017-10-19 18:00", "2017-10-19 18:00:00", 5)]
+        public async Task OnCurrentAcademicYearThenExpirableItemsAreRetrievedAndExpired(
+            DateTime thisAcademicYearStartDate,
+            DateTime thisAcademicYearEndDate,
+            DateTime lastAcademicYearFundingPeriod,
+            DateTime atTheTime,
+            int expectedUpdates
+            )
+        {
+            var explainFailure =
+                $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  at {atTheTime} there will be {expectedUpdates} updates";
+
+            // ARRANGE
+            var currentDatetime = new StubCurrentDateTime(atTheTime);
+
+            _academicYearProvider.Setup(y => y.CurrentAcademicYearStartDate).Returns(thisAcademicYearStartDate);
+            _academicYearProvider.Setup(y => y.CurrentAcademicYearEndDate).Returns(thisAcademicYearEndDate);
+            _academicYearProvider.Setup(y => y.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
+
+            SetRepositoryResults(currentDatetime);
+
+            _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(_logger.Object, _academicYearProvider.Object, _dataLockRepository.Object, currentDatetime);
+
+            // ACT
+            await _academicYearEndProcessor.RunUpdate();
+
 
             //ASSERT
-            if (expectRetrieval)
-            {
-                _dataLockRepository.Verify(x =>
-                    x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
-                        _expirableDataLockErrorCodes), Times.Once, expectationFailureNotes);
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {currentDatetime.Now} for Academic Year CurrentAcademicYearStartDate: {thisAcademicYearStartDate}, CurrentAcademicYearEndDate: {thisAcademicYearEndDate}, LastAcademicYearFundingPeriod: {lastAcademicYearFundingPeriod}"), Times.Once);
 
-                if (expectedUpdates == 0)
-                {
-                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()), Times.Never,
-                        expectationFailureNotes);
-                }
-                else
-                {
-                    _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>()),
-                        Times.Exactly(expectedUpdates), expectationFailureNotes);
-                }
-            }
-            else
-            {
-                _dataLockRepository.Verify(x =>
-                    x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate,
-                        _expirableDataLockErrorCodes), Times.Never, expectationFailureNotes);
-            }
-            if (expectedExceptionType != null && actualException == null)
-            {
-                Assert.Fail($"The expected Exception {expectedExceptionType.Name} did not occur");
-            }
+            _dataLockRepository.Verify(x =>
+                x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate), Times.Once, explainFailure);
+
+
+            _dataLockRepository.Verify(
+                r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<DateTime>()),
+                Times.Exactly(expectedUpdates), explainFailure);
+
+
+
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expectedUpdates} items"), Times.Once);
+
+        }
+
+
+        [TestCase("2016-8-01", "2017-7-31", "2016-10-19 18:00", "2017-7-31", 0)]
+        public async Task OnPreviousAcademicYearThenThereAreNoExpirableItemsToRetrieveAndExpire(
+            DateTime thisAcademicYearStartDate,
+            DateTime thisAcademicYearEndDate,
+            DateTime lastAcademicYearFundingPeriod,
+            DateTime atTheTime,
+            int expectedUpdates)
+        {
+            var explainFailure =
+                $"For the Academic Year start {thisAcademicYearStartDate} end {thisAcademicYearEndDate} with prior year cutoff time of {lastAcademicYearFundingPeriod} expectations are;  at {atTheTime} there will be {expectedUpdates} updates";
+
+            // ARRANGE
+            var currentDatetime = new StubCurrentDateTime(atTheTime);
+
+            _academicYearProvider.Setup(y => y.CurrentAcademicYearStartDate).Returns(thisAcademicYearStartDate);
+            _academicYearProvider.Setup(y => y.CurrentAcademicYearEndDate).Returns(thisAcademicYearEndDate);
+            _academicYearProvider.Setup(y => y.LastAcademicYearFundingPeriod).Returns(lastAcademicYearFundingPeriod);
+
+            SetRepositoryResults(currentDatetime);
+
+            _academicYearEndProcessor = new AcademicYearEndExpiryProcessor(_logger.Object,
+                _academicYearProvider.Object,
+                _dataLockRepository.Object,
+                currentDatetime);
+
+            // ACT
+            await _academicYearEndProcessor.RunUpdate();
+
+            //ASSERT
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {currentDatetime.Now} for Academic Year CurrentAcademicYearStartDate: {thisAcademicYearStartDate}, CurrentAcademicYearEndDate: {thisAcademicYearEndDate}, LastAcademicYearFundingPeriod: {lastAcademicYearFundingPeriod}"), Times.Once);
+
+            _dataLockRepository.Verify(x =>
+                x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate), Times.Once, explainFailure);
+
+
+
+            _dataLockRepository.Verify(
+                r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<DateTime>()),
+                Times.Exactly(expectedUpdates), explainFailure);
+
+
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expectedUpdates} items"), Times.Once);
         }
     }
 }

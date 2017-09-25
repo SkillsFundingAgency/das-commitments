@@ -38,19 +38,13 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolutio
             {
                 currentDatetime = DateTime.Parse(config.CurrentStartTime);
             }
-            DataLockErrorCode expirableDataLockErrorCodes = (DataLockErrorCode)Enum.Parse(typeof(DataLockErrorCode), config.ExpirableDataLockErrorCodes);
-
 
             For<ICurrentDateTime>().Use(x => new CurrentDateTime(currentDatetime));
 
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
-            For<IAcademicYearEndExpiryProcessor>()
-                .Use<AcademicYearEndExpiryProcessor>()
-                .Ctor<DataLockErrorCode>().Is(expirableDataLockErrorCodes);
-
-
         }
+
         private CommitmentsAcademicYearEndProcessorConfiguration GetConfiguration(string serviceName)
         {
             var environment = Environment.GetEnvironmentVariable("DASENV");
@@ -60,7 +54,6 @@ namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolutio
             }
             if (environment.Equals("LOCAL") || environment.Equals("AT") || environment.Equals("TEST"))
             {
-                //todo: is this required?
                 PopulateSystemDetails(environment);
             }
 
