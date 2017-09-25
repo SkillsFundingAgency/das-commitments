@@ -7,8 +7,8 @@
     <ProjectGuid>{72DEEA89-6555-4AAB-B48B-63C050E16B95}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob</RootNamespace>
-    <AssemblyName>SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob</AssemblyName>
+    <RootNamespace>SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob</RootNamespace>
+    <AssemblyName>SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Disable_CopyWebApplication>True</Disable_CopyWebApplication>

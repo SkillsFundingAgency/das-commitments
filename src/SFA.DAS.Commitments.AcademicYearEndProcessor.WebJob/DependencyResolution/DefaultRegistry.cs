@@ -1,20 +1,18 @@
-﻿using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater;
-using SFA.DAS.NLog.Logger;
-using StructureMap;
-using System;
+﻿using System;
 using System.Reflection;
 using Microsoft.Azure;
-using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Configuration;
+using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.NLog.Logger;
+using StructureMap;
 using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolution
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {

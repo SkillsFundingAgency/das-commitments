@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Configuration
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Configuration
 {
     public class CommitmentsAcademicYearEndProcessorConfiguration : IConfiguration
     {

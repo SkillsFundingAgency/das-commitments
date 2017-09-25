@@ -8,7 +8,7 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
 {
     public class AcademicYearEndExpiryProcessor : IAcademicYearEndExpiryProcessor
     {

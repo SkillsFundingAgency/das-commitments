@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
 {
     public interface IAcademicYearEndExpiryProcessor
     {

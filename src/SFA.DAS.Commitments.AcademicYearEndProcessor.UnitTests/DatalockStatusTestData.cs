@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 {
     public static class DatalockStatusTestData
     {

@@ -1,9 +1,9 @@
 ﻿using System;
-using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolution;
-using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater;
+using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution;
+using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.NLog.Logger;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
 {
     class Program
     {

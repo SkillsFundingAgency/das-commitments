@@ -7,8 +7,8 @@
     <ProjectGuid>{29173485-58C9-4310-BC16-D485E67D09AF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests</RootNamespace>
-    <AssemblyName>SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests</AssemblyName>
+    <RootNamespace>SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests</RootNamespace>
+    <AssemblyName>SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -77,7 +77,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob\SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.csproj">
+    <ProjectReference Include="..\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj">
       <Project>{72DEEA89-6555-4AAB-B48B-63C050E16B95}</Project>
       <Name>SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob</Name>
     </ProjectReference>

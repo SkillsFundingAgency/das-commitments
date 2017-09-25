@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.Updater;
+using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 {
     [TestFixture]
     public class WhenRunningUpdate

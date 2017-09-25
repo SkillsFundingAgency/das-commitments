@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.NLog.Logger;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolution
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution
 {
     public class DummyRequestContext : IRequestContext
     {

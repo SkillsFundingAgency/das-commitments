@@ -1,7 +1,7 @@
 ﻿using System;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
-namespace SFA.DAS.Comitments.AcademicYearEndProcessor.UnitTests
+namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 {
     public class StubCurrentDateTime: ICurrentDateTime
     {

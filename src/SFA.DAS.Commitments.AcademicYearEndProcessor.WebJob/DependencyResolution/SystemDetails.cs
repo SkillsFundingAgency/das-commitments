@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.DependencyResolution
+﻿namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution
 {
     public static class SystemDetails
     {
