@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             get
             {
                 // TODO GET DATE FROM SOURCE
-                return new DateTime(_currentDateTime.Now.Year, 10, 19, 18, 0, 0);
+                return new DateTime(CurrentAcademicYearStartDate.Year, 10, 19, 18, 0, 0);
             }
         }
     }
