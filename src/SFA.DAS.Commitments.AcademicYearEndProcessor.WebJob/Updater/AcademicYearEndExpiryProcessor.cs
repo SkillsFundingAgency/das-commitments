@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -15,9 +12,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         private readonly IAcademicYearDateProvider _academicYearProvider;
         private readonly IDataLockRepository _dataLockRepository;
         private readonly ICurrentDateTime _currentDateTime;
-        private List<DataLockStatus> _expirableDatalocks = new List<DataLockStatus>();
 
-        public AcademicYearEndExpiryProcessor(ILog logger, IAcademicYearDateProvider academicYearProvider, IDataLockRepository dataLockRepository,  ICurrentDateTime currentDateTime)
+        public AcademicYearEndExpiryProcessor(ILog logger, IAcademicYearDateProvider academicYearProvider, IDataLockRepository dataLockRepository, ICurrentDateTime currentDateTime)
         {
 
             if (logger == null) throw new ArgumentException(nameof(logger));
@@ -36,18 +32,15 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         {
             _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
 
-            _expirableDatalocks =
+            var expirableDatalocks =
                 await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
-
-            if (_expirableDatalocks.Any())
+            
+            foreach (var expirableDatalock in expirableDatalocks)
             {
-                foreach (var expirableDatalock in _expirableDatalocks)
-                {
-                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId, expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.Now);
-                }
+                await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId, expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.Now);
             }
 
-            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {_expirableDatalocks.Count} items");
+            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items");
 
         }
     }
