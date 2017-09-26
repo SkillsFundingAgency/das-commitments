@@ -12,6 +12,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
     [TestFixture]
     public class WhenRunningUpdate
     {
+
         [SetUp]
         public void Arrange()
         {
@@ -26,6 +27,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         private Mock<IAcademicYearDateProvider> _academicYearProvider;
         private Mock<IDataLockRepository> _dataLockRepository;
         private IAcademicYearEndExpiryProcessor _academicYearEndProcessor;
+
 
 
 

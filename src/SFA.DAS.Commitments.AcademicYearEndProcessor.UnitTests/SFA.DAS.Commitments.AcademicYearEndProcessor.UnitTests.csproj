@@ -71,6 +71,7 @@
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="WhenRunningUpdate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WhenTestingAcademicYearEndExpiryProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
