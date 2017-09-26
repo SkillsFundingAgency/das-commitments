@@ -8,7 +8,7 @@
       "filePath": "../SFA.DAS.Commitments.Notification.WebJob/SFA.DAS.Commitments.Notification.WebJob.csproj"
     },
     {
-      "filePath": "../SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob/SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob.csproj"
+      "filePath": "../SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob/SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj"
     }
   ]
 }
