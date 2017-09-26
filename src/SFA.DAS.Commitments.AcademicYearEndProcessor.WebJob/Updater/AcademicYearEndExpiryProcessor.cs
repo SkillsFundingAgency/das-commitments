@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
@@ -18,13 +17,19 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         private readonly ICurrentDateTime _currentDateTime;
         private List<DataLockStatus> _expirableDatalocks = new List<DataLockStatus>();
 
-        [SuppressMessage("ReSharper", "MergeConditionalExpression")] // prevents R# causing C#7 future shock
         public AcademicYearEndExpiryProcessor(ILog logger, IAcademicYearDateProvider academicYearProvider, IDataLockRepository dataLockRepository,  ICurrentDateTime currentDateTime)
         {
-            _logger = logger != null ? logger : throw new ArgumentException(nameof(logger));
-            _dataLockRepository = dataLockRepository != null ? dataLockRepository : throw new ArgumentException(nameof(dataLockRepository));
-            _currentDateTime = currentDateTime != null ? currentDateTime : throw new ArgumentException(nameof(currentDateTime));
-            _academicYearProvider = academicYearProvider != null ? academicYearProvider : throw new ArgumentException(nameof(academicYearProvider));
+
+            if (logger == null) throw new ArgumentException(nameof(logger));
+            if (dataLockRepository == null) throw new ArgumentException(nameof(dataLockRepository));
+            if (currentDateTime == null) throw new ArgumentException(nameof(currentDateTime));
+            if (academicYearProvider == null) throw new ArgumentException(nameof(academicYearProvider));
+
+
+            _logger = logger;
+            _dataLockRepository = dataLockRepository;
+            _currentDateTime = currentDateTime;
+            _academicYearProvider = academicYearProvider;
         }
 
         public async Task RunUpdate()
