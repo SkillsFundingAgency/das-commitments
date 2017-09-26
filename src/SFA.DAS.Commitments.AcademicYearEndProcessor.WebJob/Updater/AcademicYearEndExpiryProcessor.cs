@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -32,15 +34,22 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         {
             _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
 
-            var expirableDatalocks =
-                await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
-            
-            foreach (var expirableDatalock in expirableDatalocks)
+            if (_currentDateTime.Now >= _academicYearProvider.LastAcademicYearFundingPeriod)
             {
-                await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId, expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.Now);
-            }
+                var expirableDatalocks = await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
 
-            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items");
+                foreach (var expirableDatalock in expirableDatalocks)
+                {
+                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId,
+                        expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.Now);
+                }
+                _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items");
+            }
+            else
+            {
+                _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} please run after {_academicYearProvider.LastAcademicYearFundingPeriod}");
+            }
+            
 
         }
     }
