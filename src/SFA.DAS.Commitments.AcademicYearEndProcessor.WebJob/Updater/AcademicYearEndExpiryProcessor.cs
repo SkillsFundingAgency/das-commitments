@@ -11,25 +11,37 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         private readonly ILog _logger;
         private readonly IAcademicYearDateProvider _academicYearProvider;
         private readonly IDataLockRepository _dataLockRepository;
+
+        private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
+
         private readonly ICurrentDateTime _currentDateTime;
 
-        public AcademicYearEndExpiryProcessor(ILog logger, IAcademicYearDateProvider academicYearProvider, IDataLockRepository dataLockRepository, ICurrentDateTime currentDateTime)
+        public AcademicYearEndExpiryProcessor(
+            ILog logger, 
+            IAcademicYearDateProvider academicYearProvider, 
+            IDataLockRepository dataLockRepository,
+            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
+            ICurrentDateTime currentDateTime)
         {
 
             if (logger == null) throw new ArgumentException(nameof(logger));
             if (dataLockRepository == null) throw new ArgumentException(nameof(dataLockRepository));
             if (currentDateTime == null) throw new ArgumentException(nameof(currentDateTime));
             if (academicYearProvider == null) throw new ArgumentException(nameof(academicYearProvider));
+            if (apprenticeshipUpdateRepository== null) throw new ArgumentException(nameof(apprenticeshipUpdateRepository));
 
 
             _logger = logger;
             _dataLockRepository = dataLockRepository;
+            _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _currentDateTime = currentDateTime;
             _academicYearProvider = academicYearProvider;
         }
 
         public async Task RunUpdate()
         {
+            // ToDo: Improve logging. 
+            // ToDo: Do we want to guard agains running it too early?
             _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
 
             if (_currentDateTime.Now >= _academicYearProvider.LastAcademicYearFundingPeriod)
@@ -49,6 +61,23 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             }
             
 
+        }
+
+        public async Task RunChangeOfCircUpdate()
+        {
+            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
+
+
+            var expiredApprenticeshipUpdates =
+                await
+                _apprenticeshipUpdateRepository.GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate);
+
+            // Logging
+
+            foreach (var update in expiredApprenticeshipUpdates)
+            {
+
+            }
         }
     }
 }
