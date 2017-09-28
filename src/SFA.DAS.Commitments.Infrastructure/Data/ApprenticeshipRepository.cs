@@ -466,19 +466,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@now", _currentDateTime.Now);
                 parameters.Add(identifierName, identifierValue, DbType.Int64);
 
-                var isUln = Regex.Match(s, "^[0-9]{10}$");
-                if (identifierName == "@providerId" && isUln.Success)
-                {
-                    _logger.Info($"Searching for ULN: {s}");
-                    parameters.Add("@uln", s, DbType.Int64);
-                }
-                else
-                {
-                    _logger.Info($"Searching for Full name: {s}");
-                    parameters.Add("@searchTerm ", s, DbType.String);
-                }
-
-
                 var sql = "[GetApprenticeshipsWithPriceHistory]";
 
                 var apprenticeships = new Dictionary<long, Apprenticeship>();

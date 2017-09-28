@@ -2,9 +2,7 @@
 (
 	@now DATETIME,
 	@providerId BIGINT = NULL,
-	@employerId BIGINT = NULL,
-	@searchTerm NVARCHAR(200) = '',
-	@uln BIGINT = NULL
+	@employerId BIGINT = NULL
 )
 AS 
 
@@ -37,15 +35,6 @@ SELECT
 		(@employerId IS NULL OR @employerId = s.EmployerAccountId)
 	AND
 		a.PaymentStatus <> 5 --Not deleted
-	AND
-	    (
-			(@uln IS NOT NULL AND a.ULN = @uln)
-			OR
-			(@uln IS NULL 
-			AND
-			a.FirstName + ' ' + a.LastName like '%' + @searchTerm + '%'
-			)
-		)
 	ORDER BY a.FirstName asc, a.LastName asc;
 
 SELECT COUNT(*) FROM ApprenticeshipSummary
