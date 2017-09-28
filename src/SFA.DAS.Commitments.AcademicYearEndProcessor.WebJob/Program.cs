@@ -1,4 +1,4 @@
-﻿    using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution;
+﻿using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution;
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.NLog.Logger;
 
@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
             var container = IoC.Initialize();
 
             var logger = container.GetInstance<ILog>();
-            var job = container.GetInstance<IJob>();
+            var job = container.GetInstance<Job>();
 
             logger.Info($"Starting {nameof(AcademicYearEndExpiryProcessor)}.WebJob");
 

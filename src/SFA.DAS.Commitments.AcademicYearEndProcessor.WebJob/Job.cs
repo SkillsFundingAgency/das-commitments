@@ -7,7 +7,7 @@ using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
 {
-    public class Job : IJob
+    public class Job
     {
         private readonly IAcademicYearEndExpiryProcessor _academicYearProcessor;
         private readonly ICurrentDateTime _currentDateTime;
@@ -60,10 +60,5 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
             else
                 logger.Info($"Successfully ran AcademicYearEndProcessor.WebJob for {identifier}, JobId: {_jobId}.{identifier}");
         }
-    }
-
-    public interface IJob
-    {
-        void Run();
     }
 }
