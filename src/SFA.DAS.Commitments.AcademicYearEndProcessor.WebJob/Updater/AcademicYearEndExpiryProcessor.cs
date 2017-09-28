@@ -76,7 +76,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
 
             if (expiredApprenticeshipUpdatesAfterJob.Length != 0)
             {
-                throw new Exception($"AcademicYearEndProcessor not completed successfull, JobId: {jobId}");
+                throw new Exception($"AcademicYearEndProcessor not completed successfull, Should not be any pending ApprenticeshipUpdates after job done, There are {expiredApprenticeshipUpdatesAfterJob.Length} , JobId: {jobId}");
             }
         }
     }
