@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob
                 var t1 = _academicYearProcessor.RunApprenticeshipUpdateJob($"{_jobId}.ChangeOfCircs")
                     .ContinueWith(t => WhenDone(t, _logger, "ChangeOfCircs"));
 
-                var t2 = _academicYearProcessor.RunDataLock($"{_jobId}.ChangeOfCircs")
+                var t2 = _academicYearProcessor.RunDataLock($"{_jobId}.DataLocks")
                     .ContinueWith(t => WhenDone(t, _logger, "DataLocks"));
 
                 Task.WaitAll(t1, t2);
