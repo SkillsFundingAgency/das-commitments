@@ -64,20 +64,21 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 
             _dataLockRepository.Setup(r => r.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate)).ReturnsAsync(testDatalockStatusItems);
 
+            var id = "jobId";
             // ACT
-            await _academicYearEndProcessor.RunDataLock();
+            await _academicYearEndProcessor.RunDataLock(id);
 
             //ASSERT
             _logger.Verify(
                 x => x.Info(
-                    $"{nameof(AcademicYearEndExpiryProcessor)} run at {currentDatetime.Now} for Academic Year CurrentAcademicYearStartDate: {thisAcademicYearStartDate}, CurrentAcademicYearEndDate: {thisAcademicYearEndDate}, LastAcademicYearFundingPeriod: {lastAcademicYearFundingPeriod}"),
+                    $"{nameof(AcademicYearEndExpiryProcessor)} run at {currentDatetime.Now} for Academic Year CurrentAcademicYearStartDate: {thisAcademicYearStartDate}, CurrentAcademicYearEndDate: {thisAcademicYearEndDate}, LastAcademicYearFundingPeriod: {lastAcademicYearFundingPeriod}, JobId: {id}"),
                 Times.Once);
 
             _dataLockRepository.Verify(x => x.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate), Times.Once);
 
             _dataLockRepository.Verify(r => r.UpdateExpirableDataLocks(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<DateTime>()), Times.Exactly(testDatalockStatusItems.Count));
 
-            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {testDatalockStatusItems.Count} items"), Times.Once);
+            _logger.Verify(x => x.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {testDatalockStatusItems.Count} items, JobId: {id}"), Times.Once);
 
         }
 

@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 
             _sut.Run();
 
-            _academicYearProcessor.Verify(m => m.RunDataLock(), Times.Once);
+            _academicYearProcessor.Verify(m => m.RunDataLock(It.IsAny<string>()), Times.Once);
             _academicYearProcessor.Verify(m => m.RunApprenticeshipUpdateJob(It.IsAny<string>()), Times.Once);
         }
 
@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 
             _sut.Run();
 
-            _academicYearProcessor.Verify(m => m.RunDataLock(), Times.Never);
+            _academicYearProcessor.Verify(m => m.RunDataLock(It.IsAny<string>()), Times.Never);
             _academicYearProcessor.Verify(m => m.RunApprenticeshipUpdateJob(It.IsAny<string>()), Times.Never);
         }
     }
