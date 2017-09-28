@@ -20,5 +20,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId);
 
         Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate);
+
+        Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId);
     }
 }

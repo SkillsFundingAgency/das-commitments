@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -11,9 +12,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         private readonly ILog _logger;
         private readonly IAcademicYearDateProvider _academicYearProvider;
         private readonly IDataLockRepository _dataLockRepository;
-
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
-
         private readonly ICurrentDateTime _currentDateTime;
 
         public AcademicYearEndExpiryProcessor(
@@ -38,45 +37,45 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             _academicYearProvider = academicYearProvider;
         }
 
-        public async Task RunUpdate()
+        public async Task RunDataLock()
         {
-            // ToDo: Improve logging. 
-            // ToDo: Do we want to guard agains running it too early?
             _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
 
-            if (_currentDateTime.Now >= _academicYearProvider.LastAcademicYearFundingPeriod)
-            {
-                var expirableDatalocks = await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
+            var expirableDatalocks = await _dataLockRepository.GetExpirableDataLocks(_academicYearProvider.CurrentAcademicYearStartDate);
 
-                foreach (var expirableDatalock in expirableDatalocks)
-                {
-                    await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId,
-                        expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.Now);
-                }
-                _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items");
-            }
-            else
+            foreach (var expirableDatalock in expirableDatalocks)
             {
-                _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} please run after {_academicYearProvider.LastAcademicYearFundingPeriod}");
+                await _dataLockRepository.UpdateExpirableDataLocks(expirableDatalock.ApprenticeshipId,
+                    expirableDatalock.PriceEpisodeIdentifier, _currentDateTime.Now);
             }
-            
-
+            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} expired {expirableDatalocks.Count} items");
         }
 
-        public async Task RunChangeOfCircUpdate()
+        public async Task RunApprenticeshipUpdateJob(string jobId)
         {
-            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}");
+            _logger.Info($"{nameof(AcademicYearEndExpiryProcessor)} run at {_currentDateTime.Now} for Academic Year CurrentAcademicYearStartDate: {_academicYearProvider.CurrentAcademicYearStartDate}, CurrentAcademicYearEndDate: {_academicYearProvider.CurrentAcademicYearEndDate}, LastAcademicYearFundingPeriod: {_academicYearProvider.LastAcademicYearFundingPeriod}, JobId: {jobId}");
 
 
-            var expiredApprenticeshipUpdates =
-                await
-                _apprenticeshipUpdateRepository.GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate);
+            var expiredApprenticeshipUpdates = 
+                ( await _apprenticeshipUpdateRepository
+                .GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate) )
+                .ToArray();
 
-            // Logging
+            _logger.Info($"Found {expiredApprenticeshipUpdates.Length} apprenticeship updates that will be set to expired, JobId: {jobId}");
 
             foreach (var update in expiredApprenticeshipUpdates)
             {
+                _logger.Info($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}, JobId: {jobId}");
+                await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
+            }
 
+            var expiredApprenticeshipUpdatesAfterJob = (
+                await _apprenticeshipUpdateRepository.GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate)
+                ).ToArray();
+
+            if (expiredApprenticeshipUpdatesAfterJob.Length != 0)
+            {
+                throw new Exception($"AcademicYearEndProcessor not completed successfull, JobId: {jobId}");
             }
         }
     }
