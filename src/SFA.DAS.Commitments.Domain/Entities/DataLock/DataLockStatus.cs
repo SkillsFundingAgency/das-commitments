@@ -12,11 +12,15 @@ namespace SFA.DAS.Commitments.Domain.Entities.DataLock
         public TrainingType IlrTrainingType { get; set; }
         public DateTime? IlrActualStartDate { get; set; }
         public DateTime? IlrEffectiveFromDate { get; set; }
+        public DateTime? IlrPriceEffectiveToDate { get; set; } //NEW
         public decimal? IlrTotalCost { get; set; }
         public Status Status { get; set; }
         public TriageStatus TriageStatus { get; set; }
         public DataLockErrorCode ErrorCode { get; set; }
         public long? ApprenticeshipUpdateId { get; set; }
         public bool IsResolved { get; set; }
+        public EventStatus EventStatus { get; set; }
+        public bool IsExpired { get; set; }
+        public DateTime? Expired { get; set; }
     }
 }

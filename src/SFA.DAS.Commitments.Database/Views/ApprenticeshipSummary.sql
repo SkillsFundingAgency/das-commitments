@@ -56,16 +56,13 @@ SELECT
         Id 
       FROM 
         DataLockStatus
-			WHERE 
-        ApprenticeshipId = a.Id 
-      AND 
-        ErrorCode = 64 
-      AND 
-        TriageStatus = 0
-			AND
-        [Status] = 2 
-      AND 
-        [IsResolved] = 0
+			WHERE ApprenticeshipId = a.Id
+			AND ErrorCode = 64
+			AND TriageStatus = 0
+			AND [Status] = 2
+			AND [IsResolved] = 0
+			AND [EventStatus] <> 3
+			AND [IsExpired] = 0
       ORDER BY 
         IlrEffectiveFromDate, Id
 		)
@@ -73,7 +70,10 @@ SELECT
 	(
 		SELECT TOP 1 Id from DataLockStatus
 		where ApprenticeshipId = a.Id and ErrorCode = 64 and TriageStatus = 1
-		and [Status] = 2 AND [IsResolved] = 0
+		and [Status] = 2
+		AND [IsResolved] = 0
+		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
 	)
 	LEFT JOIN DataLockStatus dlCourse on dlCourse.Id =
 	(
@@ -81,7 +81,10 @@ SELECT
 		where ApprenticeshipId = a.Id
 		and (ErrorCode & 4 = 4  OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
 		and TriageStatus = 0
-		and [Status] = 2 AND [IsResolved] = 0
+		and [Status] = 2
+		AND [IsResolved] = 0
+		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
 	)
 	LEFT JOIN DataLockStatus dlCourseTriaged on dlCourseTriaged.Id =
 	(
@@ -90,4 +93,6 @@ SELECT
 		and (ErrorCode & 4 = 4 OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
 		and TriageStatus = 2
 		and [Status] = 2 AND [IsResolved] = 0
+		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
 	)

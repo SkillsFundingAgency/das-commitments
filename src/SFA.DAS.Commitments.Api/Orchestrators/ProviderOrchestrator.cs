@@ -152,13 +152,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             var apiApprenticeships = _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Provider).ToList();
-            var totalApprenticeshipsBeforeFilter = response.TotalCount - apiApprenticeships.Count(m => m.PaymentStatus == PaymentStatus.PendingApproval);
 
+            var totalApprenticeshipsBeforeFilter = response.TotalCount - apiApprenticeships.Count(m => m.PaymentStatus == PaymentStatus.PendingApproval);
             var approvedApprenticeships = apiApprenticeships
-               .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
+                .Where(m => m.PaymentStatus != PaymentStatus.PendingApproval).ToList();
+
+            _logger.Info($"Searching for {query.SearchKeyword} by Provider {providerId}", providerId: providerId);
 
             var facets = _facetMapper.BuildFacets(approvedApprenticeships, query, Originator.Provider);
-
             var filteredApprenticeships = _apprenticeshipFilterService.Filter(approvedApprenticeships, query, Originator.Provider);
 
             _logger.Info($"Retrieved {approvedApprenticeships.Count} apprenticeships with filter query for provider {providerId}. Page: {query.PageNumber}, PageSize: {query.PageSize}", providerId: providerId);

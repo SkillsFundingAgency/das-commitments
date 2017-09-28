@@ -35,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private Mock<IMediator> _mockMediator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IUlnValidator> _mockUlnValidator;
+        private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
 
         private Commitment _existingCommitment;
         private List<Apprenticeship> _existingApprenticeships;
@@ -49,8 +50,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockMediator = new Mock<IMediator>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockUlnValidator = new Mock<IUlnValidator>();
+            _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
-            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object));
+            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
 
             _handler = new BulkUploadApprenticeshipsCommandHandler(
                 _mockCommitmentRespository.Object,

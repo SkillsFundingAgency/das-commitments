@@ -190,6 +190,10 @@
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
+      <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
+      <Name>SFA.DAS.Commitments.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

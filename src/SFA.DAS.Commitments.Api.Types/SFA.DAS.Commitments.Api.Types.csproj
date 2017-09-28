@@ -76,6 +76,7 @@
     <Compile Include="DataLock\DataLockTriageSubmission.cs" />
     <Compile Include="DataLock\Types\DataLockUpdateType.cs" />
     <Compile Include="DataLock\Types\DataLockErrorCode.cs" />
+    <Compile Include="DataLock\Types\EventStatus.cs" />
     <Compile Include="DataLock\Types\Status.cs" />
     <Compile Include="DataLock\Types\TriageStatus.cs" />
     <Compile Include="DeleteRequest.cs" />

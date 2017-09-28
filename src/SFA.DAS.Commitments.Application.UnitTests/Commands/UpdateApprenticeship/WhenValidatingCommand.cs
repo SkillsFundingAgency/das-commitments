@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Application.Commands;
 using Moq;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
@@ -20,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             var fixture = new Fixture();
 
-            _validator = new UpdateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), Mock.Of<IUlnValidator>()));
+            _validator = new UpdateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), Mock.Of<IUlnValidator>(), Mock.Of<IAcademicYearValidator>()));
 
             var populatedCommitment = fixture.Build<Domain.Entities.Apprenticeship>().Create();
             _exampleCommand = new UpdateApprenticeshipCommand
