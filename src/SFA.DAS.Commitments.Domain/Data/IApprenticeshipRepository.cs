@@ -15,7 +15,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange);
 
-        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
+        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime? pauseDate);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 

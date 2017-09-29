@@ -13,7 +13,6 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests

@@ -33,7 +33,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository.Verify(x => x.PauseOrResumeApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<PaymentStatus>(a => a == PaymentStatus.Active)));
+                It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
+                It.Is<DateTime?>(a=> a== null as DateTime?)));
         }
 
         [Test]

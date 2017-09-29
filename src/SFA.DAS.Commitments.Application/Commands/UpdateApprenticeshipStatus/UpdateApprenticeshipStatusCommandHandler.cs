@@ -94,7 +94,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 case PaymentStatus.Active:
                 case PaymentStatus.Paused:
                     ValidateChangeDateForPauseResume(command.DateOfChange);
-                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus);
+                    DateTime? pauseDate = (newPaymentStatus == PaymentStatus.Paused
+                        ? command.DateOfChange
+                        : null as DateTime?);
+                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, pauseDate);
                     break;
                 case PaymentStatus.Withdrawn:
                     ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
