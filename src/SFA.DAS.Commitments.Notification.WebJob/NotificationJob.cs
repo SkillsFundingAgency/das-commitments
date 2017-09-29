@@ -91,11 +91,12 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             }
 
             var stopwatch = Stopwatch.StartNew();
-
+            
             _logger.Debug($"About to send {emailsToSendCount} emails, JobId: {jobId}");
 
             
             var tasks = emails.Select(email => _notificationsApi.SendEmail(email));
+            
             await Task.WhenAll(tasks);
             
 

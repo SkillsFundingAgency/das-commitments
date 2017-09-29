@@ -1,8 +1,11 @@
-﻿using SFA.DAS.Commitments.Notification.WebJob.Configuration;
+﻿using System;
+using System.Threading.Tasks;
+
+using NLog;
+
+using SFA.DAS.Commitments.Notification.WebJob.Configuration;
 using SFA.DAS.Commitments.Notification.WebJob.DependencyResolution;
 using SFA.DAS.NLog.Logger;
-using System;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
@@ -19,6 +22,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob
             var config = container.GetInstance<CommitmentNotificationConfiguration>();
             var notificationJob = container.GetInstance<INotificationJob>();
             var notificationJobId = $"Notification.WJ.{DateTime.UtcNow.Ticks}";
+            MappedDiagnosticsLogicalContext.Set(Constants.HeaderNameSessionCorrelationId, notificationJobId);
+
             if (!config.EnableJob)
             {
                 logger.Info($"CommitmentNotification.WebJob job is turned off, JobId: {notificationJobId}");

@@ -17,6 +17,7 @@ using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
+using SFA.DAS.NLog.Logger.Web.MessageHandlers;
 using SFA.DAS.Notifications.Api.Client;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
@@ -64,6 +65,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             {
                 httpClient = new Http.HttpClientBuilder()
                 .WithBearerAuthorisationHeader(new JwtBearerTokenGenerator(config.NotificationApi))
+                .WithHandler(new SessionIdMessageRequestHandler())
+                .WithDefaultHeaders()
                 .Build();
             }
             else
