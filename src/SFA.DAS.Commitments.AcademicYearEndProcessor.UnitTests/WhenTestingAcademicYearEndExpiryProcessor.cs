@@ -11,6 +11,11 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
     [TestFixture]
     public class WhenTestingAcademicYearEndExpiryProcessor
     {
+        private Mock<ILog> _logger;
+        private Mock<IAcademicYearDateProvider> _academicYearProvider;
+        private Mock<IDataLockRepository> _dataLockRepository;
+        private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
+
         [SetUp]
         public void Arrange()
         {
@@ -18,13 +23,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             _logger = new Mock<ILog>();
             _academicYearProvider = new Mock<IAcademicYearDateProvider>();
             _dataLockRepository = new Mock<IDataLockRepository>();
+            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
 
         }
 
-        private Mock<ILog> _logger;
-        private Mock<IAcademicYearDateProvider> _academicYearProvider;
-        private Mock<IDataLockRepository> _dataLockRepository;
-      
         [Test]
         public void AndANullLoggerIsPassedItThrowsAnArgumentNullException()
         {
@@ -32,8 +34,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 null,
                 _academicYearProvider.Object,
                 _dataLockRepository.Object,
-                new StubCurrentDateTime(DateTime.UtcNow)));
-            
+                _apprenticeshipUpdateRepository.Object,
+                new StubCurrentDateTime(DateTime.UtcNow)));   
         }
 
         [Test]
@@ -42,7 +44,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             Assert.Throws<ArgumentException>(() => new AcademicYearEndExpiryProcessor(
                 _logger.Object, 
                 null, 
-                _dataLockRepository.Object, 
+                _dataLockRepository.Object,
+                _apprenticeshipUpdateRepository.Object,
                 new StubCurrentDateTime(DateTime.UtcNow)));
         }
 
@@ -53,7 +56,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             Assert.Throws<ArgumentException>(() => new AcademicYearEndExpiryProcessor(
                 _logger.Object,
                 _academicYearProvider.Object, 
-                null, 
+                null,
+                _apprenticeshipUpdateRepository.Object,
                 new StubCurrentDateTime(DateTime.UtcNow)));
         }
 
@@ -64,7 +68,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             Assert.Throws<ArgumentException>(() => new AcademicYearEndExpiryProcessor(
                 _logger.Object,
                 _academicYearProvider.Object, 
-                _dataLockRepository.Object, 
+                _dataLockRepository.Object,
+                _apprenticeshipUpdateRepository.Object,
                 null));
         }
 

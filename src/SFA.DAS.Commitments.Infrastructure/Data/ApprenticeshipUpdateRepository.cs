@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -174,6 +175,35 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,
                     ApprenticeshipUpdateStatus.Superceded);
+                return 1L;
+            });
+        }
+
+        public async Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
+        {
+            _logger.Info($"Getting all expired apprenticeship update");
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@status", ApprenticeshipUpdateStatus.Pending, DbType.Int16);
+            parameters.Add("@date", currentAcademicYearStartDate, DbType.DateTime);
+
+            return await WithTransaction(
+                async (connection, trans) => await
+                    connection.QueryAsync<ApprenticeshipUpdate>(
+                        sql: $"[dbo].[GetApprenticeshipUpdatesByDateAndStatus]",
+                        param: parameters,
+                        commandType: CommandType.StoredProcedure,
+                        transaction: trans));
+        }
+
+        public async Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId)
+        {
+            _logger.Info($"Updating apprenticeship update {apprenticeshipUpdateId} - to expired");
+
+            await WithTransaction(async (connection, trans) =>
+            {
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,
+                    ApprenticeshipUpdateStatus.Expired);
                 return 1L;
             });
         }

@@ -4,6 +4,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
 {
     public interface IAcademicYearEndExpiryProcessor
     {
-        Task RunUpdate();
+        Task RunDataLock(string s);
+
+        Task RunApprenticeshipUpdateJob(string jobId);
     }
 }

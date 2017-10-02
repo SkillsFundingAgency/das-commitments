@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Domain.Data
@@ -16,5 +18,9 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId);
 
         Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId);
+
+        Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate);
+
+        Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId);
     }
 }
