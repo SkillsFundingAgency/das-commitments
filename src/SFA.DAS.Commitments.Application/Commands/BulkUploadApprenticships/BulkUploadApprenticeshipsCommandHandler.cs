@@ -71,10 +71,10 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         private async Task CreateHistory(Commitment commitment, IList<Apprenticeship> insertedApprenticeships, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(commitment, CommitmentChangeType.BulkUploadedApprenticeships.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
+            historyService.TrackUpdate(commitment, CommitmentChangeType.BulkUploadedApprenticeships.ToString(), commitment.Id, null, callerType, userId, userName);
             foreach (var apprenticeship in insertedApprenticeships)
             {
-                historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
+                historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), null, apprenticeship.Id , callerType, userId, userName);
             }
             await historyService.Save();
         }

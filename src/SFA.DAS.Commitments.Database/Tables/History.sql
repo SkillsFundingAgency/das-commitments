@@ -1,8 +1,10 @@
 ﻿CREATE TABLE [dbo].[History]
 (
 	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
-	[EntityType] NVARCHAR(50) NOT NULL,
-	[EntityId] BIGINT NOT NULL, 
+	[EntityType] NVARCHAR(50) NULL, -- deprecated
+	[EntityId] BIGINT NULL, -- deprecated
+	[CommitmentId] BIGINT NULL,
+	[ApprenticeshipId] BIGINT NULL,
     [UserId] NVARCHAR(50) NOT NULL, 
     [UpdatedByRole] NVARCHAR(50) NOT NULL, 
     [ChangeType] NVARCHAR(50) NOT NULL,

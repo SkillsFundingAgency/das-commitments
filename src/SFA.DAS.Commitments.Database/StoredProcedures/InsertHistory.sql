@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[InsertHistory]
-	@entityType NVARCHAR(50),
-	@entityId BIGINT, 
+	@commitmentId BIGINT, 
+	@apprenticeshipId BIGINT, 
     @userId NVARCHAR(50), 
     @updatedByRole NVARCHAR(50), 
     @changeType NVARCHAR(50),
@@ -11,6 +11,6 @@
 AS
 
 INSERT INTO [dbo].[History]
-	(EntityType, EntityId, UserId, UpdatedByRole, ChangeType, CreatedOn, UpdatedByName, OriginalState, UpdatedState)
+	(CommitmentId, ApprenticeshipId, UserId, UpdatedByRole, ChangeType, CreatedOn, UpdatedByName, OriginalState, UpdatedState)
 VALUES
-	(@entityType, @entityId, @userId, @updatedByRole, @changeType, @createdOn, @updatedByName, @originalState, @updatedState)
+	(@commitmentId, @apprenticeshipId, @userId, @updatedByRole, @changeType, @createdOn, @updatedByName, @originalState, @updatedState)

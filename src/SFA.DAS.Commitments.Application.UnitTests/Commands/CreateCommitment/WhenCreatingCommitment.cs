@@ -157,9 +157,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == expectedCommitmentId && 
-                                y.First().ChangeType == CommitmentChangeType.Created.ToString() && 
-                                y.First().EntityType == "Commitment" && 
+                                y.First().ChangeType == CommitmentChangeType.Created.ToString() &&
+                                y.First().CommitmentId == expectedCommitmentId &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == null &&
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState != null &&

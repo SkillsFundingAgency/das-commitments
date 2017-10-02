@@ -236,9 +236,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == _existingCommitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.BulkUploadedApprenticeships.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == _existingCommitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalCommitmentState &&
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
@@ -250,14 +250,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.Last().EntityId == insertedApprenticeships[0].Id &&
                                 y.Last().ChangeType == ApprenticeshipChangeType.Created.ToString() &&
-                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().CommitmentId == null &&
+                                y.Last().ApprenticeshipId == insertedApprenticeships[0].Id &&
                                 y.Last().OriginalState == null &&
                                 y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState != null &&
                                 y.Last().UserId == _exampleValidRequest.UserId &&
-                                y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
+                                y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
         }
     }
 }

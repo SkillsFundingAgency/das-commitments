@@ -88,8 +88,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
         {
             _historyService = new HistoryService(_historyRepository);
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, "Commitment", callerType, userId, userName);
-            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, null, callerType, userId, userName);
+            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), null, apprenticeship.Id, callerType, userId, userName);
         }
 
         private void LogMessage(UpdateApprenticeshipCommand command)

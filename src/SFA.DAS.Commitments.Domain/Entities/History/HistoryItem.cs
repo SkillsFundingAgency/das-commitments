@@ -6,13 +6,13 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
     {
         private readonly HistoryChangeType _historyChangeType;
 
-        public HistoryItem(HistoryChangeType historyChangeType, object trackedObject, string entityType, long entityId, string userId, string updatedByRole, string changeType, string updatedByName)
+        public HistoryItem(HistoryChangeType historyChangeType, object trackedObject, long? commitmentId, long? apprenticeshipId, string userId, string updatedByRole, string changeType, string updatedByName)
         {
             _historyChangeType = historyChangeType;
 
             TrackedObject = trackedObject;
-            EntityType = entityType;
-            EntityId = entityId;
+            CommitmentId = commitmentId;
+            ApprenticeshipId = apprenticeshipId;
             UserId = userId;
             UpdatedByRole = updatedByRole;
             ChangeType = changeType;
@@ -24,8 +24,8 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
             }
         }
 
-        public string EntityType { get; }
-        public long EntityId { get; }
+        public long? CommitmentId { get; set; }
+        public long? ApprenticeshipId { get; set; }
         public string UserId { get; }
         public string UpdatedByRole { get; }
         public string ChangeType { get; }

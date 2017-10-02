@@ -25,8 +25,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 foreach (var historyItem in historyItems)
                 {
                     var parameters = new DynamicParameters();
-                    parameters.Add("@entityType", historyItem.EntityType, DbType.String);
-                    parameters.Add("@entityId", historyItem.EntityId, DbType.Int64);
+                    parameters.Add("@commitmentId", historyItem.CommitmentId, DbType.Int64);
+                    parameters.Add("@apprenticeshipId", historyItem.ApprenticeshipId, DbType.Int64);
                     parameters.Add("@userId", historyItem.UserId, DbType.String);
                     parameters.Add("@updatedByRole", historyItem.UpdatedByRole, DbType.String);
                     parameters.Add("@changeType", historyItem.ChangeType, DbType.String);

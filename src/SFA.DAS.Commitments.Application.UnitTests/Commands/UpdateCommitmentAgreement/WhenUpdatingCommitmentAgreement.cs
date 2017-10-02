@@ -522,9 +522,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == commitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.SentForReview.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == commitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
@@ -551,9 +551,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == commitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.FinalApproval.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == commitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
@@ -579,9 +579,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == commitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.SentForApproval.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == commitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
