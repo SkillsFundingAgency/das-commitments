@@ -22,4 +22,17 @@ WHERE Id IN (
   WHERE ErrorCode = 0
 )
 
---
+
+-- Setting CommitmentId or ApprenticeshipId values on new Columns
+
+UPDATE [SFA.DAS.Commitments.Database].[dbo].[History] 
+SET CommitmentId = EntityId, 
+EntityId = NULL, 
+EntityType = NULL
+WHERE EntityType = 'Commitment'
+
+UPDATE [SFA.DAS.Commitments.Database].[dbo].[History] 
+SET ApprenticeshipId = EntityId,
+EntityId = NULL,  
+EntityType = NULL
+WHERE EntityType = 'Apprenticeship'
