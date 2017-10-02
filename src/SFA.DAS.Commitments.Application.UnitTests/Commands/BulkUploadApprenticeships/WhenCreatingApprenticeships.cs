@@ -83,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             };
 
             _existingApprenticeships = new List<Apprenticeship>();
-            _existingCommitment = new Commitment { ProviderId = 111L, EditStatus = EditStatus.ProviderOnly, Apprenticeships = _existingApprenticeships };
+            _existingCommitment = new Commitment { ProviderId = 111L, EditStatus = EditStatus.ProviderOnly, Apprenticeships = _existingApprenticeships, EmployerAccountId = 987 };
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_existingCommitment);
 
@@ -226,7 +226,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         {
             var expectedOriginalCommitmentState = JsonConvert.SerializeObject(_existingCommitment);
 
-            var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship { Id = 1234 } };
+            var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship { Id = 1234, ProviderId = _existingCommitment.ProviderId.Value, EmployerAccountId = _existingCommitment.EmployerAccountId } };
             _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
 
             await _handler.Handle(_exampleValidRequest);
@@ -243,6 +243,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().ProviderId == _existingCommitment.ProviderId &&
+                                y.First().EmployerAccountId == _existingCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
 
             _mockHistoryRepository.Verify(
@@ -257,6 +259,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                                 y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState != null &&
                                 y.Last().UserId == _exampleValidRequest.UserId &&
+                                y.Last().ProviderId == _existingCommitment.ProviderId &&
+                                y.Last().EmployerAccountId == _existingCommitment.EmployerAccountId &&
                                 y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
         }
     }

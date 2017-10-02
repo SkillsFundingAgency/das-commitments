@@ -528,6 +528,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
+                                y.First().ProviderId == commitment.ProviderId &&
+                                y.First().EmployerAccountId == commitment.EmployerAccountId &&
                                 y.First().UserId == _validCommand.UserId)), Times.Once);
         }
 
@@ -557,6 +559,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
+                                y.First().ProviderId == commitment.ProviderId &&
+                                y.First().EmployerAccountId == commitment.EmployerAccountId &&
                                 y.First().UserId == _validCommand.UserId)), Times.Once);
         }
 
@@ -586,6 +590,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedNewState &&
                                 y.First().UserId == _validCommand.UserId &&
+                                y.First().ProviderId == commitment.ProviderId &&
+                                y.First().EmployerAccountId == commitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _validCommand.LastUpdatedByName)), Times.Once);
         }
     }

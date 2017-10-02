@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private async Task CreateHistory(Commitment newCommitment, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackInsert(newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, null, callerType, userId, userName);
+            historyService.TrackInsert(newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, null, callerType, userId, newCommitment.ProviderId, newCommitment.EmployerAccountId, userName);
             await historyService.Save();
         }
 

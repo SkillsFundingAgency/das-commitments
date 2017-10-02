@@ -187,6 +187,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().ProviderId == testApprenticeship.ProviderId &&
+                                y.First().EmployerAccountId == testApprenticeship.EmployerAccountId &&
                                 y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
 
             _mockHistoryRepository.Verify(
@@ -201,6 +203,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState == expectedNewApprenticeshipState &&
                                 y.Last().UserId == _exampleValidRequest.UserId &&
+                                y.Last().ProviderId == testApprenticeship.ProviderId &&
+                                y.Last().EmployerAccountId == testApprenticeship.EmployerAccountId &&
                                 y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
         }
 

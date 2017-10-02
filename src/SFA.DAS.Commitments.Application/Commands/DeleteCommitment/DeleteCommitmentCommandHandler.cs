@@ -61,7 +61,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackDelete(commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, null, callerType, userId, userName);
+            historyService.TrackDelete(commitment, CommitmentChangeType.Deleted.ToString(), commitment.Id, null, callerType, userId, commitment.ProviderId, commitment.EmployerAccountId, userName);
             await historyService.Save();
         }
 

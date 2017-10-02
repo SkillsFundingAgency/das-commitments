@@ -133,7 +133,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 updatedCommitment.Apprenticeships.Count, latestAction);
             var changeType = DetermineHistoryChangeType(latestAction, updatedEditStatus);
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, null, command.Caller.CallerType, command.UserId, command.LastUpdatedByName);
+            historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, null, command.Caller.CallerType, command.UserId, updatedCommitment.ProviderId, updatedCommitment.EmployerAccountId, command.LastUpdatedByName);
 
             updatedCommitment.EditStatus = updatedEditStatus;
             updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);

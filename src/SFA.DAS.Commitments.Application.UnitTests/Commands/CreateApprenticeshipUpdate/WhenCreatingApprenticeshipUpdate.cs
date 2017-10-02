@@ -565,6 +565,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                 y.First().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
                                 y.First().UserId == command.UserId &&
+                                y.First().ProviderId == _existingApprenticeship.ProviderId &&
+                                y.First().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.First().UpdatedByName == command.UserName)), Times.Once);
 
             _historyRepository.Verify(
@@ -579,6 +581,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                 y.Last().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState == expectedNewApprenticeshipState &&
                                 y.Last().UserId == command.UserId &&
+                                y.Last().ProviderId == _existingApprenticeship.ProviderId &&
+                                y.Last().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
         }
     }

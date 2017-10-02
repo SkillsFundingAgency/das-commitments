@@ -17,19 +17,19 @@ namespace SFA.DAS.Commitments.Application.Services
             _historyItems = new List<HistoryItem>();
         }
 
-        internal void TrackInsert(object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, string updatedByName)
+        internal void TrackInsert(object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, long? providerId, long employerAccountId, string updatedByName)
         {
-            AddHistoryItem(HistoryChangeType.Insert, trackedObject, changeType, commitmentId, apprenticeshipId, updatedByRole, userId, updatedByName);
+            AddHistoryItem(HistoryChangeType.Insert, trackedObject, changeType, commitmentId, apprenticeshipId, updatedByRole, userId, providerId, employerAccountId, updatedByName);
         }
 
-        public void TrackDelete(object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, string updatedByName)
+        public void TrackDelete(object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, long? providerId, long employerAccountId, string updatedByName)
         {
-            AddHistoryItem(HistoryChangeType.Delete, trackedObject, changeType, commitmentId, apprenticeshipId, updatedByRole, userId, updatedByName);
+            AddHistoryItem(HistoryChangeType.Delete, trackedObject, changeType, commitmentId, apprenticeshipId, updatedByRole, userId, providerId, employerAccountId, updatedByName);
         }
 
-        public void TrackUpdate(object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, string updatedByName)
+        public void TrackUpdate(object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, long? providerId, long employerAccountId, string updatedByName)
         {
-            AddHistoryItem(HistoryChangeType.Update, trackedObject, changeType, commitmentId, apprenticeshipId, updatedByRole, userId, updatedByName);
+            AddHistoryItem(HistoryChangeType.Update, trackedObject, changeType, commitmentId, apprenticeshipId, updatedByRole, userId, providerId, employerAccountId, updatedByName);
         }
 
         public async Task Save()
@@ -37,9 +37,9 @@ namespace SFA.DAS.Commitments.Application.Services
             await _repository.InsertHistory(_historyItems);
         }
 
-        private void AddHistoryItem(HistoryChangeType historyChangeType, object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, string updatedByName)
+        private void AddHistoryItem(HistoryChangeType historyChangeType, object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, long? providerId, long employerAccountId, string updatedByName)
         {
-            _historyItems.Add(new HistoryItem(historyChangeType, trackedObject, commitmentId, apprenticeshipId, userId, updatedByRole.ToString(), changeType, updatedByName));
+            _historyItems.Add(new HistoryItem(historyChangeType, trackedObject, commitmentId, apprenticeshipId, userId, updatedByRole.ToString(), changeType, providerId, employerAccountId, updatedByName));
         }
     }
 }

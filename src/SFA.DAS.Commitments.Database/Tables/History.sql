@@ -9,6 +9,8 @@
     [UpdatedByRole] NVARCHAR(50) NOT NULL, 
     [ChangeType] NVARCHAR(50) NOT NULL,
     [CreatedOn] DATETIME NOT NULL, 
+	[ProviderId] BIGINT NULL,
+	[EmployerAccountId] BIGINT NULL,
     [UpdatedByName] NVARCHAR(255) NULL, 
     [OriginalState] NVARCHAR(MAX) NULL, 
     [UpdatedState] NVARCHAR(MAX) NULL

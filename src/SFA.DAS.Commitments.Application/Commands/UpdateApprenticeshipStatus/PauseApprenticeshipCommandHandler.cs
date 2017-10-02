@@ -78,7 +78,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             var historyService = new HistoryService(_historyRepository);
 
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), 
-                null, apprenticeship.Id, CallerType.Employer, command.UserId, command.UserName);
+                null, apprenticeship.Id, CallerType.Employer, command.UserId, commitment.ProviderId, commitment.EmployerAccountId, command.UserName);
           
             await _apprenticeshipRepository.PauseApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
 

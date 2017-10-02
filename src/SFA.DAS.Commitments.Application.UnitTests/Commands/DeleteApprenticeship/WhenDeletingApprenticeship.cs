@@ -162,6 +162,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalState &&
                                 y.First().UserId == _validCommand.UserId &&
+                                y.First().ProviderId == testCommitment.ProviderId  &&
+                                y.First().EmployerAccountId == testCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
         }
     }

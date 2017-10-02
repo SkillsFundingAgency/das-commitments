@@ -188,6 +188,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == null &&
                                 y.First().UserId == _validCommand.UserId &&
+                                y.First().ProviderId == testCommitment.ProviderId &&
+                                y.First().EmployerAccountId == testCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
         }
     }

@@ -29,6 +29,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private Mock<IHashingService> _mockHashingService;
         private Mock<IHistoryRepository> _mockHistoryRepository;
 
+        private Commitment _populatedCommitment;
+
         [SetUp]
         public void SetUp()
         {
@@ -56,12 +58,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.TrainingCode, string.Empty)
                 .With(x => x.TrainingName, string.Empty)
             );
-            var populatedCommitment = fixture.Build<Commitment>().Create();
-           populatedCommitment.Apprenticeships = new List<Apprenticeship>();
+            _populatedCommitment = fixture.Build<Commitment>().Create();
+            _populatedCommitment.Apprenticeships = new List<Apprenticeship>();
 
             _exampleValidRequest = new CreateCommitmentCommand
                                        {
-                                           Commitment = populatedCommitment,
+                                           Commitment = _populatedCommitment,
                                            Caller = new Caller(1L, CallerType.Employer),
                                            UserId = "UserId"
                                        };
@@ -164,6 +166,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState != null &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().ProviderId == _populatedCommitment.ProviderId &&
+                                y.First().EmployerAccountId == _populatedCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _exampleValidRequest.Commitment.LastUpdatedByEmployerName)), Times.Once);
         }
 
