@@ -137,5 +137,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                                 y.First().UserId == ExampleValidRequest.UserId &&
                                 y.First().UpdatedByName == ExampleValidRequest.UserName)), Times.Once);
         }
+
     }
 }

@@ -90,7 +90,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
-                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, PauseDate = @pauseDate " +
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " + 
+                    "PauseDate = @pauseDate " +
                     "WHERE Id = @id;",
                     transaction: tran,
                     param: parameters,
