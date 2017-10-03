@@ -69,33 +69,24 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             await SaveChange(command, commitment, apprenticeship, newPaymentStatus);
 
-            if (newPaymentStatus == PaymentStatus.Paused || newPaymentStatus == PaymentStatus.Withdrawn)
-            {
-                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus,
-                     command.DateOfChange.Date);
-            }
-            else if (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue)
-            {
-                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, command.DateOfChange.Date);
-            } 
-            else
-            {
-                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, apprenticeship.StartDate.Value.Date);
-            }
-                
+            await CreateEvent(command, apprenticeship, commitment, newPaymentStatus);
         }
 
-        //private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus, DateTime effectiveFrom)
-        //{
-        //    if (newPaymentStatus == PaymentStatus.Paused || newPaymentStatus == PaymentStatus.Withdrawn)
-        //    {
-        //        await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
-        //    }
-        //    else
-        //    {
-        //        await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
-        //    }
-        //}
+        private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
+        {
+            var isResuming = (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue);
+            if (newPaymentStatus == PaymentStatus.Paused ||
+                newPaymentStatus == PaymentStatus.Withdrawn ||
+                isResuming
+            )
+            {
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
+            }
+            else
+            {
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
+            }
+        }
 
         private async Task SaveChange(UpdateApprenticeshipStatusCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
         {
@@ -106,7 +97,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             {
                 case PaymentStatus.Active:
                 case PaymentStatus.Paused:
-                    ValidateChangeDateForPauseResume(command.DateOfChange, apprenticeship);
+                    ValidateChangeDateForPauseResume(command.DateOfChange);
                     DateTime? pauseDate = (newPaymentStatus == PaymentStatus.Paused
                         ? command.DateOfChange
                         : null as DateTime?);
@@ -126,7 +117,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private async Task ResolveAnyTriagedCourseDataLocks(long apprenticeshipId)
         {
             var dataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId))
-                                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode)).ToList();
+                                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode));
 
             if (dataLocks.Any())
             {
@@ -155,7 +146,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         {
             if (apprenticeship.IsWaitingToStart(_currentDate))
             {
-                // ReSharper disable once PossibleInvalidOperationException
                 if (dateOfChange.Date != apprenticeship.StartDate.Value.Date)
                     throw new ValidationException("Invalid Date of Change. Date should be value of start date if training has not started.");
             }
@@ -164,7 +154,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 if (dateOfChange.Date > _currentDate.Now.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
-                // ReSharper disable once PossibleInvalidOperationException
                 if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
 
@@ -173,34 +162,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             }
         }
 
-        //DCM-754:Impact Check unit tests
-        private void ValidateChangeDateForPauseResume(DateTime dateOfChange, Apprenticeship apprenticeship)
+        private void ValidateChangeDateForPauseResume(DateTime dateOfChange)
         {
             if (dateOfChange.Date > _currentDate.Now.Date)
                 throw new ValidationException("Invalid Date of Change. Date should be todays date.");
-
-            if (apprenticeship.IsWaitingToStart(_currentDate))
-            {
-                // ReSharper disable once PossibleInvalidOperationException
-                if (dateOfChange.Date != apprenticeship.StartDate.Value.Date) //TODO: Check is this currentDate.Now ???
-                    throw new ValidationException("Invalid Date of Change. Date should be value of start date if training has not started.");
-            }
-            else
-            {
-                if (dateOfChange.Date > _currentDate.Now.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
-
-                // ReSharper disable once PossibleInvalidOperationException
-                if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
-
-                if (_academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
-            }
-
-
-
-
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStatusCommand message, Commitment commitment)
