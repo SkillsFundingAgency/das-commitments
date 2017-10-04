@@ -10,7 +10,7 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-IF EXISTS (SELECT COUNT(*) FROM [dbo].[Apprenticeship] WHERE [PaymentStatus] = 2 AND [PauseDate] = null)
+IF EXISTS (SELECT * FROM [dbo].[Apprenticeship] WHERE [PaymentStatus] = 2 AND [PauseDate] is NULL)
 BEGIN
 	PRINT 'Updating Paused Apprenticeship PauseDate values from History table'
 	/*
