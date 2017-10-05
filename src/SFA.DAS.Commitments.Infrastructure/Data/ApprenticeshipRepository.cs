@@ -429,10 +429,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("NINumber", typeof(string));
             apprenticeshipsTable.Columns.Add("EmployerRef", typeof(string));
             apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
-            apprenticeshipsTable.Columns.Add("AgreedOn", typeof(DateTime));
-            apprenticeshipsTable.Columns.Add("PaymentOrder", typeof(int));
-            apprenticeshipsTable.Columns.Add("StopDate", typeof(DateTime));
-            apprenticeshipsTable.Columns.Add("PauseDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
             return apprenticeshipsTable;
         }
 
