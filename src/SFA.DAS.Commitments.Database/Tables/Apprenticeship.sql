@@ -21,6 +21,7 @@
     [AgreedOn] DATETIME NULL, 
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
+    [PauseDate] DATE NULL, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 )
 GO

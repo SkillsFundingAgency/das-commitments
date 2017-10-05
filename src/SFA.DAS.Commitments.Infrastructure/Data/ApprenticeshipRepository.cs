@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain;
@@ -75,7 +74,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
+        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime? pauseDate)
         {
             if (!(paymentStatus == PaymentStatus.Paused || paymentStatus == PaymentStatus.Active))
                 throw new ArgumentException("PaymentStatus should be Paused or Active", nameof(paymentStatus));
@@ -87,10 +86,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
                 parameters.Add("@paymentStatus", paymentStatus, DbType.Int16);
+                parameters.Add("@pauseDate", pauseDate, DbType.DateTime);
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
-                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus " +
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " + 
+                    "PauseDate = @pauseDate " +
                     "WHERE Id = @id;",
                     transaction: tran,
                     param: parameters,
@@ -428,7 +429,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("NINumber", typeof(string));
             apprenticeshipsTable.Columns.Add("EmployerRef", typeof(string));
             apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
-            apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("AgreedOn", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("PaymentOrder", typeof(int));
+            apprenticeshipsTable.Columns.Add("StopDate", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("PauseDate", typeof(DateTime));
             return apprenticeshipsTable;
         }
 

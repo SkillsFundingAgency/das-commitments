@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -16,8 +15,6 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage;
 using SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage;
-using SFA.DAS.Commitments.Application.Commands.TriageDataLock;
-using SFA.DAS.Commitments.Application.Commands.TriageDataLocks;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using TriageDataLockCommand = SFA.DAS.Commitments.Application.Commands.TriageDataLocks.TriageDataLockCommand;
 

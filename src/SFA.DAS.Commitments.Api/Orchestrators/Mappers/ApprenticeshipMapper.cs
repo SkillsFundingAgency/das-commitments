@@ -29,6 +29,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
+                PauseDate = source.PauseDate,
                 PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus) source.PaymentStatus,
                 AgreementStatus = (Api.Types.AgreementStatus) source.AgreementStatus,
                 DateOfBirth = source.DateOfBirth,
@@ -67,7 +68,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 TrainingName = apprenticeship.TrainingName,
                 Cost = apprenticeship.Cost,
                 StartDate = apprenticeship.StartDate,
-                EndDate = apprenticeship.EndDate
+                EndDate = apprenticeship.EndDate,
+                PauseDate = apprenticeship.PauseDate
             };
 
             if (callerType.IsEmployer())

@@ -74,7 +74,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            if (newPaymentStatus == PaymentStatus.Paused || newPaymentStatus == PaymentStatus.Withdrawn)
+            var isResuming = (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue);
+            if (newPaymentStatus == PaymentStatus.Paused ||
+                newPaymentStatus == PaymentStatus.Withdrawn ||
+                isResuming
+            )
             {
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
             }
@@ -94,7 +98,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 case PaymentStatus.Active:
                 case PaymentStatus.Paused:
                     ValidateChangeDateForPauseResume(command.DateOfChange);
-                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus);
+                    DateTime? pauseDate = (newPaymentStatus == PaymentStatus.Paused
+                        ? command.DateOfChange
+                        : null as DateTime?);
+                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, pauseDate);
                     break;
                 case PaymentStatus.Withdrawn:
                     ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
