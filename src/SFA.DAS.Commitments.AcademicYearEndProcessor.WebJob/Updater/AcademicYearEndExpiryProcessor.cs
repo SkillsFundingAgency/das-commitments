@@ -59,8 +59,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
 
             var expiredApprenticeshipUpdates = 
                 ( await _apprenticeshipUpdateRepository
-                .GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate) )
+                .GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate))
+                .Where(m => m.Cost != null || m.TrainingCode != null || m.StartDate != null)
                 .ToArray();
+
 
             _logger.Info($"Found {expiredApprenticeshipUpdates.Length} apprenticeship updates that will be set to expired, JobId: {jobId}");
 
