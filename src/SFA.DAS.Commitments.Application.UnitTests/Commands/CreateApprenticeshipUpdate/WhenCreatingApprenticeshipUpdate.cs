@@ -15,6 +15,7 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -35,15 +36,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
 
+        private Mock<IDataLockRepository> _mockDataLockRepository;
 
         [SetUp]
         public void Arrange()
         {
             _validator = new Mock<CreateApprenticeshipUpdateValidator>();
+            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
+            _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _mediator = new Mock<IMediator>();
+            _historyRepository = new Mock<IHistoryRepository>();
+            _commitmentRepository = new Mock<ICommitmentRepository>();
+            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            _mockDataLockRepository = new Mock<IDataLockRepository>();
+
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
 
-            _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(null);
 
@@ -61,24 +70,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 CommitmentId = 974
             };
 
-            _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
  			_apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(_existingApprenticeship);
 
-            _mediator = new Mock<IMediator>();
             _mediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
                 {
                     Data = new List<ApprenticeshipResult>()
                 });
 
-            _historyRepository = new Mock<IHistoryRepository>();
-            _commitmentRepository = new Mock<ICommitmentRepository>();
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
-            _mockCurrentDateTime = new Mock<ICurrentDateTime>();
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _handler = new CreateApprenticeshipUpdateCommandHandler(_validator.Object, _apprenticeshipUpdateRepository.Object, Mock.Of<ICommitmentsLogger>(), _apprenticeshipRepository.Object, _mediator.Object, _historyRepository.Object, _commitmentRepository.Object, _mockCurrentDateTime.Object);
+            _mockDataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>())).ReturnsAsync(new List<DataLockStatus>());
+            _handler = new CreateApprenticeshipUpdateCommandHandler(
+                _validator.Object, 
+                _apprenticeshipUpdateRepository.Object, 
+                Mock.Of<ICommitmentsLogger>(),
+                _apprenticeshipRepository.Object, 
+                _mediator.Object, 
+                _historyRepository.Object, 
+                _commitmentRepository.Object, 
+                _mockCurrentDateTime.Object,
+                _mockDataLockRepository.Object);
         }
 
         [Test]
@@ -368,7 +382,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenIfApprenticeHasStartedAndNotInSameMonthAsStartDate_ValidationFailureExceptionIsThrown_IfCostIsChanged()
+        public void ThenIfApprenticeHasStarted_And_DataLockExsist_ValidationFailureExceptionIsThrown_IfCostIsChanged()
         {
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 7, 13));
 
@@ -382,6 +396,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     EndDate = new DateTime(2017, 5, 1),
                     Id = 3
                 });
+
+            _mockDataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+                .ReturnsAsync(new List<DataLockStatus> { new DataLockStatus { ErrorCode = DataLockErrorCode.None } });
 
             var request = new CreateApprenticeshipUpdateCommand
             {
@@ -401,7 +418,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUpdated_TrainingCode()
+        public void ThenIfApprenticeHasStarted_And_DataLockSuccessExist_ValidationFailureExceptionIsThrown_IfUpdated_TrainingCode()
         {
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship
@@ -413,6 +430,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
                     Id = 3
                 });
+
+            _mockDataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+                .ReturnsAsync(new List<DataLockStatus> { new DataLockStatus { ErrorCode = DataLockErrorCode.None } });
 
             var request = new CreateApprenticeshipUpdateCommand
             {
@@ -428,6 +448,46 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Act && Assert
             Func<Task> act = async () => await _handler.Handle(request);
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public async Task ThenIfApprenticeHasStarted_UpdateApprenticeship_IfUpdated_TrainingCode_Or_Cost()
+        {
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    EmployerAccountId = 1,
+                    ProviderId = 2,
+                    LegalEntityId = "12345",
+                    ULN = " 123",
+                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                    Id = 42
+                });
+
+
+            var trainingCode = "abc-123";
+            var cost = 1500;
+            var request = new CreateApprenticeshipUpdateCommand
+            {
+                ApprenticeshipUpdate =
+                                      new ApprenticeshipUpdate
+                                      {
+                                          Id = 5,
+                                          ApprenticeshipId = 42,
+                                          TrainingCode = trainingCode,
+                                          Cost = cost
+                                      },
+                Caller = new Caller(1, CallerType.Employer)
+            };
+
+            //Act && Assert
+            await _handler.Handle(request);
+
+            _apprenticeshipUpdateRepository.Verify(
+                x => x.CreateApprenticeshipUpdate(
+                    It.Is<ApprenticeshipUpdate>(u => u.ApprenticeshipId == 42 && u.TrainingCode == trainingCode && u.Cost == cost),
+                    It.IsAny<Apprenticeship>()));
         }
 
 

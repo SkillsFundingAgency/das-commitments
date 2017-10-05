@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -26,8 +27,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly ICommitmentRepository _commitmentRepository;
         private HistoryService _historyService;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IDataLockRepository _dataLockRepository;
 
-        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository, ICurrentDateTime currentDateTime)
+        public CreateApprenticeshipUpdateCommandHandler(
+            AbstractValidator<CreateApprenticeshipUpdateCommand> validator, 
+            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, 
+            ICommitmentsLogger logger, 
+            IApprenticeshipRepository apprenticeshipRepository, 
+            IMediator mediator, 
+            IHistoryRepository historyRepository, 
+            ICommitmentRepository commitmentRepository, 
+            ICurrentDateTime currentDateTime,
+            IDataLockRepository dataLockRepository)
         { 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -37,6 +48,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyRepository = historyRepository;
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
+            _dataLockRepository = dataLockRepository;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -54,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
 
-            if (!ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate))
+            if (!(await ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate)))
                 throw new ValidationException("Unable to create an update for an apprenticeship that is already started ");
 
             CheckAuthorisation(command, apprenticeship);
@@ -98,7 +110,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
         }
 
-        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
+        private async Task<bool> ValidateStartedApprenticeship(Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var started = apprenticeship.StartDate.HasValue && apprenticeship.StartDate.Value <=
                                       new DateTime(_currentDateTime.Now.Year, _currentDateTime.Now.Month, 1);
@@ -109,8 +121,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             var isValid =
                 apprenticeshipUpdate.ULN == null
                 && apprenticeshipUpdate.StartDate == null
-                && apprenticeshipUpdate.EndDate == null
-                && apprenticeshipUpdate.TrainingCode == null;
+                && apprenticeshipUpdate.EndDate == null;
 
             if (!isValid)
             {
@@ -118,18 +129,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 return false;
             }
 
-            if (apprenticeshipUpdate.Cost != null && !(IsCurrentMonthInSameMonthAsStartDate(apprenticeship)))
+            var dataLocks = await _dataLockRepository.GetDataLocks(apprenticeship.Id);
+            if (dataLocks.Any(m => m.ErrorCode == DataLockErrorCode.None) && 
+                (apprenticeshipUpdate.Cost != null | apprenticeshipUpdate.TrainingCode != null)
+                )
             {
-                _logger.Warn($"Cannot update Cost for a started apprenticeship when not done in the same month as the start date; ULN {apprenticeshipUpdate.ULN}, StartDate: {apprenticeshipUpdate.StartDate}, EndDate: {apprenticeshipUpdate.EndDate}, TrainingCode: {apprenticeshipUpdate.TrainingCode}", apprenticeshipId: apprenticeship.Id);
+                _logger.Warn($"Trying to update a started apprenticeship with a successfull DataLock with values; Cost {apprenticeshipUpdate.Cost}, TrainingCode: {apprenticeshipUpdate.TrainingCode}");
                 return false;
             }
 
             return true;
-        }
-
-        private bool IsCurrentMonthInSameMonthAsStartDate(Apprenticeship apprenticeship)
-        {
-            return _currentDateTime.Now.Year == apprenticeship.StartDate.Value.Year && _currentDateTime.Now.Month == apprenticeship.StartDate.Value.Month;
         }
 
         private void MapImmediateApprenticeshipUpdate(Apprenticeship apprenticeship, CreateApprenticeshipUpdateCommand command)
