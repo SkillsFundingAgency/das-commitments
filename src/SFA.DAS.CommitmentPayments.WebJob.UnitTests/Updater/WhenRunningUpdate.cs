@@ -259,7 +259,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
         [TestCase(DataLockErrorCode.Dlock05, false)]
         [TestCase(DataLockErrorCode.Dlock06, false)]
         [TestCase(DataLockErrorCode.Dlock07, false)]
-        public async Task ThenPendingApprenticeshipUpdatesAreExpiredOnSuccessfulDatalock(
+        public async Task ThenPendingChangesAreExpiredOnSuccessfulDatalock(
             DataLockErrorCode errorCode, bool expectExpiry)
         {
             var page1 = new List<DataLockStatus>
@@ -298,6 +298,49 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _apprenticeshipUpdateRepository.Verify(
                 x => x.ExpireApprenticeshipUpdate(It.Is<long>(updateId => updateId == 3)),
                  expectExpiry ? Times.Once() : Times.Never());
+        }
+
+        [TestCase(DataLockErrorCode.None)]
+        [TestCase(DataLockErrorCode.Dlock03)]
+        [TestCase(DataLockErrorCode.Dlock04)]
+        [TestCase(DataLockErrorCode.Dlock05)]
+        [TestCase(DataLockErrorCode.Dlock06)]
+        [TestCase(DataLockErrorCode.Dlock07)]
+        public async Task ThenPendingChangesWithoutCourseOrPriceAreNotExpiredOnSuccessfulDatalock(
+            DataLockErrorCode errorCode)
+        {
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 1,
+                    DataLockEventId = 2,
+                    ErrorCode = errorCode
+                }
+            };
+            _paymentEvents = new Mock<IPaymentEvents>();
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(new ApprenticeshipUpdate
+                {
+                    Id = 3,
+                    FirstName = "ChangedFirstName",
+                    LastName = "ChangedLastName",
+                    DateOfBirth = new DateTime(1999, 1, 1 )
+                });
+
+            _apprenticeshipUpdateRepository.Setup(x => x.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+                .Returns(() => Task.FromResult(0L));
+
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
+
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(
+                x => x.ExpireApprenticeshipUpdate(It.IsAny<long>()), Times.Never());
         }
     }
 }
