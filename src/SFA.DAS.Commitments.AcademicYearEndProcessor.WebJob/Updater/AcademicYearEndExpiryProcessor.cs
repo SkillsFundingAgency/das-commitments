@@ -72,9 +72,11 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
                 await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
             }
 
-            var expiredApprenticeshipUpdatesAfterJob = (
-                await _apprenticeshipUpdateRepository.GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate)
-                ).ToArray();
+            var expiredApprenticeshipUpdatesAfterJob =
+                (await _apprenticeshipUpdateRepository
+                .GetExpiredApprenticeshipUpdates(_academicYearProvider.CurrentAcademicYearStartDate))
+                .Where(m => m.Cost != null || m.TrainingCode != null || m.StartDate != null)
+                .ToArray();
 
             if (expiredApprenticeshipUpdatesAfterJob.Length != 0)
             {

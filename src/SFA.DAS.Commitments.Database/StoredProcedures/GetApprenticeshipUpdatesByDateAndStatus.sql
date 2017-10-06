@@ -2,7 +2,7 @@
 	@date DATETIME,
 	@status tinyint
 AS
-	SELECT a.StartDate, au.* 
+	SELECT au.* 
 	FROM Apprenticeship a
 	INNER JOIN
 	ApprenticeshipUpdate au
