@@ -38,26 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenShouldSendAnApprenticeshipEventWithStartDate()
-        {
-            MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
-            {
-                Id = 123L,
-                EmployerAccountId = ExampleValidRequest.AccountId
-            });
-            
-            await Handler.Handle(ExampleValidRequest);
-
-            MockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(
-                It.IsAny<Commitment>(),
-                It.IsAny<Apprenticeship>(),
-                It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
-                It.Is<DateTime?>(a => a.Equals(TestApprenticeship.StartDate)),
-                null));
-        }
-
-        [Test]
-        public async Task WhenAwaitingThenShouldSendAnApprenticeshipEventWithDateOfChange()
+        public async Task WhenAwaitingThenShouldSendAnApprenticeshipEventWithStartDate()
         {
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
