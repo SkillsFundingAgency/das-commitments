@@ -34,17 +34,41 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
                 It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
-                It.Is<DateTime?>(a=> a== null as DateTime?)));
+                It.Is<DateTime?>(a => a == null as DateTime?)));
         }
 
         [Test]
-        public async Task ThenShouldSendAnApprenticeshipEvent()
+        public async Task ThenShouldSendAnApprenticeshipEventWithStartDate()
         {
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
             {
                 Id = 123L,
                 EmployerAccountId = ExampleValidRequest.AccountId
             });
+            
+            await Handler.Handle(ExampleValidRequest);
+
+            MockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(
+                It.IsAny<Commitment>(),
+                It.IsAny<Apprenticeship>(),
+                It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
+                It.Is<DateTime?>(a => a.Equals(TestApprenticeship.StartDate)),
+                null));
+        }
+
+        [Test]
+        public async Task WhenAwaitingThenShouldSendAnApprenticeshipEventWithDateOfChange()
+        {
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            });
+
+
+            TestApprenticeship.StartDate = MockCurrentDateTime.Object.Now.AddMonths(3).Date;
+            TestApprenticeship.PauseDate = MockCurrentDateTime.Object.Now.AddMonths(-1).Date;
+
 
             await Handler.Handle(ExampleValidRequest);
 
@@ -55,6 +79,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<DateTime?>(a => a.Equals(TestApprenticeship.StartDate)),
                 null));
         }
+
+
+        [Test]
+        public async Task WhenLiveThenShouldSendAnApprenticeshipEventWithtDateOfChange()
+        {
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            });
+
+            TestApprenticeship.StartDate = MockCurrentDateTime.Object.Now.AddMonths(-3).Date;
+            TestApprenticeship.PauseDate = MockCurrentDateTime.Object.Now.AddMonths(-1).Date;
+
+
+            await Handler.Handle(ExampleValidRequest);
+
+            MockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(
+                It.IsAny<Commitment>(),
+                It.IsAny<Apprenticeship>(),
+                It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
+                It.Is<DateTime?>(a => a.Equals(ExampleValidRequest.DateOfChange.Date)),
+                null));
+        }
+
 
         [TestCase(PaymentStatus.Withdrawn)]
         [TestCase(PaymentStatus.Completed)]
@@ -139,4 +188,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
     }
+
+
+
 }
