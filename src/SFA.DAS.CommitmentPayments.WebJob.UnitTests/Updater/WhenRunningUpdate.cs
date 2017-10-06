@@ -43,8 +43,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
                 .ReturnsAsync(null);
-            _apprenticeshipUpdateRepository.Setup(x => x.SupercedeApprenticeshipUpdate(It.IsAny<long>()))
-                .Returns(()=> Task.FromResult(0L));
 
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
@@ -146,39 +144,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             //Assert
             _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>()), Times.Exactly(3));
-        }
-
-        [TestCase(UpdateOrigin.DataLock, true)]
-        [TestCase(UpdateOrigin.ChangeOfCircumstances, false)]
-        public async Task ThenAnyPendingApprenticeshipUpdateIsMarkedAsObsoleteWhenUpdatingDataLockStatus(UpdateOrigin updateOrigin, bool expectSupercede)
-        {
-            //Arrange
-            var page1 = new List<DataLockStatus>
-            {
-                new DataLockStatus
-                {
-                    DataLockEventId = 2,
-                    ErrorCode = DataLockErrorCode.Dlock07
-                }
-            };
-
-            _paymentEvents = new Mock<IPaymentEvents>();
-            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
-
-            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(new ApprenticeshipUpdate
-                {
-                    UpdateOrigin = updateOrigin
-                });
-
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
-
-            //Act
-            await _dataLockUpdater.RunUpdate();
-
-            //Assert
-            var expectedCalls = expectSupercede ? Times.Once() : Times.Never();
-            _apprenticeshipUpdateRepository.Verify(x => x.SupercedeApprenticeshipUpdate(It.IsAny<long>()), expectedCalls);
         }
 
         [TestCase(DataLockErrorCode.None, true)]
@@ -286,6 +251,53 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _config.IgnoreDataLockStatusConstraintErrors = true;
 
             Assert.DoesNotThrowAsync(async () => await _dataLockUpdater.RunUpdate());
+        }
+
+        [TestCase(DataLockErrorCode.None, true)]
+        [TestCase(DataLockErrorCode.Dlock03, false)]
+        [TestCase(DataLockErrorCode.Dlock04, false)]
+        [TestCase(DataLockErrorCode.Dlock05, false)]
+        [TestCase(DataLockErrorCode.Dlock06, false)]
+        [TestCase(DataLockErrorCode.Dlock07, false)]
+        public async Task ThenPendingApprenticeshipUpdatesAreExpiredOnSuccessfulDatalock(
+            DataLockErrorCode errorCode, bool expectExpiry)
+        {
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 1,
+                    DataLockEventId = 2,
+                    ErrorCode = errorCode
+                }
+            };
+            _paymentEvents = new Mock<IPaymentEvents>();
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+
+            _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
+                .ReturnsAsync(new ApprenticeshipUpdate
+                {
+                    Id = 3,
+                    Cost = 100,
+                    TrainingCode = "UpdatedTrainingCode"
+                });
+
+            _apprenticeshipUpdateRepository.Setup(x => x.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+                .Returns(() => Task.FromResult(0L));
+
+            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
+
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _apprenticeshipUpdateRepository.Verify(
+                x => x.GetPendingApprenticeshipUpdate(It.Is<long>(appId => appId == 1)),
+                expectExpiry ? Times.Once() : Times.Never());
+
+            _apprenticeshipUpdateRepository.Verify(
+                x => x.ExpireApprenticeshipUpdate(It.Is<long>(updateId => updateId == 3)),
+                 expectExpiry ? Times.Once() : Times.Never());
         }
     }
 }
