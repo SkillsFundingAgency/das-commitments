@@ -17,7 +17,7 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenStoppingApprenticeship : UpdateApprenticeshipStatusBase
+    public sealed class WhenStoppingAStartedApprenticeship : UpdateApprenticeshipStatusBase
     {
         protected override PaymentStatus RequestPaymentStatus => PaymentStatus.Withdrawn;
         protected override PaymentStatus ApprenticeshipPaymentStatus => PaymentStatus.Active;

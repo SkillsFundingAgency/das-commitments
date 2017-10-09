@@ -14,7 +14,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenResumingApprenticeship : UpdateApprenticeshipStatusBase
+    public sealed class WhenResumingAStartedApprenticeship : UpdateApprenticeshipStatusBase
     {
         protected override PaymentStatus RequestPaymentStatus => PaymentStatus.Active;
         protected override PaymentStatus ApprenticeshipPaymentStatus => PaymentStatus.Paused;
