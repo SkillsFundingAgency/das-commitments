@@ -95,17 +95,14 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         {
             var apprenticeshipUpdates = new List<ApprenticeshipUpdate>
                                             {
-                                                new ApprenticeshipUpdate {  FirstName = "Abba1", Cost = null, TrainingCode = null },
-                                                new ApprenticeshipUpdate {  FirstName = "Abba2", Cost = 2000, TrainingCode = null },
-                                                new ApprenticeshipUpdate {  FirstName = "Abba3", Cost = null, TrainingCode = null },
-                                                new ApprenticeshipUpdate {  FirstName = "Abba4", Cost = null, TrainingCode = "123-1-1-" },
-                                                new ApprenticeshipUpdate {  FirstName = "Abba5", Cost = 3000, TrainingCode = "123-1-1-" },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba1", Cost = null, TrainingCode = null, StartDate = null},
+                                                new ApprenticeshipUpdate {  FirstName = "Abba2", Cost = 2000, TrainingCode = null, StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba3", Cost = null, TrainingCode = null, StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba4", Cost = null, TrainingCode = "123-1-1-", StartDate = null },
+                                                new ApprenticeshipUpdate {  FirstName = "Abba5", Cost = 3000, TrainingCode = "123-1-1-", StartDate = null },
                                                 new ApprenticeshipUpdate {  FirstName = "Abba5", Cost = null, TrainingCode = null, StartDate = new DateTime(DateTime.Now.Year, 06, 01)}
 
                                             };
-
-            _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.Now))
-                .ReturnsAsync(apprenticeshipUpdates);
 
             _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.Now))
                 .ReturnsAsync(apprenticeshipUpdates);

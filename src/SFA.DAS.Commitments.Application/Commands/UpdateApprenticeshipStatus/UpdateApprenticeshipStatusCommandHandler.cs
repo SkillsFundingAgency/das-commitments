@@ -74,10 +74,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task CreateEvent(UpdateApprenticeshipStatusCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            var isResuming = (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue);
+            var apprenticeshipHasStarted = apprenticeship.StartDate.Value.Date < _currentDate.Now.Date;
+            var resumingApprenticeship = (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue);
+
             if (newPaymentStatus == PaymentStatus.Paused ||
                 newPaymentStatus == PaymentStatus.Withdrawn ||
-                isResuming
+                (resumingApprenticeship && apprenticeshipHasStarted)
             )
             {
                 await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
