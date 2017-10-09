@@ -22,6 +22,7 @@
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
     [PauseDate] DATE NULL, 
+	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 )
 GO

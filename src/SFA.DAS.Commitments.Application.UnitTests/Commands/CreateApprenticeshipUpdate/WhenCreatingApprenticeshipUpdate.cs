@@ -15,7 +15,6 @@ using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -36,8 +35,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
 
-        private Mock<IDataLockRepository> _mockDataLockRepository;
-
         [SetUp]
         public void Arrange()
         {
@@ -48,7 +45,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _historyRepository = new Mock<IHistoryRepository>();
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _mockCurrentDateTime = new Mock<ICurrentDateTime>();
-            _mockDataLockRepository = new Mock<IDataLockRepository>();
 
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
@@ -82,7 +78,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
-            _mockDataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>())).ReturnsAsync(new List<DataLockStatus>());
             _handler = new CreateApprenticeshipUpdateCommandHandler(
                 _validator.Object, 
                 _apprenticeshipUpdateRepository.Object, 
@@ -91,8 +86,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _mediator.Object, 
                 _historyRepository.Object, 
                 _commitmentRepository.Object, 
-                _mockCurrentDateTime.Object,
-                _mockDataLockRepository.Object);
+                _mockCurrentDateTime.Object);
         }
 
         [Test]
@@ -394,11 +388,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     ULN = " 123",
                     StartDate = new DateTime(2017, 6, 1),
                     EndDate = new DateTime(2017, 5, 1),
-                    Id = 3
+                    Id = 3,
+                    HasHadDataLockSuccess = true
                 });
-
-            _mockDataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
-                .ReturnsAsync(new List<DataLockStatus> { new DataLockStatus { ErrorCode = DataLockErrorCode.None } });
 
             var request = new CreateApprenticeshipUpdateCommand
             {
@@ -428,21 +420,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     ULN = " 123",
                     StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
                     EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
-                    Id = 3
+                    Id = 3,
+                    HasHadDataLockSuccess = true
                 });
-
-            _mockDataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
-                .ReturnsAsync(new List<DataLockStatus> { new DataLockStatus { ErrorCode = DataLockErrorCode.None } });
 
             var request = new CreateApprenticeshipUpdateCommand
             {
                 ApprenticeshipUpdate =
-                                      new ApprenticeshipUpdate
-                                      {
-                                          Id = 5,
-                                          ApprenticeshipId = 42,
-                                          TrainingCode = "abc-123"
-                                      }
+                new ApprenticeshipUpdate
+                {
+                    Id = 5,
+                    ApprenticeshipId = 42,
+                    TrainingCode = "abc-123"
+                },
+                Caller = new Caller(2, CallerType.Provider)
             };
 
             //Act && Assert

@@ -10,7 +10,6 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -27,7 +26,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly ICommitmentRepository _commitmentRepository;
         private HistoryService _historyService;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IDataLockRepository _dataLockRepository;
 
         public CreateApprenticeshipUpdateCommandHandler(
             AbstractValidator<CreateApprenticeshipUpdateCommand> validator, 
@@ -37,8 +35,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             IMediator mediator, 
             IHistoryRepository historyRepository, 
             ICommitmentRepository commitmentRepository, 
-            ICurrentDateTime currentDateTime,
-            IDataLockRepository dataLockRepository)
+            ICurrentDateTime currentDateTime)
         { 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -48,7 +45,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyRepository = historyRepository;
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
-            _dataLockRepository = dataLockRepository;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -129,8 +125,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 return false;
             }
 
-            var dataLocks = await _dataLockRepository.GetDataLocks(apprenticeship.Id);
-            if (dataLocks.Any(m => m.ErrorCode == DataLockErrorCode.None) && 
+            if (apprenticeship.HasHadDataLockSuccess && 
                 (apprenticeshipUpdate.Cost != null || apprenticeshipUpdate.TrainingCode != null)
                 )
             {

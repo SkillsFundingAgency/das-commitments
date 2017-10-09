@@ -45,3 +45,18 @@ BEGIN
 	 AND	a.[PaymentStatus]	= 2		  
 
 END
+
+
+------ Extended EDIT
+
+-- Marking Apprenticeships as HasHadDataLockSuccess so that they cannot be used in extended edit. 
+-- Only if they have a DataLockStatus with ErrirCode Success (0)
+
+UPDATE Apprenticeship 
+SET HasHadDataLockSuccess = 1
+WHERE Id IN (
+  SELECT ApprenticeshipId FROM DataLockStatus
+  WHERE ErrorCode = 0
+)
+
+--

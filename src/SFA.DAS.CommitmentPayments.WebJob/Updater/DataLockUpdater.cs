@@ -22,6 +22,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly CommitmentPaymentsConfiguration _config;
         private readonly IFilterOutAcademicYearRollOverDataLocks _filterAcademicYearRolloverDataLocks;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         private readonly IList<DataLockErrorCode> _whiteList;
 
         public DataLockUpdater(ILog logger,
@@ -29,7 +31,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             IDataLockRepository dataLockRepository,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
             CommitmentPaymentsConfiguration config,
-            IFilterOutAcademicYearRollOverDataLocks filter)
+            IFilterOutAcademicYearRollOverDataLocks filter,
+            IApprenticeshipRepository apprenticeshipRepository)
         {
             if(logger==null)
                 throw new ArgumentNullException(nameof(ILog));
@@ -50,6 +53,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _config = config;
             _filterAcademicYearRolloverDataLocks = filter;
+            _apprenticeshipRepository = apprenticeshipRepository;
 
             _whiteList = new List<DataLockErrorCode>
             {
@@ -116,6 +120,15 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         catch(RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
                         {
                             _logger.Warn(ex, $"Exception in DataLock updater");
+                        }
+
+                        if (datalockSuccess)
+                        {
+                            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(dataLockStatus.ApprenticeshipId);
+                            if (!apprenticeship.HasHadDataLockSuccess)
+                            {
+                                _apprenticeshipRepository.SetHasHadDataLockSuccess(apprenticeship.Id);
+                            }
                         }
                     }
 
