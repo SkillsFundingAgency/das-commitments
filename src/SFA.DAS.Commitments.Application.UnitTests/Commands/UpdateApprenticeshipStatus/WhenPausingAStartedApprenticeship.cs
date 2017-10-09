@@ -7,8 +7,10 @@ using FluentValidation;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
@@ -16,8 +18,40 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenPausingAStartedApprenticeship : UpdateApprenticeshipStatusBase
     {
-        protected override PaymentStatus RequestPaymentStatus => PaymentStatus.Paused;
-        protected override PaymentStatus ApprenticeshipPaymentStatus => PaymentStatus.Active;
+
+        protected UpdateApprenticeshipStatusCommand ExampleValidRequest;
+        protected Apprenticeship TestApprenticeship;
+     
+
+        protected  PaymentStatus RequestPaymentStatus => PaymentStatus.Paused;
+        protected  PaymentStatus ApprenticeshipPaymentStatus => PaymentStatus.Active;
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            ExampleValidRequest = new UpdateApprenticeshipStatusCommand
+            {
+                AccountId = 111L,
+                ApprenticeshipId = 444L,
+                PaymentStatus = RequestPaymentStatus,
+                DateOfChange = DateTime.Now.Date,
+                UserName = "Bob"
+            };
+
+            TestApprenticeship = new Apprenticeship
+            {
+                CommitmentId = 123L,
+                PaymentStatus = ApprenticeshipPaymentStatus,
+                StartDate = DateTime.UtcNow.Date.AddMonths(-1)
+            };
+            MockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId))).ReturnsAsync(TestApprenticeship);
+            MockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
+            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId)).ReturnsAsync(new List<DataLockStatus>());
+
+
+        }
+
 
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatus()

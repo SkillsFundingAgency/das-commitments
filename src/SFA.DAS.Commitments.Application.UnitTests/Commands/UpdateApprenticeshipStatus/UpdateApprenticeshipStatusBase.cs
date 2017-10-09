@@ -21,32 +21,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<IHistoryRepository> MockHistoryRepository;
         protected Mock<IDataLockRepository> MockDataLockRepository;
         protected UpdateApprenticeshipStatusCommandHandler Handler;
-        protected UpdateApprenticeshipStatusCommand ExampleValidRequest;
-        protected Apprenticeship TestApprenticeship;
         protected Mock<IAcademicYearValidator> MockAcademicYearValidator;
 
-        protected abstract PaymentStatus RequestPaymentStatus { get; }
-        protected abstract PaymentStatus ApprenticeshipPaymentStatus { get; }
 
+        /// <summary>
+        /// Setup and mock the Unit depencencies
+        /// </summary>
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
-            ExampleValidRequest = new UpdateApprenticeshipStatusCommand
-            {
-                AccountId = 111L,
-                ApprenticeshipId = 444L,
-                PaymentStatus = RequestPaymentStatus,
-                DateOfChange = DateTime.Now.Date,
-                UserName = "Bob"
-            };
-
-            TestApprenticeship = new Apprenticeship
-            {
-                CommitmentId = 123L,
-                PaymentStatus = ApprenticeshipPaymentStatus,
-                StartDate = DateTime.UtcNow.Date.AddMonths(-1)
-            };
-
+            
             MockCommitmentRespository = new Mock<ICommitmentRepository>();
             MockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
 
@@ -54,11 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockHistoryRepository = new Mock<IHistoryRepository>();
             MockDataLockRepository = new Mock<IDataLockRepository>();
 
-            MockApprenticeshipRespository.Setup(x => x.GetApprenticeship(It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId))).ReturnsAsync(TestApprenticeship);
-            MockApprenticeshipRespository.Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>())).Returns(Task.FromResult(new object()));
-            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId)).ReturnsAsync(new List<DataLockStatus>());
-
-            MockCurrentDateTime = new Mock<ICurrentDateTime>();
+         MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
             MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
