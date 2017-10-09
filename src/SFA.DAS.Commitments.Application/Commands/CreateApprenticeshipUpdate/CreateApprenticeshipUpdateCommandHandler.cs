@@ -131,7 +131,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             var dataLocks = await _dataLockRepository.GetDataLocks(apprenticeship.Id);
             if (dataLocks.Any(m => m.ErrorCode == DataLockErrorCode.None) && 
-                (apprenticeshipUpdate.Cost != null | apprenticeshipUpdate.TrainingCode != null)
+                (apprenticeshipUpdate.Cost != null || apprenticeshipUpdate.TrainingCode != null)
                 )
             {
                 _logger.Warn($"Trying to update a started apprenticeship with a successfull DataLock with values; Cost {apprenticeshipUpdate.Cost}, TrainingCode: {apprenticeshipUpdate.TrainingCode}");
