@@ -62,7 +62,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 throw new ValidationException(validationResult.Errors);
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
+
             CheckAuthorization(command, commitment);
 
             var newPaymentStatus = PaymentStatus.Active;
@@ -74,45 +76,28 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private async Task CreateEvent(ResumeApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
-            var apprenticeshipHasStarted = apprenticeship.StartDate.Value.Date < _currentDate.Now.Date;
-            var resumingApprenticeship = (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue);
-
-            if (newPaymentStatus == PaymentStatus.Paused ||
-                newPaymentStatus == PaymentStatus.Withdrawn ||
-                (resumingApprenticeship && apprenticeshipHasStarted)
-            )
+            if (apprenticeship.IsWaitingToStart(_currentDate))
             {
-                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
             }
             else
             {
-                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: apprenticeship.StartDate.Value.Date);
+                await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
             }
         }
 
         private async Task SaveChange(ResumeApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
         {
             var historyService = new HistoryService(_historyRepository);
+
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
+
             apprenticeship.PaymentStatus = newPaymentStatus;
-            switch (newPaymentStatus)
-            {
-                case PaymentStatus.Active:
-                case PaymentStatus.Paused:
-                    ValidateChangeDateForPauseResume(command.DateOfChange);
-                    DateTime? pauseDate = (newPaymentStatus == PaymentStatus.Paused
-                        ? command.DateOfChange
-                        : null as DateTime?);
-                    await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, pauseDate);
-                    break;
-                case PaymentStatus.Withdrawn:
-                    ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
-                    await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
-                    await ResolveAnyTriagedCourseDataLocks(command.ApprenticeshipId);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(newPaymentStatus), "Not a valid value for change of status");
-            }
+
+            ValidateChangeDateForPauseResume(command.DateOfChange);
+
+            await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, null);
+
             await historyService.Save();
         }
 

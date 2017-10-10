@@ -11,7 +11,6 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -28,12 +27,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             _mockEventsApi = new Mock<IApprenticeshipEvents>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
-            _mockDataLockRepository = new Mock<IDataLockRepository>();
 
             _mockCurrentDateTime = new Mock<ICurrentDateTime>();
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
-
-            _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
 
             _mockCommitmentsLogger = new Mock<ICommitmentsLogger>();
@@ -45,9 +41,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mockCurrentDateTime.Object,
                 _mockEventsApi.Object,
                 _mockCommitmentsLogger.Object,
-                _mockHistoryRepository.Object,
-                _mockDataLockRepository.Object,
-                _mockAcademicYearValidator.Object);
+                _mockHistoryRepository.Object);
 
             _exampleValidRequest = new PauseApprenticeshipCommand
             {
@@ -69,8 +63,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockApprenticeshipRespository
                 .Setup(x => x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>()))
                 .Returns(Task.FromResult(new object()));
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(_exampleValidRequest.ApprenticeshipId))
-                .ReturnsAsync(new List<DataLockStatus>());
         }
 
         private PauseApprenticeshipCommand _exampleValidRequest;
@@ -82,9 +74,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<ICurrentDateTime> _mockCurrentDateTime;
         private Mock<IApprenticeshipEvents> _mockEventsApi;
         private Mock<IHistoryRepository> _mockHistoryRepository;
-        private Mock<IDataLockRepository> _mockDataLockRepository;
         private PauseApprenticeshipCommandHandler _handler;
-        private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         private Mock<ICommitmentsLogger> _mockCommitmentsLogger;
 
         [TestCase(PaymentStatus.Withdrawn)]
