@@ -1,22 +1,21 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenValidatingStopApprenticeshipCommand
+    public sealed class WhenValidatingPauseApprenticeshipCommand
     {
         private ApprenticeshipStatusChangeCommandValidator _validator;
-        private StopApprenticeshipCommand _exampleCommand;
+        private PauseApprenticeshipCommand _exampleCommand;
 
         [SetUp]
         public void Setup()
         {
 
             _validator = new ApprenticeshipStatusChangeCommandValidator();
-            _exampleCommand = new StopApprenticeshipCommand {AccountId = 1L, ApprenticeshipId = 444L};
+            _exampleCommand = new PauseApprenticeshipCommand { AccountId = 1L, ApprenticeshipId = 444L };
         }
 
         [TestCase(0)]
