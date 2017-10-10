@@ -15,7 +15,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
-    public sealed class UpdateApprenticeshipStatusCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
+    public sealed class StopApprenticeshipCommandHandler : AsyncRequestHandler<UpdateApprenticeshipStatusCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
 
-        public UpdateApprenticeshipStatusCommandHandler(
+        public StopApprenticeshipCommandHandler(
             ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository,
             UpdateApprenticeshipStatusValidator validator,

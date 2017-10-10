@@ -15,7 +15,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<IApprenticeshipEvents> MockEventsApi;
         protected Mock<IHistoryRepository> MockHistoryRepository;
         protected Mock<IDataLockRepository> MockDataLockRepository;
-        protected UpdateApprenticeshipStatusCommandHandler Handler;
+        protected StopApprenticeshipCommandHandler Handler;
         protected Mock<IAcademicYearValidator> MockAcademicYearValidator;
         protected Mock<ICommitmentsLogger> MockCommitmentsLogger;
 
@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             MockCommitmentsLogger = new Mock<ICommitmentsLogger>();
 
-            Handler = new UpdateApprenticeshipStatusCommandHandler(
+            Handler = new StopApprenticeshipCommandHandler(
                 MockCommitmentRespository.Object,
                 MockApprenticeshipRespository.Object,
                 new UpdateApprenticeshipStatusValidator(),
