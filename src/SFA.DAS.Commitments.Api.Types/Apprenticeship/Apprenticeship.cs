@@ -1,7 +1,6 @@
 ﻿using System;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 
 namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
 {
@@ -39,6 +38,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public bool DataLockCourse { get; set; }
         public bool DataLockCourseTriaged { get; set; }
         public bool DataLockTriagedAsRestart { get; set; }
+        public bool HasHadDataLockSuccess { get; set; }
 
         public string ApprenticeshipName => $"{FirstName} {LastName}";
     }
