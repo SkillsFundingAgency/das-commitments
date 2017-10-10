@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
@@ -99,14 +98,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
                              $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
-                        var pendingApprenticeshipUpdate =
-                        await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
-
-                        if (pendingApprenticeshipUpdate != null && pendingApprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
-                        {
-                            await _apprenticeshipUpdateRepository.SupercedeApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
-                        }
-
                         try
                         {
                             await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
@@ -116,6 +107,18 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         catch(RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
                         {
                             _logger.Warn(ex, $"Exception in DataLock updater");
+                        }
+
+                        if (datalockSuccess)
+                        {
+                            var pendingUpdate = await
+                             _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
+
+                            if (pendingUpdate != null && (pendingUpdate.Cost != null || pendingUpdate.TrainingCode != null))
+                            {
+                                await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(pendingUpdate.Id);
+                                _logger.Info($"Pending ApprenticeshipUpdate {pendingUpdate.Id} expired due to successful data lock event {dataLockStatus.DataLockEventId}");
+                            }
                         }
                     }
 
