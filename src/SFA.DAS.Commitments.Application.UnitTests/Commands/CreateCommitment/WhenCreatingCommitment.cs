@@ -16,6 +16,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
