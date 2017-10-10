@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -8,7 +7,6 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -24,8 +22,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEvents _eventsApi;
-        private readonly IDataLockRepository _dataLockRepository;
-        private readonly IAcademicYearValidator _academicYearValidator;
 
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
 
@@ -36,9 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICurrentDateTime currentDate,
             IApprenticeshipEvents eventsApi,
             ICommitmentsLogger logger,
-            IHistoryRepository historyRepository,
-            IDataLockRepository dataLockRepository,
-            IAcademicYearValidator academicYearValidator
+            IHistoryRepository historyRepository
         )
         {
             _commitmentRepository = commitmentRepository;
@@ -48,8 +42,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _eventsApi = eventsApi;
             _logger = logger;
             _historyRepository = historyRepository;
-            _dataLockRepository = dataLockRepository;
-            _academicYearValidator = academicYearValidator;
         }
 
         protected override async Task HandleCore(ResumeApprenticeshipCommand command)
@@ -99,54 +91,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, null);
 
             await historyService.Save();
-        }
-
-        private async Task ResolveAnyTriagedCourseDataLocks(long apprenticeshipId)
-        {
-            var dataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId))
-                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode)).ToList();
-
-            if (dataLocks.Any())
-            {
-                if (dataLocks.Count() > 1)
-                {
-                    _logger.Debug($"More than one unresolved data lock with triage status of reset found when stopping apprenticeship. ApprenticeshipId: {apprenticeshipId}", apprenticeshipId);
-                }
-
-                foreach (var dataLock in dataLocks)
-                {
-                    dataLock.IsResolved = true;
-                    await _dataLockRepository.UpdateDataLockStatus(dataLock);
-                }
-            }
-        }
-
-        private bool IsCourseChangeError(DataLockErrorCode errorCode)
-        {
-            if ((errorCode & CourseChangeErrors) > 0)
-                return true;
-
-            return false;
-        }
-
-        private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
-        {
-            if (apprenticeship.IsWaitingToStart(_currentDate))
-            {
-                if (dateOfChange.Date != apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date should be value of start date if training has not started.");
-            }
-            else
-            {
-                if (dateOfChange.Date > _currentDate.Now.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
-
-                if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
-
-                if (_academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
-            }
         }
 
         private void ValidateChangeDateForPauseResume(DateTime dateOfChange)

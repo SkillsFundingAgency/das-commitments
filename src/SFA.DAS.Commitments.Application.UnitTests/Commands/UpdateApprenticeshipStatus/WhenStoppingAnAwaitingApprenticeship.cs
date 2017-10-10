@@ -20,7 +20,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenStoppingAStartedApprenticeship
+    public sealed class WhenStoppingAnAwaitingApprenticeship
     {
         [SetUp]
         public void SetUp()
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                DateOfChange = DateTime.Now.Date,
+                DateOfChange = DateTime.UtcNow.Date.AddMonths(6),
                 UserName = "Bob"
             };
 
@@ -57,29 +57,33 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Active,
-                StartDate = DateTime.UtcNow.Date.AddMonths(-1)
+                StartDate = DateTime.UtcNow.Date.AddMonths(6)
             };
-
 
             _mockCurrentDateTime.SetupGet(x => x.Now)
                 .Returns(DateTime.UtcNow);
 
-
             _mockApprenticeshipRespository.Setup(x =>
                     x.GetApprenticeship(It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId)))
                 .ReturnsAsync(_testApprenticeship);
+
             _mockApprenticeshipRespository.Setup(x =>
-                    x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>()))
+                    x.UpdateApprenticeshipStatus(
+                        It.Is<long>(c => c == _testApprenticeship.CommitmentId),
+                        It.Is<long>(a => a == _exampleValidRequest.ApprenticeshipId),
+                        It.Is<PaymentStatus>(s => s == PaymentStatus.Withdrawn)))
                 .Returns(Task.FromResult(new object()));
+
             _mockDataLockRepository.Setup(x => x.GetDataLocks(_exampleValidRequest.ApprenticeshipId))
                 .ReturnsAsync(new List<DataLockStatus>());
 
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
-            {
-                Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
-            });
-
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(
+                    It.Is<long>(c => c == _testApprenticeship.CommitmentId)))
+                .ReturnsAsync(new Commitment
+                {
+                    Id = 123L,
+                    EmployerAccountId = _exampleValidRequest.AccountId
+                });
         }
 
         private StopApprenticeshipCommand _exampleValidRequest;
@@ -105,73 +109,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldNotThrow<InvalidRequestException>();
         }
 
-       
 
-        [TestCase(AcademicYearValidationResult.NotWithinFundingPeriod, false, Description =
-            "Validation fails if date of change is in the previous academic year and the R14 date has passed")]
-        [TestCase(AcademicYearValidationResult.Success, true, Description =
-            "Validation passes if date of change is in the previous academic year and the R14 date has not passed")]
-        public void ShouldThrowValidationErrorAfterR14Close(AcademicYearValidationResult academicYearValidationResult,
-            bool expectedPassValidation)
-        {
-           
-            _testApprenticeship.StartDate = new DateTime(2016, 3, 1); //early last academic year
-            _exampleValidRequest.DateOfChange = new DateTime(2016, 5, 1); //last academic year
-            _mockCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2016, 10, 19)); //after cut-off
-
-            _mockAcademicYearValidator.Setup(x => x.Validate(It.IsAny<DateTime>()))
-                .Returns(academicYearValidationResult);
-
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
-
-            if (expectedPassValidation)
-                act.ShouldNotThrow<ValidationException>();
-            else
-                act.ShouldThrow<ValidationException>()
-                    .WithMessage("Invalid Date of Change. Date cannot be before the academic year start date.");
-        }
-
-        [Test(Description =
-            "Validation fails for both R14 having passed and change date before Start Date - Start Date error takes precedence")]
-        public void ShouldThrowStartDateValidationErrorAfterR14CloseAndStopDateBeforeStartDate()
-        {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
-            {
-                Id = 123L,
-                EmployerAccountId = _exampleValidRequest.AccountId
-            });
-
-            _testApprenticeship.StartDate = new DateTime(2016, 3, 1);
-            _exampleValidRequest.DateOfChange = new DateTime(2016, 1, 1); //last academic year
-            _mockCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2016, 10, 19)); //after cut-off
-
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
-
-            act.ShouldThrow<ValidationException>()
-                .WithMessage("Invalid Date of Change. Date cannot be before the training start date.");
-        }
-
-        [Test]
-        public async Task ThenACourseDataLocksThatHaveBeenTriagedAsResetAreResolved()
-        {
-            
-            var dataLocks = new List<DataLockStatus>
-            {
-                new DataLockStatus
-                {
-                    TriageStatus = TriageStatus.Restart,
-                    IsResolved = false,
-                    ErrorCode = DataLockErrorCode.Dlock04
-                }
-            };
-
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
-
-            await _handler.Handle(_exampleValidRequest);
-
-            _mockDataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved)),
-                Times.Once);
-        }
 
         [Test]
         public async Task ThenAHistoryRecordIsCreated()
@@ -198,9 +136,30 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
+        public async Task ThenDataLocksThatHaveBeenTriagedAsResetAreResolved()
+        {
+            var dataLocks = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    TriageStatus = TriageStatus.Restart,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock04
+                }
+            };
+
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockDataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved)),
+                Times.Once);
+        }
+
+        [Test]
         public async Task ThenItShouldLogTheRequest()
         {
-             await _handler.Handle(_exampleValidRequest);
+            await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentsLogger.Verify(logger =>
                     logger.Info($"Employer: {_exampleValidRequest.AccountId} has called StopApprenticeshipCommand",
@@ -216,7 +175,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public async Task ThenMultipleCourseDataLocksThatHaveBeenTriagedAsResetAreResolved()
         {
-         
+
             var dataLocks = new List<DataLockStatus>
             {
                 new DataLockStatus
@@ -249,14 +208,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockDataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved)),
-                Times.Exactly(3));
+            _mockDataLockRepository.Verify(x =>
+                x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved)), Times.Exactly(3));
         }
 
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatus()
         {
-          
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipRespository.Verify(x => x.StopApprenticeship(
@@ -268,7 +226,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public async Task ThenShouldSendAnApprenticeshipEvent()
         {
-          
             await _handler.Handle(_exampleValidRequest);
 
             _mockEventsApi.Verify(x => x.PublishChangeApprenticeshipStatusEvent(It.IsAny<Commitment>(),
@@ -277,54 +234,56 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public void ThenThrowsExceptionIfApprenticeshipIsInProgressAndChangeDateIsBeforeTrainingStartDate()
-        {
-            var startDate = DateTime.UtcNow.AddMonths(-22).Date;
-            _testApprenticeship.StartDate = startDate;
-
-         
-            _exampleValidRequest.DateOfChange = startDate.AddDays(-5).Date;
-
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
-
-            act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
-        }
-
-        [Test]
-        public void ThenThrowsExceptionIfApprenticeshipIsInProgressAndChangeDateIsInFuture()
-        {
-            var startDate = DateTime.UtcNow.AddMonths(-22).Date;
-            _testApprenticeship.StartDate = startDate;
-
-            _exampleValidRequest.DateOfChange = DateTime.UtcNow.AddMonths(1).Date;
-
-            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
-
-            act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
-        }
-
-        [Test]
-        public void ThenThrowsExceptionIfApprenticeshipIsWaitingToStartAndChangeDateIsNotTrainingStartDate()
+        public void ThenThrowsExceptionIfChangeDateIsNotTrainingStartDate()
         {
             var startDate = DateTime.UtcNow.AddMonths(2).Date;
             _testApprenticeship.StartDate = startDate;
 
-        
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
         }
+    
 
-        
-
-        [Test]
-        public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
+        [TestCase(AcademicYearValidationResult.NotWithinFundingPeriod, false, Description =
+            "Validation fails if date of change is in the previous academic year and the R14 date has passed")]
+        [TestCase(AcademicYearValidationResult.Success, true, Description =
+            "Validation passes if date of change is in the previous academic year and the R14 date has not passed")]
+        public void ShouldThrowValidationErrorAfterR14Close(AcademicYearValidationResult academicYearValidationResult,
+            bool expectedPassValidation)
         {
-            _exampleValidRequest.AccountId = 0; // Forces validation failure
+
+            _testApprenticeship.StartDate = new DateTime(2017, 3, 1); //early last academic year
+            _exampleValidRequest.DateOfChange = new DateTime(2017, 5, 1); //last academic year
+            _mockCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2017, 10, 19, 18, 0, 1)); //after cut-off
+
+            _mockAcademicYearValidator.Setup(x => x.Validate(It.IsAny<DateTime>()))
+                .Returns(academicYearValidationResult);
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 
-            act.ShouldThrow<ValidationException>();
+            if (expectedPassValidation)
+                act.ShouldNotThrow<ValidationException>();
+            else
+                act.ShouldThrow<ValidationException>()
+                    .WithMessage("Invalid Date of Change. Date cannot be before the academic year start date.");
         }
+
+        [Test(Description =
+            "Validation fails for both R14 having passed and change date before Start Date - Start Date error takes precedence")]
+        public void ShouldThrowStartDateValidationErrorAfterR14CloseAndStopDateBeforeStartDate()
+        {
+
+            _testApprenticeship.StartDate = new DateTime(2017, 3, 1);
+            _exampleValidRequest.DateOfChange = new DateTime(2017, 1, 1); //last academic year
+            _mockCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2017, 10, 19, 18, 0, 1)); //after cut-off
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<ValidationException>()
+                .WithMessage("Invalid Date of Change. Date cannot be before the training start date.");
+        }
+
     }
+
 }
