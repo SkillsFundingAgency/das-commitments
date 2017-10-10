@@ -106,9 +106,10 @@
     <Compile Include="Commands\UpdateApprenticeshipStatus\PauseApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\ResumeApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\ResumeApprenticeshipCommandHandler.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\StopApprenticeshipCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\ApprenticeshipStatusChangeCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\StopApprenticeshipCommandHandler.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusValidator.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\ApprenticeshipStatusChangeCommandValidator.cs" />
     <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeMapper.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />

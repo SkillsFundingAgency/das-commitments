@@ -16,8 +16,4 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         public string UserId { get; set; }
         public string UserName { get; set; }
     }
-
-    public sealed class StopApprenticeshipCommand : ApprenticeshipStatusChangeCommand
-    {
-    }
 }
