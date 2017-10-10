@@ -168,17 +168,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     transaction: trans);
         }
 
-        public async Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId)
-        {
-            _logger.Info($"Supercede apprenticeship update {apprenticeshipUpdateId}");
-            await WithTransaction(async (connection, trans) =>
-            {
-                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,
-                    ApprenticeshipUpdateStatus.Superceded);
-                return 1L;
-            });
-        }
-
         public async Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
         {
             _logger.Info($"Getting all expired apprenticeship update");
