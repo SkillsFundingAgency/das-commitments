@@ -1,18 +1,17 @@
-﻿using System;
-using FluentValidation;
-
-using SFA.DAS.Commitments.Domain.Entities;
+﻿using FluentValidation;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
-    public sealed class UpdateApprenticeshipStatusValidator : AbstractValidator<UpdateApprenticeshipStatusCommand>
+    
+
+    public sealed class ApprenticeshipStatusChangeCommandValidator : AbstractValidator<ApprenticeshipStatusChangeCommand>
     {
-        public UpdateApprenticeshipStatusValidator()
+        public ApprenticeshipStatusChangeCommandValidator()
         {
             RuleFor(x => x.AccountId).GreaterThan(0);
             RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
-            RuleFor(x => x.PaymentStatus).NotNull()
-                .DependentRules(y => y.RuleFor(z => z.PaymentStatus).Must(a => Enum.IsDefined(typeof(PaymentStatus), (int)a)));
+            
         }
     }
+   
 }

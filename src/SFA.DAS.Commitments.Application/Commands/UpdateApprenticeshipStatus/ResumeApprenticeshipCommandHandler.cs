@@ -1,21 +1,21 @@
-﻿using FluentValidation;
-using MediatR;
-using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
+using MediatR;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
-    public sealed class StopApprenticeshipCommandHandler : AsyncRequestHandler<StopApprenticeshipCommand>
+    public sealed class ResumeApprenticeshipCommandHandler : AsyncRequestHandler<ResumeApprenticeshipCommand>
     {
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
 
-        public StopApprenticeshipCommandHandler(
+        public ResumeApprenticeshipCommandHandler(
             ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository,
             ApprenticeshipStatusChangeCommandValidator validator,
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             IHistoryRepository historyRepository,
             IDataLockRepository dataLockRepository,
             IAcademicYearValidator academicYearValidator
-            )
+        )
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -52,9 +52,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _academicYearValidator = academicYearValidator;
         }
 
-        protected override async Task HandleCore(StopApprenticeshipCommand command)
+        protected override async Task HandleCore(ResumeApprenticeshipCommand command)
         {
-            _logger.Info($"Employer: {command.AccountId} has called StopApprenticeshipCommand", accountId: command.AccountId, apprenticeshipId: command.ApprenticeshipId, caller: command.Caller);
+            _logger.Info($"Employer: {command.AccountId} has called ResumeApprenticeshipCommand", accountId: command.AccountId, apprenticeshipId: command.ApprenticeshipId, caller: command.Caller);
 
             var validationResult = _validator.Validate(command);
 
@@ -65,14 +65,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             CheckAuthorization(command, commitment);
 
-            var newPaymentStatus = PaymentStatus.Withdrawn;
+            var newPaymentStatus = PaymentStatus.Active;
 
             await SaveChange(command, commitment, apprenticeship, newPaymentStatus);
 
             await CreateEvent(command, apprenticeship, commitment, newPaymentStatus);
         }
 
-        private async Task CreateEvent(StopApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
+        private async Task CreateEvent(ResumeApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
         {
             var apprenticeshipHasStarted = apprenticeship.StartDate.Value.Date < _currentDate.Now.Date;
             var resumingApprenticeship = (newPaymentStatus == PaymentStatus.Active && apprenticeship.PauseDate.HasValue);
@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             }
         }
 
-        private async Task SaveChange(StopApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
+        private async Task SaveChange(ResumeApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
         {
             var historyService = new HistoryService(_historyRepository);
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
@@ -119,7 +119,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private async Task ResolveAnyTriagedCourseDataLocks(long apprenticeshipId)
         {
             var dataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId))
-                                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode));
+                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode)).ToList();
 
             if (dataLocks.Any())
             {
@@ -170,7 +170,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 throw new ValidationException("Invalid Date of Change. Date should be todays date.");
         }
 
-        private static void CheckAuthorization(StopApprenticeshipCommand message, Commitment commitment)
+        private static void CheckAuthorization(ResumeApprenticeshipCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
                 throw new UnauthorizedException($"Employer {message.AccountId} not authorised to access commitment {commitment.Id}, expected employer {commitment.EmployerAccountId}");

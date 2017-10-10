@@ -10,28 +10,67 @@ using FluentAssertions;
 using FluentValidation;
 using Newtonsoft.Json;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
     [TestFixture]
-    public sealed class WhenResumingAStartedApprenticeship : UpdateApprenticeshipStatusBase
+    public sealed class WhenResumingAStartedApprenticeship 
     {
-        private UpdateApprenticeshipStatusCommand _exampleValidRequest;
+        private ResumeApprenticeshipCommand _exampleValidRequest;
         private Apprenticeship _testApprenticeship;
 
         private PaymentStatus _requestPaymentStatus = PaymentStatus.Active;
         private PaymentStatus _apprenticeshipPaymentStatus = PaymentStatus.Paused;
+
+        private Mock<ICommitmentRepository> MockCommitmentRespository;
+        private Mock<IApprenticeshipRepository> MockApprenticeshipRespository;
+        private Mock<ICurrentDateTime> MockCurrentDateTime;
+        private Mock<IApprenticeshipEvents> MockEventsApi;
+        private Mock<IHistoryRepository> MockHistoryRepository;
+        private Mock<IDataLockRepository> MockDataLockRepository;
+        private ResumeApprenticeshipCommandHandler Handler;
+        private Mock<IAcademicYearValidator> MockAcademicYearValidator;
+        private Mock<ICommitmentsLogger> MockCommitmentsLogger;
+
+        
         [SetUp]
-        public override void SetUp()
+        public void SetUp()
         {
-            base.SetUp();
-            _exampleValidRequest = new UpdateApprenticeshipStatusCommand
+
+            MockCommitmentRespository = new Mock<ICommitmentRepository>();
+            MockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
+
+            MockEventsApi = new Mock<IApprenticeshipEvents>();
+            MockHistoryRepository = new Mock<IHistoryRepository>();
+            MockDataLockRepository = new Mock<IDataLockRepository>();
+
+            MockCurrentDateTime = new Mock<ICurrentDateTime>();
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
+
+            MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
+
+
+            MockCommitmentsLogger = new Mock<ICommitmentsLogger>();
+
+            Handler = new ResumeApprenticeshipCommandHandler(
+                MockCommitmentRespository.Object,
+                MockApprenticeshipRespository.Object,
+                new ApprenticeshipStatusChangeCommandValidator(), 
+                MockCurrentDateTime.Object,
+                MockEventsApi.Object,
+                MockCommitmentsLogger.Object,
+                MockHistoryRepository.Object,
+                MockDataLockRepository.Object,
+                MockAcademicYearValidator.Object);
+
+            _exampleValidRequest = new ResumeApprenticeshipCommand
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                PaymentStatus = _requestPaymentStatus,
                 DateOfChange = DateTime.Now.Date,
                 UserName = "Bob"
             };
@@ -61,7 +100,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await Handler.Handle(_exampleValidRequest);
 
             MockCommitmentsLogger.Verify(logger =>
-                    logger.Info($"Employer: {_exampleValidRequest.AccountId} has called UpdateApprenticeshipStatusCommand",
+                    logger.Info($"Employer: {_exampleValidRequest.AccountId} has called ResumeApprenticeshipCommand",
                     _exampleValidRequest.AccountId,
                     It.IsAny<long?>(),
                     It.IsAny<long?>(),

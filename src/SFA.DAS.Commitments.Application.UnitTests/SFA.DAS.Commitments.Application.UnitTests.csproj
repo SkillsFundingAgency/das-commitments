@@ -122,7 +122,6 @@
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingFamilyName.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ValidatingUln.cs" />
     <Compile Include="Commands\UndoApprenticeshipChange\WhenUndoingApprenticeshipChange.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipStatus\UpdateApprenticeshipStatusBase.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenResumingAStartedApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenPausingAStartedApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenStoppingAStartedApprenticeship.cs" />
