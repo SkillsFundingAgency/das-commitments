@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using System.Collections.Generic;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
-using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -22,7 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<IDataLockRepository> MockDataLockRepository;
         protected UpdateApprenticeshipStatusCommandHandler Handler;
         protected Mock<IAcademicYearValidator> MockAcademicYearValidator;
-
+        protected Mock<ICommitmentsLogger> MockCommitmentsLogger;
 
         /// <summary>
         /// Setup and mock the Unit depencencies
@@ -30,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public virtual void SetUp()
         {
-            
+
             MockCommitmentRespository = new Mock<ICommitmentRepository>();
             MockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
 
@@ -38,10 +33,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockHistoryRepository = new Mock<IHistoryRepository>();
             MockDataLockRepository = new Mock<IDataLockRepository>();
 
-         MockCurrentDateTime = new Mock<ICurrentDateTime>();
+            MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
             MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
+
+
+            MockCommitmentsLogger = new Mock<ICommitmentsLogger>();
 
             Handler = new UpdateApprenticeshipStatusCommandHandler(
                 MockCommitmentRespository.Object,
@@ -49,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 new UpdateApprenticeshipStatusValidator(),
                 MockCurrentDateTime.Object,
                 MockEventsApi.Object,
-                Mock.Of<ICommitmentsLogger>(),
+                MockCommitmentsLogger.Object,
                 MockHistoryRepository.Object,
                 MockDataLockRepository.Object,
                 MockAcademicYearValidator.Object);
