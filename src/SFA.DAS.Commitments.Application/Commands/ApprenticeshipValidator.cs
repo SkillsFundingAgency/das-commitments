@@ -91,8 +91,7 @@ namespace SFA.DAS.Commitments.Application.Commands
         private void ValidateStartDate()
         {
             RuleFor(x => x.StartDate)
-                .GreaterThanOrEqualTo(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null)
-                .Must(BeWithinAcademicYearFundingPeriod);
+                .GreaterThanOrEqualTo(new DateTime(2017, 5, 1)).Unless(x => x.StartDate == null);
         }
 
         private void ValidateEndDate()
@@ -161,23 +160,6 @@ namespace SFA.DAS.Commitments.Application.Commands
         {
             var result = _ulnValidator.Validate(uln);
             return (result == UlnValidationResult.Success || result == UlnValidationResult.IsEmptyUlnNumber);
-        }
-
-         private bool BeWithinAcademicYearFundingPeriod(DateTime? startDate)
-        {
-            if (!startDate.HasValue)
-            {
-                return true;
-            }
-
-            var result = _academicYearValidator.Validate(startDate.Value);
-
-            if (result == AcademicYearValidationResult.NotWithinFundingPeriod)
-            {
-                return false;
-            }
-
-            return true;
         }
 
     }
