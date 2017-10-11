@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             _validCommand = new TriageDataLockCommand
             {
                 ApprenticeshipId = 10082,
-                TriageStatus = Domain.Entities.DataLock.TriageStatus.Change,
+                TriageStatus = TriageStatus.Change,
                 UserId = "testuser"
             };
 
@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
         public async Task ShouldWork()
         {
             await _sut.Handle(_validCommand);
-            _dataLockRepository.Verify(m => m.UpdateDataLockTriageStatus(It.IsAny<IEnumerable<long>>(), Domain.Entities.DataLock.TriageStatus.Change), Times.Once);
+            _dataLockRepository.Verify(m => m.UpdateDataLockTriageStatus(It.IsAny<IEnumerable<long>>(), TriageStatus.Change), Times.Once);
         }
 
         [Test]
@@ -74,8 +74,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             Func<Task> act = async () => await _sut.Handle(_validCommand);
             act.ShouldThrow<ValidationException>();
         }
+
         [Test]
-        public async Task ShouldIgnoreCourseMismatch()
+        public async Task ShouldIgnorePassedDatalocks()
         {
             _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
                 .ReturnsAsync(new List<DataLockStatus>{
@@ -83,18 +84,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
                                           {
                                               ApprenticeshipId = _validCommand.ApprenticeshipId,
                                               DataLockEventId = 1,
-                                              ErrorCode = DataLockErrorCode.Dlock07
+                                              ErrorCode = DataLockErrorCode.Dlock07,
+                                              Status = Status.Pass
                                           },
                                       new DataLockStatus
                                           {
                                               ApprenticeshipId = _validCommand.ApprenticeshipId,
                                               DataLockEventId = 2,
-                                              ErrorCode = DataLockErrorCode.Dlock03
+                                              ErrorCode = DataLockErrorCode.Dlock03,
+                                              
+                                          },
+                                      new DataLockStatus
+                                          {
+                                              ApprenticeshipId = _validCommand.ApprenticeshipId,
+                                              DataLockEventId = 3,
+                                              ErrorCode = DataLockErrorCode.Dlock07,
+                                              Status = Status.Pass
                                           }
                 });
 
             await _sut.Handle(_validCommand);
-            _dataLockRepository.Verify(m => m.UpdateDataLockTriageStatus(It.Is<IEnumerable<long>>(q => q.All(ss => ss == 1)), Domain.Entities.DataLock.TriageStatus.Change), Times.Once);
+            _dataLockRepository.Verify(m => 
+                m.UpdateDataLockTriageStatus(It.Is<IEnumerable<long>>(ids => ids.All(dataLockEventId => dataLockEventId  == 1 || dataLockEventId == 2)), TriageStatus.Change)
+                , Times.Once);
         }
     }
 }
