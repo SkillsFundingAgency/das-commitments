@@ -17,8 +17,6 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId);
 
-        Task SupercedeApprenticeshipUpdate(long apprenticeshipUpdateId);
-
         Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate);
 
         Task ExpireApprenticeshipUpdate(long apprenticeshipUpdateId);
