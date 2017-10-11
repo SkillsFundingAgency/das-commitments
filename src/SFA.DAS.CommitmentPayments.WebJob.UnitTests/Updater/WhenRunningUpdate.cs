@@ -263,7 +263,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                     ErrorCode = errorCode
                 }
             };
-            _paymentEvents = new Mock<IPaymentEvents>();
+
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
 
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
@@ -276,8 +276,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             _apprenticeshipUpdateRepository.Setup(x => x.ExpireApprenticeshipUpdate(It.IsAny<long>()))
                 .Returns(() => Task.FromResult(0L));
-
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
@@ -310,7 +308,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                     ErrorCode = errorCode
                 }
             };
-            _paymentEvents = new Mock<IPaymentEvents>();
+            
             _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
 
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
@@ -324,8 +322,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             _apprenticeshipUpdateRepository.Setup(x => x.ExpireApprenticeshipUpdate(It.IsAny<long>()))
                 .Returns(() => Task.FromResult(0L));
-
-            _dataLockUpdater = new DataLockUpdater(Mock.Of<ILog>(), _paymentEvents.Object, _dataLockRepository.Object, _apprenticeshipUpdateRepository.Object, _config, Mock.Of<IFilterOutAcademicYearRollOverDataLocks>());
 
             //Act
             await _dataLockUpdater.RunUpdate();
