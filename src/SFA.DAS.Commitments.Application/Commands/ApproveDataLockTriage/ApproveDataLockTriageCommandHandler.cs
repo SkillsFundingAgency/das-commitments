@@ -57,7 +57,6 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             var dataLockPriceErrors = datalocks
                 .Where(DataLockExtensions.UnHandled)
-                .Where(DataLockExtensions.IsPriceOnly)
                 .Where(m => m.TriageStatus == TriageStatus.Change)
                 .ToList();
 
@@ -91,8 +90,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             // One call to repository?
             await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
-            await _dataLockRepository.ResolveDataLock(
-                dataLockPriceErrors.Select(m => m.DataLockEventId));
+            await _dataLockRepository.ResolveDataLock(dataLockPriceErrors.Select(m => m.DataLockEventId));
 
             await PublishEvents(command.ApprenticeshipId);
         }

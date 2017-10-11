@@ -42,7 +42,6 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage
 
             var dataLockPriceErrors = datalocks
                 .Where(DataLockExtensions.UnHandled)
-                .Where(DataLockExtensions.IsPriceOnly)
                 .Where(x => x.TriageStatus == TriageStatus.Change)
                 .ToList();
 
