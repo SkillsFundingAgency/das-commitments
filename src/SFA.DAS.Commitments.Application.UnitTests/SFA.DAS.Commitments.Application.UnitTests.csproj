@@ -126,8 +126,8 @@
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenPausingAnInvalidApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenResumingAnAwaitingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenResumingAnInvalidApprenticeship.cs" />
-    <Compile Include="Commands\UpdateApprenticeshipStatus\WhenResumingAStartedApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenPausingAStartedApprenticeship.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStatus\WhenResumingAStartedApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenStoppingAnAwaitingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenStoppingAnInvalidApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenStoppingAStartedApprenticeship.cs" />

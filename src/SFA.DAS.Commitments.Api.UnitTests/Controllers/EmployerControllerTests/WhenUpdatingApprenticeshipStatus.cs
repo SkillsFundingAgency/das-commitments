@@ -51,9 +51,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public void ThenWhenRequestingInvalidChangeThrowsException(PaymentStatus invalidStatus)
         {
             Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await
-                _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
-                    new ApprenticeshipSubmission { PaymentStatus = invalidStatus }))
-                    .Message.Should().Contain("Not a valid value for change of status");
+                    _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
+                        new ApprenticeshipSubmission {PaymentStatus = invalidStatus}))
+                .Message.Should().Contain("Not a valid value for change of status");
         }
 
         [TestCase(PaymentStatus.Active)]
@@ -62,10 +62,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public void ThenWhenRequestingAValidChangeDoesNotThrowException(PaymentStatus validStatus)
         {
             Assert.DoesNotThrowAsync(async () => await
-                    _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
-                        new ApprenticeshipSubmission { PaymentStatus = validStatus }));
+                _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
+                    new ApprenticeshipSubmission {PaymentStatus = validStatus}));
         }
-
 
 
         [Test]
@@ -76,34 +75,20 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 
             Assert.ThrowsAsync<ValidationException>(async () => await
                 _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
-                    new ApprenticeshipSubmission { PaymentStatus = PaymentStatus.Active }));
+                    new ApprenticeshipSubmission {PaymentStatus = PaymentStatus.Active}));
         }
 
         [Test]
         public async Task ThenANoContentCodeIsReturnedOnSuccess()
         {
             var result = await _controller.PatchApprenticeship(
-                                TestProviderId,
-                                TestApprenticeshipId,
-                                new ApprenticeshipSubmission { PaymentStatus = PaymentStatus.Active });
+                TestProviderId,
+                TestApprenticeshipId,
+                new ApprenticeshipSubmission {PaymentStatus = PaymentStatus.Active});
 
             result.Should().BeOfType<StatusCodeResult>();
 
             (result as StatusCodeResult).StatusCode.Should().Be(HttpStatusCode.NoContent);
-        }
-
-        [Test]
-        public async Task ThenTheMediatorIsCalledToStopAnApprenticeship()
-        {
-            var userName = "Bob";
-            await _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
-                new ApprenticeshipSubmission
-                {
-                    PaymentStatus = PaymentStatus.Withdrawn,
-                    LastUpdatedByInfo = new LastUpdateInfo { Name = userName }
-                });
-
-            _mockMediator.Verify(x => x.SendAsync(It.Is<StopApprenticeshipCommand>(y => y.UserName == userName)));
         }
 
         [Test]
@@ -114,7 +99,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 new ApprenticeshipSubmission
                 {
                     PaymentStatus = PaymentStatus.Paused,
-                    LastUpdatedByInfo = new LastUpdateInfo { Name = userName }
+                    LastUpdatedByInfo = new LastUpdateInfo {Name = userName}
                 });
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<PauseApprenticeshipCommand>(y => y.UserName == userName)));
@@ -128,12 +113,24 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 new ApprenticeshipSubmission
                 {
                     PaymentStatus = PaymentStatus.Active,
-                    LastUpdatedByInfo = new LastUpdateInfo { Name = userName }
+                    LastUpdatedByInfo = new LastUpdateInfo {Name = userName}
                 });
 
             _mockMediator.Verify(x => x.SendAsync(It.Is<ResumeApprenticeshipCommand>(y => y.UserName == userName)));
         }
 
+        [Test]
+        public async Task ThenTheMediatorIsCalledToStopAnApprenticeship()
+        {
+            var userName = "Bob";
+            await _controller.PatchApprenticeship(TestProviderId, TestApprenticeshipId,
+                new ApprenticeshipSubmission
+                {
+                    PaymentStatus = PaymentStatus.Withdrawn,
+                    LastUpdatedByInfo = new LastUpdateInfo {Name = userName}
+                });
 
+            _mockMediator.Verify(x => x.SendAsync(It.Is<StopApprenticeshipCommand>(y => y.UserName == userName)));
+        }
     }
 }

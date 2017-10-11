@@ -11,8 +11,6 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -24,25 +22,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private ResumeApprenticeshipCommand _exampleValidRequest;
         private Apprenticeship _testApprenticeship;
 
+        private Mock<IAcademicYearDateProvider> _mockAcademicYearDateProvider;
+        private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private Mock<ICurrentDateTime> _mockCurrentDateTime;
         private Mock<IApprenticeshipEvents> _mockEventsApi;
         private Mock<IHistoryRepository> _mockHistoryRepository;
-       private ResumeApprenticeshipCommandHandler _handler;
+        private ResumeApprenticeshipCommandHandler _handler;
         private Mock<ICommitmentsLogger> _mockCommitmentsLogger;
 
 
         [SetUp]
         public void SetUp()
         {
+            _mockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
+            _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _mockEventsApi = new Mock<IApprenticeshipEvents>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockCurrentDateTime = new Mock<ICurrentDateTime>();
-           _mockCommitmentsLogger = new Mock<ICommitmentsLogger>();
+            _mockCommitmentsLogger = new Mock<ICommitmentsLogger>();
 
             _handler = new ResumeApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
@@ -51,13 +53,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mockCurrentDateTime.Object,
                 _mockEventsApi.Object,
                 _mockCommitmentsLogger.Object,
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                _mockAcademicYearDateProvider.Object,
+                _mockAcademicYearValidator.Object);
+
+
+            _mockAcademicYearDateProvider.Setup((x) => x.CurrentAcademicYearStartDate)
+                .Returns(new DateTime(2015, 8, 1));
+            _mockAcademicYearDateProvider.Setup((x) => x.CurrentAcademicYearEndDate)
+                .Returns(new DateTime(2016, 7, 31));
+            _mockAcademicYearDateProvider.Setup((x) => x.LastAcademicYearFundingPeriod)
+                .Returns(new DateTime(2016, 10, 19, 18, 0, 0, 0));
+            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2016, 6, 1));
 
             _exampleValidRequest = new ResumeApprenticeshipCommand
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                DateOfChange = DateTime.Now.Date,
+                DateOfChange = _mockCurrentDateTime.Object.Now.Date,
                 UserName = "Bob"
             };
 
@@ -65,22 +78,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Paused,
-                PauseDate =  DateTime.Today.AddMonths(-2).Date,
-                StartDate = DateTime.UtcNow.Date.AddMonths(6)
+                StartDate = _mockAcademicYearDateProvider.Object.CurrentAcademicYearEndDate,
+                PauseDate = _mockAcademicYearDateProvider.Object.CurrentAcademicYearStartDate
             };
 
-            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(
                         It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId)
                                                                 ))
                                         .ReturnsAsync(_testApprenticeship);
 
-            _mockApprenticeshipRespository.Setup(x => 
+            _mockApprenticeshipRespository.Setup(x =>
                 x.UpdateApprenticeshipStatus(
-                        It.Is<long>(c => c == _testApprenticeship.CommitmentId), 
-                        It.Is<long>(a=>a == _exampleValidRequest.ApprenticeshipId), 
-                        It.Is<PaymentStatus>( s => s == PaymentStatus.Active )
+                        It.Is<long>(c => c == _testApprenticeship.CommitmentId),
+                        It.Is<long>(a => a == _exampleValidRequest.ApprenticeshipId),
+                        It.Is<PaymentStatus>(s => s == PaymentStatus.Active)
                 ))
                 .Returns(Task.FromResult(new object()));
 
@@ -96,7 +108,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public async Task ThenItShouldLogTheRequest()
         {
-           
+
             await _handler.Handle(_exampleValidRequest);
 
             _mockCommitmentsLogger.Verify(logger =>
@@ -167,9 +179,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public void ThenThrowsExceptionIfChangeDateNotEqualToCurrentDate()
+        public void ThenThrowsExceptionIfChangeDateNotEqualToTodaysDate()
         {
-            _exampleValidRequest.DateOfChange = DateTime.UtcNow.AddMonths(1).Date;
+            _exampleValidRequest.DateOfChange = _mockCurrentDateTime.Object.Now.Date.AddDays(1).Date;
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 

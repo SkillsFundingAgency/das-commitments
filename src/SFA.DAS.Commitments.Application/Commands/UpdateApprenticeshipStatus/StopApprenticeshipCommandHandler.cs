@@ -62,30 +62,33 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 throw new ValidationException(validationResult.Errors);
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
+
             CheckAuthorization(command, commitment);
 
-            var newPaymentStatus = PaymentStatus.Withdrawn;
+            ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
 
-            await SaveChange(command, commitment, apprenticeship, newPaymentStatus);
+            await SaveChange(command, commitment, apprenticeship);
 
-            await CreateEvent(command, apprenticeship, commitment, newPaymentStatus);
+            await CreateEvent(command, apprenticeship, commitment);
         }
 
-        private async Task CreateEvent(StopApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
+        private async Task CreateEvent(StopApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment)
         {
-            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
+            await _eventsApi.PublishChangeApprenticeshipStatusEvent(
+                commitment, apprenticeship, 
+                apprenticeship.PaymentStatus, 
+                effectiveFrom: command.DateOfChange.Date);
         }
 
-        private async Task SaveChange(StopApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
+        private async Task SaveChange(StopApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship)
         {
             var historyService = new HistoryService(_historyRepository);
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
 
-            apprenticeship.PaymentStatus = newPaymentStatus;
-
-            ValidateChangeDateForStop(command.DateOfChange, apprenticeship);
-
+            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+           
             await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
 
             await ResolveAnyTriagedCourseDataLocks(command.ApprenticeshipId);
@@ -96,7 +99,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private async Task ResolveAnyTriagedCourseDataLocks(long apprenticeshipId)
         {
             var dataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId))
-                                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode));
+                                .Where(x => !x.IsResolved && x.TriageStatus == TriageStatus.Restart && IsCourseChangeError(x.ErrorCode)).ToList();
 
             if (dataLocks.Any())
             {
@@ -115,14 +118,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         private bool IsCourseChangeError(DataLockErrorCode errorCode)
         {
-            if ((errorCode & CourseChangeErrors) > 0)
-                return true;
-
-            return false;
+            return (errorCode & CourseChangeErrors) > 0;
         }
 
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {
+            if (apprenticeship == null) throw new ArgumentException(nameof(apprenticeship));
+          
             if (apprenticeship.IsWaitingToStart(_currentDate))
             {
                 if (dateOfChange.Date != apprenticeship.StartDate.Value.Date)
@@ -133,7 +135,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                 if (dateOfChange.Date > _currentDate.Now.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
-                if (dateOfChange.Date < apprenticeship.StartDate.Value.Date)
+                if ( dateOfChange.Date < apprenticeship.StartDate.Value.Date)
                     throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
 
                 if (_academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)

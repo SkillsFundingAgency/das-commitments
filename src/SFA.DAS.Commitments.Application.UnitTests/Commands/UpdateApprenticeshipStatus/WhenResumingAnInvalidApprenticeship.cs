@@ -15,6 +15,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenResumingAnInvalidApprenticeship
     {
+        private Mock<IAcademicYearDateProvider> _mockAcademicYearDateProvider;
+        private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         private ResumeApprenticeshipCommand _exampleValidRequest;
         private Apprenticeship _testApprenticeship;
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
@@ -29,6 +31,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void SetUp()
         {
+            _mockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
+            _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
@@ -44,13 +48,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mockCurrentDateTime.Object,
                 _mockEventsApi.Object,
                 _mockCommitmentsLogger.Object,
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                _mockAcademicYearDateProvider.Object,
+                _mockAcademicYearValidator.Object);
 
+
+            _mockAcademicYearDateProvider.Setup((x) => x.CurrentAcademicYearStartDate)
+                .Returns(new DateTime(2015, 8, 1));
+            _mockAcademicYearDateProvider.Setup((x) => x.CurrentAcademicYearEndDate)
+                .Returns(new DateTime(2016, 7, 31));
+            _mockAcademicYearDateProvider.Setup((x) => x.LastAcademicYearFundingPeriod)
+                .Returns(new DateTime(2016, 10, 19, 18, 0, 0, 0));
+
+            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2016, 6, 1));
+
+      
             _exampleValidRequest = new ResumeApprenticeshipCommand
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                DateOfChange = DateTime.Now.Date,
+                DateOfChange = _mockCurrentDateTime.Object.Now.Date,
                 UserName = "Bob"
             };
 
@@ -58,12 +75,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Paused,
-                PauseDate = DateTime.Today.AddMonths(-2).Date,
-                StartDate = DateTime.UtcNow.Date.AddMonths(6)
+                PauseDate = _mockCurrentDateTime.Object.Now.AddMonths(-2).Date,
+                StartDate = _mockCurrentDateTime.Object.Now.Date.AddMonths(6)
             };
 
-            _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
-
+            
             _mockApprenticeshipRespository.Setup(x => x.GetApprenticeship(
                     It.Is<long>(y => y == _exampleValidRequest.ApprenticeshipId)
                 ))

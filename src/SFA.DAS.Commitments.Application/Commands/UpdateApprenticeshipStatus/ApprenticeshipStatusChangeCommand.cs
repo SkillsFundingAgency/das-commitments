@@ -1,12 +1,10 @@
-﻿using MediatR;
-using System;
-
+﻿using System;
+using MediatR;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
-    public abstract class ApprenticeshipStatusChangeCommand: IAsyncRequest
+    public abstract class ApprenticeshipStatusChangeCommand : IAsyncRequest
     {
         public long AccountId { get; set; }
         public long ApprenticeshipId { get; set; }

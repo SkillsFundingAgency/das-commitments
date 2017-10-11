@@ -14,14 +14,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class PauseApprenticeshipCommandHandler : AsyncRequestHandler<PauseApprenticeshipCommand>
     {
-        private readonly ICommitmentRepository _commitmentRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-        private readonly ApprenticeshipStatusChangeCommandValidator _validator;
+        private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICurrentDateTime _currentDate;
-        private readonly ICommitmentsLogger _logger;
-        private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEvents _eventsApi;
-      
+        private readonly IHistoryRepository _historyRepository;
+        private readonly ICommitmentsLogger _logger;
+        private readonly ApprenticeshipStatusChangeCommandValidator _validator;
+
         public PauseApprenticeshipCommandHandler(
             ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository,
@@ -43,7 +43,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
         protected override async Task HandleCore(PauseApprenticeshipCommand command)
         {
-            _logger.Info($"Employer: {command.AccountId} has called PauseApprenticeshipCommand", accountId: command.AccountId, apprenticeshipId: command.ApprenticeshipId, caller: command.Caller);
+            _logger.Info($"Employer: {command.AccountId} has called PauseApprenticeshipCommand", command.AccountId,
+                apprenticeshipId: command.ApprenticeshipId, caller: command.Caller);
 
             var validationResult = _validator.Validate(command);
 
@@ -56,36 +57,38 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             CheckAuthorization(command, commitment);
 
-            var newPaymentStatus = PaymentStatus.Paused;
+            ValidateChangeDate(command.DateOfChange);
 
-            await SaveChange(command, commitment, apprenticeship, newPaymentStatus);
 
-            await CreateEvent(command, apprenticeship, commitment, newPaymentStatus);
+            await SaveChange(command, commitment, apprenticeship);
+
+            await CreateEvent(command, apprenticeship, commitment);
         }
 
-        private async Task CreateEvent(PauseApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment, PaymentStatus newPaymentStatus)
+        private async Task CreateEvent(PauseApprenticeshipCommand command, Apprenticeship apprenticeship,
+            Commitment commitment)
         {
-
-            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, newPaymentStatus, effectiveFrom: command.DateOfChange.Date);
-
+            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, PaymentStatus.Paused,
+                command.DateOfChange.Date);
         }
 
-        private async Task SaveChange(PauseApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship, PaymentStatus newPaymentStatus)
+        private async Task SaveChange(PauseApprenticeshipCommand command, Commitment commitment,
+            Apprenticeship apprenticeship)
         {
             var historyService = new HistoryService(_historyRepository);
 
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(), apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(),
+                apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
 
-            apprenticeship.PaymentStatus = newPaymentStatus;
+            apprenticeship.PaymentStatus = PaymentStatus.Paused;
 
-            ValidateChangeDateForPauseResume(command.DateOfChange);
-
-            await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId, newPaymentStatus, command.DateOfChange);
+            await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId,
+                apprenticeship.PaymentStatus, command.DateOfChange);
 
             await historyService.Save();
         }
 
-        private void ValidateChangeDateForPauseResume(DateTime dateOfChange)
+        private void ValidateChangeDate(DateTime dateOfChange)
         {
             if (dateOfChange.Date > _currentDate.Now.Date)
                 throw new ValidationException("Invalid Date of Change. Date should be todays date.");
@@ -94,7 +97,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private static void CheckAuthorization(PauseApprenticeshipCommand message, Commitment commitment)
         {
             if (commitment.EmployerAccountId != message.AccountId)
-                throw new UnauthorizedException($"Employer {message.AccountId} not authorised to access commitment {commitment.Id}, expected employer {commitment.EmployerAccountId}");
+                throw new UnauthorizedException(
+                    $"Employer {message.AccountId} not authorised to access commitment {commitment.Id}, expected employer {commitment.EmployerAccountId}");
         }
     }
 }
