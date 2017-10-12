@@ -349,7 +349,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@apprenticeshipId", apprenticeshipId, DbType.Int64);
-                parameters.Add("@hasHadDataLockSuccess", 1, DbType.Binary);
+                parameters.Add("@hasHadDataLockSuccess", 1, DbType.Boolean);
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
