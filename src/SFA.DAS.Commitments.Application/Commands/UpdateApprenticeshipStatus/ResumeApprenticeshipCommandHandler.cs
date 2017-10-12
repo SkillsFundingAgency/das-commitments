@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         {
             if (apprenticeship.IsWaitingToStart(_currentDate)) return;
             
-            if (_academicYearValidator.Validate(_currentDate.Now.Date) ==
+            if (_academicYearValidator.Validate(apprenticeship.PauseDate.Value.Date) ==
                 AcademicYearValidationResult.NotWithinFundingPeriod)
             {
                 if (dateOfChange.Date != _academicYearDateProvider.CurrentAcademicYearStartDate.Date)

@@ -121,12 +121,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 null));
         }
 
-        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-8-1", true, false)]
-        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-10-18", true, false)]
-        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-1-1", "2017-10-18", false, false)]
-        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-10-20", false, true)]
-        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-1-1", "2017-10-20", false, true)]
-        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-8-1", "2017-10-20", true, false)]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-8-1", "2017-9-1", "2017-9-1", "2017-10-1", true, false ,"Inside Academic year, and is correct")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-8-1", "2017-9-1", "2017-10-1", "2017-10-1", false, false, "Inside Academic year and is not correct before R14 Cutoff")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-8-1", true, false, "Paused Last Academic year and is correct before R14 Cutoff")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-10-18", true, false, "Paused Last Academic year and is correct before R14 Cutoff")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-1-1", "2017-10-18", false, false, "Paused Last Academic year and is not correct before R14 Cutoff")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-10-20", false, true, "Paused Last Academic year and is not correct  after R14 Cutoff")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-1-1", "2017-10-20", false, true, "Paused Last Academic year and is not correct after R14 Cutoff")]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-8-1", "2017-10-20", true, false, "Paused Last Academic year and is correct after R14 Cutoff")]
         public void ThenItValidatesDataofChangeAccordingToAcademicYearRule(
             DateTime academicYearStart,
             DateTime academicYearEnd,
@@ -136,7 +138,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             DateTime resumeDate,
             DateTime timeNow,
             bool expectToPassValidation, 
-            bool validatesOnStartDate)
+            bool validatesOnStartDate, string scenario)
         {
             MockAcademicYearDateProvider.Setup(y => y.CurrentAcademicYearStartDate).Returns(academicYearStart);
             MockAcademicYearDateProvider.Setup(y => y.CurrentAcademicYearEndDate).Returns(academicYearEnd);
