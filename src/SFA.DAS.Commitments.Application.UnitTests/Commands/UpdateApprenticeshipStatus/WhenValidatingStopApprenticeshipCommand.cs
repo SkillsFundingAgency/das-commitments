@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
@@ -8,16 +7,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenValidatingStopApprenticeshipCommand
     {
-        private ApprenticeshipStatusChangeCommandValidator _validator;
-        private StopApprenticeshipCommand _exampleCommand;
-
         [SetUp]
         public void Setup()
         {
-
             _validator = new ApprenticeshipStatusChangeCommandValidator();
             _exampleCommand = new StopApprenticeshipCommand {AccountId = 1L, ApprenticeshipId = 444L};
         }
+
+        private ApprenticeshipStatusChangeCommandValidator _validator;
+        private StopApprenticeshipCommand _exampleCommand;
 
         [TestCase(0)]
         [TestCase(-2)]
@@ -40,6 +38,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             result.IsValid.Should().BeFalse();
         }
-
     }
 }

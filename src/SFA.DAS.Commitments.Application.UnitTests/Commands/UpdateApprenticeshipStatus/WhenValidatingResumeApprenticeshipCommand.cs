@@ -7,16 +7,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenValidatingResumeApprenticeshipCommand
     {
-        private ApprenticeshipStatusChangeCommandValidator _validator;
-        private ResumeApprenticeshipCommand _exampleCommand;
-
         [SetUp]
         public void Setup()
         {
-
             _validator = new ApprenticeshipStatusChangeCommandValidator();
-            _exampleCommand = new ResumeApprenticeshipCommand { AccountId = 1L, ApprenticeshipId = 444L };
+            _exampleCommand = new ResumeApprenticeshipCommand {AccountId = 1L, ApprenticeshipId = 444L};
         }
+
+        private ApprenticeshipStatusChangeCommandValidator _validator;
+        private ResumeApprenticeshipCommand _exampleCommand;
 
         [TestCase(0)]
         [TestCase(-2)]
@@ -39,6 +38,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             result.IsValid.Should().BeFalse();
         }
-       
     }
 }
