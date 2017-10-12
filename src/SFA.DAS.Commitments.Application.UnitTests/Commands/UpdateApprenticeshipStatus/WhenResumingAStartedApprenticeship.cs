@@ -22,9 +22,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             base.SetUp();
 
-            SetupCommonAcademicYear();
 
-            PauseAndResumeCurrentAcademicYear();
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 1));
+
+            var startDate = MockCurrentDateTime.Object.Now.Date.AddMonths(-6);
+            var pauseDate = startDate.AddMonths(1);
+
+            TestApprenticeship = new Apprenticeship
+            {
+                CommitmentId = 123L,
+                PaymentStatus = PaymentStatus.Paused,
+                StartDate = startDate,
+                PauseDate = pauseDate
+            };
+
+            ExampleValidRequest = new ResumeApprenticeshipCommand
+            {
+                AccountId = 111L,
+                ApprenticeshipId = 444L,
+                DateOfChange = MockCurrentDateTime.Object.Now.Date,
+                UserName = "Bob"
+            };
 
             MockApprenticeshipRespository.Setup(x =>
                     x.GetApprenticeship(It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId)))
@@ -45,94 +63,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     Id = 123L,
                     EmployerAccountId = ExampleValidRequest.AccountId
                 });
-        }
-
-
-        private void SetupCommonAcademicYear()
-        {
-            MockAcademicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate)
-                .Returns(new DateTime(2015, 8, 1));
-            MockAcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate)
-                .Returns(new DateTime(2016, 7, 31));
-            MockAcademicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod)
-                .Returns(new DateTime(2016, 10, 19, 18, 0, 0, 0));
-        }
-
-        private void PauseAndResumeCurrentAcademicYear()
-        {
-            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2016, 6, 1));
-
-            var startDate = MockAcademicYearDateProvider.Object.CurrentAcademicYearStartDate.Date;
-            var pauseDate = startDate.AddMonths(5);
-
-            TestApprenticeship = new Apprenticeship
-            {
-                CommitmentId = 123L,
-                PaymentStatus = PaymentStatus.Paused,
-                StartDate = startDate,
-                PauseDate = pauseDate
-            };
-
-            ExampleValidRequest = new ResumeApprenticeshipCommand
-            {
-                AccountId = 111L,
-                ApprenticeshipId = 444L,
-                DateOfChange = MockCurrentDateTime.Object.Now.Date,
-                UserName = "Bob"
-            };
-        }
-
-        private void PauseInLastAcademicYearResumeAfterCutoff()
-        {
-            MockCurrentDateTime.SetupGet(x => x.Now)
-                .Returns(MockAcademicYearDateProvider.Object
-                    .LastAcademicYearFundingPeriod.AddDays(-1));
-
-            var startDate = MockAcademicYearDateProvider.Object
-                .CurrentAcademicYearStartDate.Date.AddMonths(-6);
-            var pauseDate = startDate.AddMonths(3);
-
-            TestApprenticeship = new Apprenticeship
-            {
-                CommitmentId = 123L,
-                PaymentStatus = PaymentStatus.Paused,
-                StartDate = startDate,
-                PauseDate = pauseDate
-            };
-
-            ExampleValidRequest = new ResumeApprenticeshipCommand
-            {
-                AccountId = 111L,
-                ApprenticeshipId = 444L,
-                DateOfChange = MockCurrentDateTime.Object.Now.Date,
-                UserName = "Bob"
-            };
-        }
-
-        private void PauseInLastAcademicYearBeforeCutoff()
-        {
-            MockCurrentDateTime.SetupGet(x => x.Now)
-                .Returns(MockAcademicYearDateProvider.Object
-                    .LastAcademicYearFundingPeriod.AddDays(1));
-
-            var startDate = MockAcademicYearDateProvider.Object.CurrentAcademicYearStartDate.Date;
-            var pauseDate = startDate.AddMonths(5);
-
-            TestApprenticeship = new Apprenticeship
-            {
-                CommitmentId = 123L,
-                PaymentStatus = PaymentStatus.Paused,
-                StartDate = startDate,
-                PauseDate = pauseDate
-            };
-
-            ExampleValidRequest = new ResumeApprenticeshipCommand
-            {
-                AccountId = 111L,
-                ApprenticeshipId = 444L,
-                DateOfChange = MockCurrentDateTime.Object.Now.Date,
-                UserName = "Bob"
-            };
         }
 
 

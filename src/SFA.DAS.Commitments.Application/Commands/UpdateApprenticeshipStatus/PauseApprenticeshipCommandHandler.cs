@@ -79,11 +79,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(),
                 apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
+          
+            await _apprenticeshipRepository.PauseApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
 
             apprenticeship.PaymentStatus = PaymentStatus.Paused;
-
-            await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId,
-                apprenticeship.PaymentStatus, command.DateOfChange);
 
             await historyService.Save();
         }

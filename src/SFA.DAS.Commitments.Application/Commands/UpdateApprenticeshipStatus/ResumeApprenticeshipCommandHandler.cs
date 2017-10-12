@@ -14,8 +14,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class ResumeApprenticeshipCommandHandler : AsyncRequestHandler<ResumeApprenticeshipCommand>
     {
-        private readonly IAcademicYearDateProvider _academicYearDateProvider;
-        private readonly IAcademicYearValidator _academicYearValidator;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICurrentDateTime _currentDate;
@@ -31,9 +29,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICurrentDateTime currentDate,
             IApprenticeshipEvents eventsApi,
             ICommitmentsLogger logger,
-            IHistoryRepository historyRepository, 
-            IAcademicYearDateProvider academicYearDateProvider, 
-            IAcademicYearValidator academicYearValidator)
+            IHistoryRepository historyRepository)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -42,8 +38,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _eventsApi = eventsApi;
             _logger = logger;
             _historyRepository = historyRepository;
-            _academicYearDateProvider = academicYearDateProvider;
-            _academicYearValidator = academicYearValidator;
         }
 
         protected override async Task HandleCore(ResumeApprenticeshipCommand command)
@@ -89,17 +83,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStatus.ToString(),
                 apprenticeship.Id, "Apprenticeship", CallerType.Employer, command.UserId, command.UserName);
 
-            apprenticeship.PaymentStatus = PaymentStatus.Active;
+            await _apprenticeshipRepository.ResumeApprenticeship(commitment.Id, command.ApprenticeshipId);
 
-            await _apprenticeshipRepository.PauseOrResumeApprenticeship(commitment.Id, command.ApprenticeshipId,
-                apprenticeship.PaymentStatus, null);
+            apprenticeship.PaymentStatus = PaymentStatus.Active;
 
             await historyService.Save();
         }
 
         private void ValidateChangeDate(DateTime dateOfChange)
         {
-            if (dateOfChange.Date != _currentDate.Now.Date)
+            if (dateOfChange.Date > _currentDate.Now.Date)
                 throw new ValidationException("Invalid Date of Change. Date should be todays date.");
         }
 

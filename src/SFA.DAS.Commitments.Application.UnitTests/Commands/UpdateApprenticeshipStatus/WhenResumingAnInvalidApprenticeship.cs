@@ -18,36 +18,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             base.SetUp();
 
-            MockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
-            MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
-
-            MockCommitmentRespository = new Mock<ICommitmentRepository>();
-            MockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
-            MockEventsApi = new Mock<IApprenticeshipEvents>();
-            MockHistoryRepository = new Mock<IHistoryRepository>();
-            MockCurrentDateTime = new Mock<ICurrentDateTime>();
-            MockCommitmentsLogger = new Mock<ICommitmentsLogger>();
-
-            Handler = new ResumeApprenticeshipCommandHandler(
-                MockCommitmentRespository.Object,
-                MockApprenticeshipRespository.Object,
-                new ApprenticeshipStatusChangeCommandValidator(),
-                MockCurrentDateTime.Object,
-                MockEventsApi.Object,
-                MockCommitmentsLogger.Object,
-                MockHistoryRepository.Object,
-                MockAcademicYearDateProvider.Object,
-                MockAcademicYearValidator.Object);
-
-
-            MockAcademicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate)
-                .Returns(new DateTime(2015, 8, 1));
-            MockAcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate)
-                .Returns(new DateTime(2016, 7, 31));
-            MockAcademicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod)
-                .Returns(new DateTime(2016, 10, 19, 18, 0, 0, 0));
-
-            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2016, 6, 1));
+          
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 1));
 
 
             ExampleValidRequest = new ResumeApprenticeshipCommand

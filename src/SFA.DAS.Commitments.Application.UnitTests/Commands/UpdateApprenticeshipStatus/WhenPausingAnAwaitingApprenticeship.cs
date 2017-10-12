@@ -105,11 +105,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             await Handler.Handle(ExampleValidRequest);
 
-            MockApprenticeshipRespository.Verify(x => x.PauseOrResumeApprenticeship(
+            MockApprenticeshipRespository.Verify(x => x.PauseApprenticeship(
                 It.Is<long>(a => a == 123L),
                 It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<PaymentStatus>(a => a == PaymentStatus.Paused),
-                It.Is<DateTime?>(a => a == ExampleValidRequest.DateOfChange)));
+                It.Is<DateTime>(a => a == ExampleValidRequest.DateOfChange)
+            ));
         }
 
         [Test]

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using SFA.DAS.Commitments.Domain.Entities;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace SFA.DAS.Commitments.Domain.Data
 {
@@ -15,7 +13,9 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task StopApprenticeship(long commitmentId, long apprenticeshipId, DateTime dateOfChange);
 
-        Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime? pauseDate);
+        Task ResumeApprenticeship(long commitmentId, long apprenticeshipId);
+
+        Task PauseApprenticeship(long commitmentId, long apprenticeshipId, DateTime pauseDate);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 

@@ -23,14 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             base.SetUp();
 
-
-            MockAcademicYearDateProvider.Setup(x => x.CurrentAcademicYearStartDate)
-                .Returns(new DateTime(2015, 8, 1));
-            MockAcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate)
-                .Returns(new DateTime(2016, 7, 31));
-            MockAcademicYearDateProvider.Setup(x => x.LastAcademicYearFundingPeriod)
-                .Returns(new DateTime(2016, 10, 19, 18, 0, 0, 0));
-            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2016, 6, 1));
+            MockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 6, 1));
 
             ExampleValidRequest = new ResumeApprenticeshipCommand
             {
@@ -44,8 +37,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Paused,
-                StartDate = MockAcademicYearDateProvider.Object.CurrentAcademicYearEndDate,
-                PauseDate = MockAcademicYearDateProvider.Object.CurrentAcademicYearStartDate
+                StartDate = MockCurrentDateTime.Object.Now.Date.AddMonths(3),
+                PauseDate = MockCurrentDateTime.Object.Now.Date.AddMonths(-3)
             };
 
 
@@ -122,11 +115,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         {
             await Handler.Handle(ExampleValidRequest);
 
-            MockApprenticeshipRespository.Verify(x => x.PauseOrResumeApprenticeship(
+            MockApprenticeshipRespository.Verify(x => x.ResumeApprenticeship(
                 It.Is<long>(a => a == 123L),
-                It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId),
-                It.Is<PaymentStatus>(a => a == PaymentStatus.Active),
-                It.Is<DateTime?>(a => a == null as DateTime?)));
+                It.Is<long>(a => a == ExampleValidRequest.ApprenticeshipId)));
         }
 
         [Test]
