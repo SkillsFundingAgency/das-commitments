@@ -121,17 +121,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public void ThenThrowsExceptionIfChangeDateNotEqualToTodaysDate()
-        {
-            ExampleValidRequest.DateOfChange = MockCurrentDateTime.Object.Now.Date.AddDays(1).Date;
-
-            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
-
-            act.ShouldThrow<ValidationException>().Which.Message.Should()
-                .Be("Invalid Date of Change. Date should be todays date.");
-        }
-
-        [Test]
         public async Task WhenAwaitingThenShouldSendAnApprenticeshipEventWithStartDate()
         {
             await Handler.Handle(ExampleValidRequest);

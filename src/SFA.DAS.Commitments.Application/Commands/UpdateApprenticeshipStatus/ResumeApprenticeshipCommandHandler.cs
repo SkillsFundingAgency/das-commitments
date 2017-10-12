@@ -7,6 +7,7 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -14,13 +15,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 {
     public sealed class ResumeApprenticeshipCommandHandler : AsyncRequestHandler<ResumeApprenticeshipCommand>
     {
+        private readonly IAcademicYearDateProvider _academicYearDateProvider;
+        private readonly IAcademicYearValidator _academicYearValidator;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICurrentDateTime _currentDate;
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly IHistoryRepository _historyRepository;
         private readonly ICommitmentsLogger _logger;
-       private readonly ApprenticeshipStatusChangeCommandValidator _validator;
+        private readonly ApprenticeshipStatusChangeCommandValidator _validator;
 
         public ResumeApprenticeshipCommandHandler(
             ICommitmentRepository commitmentRepository,
@@ -29,7 +32,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICurrentDateTime currentDate,
             IApprenticeshipEvents eventsApi,
             ICommitmentsLogger logger,
-            IHistoryRepository historyRepository)
+            IHistoryRepository historyRepository,
+            IAcademicYearDateProvider academicYearDateProvider,
+            IAcademicYearValidator academicYearValidator)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -38,6 +43,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _eventsApi = eventsApi;
             _logger = logger;
             _historyRepository = historyRepository;
+            _academicYearDateProvider = academicYearDateProvider;
+            _academicYearValidator = academicYearValidator;
         }
 
         protected override async Task HandleCore(ResumeApprenticeshipCommand command)
@@ -56,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
 
             CheckAuthorization(command, commitment);
 
-            ValidateChangeDate(command.DateOfChange);
+            ValidateChangeDate(apprenticeship, command.DateOfChange);
 
             await SaveChange(command, commitment, apprenticeship);
 
@@ -90,10 +97,22 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             await historyService.Save();
         }
 
-        private void ValidateChangeDate(DateTime dateOfChange)
+
+        private void ValidateChangeDate(Apprenticeship apprenticeship, DateTime dateOfChange)
         {
-            if (dateOfChange.Date > _currentDate.Now.Date)
-                throw new ValidationException("Invalid Date of Change. Date should be todays date.");
+            if (apprenticeship.IsWaitingToStart(_currentDate)) return;
+            
+            if (_academicYearValidator.Validate(_currentDate.Now.Date) ==
+                AcademicYearValidationResult.NotWithinFundingPeriod)
+            {
+                if (dateOfChange.Date != _academicYearDateProvider.CurrentAcademicYearStartDate.Date)
+                    throw new ValidationException("Invalid Date of Change. Date should be the academic year start date.");
+            }
+            else
+            {
+                if (dateOfChange.Date != apprenticeship.PauseDate.Value.Date)
+                    throw new ValidationException("Invalid Date of Change. Date should be the pause date.");
+            }
         }
 
 

@@ -9,9 +9,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 {
     public abstract class WhenResumingAnApprenticeship
     {
-        protected ResumeApprenticeshipCommand ExampleValidRequest;
         protected ResumeApprenticeshipCommandHandler Handler;
+        protected ResumeApprenticeshipCommand ExampleValidRequest;
 
+        protected Mock<IAcademicYearDateProvider> MockAcademicYearDateProvider;
+        protected Mock<IAcademicYearValidator> MockAcademicYearValidator;
         protected Mock<IApprenticeshipRepository> MockApprenticeshipRespository;
         protected Mock<ICommitmentRepository> MockCommitmentRespository;
         protected Mock<ICommitmentsLogger> MockCommitmentsLogger;
@@ -24,7 +26,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public virtual void SetUp()
         {
-           
+            MockAcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
+            MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
             MockCommitmentRespository = new Mock<ICommitmentRepository>();
             MockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             MockEventsApi = new Mock<IApprenticeshipEvents>();
@@ -39,7 +42,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 MockCurrentDateTime.Object,
                 MockEventsApi.Object,
                 MockCommitmentsLogger.Object,
-                MockHistoryRepository.Object);
+                MockHistoryRepository.Object,
+                MockAcademicYearDateProvider.Object,
+                MockAcademicYearValidator.Object);
         }
     }
 }

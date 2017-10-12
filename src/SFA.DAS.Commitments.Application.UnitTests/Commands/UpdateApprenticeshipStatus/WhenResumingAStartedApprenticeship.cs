@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.History;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
@@ -40,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                DateOfChange = MockCurrentDateTime.Object.Now.Date,
+                DateOfChange = pauseDate.Date,
                 UserName = "Bob"
             };
 
@@ -120,15 +121,57 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 null));
         }
 
-        [Test]
-        public void ThenThrowsExceptionIfChangeDateIsNotDateOfChange()
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-8-1", true, false)]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-10-18", true, false)]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-1-1", "2017-10-18", false, false)]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-6-1", "2017-10-20", false, true)]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-1-1", "2017-10-20", false, true)]
+        [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-1-1", "2017-6-1", "2017-8-1", "2017-10-20", true, false)]
+        public void ThenItValidatesDataofChangeAccordingToAcademicYearRule(
+            DateTime academicYearStart,
+            DateTime academicYearEnd,
+            DateTime academicYearR14Cutoff,
+            DateTime startDate,
+            DateTime pausedDate,
+            DateTime resumeDate,
+            DateTime timeNow,
+            bool expectToPassValidation, 
+            bool validatesOnStartDate)
         {
-            ExampleValidRequest.DateOfChange = MockCurrentDateTime.Object.Now.Date.AddDays(1);
+            MockAcademicYearDateProvider.Setup(y => y.CurrentAcademicYearStartDate).Returns(academicYearStart);
+            MockAcademicYearDateProvider.Setup(y => y.CurrentAcademicYearEndDate).Returns(academicYearEnd);
+            MockAcademicYearDateProvider.Setup(y => y.LastAcademicYearFundingPeriod).Returns(academicYearR14Cutoff);
+            
+            if (timeNow > academicYearR14Cutoff)
+            {
+                MockAcademicYearValidator.Setup(v => v.Validate(It.IsAny<DateTime>()))
+                    .Returns(AcademicYearValidationResult.NotWithinFundingPeriod);
+            }
+            else
+            {
+                MockAcademicYearValidator.Setup(v => v.Validate(It.IsAny<DateTime>()))
+                    .Returns(AcademicYearValidationResult.Success);
+            }
+
+            MockCurrentDateTime.Setup(d => d.Now).Returns(timeNow);
+
+            TestApprenticeship.PauseDate = pausedDate.Date;
+            ExampleValidRequest.DateOfChange = resumeDate.Date;
 
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
-            act.ShouldThrow<ValidationException>().Which.Message.Should()
-                .Be("Invalid Date of Change. Date should be todays date.");
+            if (expectToPassValidation)
+            {
+                act.ShouldNotThrow<ValidationException>();
+            }
+            else
+            {
+                act.ShouldThrow<ValidationException>()
+                    .Which.Message.Should().Be(validatesOnStartDate
+                        ? "Invalid Date of Change. Date should be the academic year start date."
+                        : "Invalid Date of Change. Date should be the pause date.");
+            }
         }
+
     }
 }
