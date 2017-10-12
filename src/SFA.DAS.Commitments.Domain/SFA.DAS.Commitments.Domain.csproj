@@ -123,7 +123,6 @@
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\ICurrentDateTime.cs" />
-    <Compile Include="Interfaces\IHashingService.cs" />
     <Compile Include="Interfaces\IHttpClientWrapper.cs" />
     <Compile Include="Interfaces\IPaymentEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
