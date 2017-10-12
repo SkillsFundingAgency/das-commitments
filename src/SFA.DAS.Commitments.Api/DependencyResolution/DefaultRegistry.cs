@@ -34,6 +34,7 @@ using StructureMap;
 using StructureMap.Graph;
 using SFA.DAS.Learners.Validators;
 using SFA.DAS.Commitments.Infrastructure.Services;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -57,6 +58,8 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 });
 
             var config = GetConfiguration();
+
+            ConfigureHashingService(config);
 
             For<IEventsApi>().Use<EventsApi>()
                 .Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi)
@@ -108,5 +111,11 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         {
             return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
         }
+
+        private void ConfigureHashingService(CommitmentsApiConfiguration config)
+        {
+            For<IHashingService>().Use(x => new HashingService.HashingService(config.AllowedHashstringCharacters, config.Hashstring));
+        }
+
     }
 }

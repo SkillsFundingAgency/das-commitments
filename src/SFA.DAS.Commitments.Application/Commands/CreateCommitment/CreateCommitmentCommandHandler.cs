@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {

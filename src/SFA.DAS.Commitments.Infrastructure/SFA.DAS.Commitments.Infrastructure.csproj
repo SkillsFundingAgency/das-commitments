@@ -161,7 +161,6 @@
     <Compile Include="Services\ApprenticeshipEventsList.cs" />
     <Compile Include="Services\ApprenticeshipEventsPublisher.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
-    <Compile Include="Services\HashingService.cs" />
     <Compile Include="Services\HttpClientWrapper.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />
     <Compile Include="Services\PaymentEventMapper.cs" />
