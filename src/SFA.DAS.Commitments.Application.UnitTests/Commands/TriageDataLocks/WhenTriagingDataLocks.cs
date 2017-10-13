@@ -19,20 +19,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
     [TestFixture]
     public class WhenTriagingDataLocks
     {
-        private TriageDataLockCommandHandler _sut;
-        private Mock<AbstractValidator<TriageDataLockCommand>> _validator;
+        private TriageDataLocksCommandHandler _sut;
+        private Mock<AbstractValidator<TriageDataLocksCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
-        private TriageDataLockCommand _validCommand;
+        private TriageDataLocksCommand _validCommand;
 
         [SetUp]
         public void SetUp()
         {
-            _validator = new Mock<AbstractValidator<TriageDataLockCommand>>();
+            _validator = new Mock<AbstractValidator<TriageDataLocksCommand>>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _dataLockRepository = new Mock<IDataLockRepository>();
 
-            _validator.Setup(x => x.Validate(It.IsAny<TriageDataLockCommand>()))
+            _validator.Setup(x => x.Validate(It.IsAny<TriageDataLocksCommand>()))
                 .Returns(() => new ValidationResult());
 
             _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
@@ -49,14 +49,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship());
 
-            _validCommand = new TriageDataLockCommand
+            _validCommand = new TriageDataLocksCommand
             {
                 ApprenticeshipId = 10082,
                 TriageStatus = TriageStatus.Change,
                 UserId = "testuser"
             };
 
-            _sut = new TriageDataLockCommandHandler(
+            _sut = new TriageDataLocksCommandHandler(
                 _validator.Object,
                 _dataLockRepository.Object,
                 _apprenticeshipRepository.Object);

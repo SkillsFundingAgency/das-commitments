@@ -15,9 +15,8 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage;
 using SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage;
+using SFA.DAS.Commitments.Application.Commands.TriageDataLocks;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
-using TriageDataLockCommand = SFA.DAS.Commitments.Application.Commands.TriageDataLocks.TriageDataLockCommand;
-
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -177,7 +176,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
 
-            await _mediator.SendAsync(new TriageDataLockCommand
+            await _mediator.SendAsync(new TriageDataLocksCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
@@ -191,7 +190,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
 
-            await _mediator.SendAsync(new TriageDataLockCommand
+            await _mediator.SendAsync(new TriageDataLocksCommand
             {
                 ApprenticeshipId = apprenticeshipId,
                 TriageStatus = (TriageStatus)triageSubmission.TriageStatus,
