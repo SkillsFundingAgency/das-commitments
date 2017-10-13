@@ -14,17 +14,16 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
         private readonly AbstractValidator<TriageDataLockCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
 
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         public TriageDataLockCommandHandler(
             AbstractValidator<TriageDataLockCommand> validator,
-            IDataLockRepository dataLockRepository)
+            IDataLockRepository dataLockRepository,
+            IApprenticeshipRepository apprenticeshipRepository)
         {
-            if(validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<TriageDataLockCommand>));
-            if(dataLockRepository == null)
-                throw new ArgumentNullException(nameof(IDataLockRepository));
-
             _validator = validator;
             _dataLockRepository = dataLockRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
         }
 
         protected override async Task HandleCore(TriageDataLockCommand command)
@@ -35,8 +34,13 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
 
             var dataLocksToBeUpdated = (await _dataLockRepository
                 .GetDataLocks(command.ApprenticeshipId))
-                .Where(DataLockExtensions.UnHandled)
-                .ToList();
+                .Where(DataLockExtensions.UnHandled);
+
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+            if (apprenticeship.HasHadDataLockSuccess)
+            {
+                dataLocksToBeUpdated = dataLocksToBeUpdated.Where(DataLockExtensions.IsPriceOnly);
+            }
 
             if (dataLocksToBeUpdated.Any(m => m.TriageStatus == command.TriageStatus))
             {
