@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -53,53 +54,60 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var datalocks = await _dataLockRepository.GetDataLocks(command.ApprenticeshipId);
+            var datalocksForApprenticeship = await _dataLockRepository.GetDataLocks(command.ApprenticeshipId);
 
-            var dataLockPriceErrors = datalocks
+            var dataLocksToBeUpdated = datalocksForApprenticeship
                 .Where(DataLockExtensions.UnHandled)
-                .Where(m => m.TriageStatus == TriageStatus.Change)
-                .ToList();
+                .Where(m => m.TriageStatus == TriageStatus.Change);
 
-            var dataLockPasses = datalocks
-                .Where(x => x.Status == Status.Pass
-                            || (x.ErrorCode == DataLockErrorCode.Dlock07
-                                && x.Status == Status.Fail
-                                && x.TriageStatus == TriageStatus.Change
-                                && x.IsResolved)
-                );
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+            if (apprenticeship.HasHadDataLockSuccess)
+            {
+                dataLocksToBeUpdated = dataLocksToBeUpdated.Where(DataLockExtensions.IsPriceOnly);
+            }
 
-            if (!dataLockPriceErrors.Any())
+            var dataLockPasses = datalocksForApprenticeship.Where(x => x.Status == Status.Pass || x.PreviousResolvedPriceDataLocks() );
+
+            if (!dataLocksToBeUpdated.Any())
                 return;
 
-            var newPriceHistory = dataLockPriceErrors.Concat(dataLockPasses)
-                .Select(m =>
-                    new PriceHistory
-                    {
-                        ApprenticeshipId = command.ApprenticeshipId,
-                        Cost = (decimal) m.IlrTotalCost,
-                        FromDate = (DateTime) m.IlrEffectiveFromDate,
-                        ToDate = null
-                    })
-                .OrderBy(x => x.FromDate)
-                .ToArray();
+            var newPriceHistory = CreatePriceHistory(command, dataLocksToBeUpdated, dataLockPasses);
+
+            // One call to repository?
+            await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
+            await _dataLockRepository.ResolveDataLock(dataLocksToBeUpdated.Select(m => m.DataLockEventId));
+
+            await PublishEvents(apprenticeship);
+        }
+
+        private static PriceHistory[] CreatePriceHistory(
+            ApproveDataLockTriageCommand command,
+            IEnumerable<DataLockStatus> dataLocksToBeUpdated,
+            IEnumerable<DataLockStatus> dataLockPasses)
+        {
+            var newPriceHistory =
+                dataLocksToBeUpdated.Concat(dataLockPasses)
+                    .Select(
+                        m =>
+                        new PriceHistory
+                            {
+                                ApprenticeshipId = command.ApprenticeshipId,
+                                Cost = (decimal)m.IlrTotalCost,
+                                FromDate = (DateTime)m.IlrEffectiveFromDate,
+                                ToDate = null
+                            })
+                    .OrderBy(x => x.FromDate)
+                    .ToArray();
 
             for (var i = 0; i < newPriceHistory.Length - 1; i++)
             {
                 newPriceHistory[i].ToDate = newPriceHistory[i + 1].FromDate.AddDays(-1);
             }
-
-            // One call to repository?
-            await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
-            await _dataLockRepository.ResolveDataLock(dataLockPriceErrors.Select(m => m.DataLockEventId));
-
-            await PublishEvents(command.ApprenticeshipId);
+            return newPriceHistory;
         }
 
-
-
-        private async Task PublishEvents(long apprenticeshipId)
+        private async Task PublishEvents(Apprenticeship apprenticeship)
         {
-            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeshipId);
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
 
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
