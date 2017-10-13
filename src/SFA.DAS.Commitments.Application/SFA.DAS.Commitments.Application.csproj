@@ -119,7 +119,7 @@
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommandHandler.cs" />
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommandValidator.cs" />
     <Compile Include="Commands\TriageDataLocks\TriageDataLocksCommand.cs" />
-    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommandHandler.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLocksCommandHandler.cs" />
     <Compile Include="Commands\TriageDataLocks\TriageDataLocksCommandValidator.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommand.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandHandler.cs" />
