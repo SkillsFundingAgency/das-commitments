@@ -1,23 +1,21 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Extensions;
 
 namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
 {
-    public sealed class TriageDataLockCommandHandler : AsyncRequestHandler<TriageDataLockCommand>
+    public sealed class TriageDataLocksCommandHandler : AsyncRequestHandler<TriageDataLocksCommand>
     {
-        private readonly AbstractValidator<TriageDataLockCommand> _validator;
+        private readonly AbstractValidator<TriageDataLocksCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
 
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        public TriageDataLockCommandHandler(
-            AbstractValidator<TriageDataLockCommand> validator,
+        public TriageDataLocksCommandHandler(
+            AbstractValidator<TriageDataLocksCommand> validator,
             IDataLockRepository dataLockRepository,
             IApprenticeshipRepository apprenticeshipRepository)
         {
@@ -26,7 +24,7 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
             _apprenticeshipRepository = apprenticeshipRepository;
         }
 
-        protected override async Task HandleCore(TriageDataLockCommand command)
+        protected override async Task HandleCore(TriageDataLocksCommand command)
         {
             var validationResult = _validator.Validate(command);
             if (!validationResult.IsValid)
