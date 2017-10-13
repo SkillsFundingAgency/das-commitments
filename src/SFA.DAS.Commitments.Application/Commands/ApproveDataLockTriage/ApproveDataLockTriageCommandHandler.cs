@@ -75,6 +75,9 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             // One call to repository?
             await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
+            // await _apprenticeshipRepository.UpdateApprenticeship();
+            // TODO: !! Update Training Course
+
             await _dataLockRepository.ResolveDataLock(dataLocksToBeUpdated.Select(m => m.DataLockEventId));
 
             await PublishEvents(apprenticeship);
