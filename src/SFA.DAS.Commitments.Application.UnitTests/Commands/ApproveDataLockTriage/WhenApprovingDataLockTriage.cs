@@ -9,11 +9,13 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTriage
@@ -26,8 +28,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
+        private Mock<IApprenticeshipInfoServiceWrapper> _apprenticeshipTrainngService;
 
         private ApproveDataLockTriageCommand _command;
+
 
         [SetUp]
         public void SetUp()
@@ -35,6 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _validator = new Mock<AbstractValidator<ApproveDataLockTriageCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _apprenticeshipTrainngService = new Mock<IApprenticeshipInfoServiceWrapper>();
 
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship());
@@ -58,7 +63,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             Mock.Of<IApprenticeshipEventsPublisher>(),
             Mock.Of<IApprenticeshipEventsList>(),
             _commitmentRepository.Object,
-            Mock.Of<ICurrentDateTime>());
+            Mock.Of<ICurrentDateTime>(),
+            _apprenticeshipTrainngService.Object,
+            Mock.Of<ICommitmentsLogger>());
         }
 
         [Test]
@@ -229,10 +236,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             idsToBeUpdated.Should().Contain(toBeUpdateDataLock.DataLockEventId, because: "Should update datalocks with triage status 'change' that is not passed or resolved");
         }
 
-        [Test(Description = "Not yet implemented")]
-        public async Task ShouldUpdateApprenticeshipIfCourseHasChanged()
+        [Test]
+        public async Task ShouldNotUpdateApprenticeshipIfApprenticeshipHasHadSuccessDataLock()
         {
-              var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
+            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
                         ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change};
 
             var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
@@ -243,15 +250,87 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
-                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false });
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = true });
 
             await _sut.Handle(_command);
 
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
-            // ToDo: !!! Grab the Apprenticeship and check what details will get updated
-            _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), new Caller()), Times.Once);
+            
+            _apprenticeshipTrainngService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
+            _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), new Caller()), Times.Never);
         }
+
+
+        [Test]
+        public async Task ShouldUpdateApprenticeshipIfCourseHasChanged()
+        {
+            var trainingCode = 10123;
+            var standard = new Standard { Title = "Standard 1", Code = trainingCode, CourseName = "Standard 1 Course Name", Level = 1 };
+
+            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
+                        ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}" };
+
+            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
+                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
+
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+                .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345 });
+
+            _apprenticeshipTrainngService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
+                .ReturnsAsync(standard);
+
+            Apprenticeship updatedApprenticeship = null;
+            _apprenticeshipRepository.Setup(
+                m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()))
+                .Callback<Apprenticeship, Caller>((a, c) => updatedApprenticeship = a)
+                .Returns(Task.FromResult(0));
+
+            await _sut.Handle(_command);
+
+            _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
+
+            _apprenticeshipTrainngService.Verify(m => m.GetTrainingProgramAsync(standard.Code.ToString(), false), Times.Once);
+            _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
+
+            updatedApprenticeship.TrainingCode.Should().Be(standard.Code.ToString());
+            updatedApprenticeship.TrainingName.Should().Be(standard.Title);
+            updatedApprenticeship.TrainingType.Should().Be(TrainingType.Standard);
+        }
+
+        [Test]
+        public async Task ShouldNotUpdateApprenticeshipIfCourseIsTheSame()
+        {
+            var trainingCode = 10123;
+            var standard = new Standard { Title = "Standard 1", Code = trainingCode, CourseName = "Standard 1 Course Name", Level = 1 };
+
+            var isDataLockWithCourse = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail,  IlrTotalCost = 505,
+                        ErrorCode = DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock03, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}" };
+
+            var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
+                        ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}"
+             };
+
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+                .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345, TrainingCode = $"{trainingCode}"});
+
+            _apprenticeshipTrainngService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
+                .ReturnsAsync(standard);
+
+            await _sut.Handle(_command);
+
+            _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
+
+            _apprenticeshipTrainngService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
+            _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
+        }
+
 
         [Test]
         public async Task ShouldSetEndDateForNewPriceHistory()

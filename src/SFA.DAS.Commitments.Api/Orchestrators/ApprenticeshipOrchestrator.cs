@@ -234,7 +234,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 await _mediator.SendAsync(new ApproveDataLockTriageCommand
                 {
                     ApprenticeshipId = apprenticeshipId,
-                    UserId = triageSubmission.UserId
+                    UserId = triageSubmission.UserId,
+                    Caller = caller
                 });
             }
             else
