@@ -9,5 +9,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
         public string ServiceBusConnectionString { get; set; }
         public string Hashstring { get; set; }
         public EventsApiClientConfiguration EventsApi { get; set; }
+
+        public ApprenticeshipInfoServiceConfiguration ApprenticeshipInfoService { get; set; }
     }
 }

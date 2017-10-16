@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -22,13 +25,19 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _eventsApi;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IApprenticeshipInfoServiceWrapper _apprenticeshipTrainngService;
+
+        private readonly ICommitmentsLogger _logger;
 
         public ApproveDataLockTriageCommandHandler(AbstractValidator<ApproveDataLockTriageCommand> validator,
             IDataLockRepository dataLockRepository,
             IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipEventsPublisher eventsApi,
             IApprenticeshipEventsList apprenticeshipEventsList,
-            ICommitmentRepository commitmentRepository, ICurrentDateTime currentDateTime)
+            ICommitmentRepository commitmentRepository, 
+            ICurrentDateTime currentDateTime,
+            IApprenticeshipInfoServiceWrapper apprenticeshipTrainngService,
+            ICommitmentsLogger logger)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(AbstractValidator<ApproveDataLockTriageCommand>));
@@ -46,6 +55,8 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
+            _apprenticeshipTrainngService = apprenticeshipTrainngService;
+            _logger = logger;
         }
 
         protected override async Task HandleCore(ApproveDataLockTriageCommand command)
@@ -75,8 +86,22 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             // One call to repository?
             await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
-            // await _apprenticeshipRepository.UpdateApprenticeship();
-            // TODO: !! Update Training Course
+            if (!apprenticeship.HasHadDataLockSuccess)
+            {
+                var dataLockWithUpdatedTraining = dataLocksToBeUpdated.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.TrainingCode);
+                if (dataLockWithUpdatedTraining != null)
+                {
+                    var training = await
+                        _apprenticeshipTrainngService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+
+                    _logger.Info($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.TrainingCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
+
+                    apprenticeship.TrainingCode = dataLockWithUpdatedTraining.IlrTrainingCourseCode;
+                    apprenticeship.TrainingName = training.Title;
+                    apprenticeship.TrainingType = dataLockWithUpdatedTraining.IlrTrainingType;
+                    await _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller);
+                }
+            }
 
             await _dataLockRepository.ResolveDataLock(dataLocksToBeUpdated.Select(m => m.DataLockEventId));
 

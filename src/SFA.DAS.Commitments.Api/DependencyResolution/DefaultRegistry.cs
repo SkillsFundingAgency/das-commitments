@@ -20,7 +20,10 @@ using System.Web;
 using FluentValidation;
 using MediatR;
 using Microsoft.Azure;
+
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
@@ -61,6 +64,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<IEventsApi>().Use<EventsApi>()
                 .Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi)
                 .SelectConstructor(() => new EventsApi(null)); // The default one isn't the one we want to use.
+            For<IApprenticeshipInfoServiceConfiguration>().Use(config.ApprenticeshipInfoService);
 
             For<IAcademicYearDateProvider>().Use<AcademicYearDateProvider>();
             For<IUlnValidator>().Use<UlnValidator>();
@@ -77,6 +81,8 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
             For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
             For<IMediator>().Use<Mediator>();
+
+            For<ICache>().Use<InMemoryCache>();
 
             ConfigureLogging();
         }
