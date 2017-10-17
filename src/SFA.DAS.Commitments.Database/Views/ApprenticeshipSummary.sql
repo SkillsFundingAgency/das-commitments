@@ -11,6 +11,7 @@ SELECT
 	CASE WHEN dlPriceTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPriceTriaged',
 	CASE WHEN dlCourse.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourse',
 	CASE WHEN dlCourseTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourseTriaged',
+	CASE WHEN dlCourseChangeTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourseChangeTriaged',
 	CASE 
 		WHEN
 			a.FirstName IS NOT NULL AND 
@@ -92,6 +93,16 @@ SELECT
 		where ApprenticeshipId = a.Id
 		and (ErrorCode & 4 = 4 OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
 		and TriageStatus = 2
+		and [Status] = 2 AND [IsResolved] = 0
+		AND [EventStatus] <> 3
+		AND [IsExpired] = 0
+	)
+	LEFT JOIN DataLockStatus dlCourseChangeTriaged on dlCourseChangeTriaged.Id =
+	(
+		SELECT TOP 1 Id from DataLockStatus
+		where ApprenticeshipId = a.Id
+		and (ErrorCode & 4 = 4 OR ErrorCode & 8 = 8 OR ErrorCode & 16 = 16 OR ErrorCode & 32 = 32)
+		and TriageStatus = 1
 		and [Status] = 2 AND [IsResolved] = 0
 		AND [EventStatus] <> 3
 		AND [IsExpired] = 0
