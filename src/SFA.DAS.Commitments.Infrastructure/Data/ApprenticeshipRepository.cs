@@ -75,23 +75,43 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task PauseOrResumeApprenticeship(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus, DateTime? pauseDate)
+        public async Task ResumeApprenticeship(long commitmentId, long apprenticeshipId)
         {
-            if (!(paymentStatus == PaymentStatus.Paused || paymentStatus == PaymentStatus.Active))
-                throw new ArgumentException("PaymentStatus should be Paused or Active", nameof(paymentStatus));
-
-            _logger.Debug($"Updating apprenticeship status to {paymentStatus} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+           
+            _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Active} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithTransaction(async (conn, tran) =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", apprenticeshipId, DbType.Int64);
-                parameters.Add("@paymentStatus", paymentStatus, DbType.Int16);
-                parameters.Add("@pauseDate", pauseDate, DbType.DateTime);
+                parameters.Add("@paymentStatus", PaymentStatus.Active, DbType.Int16);
 
                 var returnCode = await conn.ExecuteAsync(
                     sql:
                     "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " + 
+                    "PauseDate = null " +
+                    "WHERE Id = @id;",
+                    transaction: tran,
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+        }
+
+        public async Task PauseApprenticeship(long commitmentId, long apprenticeshipId, DateTime pauseDate)
+        {
+            
+            _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Paused} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+
+            await WithTransaction(async (conn, tran) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+                parameters.Add("@paymentStatus", PaymentStatus.Paused, DbType.Int16);
+                parameters.Add("@pauseDate", pauseDate, DbType.DateTime);
+
+                var returnCode = await conn.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[Apprenticeship] SET PaymentStatus = @paymentStatus, " +
                     "PauseDate = @pauseDate " +
                     "WHERE Id = @id;",
                     transaction: tran,
@@ -99,6 +119,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     commandType: CommandType.Text);
             });
         }
+
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {

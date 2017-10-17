@@ -350,18 +350,61 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Updating payment status to {apprenticeshipSubmission.PaymentStatus} for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
-            await _mediator.SendAsync(new UpdateApprenticeshipStatusCommand
+            switch (apprenticeshipSubmission.PaymentStatus)
+            {
+                case PaymentStatus.Active:
+                    await IssueResumeCommand(accountId, apprenticeshipId, apprenticeshipSubmission);
+                    break;
+                case PaymentStatus.Paused:
+                    await IssuePauseCommand(accountId, apprenticeshipId, apprenticeshipSubmission);
+                    break;
+                case PaymentStatus.Withdrawn:
+                    await IssueStopCommand(accountId, apprenticeshipId, apprenticeshipSubmission);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(apprenticeshipSubmission.PaymentStatus), "Not a valid value for change of status");
+            }
+            _logger.Info($"Updated payment status to {apprenticeshipSubmission.PaymentStatus} for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
+        }
+
+        private async Task IssueStopCommand(long accountId, long apprenticeshipId, Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
+        {
+            await _mediator.SendAsync(new StopApprenticeshipCommand
             {
                 Caller = new Caller(accountId, CallerType.Employer),
                 AccountId = accountId,
                 ApprenticeshipId = apprenticeshipId,
-                PaymentStatus = (Domain.Entities.PaymentStatus?)apprenticeshipSubmission.PaymentStatus,
                 DateOfChange = apprenticeshipSubmission.DateOfChange,
                 UserId = apprenticeshipSubmission.UserId,
                 UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
             });
+        }
 
-            _logger.Info($"Updated payment status to {apprenticeshipSubmission.PaymentStatus} for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
+        private async Task IssuePauseCommand(long accountId, long apprenticeshipId, Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
+        {
+            await _mediator.SendAsync(new PauseApprenticeshipCommand
+            {
+                Caller = new Caller(accountId, CallerType.Employer),
+                AccountId = accountId,
+                ApprenticeshipId = apprenticeshipId,
+                DateOfChange = apprenticeshipSubmission.DateOfChange,
+                UserId = apprenticeshipSubmission.UserId,
+                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
+            });
+        }
+
+        private async Task IssueResumeCommand(long accountId, long apprenticeshipId,
+            Apprenticeship.ApprenticeshipSubmission apprenticeshipSubmission)
+        {
+            await _mediator.SendAsync(new ResumeApprenticeshipCommand
+            {
+                Caller = new Caller(accountId, CallerType.Employer),
+                AccountId = accountId,
+                ApprenticeshipId = apprenticeshipId,
+                DateOfChange = apprenticeshipSubmission.DateOfChange,
+                UserId = apprenticeshipSubmission.UserId,
+                UserName = apprenticeshipSubmission.LastUpdatedByInfo?.Name
+            });
         }
 
         public async Task DeleteApprenticeship(long accountId, long apprenticeshipId, string userId, string userName)
