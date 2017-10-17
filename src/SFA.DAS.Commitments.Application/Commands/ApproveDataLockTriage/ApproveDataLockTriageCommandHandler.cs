@@ -84,8 +84,9 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             var newPriceHistory = CreatePriceHistory(command, dataLocksToBeUpdated, dataLockPasses);
 
-            // One call to repository?
             await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
+            apprenticeship.PriceHistory = newPriceHistory.ToList();
+
             if (!apprenticeship.HasHadDataLockSuccess)
             {
                 var dataLockWithUpdatedTraining = dataLocksToBeUpdated.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.TrainingCode);
@@ -104,7 +105,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             }
 
             await _dataLockRepository.ResolveDataLock(dataLocksToBeUpdated.Select(m => m.DataLockEventId));
-
+            
             await PublishEvents(apprenticeship);
         }
 
