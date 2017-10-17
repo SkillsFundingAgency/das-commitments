@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
 
-            if (!(await ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate)))
+            if (!ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate))
                 throw new ValidationException("Unable to create an update for an apprenticeship that is already started ");
 
             CheckAuthorisation(command, apprenticeship);
@@ -106,7 +106,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), apprenticeship.Id, "Apprenticeship", callerType, userId, userName);
         }
 
-        private async Task<bool> ValidateStartedApprenticeship(Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
+        private bool ValidateStartedApprenticeship(Apprenticeship apprenticeship, ApprenticeshipUpdate apprenticeshipUpdate)
         {
             var started = apprenticeship.StartDate.HasValue && apprenticeship.StartDate.Value <=
                                       new DateTime(_currentDateTime.Now.Year, _currentDateTime.Now.Month, 1);

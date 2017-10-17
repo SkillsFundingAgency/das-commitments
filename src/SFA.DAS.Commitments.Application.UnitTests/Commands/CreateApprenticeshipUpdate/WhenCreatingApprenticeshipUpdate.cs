@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public async Task ThenTheRequesIsValidated()
+        public async Task ThenTheRequestIsValidated()
         {
             //Arrange
             var command = new CreateApprenticeshipUpdateCommand
@@ -376,7 +376,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenIfApprenticeHasStarted_And_DataLockExsist_ValidationFailureExceptionIsThrown_IfCostIsChanged()
+        public void ThenIfApprenticeHasStarted_And_DataLockExists_ValidationFailureExceptionIsThrown_IfCostIsChanged()
         {
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 7, 13));
 
