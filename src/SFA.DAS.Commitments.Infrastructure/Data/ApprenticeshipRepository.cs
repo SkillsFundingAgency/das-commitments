@@ -363,6 +363,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task SetHasHadDataLockSuccess(long apprenticeshipId)
+        {
+            _logger.Debug($"Setting HasHadDataLockSuccess for apprenticeship {apprenticeshipId}", apprenticeshipId: apprenticeshipId);
+
+            await WithTransaction(async (conn, tran) =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@apprenticeshipId", apprenticeshipId, DbType.Int64);
+                parameters.Add("@hasHadDataLockSuccess", 1, DbType.Boolean);
+
+                var returnCode = await conn.ExecuteAsync(
+                    sql:
+                    "UPDATE [dbo].[Apprenticeship] SET HasHadDataLockSuccess = @hasHadDataLockSuccess " +
+                    "WHERE Id = @apprenticeshipId;",
+                    transaction: tran,
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+        }
+
         private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, SqlConnection x, DataTable table)
         {
             IList<Apprenticeship> apprenticeships;

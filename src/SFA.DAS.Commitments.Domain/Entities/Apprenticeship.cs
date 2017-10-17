@@ -49,6 +49,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public bool DataLockCourseTriaged { get; set; }
         public bool DataLockCourseChangeTriaged { get; set; }
         public List<PriceHistory> PriceHistory { get; set; }
+        public bool HasHadDataLockSuccess { get; set; }
 
         public Apprenticeship Clone()
         {
