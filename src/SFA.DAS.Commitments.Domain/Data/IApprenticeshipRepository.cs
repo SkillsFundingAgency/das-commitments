@@ -46,5 +46,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<AlertSummary>> GetEmployerApprenticeshipAlertSummary();
 
         Task<IList<ProviderAlertSummary>> GetProviderApprenticeshipAlertSummary();
+        
+        Task SetHasHadDataLockSuccess(long id);
     }
 }

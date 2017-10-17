@@ -14,6 +14,8 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage
         private readonly AbstractValidator<RejectDataLockTriageCommand> _validator;
         private readonly IDataLockRepository _dataLockRepository;
 
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+
         public RejectDataLockTriageCommandHandler(
             AbstractValidator<RejectDataLockTriageCommand> validator,
             IDataLockRepository dataLockRepository,
@@ -31,7 +33,9 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage
 
             _validator = validator;
             _dataLockRepository = dataLockRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
         }
+
         protected override async Task HandleCore(RejectDataLockTriageCommand command)
         {
             var validationResult = _validator.Validate(command);
@@ -40,17 +44,21 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage
 
             var datalocks = await _dataLockRepository.GetDataLocks(command.ApprenticeshipId);
 
-            var dataLockPriceErrors = datalocks
+            var dataLocksToBeUpdated = datalocks
                 .Where(DataLockExtensions.UnHandled)
-                .Where(DataLockExtensions.IsPriceOnly)
-                .Where(x => x.TriageStatus == TriageStatus.Change)
-                .ToList();
+                .Where(x => x.TriageStatus == TriageStatus.Change);
 
-            if (!dataLockPriceErrors.Any())
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+            if (apprenticeship.HasHadDataLockSuccess)
+            {
+                dataLocksToBeUpdated = dataLocksToBeUpdated.Where(DataLockExtensions.IsPriceOnly);
+            }
+
+            if (!dataLocksToBeUpdated.Any())
                 return;
            
             await _dataLockRepository.UpdateDataLockTriageStatus(
-                dataLockPriceErrors.Select(m => m.DataLockEventId),
+                dataLocksToBeUpdated.Select(m => m.DataLockEventId),
                 TriageStatus.Unknown);
         }
     }

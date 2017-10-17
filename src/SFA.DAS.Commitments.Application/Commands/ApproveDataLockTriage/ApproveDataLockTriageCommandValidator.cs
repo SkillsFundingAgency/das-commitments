@@ -8,6 +8,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         {
             RuleFor(x => x.ApprenticeshipId).NotEmpty();
             RuleFor(x => x.UserId).NotEmpty();
+            RuleFor(x => x.Caller).NotNull();
         }
     }
 }

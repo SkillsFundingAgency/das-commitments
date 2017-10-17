@@ -266,7 +266,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [Route("{providerId}/apprenticeships/{apprenticeshipId}/datalocks")]
         [HttpPatch]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchDataLock(long providerId, long apprenticeshipId, [FromBody] DataLockTriageSubmission triageSubmission)
+        public async Task<IHttpActionResult> PatchDataLocks(long providerId, long apprenticeshipId, [FromBody] DataLockTriageSubmission triageSubmission)
         {
             await _apprenticeshipsOrchestrator.TriageDataLocks(apprenticeshipId, triageSubmission, new Caller(providerId, CallerType.Provider));
             return StatusCode(HttpStatusCode.NoContent);

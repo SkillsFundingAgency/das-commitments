@@ -3,7 +3,7 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
 {
-    public sealed class TriageDataLockCommand : IAsyncRequest
+    public sealed class TriageDataLocksCommand : IAsyncRequest
     {
         public long ApprenticeshipId { get; set; }
         public TriageStatus TriageStatus { get; set; }

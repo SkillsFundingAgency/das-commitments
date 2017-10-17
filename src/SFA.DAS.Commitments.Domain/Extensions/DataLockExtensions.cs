@@ -11,8 +11,16 @@ namespace SFA.DAS.Commitments.Domain.Extensions
 
         public static bool IsPriceOnly(this DataLockStatus dataLockStatus)
         {
-            return dataLockStatus.ErrorCode == DataLockErrorCode.Dlock07;
+            return (int)dataLockStatus.ErrorCode == (int)DataLockErrorCode.Dlock07;
         }
+
+        public static bool PreviousResolvedPriceDataLocks(this DataLockStatus dataLockStatus)
+        {
+            return dataLockStatus.ErrorCode == DataLockErrorCode.Dlock07
+                && dataLockStatus.Status == Status.Fail
+                && dataLockStatus.TriageStatus == TriageStatus.Change
+                && dataLockStatus.IsResolved
+;        }
 
         public static bool WithCourseError(this DataLockStatus dataLockStatus)
         {
