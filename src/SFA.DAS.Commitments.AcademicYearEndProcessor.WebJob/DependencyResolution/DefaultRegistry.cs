@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
             var config = GetConfiguration("SFA.DAS.CommitmentsAcademicYearEndProcessor");
             For<IConfiguration>().Use(config);
             For<CommitmentsAcademicYearEndProcessorConfiguration>().Use(config);
-            For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext(), null)).AlwaysUnique();
+            For<ILog>().Use(x => new NLogLogger(x.ParentType, new ConsoleLoggingContext(), null)).AlwaysUnique();
 
             DateTime? currentDatetime = null;
             if (!string.IsNullOrWhiteSpace(config.CurrentStartTime))
