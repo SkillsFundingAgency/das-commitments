@@ -120,5 +120,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             
             idsToBeUpdated.ShouldBeEquivalentTo(expectedIds);
         }
+
+        [Test]
+        public void ShouldThrowIfTryingToTriageChangeWhereDataLockHasBothCousrAndPriceAndApprenticeshipHasGotSuccessfulDataLock()
+        {
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_validCommand.ApprenticeshipId))
+                .ReturnsAsync(new Apprenticeship { HasHadDataLockSuccess = true, Id = _validCommand.ApprenticeshipId });
+            _dataLockRepository.Setup(m => m.GetDataLocks(_validCommand.ApprenticeshipId))
+                .ReturnsAsync(new List<DataLockStatus> { new DataLockStatus {ErrorCode = (DataLockErrorCode)68} });
+            _validCommand.TriageStatus = TriageStatus.Change;
+
+            Func<Task> act = async () => await _sut.Handle(_validCommand);
+            act.ShouldThrow<ValidationException>();
+        }
     }
 }

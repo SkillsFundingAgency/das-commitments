@@ -29,5 +29,15 @@ namespace SFA.DAS.Commitments.Domain.Extensions
                    || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
                    || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock06);
         }
+
+        public static bool WithCourseAndPriceError(this DataLockStatus dataLockStatus)
+        {
+            var hasCourse = dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock03)
+                   || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock04)
+                   || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock05)
+                   || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock06);
+
+            return hasCourse && dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07);
+        }
     }
 }
