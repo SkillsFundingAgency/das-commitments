@@ -45,6 +45,14 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 
                 apprenticeship.PriceHistory.Single().Cost = update.Cost.Value;
             }
+
+            if (update.StartDate.HasValue)
+            {
+                if (apprenticeship.PriceHistory.Count > 1)
+                    throw new InvalidOperationException("Multiple Prices History Items not expected.");
+
+                apprenticeship.PriceHistory.Single().FromDate = update.StartDate ?? apprenticeship.PriceHistory.Single().FromDate;
+            }
         }
     }
 
