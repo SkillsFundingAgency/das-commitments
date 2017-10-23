@@ -43,7 +43,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
 
             For<IDataLockUpdater>().Use<DataLockUpdater>();
 
-            For<ILog>().Use(x => new NLogLogger(x.ParentType, new DummyRequestContext(), null)).AlwaysUnique();
+            For<ILog>().Use(x => new NLogLogger(x.ParentType, new ConsoleLoggingContext(), null)).AlwaysUnique();
             ConfigurePaymentsApiService(config);
         }
 
@@ -93,13 +93,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
         {
             return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
         }
-    }
-
-    public class DummyRequestContext : IRequestContext
-    {
-        public string Url { get; }
-
-        public string IpAddress { get; }
     }
 
     public static class SystemDetails
