@@ -1,11 +1,22 @@
 ﻿using SFA.DAS.Commitments.Domain.Entities;
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 {
     public class AcceptApprenticeshipChangeMapper : IAcceptApprenticeshipChangeMapper
     {
+        private readonly ICurrentDateTime _currentDateTime;
+
+        public AcceptApprenticeshipChangeMapper(ICurrentDateTime currentDateTime)
+        {
+            _currentDateTime = currentDateTime;
+        }
+
         public void ApplyUpdate(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
         {
             apprenticeship.FirstName = string.IsNullOrEmpty(update.FirstName)
@@ -34,24 +45,25 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 
         }
 
-        private static void UpdatePrice(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
+        private void UpdatePrice(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
         {
-            apprenticeship.Cost = update.Cost ?? apprenticeship.Cost;
+            var i = apprenticeship.PriceHistory.FindIndex(f => 
+                        (f.FromDate <= _currentDateTime.Now && f.ToDate > _currentDateTime.Now) 
+                        || (f.FromDate > _currentDateTime.Now)
+                        || f.ToDate == null 
+                    );
 
             if (update.Cost.HasValue)
             {
-                if (apprenticeship.PriceHistory.Count > 1)
-                    throw new InvalidOperationException("Multiple Prices History Items not expected.");
-
-                apprenticeship.PriceHistory.Single().Cost = update.Cost.Value;
+                apprenticeship.PriceHistory[i].Cost = update.Cost.Value;
             }
 
             if (update.StartDate.HasValue)
             {
-                if (apprenticeship.PriceHistory.Count > 1)
+                if(apprenticeship.PriceHistory.Count > 1)
                     throw new InvalidOperationException("Multiple Prices History Items not expected.");
 
-                apprenticeship.PriceHistory.Single().FromDate = update.StartDate ?? apprenticeship.PriceHistory.Single().FromDate;
+                apprenticeship.PriceHistory[i].FromDate = update.StartDate ?? apprenticeship.PriceHistory.Single().FromDate;
             }
         }
     }

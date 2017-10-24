@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 _repository.Object,
                 _apprenticeshipRepository.Object,
                 _mediator.Object,
-                new AcceptApprenticeshipChangeMapper(),
+                new AcceptApprenticeshipChangeMapper(Mock.Of<ICurrentDateTime>()),
                 _apprenticeshipEvents.Object,
                 _commitment.Object,
                 _historyRepository.Object
