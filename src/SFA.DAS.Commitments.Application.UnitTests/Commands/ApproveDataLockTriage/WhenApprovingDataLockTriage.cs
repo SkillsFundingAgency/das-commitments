@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
-        private Mock<IApprenticeshipInfoServiceWrapper> _apprenticeshipTrainngService;
+        private Mock<IApprenticeshipInfoServiceWrapper> _apprenticeshipTrainingService;
 
         private ApproveDataLockTriageCommand _command;
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _validator = new Mock<AbstractValidator<ApproveDataLockTriageCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _apprenticeshipTrainngService = new Mock<IApprenticeshipInfoServiceWrapper>();
+            _apprenticeshipTrainingService = new Mock<IApprenticeshipInfoServiceWrapper>();
 
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship());
@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             Mock.Of<IApprenticeshipEventsList>(),
             _commitmentRepository.Object,
             Mock.Of<ICurrentDateTime>(),
-            _apprenticeshipTrainngService.Object,
+            _apprenticeshipTrainingService.Object,
             Mock.Of<ICommitmentsLogger>());
         }
 
@@ -123,7 +123,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         }
 
         [Test]
-        public async Task ShouldNotUpdateWhenDataLockIsUnhandled()
+        public async Task ShouldExcludeSomeDataLocksWhenUpdatingPriceHistory()
         {
             var isResolvedDataLock = new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, Status = Status.Fail,  IlrTotalCost = 505,
                         ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, TriageStatus = TriageStatus.Change};
@@ -257,7 +257,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
             
-            _apprenticeshipTrainngService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
+            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), new Caller()), Times.Never);
         }
 
@@ -280,7 +280,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345 });
 
-            _apprenticeshipTrainngService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
+            _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
                 .ReturnsAsync(standard);
 
             Apprenticeship updatedApprenticeship = null;
@@ -293,7 +293,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
-            _apprenticeshipTrainngService.Verify(m => m.GetTrainingProgramAsync(standard.Code.ToString(), false), Times.Once);
+            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgramAsync(standard.Code.ToString(), false), Times.Once);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
 
             updatedApprenticeship.TrainingCode.Should().Be(standard.Code.ToString());
@@ -320,14 +320,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345, TrainingCode = $"{trainingCode}"});
 
-            _apprenticeshipTrainngService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
+            _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
                 .ReturnsAsync(standard);
 
             await _sut.Handle(_command);
 
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
-            _apprenticeshipTrainngService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
+            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
         }
 

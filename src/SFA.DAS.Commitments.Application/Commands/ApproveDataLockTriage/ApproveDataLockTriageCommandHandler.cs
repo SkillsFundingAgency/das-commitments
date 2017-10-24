@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _eventsApi;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IApprenticeshipInfoServiceWrapper _apprenticeshipTrainngService;
+        private readonly IApprenticeshipInfoServiceWrapper _apprenticeshipTrainingService;
 
         private readonly ICommitmentsLogger _logger;
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             IApprenticeshipEventsList apprenticeshipEventsList,
             ICommitmentRepository commitmentRepository, 
             ICurrentDateTime currentDateTime,
-            IApprenticeshipInfoServiceWrapper apprenticeshipTrainngService,
+            IApprenticeshipInfoServiceWrapper apprenticeshipTrainingService,
             ICommitmentsLogger logger)
         {
             if (validator == null)
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
-            _apprenticeshipTrainngService = apprenticeshipTrainngService;
+            _apprenticeshipTrainingService = apprenticeshipTrainingService;
             _logger = logger;
         }
 
@@ -93,7 +93,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
                 if (dataLockWithUpdatedTraining != null)
                 {
                     var training = await
-                        _apprenticeshipTrainngService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                        _apprenticeshipTrainingService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
 
                     _logger.Info($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.TrainingCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
 
