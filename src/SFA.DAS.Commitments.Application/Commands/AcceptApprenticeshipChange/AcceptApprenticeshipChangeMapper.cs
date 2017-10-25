@@ -47,23 +47,21 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 
         private void UpdatePrice(Apprenticeship apprenticeship, ApprenticeshipUpdate update)
         {
-            var i = apprenticeship.PriceHistory.FindIndex(f => 
-                        (f.FromDate <= _currentDateTime.Now && f.ToDate > _currentDateTime.Now) 
-                        || (f.FromDate > _currentDateTime.Now)
-                        || f.ToDate == null 
-                    );
-
             if (update.Cost.HasValue)
             {
-                apprenticeship.PriceHistory[i].Cost = update.Cost.Value;
+                if (apprenticeship.PriceHistory.Count != 1)
+                    throw new InvalidOperationException("Multiple Prices History Items not expected.");
+
+                apprenticeship.Cost = update.Cost.Value;
+                apprenticeship.PriceHistory[0].Cost = update.Cost.Value;
             }
 
             if (update.StartDate.HasValue)
             {
-                if(apprenticeship.PriceHistory.Count > 1)
+                if(apprenticeship.PriceHistory.Count != 1)
                     throw new InvalidOperationException("Multiple Prices History Items not expected.");
 
-                apprenticeship.PriceHistory[i].FromDate = update.StartDate ?? apprenticeship.PriceHistory.Single().FromDate;
+                apprenticeship.PriceHistory[0].FromDate = update.StartDate ?? apprenticeship.PriceHistory.Single().FromDate;
             }
         }
     }

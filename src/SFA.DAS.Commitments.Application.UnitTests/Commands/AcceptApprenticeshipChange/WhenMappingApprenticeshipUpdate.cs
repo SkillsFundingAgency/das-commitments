@@ -162,54 +162,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         }
 
         [Test]
-        public void UpdateCostOnFirstPriceHistoryIfStartDateIsBeforeNow()
-        {
-            _currentTime.Setup(m => m.Now).Returns(new DateTime(_yearNow-1, 10, 23));
-            _apprenticeship.PriceHistory = new List<PriceHistory>
-                    {
-                        new PriceHistory { FromDate = new DateTime(_yearNow, 01, 01), ToDate = new DateTime(_yearNow, 03, 31), Cost = 1199, ApprenticeshipId = 55 },
-                        new PriceHistory { FromDate = new DateTime(_yearNow, 04, 01), ToDate = new DateTime(_yearNow, 06, 30), Cost = 2299, ApprenticeshipId = 55 },
-                        new PriceHistory { FromDate = new DateTime(_yearNow, 07, 01), Cost = 3399, ApprenticeshipId = 55 }
-                    };
-
-            var update = new ApprenticeshipUpdate
-            {
-                Cost = 32333
-            };
-
-            _sut.ApplyUpdate(_apprenticeship, update);
-            _apprenticeship.PriceHistory[0].Cost.ShouldBeEquivalentTo(32333);
-            _apprenticeship.PriceHistory[1].Cost.ShouldBeEquivalentTo(2299);
-            _apprenticeship.PriceHistory[2].Cost.ShouldBeEquivalentTo(3399);
-        }
-
-        [Test]
-        public void ShouldUpdateCostOnLastPriceHistory()
-        {
-            _currentTime.Setup(m => m.Now).Returns(new DateTime(_yearNow, 07, 23));
-            _apprenticeship.PriceHistory = new List<PriceHistory>
-                    {
-                        new PriceHistory { FromDate = new DateTime(_yearNow, 01, 01), ToDate = new DateTime(_yearNow, 03, 31), Cost = 1199, ApprenticeshipId = 55 },
-                        new PriceHistory { FromDate = new DateTime(_yearNow, 04, 01), ToDate = new DateTime(_yearNow, 06, 30), Cost = 2299, ApprenticeshipId = 55 },
-                        new PriceHistory { FromDate = new DateTime(_yearNow, 07, 01), Cost = 3399, ApprenticeshipId = 55 }
-                    };
-
-            var update = new ApprenticeshipUpdate
-            {
-                Cost = 32333
-            };
-
-            _sut.ApplyUpdate(_apprenticeship, update);
-            _apprenticeship.PriceHistory[0].Cost.ShouldBeEquivalentTo(1199);
-            _apprenticeship.PriceHistory[0].FromDate.ShouldBeEquivalentTo($"01/01/{_yearNow} 00:00:00");
-            _apprenticeship.PriceHistory[1].Cost.ShouldBeEquivalentTo(2299);
-            _apprenticeship.PriceHistory[1].FromDate.ShouldBeEquivalentTo($"01/04/{_yearNow} 00:00:00");
-            _apprenticeship.PriceHistory[2].Cost.ShouldBeEquivalentTo(32333);
-            _apprenticeship.PriceHistory[2].FromDate.ShouldBeEquivalentTo($"01/07/{_yearNow} 00:00:00");
-        }
-
-        [Test]
-        public void ShouldUpdateCostOnMiddlePriceHistory()
+        public void ShouldNotAllowChangesToCostWhenMoreThanOnePriceHistory()
         {
             _currentTime.Setup(m => m.Now).Returns(new DateTime(_yearNow, 05, 23));
             _apprenticeship.PriceHistory = new List<PriceHistory>
@@ -224,13 +177,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 Cost = 32333
             };
 
-            _sut.ApplyUpdate(_apprenticeship, update);
-            _apprenticeship.PriceHistory[0].Cost.ShouldBeEquivalentTo(1199);
-            _apprenticeship.PriceHistory[0].FromDate.ShouldBeEquivalentTo($"01/01/{_yearNow} 00:00:00");
-            _apprenticeship.PriceHistory[1].Cost.ShouldBeEquivalentTo(32333);
-            _apprenticeship.PriceHistory[1].FromDate.ShouldBeEquivalentTo($"01/04/{_yearNow} 00:00:00");
-            _apprenticeship.PriceHistory[2].Cost.ShouldBeEquivalentTo(3399);
-            _apprenticeship.PriceHistory[2].FromDate.ShouldBeEquivalentTo($"01/07/{_yearNow} 00:00:00");
+            Action act = () => _sut.ApplyUpdate(_apprenticeship, update);
+            act.ShouldThrow<InvalidOperationException>().Which.Message.Should().Be("Multiple Prices History Items not expected.");
         }
         
         [Test]

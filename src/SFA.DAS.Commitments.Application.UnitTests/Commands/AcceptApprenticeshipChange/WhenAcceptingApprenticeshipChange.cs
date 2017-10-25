@@ -65,7 +65,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 ULN = " 123",
                 StartDate = _apprenticeshipStartDate,
                 EndDate = _apprenticeshipStartDate.AddYears(2),
-                Id = 3
+                Id = 3,
+                PriceHistory = new List<PriceHistory> { new PriceHistory { ApprenticeshipId = 3, Cost = 1900, FromDate = DateTime.Now } }
             };
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
 
