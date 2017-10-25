@@ -9,11 +9,9 @@ using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage;
-using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
-using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriage
 {
@@ -37,10 +35,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _commitmentRepository = new Mock<ICommitmentRepository>();
 
-            _command = new RejectDataLockTriageCommand
-            {
-                ApprenticeshipId = 4321
-            };
+            _command = new RejectDataLockTriageCommand { ApprenticeshipId = 4321 };
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship());
 
             _validator.Setup(m => m.Validate(_command))
                 .Returns(new ValidationResult());
@@ -106,18 +104,35 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
                 Times.Once);
         }
 
-
-        [Test]
-        public async Task ShouldOnlyResetUpdateDataLockWithPrice()
+        [TestCase(false, 2, 3, Description = "Should update all with triange status change")]
+        [TestCase(true, 3, Description = "Should update all with triange status change and price only")]
+        public async Task ShouldRejectDatalock(bool hasHadDatalockSuccess, params long[] expectedIds)
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
-                .ReturnsAsync(new List<DataLockStatus>
-                                  {
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 505, ErrorCode = (DataLockErrorCode)76, DataLockEventId = 1},
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 506, ErrorCode = DataLockErrorCode.Dlock06, DataLockEventId = 2},
-                                      new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
-                                  });
+                .ReturnsAsync(
+                new List<DataLockStatus>
+                {
+                    new DataLockStatus { DataLockEventId = 1, ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail,
+                                         IlrTotalCost = 505, ErrorCode = (DataLockErrorCode)76 },
+
+                    new DataLockStatus { DataLockEventId = 2, ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail,
+                                         IlrTotalCost = 506, ErrorCode = DataLockErrorCode.Dlock06, TriageStatus = TriageStatus.Change },
+
+                    new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail,
+                                         IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now,
+                                         TriageStatus = TriageStatus.Change }
+                });
+
+            long[] idsToBeUpdated = null;
+            _dataLockRepository.Setup(
+                m => m.UpdateDataLockTriageStatus(It.IsAny<IEnumerable<long>>(), It.IsAny<TriageStatus>()))
+                .Callback<IEnumerable<long>, TriageStatus>(
+                    (ids, triageStatus) => { idsToBeUpdated = ids.ToArray(); })
+                .ReturnsAsync(0);
+
+            _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship { HasHadDataLockSuccess = hasHadDatalockSuccess });
 
             await _sut.Handle(_command);
 
@@ -126,9 +141,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
                     _command.ApprenticeshipId,
                     It.IsAny<IEnumerable<PriceHistory>>()),
                     Times.Never);
+
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Never());
 
-            _dataLockRepository.Verify(m => m.UpdateDataLockTriageStatus(It.Is<IEnumerable<long>>(d => d.Contains(3L) && d.Count() == 1), TriageStatus.Unknown), Times.Once);
+            idsToBeUpdated.Length.Should().Be(expectedIds.Length);
+            idsToBeUpdated.ShouldAllBeEquivalentTo(expectedIds);
         }
     }
 }

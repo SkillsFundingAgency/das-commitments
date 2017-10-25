@@ -74,6 +74,14 @@
     <Reference Include="Polly, Version=5.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.1.0\lib\net45\Polly.dll</HintPath>
     </Reference>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Client, Version=0.10.95.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Client.0.10.95\lib\net45\SFA.DAS.Apprenticeships.Api.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=0.10.95.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.10.95\lib\net45\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
       <Private>True</Private>
@@ -134,6 +142,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ApprenticeshipInfoServiceConfiguration.cs" />
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Configuration\CurrentDatePolicy.cs" />
     <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
@@ -161,6 +170,7 @@
     <Compile Include="Services\ApprenticeshipEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsList.cs" />
     <Compile Include="Services\ApprenticeshipEventsPublisher.cs" />
+    <Compile Include="Services\ApprenticeshipInfoServiceWrapper.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
     <Compile Include="Services\HttpClientWrapper.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />

@@ -61,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -129,9 +130,9 @@
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommand.cs" />
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommandHandler.cs" />
     <Compile Include="Commands\RejectDataLockTriage\RejectDataLockTriageCommandValidator.cs" />
-    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommand.cs" />
-    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommandHandler.cs" />
-    <Compile Include="Commands\TriageDataLocks\TriageDataLockCommandValidator.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLocksCommand.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLocksCommandHandler.cs" />
+    <Compile Include="Commands\TriageDataLocks\TriageDataLocksCommandValidator.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommand.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandHandler.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandValidator.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Interfaces\IApprenticeshipInfoServiceWrapper.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />
@@ -206,6 +208,7 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
     <Compile Include="Services\HistoryService.cs" />
+    <Compile Include="Services\InMemoryCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
