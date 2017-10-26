@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Commitments.Api.Types.Commitment.Types;
+using SFA.DAS.Common.Domain.Types;
 
 namespace SFA.DAS.Commitments.Api.Types.Commitment
 {
