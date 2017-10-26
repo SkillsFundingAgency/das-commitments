@@ -6,6 +6,10 @@ using SFA.DAS.Commitments.Domain.Entities;
 using System.Linq;
 using System.Collections.Generic;
 
+using Moq;
+
+using SFA.DAS.Commitments.Domain.Interfaces;
+
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshipChange
 {
     [TestFixture]
@@ -14,10 +18,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private AcceptApprenticeshipChangeMapper _sut;
         private Apprenticeship _apprenticeship;
 
+        private Mock<ICurrentDateTime> _currentTime;
+
+        private int _yearNow;
+
         [SetUp]
         public void SetUp()
         {
-            _sut = new AcceptApprenticeshipChangeMapper();
+            _yearNow = DateTime.Now.Year;
+            _currentTime = new Mock<ICurrentDateTime>();
+            _sut = new AcceptApprenticeshipChangeMapper(_currentTime.Object);
             _apprenticeship = new Apprenticeship
                 {
                     Id = 55,
@@ -152,12 +162,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         }
 
         [Test]
-        public void UpdateCostWhenMultiplePriceHistory()
+        public void ShouldNotAllowChangesToCostWhenMoreThanOnePriceHistory()
         {
+            _currentTime.Setup(m => m.Now).Returns(new DateTime(_yearNow, 05, 23));
             _apprenticeship.PriceHistory = new List<PriceHistory>
                     {
-                        new PriceHistory { FromDate = new DateTime(2020, 12, 01), ToDate = new DateTime(2021, 01, 31), Cost = 1234, ApprenticeshipId = 55 },
-                        new PriceHistory { FromDate = new DateTime(2021, 02, 01), Cost = 1234, ApprenticeshipId = 55 }
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 01, 01), ToDate = new DateTime(_yearNow, 03, 31), Cost = 1199, ApprenticeshipId = 55 },
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 04, 01), ToDate = new DateTime(_yearNow, 06, 30), Cost = 2299, ApprenticeshipId = 55 },
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 07, 01), Cost = 3399, ApprenticeshipId = 55 }
                     };
 
             var update = new ApprenticeshipUpdate
@@ -166,8 +178,48 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             };
 
             Action act = () => _sut.ApplyUpdate(_apprenticeship, update);
-
             act.ShouldThrow<InvalidOperationException>().Which.Message.Should().Be("Multiple Prices History Items not expected.");
+        }
+        
+        [Test]
+        public void ShouldNotAllowChangesToStartDateWhenMoreThanOnePriceHistory()
+        {
+            _currentTime.Setup(m => m.Now).Returns(new DateTime(_yearNow, 05, 23));
+            _apprenticeship.PriceHistory = new List<PriceHistory>
+                    {
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 01, 01), ToDate = new DateTime(_yearNow, 03, 31), Cost = 1199, ApprenticeshipId = 55 },
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 04, 01), ToDate = new DateTime(_yearNow, 06, 30), Cost = 2299, ApprenticeshipId = 55 },
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 07, 01), Cost = 3399, ApprenticeshipId = 55 }
+                    };
+
+            var update = new ApprenticeshipUpdate
+            {
+                Cost = 32333,
+                StartDate = new DateTime(_yearNow, 08, 01)
+            };
+
+            Action act = () => _sut.ApplyUpdate(_apprenticeship, update);
+            act.ShouldThrow<InvalidOperationException>().Which.Message.Should().Be("Multiple Prices History Items not expected.");
+        }
+
+        [Test]
+        public void ShouldUpdateStartDateOnPriceHistory()
+        {
+            _currentTime.Setup(m => m.Now).Returns(new DateTime(_yearNow, 05, 23));
+            _apprenticeship.PriceHistory = new List<PriceHistory>
+                    {
+                        new PriceHistory { FromDate = new DateTime(_yearNow, 01, 01), Cost = 3399, ApprenticeshipId = 55 }
+                    };
+
+            var update = new ApprenticeshipUpdate
+            {
+                Cost = 32333,
+                StartDate = new DateTime(_yearNow, 08, 01)
+            };
+
+            _sut.ApplyUpdate(_apprenticeship, update);
+            _apprenticeship.PriceHistory[0].Cost.ShouldBeEquivalentTo(32333);
+            _apprenticeship.PriceHistory[0].FromDate.ShouldBeEquivalentTo("01/08/2017 00:00:00");
         }
     }
 }
