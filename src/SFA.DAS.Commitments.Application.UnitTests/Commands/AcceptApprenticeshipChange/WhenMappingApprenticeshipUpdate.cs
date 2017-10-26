@@ -211,15 +211,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                         new PriceHistory { FromDate = new DateTime(_yearNow, 01, 01), Cost = 3399, ApprenticeshipId = 55 }
                     };
 
+            var newStartDate = new DateTime(_yearNow, 08, 01);
             var update = new ApprenticeshipUpdate
             {
                 Cost = 32333,
-                StartDate = new DateTime(_yearNow, 08, 01)
+                StartDate = newStartDate
             };
 
             _sut.ApplyUpdate(_apprenticeship, update);
             _apprenticeship.PriceHistory[0].Cost.ShouldBeEquivalentTo(32333);
-            _apprenticeship.PriceHistory[0].FromDate.ShouldBeEquivalentTo("01/08/2017 00:00:00");
+            _apprenticeship.PriceHistory[0].FromDate.ToString("O").ShouldBeEquivalentTo(newStartDate.ToString("O"));
         }
     }
 }
