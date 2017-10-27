@@ -47,8 +47,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                 });
 
             MockApprenticeshipFilter.Setup(m =>
-               m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider))
-               .Returns<IList<Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));
+               m.Filter(It.IsAny<IList<Types.Apprenticeship.Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider))
+               .Returns<IList<Types.Apprenticeship.Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));
         }
     }
 

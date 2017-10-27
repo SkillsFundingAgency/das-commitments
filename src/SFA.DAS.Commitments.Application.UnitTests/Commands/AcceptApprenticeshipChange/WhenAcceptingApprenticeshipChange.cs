@@ -33,7 +33,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
         private Mock<IHistoryRepository> _historyRepository;
-        private Mock<ICurrentDateTime> _currentDateTime;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;

@@ -5,7 +5,6 @@ using Moq;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Api.Types;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Domain;
@@ -24,7 +23,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                               {
                                     LastUpdatedByInfo = new LastUpdateInfo { EmailAddress = "test@email.com", Name = "Bob" },
                                     UserId = "User",
-                                    Apprenticeships = new List<Apprenticeship>()
+                                    Apprenticeships = new List<Types.Apprenticeship.Apprenticeship>()
                               };
 
             await Orchestrator.CreateApprenticeships(providerId, commitmentId, request);
