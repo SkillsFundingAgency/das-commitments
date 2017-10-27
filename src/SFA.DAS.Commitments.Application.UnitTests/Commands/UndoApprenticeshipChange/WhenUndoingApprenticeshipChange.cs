@@ -28,8 +28,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipC
         private Mock<IMediator> _mediator;
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
-        private Mock<IHistoryRepository> _historyRepository;
-        private Mock<ICurrentDateTime> _currentDateTime;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -47,7 +45,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipC
             _mediator = new Mock<IMediator>();
             _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _commitment = new Mock<ICommitmentRepository>();
-            _historyRepository = new Mock<IHistoryRepository>();
 
             _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _effectiveDate = DateTime.Now.AddDays(-2);
