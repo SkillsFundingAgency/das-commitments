@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using FluentAssertions;
-
 using Moq;
 using NUnit.Framework;
 
@@ -39,8 +38,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
             var result = await Orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 
             MockMediator.Verify(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()), Times.Once);
-            MockFacetMapper.Verify(m => m.BuildFacets(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
-            MockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
+            MockFacetMapper.Verify(m => m.BuildFacets(It.IsAny<IList<Types.Apprenticeship.Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
+            MockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Types.Apprenticeship.Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
 
             result.Apprenticeships.Count().Should().Be(0);
         }
@@ -62,8 +61,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
             var result = await Orchestrator.GetApprenticeships(1L, new ApprenticeshipSearchQuery());
 
             MockMediator.Verify(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()), Times.Once);
-            MockFacetMapper.Verify(m => m.BuildFacets(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
-            MockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
+            MockFacetMapper.Verify(m => m.BuildFacets(It.IsAny<IList<Types.Apprenticeship.Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
+            MockApprenticeshipFilter.Verify(m => m.Filter(It.IsAny<IList<Types.Apprenticeship.Apprenticeship>>(), It.IsAny<ApprenticeshipSearchQuery>(), Originator.Provider), Times.Once);
 
             result.Apprenticeships.Count().Should().Be(1);
             result.TotalApprenticeshipsBeforeFilter.Should().Be(49);
