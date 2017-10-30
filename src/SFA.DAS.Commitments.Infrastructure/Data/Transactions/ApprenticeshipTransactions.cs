@@ -96,7 +96,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 
             await connection.ExecuteAsync(
                 sql: " UPDATE[dbo].[PriceHistory] " 
-                     + "SET Cost = @cost, FromDate = @fromDate"
+                     + "SET Cost = @cost, FromDate = @fromDate "
                      + "WHERE ApprenticeshipId = @apprenticeshipId "
                      + "AND( (FromDate <= @now AND ToDate >= FORMAT(@now, 'yyyMMdd')) "
                      + "OR ToDate IS NULL);", 
