@@ -173,7 +173,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
             argument.LegalEntityAddress.Should().Be(_exampleValidRequest.Commitment.LegalEntityAddress);
-            argument.LegalEntityOrganisationType.Should().Be((Domain.Entities.OrganisationType)_exampleValidRequest.Commitment.LegalEntityOrganisationType);
+            argument.LegalEntityOrganisationType.Should().Be(_exampleValidRequest.Commitment.LegalEntityOrganisationType);
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);
