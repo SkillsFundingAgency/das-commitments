@@ -33,7 +33,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
         private Mock<IHistoryRepository> _historyRepository;
-        private Mock<ICurrentDateTime> _currentDateTime;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -65,7 +64,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 ULN = " 123",
                 StartDate = _apprenticeshipStartDate,
                 EndDate = _apprenticeshipStartDate.AddYears(2),
-                Id = 3
+                Id = 3,
+                PriceHistory = new List<PriceHistory> { new PriceHistory { ApprenticeshipId = 3, Cost = 1900, FromDate = DateTime.Now } }
             };
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
 
@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 _repository.Object,
                 _apprenticeshipRepository.Object,
                 _mediator.Object,
-                new AcceptApprenticeshipChangeMapper(),
+                new AcceptApprenticeshipChangeMapper(Mock.Of<ICurrentDateTime>()),
                 _apprenticeshipEvents.Object,
                 _commitment.Object,
                 _historyRepository.Object

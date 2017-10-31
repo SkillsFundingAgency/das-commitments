@@ -124,16 +124,36 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                 ? "is 1 apprentice" 
                                 : $"are {alertSummary.TotalCount} apprentices" },
                             { "account_name", accountName },
-                            { "changes_for_review", alertSummary.ChangesForReview > 0 
-                                ? $"* {alertSummary.ChangesForReview} with changes for review" 
-                                : string.Empty },
-                            { "requested_changes", alertSummary.RestartRequestCount > 0 
-                                ? $"* {alertSummary.RestartRequestCount} with requested changes" 
-                                : string.Empty },
+                            { "need_needs", alertSummary.TotalCount > 1 ? "needs" :"need" },
+                            { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReview) },
+                            { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
                             { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },
                             { "link_to_unsubscribe", $"/settings/notifications/unsubscribe/{hashedAccountId}" }
                         }
                 };
+        }
+
+        private string RestartRequestText(int restartRequestCount)
+        {
+            if(restartRequestCount == 0)
+                return string.Empty;
+
+            if(restartRequestCount == 1)
+                return $"* {restartRequestCount} apprentice with requested changes";
+
+            return $"* {restartRequestCount} apprentices with requested changes";
+            
+        }
+
+        private string ChangesForReviewText(int changesForReview)
+        {
+            if(changesForReview == 0)
+                return string.Empty;
+
+            if(changesForReview == 1)
+                return $"* {changesForReview} apprentice with changes for review";
+
+            return $"* {changesForReview} apprentices with changes for review";
         }
 
         private Polly.Retry.RetryPolicy GetRetryPolicy()

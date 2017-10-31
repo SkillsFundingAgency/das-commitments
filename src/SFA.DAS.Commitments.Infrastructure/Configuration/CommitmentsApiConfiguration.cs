@@ -10,5 +10,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
         public string Hashstring { get; set; }
         public string AllowedHashstringCharacters { get; set; }
         public EventsApiClientConfiguration EventsApi { get; set; }
+
+        public ApprenticeshipInfoServiceConfiguration ApprenticeshipInfoService { get; set; }
     }
 }
