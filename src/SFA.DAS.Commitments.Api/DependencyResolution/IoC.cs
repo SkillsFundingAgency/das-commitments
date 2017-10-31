@@ -18,17 +18,21 @@
 using System;
 using StructureMap;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
     public static class IoC
     {
+        private const string ServiceName = "SFA.DAS.Commitments";
+
         public static IContainer Initialize()
         {
             return new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
                 c.Policies.Add<CurrentDatePolicy>();
+                c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName));
             });
         }
     }

@@ -19,6 +19,7 @@ using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.NLog.Logger.Web.MessageHandlers;
 using SFA.DAS.Notifications.Api.Client;
+using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
 {
