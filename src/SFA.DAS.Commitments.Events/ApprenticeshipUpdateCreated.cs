@@ -5,6 +5,12 @@ namespace SFA.DAS.Commitments.Events
     [MessageGroup("apprenticeship_update_created")]
     public class ApprenticeshipUpdateCreated
     {
+        //Needs a parameterless constructor to work with the message processing
+        public ApprenticeshipUpdateCreated()
+        {
+            
+        }
+
         public ApprenticeshipUpdateCreated(long accountId, long providerId, long apprenticeshipId)
         {
             AccountId = accountId;

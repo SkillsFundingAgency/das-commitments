@@ -5,6 +5,12 @@ namespace SFA.DAS.Commitments.Events
     [MessageGroup("cohort_approval_requested_by_provider")]
     public class CohortApprovalRequestedByProvider
     {
+        //Needs a parameterless constructor to work with the message processing
+        public CohortApprovalRequestedByProvider()
+        {
+            
+        }
+
         public CohortApprovalRequestedByProvider(long accountId, long providerId, long commitmentId)
         {
             AccountId = accountId;
