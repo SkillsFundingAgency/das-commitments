@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
 EndProject
@@ -52,6 +52,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob", "SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj", "{72DEEA89-6555-4AAB-B48B-63C050E16B95}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Events", "SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj", "{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "AzureConfiguration", "{7B1AC6BD-B43A-4BE0-9BA9-14E234C46593}"
+	ProjectSection(SolutionItems) = preProject
+		AzureTopicConfigurationStrucuture.json = AzureTopicConfigurationStrucuture.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
