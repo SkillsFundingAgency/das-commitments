@@ -2,7 +2,7 @@
 AS 
 
 SELECT 
-	a.Id,a.CommitmentId,a.FirstName,a.LastName,a.ULN,a.TrainingType,a.TrainingCode,a.TrainingName,
+	a.Id,a.CommitmentId,a.FirstName,a.LastName, a.Cost,a.ULN,a.TrainingType,a.TrainingCode,a.TrainingName,
 	a.StartDate,a.EndDate,a.AgreementStatus,a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
 	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.HasHadDataLockSuccess,
 	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName, c.LegalEntityId,
