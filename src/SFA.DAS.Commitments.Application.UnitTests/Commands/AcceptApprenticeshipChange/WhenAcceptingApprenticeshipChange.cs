@@ -18,6 +18,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshipChange
 {
@@ -33,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
         private Mock<IHistoryRepository> _historyRepository;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -50,6 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _commitment = new Mock<ICommitmentRepository>();
             _historyRepository = new Mock<IHistoryRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _effectiveDate = DateTime.Now.AddDays(-2);
@@ -72,7 +76,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             _mediator.Setup(m => m.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>())).ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<ApprenticeshipResult>() });
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>())).ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn, EffectiveFromDate = _effectiveDate });
-            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
+            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment { ProviderId = 43556 });
 
             _sut = new AcceptApprenticeshipChangeCommandHandler(
                 _validator.Object,
@@ -82,7 +86,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 new AcceptApprenticeshipChangeMapper(Mock.Of<ICurrentDateTime>()),
                 _apprenticeshipEvents.Object,
                 _commitment.Object,
-                _historyRepository.Object
+                _historyRepository.Object,
+                _messagePublisher.Object
                 );
         }
 
@@ -342,6 +347,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                                 y.Last().UpdatedState == expectedNewApprenticeshipState &&
                                 y.Last().UserId == command.UserId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenTheAcceptanceAcceptedEventIsCreated()
+        {
+            var testCommitment = new Commitment { ProviderId = 1234, Id = 9874, EmployerAccountId = 8457 };
+            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            var command = new AcceptApprenticeshipChangeCommand
+            {
+                ApprenticeshipId = 1234,
+                UserId = "ABC123",
+                Caller = new Caller(555, CallerType.Employer)
+            };
+            await _sut.Handle(command);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<ApprenticeshipUpdateAccepted>(
+                            m => m.AccountId == testCommitment.EmployerAccountId && m.ProviderId == testCommitment.ProviderId.Value && m.ApprenticeshipId == command.ApprenticeshipId)), Times.Once);
         }
     }
 }
