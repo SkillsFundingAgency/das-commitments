@@ -143,10 +143,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     caller == Originator.Provider ? RecordStatus.IlrDataMismatch : RecordStatus.NoActionNeeded);
             }
 
-            if (apprenticeships.Any(x => x.DataLockPriceTriaged))
+            if (apprenticeships.Any(x => x.DataLockPriceTriaged || x.DataLockCourseChangeTriaged))
             {
                 addUnique(statusFacets,
-                    caller == Originator.Provider ? RecordStatus.ChangesPending : RecordStatus.NoActionNeeded);
+                    caller == Originator.Provider ? RecordStatus.ChangesPending : RecordStatus.ChangesForReview);
             }
 
             if (apprenticeships.Any(x => x.DataLockCourseTriaged))

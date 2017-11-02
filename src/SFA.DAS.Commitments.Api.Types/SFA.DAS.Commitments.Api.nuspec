@@ -11,7 +11,9 @@
         <description>Provides types for the SFA.DAS.Commitments.Api service</description>
         <summary>Types for the SFA.DAS.Commitments.Api service</summary>
         <releaseNotes />
-        <dependencies />
+      <dependencies>
+        <dependency id="SFA.DAS.Common.Domain" version="1.3.0" />
+      </dependencies>
     </metadata>
     <files>
         <file src="bin\Release\SFA.DAS.Commitments.Api.Types.dll" target="lib\net45\SFA.DAS.Commitments.Api.Types.dll" />

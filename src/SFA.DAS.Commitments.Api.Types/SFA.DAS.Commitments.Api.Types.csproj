@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SFA.DAS.Common.Domain, Version=1.3.0.44308, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Common.Domain.1.3.0.44308\lib\net45\SFA.DAS.Common.Domain.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -87,11 +90,11 @@
     <Compile Include="History\CommitmentHistoryItem.cs" />
     <Compile Include="Commitment\Types\LastAction.cs" />
     <Compile Include="Commitment\Types\LastUpdateInfo.cs" />
-    <Compile Include="OrganisationType.cs" />
     <Compile Include="Apprenticeship\Types\PaymentStatus.cs" />
     <Compile Include="Commitment\Commitment.cs" />
     <Compile Include="Commitment\CommitmentListItem.cs" />
     <Compile Include="Commitment\Types\CommitmentStatus.cs" />
+    <Compile Include="OrganisationType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderPayment\ProviderPaymentPriorityUpdateItem.cs" />
     <Compile Include="ProviderPayment\ProviderPaymentPrioritySubmission.cs" />
@@ -106,6 +109,7 @@
     <Compile Include="Validation\Types\ValidationFailReason.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="SFA.DAS.Commitments.Api.nuspec">
       <SubType>Designer</SubType>
     </None>

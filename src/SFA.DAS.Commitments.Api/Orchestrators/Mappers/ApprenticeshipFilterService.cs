@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 {
                     records.AddRange(result.Where(m => m.PendingUpdateOriginator != null && m.PendingUpdateOriginator != caller));
                     if(caller == Originator.Employer)
-                        records.AddRange(result.Where(m => m.DataLockPriceTriaged));
+                        records.AddRange(result.Where(m => m.DataLockPriceTriaged || m.DataLockCourseChangeTriaged));
                 }
 
                 if (apprenticeshipQuery.RecordStatuses.Contains(RecordStatus.IlrDataMismatch))

@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                 EmployerAccountId = 987,
                 LegalEntityId = "LE ID",
                 LegalEntityName = "LE Name",
-                LegalEntityOrganisationType = OrganisationType.CompaniesHouse
+                LegalEntityOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType.CompaniesHouse
             };
 
             Apprenticeship = new Apprenticeship
