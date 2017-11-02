@@ -18,9 +18,9 @@ SELECT
 			WHERE PaymentStatus > 0
 			AND (DataLockCourse = 1 OR DataLockPrice = 1 OR DataLockCourseChangeTriaged = 1 OR UpdateOriginator = 0)
 		) a
-	LEFT JOIN (
-		SELECT ProviderId, ProviderName, CreatedOn FROM 
-			(SELECT *, ROW_NUMBER() OVER (PARTITION BY ProviderId ORDER BY CreatedOn DESC) AS rn FROM Commitment) c
+	INNER JOIN (
+		SELECT ProviderId, ProviderName FROM 
+			(SELECT ProviderId, ProviderName, ROW_NUMBER() OVER (PARTITION BY ProviderId ORDER BY CreatedOn DESC) AS rn FROM Commitment) c
 		WHERE rn = 1
 	) p
 	ON a.ProviderId = p.ProviderId
