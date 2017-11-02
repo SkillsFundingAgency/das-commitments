@@ -5,6 +5,8 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange
 {
@@ -13,15 +15,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange
         private readonly AbstractValidator<UndoApprenticeshipChangeCommand> _validator;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public UndoApprenticeshipChangeCommandHandler(
-            AbstractValidator<UndoApprenticeshipChangeCommand> validator,
-            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
-            IApprenticeshipRepository apprenticeshipRepository)
+        public UndoApprenticeshipChangeCommandHandler(AbstractValidator<UndoApprenticeshipChangeCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository, IMessagePublisher messagePublisher)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(UndoApprenticeshipChangeCommand command)
@@ -33,6 +34,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange
             ValidateCommand(command, pendingUpdate, apprenticeship);
 
             await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
+            await SendApprenticeshipUpdateCancelledEvent(apprenticeship);
+        }
+
+        private async Task SendApprenticeshipUpdateCancelledEvent(Apprenticeship apprenticeship)
+        {
+            await _messagePublisher.PublishAsync(new ApprenticeshipUpdateCancelled(apprenticeship.EmployerAccountId, apprenticeship.ProviderId, apprenticeship.Id));
         }
 
         private void ValidateCommand(UndoApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate,

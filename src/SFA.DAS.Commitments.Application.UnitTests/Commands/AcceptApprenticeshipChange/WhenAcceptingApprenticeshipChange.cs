@@ -350,7 +350,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         }
 
         [Test]
-        public async Task ThenTheAcceptanceAcceptedEventIsCreated()
+        public async Task ThenTheUpdateAcceptedEventIsCreated()
         {
             var testCommitment = new Commitment { ProviderId = 1234, Id = 9874, EmployerAccountId = 8457 };
             _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
