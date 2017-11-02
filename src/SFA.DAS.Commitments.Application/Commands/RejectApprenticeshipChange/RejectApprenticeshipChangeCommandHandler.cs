@@ -5,6 +5,8 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange
 {
@@ -13,12 +15,14 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange
         private readonly AbstractValidator<RejectApprenticeshipChangeCommand> _validator;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public RejectApprenticeshipChangeCommandHandler(AbstractValidator<RejectApprenticeshipChangeCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository)
+        public RejectApprenticeshipChangeCommandHandler(AbstractValidator<RejectApprenticeshipChangeCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, IApprenticeshipRepository apprenticeshipRepository, IMessagePublisher messagePublisher)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(RejectApprenticeshipChangeCommand command)
@@ -29,6 +33,12 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange
             ValidateCommand(command, pendingUpdate, apprenticeship);
 
             await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate, command.UserId);
+            await SendApprenticeshipUpdateRejectedEvent(apprenticeship);
+        }
+
+        private async Task SendApprenticeshipUpdateRejectedEvent(Apprenticeship apprenticeship)
+        {
+            await _messagePublisher.PublishAsync(new ApprenticeshipUpdateRejected(apprenticeship.EmployerAccountId, apprenticeship.ProviderId, apprenticeship.Id));
         }
 
         private void ValidateCommand(RejectApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
