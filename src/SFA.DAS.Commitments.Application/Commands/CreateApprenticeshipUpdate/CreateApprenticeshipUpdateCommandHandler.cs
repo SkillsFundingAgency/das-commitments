@@ -12,6 +12,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 {
@@ -26,16 +28,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly ICommitmentRepository _commitmentRepository;
         private HistoryService _historyService;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public CreateApprenticeshipUpdateCommandHandler(
-            AbstractValidator<CreateApprenticeshipUpdateCommand> validator, 
-            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, 
-            ICommitmentsLogger logger, 
-            IApprenticeshipRepository apprenticeshipRepository, 
-            IMediator mediator, 
-            IHistoryRepository historyRepository, 
-            ICommitmentRepository commitmentRepository, 
-            ICurrentDateTime currentDateTime)
+        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository, ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher)
         { 
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -45,6 +40,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _historyRepository = historyRepository;
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -82,12 +78,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             {
                 pendingUpdate = command.ApprenticeshipUpdate;
                 pendingUpdate.EffectiveFromDate = apprenticeship.StartDate.Value;
+                await SendApprenticeshipUpdateCreatedEvent(apprenticeship);
             }
 
             await Task.WhenAll(
                     _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
                     SaveHistory()
                 );
+        }
+
+        private async Task SendApprenticeshipUpdateCreatedEvent(Apprenticeship apprenticeship)
+        {
+            await _messagePublisher.PublishAsync(new ApprenticeshipUpdateCreated(apprenticeship.EmployerAccountId, apprenticeship.ProviderId, apprenticeship.Id));
         }
 
         private async Task SaveHistory()
