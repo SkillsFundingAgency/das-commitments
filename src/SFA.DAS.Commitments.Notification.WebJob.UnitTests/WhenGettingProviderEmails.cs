@@ -123,7 +123,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             email.Tokens["name"].Should().Be("Tester");
             email.Tokens["total_count_text"].Should().Be("are 2 apprentices");
             email.Tokens["provider_name"].Should().Be("Test Provider 1");
-            email.Tokens["need_needs"].Should().Be("needs");
+            email.Tokens["need_needs"].Should().Be("need");
             email.Tokens["changes_for_review"].Should().Be("* 2 apprentices with changes for review");
             email.Tokens["mismatch_changes"].Should().Be("* 2 apprentices with an ILR data mismatch");
 
@@ -154,7 +154,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             email.Tokens["name"].Should().Be("Tester");
             email.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             email.Tokens["provider_name"].Should().Be("Test Provider 1");
-            email.Tokens["need_needs"].Should().Be("need");
+            email.Tokens["need_needs"].Should().Be("needs");
             email.Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
             email.Tokens["mismatch_changes"].Should().Be("* 1 apprentice with an ILR data mismatch");
 
@@ -219,7 +219,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             first.Tokens["name"].Should().Be("NotFound");
             first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             first.Tokens["provider_name"].Should().Be("Test Provider 1");
-            first.Tokens["need_needs"].Should().Be("need");
+            first.Tokens["need_needs"].Should().Be("needs");
 
             first.Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
             first.Tokens["mismatch_changes"].Should().Be("* 1 apprentice with an ILR data mismatch");
@@ -269,7 +269,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             first.Tokens["name"].Should().Be("NotFound");
             first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             first.Tokens["provider_name"].Should().Be("Test Provider 1");
-            first.Tokens["need_needs"].Should().Be("need");
+            first.Tokens["need_needs"].Should().Be("needs");
 
             first.Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
             first.Tokens["mismatch_changes"].Should().Be("* 1 apprentice with an ILR data mismatch");
@@ -332,7 +332,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             first.Tokens["name"].Should().Be("Found-ON");
             first.Tokens["total_count_text"].Should().Be("is 1 apprentice");
             first.Tokens["provider_name"].Should().Be("Test Provider 1");
-            first.Tokens["need_needs"].Should().Be("need");
+            first.Tokens["need_needs"].Should().Be("needs");
 
             first.Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
             first.Tokens["mismatch_changes"].Should().Be("* 1 apprentice with an ILR data mismatch");
