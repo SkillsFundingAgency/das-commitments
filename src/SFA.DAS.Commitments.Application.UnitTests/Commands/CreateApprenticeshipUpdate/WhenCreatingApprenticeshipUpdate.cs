@@ -558,13 +558,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == testCommitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == testCommitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalCommitmentState &&
                                 y.First().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
                                 y.First().UserId == command.UserId &&
+                                y.First().ProviderId == _existingApprenticeship.ProviderId &&
+                                y.First().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.First().UpdatedByName == command.UserName)), Times.Once);
 
             _historyRepository.Verify(
@@ -572,13 +574,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.Last().EntityId == _existingApprenticeship.Id &&
                                 y.Last().ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
-                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().CommitmentId == null &&
+                                y.Last().ApprenticeshipId == _existingApprenticeship.Id &&
                                 y.Last().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.Last().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState == expectedNewApprenticeshipState &&
                                 y.Last().UserId == command.UserId &&
+                                y.Last().ProviderId == _existingApprenticeship.ProviderId &&
+                                y.Last().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
         }
     }

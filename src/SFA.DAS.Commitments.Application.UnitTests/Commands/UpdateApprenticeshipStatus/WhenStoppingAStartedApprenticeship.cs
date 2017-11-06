@@ -152,13 +152,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == TestApprenticeship.Id &&
                                 y.First().ChangeType == ApprenticeshipChangeType.ChangeOfStatus.ToString() &&
-                                y.First().EntityType == "Apprenticeship" &&
+                                y.First().CommitmentId == null &&
+                                y.First().ApprenticeshipId == TestApprenticeship.Id &&
                                 y.First().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.First().UpdatedByRole == CallerType.Employer.ToString() &&
                                 y.First().UpdatedState == expectedNewApprenticeshipState &&
                                 y.First().UserId == ExampleValidRequest.UserId &&
+                                y.First().ProviderId == TestApprenticeship.ProviderId &&
+                                y.First().EmployerAccountId  == TestApprenticeship.EmployerAccountId  &&
                                 y.First().UpdatedByName == ExampleValidRequest.UserName)), Times.Once);
         }
 
