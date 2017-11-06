@@ -25,13 +25,13 @@ WHERE Id IN (
 
 -- Setting CommitmentId or ApprenticeshipId values on new Columns
 
-UPDATE [SFA.DAS.Commitments.Database].[dbo].[History] 
+UPDATE History
 SET CommitmentId = EntityId, 
 EntityId = NULL, 
 EntityType = NULL
 WHERE EntityType = 'Commitment'
 
-UPDATE [SFA.DAS.Commitments.Database].[dbo].[History] 
+UPDATE History
 SET ApprenticeshipId = EntityId,
 EntityId = NULL,  
 EntityType = NULL
