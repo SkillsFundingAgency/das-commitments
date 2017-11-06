@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2017", IlrEffectiveFromDate = new DateTime(2017, 8, 1), Status = Status.Pass }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate,  IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000}
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
@@ -107,7 +107,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/09/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 4, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/09/2017", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 5000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 
@@ -147,7 +147,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                 new DataLockStatus { DataLockEventId = 2, ApprenticeshipId = 123, PriceEpisodeIdentifier = "25-6-01/08/2018", IlrEffectiveFromDate = duplicatIlreEffectiveFromDate, IlrTrainingCourseCode = "2", IlrTrainingType = TrainingType.Standard, IlrActualStartDate = new DateTime(2017, 05, 01), IlrTotalCost = 4000 }
             };
 
-            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123))).ReturnsAsync(apprenticeshipDataLocks);
+            _mockDataLockRepository.Setup(x => x.GetDataLocks(It.Is<long>(a => a == 123), true)).ReturnsAsync(apprenticeshipDataLocks);
 
             await _filter.Filter(123);
 

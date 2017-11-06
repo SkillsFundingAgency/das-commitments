@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
         public async Task ShouldNotUpdatePriceIfNoNewFromDataLock()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>());
 
             await _sut.Handle(_command);
@@ -84,7 +84,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
         public async Task ShouldNotResetWhenDataLockIsUnhandled()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, IlrTotalCost = 505, ErrorCode = DataLockErrorCode.Dlock07, DataLockEventId = 1, TriageStatus = TriageStatus.Change},
@@ -111,7 +111,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
         public async Task ShouldOnlyResetUpdateDataLockWithPrice()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 505, ErrorCode = (DataLockErrorCode)76, DataLockEventId = 1},

@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
                 .Returns(() => new ValidationResult());
 
             _dataLockRepository = new Mock<IDataLockRepository>();
-            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus
@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
         [Test]
         public async Task ShouldIgnoreCourseMismatch()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>{
                                       new DataLockStatus
                                           {

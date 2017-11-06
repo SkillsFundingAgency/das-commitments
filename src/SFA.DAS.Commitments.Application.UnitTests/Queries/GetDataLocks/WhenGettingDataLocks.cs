@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetDataLocks
         public void Arrange()
         {
             _dataLockRepository = new Mock<IDataLockRepository>();
-            _dataLockRepository.Setup(x => x.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(x => x.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>());
 
             _validator = new Mock<AbstractValidator<GetDataLocksRequest>>();
@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetDataLocks
             await _handler.Handle(request);
 
             //Assert
-            _dataLockRepository.Verify(x => x.GetDataLocks(It.IsAny<long>()), Times.Once);
+            _dataLockRepository.Verify(x => x.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()), Times.Once);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetDataLocks
                 ErrorCode = DataLockErrorCode.Dlock01
             };
 
-            _dataLockRepository.Setup(x => x.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(x => x.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>
                     {
                         dataLockStatus

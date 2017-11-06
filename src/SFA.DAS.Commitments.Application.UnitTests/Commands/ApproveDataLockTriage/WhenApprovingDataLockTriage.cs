@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldCallApprenticeshipRepositoryToGetDataForPublishingEvent()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldCallCommitmentRepositoryToGetDataForPublishingEvent()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                       {
                             new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public async Task ShouldNotUpdatePriceIfNoNewFromDataLock()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>());
 
             await _sut.Handle(_command);
@@ -118,7 +118,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public async Task ShouldNotUpdateWhenDataLockIsUnhandled()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = true, IlrTotalCost = 505, ErrorCode = DataLockErrorCode.Dlock07, DataLockEventId = 1, TriageStatus = TriageStatus.Change},
@@ -142,7 +142,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public async Task ShouldOnlyUpdateDataLockWithPrice()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 505, ErrorCode = (DataLockErrorCode)76, DataLockEventId = 1},
@@ -164,7 +164,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldSetEndDateForNewPriceHistory()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
@@ -198,7 +198,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldSetEndDateForNewPriceHistoryOneRecord()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,

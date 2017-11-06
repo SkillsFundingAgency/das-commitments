@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
         public async Task Filter(long apprenticeshipId)
         {
-            var apprenticeshipDataLocks = await _dataLockRepository.GetDataLocks(apprenticeshipId);
+            var apprenticeshipDataLocks = await _dataLockRepository.GetDataLocks(apprenticeshipId, true);
 
             if (apprenticeshipDataLocks == null || apprenticeshipDataLocks.Count == 0)
                 return;
