@@ -38,6 +38,9 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="SFA.DAS.Common.Domain, Version=1.3.0.44308, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Common.Domain.1.3.0.44308\lib\net45\SFA.DAS.Common.Domain.dll</HintPath>
+    </Reference>
     <Reference Include="SFA.DAS.Events.Api.Client, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
       <Private>True</Private>
@@ -110,12 +113,19 @@
     <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Entities\ProviderUser.cs" />
     <Compile Include="Entities\Relationship.cs" />
+    <Compile Include="Entities\TrainingProgramme\Framework.cs" />
+    <Compile Include="Entities\TrainingProgramme\FrameworksView.cs" />
+    <Compile Include="Entities\TrainingProgramme\IApprenticeshipInfoServiceConfiguration.cs" />
+    <Compile Include="Entities\TrainingProgramme\ITrainingProgramme.cs" />
+    <Compile Include="Entities\TrainingProgramme\Standard.cs" />
+    <Compile Include="Entities\TrainingProgramme\StandardsView.cs" />
     <Compile Include="Entities\UpdateOrigin.cs" />
     <Compile Include="Entities\Validation\ValidationFailReason.cs" />
     <Compile Include="Exceptions\RepositoryConstraintException.cs" />
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
     <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Interfaces\ICache.cs" />
     <Compile Include="Interfaces\IAcademicYearDateProvider.cs" />
     <Compile Include="Interfaces\IAcademicYearValidator.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />

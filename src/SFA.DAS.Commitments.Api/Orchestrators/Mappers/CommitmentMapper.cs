@@ -97,7 +97,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityAddress = commitment.LegalEntityAddress,
-                LegalEntityOrganisationType = (OrganisationType)commitment.LegalEntityOrganisationType,
+                LegalEntityOrganisationType = (SFA.DAS.Common.Domain.Types.OrganisationType)commitment.LegalEntityOrganisationType,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
                 CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,

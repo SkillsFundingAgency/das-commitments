@@ -44,6 +44,9 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SFA.DAS.Common.Domain, Version=1.1.0.44010, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Common.Domain.1.1.0.44010\lib\net45\SFA.DAS.Common.Domain.dll</HintPath>
+    </Reference>
     <Reference Include="SFA.DAS.Http, Version=1.0.0.39136, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Http.1.0.0.39136\lib\net45\SFA.DAS.Http.dll</HintPath>
       <Private>True</Private>
@@ -58,13 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataLockApi.cs" />
-    <Compile Include="ApprenticeshipApi.cs" />
-    <Compile Include="Interfaces\IApprenticeshipApi.cs" />
     <Compile Include="QueryStringHelper.cs" />
     <Compile Include="HttpCommitmentHelper.cs" />
     <Compile Include="EmployerCommitmentApi.cs" />
-    <Compile Include="Interfaces\IDataLockApi.cs" />
     <Compile Include="Interfaces\IHttpCommitmentHelper.cs" />
     <Compile Include="Interfaces\IEmployerCommitmentApi.cs" />
     <Compile Include="Interfaces\IRelationshipApi.cs" />

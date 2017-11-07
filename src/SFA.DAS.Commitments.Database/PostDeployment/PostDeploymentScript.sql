@@ -22,4 +22,17 @@ WHERE Id IN (
   WHERE ErrorCode = 0
 )
 
---
+
+-- Setting CommitmentId or ApprenticeshipId values on new Columns
+
+UPDATE History
+SET CommitmentId = EntityId, 
+EntityId = NULL, 
+EntityType = NULL
+WHERE EntityType = 'Commitment'
+
+UPDATE History
+SET ApprenticeshipId = EntityId,
+EntityId = NULL,  
+EntityType = NULL
+WHERE EntityType = 'Apprenticeship'

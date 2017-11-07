@@ -30,12 +30,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange
                 await _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(command.ApprenticeshipId);
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
 
-            await ValidateCommand(command, pendingUpdate, apprenticeship);
+            ValidateCommand(command, pendingUpdate, apprenticeship);
 
             await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
         }
 
-        private async Task ValidateCommand(UndoApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate,
+        private void ValidateCommand(UndoApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate,
             Apprenticeship apprenticeship)
         {
             var result = _validator.Validate(command);

@@ -29,6 +29,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private Mock<IHashingService> _mockHashingService;
         private Mock<IHistoryRepository> _mockHistoryRepository;
 
+        private Commitment _populatedCommitment;
+
         [SetUp]
         public void SetUp()
         {
@@ -56,12 +58,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .With(x => x.TrainingCode, string.Empty)
                 .With(x => x.TrainingName, string.Empty)
             );
-            var populatedCommitment = fixture.Build<Commitment>().Create();
-           populatedCommitment.Apprenticeships = new List<Apprenticeship>();
+            _populatedCommitment = fixture.Build<Commitment>().Create();
+            _populatedCommitment.Apprenticeships = new List<Apprenticeship>();
 
             _exampleValidRequest = new CreateCommitmentCommand
                                        {
-                                           Commitment = populatedCommitment,
+                                           Commitment = _populatedCommitment,
                                            Caller = new Caller(1L, CallerType.Employer),
                                            UserId = "UserId"
                                        };
@@ -157,13 +159,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == expectedCommitmentId && 
-                                y.First().ChangeType == CommitmentChangeType.Created.ToString() && 
-                                y.First().EntityType == "Commitment" && 
+                                y.First().ChangeType == CommitmentChangeType.Created.ToString() &&
+                                y.First().CommitmentId == expectedCommitmentId &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == null &&
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState != null &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().ProviderId == _populatedCommitment.ProviderId &&
+                                y.First().EmployerAccountId == _populatedCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _exampleValidRequest.Commitment.LastUpdatedByEmployerName)), Times.Once);
         }
 
@@ -173,7 +177,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
             argument.LegalEntityAddress.Should().Be(_exampleValidRequest.Commitment.LegalEntityAddress);
-            argument.LegalEntityOrganisationType.Should().Be((Domain.Entities.OrganisationType)_exampleValidRequest.Commitment.LegalEntityOrganisationType);
+            argument.LegalEntityOrganisationType.Should().Be(_exampleValidRequest.Commitment.LegalEntityOrganisationType);
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);

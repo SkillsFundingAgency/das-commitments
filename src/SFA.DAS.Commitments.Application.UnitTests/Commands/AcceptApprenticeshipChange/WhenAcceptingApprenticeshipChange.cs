@@ -33,7 +33,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
         private Mock<ICommitmentRepository> _commitment;
         private Mock<IHistoryRepository> _historyRepository;
-        private Mock<ICurrentDateTime> _currentDateTime;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -65,7 +64,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 ULN = " 123",
                 StartDate = _apprenticeshipStartDate,
                 EndDate = _apprenticeshipStartDate.AddYears(2),
-                Id = 3
+                Id = 3,
+                PriceHistory = new List<PriceHistory> { new PriceHistory { ApprenticeshipId = 3, Cost = 1900, FromDate = DateTime.Now } }
             };
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
 
@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 _repository.Object,
                 _apprenticeshipRepository.Object,
                 _mediator.Object,
-                new AcceptApprenticeshipChangeMapper(),
+                new AcceptApprenticeshipChangeMapper(Mock.Of<ICurrentDateTime>()),
                 _apprenticeshipEvents.Object,
                 _commitment.Object,
                 _historyRepository.Object
@@ -320,13 +320,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == testCommitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == testCommitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalCommitmentState &&
                                 y.First().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
                                 y.First().UserId == command.UserId &&
+                                y.First().ProviderId == _apprenticeship.ProviderId &&
+                                y.First().EmployerAccountId == _apprenticeship.EmployerAccountId &&
                                 y.First().UpdatedByName == command.UserName)), Times.Once);
 
             _historyRepository.Verify(
@@ -334,13 +336,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.Last().EntityId == _apprenticeship.Id &&
                                 y.Last().ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
-                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().CommitmentId == null &&
+                                y.Last().ApprenticeshipId == _apprenticeship.Id &&
                                 y.Last().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.Last().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState == expectedNewApprenticeshipState &&
                                 y.Last().UserId == command.UserId &&
+                                y.Last().ProviderId == _apprenticeship.ProviderId &&
+                                y.Last().EmployerAccountId == _apprenticeship.EmployerAccountId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
         }
     }

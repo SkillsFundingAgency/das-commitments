@@ -39,6 +39,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
 
         private long expectedApprenticeshipId = 12;
+
+        private readonly long _providerId = 10012;
+        private readonly long _employerAccountId = 10013;
+
         [SetUp]
         public void SetUp()
         {
@@ -75,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .Create();
 
             _mockApprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Domain.Entities.Apprenticeship {Id = expectedApprenticeshipId });
+                .ReturnsAsync(new Domain.Entities.Apprenticeship {Id = expectedApprenticeshipId, ProviderId = _providerId, EmployerAccountId = _employerAccountId });
 
             _exampleValidRequest = new CreateApprenticeshipCommand
             {
@@ -270,13 +274,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == testCommitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.CreatedApprenticeship.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == testCommitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalState &&
                                 y.First().UserId == _exampleValidRequest.UserId &&
+                                y.First().ProviderId == _providerId &&
+                                y.First().EmployerAccountId == _employerAccountId &&
                                 y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
 
             _mockHistoryRepository.Verify(
@@ -284,13 +290,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.Last().EntityId == expectedApprenticeshipId &&
                                 y.Last().ChangeType == ApprenticeshipChangeType.Created.ToString() &&
-                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().CommitmentId == null &&
+                                y.Last().ApprenticeshipId == expectedApprenticeshipId &&
                                 y.Last().OriginalState == null &&
                                 y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState != null &&
                                 y.Last().UserId == _exampleValidRequest.UserId &&
+                                y.Last().ProviderId ==_providerId &&
+                                y.Last().EmployerAccountId == _employerAccountId &&
                                 y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
         }
 

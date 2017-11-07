@@ -107,8 +107,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
             emails[0].Tokens["account_name"].Should().Be("Account A");
-            emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
-            emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
+            emails[0].Tokens["need_needs"].Should().Be("need");
+            emails[0].Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
+            emails[0].Tokens["requested_changes"].Should().Be("* 2 apprentices with requested changes");
 
             emails[0].RecipientsAddress.Should().Be("user@email.com");
             emails[0].TemplateId.Should().Be("EmployerAlertSummaryNotification");
@@ -198,7 +199,8 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("is 1 apprentice");
             emails[0].Tokens["account_name"].Should().Be("Account A");
-            emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
+            emails[0].Tokens["need_needs"].Should().Be("needs");
+            emails[0].Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
             emails[0].Tokens["requested_changes"].Should().Be("");
 
             emails[0].RecipientsAddress.Should().Be("user@email.com");
@@ -245,8 +247,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[1].Tokens["name"].Should().Be("Test user 2");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
             emails[0].Tokens["account_name"].Should().Be("Account A");
-            emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
-            emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
+            emails[0].Tokens["need_needs"].Should().Be("need");
+            emails[0].Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
+            emails[0].Tokens["requested_changes"].Should().Be("* 2 apprentices with requested changes");
         }
 
         [Test]
@@ -298,14 +301,15 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
             emails[0].Tokens["account_name"].Should().Be("Account A");
-            emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
-            emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
+            emails[0].Tokens["need_needs"].Should().Be("need");
+            emails[0].Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
+            emails[0].Tokens["requested_changes"].Should().Be("* 2 apprentices with requested changes");
 
             emails[1].Tokens["name"].Should().Be("Test user");
             emails[1].Tokens["total_count_text"].Should().Be("are 5 apprentices");
             emails[1].Tokens["account_name"].Should().Be("Account B");
-            emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
-            emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
+            emails[1].Tokens["changes_for_review"].Should().Be("* 2 apprentices with changes for review");
+            emails[1].Tokens["requested_changes"].Should().Be("* 3 apprentices with requested changes");
         }
 
         [Test]
@@ -356,14 +360,16 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             emails[0].Tokens["name"].Should().Be("Test user");
             emails[0].Tokens["total_count_text"].Should().Be("are 3 apprentices");
             emails[0].Tokens["account_name"].Should().Be("Account A");
-            emails[0].Tokens["changes_for_review"].Should().Be("* 1 with changes for review");
-            emails[0].Tokens["requested_changes"].Should().Be("* 2 with requested changes");
+            emails[0].Tokens["need_needs"].Should().Be("need");
+            emails[0].Tokens["changes_for_review"].Should().Be("* 1 apprentice with changes for review");
+            emails[0].Tokens["requested_changes"].Should().Be("* 2 apprentices with requested changes");
 
             emails[1].Tokens["name"].Should().Be("Test user 2");
             emails[1].Tokens["total_count_text"].Should().Be("are 5 apprentices");
             emails[1].Tokens["account_name"].Should().Be("Account B");
-            emails[1].Tokens["changes_for_review"].Should().Be("* 2 with changes for review");
-            emails[1].Tokens["requested_changes"].Should().Be("* 3 with requested changes");
+            emails[1].Tokens["need_needs"].Should().Be("need");
+            emails[1].Tokens["changes_for_review"].Should().Be("* 2 apprentices with changes for review");
+            emails[1].Tokens["requested_changes"].Should().Be("* 3 apprentices with requested changes");
         }
 
         [Test]

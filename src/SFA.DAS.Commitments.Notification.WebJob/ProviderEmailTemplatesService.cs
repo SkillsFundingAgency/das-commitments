@@ -82,15 +82,34 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                 ? "is 1 apprentice"
                                 : $"are {alert.TotalCount} apprentices" },
                             { "provider_name", alert.ProviderName },
-                            { "changes_for_review", alert.ChangesForReview > 0
-                                ? $"* {alert.ChangesForReview} with changes for review"
-                                : string.Empty },
-                            { "mismatch_changes", alert.DataMismatchCount > 0
-                                ? $"* {alert.DataMismatchCount} with an ILR data mismatch"
-                                : string.Empty },
+                            { "need_needs", alert.TotalCount > 1 ? "need" :"needs" },
+                            { "changes_for_review", ChangesForReviewText(alert.ChangesForReview) },
+                            { "mismatch_changes", GetMismatchText(alert.DataMismatchCount) },
                             { "link_to_mange_apprenticeships", $"{user.Ukprn}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested" }
                         }
             };
+        }
+
+        private string GetMismatchText(int dataLockCount)
+        {
+            if (dataLockCount == 0)
+                return string.Empty;
+
+            if(dataLockCount == 1)
+                return "* 1 apprentice with an ILR data mismatch";
+
+            return $"* {dataLockCount} apprentices with an ILR data mismatch";
+        }
+
+        private string ChangesForReviewText(int changesForReview)
+        {
+            if (changesForReview == 0)
+                return string.Empty;
+
+            if (changesForReview == 1)
+                return "* 1 apprentice with changes for review";
+
+            return $"* {changesForReview} apprentices with changes for review";
         }
 
         private async Task<IEnumerable<ProviderUser>> GetProvider(long ukprn)

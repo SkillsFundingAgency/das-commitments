@@ -15,12 +15,17 @@ SELECT
 			a.Cost
 		ELSE
 			(
-			SELECT TOP 1 Cost
-				FROM PriceHistory
-				WHERE ApprenticeshipId = a.Id
-				AND (
-					(FromDate <= @now AND ToDate >= FORMAT(@now,'yyyMMdd')) 
-					OR ToDate IS NULL
+			SELECT TOP 1 Cost FROM PriceHistory WHERE ApprenticeshipId = a.Id
+				AND ( 
+					-- If started take if now with a PriceHistory or the last one (NULL end date)
+					( a.StartDate <= @now
+					  AND ( 
+						( FromDate <= @now AND ToDate >= FORMAT(@now,'yyyMMdd')) 
+						  OR ToDate IS NULL
+						)
+					)
+					-- If not started take the first one
+					OR (a.StartDate > @now) 
 				)
 				ORDER BY FromDate
 			 )

@@ -91,11 +91,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
             var paras = new DynamicParameters();
             paras.Add("@apprenticeshipId", apprenticeship.Id, DbType.Int64);
             paras.Add("@cost", apprenticeship.Cost, DbType.Decimal);
+            paras.Add("@fromDate", apprenticeship.StartDate, DbType.DateTime);
             paras.Add("@now", _currentDateTime.Now.ToString("o"), DbType.DateTime);
 
             await connection.ExecuteAsync(
                 sql: " UPDATE[dbo].[PriceHistory] " 
-                     + "SET Cost = @cost "
+                     + "SET Cost = @cost, FromDate = @fromDate "
                      + "WHERE ApprenticeshipId = @apprenticeshipId "
                      + "AND( (FromDate <= @now AND ToDate >= FORMAT(@now, 'yyyMMdd')) "
                      + "OR ToDate IS NULL);", 

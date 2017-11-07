@@ -46,6 +46,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 DataLockCourse = source.DataLockCourse,
                 DataLockPrice = source.DataLockPrice,
                 DataLockCourseTriaged = source.DataLockCourseTriaged,
+                DataLockCourseChangeTriaged = source.DataLockCourseChangeTriaged,
                 DataLockPriceTriaged = source.DataLockPriceTriaged,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess
             };
