@@ -13,6 +13,7 @@ using SFA.DAS.Sql.Client;
 using System.Data.SqlClient;
 using SFA.DAS.Commitments.Domain.Exceptions;
 using System;
+using System.Text;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -88,16 +89,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return ex.Errors?.Count == 2 && ex.Errors[0].Number == 547;
         }
 
-        public async Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId)
+        public async Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId, bool includeRemoved)
         {
             return await WithConnection(async connection =>
             {
+                var sql = new StringBuilder();
+                sql.Append($"SELECT * FROM DataLockStatus WHERE ApprenticeshipId = @ApprenticeshipId ");
+                if (!includeRemoved) sql.Append("AND EventStatus <> 3 AND IsExpired = 0 ");
+                sql.Append("ORDER BY IlrEffectiveFromDate, Id");
+
                 var parameters = new DynamicParameters();
                 parameters.Add("@ApprenticeshipId", apprenticeshipId);
                 var results = await connection.QueryAsync<DataLockStatus>(
-                    sql: $"[dbo].[GetDataLockStatusesByApprenticeshipId]",
+                    sql: sql.ToString(),
                     param: parameters,
-                    commandType: CommandType.StoredProcedure);
+                    commandType: CommandType.Text);
                 return results.ToList();
             });
         }

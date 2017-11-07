@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                         It.Is<PaymentStatus>(s => s == PaymentStatus.Withdrawn)))
                 .Returns(Task.FromResult(new object()));
 
-            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId))
+            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>());
 
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(
@@ -155,7 +155,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 }
             };
 
-            MockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444, false)).ReturnsAsync(dataLocks);
 
             await Handler.Handle(ExampleValidRequest);
 
@@ -210,7 +210,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 }
             };
 
-            MockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444, false)).ReturnsAsync(dataLocks);
 
             await Handler.Handle(ExampleValidRequest);
 
