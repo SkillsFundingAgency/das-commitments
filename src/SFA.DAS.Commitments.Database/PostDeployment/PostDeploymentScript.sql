@@ -25,14 +25,29 @@ WHERE Id IN (
 
 -- Setting CommitmentId or ApprenticeshipId values on new Columns
 
-UPDATE History
-SET CommitmentId = EntityId, 
-EntityId = NULL, 
-EntityType = NULL
-WHERE EntityType = 'Commitment'
+BEGIN
 
-UPDATE History
-SET ApprenticeshipId = EntityId,
-EntityId = NULL,  
-EntityType = NULL
-WHERE EntityType = 'Apprenticeship'
+	UPDATE History
+	SET CommitmentId = EntityId, 
+	EntityId = NULL, 
+	EntityType = NULL
+	WHERE EntityType = 'Commitment'
+
+	UPDATE History
+	SET ApprenticeshipId = EntityId,
+	EntityId = NULL,  
+	EntityType = NULL
+	WHERE EntityType = 'Apprenticeship'
+
+
+	UPDATE History
+	SET ProviderId = c.ProviderId, EmployerAccountId = c.EmployerAccountId
+	FROM History h JOIN Commitment c
+	ON h.CommitmentId = c.Id
+
+	UPDATE History
+	SET ProviderId = a.ProviderId, EmployerAccountId = a.EmployerAccountId
+	FROM History h JOIN ApprenticeshipSummary a
+	ON h.ApprenticeshipId = a.Id
+
+END
