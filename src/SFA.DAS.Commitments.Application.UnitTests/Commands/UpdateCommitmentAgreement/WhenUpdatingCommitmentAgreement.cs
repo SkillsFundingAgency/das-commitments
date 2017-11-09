@@ -18,6 +18,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgreement
 {
@@ -33,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private Mock<IApprenticeshipEventsPublisher> _mockApprenticeshipEventsPublisher;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<ICurrentDateTime> _currentDateTime;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         [SetUp]
         public void Setup()
@@ -53,6 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
             _mockApprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _mockApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
             _handler = new UpdateCommitmentAgreementCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRespository.Object,
@@ -63,7 +67,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 _mockApprenticeshipEventsList.Object,
                 _mockApprenticeshipEventsPublisher.Object,
                 _mockHistoryRepository.Object,
-                _currentDateTime.Object);
+                _currentDateTime.Object,
+                _messagePublisher.Object);
 
             _validCommand = new UpdateCommitmentAgreementCommand
             {
@@ -272,7 +277,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfAnApprenticeshipAgreementStatusIsBothAgreedTheAgreedOnDateIsUpdated()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = new DateTime(2018,1,11), Cost = 1000};
             commitment.Apprenticeships.Add(apprenticeship);
 
@@ -292,7 +297,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfAnApprenticeshipAgreementStatusIsBothAgreedAndTheAgreedOnDateIsAlreadySetTheAgreedOnDateIsNotUpdated()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             var expectedAgreedOnDate = DateTime.Now.AddDays(-10);
             var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, AgreedOn = expectedAgreedOnDate, StartDate = DateTime.Now.AddDays(10), Cost = 1000 };
             commitment.Apprenticeships.Add(apprenticeship);
@@ -346,7 +351,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfAnApprenticeshipIsApprovedAndTheLearnerHasNoPreviousApprenticeshipsAnEventIsPublishedWithTheFirstOfTheStartMonthAsTheEffectiveFromDate()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval, Id = 1234, StartDate = DateTime.Now, ULN = "1234567", Cost = 1000 };
             commitment.Apprenticeships.Add(apprenticeship);
 
@@ -366,7 +371,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfAnApprenticeshipIsApprovedAndTheLearnerHasAPreviousApprenticeshipStoppedInThePreviousMonthAnEventIsPublishedWithTheFirstOfTheStartMonthAsTheEffectiveFromDate()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             var apprenticeship = new Apprenticeship
             {
                 AgreementStatus = AgreementStatus.ProviderAgreed,
@@ -398,7 +403,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfAnApprenticeshipIsApprovedAndTheLearnerHasAPreviousApprenticeshipStoppedInTheStartMonthAnEventIsPublishedWithTheEffectiveFromDateBeingADayAfterTheStoppedDate()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             var apprenticeship = new Apprenticeship
             {
                 AgreementStatus = AgreementStatus.ProviderAgreed,
@@ -432,7 +437,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfNoMessageIsProvidedThenAnEmptyMessageIsSaved()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             _validCommand.Message = null;
@@ -534,7 +539,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfTheCommitmentIsSentForFinalApprovalThenAHistoryRecordIsCreated()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             commitment.Apprenticeships.Add(new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, StartDate = DateTime.Now.AddMonths(1), Cost = 1000 });
             var expectedOriginalState = JsonConvert.SerializeObject(commitment);
 
@@ -587,6 +592,49 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                                 y.First().UpdatedState == expectedNewState &&
                                 y.First().UserId == _validCommand.UserId &&
                                 y.First().UpdatedByName == _validCommand.LastUpdatedByName)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfACommitmentIsSentForApprovalByTheProviderAnEventIsCreated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, ProviderCanApproveCommitment = true, EditStatus = EditStatus.ProviderOnly, ProviderId = 1234 };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed, StartDate = DateTime.Now.AddMonths(1), Cost = 1000 };
+            commitment.Apprenticeships = new List<Apprenticeship> {apprenticeship};
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+
+            _validCommand.LatestAction = LastAction.Approve;
+            _validCommand.Caller.CallerType = CallerType.Provider;
+            _validCommand.Caller.Id = commitment.ProviderId.Value;
+
+            await _handler.Handle(_validCommand);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<CohortApprovalRequestedByProvider>(y =>
+                            y.ProviderId == commitment.ProviderId && y.AccountId == commitment.EmployerAccountId &&
+                            y.CommitmentId == commitment.Id)));
+        }
+
+        [Test]
+        public async Task ThenIfTheCommitmentIsApprovedByTheEmployerAnEventIsCreated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, StartDate = DateTime.Now.AddMonths(1), Cost = 1000 };
+            commitment.Apprenticeships = new List<Apprenticeship> { apprenticeship };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult>());
+
+            _validCommand.LatestAction = LastAction.Approve;
+            await _handler.Handle(_validCommand);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<CohortApprovedByEmployer>(y =>
+                            y.ProviderId == commitment.ProviderId && y.AccountId == commitment.EmployerAccountId &&
+                            y.CommitmentId == commitment.Id)));
         }
     }
 }
