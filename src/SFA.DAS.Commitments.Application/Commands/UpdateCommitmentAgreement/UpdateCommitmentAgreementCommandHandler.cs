@@ -86,24 +86,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, latestAction);
             await CreateCommitmentMessage(command, commitment);
 
-            // If final approval
-            if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0 && !anyApprenticeshipsPendingAgreement)
+            if (IsFinalApproval(latestAction, commitment, anyApprenticeshipsPendingAgreement))
             {
-                await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
-
-                //create price history for purposes of event creation
-                foreach (var updatedApprenticeship in updatedApprenticeships)
-                {
-                    updatedApprenticeship.PriceHistory = new List<PriceHistory>
-                    {
-                        new PriceHistory
-                        {
-                            ApprenticeshipId = updatedApprenticeship.Id,
-                            Cost = updatedApprenticeship.Cost.Value,
-                            FromDate = updatedApprenticeship.StartDate.Value
-                        }
-                    };
-                }
+                await CreatePriceHistory(commitment, updatedApprenticeships);
             }
 
             await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
@@ -116,6 +101,30 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                     await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = commitment.EmployerAccountId});
                 }
                 await PublishApprovalEvent(commitment, anyApprenticeshipsPendingAgreement, command.Caller.CallerType);
+            }
+        }
+
+        private static bool IsFinalApproval(LastAction latestAction, Commitment commitment, bool anyApprenticeshipsPendingAgreement)
+        {
+            return latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0 && !anyApprenticeshipsPendingAgreement;
+        }
+
+        private async Task CreatePriceHistory(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
+        {
+            await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
+
+            //create price history for purposes of event creation
+            foreach (var updatedApprenticeship in updatedApprenticeships)
+            {
+                updatedApprenticeship.PriceHistory = new List<PriceHistory>
+                {
+                    new PriceHistory
+                    {
+                        ApprenticeshipId = updatedApprenticeship.Id,
+                        Cost = updatedApprenticeship.Cost.Value,
+                        FromDate = updatedApprenticeship.StartDate.Value
+                    }
+                };
             }
         }
 
