@@ -114,22 +114,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             if (!started)
                 return true;
 
-            var isValid =
-                apprenticeshipUpdate.ULN == null
-                && apprenticeshipUpdate.StartDate == null
-                && apprenticeshipUpdate.EndDate == null;
-
-            if (!isValid)
-            {
-                _logger.Warn($"Trying to update a started apprenticeship with values; ULN {apprenticeshipUpdate.ULN}, StartDate: {apprenticeshipUpdate.StartDate}, EndDate: {apprenticeshipUpdate.EndDate}, TrainingCode: {apprenticeshipUpdate.TrainingCode}");
-                return false;
-            }
-
             if (apprenticeship.HasHadDataLockSuccess && 
                 (apprenticeshipUpdate.Cost != null || apprenticeshipUpdate.TrainingCode != null)
                 )
             {
-                _logger.Warn($"Trying to update a started apprenticeship with a successfull DataLock with values; Cost {apprenticeshipUpdate.Cost}, TrainingCode: {apprenticeshipUpdate.TrainingCode}");
+                _logger.Warn($"Trying to update a started apprenticeship with a successful DataLock with values; Cost {apprenticeshipUpdate.Cost}, TrainingCode: {apprenticeshipUpdate.TrainingCode}");
                 return false;
             }
 
