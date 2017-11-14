@@ -64,37 +64,29 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
-            CheckCommitmentStatus(commitment);
-            CheckEditStatus(command, commitment);
-            CheckAuthorization(command, commitment);
+            CheckCommitmentCanBeUpdated(command, commitment);
 
-            var latestAction = (LastAction)command.LatestAction;
-
-            if(latestAction == LastAction.Approve)
+            if(command.LatestAction == LastAction.Approve)
             {
-                CheckStateForApproval(commitment, command.Caller);
-                var overlaps = await GetOverlappingApprenticeships(commitment);
-                if (overlaps.Data.Any())
-                {
-                    throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
-                }
+                await CheckCommitmentCanBeApproved(command, commitment);
             }
 
-            var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
+            var providerHasPreviouslyApprovedCommitment = commitment.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed);
+
+            var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, command.LatestAction);
 
             var anyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
-            await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, latestAction);
+            await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, command.LatestAction);
             await CreateCommitmentMessage(command, commitment);
 
-            if (IsFinalApproval(latestAction, commitment, anyApprenticeshipsPendingAgreement))
+            if (IsFinalApproval(command.LatestAction, commitment, anyApprenticeshipsPendingAgreement))
             {
                 await CreatePriceHistory(commitment, updatedApprenticeships);
             }
 
-            await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
-            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+            await PublishEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
 
-            if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0)
+            if (command.LatestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0)
             {
                 if (!anyApprenticeshipsPendingAgreement)
                 {
@@ -102,6 +94,39 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                 }
                 await PublishApprovalEvent(commitment, anyApprenticeshipsPendingAgreement, command.Caller.CallerType);
             }
+
+            if (ApprovedCommitmentIsBeingReturnedToProvider(command, providerHasPreviouslyApprovedCommitment))
+            {
+                await _messagePublisher.PublishAsync(new ApprovedCohortReturnedToProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
+            }
+        }
+
+        private static void CheckCommitmentCanBeUpdated(UpdateCommitmentAgreementCommand command, Commitment commitment)
+        {
+            CheckCommitmentStatus(commitment);
+            CheckEditStatus(command, commitment);
+            CheckAuthorization(command, commitment);
+        }
+
+        private async Task CheckCommitmentCanBeApproved(UpdateCommitmentAgreementCommand command, Commitment commitment)
+        {
+            CheckStateForApproval(commitment, command.Caller);
+            var overlaps = await GetOverlappingApprenticeships(commitment);
+            if (overlaps.Data.Any())
+            {
+                throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
+            }
+        }
+
+        private static bool ApprovedCommitmentIsBeingReturnedToProvider(UpdateCommitmentAgreementCommand command, bool providerHasPreviouslyApprovedCommitment)
+        {
+            return providerHasPreviouslyApprovedCommitment && command.LatestAction == LastAction.Amend && command.Caller.CallerType == CallerType.Employer;
+        }
+
+        private async Task PublishEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
+        {
+            await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
+            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
 
         private static bool IsFinalApproval(LastAction latestAction, Commitment commitment, bool anyApprenticeshipsPendingAgreement)

@@ -221,7 +221,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         public async Task ThenIfNotApprovingCommitmentThenMediatorIsNotCalledToCheckForOverlappingApprenticeships()
         {
             //Arrange
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             _validCommand.LatestAction = LastAction.Amend;
@@ -455,7 +455,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfAMessageIsProvidedThenTheMessageIsSaved()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             _validCommand.Message = "New Message";
@@ -513,7 +513,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfTheCommitmentIsSentForReviewThenAHistoryRecordIsCreated()
         {
-            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly };
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
             var expectedOriginalState = JsonConvert.SerializeObject(commitment);
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
@@ -639,6 +639,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 x =>
                     x.PublishAsync(
                         It.Is<CohortApprovedByEmployer>(y =>
+                            y.ProviderId == commitment.ProviderId && y.AccountId == commitment.EmployerAccountId &&
+                            y.CommitmentId == commitment.Id)));
+        }
+
+        [Test]
+        public async Task ThenWhenACommitmentHasBeenApprovedByTheProviderAndTheEmployerReturnsTheCommitmentAnEventIsCreated()
+        {
+            var commitment = new Commitment { Id = 123L, EmployerAccountId = 444, EmployerCanApproveCommitment = true, EditStatus = EditStatus.EmployerOnly, ProviderId = 1234 };
+            var apprenticeship = new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed, StartDate = DateTime.Now.AddMonths(1), Cost = 1000 };
+            commitment.Apprenticeships = new List<Apprenticeship> { apprenticeship };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
+            _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult>());
+
+            _validCommand.LatestAction = LastAction.Amend;
+            await _handler.Handle(_validCommand);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<ApprovedCohortReturnedToProvider>(y =>
                             y.ProviderId == commitment.ProviderId && y.AccountId == commitment.EmployerAccountId &&
                             y.CommitmentId == commitment.Id)));
         }
