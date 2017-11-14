@@ -291,96 +291,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         }
 
         [Test]
-        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUlnHasChanged()
-        {
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Apprenticeship
-                {
-                    EmployerAccountId = 1,
-                    ProviderId = 2,
-                    ULN = " 123",
-                    StartDate = DateTime.Now.AddMonths(-1),
-                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
-                    Id = 3
-                });
-
-            var request = new CreateApprenticeshipUpdateCommand
-                              {
-                                  ApprenticeshipUpdate =
-                                      new ApprenticeshipUpdate
-                                          {
-                                              Id = 5,
-                                              ApprenticeshipId = 42,
-                                              ULN = "1112223301"
-                                          }
-                              };
-
-            //Act && Assert
-            Func<Task> act = async () => await _handler.Handle(request);
-            act.ShouldThrow<ValidationException>();
-        }
-
-        [Test]
-        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUpdated_StartDate()
-        {
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Apprenticeship
-                {
-                    EmployerAccountId = 1,
-                    ProviderId = 2,
-                    ULN = " 123",
-                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
-                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
-                    Id = 3
-                });
-
-            var request = new CreateApprenticeshipUpdateCommand
-                              {
-                                  ApprenticeshipUpdate =
-                                      new ApprenticeshipUpdate
-                                          {
-                                              Id = 5,
-                                              ApprenticeshipId = 42,
-                                              StartDate = new DateTime(DateTime.Now.Year + 2, 5, 1)
-                                          }
-                              };
-
-            //Act && Assert
-            Func<Task> act = async () => await _handler.Handle(request);
-            act.ShouldThrow<ValidationException>();
-        }
-
-        [Test]
-        public void ThenIfApprenticeHasStarted_ValidationFailureExceptionIsThrown_IfUpdatedEndDate()
-        {
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Apprenticeship
-                {
-                    EmployerAccountId = 1,
-                    ProviderId = 2,
-                    ULN = " 123",
-                    StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
-                    EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
-                    Id = 3
-                });
-
-            var request = new CreateApprenticeshipUpdateCommand
-            {
-                ApprenticeshipUpdate =
-                                      new ApprenticeshipUpdate
-                                      {
-                                          Id = 5,
-                                          ApprenticeshipId = 42,
-                                          EndDate = new DateTime(DateTime.Now.Year + 2, 5, 1)
-                                      }
-            };
-
-            //Act && Assert
-            Func<Task> act = async () => await _handler.Handle(request);
-            act.ShouldThrow<ValidationException>();
-        }
-
-        [Test]
         public void ThenIfApprenticeHasStarted_And_DataLockExists_ValidationFailureExceptionIsThrown_IfCostIsChanged()
         {
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(new DateTime(2017, 7, 13));
@@ -563,13 +473,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == testCommitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == testCommitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalCommitmentState &&
                                 y.First().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == expectedOriginalCommitmentState &&
                                 y.First().UserId == command.UserId &&
+                                y.First().ProviderId == _existingApprenticeship.ProviderId &&
+                                y.First().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.First().UpdatedByName == command.UserName)), Times.Once);
 
             _historyRepository.Verify(
@@ -577,13 +489,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.Last().EntityId == _existingApprenticeship.Id &&
                                 y.Last().ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
-                                y.Last().EntityType == "Apprenticeship" &&
+                                y.Last().CommitmentId == null &&
+                                y.Last().ApprenticeshipId == _existingApprenticeship.Id &&
                                 y.Last().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.Last().UpdatedByRole == command.Caller.CallerType.ToString() &&
                                 y.Last().UpdatedState == expectedNewApprenticeshipState &&
                                 y.Last().UserId == command.UserId &&
+                                y.Last().ProviderId == _existingApprenticeship.ProviderId &&
+                                y.Last().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
         }
 

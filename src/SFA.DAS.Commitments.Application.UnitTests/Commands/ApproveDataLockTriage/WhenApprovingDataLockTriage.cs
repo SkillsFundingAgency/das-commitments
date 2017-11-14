@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldCallApprenticeshipRepositoryToGetDataForPublishingEvent()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldCallCommitmentRepositoryToGetDataForPublishingEvent()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                       {
                             new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
@@ -110,7 +110,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public async Task ShouldNotUpdatePriceIfNoNewFromDataLock()
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>());
 
             await _sut.Handle(_command);
@@ -132,7 +132,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
                         ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
 
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isResolvedDataLock, isPassedDataLock, toBeUpdateDataLock });
 
             long[] idsToBeUpdated = null;
@@ -163,7 +163,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         public async Task ShouldOnlyUpdateDataLockWithChangeStatus(bool hasHadDatalockSuccess, params long[] expectedIds)
         {
             Debug.Assert(_dataLockRepository != null, "_dataLockRepository != null");
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
                     {
                         new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 301, ErrorCode = (DataLockErrorCode)76,
@@ -215,7 +215,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                         ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
 
 
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
@@ -246,7 +246,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                         ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
 
 
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
@@ -274,7 +274,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             var toBeUpdateDataLock = new DataLockStatus { DataLockEventId = 3, ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400,
                         ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change};
 
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
@@ -314,7 +314,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                         ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now.AddMonths(1), TriageStatus = TriageStatus.Change, IlrTrainingCourseCode = $"{trainingCode}"
              };
 
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { isDataLockWithCourse, toBeUpdateDataLock });
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
@@ -335,7 +335,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldSetEndDateForNewPriceHistory()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                                       new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,
@@ -369,7 +369,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldCreatePriceHistoryForCourseAndPriceDataLock()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                                       // Price / progCode / framework
@@ -405,7 +405,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         [Test]
         public async Task ShouldSetEndDateForNewPriceHistoryOneRecord()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                     .ReturnsAsync(new List<DataLockStatus>
                       {
                         new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, Status = Status.Fail, IlrTotalCost = 1500,

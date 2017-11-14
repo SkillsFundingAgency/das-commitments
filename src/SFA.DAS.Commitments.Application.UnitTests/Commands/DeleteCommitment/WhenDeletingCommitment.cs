@@ -181,13 +181,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == testCommitment.Id &&
                                 y.First().ChangeType == CommitmentChangeType.Deleted.ToString() &&
-                                y.First().EntityType == "Commitment" &&
+                                y.First().CommitmentId == testCommitment.Id &&
+                                y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalState &&
                                 y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
                                 y.First().UpdatedState == null &&
                                 y.First().UserId == _validCommand.UserId &&
+                                y.First().ProviderId == testCommitment.ProviderId &&
+                                y.First().EmployerAccountId == testCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
         }
     }

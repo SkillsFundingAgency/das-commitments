@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockApprenticeshipRespository.Setup(x =>
                     x.UpdateApprenticeshipStatus(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<PaymentStatus>()))
                 .Returns(Task.FromResult(new object()));
-            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId))
+            MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>());
 
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
@@ -130,7 +130,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 }
             };
 
-            MockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444, false)).ReturnsAsync(dataLocks);
 
             await Handler.Handle(ExampleValidRequest);
 
@@ -152,13 +152,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     x.InsertHistory(
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
-                                y.First().EntityId == TestApprenticeship.Id &&
                                 y.First().ChangeType == ApprenticeshipChangeType.ChangeOfStatus.ToString() &&
-                                y.First().EntityType == "Apprenticeship" &&
+                                y.First().CommitmentId == null &&
+                                y.First().ApprenticeshipId == TestApprenticeship.Id &&
                                 y.First().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.First().UpdatedByRole == CallerType.Employer.ToString() &&
                                 y.First().UpdatedState == expectedNewApprenticeshipState &&
                                 y.First().UserId == ExampleValidRequest.UserId &&
+                                y.First().ProviderId == TestApprenticeship.ProviderId &&
+                                y.First().EmployerAccountId  == TestApprenticeship.EmployerAccountId  &&
                                 y.First().UpdatedByName == ExampleValidRequest.UserName)), Times.Once);
         }
 
@@ -209,7 +211,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 }
             };
 
-            MockDataLockRepository.Setup(x => x.GetDataLocks(444)).ReturnsAsync(dataLocks);
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444, false)).ReturnsAsync(dataLocks);
 
             await Handler.Handle(ExampleValidRequest);
 

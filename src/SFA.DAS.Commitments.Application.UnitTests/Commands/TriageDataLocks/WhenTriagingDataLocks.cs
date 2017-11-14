@@ -35,7 +35,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             _validator.Setup(x => x.Validate(It.IsAny<TriageDataLocksCommand>()))
                 .Returns(() => new ValidationResult());
 
-            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>
                                   {
                                       new DataLockStatus
@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
         [Test]
         public async Task ShouldIgnorePassedDatalocks()
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>{
                                       new DataLockStatus { DataLockEventId = 1, ErrorCode = DataLockErrorCode.Dlock07, Status = Status.Pass},
                                       new DataLockStatus { DataLockEventId = 2, ErrorCode = DataLockErrorCode.Dlock03, Status = Status.Fail },
@@ -99,7 +99,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
         [TestCase(true, 1, 3, Description = "Should not update datalocks with course if Apprenticeship has had datalock success")]
         public async Task ShouldNotUpdateCourseDataLockIfApprenticeshipHasHadSuccessfulDataLock(bool hasHasDatalockSuccess, params long[] expectedIds)
         {
-            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>()))
+            _dataLockRepository.Setup(m => m.GetDataLocks(It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<DataLockStatus>{
                                       new DataLockStatus { DataLockEventId = 1, ErrorCode = DataLockErrorCode.Dlock07 },
                                       new DataLockStatus { DataLockEventId = 2, ErrorCode = DataLockErrorCode.Dlock03 },
@@ -126,7 +126,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
         {
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_validCommand.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { HasHadDataLockSuccess = true, Id = _validCommand.ApprenticeshipId });
-            _dataLockRepository.Setup(m => m.GetDataLocks(_validCommand.ApprenticeshipId))
+            _dataLockRepository.Setup(m => m.GetDataLocks(_validCommand.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus> { new DataLockStatus {ErrorCode = (DataLockErrorCode)68} });
             _validCommand.TriageStatus = TriageStatus.Change;
 

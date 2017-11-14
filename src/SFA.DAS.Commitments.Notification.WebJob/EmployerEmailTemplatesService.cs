@@ -124,7 +124,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                 ? "is 1 apprentice" 
                                 : $"are {alertSummary.TotalCount} apprentices" },
                             { "account_name", accountName },
-                            { "need_needs", alertSummary.TotalCount > 1 ? "needs" :"need" },
+                            { "need_needs", alertSummary.TotalCount > 1 ? "need" :"needs" },
                             { "changes_for_review", ChangesForReviewText(alertSummary.ChangesForReview) },
                             { "requested_changes", RestartRequestText(alertSummary.RestartRequestCount) },
                             { "link_to_mange_apprenticeships", $"accounts/{hashedAccountId}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=ChangeRequested" },

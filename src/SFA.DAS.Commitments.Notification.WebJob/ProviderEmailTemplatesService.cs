@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
                                 ? "is 1 apprentice"
                                 : $"are {alert.TotalCount} apprentices" },
                             { "provider_name", alert.ProviderName },
-                            { "need_needs", alert.TotalCount > 1 ? "needs" :"need" },
+                            { "need_needs", alert.TotalCount > 1 ? "need" :"needs" },
                             { "changes_for_review", ChangesForReviewText(alert.ChangesForReview) },
                             { "mismatch_changes", GetMismatchText(alert.DataMismatchCount) },
                             { "link_to_mange_apprenticeships", $"{user.Ukprn}/apprentices/manage/all?RecordStatus=ChangesForReview&RecordStatus=IlrDataMismatch&RecordStatus=ChangeRequested" }
