@@ -9,7 +9,8 @@ using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectApprenticeshipChange
 {
@@ -21,6 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectApprenticeshi
         private Mock<AbstractValidator<RejectApprenticeshipChangeCommand>> _validator;
         private Mock<IApprenticeshipUpdateRepository> _repository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -35,6 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectApprenticeshi
             _validator = new Mock<AbstractValidator<RejectApprenticeshipChangeCommand>>();
             _repository = new Mock<IApprenticeshipUpdateRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _effectiveDate = DateTime.Now.AddDays(-2);
@@ -60,8 +63,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectApprenticeshi
             _sut = new RejectApprenticeshipChangeCommandHandler(
                 _validator.Object,
                 _repository.Object,
-                _apprenticeshipRepository.Object
-                
+                _apprenticeshipRepository.Object,
+                _messagePublisher.Object
                 );
         }
 
@@ -99,6 +102,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectApprenticeshi
 
             Func<Task> act = async () => await _sut.Handle(command);
             act.ShouldThrow<ValidationException>().WithMessage("No existing apprenticeship update pending for apprenticeship 5");
+        }
+
+        [Test]
+        public async Task ThenTheUpdateCancelledEventIsCreated()
+        {
+            await _sut.Handle(
+                new RejectApprenticeshipChangeCommand
+                {
+                    ApprenticeshipId = _apprenticeship.Id,
+                    UserId = "user123",
+                    Caller = new Caller(555, CallerType.Employer)
+                });
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<ApprenticeshipUpdateRejected>(
+                            y => y.ApprenticeshipId == _apprenticeship.Id && y.AccountId == _apprenticeship.EmployerAccountId && y.ProviderId == _apprenticeship.ProviderId)), Times.Once);
         }
     }
 }

@@ -14,6 +14,8 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipChange
 {
@@ -27,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipC
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<IMediator> _mediator;
         private Mock<IApprenticeshipEvents> _apprenticeshipEvents;
-        private Mock<ICommitmentRepository> _commitment;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -44,7 +46,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipC
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mediator = new Mock<IMediator>();
             _apprenticeshipEvents = new Mock<IApprenticeshipEvents>();
-            _commitment = new Mock<ICommitmentRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _effectiveDate = DateTime.Now.AddDays(-2);
@@ -67,12 +69,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipC
             _mediator.Setup(m => m.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>())).ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<ApprenticeshipResult>() });
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>())).ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn, EffectiveFromDate = _effectiveDate });
-            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
-
+            
             _sut = new UndoApprenticeshipChangeCommandHandler(
                 _validator.Object,
                 _repository.Object,
-                _apprenticeshipRepository.Object
+                _apprenticeshipRepository.Object,
+                _messagePublisher.Object
                 );
         }
 
@@ -113,5 +115,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UndoApprenticeshipC
             act.ShouldThrow<ValidationException>().WithMessage("No existing apprenticeship update pending for apprenticeship 5");
         }
 
+        [Test]
+        public async Task ThenTheUpdateCancelledEventIsCreated()
+        {
+            const string UserId = "user123";
+
+            await _sut.Handle(
+                new UndoApprenticeshipChangeCommand
+                {
+                    ApprenticeshipId = _apprenticeship.Id,
+                    UserId = UserId,
+                    Caller = new Caller(555, CallerType.Employer)
+                });
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<ApprenticeshipUpdateCancelled>(
+                            y => y.ApprenticeshipId == _apprenticeship.Id && y.AccountId == _apprenticeship.EmployerAccountId && y.ProviderId == _apprenticeship.ProviderId)), Times.Once);
+        }
     }
 }

@@ -17,6 +17,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshipUpdate
 {
@@ -31,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IHistoryRepository> _historyRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<ICurrentDateTime> _mockCurrentDateTime;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
@@ -45,6 +48,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _historyRepository = new Mock<IHistoryRepository>();
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _mockCurrentDateTime = new Mock<ICurrentDateTime>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
@@ -86,7 +90,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _mediator.Object, 
                 _historyRepository.Object, 
                 _commitmentRepository.Object, 
-                _mockCurrentDateTime.Object);
+                _mockCurrentDateTime.Object,
+                _messagePublisher.Object);
         }
 
         [Test]
@@ -494,6 +499,34 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                 y.Last().ProviderId == _existingApprenticeship.ProviderId &&
                                 y.Last().EmployerAccountId == _existingApprenticeship.EmployerAccountId &&
                                 y.Last().UpdatedByName == command.UserName)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfAIfAPendingUpdateIsCreatedThenAnApprentieceshipUpdateCreatedEventIsCreated()
+        {
+            var apprenticeship = new Apprenticeship
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                LegalEntityId = "12345",
+                ULN = " 123",
+                StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+                Id = 42
+            };
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(apprenticeship);
+
+
+            var trainingCode = "abc-123";
+            var request = new CreateApprenticeshipUpdateCommand { ApprenticeshipUpdate = new ApprenticeshipUpdate { Id = 5, ApprenticeshipId = 42, TrainingCode = trainingCode }, Caller = new Caller(1, CallerType.Employer) };
+
+            await _handler.Handle(request);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<ApprenticeshipUpdateCreated>(
+                            y => y.ApprenticeshipId == apprenticeship.Id && y.AccountId == apprenticeship.EmployerAccountId && y.ProviderId == apprenticeship.ProviderId)), Times.Once);
         }
     }
 }

@@ -16,7 +16,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
-
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
@@ -34,12 +35,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IMessagePublisher _messagePublisher;
 
         private readonly ICommitmentsLogger _logger;
         private readonly IMediator _mediator;
         private readonly AbstractValidator<UpdateCommitmentAgreementCommand> _validator;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, IMediator mediator, AbstractValidator<UpdateCommitmentAgreementCommand> validator, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, ICurrentDateTime currentDateTime)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, IMediator mediator, AbstractValidator<UpdateCommitmentAgreementCommand> validator, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -48,6 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _historyRepository = historyRepository;
             _currentDateTime = currentDateTime;
+            _messagePublisher = messagePublisher;
             _logger = logger;
             _mediator = mediator;
             _validator = validator;
@@ -61,56 +64,103 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
+            CheckCommitmentCanBeUpdated(command, commitment);
+
+            if(command.LatestAction == LastAction.Approve)
+            {
+                await CheckCommitmentCanBeApproved(command, commitment);
+            }
+
+            var providerHasPreviouslyApprovedCommitment = commitment.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed);
+
+            var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, command.LatestAction);
+
+            var anyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
+            await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, command.LatestAction);
+            await CreateCommitmentMessage(command, commitment);
+
+            if (IsFinalApproval(command.LatestAction, commitment, anyApprenticeshipsPendingAgreement))
+            {
+                await CreatePriceHistory(commitment, updatedApprenticeships);
+            }
+
+            await PublishEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
+
+            if (command.LatestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0)
+            {
+                if (!anyApprenticeshipsPendingAgreement)
+                {
+                    await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = commitment.EmployerAccountId});
+                }
+                await PublishApprovalEvent(commitment, anyApprenticeshipsPendingAgreement, command.Caller.CallerType);
+            }
+
+            if (ApprovedCommitmentIsBeingReturnedToProvider(command, providerHasPreviouslyApprovedCommitment))
+            {
+                await _messagePublisher.PublishAsync(new ApprovedCohortReturnedToProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
+            }
+        }
+
+        private static void CheckCommitmentCanBeUpdated(UpdateCommitmentAgreementCommand command, Commitment commitment)
+        {
             CheckCommitmentStatus(commitment);
             CheckEditStatus(command, commitment);
             CheckAuthorization(command, commitment);
+        }
 
-            var latestAction = (LastAction)command.LatestAction;
-
-            if(latestAction == LastAction.Approve)
+        private async Task CheckCommitmentCanBeApproved(UpdateCommitmentAgreementCommand command, Commitment commitment)
+        {
+            CheckStateForApproval(commitment, command.Caller);
+            var overlaps = await GetOverlappingApprenticeships(commitment);
+            if (overlaps.Data.Any())
             {
-                CheckStateForApproval(commitment, command.Caller);
-                var overlaps = await GetOverlappingApprenticeships(commitment);
-                if (overlaps.Data.Any())
-                {
-                    throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
-                }
+                throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
             }
+        }
 
-            var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, latestAction);
+        private static bool ApprovedCommitmentIsBeingReturnedToProvider(UpdateCommitmentAgreementCommand command, bool providerHasPreviouslyApprovedCommitment)
+        {
+            return providerHasPreviouslyApprovedCommitment && command.LatestAction == LastAction.Amend && command.Caller.CallerType == CallerType.Employer;
+        }
 
-            var anyApprenticeshipsPendingAgreement = commitment.Apprenticeships.Any(a => a.AgreementStatus != AgreementStatus.BothAgreed);
-            await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, latestAction);
-            await CreateCommitmentMessage(command, commitment);
-
-            // If final approval
-            if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0
-                && !anyApprenticeshipsPendingAgreement)
-            {
-                await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
-
-                //create price history for purposes of event creation
-                foreach (var updatedApprenticeship in updatedApprenticeships)
-                {
-                    updatedApprenticeship.PriceHistory = new List<PriceHistory>
-                    {
-                        new PriceHistory
-                        {
-                            ApprenticeshipId = updatedApprenticeship.Id,
-                            Cost = updatedApprenticeship.Cost.Value,
-                            FromDate = updatedApprenticeship.StartDate.Value
-                        }
-                    };
-                }
-            }
-
+        private async Task PublishEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
+        {
             await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+        }
 
-            if (latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0
-                && !anyApprenticeshipsPendingAgreement)
+        private static bool IsFinalApproval(LastAction latestAction, Commitment commitment, bool anyApprenticeshipsPendingAgreement)
+        {
+            return latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0 && !anyApprenticeshipsPendingAgreement;
+        }
+
+        private async Task CreatePriceHistory(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
+        {
+            await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
+
+            //create price history for purposes of event creation
+            foreach (var updatedApprenticeship in updatedApprenticeships)
             {
-                await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = commitment.EmployerAccountId });
+                updatedApprenticeship.PriceHistory = new List<PriceHistory>
+                {
+                    new PriceHistory
+                    {
+                        ApprenticeshipId = updatedApprenticeship.Id,
+                        Cost = updatedApprenticeship.Cost.Value,
+                        FromDate = updatedApprenticeship.StartDate.Value
+                    }
+                };
+            }
+        }
+
+        private async Task PublishApprovalEvent(Commitment commitment, bool anyApprenticeshipsPendingAgreement, CallerType callerType)
+        {
+            if (!anyApprenticeshipsPendingAgreement && callerType == CallerType.Employer)
+            {
+                await _messagePublisher.PublishAsync(new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
+            } else if (anyApprenticeshipsPendingAgreement && callerType == CallerType.Provider)
+            {
+                await _messagePublisher.PublishAsync(new CohortApprovalRequestedByProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
             }
         }
 

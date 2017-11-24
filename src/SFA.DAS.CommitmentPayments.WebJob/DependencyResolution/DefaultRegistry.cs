@@ -14,6 +14,7 @@ using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 
 using StructureMap;
+using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
 {
