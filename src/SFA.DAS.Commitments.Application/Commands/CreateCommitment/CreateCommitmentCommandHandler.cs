@@ -8,9 +8,11 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 using SFA.DAS.HashingService;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
@@ -21,19 +23,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public CreateCommitmentCommandHandler(
-            ICommitmentRepository commitmentRepository, 
-            IHashingService hashingService, 
-            AbstractValidator<CreateCommitmentCommand> validator, 
-            ICommitmentsLogger logger, 
-            IHistoryRepository historyRepository)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
             _validator = validator;
             _logger = logger;
             _historyRepository = historyRepository;
+            _messagePublisher = messagePublisher;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
@@ -43,20 +42,37 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)
+            {
                 throw new ValidationException(validationResult.Errors);
+            }
 
+            var newCommitment = await CreateCommitment(message);
+
+            await Task.WhenAll(
+                CreateMessageIfNeeded(newCommitment.Id, message),
+                CreateHistory(newCommitment, message.Caller.CallerType, message.UserId,
+                message.Commitment.LastUpdatedByEmployerName), PublishCohortCreatedEvent(newCommitment)
+            );
+            
+            return newCommitment.Id;
+        }
+
+        private async Task PublishCohortCreatedEvent(Commitment newCommitment)
+        {
+            await _messagePublisher.PublishAsync(new CohortCreated(newCommitment.EmployerAccountId, newCommitment.ProviderId,
+                newCommitment.Id));
+        }
+
+        private async Task<Commitment> CreateCommitment(CreateCommitmentCommand message)
+        {
             var newCommitment = message.Commitment;
             newCommitment.LastAction = LastAction.None;
 
             newCommitment.Id = await _commitmentRepository.Create(newCommitment);
 
-            await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));
-
-            await CreateMessageIfNeeded(newCommitment.Id, message);
-
-            await CreateHistory(newCommitment, message.Caller.CallerType, message.UserId, message.Commitment.LastUpdatedByEmployerName);
-
-            return newCommitment.Id;
+            await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id,
+                _hashingService.HashValue(newCommitment.Id));
+            return newCommitment;
         }
 
         private async Task CreateHistory(Commitment newCommitment, CallerType callerType, string userId, string userName)

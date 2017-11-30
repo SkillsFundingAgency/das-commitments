@@ -14,9 +14,11 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 using SFA.DAS.HashingService;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 {
@@ -28,6 +30,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         private CreateCommitmentCommand _exampleValidRequest;
         private Mock<IHashingService> _mockHashingService;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private Commitment _populatedCommitment;
 
@@ -38,11 +41,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             _mockHashingService = new Mock<IHashingService>();
 			var commandValidator = new CreateCommitmentValidator();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
             _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, 
                 _mockHashingService.Object,
                 commandValidator,
                 Mock.Of<ICommitmentsLogger>(),
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                _messagePublisher.Object);
 
             Fixture fixture = new Fixture();
             fixture.Customize<Apprenticeship>(ob => ob
@@ -169,6 +174,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                 y.First().ProviderId == _populatedCommitment.ProviderId &&
                                 y.First().EmployerAccountId == _populatedCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _exampleValidRequest.Commitment.LastUpdatedByEmployerName)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenTheCohortEventIsCreated()
+        {
+            const long expectedCommitmentId = 45;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<CohortCreated>(
+                            m => m.AccountId == _exampleValidRequest.Commitment.EmployerAccountId && m.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value && m.CommitmentId == expectedCommitmentId)), Times.Once);
         }
 
         private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
