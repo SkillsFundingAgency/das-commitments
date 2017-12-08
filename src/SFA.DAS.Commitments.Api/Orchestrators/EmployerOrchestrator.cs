@@ -41,7 +41,7 @@ using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
-    public class EmployerOrchestrator
+    public class EmployerOrchestrator : IEmployerOrchestrator
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
@@ -220,7 +220,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             };
         }
 
-        public async Task<Api.Types.Apprenticeship.Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId)
+        public async Task<Apprenticeship.Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
 
@@ -303,7 +303,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Updated Provider Payment Priorities with {submission.Priorities.Count} providers for employer account {accountId}", accountId);
         }
 
-        public async Task<IEnumerable<Types.ProviderPayment.ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId)
+        public async Task<IEnumerable<ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId)
         {
             _logger.Trace($"Getting Provider Payment Priority for employer account {accountId}", accountId);
 
@@ -445,7 +445,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Deleted commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
         }
 
-        public async Task<Types.Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
+        public async Task<Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)
         {
             _logger.Trace($"Getting pending update for apprenticeship {apprenticeshipId} for employer account {accountId}", accountId, apprenticeshipId: apprenticeshipId );
 

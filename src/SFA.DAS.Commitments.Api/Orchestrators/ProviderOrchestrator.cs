@@ -42,7 +42,7 @@ using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
-    public class ProviderOrchestrator
+    public class ProviderOrchestrator : IProviderOrchestrator
     {
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
@@ -147,7 +147,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Caller = new Caller
                 {
                     CallerType = CallerType.Provider,
-                    Id = providerId,
+                    Id = providerId
                 }
             });
 
@@ -262,7 +262,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserName = bulkRequest.LastUpdatedByInfo?.Name
             });
 
-            _logger.Info($"Bulk uploaded {bulkRequest.Apprenticeships?.Count ?? 0} apprenticeships for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, recordCount: bulkRequest.Apprenticeships?.Count ?? 0);
+            _logger.Info($"Bulk uploaded {bulkRequest.Apprenticeships?.Count} apprenticeships for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, recordCount: bulkRequest.Apprenticeships?.Count);
 
         }
 
@@ -504,7 +504,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 LegalEntityOrganisationType = (OrganisationType)entity.LegalEntityOrganisationType,
                 ProviderId = entity.ProviderId,
                 ProviderName = entity.ProviderName,
-                Verified = entity.Verified,
+                Verified = entity.Verified
             };
         }
     }
