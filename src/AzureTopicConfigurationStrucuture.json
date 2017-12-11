@@ -26,6 +26,10 @@
   {
     "topicName": "cohort_created",
     "subscription": [ "Task_CohortCreated" ]
+  },
+  {
+    "topicName": "approved_cohort_returned_to_provider",
+    "subscription": [ "Task_ApprovedCohortReturnedToProvider" ]
   }  
 ]
 
