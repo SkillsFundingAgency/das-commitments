@@ -68,24 +68,26 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
         public CommitmentView MapFrom(Commitment commitment, CallerType callerType)
         {
-            return new CommitmentView
-            {
-                Id = commitment.Id,
-                Reference = commitment.Reference,
-                ProviderId = commitment.ProviderId,
-                ProviderName = commitment.ProviderName,
-                EmployerAccountId = commitment.EmployerAccountId,
-                LegalEntityId = commitment.LegalEntityId,
-                LegalEntityName = commitment.LegalEntityName,
-                EditStatus = (Types.Commitment.Types.EditStatus)commitment.EditStatus,
-                AgreementStatus = (AgreementStatus)_commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
-                LastAction = (Types.Commitment.Types.LastAction)commitment.LastAction,
-                CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
-                EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
-                ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
-                Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
-                Messages = MapMessagesFrom(commitment.Messages)
-            };
+            return commitment == null
+                ? null
+                : new CommitmentView
+                {
+                    Id = commitment.Id,
+                    Reference = commitment.Reference,
+                    ProviderId = commitment.ProviderId,
+                    ProviderName = commitment.ProviderName,
+                    EmployerAccountId = commitment.EmployerAccountId,
+                    LegalEntityId = commitment.LegalEntityId,
+                    LegalEntityName = commitment.LegalEntityName,
+                    EditStatus = (Types.Commitment.Types.EditStatus) commitment.EditStatus,
+                    AgreementStatus = (AgreementStatus) _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
+                    LastAction = (Types.Commitment.Types.LastAction) commitment.LastAction,
+                    CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
+                    EmployerLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail},
+                    ProviderLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail},
+                    Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
+                    Messages = MapMessagesFrom(commitment.Messages)
+                };
         }
 
         public Commitment MapFrom(Types.Commitment.Commitment commitment)

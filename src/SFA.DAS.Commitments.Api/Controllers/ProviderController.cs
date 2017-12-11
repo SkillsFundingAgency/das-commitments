@@ -16,11 +16,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
     [RoutePrefix("api/provider")]
     public class ProviderController : ApiController
     {
-        private readonly ProviderOrchestrator _providerOrchestrator;
+        private readonly IProviderOrchestrator _providerOrchestrator;
 
-        private readonly ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
+        private readonly IApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
-        public ProviderController(ProviderOrchestrator providerOrchestrator, ApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
+        public ProviderController(IProviderOrchestrator providerOrchestrator, IApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
             if (providerOrchestrator == null)
                 throw new ArgumentNullException(nameof(providerOrchestrator));
@@ -37,9 +37,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitments(providerId);
 
-            var commitments = response;
-
-            return Ok(commitments);
+            return Ok(response);
         }
 
         [Route("{providerId}/commitments/{commitmentId}", Name = "GetCommitmentForProvider")]
@@ -48,14 +46,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetCommitment(providerId, commitmentId);
 
-            var commitment = response;
-
-            if (commitment == null)
+            if (response == null)
             {
                 return NotFound();
             }
 
-            return Ok(commitment);
+            return Ok(response);
         }
 
         [Route("{providerId}/apprenticeships")]
@@ -82,14 +78,12 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             var response = await _providerOrchestrator.GetApprenticeship(providerId, apprenticeshipId);
 
-            var apprenticeship = response;
-
-            if (apprenticeship == null)
+            if (response == null)
             {
                 return NotFound();
             }
 
-            return Ok(apprenticeship);
+            return Ok(response);
         }
 
 

@@ -15,10 +15,10 @@ namespace SFA.DAS.Commitments.Api.Controllers
     [RoutePrefix("api/employer")]
     public class EmployerController : ApiController
     {
-        private readonly EmployerOrchestrator _employerOrchestrator;
-        private readonly ApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
+        private readonly IEmployerOrchestrator _employerOrchestrator;
+        private readonly IApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
-        public EmployerController(EmployerOrchestrator employerOrchestrator, ApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
+        public EmployerController(IEmployerOrchestrator employerOrchestrator, IApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
             if (employerOrchestrator == null)
                 throw new ArgumentNullException(nameof(employerOrchestrator));

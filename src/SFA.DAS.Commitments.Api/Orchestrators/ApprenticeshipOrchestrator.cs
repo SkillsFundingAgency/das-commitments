@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediatR;
@@ -21,7 +20,7 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
-    public class ApprenticeshipsOrchestrator
+    public class ApprenticeshipsOrchestrator : IApprenticeshipsOrchestrator
     {
         private readonly IMediator _mediator;
         private readonly IDataLockMapper _dataLockMapper;
@@ -114,7 +113,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task TriageDataLocks(long apprenticeshipId, DataLockTriageSubmission triageSubmission, Caller caller)
         {
-            _logger.Trace($"Updating all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
+            _logger.Trace($"Updating all data locks to triage status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
 
             await _mediator.SendAsync(new TriageDataLocksCommand
             {
@@ -123,7 +122,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = triageSubmission.UserId
             });
 
-            _logger.Info($"Updated all data locks to triange status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
+            _logger.Info($"Updated all data locks to triage status: {triageSubmission.TriageStatus}, for apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
         }
 
         public async Task ResolveDataLock(long apprenticeshipId, DataLocksTriageResolutionSubmission triageSubmission, Caller caller)

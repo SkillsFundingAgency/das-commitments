@@ -113,6 +113,7 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenResolveDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
+    <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenFilterApprenticeships.cs" />
     <Compile Include="Mapping\Service\ApprenticeshipFilterService\WhenPagingFilterResults.cs" />

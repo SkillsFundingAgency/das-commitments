@@ -11,7 +11,6 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -90,6 +89,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>())).ReturnsAsync(new GetCommitmentResponse { Data = null });
 
             var result = await _controller.GetCommitment(111L, 0L);
+
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        [Test]
+        public async Task ThenReturnsNotFoundWhenOrchestratorReturnsNull()
+        {
+            var orchestrator = new Mock<IProviderOrchestrator>();
+            orchestrator.Setup(x => x.GetCommitment(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(null);
+            var controller = new ProviderController(orchestrator.Object, Mock.Of<IApprenticeshipsOrchestrator>());
+
+            var result = await controller.GetCommitment(1L, 1L);
 
             result.Should().BeOfType<NotFoundResult>();
         }
