@@ -19,8 +19,8 @@ namespace SFA.DAS.Commitments.Events
             ApprenticeshipId = apprenticeshipId;
         }
 
-        public long AccountId { get; private set; }
-        public long ProviderId { get; private set; }
-        public long ApprenticeshipId { get; private set; }
+        public long AccountId { get; set; }
+        public long ProviderId { get; set; }
+        public long ApprenticeshipId { get; set; }
     }
 }
