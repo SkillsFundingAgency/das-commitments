@@ -146,6 +146,77 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>()), Times.Exactly(3));
         }
 
+        [Test]
+        public async Task AndPageContainsDataLockSuccessThenDataLockFlagHasBeenUpdatedForTheApprenticeship()
+        {
+            const long dataLockSuccessApprenticeshipId = 1;
+
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    ApprenticeshipId = dataLockSuccessApprenticeshipId,
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.None
+                },
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 2,
+                    DataLockEventId = 3,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                },
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 3,
+                    DataLockEventId = 4,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                }
+            };
+
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+            _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(new List<DataLockStatus>());
+
+            _apprenticeshipRepository.Setup(x => x.SetHasHadDataLockSuccess(dataLockSuccessApprenticeshipId)).Returns(Task.FromResult(0));
+
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _apprenticeshipRepository.Verify(x => x.SetHasHadDataLockSuccess(dataLockSuccessApprenticeshipId), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenGetApprentishipIsNotCalledUnnecessarily()
+        {
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                },
+                new DataLockStatus
+                {
+                    DataLockEventId = 3,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                },
+                new DataLockStatus
+                {
+                    DataLockEventId = 4,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                }
+            };
+
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+            _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(new List<DataLockStatus>());
+
+            //Act
+            await _dataLockUpdater.RunUpdate();
+
+            //Assert
+            _apprenticeshipRepository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Never);
+        }
+
         [TestCase(DataLockErrorCode.None, true)]
         [TestCase(DataLockErrorCode.Dlock01, false)]
         [TestCase(DataLockErrorCode.Dlock02, false)]
