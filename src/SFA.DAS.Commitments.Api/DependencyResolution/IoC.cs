@@ -18,7 +18,9 @@
 using System;
 using StructureMap;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Messaging.AzureServiceBus;
 using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -32,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             {
                 c.AddRegistry<DefaultRegistry>();
                 c.Policies.Add<CurrentDatePolicy>();
-                c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName));
+                c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, new NLogLogger(typeof(TopicMessagePublisher))));
             });
         }
     }
