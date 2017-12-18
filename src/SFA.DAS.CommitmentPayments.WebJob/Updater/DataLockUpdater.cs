@@ -115,14 +115,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
                         if (datalockSuccess)
                         {
-                            //todo: better to just set (apprenticeship not used otherwise), or sp that updates if necessary (to reduce locking)
-                            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(dataLockStatus.ApprenticeshipId);
-                            if (!apprenticeship.HasHadDataLockSuccess)
-                            {
-                                await _apprenticeshipRepository.SetHasHadDataLockSuccess(apprenticeship.Id);
-                            }
-
-                            //todo: could make this less chatty with the db
+                            await _apprenticeshipRepository.SetHasHadDataLockSuccess(dataLockStatus.ApprenticeshipId);
 
                             var pendingUpdate = await
                              _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
