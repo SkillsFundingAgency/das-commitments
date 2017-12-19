@@ -133,7 +133,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             }
         }
 
-        //todo: we can optimise this by & whitelist and ? skipped
 
         private void ApplyErrorCodeWhiteList(DataLockStatus dataLockStatus)
         {
