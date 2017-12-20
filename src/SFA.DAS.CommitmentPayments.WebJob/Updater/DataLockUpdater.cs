@@ -115,11 +115,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
                         if (datalockSuccess)
                         {
-                            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(dataLockStatus.ApprenticeshipId);
-                            if (!apprenticeship.HasHadDataLockSuccess)
-                            {
-                                await _apprenticeshipRepository.SetHasHadDataLockSuccess(apprenticeship.Id);
-                            }
+                            await _apprenticeshipRepository.SetHasHadDataLockSuccess(dataLockStatus.ApprenticeshipId);
 
                             var pendingUpdate = await
                              _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
@@ -136,6 +132,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                 }
             }
         }
+
 
         private void ApplyErrorCodeWhiteList(DataLockStatus dataLockStatus)
         {
