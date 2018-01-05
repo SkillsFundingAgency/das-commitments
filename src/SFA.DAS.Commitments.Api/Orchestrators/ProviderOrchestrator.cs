@@ -501,7 +501,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 LegalEntityId = entity.LegalEntityId,
                 LegalEntityName = entity.LegalEntityName,
                 LegalEntityAddress = entity.LegalEntityAddress,
-                LegalEntityOrganisationType = (OrganisationType)entity.LegalEntityOrganisationType,
+                LegalEntityOrganisationType = entity.LegalEntityOrganisationType,
                 ProviderId = entity.ProviderId,
                 ProviderName = entity.ProviderName,
                 Verified = entity.Verified
