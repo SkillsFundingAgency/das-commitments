@@ -10,7 +10,7 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Provides types for the SFA.DAS.Commitments.Api service</description>
         <summary>Types for the SFA.DAS.Commitments.Api service</summary>
-        <releaseNotes>Adds StopDate to Apprenticeship</releaseNotes>
+      <releaseNotes>Adds StopDate to Apprenticeship</releaseNotes>
       <dependencies>
         <dependency id="SFA.DAS.Common.Domain" version="1.3.0" />
       </dependencies>
