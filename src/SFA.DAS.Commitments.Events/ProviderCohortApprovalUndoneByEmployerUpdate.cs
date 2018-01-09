@@ -18,10 +18,10 @@ namespace SFA.DAS.Commitments.Events
             CommitmentId = commitmentId;
         }
 
-        public long CommitmentId { get; set; }
+        public long CommitmentId { get; protected set; }
 
-        public long ProviderId { get; set; }
+        public long ProviderId { get; protected set; }
 
-        public long AccountId { get; set; }
+        public long AccountId { get; protected set; }
     }
 }
