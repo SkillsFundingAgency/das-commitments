@@ -32,8 +32,8 @@
     "subscription": [ "Task_ApprovedCohortReturnedToProvider" ]
   },
   {
-    "topicName": "provider_cohort_approval_undone_by_employer_update",
-    "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployerUpdate" ]
+    "topicName": "provider_cohort_approval_undone_by_employer",
+    "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployer" ]
   }
 ]
 
