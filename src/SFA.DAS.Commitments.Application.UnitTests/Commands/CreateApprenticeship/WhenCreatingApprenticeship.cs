@@ -23,6 +23,7 @@ using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 using TrainingType = SFA.DAS.Commitments.Domain.Entities.TrainingType;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {
@@ -60,7 +61,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 validator, 
                 _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>(),
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                Mock.Of<IMessagePublisher>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
