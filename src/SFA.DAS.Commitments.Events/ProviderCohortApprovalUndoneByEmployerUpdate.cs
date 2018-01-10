@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Commitments.Events
 {
-    [MessageGroup("provider_cohort_approval_undone_by_employer_update")]
+    [MessageGroup("provider_cohort_approval_undone_by_employer")]
     public class ProviderCohortApprovalUndoneByEmployerUpdate
     {
         //Needs a parameterless constructor to work with the message processing
