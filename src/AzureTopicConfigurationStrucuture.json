@@ -2,7 +2,7 @@
   {
     "topicName": "apprenticeship_update_created",
     "subscription": [ "Task_ApprenticeUpdateCreated" ]
-  },  
+  },
   {
     "topicName": "apprenticeship_update_accepted",
     "subscription": [ "Task_ApprenticeshipUpdateAccepted" ]
@@ -30,6 +30,10 @@
   {
     "topicName": "approved_cohort_returned_to_provider",
     "subscription": [ "Task_ApprovedCohortReturnedToProvider" ]
-  }  
+  },
+  {
+    "topicName": "provider_cohort_approval_undone_by_employer_update",
+    "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployerUpdate" ]
+  }
 ]
 
