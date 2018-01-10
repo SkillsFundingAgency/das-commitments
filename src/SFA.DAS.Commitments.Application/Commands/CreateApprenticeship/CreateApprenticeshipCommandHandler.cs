@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -9,6 +10,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
@@ -23,8 +26,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
+        private IMessagePublisher _messagePublisher;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository)
+        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -32,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
             _historyRepository = historyRepository;
+            _messagePublisher = messagePublisher;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand command)
@@ -50,6 +55,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckEditStatus(command, commitment);
             CheckCommitmentStatus(commitment);
 
+            var publishMessage = command.Caller.CallerType == CallerType.Employer
+                && commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.ProviderAgreed);
+
             var apprenticeship = UpdateApprenticeship(command.Apprenticeship, command);
             var apprenticeshipId = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
             var savedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeshipId);
@@ -60,7 +68,21 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 CreateHistory(commitment, savedApprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
             );
 
+            if (publishMessage)
+            {
+                await PublishMessage(commitment);
+            }
+
             return apprenticeshipId;
+        }
+
+        private async Task PublishMessage(Commitment commitment)
+        {
+            await _messagePublisher.PublishAsync(
+                      new ProviderCohortApprovalUndoneByEmployerUpdate(
+                          commitment.EmployerAccountId,
+                          commitment.ProviderId.Value,
+                          commitment.Id));
         }
 
         private Apprenticeship UpdateApprenticeship(Apprenticeship apprenticeship, CreateApprenticeshipCommand command)

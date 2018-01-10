@@ -118,6 +118,7 @@
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
+    <Compile Include="Commands\CreateApprenticeship\WhenEmployerCreatesApprenticeship.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenValidatngCreatingBulkUpload.cs" />
@@ -158,6 +159,7 @@
     <Compile Include="Commands\AcceptApprenticeshipChange\WhenMappingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingPauseApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingResumeApprenticeshipCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeship\WhenEmployerUpdatesApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />

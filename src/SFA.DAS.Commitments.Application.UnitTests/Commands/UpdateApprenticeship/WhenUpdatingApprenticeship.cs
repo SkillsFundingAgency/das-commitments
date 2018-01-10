@@ -18,6 +18,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeship
 {
@@ -50,7 +51,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mockApprenticeshipUpdateRules.Object, 
                 _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>(),
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                Mock.Of<IMessagePublisher>());
             
             _mockValidator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipCommand>())).Returns(new ValidationResult());
 

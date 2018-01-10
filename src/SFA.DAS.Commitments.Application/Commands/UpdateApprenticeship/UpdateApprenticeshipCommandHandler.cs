@@ -11,6 +11,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 {
@@ -28,8 +30,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
         private HistoryService _historyService;
-        
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository)
+        private IMessagePublisher _messagePublisher;
+
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -38,6 +41,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             _apprenticeshipEvents = apprenticeshipEvents;
             _logger = logger;
             _historyRepository = historyRepository;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand command)
@@ -59,6 +63,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             StartTrackingHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
 
+            var publishMessage = command.Caller.CallerType == CallerType.Employer
+                && _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(apprenticeship, command.Apprenticeship)
+                && commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.ProviderAgreed);
+
             UpdateApprenticeshipEntity(apprenticeship, command.Apprenticeship, command);
 
             await Task.WhenAll(
@@ -67,6 +75,20 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED"),
                 CreateHistory()
             );
+
+            if (publishMessage)
+            {
+                await PublishMessage(commitment);
+            }
+        }
+
+        private async Task PublishMessage(Commitment commitment)
+        {
+            await _messagePublisher.PublishAsync(
+                      new ProviderCohortApprovalUndoneByEmployerUpdate(
+                          commitment.EmployerAccountId,
+                          commitment.ProviderId.Value,
+                          commitment.Id));
         }
 
         private async Task CreateHistory()
