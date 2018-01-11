@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.TriageDataLock
 {
@@ -15,26 +21,23 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLock
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository; 
 
         private readonly ICommitmentsLogger _logger;
+        private readonly IMessagePublisher _messagePublisher;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
         public TriageDataLockCommandHandler(
             AbstractValidator<TriageDataLockCommand> validator,
             IDataLockRepository dataLockRepository, 
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IMessagePublisher messagePublisher,
+            IApprenticeshipRepository apprenticeshipRepository)
         {
-            if(validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<TriageDataLockCommand>));
-            if(dataLockRepository == null)
-                throw new ArgumentNullException(nameof(IDataLockRepository));
-            if(logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if(apprenticeshipUpdateRepository == null)
-                throw new ArgumentNullException(nameof(IApprenticeshipUpdateRepository));
-
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _logger = logger;
+            _messagePublisher = messagePublisher;
+            _apprenticeshipRepository = apprenticeshipRepository;
         }
 
         protected override async Task HandleCore(TriageDataLockCommand message)
@@ -61,7 +64,30 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLock
             AssertValidTriageStatus(triageStatus, dataLock);
             await AssertNoPendingApprenticeshipUpdate(dataLock, message.ApprenticeshipId);
 
+            if (triageStatus == TriageStatus.Change)
+            {
+                await CreateEventIfThereWereNoExistingDataLocksRequiringApprovalForTheApprenticeship(message);
+            }
+
             await _dataLockRepository.UpdateDataLockTriageStatus(message.DataLockEventId, triageStatus);
+        }
+
+        private async Task CreateEventIfThereWereNoExistingDataLocksRequiringApprovalForTheApprenticeship(TriageDataLockCommand message)
+        {
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(message.ApprenticeshipId);
+            var dataLocksRequiringApproval = await GetExistingDataLocksRequiringApproval(message, apprenticeship);
+            if (!dataLocksRequiringApproval.Any())
+            {
+                await _messagePublisher.PublishAsync(new DataLockTriageRequiresApproval(apprenticeship.EmployerAccountId, apprenticeship.ProviderId, apprenticeship.Id));
+            }
+        }
+
+        private async Task<IEnumerable<DataLockStatus>> GetExistingDataLocksRequiringApproval(TriageDataLockCommand message, Apprenticeship apprenticeship)
+        {
+            var existingDataLocks = await _dataLockRepository.GetDataLocks(message.ApprenticeshipId);
+            var dataLockService = new DataLockTriageService();
+            var dataLocksRequiringApproval = dataLockService.GetDataLocksToBeUpdated(existingDataLocks, apprenticeship);
+            return dataLocksRequiringApproval;
         }
 
         private void AssertDataLockBelongsToApprenticeship(long apprenticeshipId, DataLockStatus dataLockStatus)

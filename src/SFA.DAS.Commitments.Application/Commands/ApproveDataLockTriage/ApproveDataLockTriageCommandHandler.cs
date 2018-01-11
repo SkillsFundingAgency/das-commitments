@@ -7,6 +7,7 @@ using MediatR;
 
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -110,15 +111,8 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
         private static IEnumerable<DataLockStatus> GetDataLocksToBeUpdated(List<DataLockStatus> datalocksForApprenticeship, Apprenticeship apprenticeship)
         {
-            var dataLocksToBeUpdated = datalocksForApprenticeship
-                .Where(DataLockExtensions.UnHandled)
-                .Where(m => m.TriageStatus == TriageStatus.Change);
-
-            if (apprenticeship.HasHadDataLockSuccess)
-            {
-                dataLocksToBeUpdated = dataLocksToBeUpdated.Where(DataLockExtensions.IsPriceOnly);
-            }
-            return dataLocksToBeUpdated;
+            var dataLockService = new DataLockTriageService();
+            return dataLockService.GetDataLocksToBeUpdated(datalocksForApprenticeship, apprenticeship);
         }
 
         private static PriceHistory[] CreatePriceHistory(
