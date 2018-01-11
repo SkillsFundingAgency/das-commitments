@@ -12,6 +12,8 @@ using SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriage
 {
@@ -22,10 +24,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
         private Mock<AbstractValidator<RejectDataLockTriageCommand>> _validator;
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private RejectDataLockTriageCommand _command;
-
-        private Mock<ICommitmentRepository> _commitmentRepository;
 
         [SetUp]
         public void SetUp()
@@ -33,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
             _validator = new Mock<AbstractValidator<RejectDataLockTriageCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _commitmentRepository = new Mock<ICommitmentRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _command = new RejectDataLockTriageCommand { ApprenticeshipId = 4321 };
 
@@ -47,7 +48,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
             _validator.Object,
             _dataLockRepository.Object,
             _apprenticeshipRepository.Object,
-            _commitmentRepository.Object);
+            _messagePublisher.Object);
         }
 
         [Test]
@@ -146,6 +147,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
 
             idsToBeUpdated.Length.Should().Be(expectedIds.Length);
             idsToBeUpdated.ShouldAllBeEquivalentTo(expectedIds);
+        }
+
+        [Test]
+        public async Task ThenTheTriageApprovedEventIsCreated()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
+                .ReturnsAsync(new List<DataLockStatus>
+                {
+                    new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
+                });
+
+            var apprenticeship = new Apprenticeship { ProviderId = 1234, Id = _command.ApprenticeshipId, EmployerAccountId = 8457 };
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(_command.ApprenticeshipId)).ReturnsAsync(apprenticeship);
+
+            await _sut.Handle(_command);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<DataLockTriageRejected>(
+                            m => m.AccountId == apprenticeship.EmployerAccountId && m.ProviderId == apprenticeship.ProviderId && m.ApprenticeshipId == apprenticeship.Id)), Times.Once);
         }
     }
 }
