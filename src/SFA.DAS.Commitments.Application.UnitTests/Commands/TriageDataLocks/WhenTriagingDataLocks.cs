@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -12,6 +11,8 @@ using SFA.DAS.Commitments.Application.Commands.TriageDataLocks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 using DataLockErrorCode = SFA.DAS.Commitments.Domain.Entities.DataLock.DataLockErrorCode;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
@@ -24,6 +25,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private TriageDataLocksCommand _validCommand;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         [SetUp]
         public void SetUp()
@@ -31,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             _validator = new Mock<AbstractValidator<TriageDataLocksCommand>>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _dataLockRepository = new Mock<IDataLockRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _validator.Setup(x => x.Validate(It.IsAny<TriageDataLocksCommand>()))
                 .Returns(() => new ValidationResult());
@@ -46,8 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
                                           }
                                   });            
 
-            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Apprenticeship());
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(new Apprenticeship());
 
             _validCommand = new TriageDataLocksCommand
             {
@@ -59,7 +61,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
             _sut = new TriageDataLocksCommandHandler(
                 _validator.Object,
                 _dataLockRepository.Object,
-                _apprenticeshipRepository.Object);
+                _apprenticeshipRepository.Object,
+                _messagePublisher.Object);
         }
 
         [Test]
@@ -132,6 +135,37 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLocks
 
             Func<Task> act = async () => await _sut.Handle(_validCommand);
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public async Task ThenIfATriageStatusIsUpdatedToChangeAndTheApprenticeshipHasNoChangesRequiringApprovalAnEventIsSent()
+        {
+            //Arrange
+            var apprenticeship = new Apprenticeship { EmployerAccountId = 45453, ProviderId = 94443, Id = _validCommand.ApprenticeshipId };
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(_validCommand.ApprenticeshipId)).ReturnsAsync(apprenticeship);
+
+            //Act
+            await _sut.Handle(_validCommand);
+
+            //Assert
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<DataLockTriageRequiresApproval>(
+                            m => m.AccountId == apprenticeship.EmployerAccountId && m.ProviderId == apprenticeship.ProviderId && m.ApprenticeshipId == apprenticeship.Id)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfATriageStatusIsNotChangeThenNoEventIsSent()
+        {
+            //Arrange
+            _validCommand.TriageStatus = TriageStatus.FixIlr;
+
+            //Act
+            await _sut.Handle(_validCommand);
+
+            //Assert
+            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<DataLockTriageRequiresApproval>()), Times.Never);
         }
     }
 }

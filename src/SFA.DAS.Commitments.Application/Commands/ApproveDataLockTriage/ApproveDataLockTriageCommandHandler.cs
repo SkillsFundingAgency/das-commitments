@@ -7,12 +7,15 @@ using MediatR;
 
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Extensions;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 {
@@ -28,6 +31,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         private readonly IApprenticeshipInfoServiceWrapper _apprenticeshipTrainingService;
 
         private readonly ICommitmentsLogger _logger;
+        private readonly IMessagePublisher _messagePublisher;
 
         public ApproveDataLockTriageCommandHandler(AbstractValidator<ApproveDataLockTriageCommand> validator,
             IDataLockRepository dataLockRepository,
@@ -37,17 +41,9 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             ICommitmentRepository commitmentRepository, 
             ICurrentDateTime currentDateTime,
             IApprenticeshipInfoServiceWrapper apprenticeshipTrainingService,
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IMessagePublisher messagePublisher)
         {
-            if (validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<ApproveDataLockTriageCommand>));
-            if (dataLockRepository == null)
-                throw new ArgumentNullException(nameof(IDataLockRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(IApprenticeshipRepository));
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(ICommitmentRepository));
-
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -57,6 +53,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             _currentDateTime = currentDateTime;
             _apprenticeshipTrainingService = apprenticeshipTrainingService;
             _logger = logger;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(ApproveDataLockTriageCommand command)
@@ -65,48 +62,57 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+
             var datalocksForApprenticeship = await _dataLockRepository.GetDataLocks(command.ApprenticeshipId);
 
-            var dataLocksToBeUpdated = datalocksForApprenticeship
-                .Where(DataLockExtensions.UnHandled)
-                .Where(m => m.TriageStatus == TriageStatus.Change);
-
-            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
-            if (apprenticeship.HasHadDataLockSuccess)
-            {
-                dataLocksToBeUpdated = dataLocksToBeUpdated.Where(DataLockExtensions.IsPriceOnly);
-            }
-
-            var dataLockPasses = datalocksForApprenticeship.Where(x => x.Status == Status.Pass || x.PreviousResolvedPriceDataLocks() );
-
+            var dataLocksToBeUpdated = GetDataLocksToBeUpdated(datalocksForApprenticeship, apprenticeship);
             if (!dataLocksToBeUpdated.Any())
                 return;
 
-            var newPriceHistory = CreatePriceHistory(command, dataLocksToBeUpdated, dataLockPasses);
+            var dataLockPasses = datalocksForApprenticeship.Where(x => x.Status == Status.Pass || x.PreviousResolvedPriceDataLocks() );
 
-            await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
-            apprenticeship.PriceHistory = newPriceHistory.ToList();
+            await UpdatePriceHistory(command, dataLocksToBeUpdated, dataLockPasses, apprenticeship);
 
             if (!apprenticeship.HasHadDataLockSuccess)
             {
-                var dataLockWithUpdatedTraining = dataLocksToBeUpdated.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.TrainingCode);
-                if (dataLockWithUpdatedTraining != null)
-                {
-                    var training = await
-                        _apprenticeshipTrainingService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
-
-                    _logger.Info($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.TrainingCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
-
-                    apprenticeship.TrainingCode = dataLockWithUpdatedTraining.IlrTrainingCourseCode;
-                    apprenticeship.TrainingName = training.Title;
-                    apprenticeship.TrainingType = dataLockWithUpdatedTraining.IlrTrainingType;
-                    await _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller);
-                }
+                await UpdateTraining(command, dataLocksToBeUpdated, apprenticeship);
             }
 
             await _dataLockRepository.ResolveDataLock(dataLocksToBeUpdated.Select(m => m.DataLockEventId));
             
             await PublishEvents(apprenticeship);
+        }
+
+        private async Task UpdateTraining(ApproveDataLockTriageCommand command, IEnumerable<DataLockStatus> dataLocksToBeUpdated, Apprenticeship apprenticeship)
+        {
+            var dataLockWithUpdatedTraining = dataLocksToBeUpdated.FirstOrDefault(m => m.IlrTrainingCourseCode != apprenticeship.TrainingCode);
+            if (dataLockWithUpdatedTraining != null)
+            {
+                var training = await
+                    _apprenticeshipTrainingService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+
+                _logger.Info($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.TrainingCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
+
+                apprenticeship.TrainingCode = dataLockWithUpdatedTraining.IlrTrainingCourseCode;
+                apprenticeship.TrainingName = training.Title;
+                apprenticeship.TrainingType = dataLockWithUpdatedTraining.IlrTrainingType;
+                await _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller);
+            }
+        }
+
+        private async Task UpdatePriceHistory(ApproveDataLockTriageCommand command, IEnumerable<DataLockStatus> dataLocksToBeUpdated, IEnumerable<DataLockStatus> dataLockPasses, Apprenticeship apprenticeship)
+        {
+            var newPriceHistory = CreatePriceHistory(command, dataLocksToBeUpdated, dataLockPasses);
+
+            await _apprenticeshipRepository.InsertPriceHistory(command.ApprenticeshipId, newPriceHistory);
+            apprenticeship.PriceHistory = newPriceHistory.ToList();
+        }
+
+        private static IEnumerable<DataLockStatus> GetDataLocksToBeUpdated(List<DataLockStatus> datalocksForApprenticeship, Apprenticeship apprenticeship)
+        {
+            var dataLockService = new DataLockTriageService();
+            return dataLockService.GetDataLocksToBeUpdated(datalocksForApprenticeship, apprenticeship);
         }
 
         private static PriceHistory[] CreatePriceHistory(
@@ -142,7 +148,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
 
             await _eventsApi.Publish(_apprenticeshipEventsList);
-
+            await _messagePublisher.PublishAsync(new DataLockTriageApproved(apprenticeship.EmployerAccountId, apprenticeship.ProviderId, apprenticeship.Id));
         }
     }
 }
