@@ -150,7 +150,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
         }
 
         [Test]
-        public async Task ThenTheTriageApprovedEventIsCreated()
+        public async Task ThenTheTriageRejectedEventIsCreated()
         {
             _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>
