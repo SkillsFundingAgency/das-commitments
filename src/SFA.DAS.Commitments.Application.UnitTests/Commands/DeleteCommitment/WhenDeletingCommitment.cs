@@ -13,6 +13,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 {
@@ -25,6 +27,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         private AbstractValidator<DeleteCommitmentCommand> _validator;
         private DeleteCommitmentCommandHandler _handler;
         private DeleteCommitmentCommand _validCommand;
+        private Mock<IMessagePublisher> _mockMessagePublisher;
 
         [SetUp]
         public void Setup()
@@ -33,7 +36,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _validator = new DeleteCommitmentValidator();
-            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object);
+            _mockMessagePublisher = new Mock<IMessagePublisher>();
+
+            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object, _mockMessagePublisher.Object);
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserId = "User", UserName = "Bob"};
         }
@@ -191,6 +196,99 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
                                 y.First().ProviderId == testCommitment.ProviderId &&
                                 y.First().EmployerAccountId == testCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldPublishMessageIfProviderApprovedCohortDeletedByEmployer()
+        {
+            const long commitmentId = 12345;
+            const long employerAccountId = 123;
+            const long providerId = 456;
+
+            var testCommitment = new Commitment
+            {
+                Id = commitmentId,
+                EmployerAccountId = employerAccountId,
+                ProviderId = providerId,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed },
+                    new Apprenticeship { AgreementStatus = AgreementStatus.ProviderAgreed }
+                }
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(commitmentId)).ReturnsAsync(testCommitment);
+
+            _validCommand.CommitmentId = commitmentId;
+            _validCommand.Caller.CallerType = Domain.CallerType.Employer;
+            _validCommand.Caller.Id = employerAccountId;
+
+            await _handler.Handle(_validCommand);
+
+            _mockMessagePublisher.Verify(x => x.PublishAsync(
+                It.Is<ProviderCohortApprovalUndoneByEmployerUpdate>(p => p.AccountId == employerAccountId && p.ProviderId == providerId && p.CommitmentId == commitmentId)), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldNotPublishMessageIfCohortDeletedByProvider()
+        {
+            const long commitmentId = 12345;
+            const long employerAccountId = 123;
+            const long providerId = 456;
+
+            var testCommitment = new Commitment
+            {
+                Id = commitmentId,
+                EmployerAccountId = employerAccountId,
+                ProviderId = providerId,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { AgreementStatus = AgreementStatus.EmployerAgreed },
+                    new Apprenticeship { AgreementStatus = AgreementStatus.EmployerAgreed }
+                }
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(commitmentId)).ReturnsAsync(testCommitment);
+
+            _validCommand.CommitmentId = commitmentId;
+            _validCommand.Caller.CallerType = Domain.CallerType.Provider;
+            _validCommand.Caller.Id = providerId;
+
+            await _handler.Handle(_validCommand);
+
+            _mockMessagePublisher.Verify(x => x.PublishAsync(
+                It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ShouldNotPublishMessageIfCohortDeletedByEmployerAndNotAgreed()
+        {
+            const long commitmentId = 12345;
+            const long employerAccountId = 123;
+            const long providerId = 456;
+
+            var testCommitment = new Commitment
+            {
+                Id = commitmentId,
+                EmployerAccountId = employerAccountId,
+                ProviderId = providerId,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed },
+                    new Apprenticeship { AgreementStatus = AgreementStatus.NotAgreed }
+                }
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(commitmentId)).ReturnsAsync(testCommitment);
+
+            _validCommand.CommitmentId = commitmentId;
+            _validCommand.Caller.CallerType = Domain.CallerType.Employer;
+            _validCommand.Caller.Id = employerAccountId;
+
+            await _handler.Handle(_validCommand);
+
+            _mockMessagePublisher.Verify(x => x.PublishAsync(
+                It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()), Times.Never);
         }
     }
 }
