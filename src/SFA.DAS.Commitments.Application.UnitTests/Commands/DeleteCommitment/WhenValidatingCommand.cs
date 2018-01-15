@@ -7,6 +7,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 {
@@ -21,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         public void Setup()
         {
             _validator = new DeleteCommitmentValidator();
-            _handler = new DeleteCommitmentCommandHandler(Mock.Of<ICommitmentRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>());
+            _handler = new DeleteCommitmentCommandHandler(Mock.Of<ICommitmentRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>(), Mock.Of<IMessagePublisher>());
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }

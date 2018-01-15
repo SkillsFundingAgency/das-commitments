@@ -12,6 +12,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
 {
@@ -22,14 +24,16 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly IHistoryRepository _historyRepository;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository)
+        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
             _apprenticeshipEvents = apprenticeshipEvents;
             _historyRepository = historyRepository;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(DeleteCommitmentCommand command)
@@ -38,7 +42,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
 
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
-
+            
             LogMessage(command);
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
@@ -56,6 +60,17 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             await _commitmentRepository.DeleteCommitment(command.CommitmentId);
             await CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
             await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
+            await PublishMessageIfProviderApprovedCohortDeletedByEmployer(commitment, command.Caller.CallerType);
+        }
+
+        private async Task PublishMessageIfProviderApprovedCohortDeletedByEmployer(Commitment commitment, CallerType callerType)
+        {
+            // called by employer and provider has previously approved commitment
+            if (callerType == CallerType.Employer && commitment.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed))
+            {
+                await _messagePublisher.PublishAsync(
+                    new ProviderCohortApprovalUndoneByEmployerUpdate(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
+            }
         }
 
         private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId, string userName)
