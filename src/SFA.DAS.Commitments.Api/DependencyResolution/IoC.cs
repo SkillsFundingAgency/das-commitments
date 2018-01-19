@@ -27,6 +27,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
     public static class IoC
     {
         private const string ServiceName = "SFA.DAS.Commitments";
+        private const string ServiceVersion = "1.0";
 
         public static IContainer Initialize()
         {
@@ -34,7 +35,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             {
                 c.AddRegistry<DefaultRegistry>();
                 c.Policies.Add<CurrentDatePolicy>();
-                c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, new NLogLogger(typeof(TopicMessagePublisher))));
+                c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
             });
         }
     }
