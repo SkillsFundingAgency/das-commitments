@@ -64,9 +64,6 @@
     <Compile Include="ApprenticeshipUpdateRejected.cs" />
     <Compile Include="ApprenticeshipUpdateAccepted.cs" />
     <Compile Include="ApprenticeshipUpdateCreated.cs" />
-    <Compile Include="DataLockTriageRequiresApproval.cs" />
-    <Compile Include="DataLockTriageRejected.cs" />
-    <Compile Include="DataLockTriageApproved.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderCohortApprovalUndoneByEmployerUpdate.cs" />
   </ItemGroup>
