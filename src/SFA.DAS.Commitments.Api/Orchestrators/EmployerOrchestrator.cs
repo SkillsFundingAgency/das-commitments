@@ -29,6 +29,7 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -443,6 +444,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Deleted commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
+        }
+
+        public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln)
+        {
+            _logger.Trace($"Getting active apprenticeships for Uln {uln} for employer account {accountId}", accountId);
+
+            var response = await _mediator.SendAsync(new GetActiveApprenticeshipsByUlnRequest
+            {
+                Uln = uln
+            });
+
+            _logger.Info($"Retrieved active apprenticeships for Uln {uln} for employer account {accountId}", accountId);
+
+            return _apprenticeshipMapper.MapFrom(response.Data);
         }
 
         public async Task<Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)

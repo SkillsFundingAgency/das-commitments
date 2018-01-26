@@ -79,7 +79,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-        
+
+        [Route("{accountId}/apprenticeships/uln/{uln}")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetActiveApprenticeshipsForUln(long accountId, string uln)
+        {
+            var response = await _employerOrchestrator.GetActiveApprenticeshipsForUln(accountId, uln);
+            return Ok(response);
+        }
+
         [Route("{accountId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeship(long accountId, long apprenticeshipId)
@@ -93,7 +101,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-
 
         [Route("{accountId}/commitments/")]
         [Authorize(Roles = "Role1")]
@@ -167,6 +174,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var response = await _employerOrchestrator.GetPendingApprenticeshipUpdate(accountId, apprenticeshipId);
             return Ok(response);
         }
+
 
         [Route("{accountId}/apprenticeships/{apprenticeshipId}/update")]
         [Authorize(Roles = "Role1")]
