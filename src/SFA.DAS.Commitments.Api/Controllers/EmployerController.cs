@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -60,7 +62,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-
         
         [Route("{accountId}/apprenticeships")]
         [Authorize(Roles = "Role1")]
@@ -82,6 +83,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{accountId}/apprenticeships/uln/{uln}")]
         [Authorize(Roles = "Role1")]
+        [ResponseType(typeof(IEnumerable<Apprenticeship>))]
         public async Task<IHttpActionResult> GetActiveApprenticeshipsForUln(long accountId, string uln)
         {
             var response = await _employerOrchestrator.GetActiveApprenticeshipsForUln(accountId, uln);
