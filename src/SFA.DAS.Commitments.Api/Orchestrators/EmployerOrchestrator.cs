@@ -187,7 +187,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
-                SearchKeyword = query.SearchKeyword,
                 Caller = new Caller
                 {
                     CallerType = CallerType.Employer,
