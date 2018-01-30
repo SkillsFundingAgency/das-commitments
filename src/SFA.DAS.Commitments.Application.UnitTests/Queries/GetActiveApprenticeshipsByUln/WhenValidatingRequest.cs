@@ -1,93 +1,43 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
-using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetActiveApprenticeshipsByUln
 {
     [TestFixture]
     public class WhenValidatingGetActiveApprenticeshipsByUlnRequest
     {
-        private GetOverlappingApprenticeshipsValidator _validator;
+        private GetActiveApprenticeshipsByUlnValidator _validator;
 
         [SetUp]
         public void Arrange()
         {
-            _validator = new GetOverlappingApprenticeshipsValidator();
+            _validator = new GetActiveApprenticeshipsByUlnValidator();
         }
 
         [Test]
         public void ThenTheRequestMustContainAtLeastOneRecord()
         {
-            //Arrange
-            var request = new GetOverlappingApprenticeshipsRequest();
+            var request = new GetActiveApprenticeshipsByUlnRequest();
 
-            //Act
             var result = _validator.Validate(request);
 
-            //Assert
-            Assert.IsFalse(result.IsValid);
+            result.IsValid.Should().BeFalse();
         }
 
         [Test]
         public void ThenUlnsAreRequired()
         {
-            //Arrange
-            var request = new GetOverlappingApprenticeshipsRequest
+            var request = new GetActiveApprenticeshipsByUlnRequest
             {
-                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
-                {
-                    new ApprenticeshipOverlapValidationRequest()
-                }
+               Uln = ""
             };
 
-            //Act
             var result = _validator.Validate(request);
 
-            //Assert
-            Assert.IsFalse(result.IsValid);
+            result.IsValid.Should().BeFalse();
             Assert.IsTrue(result.Errors.Any(x=> x.PropertyName.Contains("Uln")));
-        }
-
-        [Test]
-        public void ThenStartDateIsRequired()
-        {
-            //Arrange
-            var request = new GetOverlappingApprenticeshipsRequest
-            {
-                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
-                {
-                    new ApprenticeshipOverlapValidationRequest()
-                }
-            };
-
-            //Act
-            var result = _validator.Validate(request);
-
-            //Assert
-            Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains(nameof(ApprenticeshipOverlapValidationRequest.StartDate))));
-        }
-
-        [Test]
-        public void ThenEndDateIsRequired()
-        {
-            //Arrange
-            var request = new GetOverlappingApprenticeshipsRequest
-            {
-                OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
-                {
-                    new ApprenticeshipOverlapValidationRequest()
-                }
-            };
-
-            //Act
-            var result = _validator.Validate(request);
-
-            //Assert
-            Assert.IsFalse(result.IsValid);
-            Assert.IsTrue(result.Errors.Any(x => x.PropertyName.Contains(nameof(ApprenticeshipOverlapValidationRequest.EndDate))));
         }
     }
 }
