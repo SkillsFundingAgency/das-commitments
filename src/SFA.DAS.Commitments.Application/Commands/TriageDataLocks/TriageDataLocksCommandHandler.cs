@@ -7,8 +7,6 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Extensions;
-using SFA.DAS.Commitments.Events;
-using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
 {
@@ -18,14 +16,15 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
         private readonly IDataLockRepository _dataLockRepository;
 
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-        private readonly IMessagePublisher _messagePublisher;
 
-        public TriageDataLocksCommandHandler(AbstractValidator<TriageDataLocksCommand> validator, IDataLockRepository dataLockRepository, IApprenticeshipRepository apprenticeshipRepository, IMessagePublisher messagePublisher)
+        public TriageDataLocksCommandHandler(
+            AbstractValidator<TriageDataLocksCommand> validator,
+            IDataLockRepository dataLockRepository,
+            IApprenticeshipRepository apprenticeshipRepository)
         {
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
-            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(TriageDataLocksCommand command)
@@ -34,7 +33,10 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var dataLocksToBeUpdated = await GetDataLocksToBeUpdated(command);
+            var dataLocksToBeUpdated = (await _dataLockRepository
+                .GetDataLocks(command.ApprenticeshipId))
+                .Where(DataLockExtensions.UnHandled)
+                .ToList();
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
             Validate(command, dataLocksToBeUpdated, apprenticeship);
@@ -49,26 +51,7 @@ namespace SFA.DAS.Commitments.Application.Commands.TriageDataLocks
                 throw new ValidationException($"Trying to update data lock for apprenticeship: {command.ApprenticeshipId} with the same TriageStatus ({command.TriageStatus}) ");
             }
 
-            await SendApprovalMessageWhenStatusIsChange(command, apprenticeship);
-
             await _dataLockRepository.UpdateDataLockTriageStatus(dataLocksToBeUpdated.Select(m => m.DataLockEventId), command.TriageStatus);
-        }
-
-        private async Task SendApprovalMessageWhenStatusIsChange(TriageDataLocksCommand command, Apprenticeship apprenticeship)
-        {
-            if (command.TriageStatus == TriageStatus.Change)
-            {
-                await _messagePublisher.PublishAsync(new DataLockTriageRequiresApproval(apprenticeship.EmployerAccountId, apprenticeship.ProviderId, apprenticeship.Id));
-            }
-        }
-
-        private async Task<List<DataLockStatus>> GetDataLocksToBeUpdated(TriageDataLocksCommand command)
-        {
-            var dataLocksToBeUpdated = (await _dataLockRepository
-                    .GetDataLocks(command.ApprenticeshipId))
-                .Where(DataLockExtensions.UnHandled)
-                .ToList();
-            return dataLocksToBeUpdated;
         }
 
         private static void Validate(TriageDataLocksCommand command, List<DataLockStatus> dataLocksToBeUpdated, Apprenticeship apprenticeship)
