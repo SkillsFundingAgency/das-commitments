@@ -263,11 +263,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<ApprenticeshipsResult> GetApprenticeshipsByProvider(long providerId, string searchKeyword)
-        {
-            return await GetApprenticeshipsByIdentifier("@providerId", providerId, searchKeyword);
-        }
-
         public async Task InsertPriceHistory(long apprenticeshipId, IEnumerable<PriceHistory> priceHistory)
         {
             // -> Delete all price episodes from apprenticeshipId

@@ -27,8 +27,6 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task<IList<Apprenticeship>> BulkUploadApprenticeships(long commitmentId, IEnumerable<Apprenticeship> apprenticeships);
 
-        Task<ApprenticeshipsResult> GetApprenticeshipsByProvider(long providerId, string searchKeyword = "");
-
         Task<ApprenticeshipsResult> GetApprenticeshipsByEmployer(long accountId, string searchKeyword = "");
 
         Task<ApprenticeshipsResult> GetActiveApprenticeshipsByProvider(long providerId);
