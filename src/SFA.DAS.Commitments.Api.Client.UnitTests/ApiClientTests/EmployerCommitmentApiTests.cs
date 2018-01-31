@@ -31,6 +31,7 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         private const long EmployerAccountId = 666;
         private const long ApprenticeshipId = 9990;
         private const long CommitmentId = 876;
+        private const string Uln = "6791776799";
 
         [SetUp]
         public void Arrange()
@@ -206,6 +207,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
             _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
 
             await _employerApiClient.PatchApprenticeshipUpdate(EmployerAccountId, ApprenticeshipId, new ApprenticeshipUpdateSubmission());
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task GetActiveApprenticeshipsForUln()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/uln/{Uln}"), string.Empty);
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<Apprenticeship>())) });
+
+            var apprenticeship = await _employerApiClient.GetActiveApprenticeshipsForUln(EmployerAccountId, Uln);
 
             Assert.Pass();
         }
