@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 
-namespace SFA.DAS.Commitments.AddEpaToApprentice
+namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 {
     public class Functions
     {
