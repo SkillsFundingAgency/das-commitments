@@ -37,7 +37,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln
             if (string.IsNullOrWhiteSpace(query.Uln))
                 return result;
 
-            var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(new List<string>() { query.Uln });
+            var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(new List<string> { query.Uln });
 
             foreach (var apprenticeship in apprenticeships)
             {

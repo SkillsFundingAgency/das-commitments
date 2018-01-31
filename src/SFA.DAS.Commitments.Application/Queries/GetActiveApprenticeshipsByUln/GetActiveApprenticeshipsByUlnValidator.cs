@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln
 {

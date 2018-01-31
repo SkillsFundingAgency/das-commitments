@@ -39,5 +39,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetActiveApprentices
             result.IsValid.Should().BeFalse();
             Assert.IsTrue(result.Errors.Any(x=> x.PropertyName.Contains("Uln")));
         }
+
+
+        [Test]
+        public void ShouldReturnTrueWhenRequestIsValid()
+        {
+            var request = new GetActiveApprenticeshipsByUlnRequest
+            {
+                Uln = "5830206233"
+            };
+
+            var result = _validator.Validate(request);
+
+            result.IsValid.Should().BeTrue();
+        }
     }
 }

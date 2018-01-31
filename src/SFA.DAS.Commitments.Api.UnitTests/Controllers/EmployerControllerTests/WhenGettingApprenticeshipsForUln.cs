@@ -73,7 +73,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                                    new ApprenticeshipResult { PaymentStatus = PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(-2) },
                                    new ApprenticeshipResult { PaymentStatus = PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(2) },
                                    new ApprenticeshipResult { PaymentStatus = PaymentStatus.Active }
-                               },
+                               }
                 });
 
             var result = await _controller.GetActiveApprenticeshipsForUln(TestAccountId, TestUln);

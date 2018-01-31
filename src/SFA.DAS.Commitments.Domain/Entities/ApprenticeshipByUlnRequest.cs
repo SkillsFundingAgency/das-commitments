@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SFA.DAS.Commitments.Domain.Entities
+﻿namespace SFA.DAS.Commitments.Domain.Entities
 {
     public class ApprenticeshipByUlnRequest
     {
