@@ -15,6 +15,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         // AzureWebJobsDashboard and AzureWebJobsStorage
         static void Main()
         {
+            //todo: add config to confluence page
             var config = new JobHostConfiguration();
 
             if (config.IsDevelopment)
