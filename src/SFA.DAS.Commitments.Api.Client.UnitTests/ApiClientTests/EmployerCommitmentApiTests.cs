@@ -214,10 +214,10 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         [Test]
         public async Task GetActiveApprenticeshipsForUln()
         {
-            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/uln/{Uln}"), string.Empty);
-            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<Apprenticeship>())) });
+            var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/apprenticeships/uln/{Uln}"), string.Empty);
+            _fakeHandler.AddFakeResponse(request, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<Apprenticeship>())) });
 
-            var apprenticeship = await _employerApiClient.GetActiveApprenticeshipsForUln(EmployerAccountId, Uln);
+            var activeApprenticeships = await _employerApiClient.GetActiveApprenticeshipsForUln(EmployerAccountId, Uln);
 
             Assert.Pass();
         }
