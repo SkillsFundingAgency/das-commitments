@@ -9,6 +9,9 @@
     },
     {
       "filePath": "../SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob/SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj"
+    },
+    {
+      "filePath": "../SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob/SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.csproj"
     }
   ]
 }
