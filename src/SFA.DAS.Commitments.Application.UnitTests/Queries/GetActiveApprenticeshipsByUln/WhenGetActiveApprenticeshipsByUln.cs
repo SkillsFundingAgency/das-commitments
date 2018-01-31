@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetActiveApprentices
         }
 
         [Test]
-        public async Task ThenIngoreRequestsWithoutUlns()
+        public async Task ThenIgnoreRequestsWithoutUlns()
         {
             var request = new GetActiveApprenticeshipsByUlnRequest
             {
