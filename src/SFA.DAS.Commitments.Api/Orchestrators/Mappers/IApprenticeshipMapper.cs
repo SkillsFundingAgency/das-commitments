@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using SFA.DAS.Commitments.Domain;
-
+using SFA.DAS.Commitments.Domain.Entities;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 using PriceHistory = SFA.DAS.Commitments.Api.Types.Apprenticeship.PriceHistory;
 
@@ -15,5 +15,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         PriceHistory MapPriceHistory(Domain.Entities.PriceHistory domainPrice);
         Domain.Entities.ApprenticeshipUpdate MapApprenticeshipUpdate(Types.Apprenticeship.ApprenticeshipUpdate apprenticeshipUpdate);
         Types.Apprenticeship.ApprenticeshipUpdate MapApprenticeshipUpdate(Domain.Entities.ApprenticeshipUpdate data);
+        IEnumerable<Apprenticeship> MapFrom(IEnumerable<ApprenticeshipResult> source);
     }
 }

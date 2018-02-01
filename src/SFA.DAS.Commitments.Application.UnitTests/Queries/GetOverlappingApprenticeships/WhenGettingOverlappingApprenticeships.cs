@@ -78,7 +78,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetOverlappingAppren
         }
 
         [Test]
-        public async Task ThenIngoreRequestsWithoutUlns()
+        public async Task ThenIgnoreRequestsWithoutUlns()
         {
             //Arrange
             var request = new GetOverlappingApprenticeshipsRequest
