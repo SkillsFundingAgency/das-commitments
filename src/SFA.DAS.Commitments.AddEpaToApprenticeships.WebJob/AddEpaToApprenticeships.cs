@@ -12,20 +12,20 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
     {
         private readonly ILog _logger;
 
-        private readonly IPaymentEvents _paymentEventsSerivce;
+        private readonly IPaymentEvents _paymentEventsService;
 
         public AddEpaToApprenticeships(ILog logger,
             IPaymentEvents paymentEventsService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILog));
-            _paymentEventsSerivce = paymentEventsService ?? throw new ArgumentNullException(nameof(IPaymentEvents));
+            _paymentEventsService = paymentEventsService ?? throw new ArgumentNullException(nameof(IPaymentEvents));
         }
 
         public async Task Update()
         {
             long lastId = 0;
 
-            var page = await _paymentEventsSerivce.GetSubmissionEvents(lastId);
+            var page = await _paymentEventsService.GetSubmissionEvents(lastId);
         }
     }
 }
