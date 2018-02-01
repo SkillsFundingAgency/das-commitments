@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Azure;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Services;
+using SFA.DAS.Configuration;
+using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
 using StructureMap;
 
@@ -30,32 +33,32 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
         }
 
         //todo: config doesn't really belong in DefaultRegistry?
-        //private AddEpaToApprenticeshipsConfiguration GetConfiguration(string serviceName)
-        //{
-            //var environment = Environment.GetEnvironmentVariable("DASENV");
-            //if (string.IsNullOrEmpty(environment))
-            //{
-            //    environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-            //}
+        private AddEpaToApprenticeshipsConfiguration GetConfiguration(string serviceName)
+        {
+            var environment = Environment.GetEnvironmentVariable("DASENV");
+            if (string.IsNullOrEmpty(environment))
+            {
+                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            }
             //if (environment.Equals("LOCAL") || environment.Equals("AT") || environment.Equals("TEST"))
             //{
             //    //todo: is this required?
             //    PopulateSystemDetails(environment);
             //}
 
-        //    var configurationRepository = GetConfigurationRepository();
-        //    var configurationService = new ConfigurationService(configurationRepository,
-        //        new ConfigurationOptions(serviceName, environment, "1.0"));
+            var configurationRepository = GetConfigurationRepository();
+            var configurationService = new ConfigurationService(configurationRepository,
+                new ConfigurationOptions(serviceName, environment, "1.0"));
 
-        //    var result = configurationService.Get<AddEpaToApprenticeshipsConfiguration>();
+            var result = configurationService.Get<AddEpaToApprenticeshipsConfiguration>();
 
-        //    return result;
-        //}
+            return result;
+        }
 
-        //private static IConfigurationRepository GetConfigurationRepository()
-        //{
-        //    return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
-        //}
+        private static IConfigurationRepository GetConfigurationRepository()
+        {
+            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+        }
 
         private void ConfigurePaymentsApiService(AddEpaToApprenticeshipsConfiguration config)
         {
