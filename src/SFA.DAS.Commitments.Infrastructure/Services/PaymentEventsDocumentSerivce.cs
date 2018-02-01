@@ -50,6 +50,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return Task.Run(() => data);
         }
 
+        public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEvents(long sinceEventId = 0,
+            DateTime? sinceTime = null, long ukprn = 0, int page = 1)
+        {
+            throw new NotImplementedException();
+        }
+
         private PageOfResults<DataLockEvent> GetData(long nextEventId)
         {
             var fileName = $"{nextEventId}_payment_event.json";

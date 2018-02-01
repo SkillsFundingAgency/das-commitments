@@ -21,8 +21,12 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             var container = IoC.Initialize();
 
             var logger = container.GetInstance<ILog>();
+            var addEpaToApprenticeship = container.GetInstance<IAddEpaToApprenticeships>();
 
             logger.Info("Starting AddEpaToApprenticeships.WebJob");
+
+            // do we need to use WebJob?
+            // https://stackoverflow.com/questions/25811719/azure-webjobs-sdk-in-what-scenarios-is-creation-of-a-jobhost-object-required
 
             //var config = new JobHostConfiguration();
 
@@ -35,6 +39,15 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             //// The following code will invoke a function called ManualTrigger and 
             //// pass in data (value in this case) to the function
             //host.Call(typeof(Functions).GetMethod("ManualTrigger"), new { value = 20 });
+
+            try
+            {
+                addEpaToApprenticeship.Update().Wait();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Error running AddEpaToApprenticeship.WebJob");
+            }
         }
     }
 }

@@ -72,6 +72,12 @@
     <Reference Include="SFA.DAS.NLog.Targets.Redis, Version=1.0.0.34273, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Targets.Redis.1.0.0.34273\lib\net45\SFA.DAS.NLog.Targets.Redis.dll</HintPath>
     </Reference>
+    <Reference Include="SFA.DAS.Provider.Events.Api.Client, Version=2.0.0.34401, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.34401\lib\net45\SFA.DAS.Provider.Events.Api.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Provider.Events.Api.Types, Version=2.0.0.34401, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.34401\lib\net45\SFA.DAS.Provider.Events.Api.Types.dll</HintPath>
+    </Reference>
     <Reference Include="StackExchange.Redis, Version=1.1.608.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\StackExchange.Redis.1.1.608\lib\net45\StackExchange.Redis.dll</HintPath>
     </Reference>
@@ -117,10 +123,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddEpaToApprenticeships.cs" />
+    <Compile Include="Configuration\AddEpaToApprenticeshipsConfiguration.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
+    <Compile Include="IAddEpaToApprenticeships.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +151,16 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
+      <Project>{c4c803af-747e-4747-a23b-da43219009a4}</Project>
+      <Name>SFA.DAS.Commitments.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
+      <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
+      <Name>SFA.DAS.Commitments.Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Web.WebJobs.Publish.1.1.0\tools\webjobs.targets" Condition="Exists('..\packages\Microsoft.Web.WebJobs.Publish.1.1.0\tools\webjobs.targets')" />
