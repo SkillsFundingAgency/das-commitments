@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
@@ -16,17 +17,24 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         static void Main()
         {
             //todo: add config to confluence page
-            var config = new JobHostConfiguration();
 
-            if (config.IsDevelopment)
-            {
-                config.UseDevelopmentSettings();
-            }
+            var container = IoC.Initialize();
 
-            var host = new JobHost(config);
-            // The following code will invoke a function called ManualTrigger and 
-            // pass in data (value in this case) to the function
-            host.Call(typeof(Functions).GetMethod("ManualTrigger"), new { value = 20 });
+            var logger = container.GetInstance<ILog>();
+
+            logger.Info("Starting AddEpaToApprenticeships.WebJob");
+
+            //var config = new JobHostConfiguration();
+
+            //if (config.IsDevelopment)
+            //{
+            //    config.UseDevelopmentSettings();
+            //}
+
+            //var host = new JobHost(config);
+            //// The following code will invoke a function called ManualTrigger and 
+            //// pass in data (value in this case) to the function
+            //host.Call(typeof(Functions).GetMethod("ManualTrigger"), new { value = 20 });
         }
     }
 }
