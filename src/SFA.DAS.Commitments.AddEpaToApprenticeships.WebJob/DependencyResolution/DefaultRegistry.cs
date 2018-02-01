@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.Provider.Events.Api.Client;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution
@@ -26,6 +27,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                 });
 
             var config = GetConfiguration("SFA.DAS.AddEpaToApprenticeships");
+
+            For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
+                .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
 
             For<IAddEpaToApprenticeships>().Use<AddEpaToApprenticeships>();
 
