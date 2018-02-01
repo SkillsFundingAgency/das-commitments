@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure;
+using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Services;
@@ -27,6 +28,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                 });
 
             var config = GetConfiguration("SFA.DAS.AddEpaToApprenticeships");
+
+            For<IAssessmentOrgsApiClient>().Use<AssessmentOrgsApiClient>()
+                .Ctor<string>().Is(config.AssessmentOrgsApiBaseUri);
 
             For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
                 .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);

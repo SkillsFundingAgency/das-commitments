@@ -11,6 +11,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
 
+        public string AssessmentOrgsApiBaseUri { get; set; }
+
         public PaymentEventsApi PaymentEventsApi { get; set; }
 
         public bool UseDocumentRepository { get; set; }
