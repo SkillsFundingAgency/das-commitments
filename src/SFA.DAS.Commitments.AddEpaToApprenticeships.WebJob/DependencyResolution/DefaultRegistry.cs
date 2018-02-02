@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure;
 using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
+using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
@@ -34,6 +36,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
 
             For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
                 .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
+
+            For<IAssessmentOrganisationRepository>().Use<AssessmentOrganisationRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<IAddEpaToApprenticeships>().Use<AddEpaToApprenticeships>();
 
