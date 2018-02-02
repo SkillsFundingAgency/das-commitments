@@ -38,6 +38,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                 .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
 
             For<IAssessmentOrganisationRepository>().Use<AssessmentOrganisationRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<IAddEpaToApprenticeships>().Use<AddEpaToApprenticeships>();
 

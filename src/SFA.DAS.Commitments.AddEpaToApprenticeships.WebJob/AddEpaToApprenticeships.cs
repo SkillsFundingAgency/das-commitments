@@ -17,29 +17,51 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         private readonly IAssessmentOrgs _assessmentOrgsService;
         private readonly IPaymentEvents _paymentEventsService;
         private readonly IAssessmentOrganisationRepository _assessmentOrganisationRepository;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
         public AddEpaToApprenticeships(ILog logger,
             IAssessmentOrgs assessmentOrgsService,
             IPaymentEvents paymentEventsService,
-            IAssessmentOrganisationRepository assessmentOrganisationRepository)
+            IAssessmentOrganisationRepository assessmentOrganisationRepository,
+            IApprenticeshipRepository apprenticeshipRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILog));
             _assessmentOrgsService = assessmentOrgsService ?? throw new ArgumentNullException(nameof(assessmentOrgsService));
             _paymentEventsService = paymentEventsService ?? throw new ArgumentNullException(nameof(IPaymentEvents));
             _assessmentOrganisationRepository = assessmentOrganisationRepository ?? throw new ArgumentNullException(nameof(assessmentOrganisationRepository));
+            _apprenticeshipRepository = apprenticeshipRepository ?? throw new ArgumentNullException(nameof(apprenticeshipRepository));
         }
 
         public async Task Update()
         {
-            await UpdateCacheOfAssessmentOrganisations();
+            await UpdateCacheOfAssessmentOrganisationsAsync();
 
+            await UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync();
+        }
+
+        private async Task UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync()
+        {
             long lastId = 0;
 
             var page = await _paymentEventsService.GetSubmissionEvents(lastId);
+
+            foreach (var submissionEvent in page.Items)
+            {
+                //do we want to update UpdateApprenticeship (and other crud), or have new ones just for epacode?
+                // probably update existing
+                //_apprenticeshipRepository.UpdateApprenticeship()
+                //submissionEvent.ApprenticeshipId
+            }
         }
 
-        private async Task UpdateCacheOfAssessmentOrganisations()
+        private async Task UpdateCacheOfAssessmentOrganisationsAsync()
         {
+            //todo: add FK relationship?
+            //todo: when merging in repos, how to handle updated nuget packages,
+            // e.g. we need an updated SFA.DAS.Provider.Events.Api.Client here
+            // is there a nice way to do it? do we have to merge code that updates client first
+            // then update reference in consumers, then merge consumers - seems a bit naff
+
             // fetch the highest EPAOrgId in our local cache of assessment organisations
             _logger.Info("Fetching all assessment orgs");
 
@@ -66,10 +88,5 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
             await _assessmentOrganisationRepository.AddAsync(assessmentOrganisationsToAdd);
         }
-
-        //private async Task<string> GetLatestEPAOrgIdInCache()
-        //{
-
-        //}
     }
 }
