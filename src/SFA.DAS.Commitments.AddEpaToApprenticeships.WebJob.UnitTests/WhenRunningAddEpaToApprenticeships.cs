@@ -1,11 +1,19 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Api.Types.AssessmentOrgs;
 using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
+using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 {
@@ -39,6 +47,18 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _log = new Mock<ILog>();
 
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(
+                    It.IsAny<long>(),
+                    It.IsAny<DateTime?>(),
+                    It.IsAny<long>(),
+                    It.IsAny<int>()))
+                .ReturnsAsync(new PageOfResults<SubmissionEvent>
+                {
+                    PageNumber = 1,
+                    TotalNumberOfPages = 1,
+                    Items = new SubmissionEvent[] {}
+                });
+
             _addEpaToApprenticeships = new AddEpaToApprenticeships(
                 _log.Object,
                 _assessmentOrgs.Object,
@@ -48,8 +68,47 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         }
 
         [Test]
-        public void ThenSumfinkOrNuffink()
+        public async Task ThenAllOrganisationSummariesFromApiAreWrittenToTableWhenTableIsEmpty()
         {
+            const string orgId1 = "ORG0001";
+            const string orgName1 = "ASM Org";
+
+            var organisationSummaries = new[]
+            {
+                new OrganisationSummary
+                {
+                    Id = orgId1,
+                    Name = orgName1
+                }
+            };
+
+            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
+
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
+            {
+                new AssessmentOrganisation {EPAOrgId = orgId1, Name = orgName1}
+            };
+
+            //_assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+            //    ((IStructuralEquatable)expectedAssessmentOrganisations).Equals(o, StructuralComparisons.StructuralEqualityComparer)
+            //    //CollectionAssert.AreEqual(expectedAssessmentOrganisations, o);
+            //    //return true;
+            //)), Times.Once);
+
+            //_assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+            //        StructuralComparisons.StructuralEqualityComparer.Equals(expectedAssessmentOrganisations, o)
+            //)), Times.Once);
+
+            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+                expectedAssessmentOrganisations.SequenceEqual(o)
+            )), Times.Once);
+
         }
     }
 }

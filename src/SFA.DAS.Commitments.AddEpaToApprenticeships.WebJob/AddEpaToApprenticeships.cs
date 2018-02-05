@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
             //var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgId() ?? organisationSummaries.First().Id;
 
-            var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgId();
+            var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgIdAsync();
 
             _logger.Info($"Latest EPAOrgId in cache is {latestCachedEPAOrgId ?? "N/A. Cache is Empty"}");
 

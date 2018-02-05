@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _logger = logger;
         }
 
-        public async Task<string> GetLatestEPAOrgId()
+        public async Task<string> GetLatestEPAOrgIdAsync()
         {
             _logger.Debug("Getting latest EPAOrdId");
 
