@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 {
-    interface IAddEpaToApprenticeships
+    public interface IAddEpaToApprenticeships
     {
         Task Update();
     }
