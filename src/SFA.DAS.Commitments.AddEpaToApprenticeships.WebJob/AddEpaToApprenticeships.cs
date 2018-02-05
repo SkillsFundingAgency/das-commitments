@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         public async Task Update()
         {
-            await UpdateCacheOfAssessmentOrganisationsAsync(); //todo: rename, not actuall a cache
+            await UpdateCacheOfAssessmentOrganisationsAsync(); //todo: rename, not actually a cache
 
             await UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync();
         }
