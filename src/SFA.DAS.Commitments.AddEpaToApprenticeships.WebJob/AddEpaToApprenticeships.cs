@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         public async Task Update()
         {
-            await UpdateCacheOfAssessmentOrganisationsAsync();
+            await UpdateCacheOfAssessmentOrganisationsAsync(); //todo: rename, not actuall a cache
 
             await UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync();
         }
@@ -47,10 +47,15 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
             foreach (var submissionEvent in page.Items)
             {
-                //do we want to update UpdateApprenticeship (and other crud), or have new ones just for epacode?
-                // probably update existing
-                //_apprenticeshipRepository.UpdateApprenticeship()
-                //submissionEvent.ApprenticeshipId
+                try
+                {
+                    //todo: do we need to handle events with null apprenticeship ids?
+                    await _apprenticeshipRepository.UpdateApprenticeshipEPAAsync(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    _logger.Error(e, $"Attempt to set EPAOrdId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}");
+                }
             }
         }
 

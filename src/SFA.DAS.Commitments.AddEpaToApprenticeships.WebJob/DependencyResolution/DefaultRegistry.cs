@@ -31,6 +31,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
 
             var config = GetConfiguration("SFA.DAS.AddEpaToApprenticeships");
 
+            // ms fake would be preferable
+            For<ICurrentDateTime>().Use(x => new CurrentDateTime());
+
             For<IAssessmentOrgsApiClient>().Use<AssessmentOrgsApiClient>()
                 .Ctor<string>().Is(config.AssessmentOrgsApiBaseUri);
 
