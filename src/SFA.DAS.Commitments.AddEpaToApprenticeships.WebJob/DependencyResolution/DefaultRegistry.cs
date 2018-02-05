@@ -22,6 +22,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
     {
         public DefaultRegistry()
         {
+            //todo: is this necessary?
             Scan(
                 scan =>
                 {
