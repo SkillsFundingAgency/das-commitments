@@ -177,6 +177,16 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(submissionEventId), Times.Once);
         }
 
+        //todo: tests
+        // 2 pages of events
+        // update unknown apprenticeship -> verify logged & before & after events updated apprenticeships
+        // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
+        // last submission returns actual id
+        // infrastructure unit tests
+
+        // integration tests?
+        // check get/set last id
+
         #endregion Update Apprenticeships
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
