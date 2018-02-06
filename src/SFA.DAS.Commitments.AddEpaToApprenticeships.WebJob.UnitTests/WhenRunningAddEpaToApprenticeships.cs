@@ -142,8 +142,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task ThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSet()
         {
-            const long apprenticeshipId = 456;
-            const long submissionEventId = 1;
+            const long apprenticeshipId = 456L;
+            const long submissionEventId = 1L;
+            const long sinceEventId = 0L;
 
             var organisationSummaries = new[]
             {
@@ -160,7 +161,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 Items = new[] {new SubmissionEvent {Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1}}
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(0L, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
 
             // act
             await _addEpaToApprenticeships.Update();
