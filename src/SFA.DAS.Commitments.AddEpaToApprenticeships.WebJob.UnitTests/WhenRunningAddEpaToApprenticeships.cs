@@ -3,16 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KellermanSoftware.CompareNetObjects;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types.AssessmentOrgs;
-using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
-using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
@@ -25,9 +23,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<IAssessmentOrganisationRepository> _assessmentOrganisationRepository;
 
-        //private Mock<IAssessmentOrgsApiClient> _assessmentOrgsApiClient;
-        //private Mock<IPaymentsEventsApiClient> _paymentsEventsApiClient;
-
         private Mock<IAssessmentOrgs> _assessmentOrgs;
         private Mock<IPaymentEvents> _paymentEvents;
 
@@ -38,9 +33,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         {
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _assessmentOrganisationRepository = new Mock<IAssessmentOrganisationRepository>();
-
-            //_assessmentOrgsApiClient = new Mock<IAssessmentOrgsApiClient>();
-            //_paymentsEventsApiClient = new Mock<IPaymentsEventsApiClient>();
 
             _assessmentOrgs = new Mock<IAssessmentOrgs>();
             _paymentEvents = new Mock<IPaymentEvents>();
@@ -95,20 +87,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new AssessmentOrganisation {EPAOrgId = orgId1, Name = orgName1}
             };
 
-            //_assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
-            //    ((IStructuralEquatable)expectedAssessmentOrganisations).Equals(o, StructuralComparisons.StructuralEqualityComparer)
-            //    //CollectionAssert.AreEqual(expectedAssessmentOrganisations, o);
-            //    //return true;
-            //)), Times.Once);
-
-            //_assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
-            //        StructuralComparisons.StructuralEqualityComparer.Equals(expectedAssessmentOrganisations, o)
-            //)), Times.Once);
-
             _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
-                expectedAssessmentOrganisations.SequenceEqual(o)
+                new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true }).Compare(expectedAssessmentOrganisations, o).AreEqual
             )), Times.Once);
-
         }
     }
 }
