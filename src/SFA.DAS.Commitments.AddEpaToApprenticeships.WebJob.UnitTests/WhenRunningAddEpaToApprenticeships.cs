@@ -67,11 +67,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             var organisationSummaries = new[]
             {
-                new OrganisationSummary
-                {
-                    Id = orgId1,
-                    Name = orgName1
-                }
+                new OrganisationSummary { Id = orgId1, Name = orgName1 }
             };
 
             _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
@@ -85,6 +81,36 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
             {
                 new AssessmentOrganisation {EPAOrgId = orgId1, Name = orgName1}
+            };
+
+            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+                new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true }).Compare(expectedAssessmentOrganisations, o).AreEqual
+            )), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenNewOrganisationSummariesFromApiAreWrittenToTable()
+        {
+            const string orgId1 = "ORG0001", orgId2 = "ORG0001";
+            const string orgName1 = "ASM Org", orgName2 = "B Org";
+
+            var organisationSummaries = new[]
+            {
+                new OrganisationSummary { Id = orgId1, Name = orgName1 },
+                new OrganisationSummary { Id = orgId2, Name = orgName2 },
+            };
+
+            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
+
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync(orgId1);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
+            {
+                new AssessmentOrganisation {EPAOrgId = orgId2, Name = orgName2}
             };
 
             _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
