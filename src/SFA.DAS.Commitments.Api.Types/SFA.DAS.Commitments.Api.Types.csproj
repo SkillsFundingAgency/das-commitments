@@ -51,6 +51,7 @@
     <Compile Include="Apprenticeship\ApprenticeshipSearchQuery.cs" />
     <Compile Include="Apprenticeship\ApprenticeshipRequest.cs" />
     <Compile Include="Apprenticeship\ApprenticeshipSearchResponse.cs" />
+    <Compile Include="Apprenticeship\ApprenticeshipStopDate.cs" />
     <Compile Include="Apprenticeship\EmployerOrganisation.cs" />
     <Compile Include="Apprenticeship\FacetItem.cs" />
     <Compile Include="Apprenticeship\Facets.cs" />
