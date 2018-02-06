@@ -36,34 +36,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 commandType: CommandType.Text));
         }
 
-        //public async Task<long?> Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()
-        //{
-        //    _logger.Debug("Getting last (processed by AddEpaToApprenticeships) SubmissionEvents Id");
-
-        //    return await WithConnection(async connection => await connection.ExecuteScalarAsync<long?>(
-        //        "SELECT [AddEpa_LastSubmissionEventId] FROM [dbo].[JobProgress] WHERE [JobProcess] = 'AddEpa_LastSubmissionEventId'",
-        //        commandType: CommandType.Text));
-        //}
-
-        //public async Task Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(long lastSubmissionEventId)
-        //{
-        //    _logger.Debug("Setting last (processed by AddEpaToApprenticeships) SubmissionEvent Id to {lastSubmissionEventId}");
-
-        //    var rowsAffected = await WithConnection(async connection =>
-        //    {
-        //        var parameters = new DynamicParameters();
-        //        parameters.Add("@lastSubmissionEventsId", lastSubmissionEventId, DbType.Int64);
-
-        //        return await connection.ExecuteAsync(
-        //            "UPDATE [dbo].[JobProgress] SET [AddEpa_LastSubmissionEventId] = @lastSubmissionEventId "
-        //            param: parameters,
-        //            commandType: CommandType.Text);
-        //    });
-
-        //    //if (rowsAffected == 0) // best exception to throw? create new ApprenticeshipNotFound or something?
-        //    //    throw new ?Exception($"Unable to set AddEPA_LastSubmissionEventsId in ");
-        //}
-
         public async Task Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(long lastSubmissionEventId)
         {
             _logger.Debug("Setting last (processed by AddEpaToApprenticeships) SubmissionEvent Id to {lastSubmissionEventId}");

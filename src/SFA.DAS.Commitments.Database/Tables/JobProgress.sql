@@ -1,4 +1,6 @@
-﻿CREATE TABLE [dbo].[JobProgress]
+﻿-- Constrained to single row, see https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row
+
+CREATE TABLE [dbo].[JobProgress]
 (
     Lock char(1) NOT NULL DEFAULT 'X',
 	[AddEpa_LastSubmissionEventId] [bigint] NULL,
