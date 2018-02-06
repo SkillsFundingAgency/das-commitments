@@ -154,6 +154,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
             _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
 
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
+
             var submissionEventsPage = new PageOfResults<SubmissionEvent>
             {
                 PageNumber = 1,
@@ -167,21 +169,52 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert
-            IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
-            {
-                new AssessmentOrganisation {EPAOrgId = OrgId1, Name = OrgName1}
-            };
 
             // should probably be seperate tests, but to cut down on test proliferation, we check both
             _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId, OrgId1), Times.Once());
             _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(submissionEventId), Times.Once);
         }
 
+        [Test]
+        public async Task ThenWeRequestNextSubmissionEventFromPreviousRun()
+        {
+            const long apprenticeshipId = 456L;
+            const long lastSubmissionEventId = 1024L;
+            const long submissionEventId = lastSubmissionEventId + 1L;
+
+            var organisationSummaries = new[]
+            {
+                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
+            };
+
+            //todo: what standard setup can we move into setup?
+
+            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync(lastSubmissionEventId);
+
+            var submissionEventsPage = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 1,
+                Items = new[] { new SubmissionEvent { Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1 } }
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            _paymentEvents.Verify(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1), Times.Once);
+        }
+
         //todo: tests
         // 2 pages of events
         // update unknown apprenticeship -> verify logged & before & after events updated apprenticeships
         // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
-        // last submission returns actual id
+
         // infrastructure unit tests
 
         // integration tests?
