@@ -206,6 +206,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // act
             await _addEpaToApprenticeships.Update();
 
+            //todo: check this is how api is actually supposed to be called
             // assert
             _paymentEvents.Verify(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1), Times.Once);
         }
@@ -221,6 +222,19 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         // check get/set last id
 
         #endregion Update Apprenticeships
+
+        //todo: use this?
+        //private void SetupSubmissionEventsPageWithSinleEvent(long sinceEventId, long submissionEventId)
+        //{
+        //    var submissionEventsPage = new PageOfResults<SubmissionEvent>
+        //    {
+        //        PageNumber = 1,
+        //        TotalNumberOfPages = 1,
+        //        Items = new[] { new SubmissionEvent { Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1 } }
+        //    };
+
+        //    _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+        //}
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
