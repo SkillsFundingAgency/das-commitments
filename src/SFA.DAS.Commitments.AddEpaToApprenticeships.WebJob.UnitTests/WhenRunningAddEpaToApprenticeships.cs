@@ -111,6 +111,25 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 IEnumerablesAreEqual(expectedAssessmentOrganisations, o))), Times.Once);
         }
 
+        [Test]
+        public async Task ThenNoOrganisationSummariesFromApiAreWrittenWhenThereAreNoNewOrgs()
+        {
+            var organisationSummaries = new[]
+            {
+                new OrganisationSummary { Id = OrgId1, Name = OrgName1 },
+                new OrganisationSummary { Id = OrgId2, Name = OrgName2 },
+            };
+
+            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync(OrgId2);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.IsAny<IEnumerable<AssessmentOrganisation>>()), Times.Never);
+        }
+
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
             return new CompareLogic(new ComparisonConfig {IgnoreObjectTypes = true})
