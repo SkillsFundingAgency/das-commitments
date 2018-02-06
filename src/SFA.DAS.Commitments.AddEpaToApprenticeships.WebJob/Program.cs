@@ -18,6 +18,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         {
             //todo: add config to confluence page
             //todo: db will need to be deployed
+            //todo: add schedule - chron line in root? check with devops
 
             var container = IoC.Initialize();
 

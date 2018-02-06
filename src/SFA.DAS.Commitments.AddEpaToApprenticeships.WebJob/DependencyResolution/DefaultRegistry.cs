@@ -43,6 +43,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
 
             For<IAssessmentOrganisationRepository>().Use<AssessmentOrganisationRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IJobProgressRepository>().Use<JobProgressRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<IAddEpaToApprenticeships>().Use<AddEpaToApprenticeships>();
 

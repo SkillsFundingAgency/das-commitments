@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SFA.DAS.Apprenticeships.Api.Types.AssessmentOrgs;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 {
@@ -18,18 +18,21 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         private readonly IPaymentEvents _paymentEventsService;
         private readonly IAssessmentOrganisationRepository _assessmentOrganisationRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly IJobProgressRepository _jobProgressRepository;
 
         public AddEpaToApprenticeships(ILog logger,
             IAssessmentOrgs assessmentOrgsService,
             IPaymentEvents paymentEventsService,
             IAssessmentOrganisationRepository assessmentOrganisationRepository,
-            IApprenticeshipRepository apprenticeshipRepository)
+            IApprenticeshipRepository apprenticeshipRepository,
+            IJobProgressRepository jobProgressRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(ILog));
             _assessmentOrgsService = assessmentOrgsService ?? throw new ArgumentNullException(nameof(assessmentOrgsService));
             _paymentEventsService = paymentEventsService ?? throw new ArgumentNullException(nameof(IPaymentEvents));
             _assessmentOrganisationRepository = assessmentOrganisationRepository ?? throw new ArgumentNullException(nameof(assessmentOrganisationRepository));
             _apprenticeshipRepository = apprenticeshipRepository ?? throw new ArgumentNullException(nameof(apprenticeshipRepository));
+            _jobProgressRepository = jobProgressRepository ?? throw new ArgumentNullException(nameof(jobProgressRepository));
         }
 
         public async Task Update()
@@ -41,11 +44,29 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         private async Task UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync()
         {
-            long lastId = 0;
+            long originalLastId, lastId;
+            long? pageLastId;
+            originalLastId = lastId = await _jobProgressRepository.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync() ?? 0;
 
-            var page = await _paymentEventsService.GetSubmissionEvents(lastId);
+            // we could page through or only deal with the 1st page and update the lastId
+            PageOfResults<SubmissionEvent> page;
+            do
+            {
+                page = await _paymentEventsService.GetSubmissionEvents(lastId);
 
-            foreach (var submissionEvent in page.Items)
+                pageLastId = await UpdateApprenticeshipsWithEPAOrgIdAsync(page.Items);
+                if (pageLastId != null)
+                    lastId = pageLastId.Value;
+
+            } while (pageLastId.HasValue && page.TotalNumberOfPages > page.PageNumber);
+
+            if (lastId != originalLastId)
+                await _jobProgressRepository.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(lastId);
+        }
+
+        private async Task<long?> UpdateApprenticeshipsWithEPAOrgIdAsync(IEnumerable<SubmissionEvent> submissionEvents)
+        {
+            foreach (var submissionEvent in submissionEvents)
             {
                 try
                 {
@@ -57,6 +78,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                     _logger.Error(e, $"Attempt to set EPAOrdId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}");
                 }
             }
+
+            return submissionEvents.LastOrDefault()?.Id;
         }
 
         private async Task UpdateCacheOfAssessmentOrganisationsAsync()

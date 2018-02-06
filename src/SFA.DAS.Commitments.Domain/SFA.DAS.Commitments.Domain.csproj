@@ -81,6 +81,7 @@
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\IAssessmentOrganisationRepository.cs" />
     <Compile Include="Data\IBulkUploadRepository.cs" />
+    <Compile Include="Data\IJobProgressRepository.cs" />
     <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
