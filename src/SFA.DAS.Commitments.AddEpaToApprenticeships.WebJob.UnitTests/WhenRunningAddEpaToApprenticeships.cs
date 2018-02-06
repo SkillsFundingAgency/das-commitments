@@ -22,6 +22,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<IAssessmentOrganisationRepository> _assessmentOrganisationRepository;
+        private Mock<IJobProgressRepository> _jobProgressRepository;
 
         private Mock<IAssessmentOrgs> _assessmentOrgs;
         private Mock<IPaymentEvents> _paymentEvents;
@@ -36,13 +37,14 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         {
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _assessmentOrganisationRepository = new Mock<IAssessmentOrganisationRepository>();
+            _jobProgressRepository = new Mock<IJobProgressRepository>();
 
             _assessmentOrgs = new Mock<IAssessmentOrgs>();
             _paymentEvents = new Mock<IPaymentEvents>();
 
             _log = new Mock<ILog>();
 
-            _paymentEvents.Setup(x => x.GetSubmissionEvents(
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(
                     It.IsAny<long>(),
                     It.IsAny<DateTime?>(),
                     It.IsAny<long>(),
@@ -59,8 +61,11 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 _assessmentOrgs.Object,
                 _paymentEvents.Object,
                 _assessmentOrganisationRepository.Object,
-                _apprenticeshipRepository.Object);
+                _apprenticeshipRepository.Object,
+                _jobProgressRepository.Object);
         }
+
+        #region Organisation Caching
 
         [Test]
         public async Task ThenAllOrganisationSummariesFromApiAreWrittenToTableWhenTableIsEmpty()
@@ -129,6 +134,49 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // assert
             _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.IsAny<IEnumerable<AssessmentOrganisation>>()), Times.Never);
         }
+
+        #endregion Organisation Caching
+
+        #region Update Apprenticeships
+
+        [Test]
+        public async Task ThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSet()
+        {
+            const long apprenticeshipId = 456;
+            const long submissionEventId = 1;
+
+            var organisationSummaries = new[]
+            {
+                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
+            };
+
+            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+
+            var submissionEventsPage = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 1,
+                Items = new[] {new SubmissionEvent {Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1}}
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(0L, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
+            {
+                new AssessmentOrganisation {EPAOrgId = OrgId1, Name = OrgName1}
+            };
+
+            // should probably be seperate tests, but to cut down on test proliferation, we check both
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId, OrgId1), Times.Once());
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(submissionEventId), Times.Once);
+        }
+
+        #endregion Update Apprenticeships
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {

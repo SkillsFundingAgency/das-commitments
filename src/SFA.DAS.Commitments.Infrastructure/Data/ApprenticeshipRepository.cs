@@ -120,7 +120,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateApprenticeshipEPAAsync(long apprenticeshipId, string epaOrgId)
+        public async Task UpdateApprenticeshipEpaAsync(long apprenticeshipId, string epaOrgId)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeshipId} EPAOrgId to {epaOrgId}");
 

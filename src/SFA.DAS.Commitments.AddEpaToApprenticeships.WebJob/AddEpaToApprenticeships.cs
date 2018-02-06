@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             PageOfResults<SubmissionEvent> page;
             do
             {
-                page = await _paymentEventsService.GetSubmissionEvents(lastId);
+                page = await _paymentEventsService.GetSubmissionEventsAsync(lastId);
 
                 pageLastId = await UpdateApprenticeshipsWithEPAOrgIdAsync(page.Items);
                 if (pageLastId != null)
@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                 try
                 {
                     //todo: do we need to handle events with null apprenticeship ids?
-                    await _apprenticeshipRepository.UpdateApprenticeshipEPAAsync(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
+                    await _apprenticeshipRepository.UpdateApprenticeshipEpaAsync(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
                 }
                 catch (ArgumentOutOfRangeException e)
                 {

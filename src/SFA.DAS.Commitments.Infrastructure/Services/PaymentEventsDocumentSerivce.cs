@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return Task.Run(() => data);
         }
 
-        public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEvents(long sinceEventId = 0,
+        public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEventsAsync(long sinceEventId = 0,
             DateTime? sinceTime = null, long ukprn = 0, int page = 1)
         {
             throw new NotImplementedException();
