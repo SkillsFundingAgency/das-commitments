@@ -28,6 +28,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         private Mock<ILog> _log;
 
+        private const string OrgId1 = "EPA0001", OrgId2 = "EPA0002";
+        private const string OrgName1 = "ASM Org", OrgName2 = "B Org";
+
         [SetUp]
         public void Arrange()
         {
@@ -62,16 +65,12 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task ThenAllOrganisationSummariesFromApiAreWrittenToTableWhenTableIsEmpty()
         {
-            const string orgId1 = "ORG0001";
-            const string orgName1 = "ASM Org";
-
             var organisationSummaries = new[]
             {
-                new OrganisationSummary { Id = orgId1, Name = orgName1 }
+                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
             };
 
             _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-
             _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
 
             // act
@@ -80,29 +79,24 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // assert
             IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
             {
-                new AssessmentOrganisation {EPAOrgId = orgId1, Name = orgName1}
+                new AssessmentOrganisation {EPAOrgId = OrgId1, Name = OrgName1}
             };
 
             _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
-                new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true }).Compare(expectedAssessmentOrganisations, o).AreEqual
-            )), Times.Once);
+                IEnumerablesAreEqual(expectedAssessmentOrganisations, o))), Times.Once);
         }
 
         [Test]
         public async Task ThenNewOrganisationSummariesFromApiAreWrittenToTable()
         {
-            const string orgId1 = "ORG0001", orgId2 = "ORG0001";
-            const string orgName1 = "ASM Org", orgName2 = "B Org";
-
             var organisationSummaries = new[]
             {
-                new OrganisationSummary { Id = orgId1, Name = orgName1 },
-                new OrganisationSummary { Id = orgId2, Name = orgName2 },
+                new OrganisationSummary { Id = OrgId1, Name = OrgName1 },
+                new OrganisationSummary { Id = OrgId2, Name = OrgName2 },
             };
 
             _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync(orgId1);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync(OrgId1);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -110,12 +104,17 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // assert
             IEnumerable<AssessmentOrganisation> expectedAssessmentOrganisations = new[]
             {
-                new AssessmentOrganisation {EPAOrgId = orgId2, Name = orgName2}
+                new AssessmentOrganisation {EPAOrgId = OrgId2, Name = OrgName2}
             };
 
             _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
-                new CompareLogic(new ComparisonConfig { IgnoreObjectTypes = true }).Compare(expectedAssessmentOrganisations, o).AreEqual
-            )), Times.Once);
+                IEnumerablesAreEqual(expectedAssessmentOrganisations, o))), Times.Once);
+        }
+
+        private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
+        {
+            return new CompareLogic(new ComparisonConfig {IgnoreObjectTypes = true})
+                .Compare(expected, actual).AreEqual;
         }
     }
 }
