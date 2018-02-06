@@ -88,6 +88,7 @@
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\AlertSummary.cs" />
     <Compile Include="Entities\Apprenticeship.cs" />
+    <Compile Include="Entities\ApprenticeshipByUlnRequest.cs" />
     <Compile Include="Entities\ApprenticeshipOverlapValidationRequest.cs" />
     <Compile Include="Entities\ApprenticeshipResult.cs" />
     <Compile Include="Entities\ApprenticeshipsResult.cs" />

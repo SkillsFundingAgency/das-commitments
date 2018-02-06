@@ -25,5 +25,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task CreateApprenticeshipUpdate(long accountId, Types.Apprenticeship.ApprenticeshipUpdateRequest updateRequest);
         Task PatchApprenticeshipUpdate(long accountId, long apprenticeshipId, Types.Apprenticeship.ApprenticeshipUpdateSubmission submission);
         Task<IEnumerable<Types.ApprenticeshipStatusSummary>> GetAccountSummary(long accountId);
+        Task<IEnumerable<Types.Apprenticeship.Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln);
     }
 }

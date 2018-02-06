@@ -90,6 +90,13 @@ namespace SFA.DAS.Commitments.Api.Client
             await _commitmentHelper.PatchCommitment(url, submission);
         }
 
+        public async Task<IList<Apprenticeship>> GetActiveApprenticeshipsForUln(long employerAccountId, string uln)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/uln/{uln}";
+
+            return await _commitmentHelper.GetApprenticeships(url);
+        }
+
         public async Task CreateEmployerApprenticeship(long employerAccountId, long commitmentId, ApprenticeshipRequest apprenticeship)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}/apprenticeships";
