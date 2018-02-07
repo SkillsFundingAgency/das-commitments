@@ -17,6 +17,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTriage
 {
@@ -29,6 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<IApprenticeshipInfoServiceWrapper> _apprenticeshipTrainingService;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         private ApproveDataLockTriageCommand _command;
 
@@ -40,6 +43,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _apprenticeshipTrainingService = new Mock<IApprenticeshipInfoServiceWrapper>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship());
@@ -65,7 +69,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _commitmentRepository.Object,
             Mock.Of<ICurrentDateTime>(),
             _apprenticeshipTrainingService.Object,
-            Mock.Of<ICommitmentsLogger>());
+            Mock.Of<ICommitmentsLogger>(),
+            _messagePublisher.Object);
         }
 
         [Test]
@@ -426,6 +431,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             var p1 = prices.Single(m => m.Cost == 1500);
 
             p1.ToDate.Should().Be(null);
+        }
+
+        [Test]
+        public async Task ThenTheTriageApprovedEventIsCreated()
+        {
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
+                .ReturnsAsync(new List<DataLockStatus>
+                {
+                    new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
+                });
+
+            var apprenticeship = new Apprenticeship { ProviderId = 1234, Id = _command.ApprenticeshipId, EmployerAccountId = 8457 };
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(_command.ApprenticeshipId)).ReturnsAsync(apprenticeship);
+            
+            await _sut.Handle(_command);
+
+            _messagePublisher.Verify(
+                x =>
+                    x.PublishAsync(
+                        It.Is<DataLockTriageApproved>(
+                            m => m.AccountId == apprenticeship.EmployerAccountId && m.ProviderId == apprenticeship.ProviderId && m.ApprenticeshipId == apprenticeship.Id)), Times.Once);
         }
 
         private bool AssertPriceHistory(IEnumerable<PriceHistory> ph, int expectedTotal)
