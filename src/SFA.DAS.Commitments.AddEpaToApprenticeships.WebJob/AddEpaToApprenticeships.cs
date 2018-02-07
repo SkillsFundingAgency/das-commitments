@@ -68,14 +68,20 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         {
             foreach (var submissionEvent in submissionEvents)
             {
-                try
+                if (!submissionEvent.ApprenticeshipId.HasValue)
                 {
-                    //todo: do we need to handle events with null apprenticeship ids?
-                    await _apprenticeshipRepository.UpdateApprenticeshipEpaAsync(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
+                    _logger.Info($"Ignoring SubmissionEvent '{submissionEvent.Id}' with no ApprenticheshipId");
                 }
-                catch (ArgumentOutOfRangeException e)
+                else
                 {
-                    _logger.Error(e, $"Attempt to set EPAOrdId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}");
+                    try
+                    {
+                        await _apprenticeshipRepository.UpdateApprenticeshipEpaAsync(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        _logger.Error(e, $"Attempt to set EPAOrdId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}");
+                    }
                 }
             }
 
