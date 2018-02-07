@@ -5,7 +5,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
 {
     public sealed class ApprenticeshipStopDate
     {
-        public DateTime DateOfChange { get; set; }
+        public DateTime NewStopDate { get; set; }
         public string UserId { get; set; }
         public LastUpdateInfo LastUpdatedByInfo { get; set; }
     }
