@@ -45,9 +45,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         private async Task UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync()
         {
-            long originalLastId, lastId;
             long? pageLastId;
-            originalLastId = lastId = await _jobProgressRepository.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync() ?? 0;
+            var lastId = await _jobProgressRepository.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync() ?? 0;
 
             // we could page through or only deal with the 1st page and update the lastId
             PageOfResults<SubmissionEvent> page;
@@ -57,12 +56,12 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
                 pageLastId = await UpdateApprenticeshipsWithEPAOrgIdAsync(page.Items);
                 if (pageLastId != null)
+                {
+                    await _jobProgressRepository.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(pageLastId.Value);
                     lastId = pageLastId.Value;
+                }
 
             } while (pageLastId.HasValue && page.TotalNumberOfPages > page.PageNumber);
-
-            if (lastId != originalLastId)
-                await _jobProgressRepository.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(lastId);
         }
 
         private async Task<long?> UpdateApprenticeshipsWithEPAOrgIdAsync(IEnumerable<SubmissionEvent> submissionEvents)
@@ -80,6 +79,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                 }
             }
 
+            //todo: belongs in here?
             return submissionEvents.LastOrDefault()?.Id;
         }
 
