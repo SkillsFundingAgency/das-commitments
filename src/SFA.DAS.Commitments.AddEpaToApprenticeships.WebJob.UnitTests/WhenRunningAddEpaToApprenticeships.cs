@@ -215,6 +215,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         // 2 pages of events
         // update unknown apprenticeship -> verify logged & before & after events updated apprenticeships
         // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
+        // submission events apprenticeshipid is nullable, test null
 
         // integration tests?
         // check get/set last id

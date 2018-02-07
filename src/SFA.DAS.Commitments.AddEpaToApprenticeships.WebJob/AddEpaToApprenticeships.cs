@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -97,6 +98,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             //var currentLongest = organisationSummaries.Max(o => o.Name.Length); // = 71
 
             // assumes summaries are returned ordered asc by Id
+
+            //var orgs = JsonConvert.SerializeObject(allOrganisationSummaries);
 
             //var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgId() ?? organisationSummaries.First().Id;
 

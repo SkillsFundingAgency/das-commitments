@@ -35,15 +35,18 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
             // ms fake would be preferable
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
 
-            For<IAssessmentOrgsApiClient>().Use<AssessmentOrgsApiClient>()
-                .Ctor<string>().Is(config.AssessmentOrgsApiBaseUri);
-
             For<IPaymentsEventsApiClient>().Use<PaymentsEventsApiClient>()
                 .Ctor<IPaymentsEventsApiConfiguration>().Is(config.PaymentEventsApi);
+
+            For<IAssessmentOrgsApiClient>().Use<AssessmentOrgsApiClient>()
+                .Ctor<string>().Is(config.AssessmentOrgsApiBaseUri);
 
             For<IAssessmentOrganisationRepository>().Use<AssessmentOrganisationRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IJobProgressRepository>().Use<JobProgressRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+
+            ConfigurePaymentsApiService(config);
+            ConfigureAssessmentOrgsService(config);
 
             For<IAddEpaToApprenticeships>().Use<AddEpaToApprenticeships>();
 
@@ -80,15 +83,24 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
 
         private void ConfigurePaymentsApiService(AddEpaToApprenticeshipsConfiguration config)
         {
-            if (config.UseDocumentRepository)
+            if (config.UsePaymentEventsDocumentRepository)
             {
                 For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>()
                     .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
             }
             else
-            {
                 For<IPaymentEvents>().Use<PaymentEventsService>();
+        }
+
+        private void ConfigureAssessmentOrgsService(AddEpaToApprenticeshipsConfiguration config)
+        {
+            if (config.UseAssessmentOrgsDocumentRepository)
+            {
+                For<IAssessmentOrgs>().Use<AssessmentOrgsDocumentService>()
+                    .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
             }
+            else
+                For<IAssessmentOrgs>().Use<AssessmentOrgsService>();
         }
     }
 }

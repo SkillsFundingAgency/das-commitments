@@ -63,14 +63,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         // SFA.DAS.Provider.Events.Api.Client package from SFA.DAS.Commitments.Domain
         // (and ..client && ..types references from there too)
         public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEventsAsync(long sinceEventId = 0, DateTime? sinceTime = null, long ukprn = 0, int page = 1)
-        //public async Task<IEnumerable<SubmissionEvent>> GetSubmissionEventsAsync(
         {
-            var result = await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetSubmissionEvents(sinceEventId, sinceTime, ukprn, page));
-
-            return result;
-            //return
-            //    result?.Items.Select(_mapper.Map)
-            //    ?? new DataLockStatus[0];
+            return await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetSubmissionEvents(sinceEventId, sinceTime, ukprn, page));
         }
     }
 }

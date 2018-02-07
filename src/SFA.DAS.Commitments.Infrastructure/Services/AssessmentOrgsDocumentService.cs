@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using SFA.DAS.Apprenticeships.Api.Types.AssessmentOrgs;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -51,5 +55,27 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
             return await blob.DownloadTextAsync();
         }
+
+        //private async Task WriteTestDataToStorageAsync()
+        //{
+        //}
+
+        //private async Task WriteToStorageAsync(string containerName, string blobName, string contents)
+        //{
+        //    var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
+        //    var blobClient = storageAccount.CreateCloudBlobClient();
+
+        //    var container = blobClient.GetContainerReference(containerName);
+        //    container.CreateIfNotExists();
+
+        //    var blob = container.GetBlockBlobReference(blobName);
+
+        //    //var options = new BlobRequestOptions { ServerTimeout = TimeSpan.FromMinutes(2) };
+
+        //    using (var stream = new MemoryStream(Encoding.Default.GetBytes(contents), false))
+        //    {
+        //        await blob.UploadFromStreamAsync(stream);
+        //    }
+        //}
     }
 }
