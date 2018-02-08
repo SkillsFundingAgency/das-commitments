@@ -159,6 +159,9 @@
     <Compile Include="Commands\AcceptApprenticeshipChange\WhenMappingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingPauseApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\WhenValidatingResumeApprenticeshipCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenUpdatingAnApprenticeshipStopDate.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenEditingTheStopDateOfAnApprenticeship.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenValidatingUpdateApprenticeshipStopDateCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenEmployerUpdatesApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
