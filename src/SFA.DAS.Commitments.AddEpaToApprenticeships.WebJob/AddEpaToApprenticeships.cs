@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
@@ -38,7 +37,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         public async Task Update()
         {
-            await UpdateCacheOfAssessmentOrganisationsAsync(); //todo: rename, not actually a cache
+            await UpdateCacheOfAssessmentOrganisationsAsync();
 
             await UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync();
         }
@@ -92,27 +91,21 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         private async Task UpdateCacheOfAssessmentOrganisationsAsync()
         {
             //todo: add FK relationship?
-            //todo: when merging in repos, how to handle updated nuget packages,
-            // e.g. we need an updated SFA.DAS.Provider.Events.Api.Client here
-            // is there a nice way to do it? do we have to merge code that updates client first
-            // then update reference in consumers, then merge consumers - seems a bit naff
 
             // fetch the highest EPAOrgId in our local cache of assessment organisations
             _logger.Info("Fetching all assessment orgs");
 
             var allOrganisationSummaries = await _assessmentOrgsService.AllAsync();
+
+            // dev helpers:
             //var currentLongest = organisationSummaries.Max(o => o.Name.Length); // = 71
-
-            // assumes summaries are returned ordered asc by Id
-
             //var orgs = JsonConvert.SerializeObject(allOrganisationSummaries);
-
-            //var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgId() ?? organisationSummaries.First().Id;
 
             var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgIdAsync();
 
             _logger.Info($"Latest EPAOrgId in cache is {latestCachedEPAOrgId ?? "N/A. Cache is Empty"}");
 
+            // assumes summaries are returned ordered asc by Id
             var organisationSummariesToAdd = latestCachedEPAOrgId == null
                 ? allOrganisationSummaries
                 : allOrganisationSummaries.SkipWhile(os => os.Id != latestCachedEPAOrgId).Skip(1);
