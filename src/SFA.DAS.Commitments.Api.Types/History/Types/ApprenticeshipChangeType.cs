@@ -7,6 +7,7 @@ namespace SFA.DAS.Commitments.Api.Types.History.Types
         ChangeOfStatus = 2,
         ApprovingChange = 3,
         DataLockFailureOccured = 4,
-        DataLockFaulureResolved = 5
+        DataLockFaulureResolved = 5,
+        ChangeOfStopDate = 6
     }
 }

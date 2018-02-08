@@ -83,7 +83,30 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             return domainApprenticeship;
         }
 
-
+        public IEnumerable<Apprenticeship> MapFrom(IEnumerable<ApprenticeshipResult> source)
+        {
+            return source.Select(sourceItem => new Apprenticeship
+            {
+                Id = sourceItem.Id,
+                ULN = sourceItem.Uln,
+                FirstName = sourceItem.FirstName,
+                LastName = sourceItem.LastName,
+                DateOfBirth = sourceItem.DateOfBirth,
+                TrainingCode = sourceItem.TrainingCode,
+                TrainingName = sourceItem.TrainingName,
+                Cost = sourceItem.Cost,
+                StartDate = sourceItem.StartDate,
+                EndDate = sourceItem.EndDate,
+                StopDate = sourceItem.StopDate,
+                ProviderRef = sourceItem.ProviderRef,
+                EmployerRef = sourceItem.EmployerRef,
+                EmployerAccountId = sourceItem.EmployerAccountId,
+                LegalEntityName = sourceItem.LegalEntityName,
+                ProviderId = sourceItem.ProviderId,
+                ProviderName = sourceItem.ProviderName,
+                CommitmentId = sourceItem.CommitmentId
+            });
+        }
 
         public IEnumerable<Apprenticeship> MapFrom(IEnumerable<Domain.Entities.Apprenticeship> source, CallerType callerType)
         {

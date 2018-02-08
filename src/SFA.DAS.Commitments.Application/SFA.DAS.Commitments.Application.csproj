@@ -126,6 +126,9 @@
     <Compile Include="Commands\UpdateApprenticeshipStatus\StopApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStatus\ApprenticeshipStatusChangeCommandValidator.cs" />
     <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeMapper.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStopDate\UpdateApprenticeshipStopDateCommandValidator.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStopDate\UpdateApprenticeshipStopDateCommand.cs" />
+    <Compile Include="Commands\UpdateApprenticeshipStopDate\UpdateApprenticeshipStopDateCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommand.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\UpdateApprenticeship\UpdateApprenticeshipValidator.cs" />
@@ -151,6 +154,10 @@
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Interfaces\IApprenticeshipInfoServiceWrapper.cs" />
+    <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnQueryHandler.cs" />
+    <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnRequest.cs" />
+    <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnResponse.cs" />
+    <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnValidator.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />

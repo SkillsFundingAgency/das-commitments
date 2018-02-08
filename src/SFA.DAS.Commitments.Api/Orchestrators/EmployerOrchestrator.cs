@@ -29,6 +29,8 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -160,7 +162,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                         LegalEntityAddress = commitment.LegalEntityAddress,
                         LegalEntityOrganisationType = commitment.LegalEntityOrganisationType,
                         ProviderId = commitment.ProviderId.Value,
-                        ProviderName = commitment.ProviderName,
+                        ProviderName = commitment.ProviderName
                     }
                 });
             }
@@ -172,7 +174,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsRequest
             {
-                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
+                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId }
             });
 
             _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Apprenticeships.Count} apprenticeships found", accountId: accountId);
@@ -286,6 +288,27 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+        }
+
+        public async Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipStopDate stopDate)
+        {
+            _logger.Trace($"Updating stop date to {stopDate.NewStopDate} for apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
+
+            await _mediator.SendAsync(new UpdateApprenticeshipStopDateCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Employer,
+                    Id = accountId
+                },
+                AccountId = accountId,
+                ApprenticeshipId = apprenticeshipId,
+                StopDate = stopDate.NewStopDate,
+                UserId = stopDate.UserId,
+                UserName = stopDate.LastUpdatedByInfo?.Name
+            });
+
+            _logger.Info($"Updated stop date to {stopDate.NewStopDate} for  apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
         }
 
         public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
@@ -442,6 +465,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Deleted commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
+        }
+
+        public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln)
+        {
+            _logger.Trace($"Getting active apprenticeships for Uln {uln} for employer account {accountId}", accountId);
+
+            var response = await _mediator.SendAsync(new GetActiveApprenticeshipsByUlnRequest
+            {
+                Uln = uln
+            });
+
+            _logger.Info($"Retrieved active apprenticeships for Uln {uln} for employer account {accountId}", accountId);
+
+            return _apprenticeshipMapper.MapFrom(response.Data);
         }
 
         public async Task<Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long accountId, long apprenticeshipId)

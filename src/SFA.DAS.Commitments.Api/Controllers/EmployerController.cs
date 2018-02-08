@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -60,7 +62,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-
         
         [Route("{accountId}/apprenticeships")]
         [Authorize(Roles = "Role1")]
@@ -79,7 +80,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-        
+
+        [Route("{accountId}/apprenticeships/uln/{uln}")]
+        [Authorize(Roles = "Role1")]
+        [ResponseType(typeof(IEnumerable<Apprenticeship>))]
+        public async Task<IHttpActionResult> GetActiveApprenticeshipsForUln(long accountId, string uln)
+        {
+            var response = await _employerOrchestrator.GetActiveApprenticeshipsForUln(accountId, uln);
+            return Ok(response);
+        }
+
         [Route("{accountId}/apprenticeships/{apprenticeshipId}", Name = "GetApprenticeshipForEmployer")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetApprenticeship(long accountId, long apprenticeshipId)
@@ -93,7 +103,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
             return Ok(response);
         }
-
 
         [Route("{accountId}/commitments/")]
         [Authorize(Roles = "Role1")]
@@ -142,6 +151,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}/stopdate")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, [FromBody]ApprenticeshipStopDate stopDate)
+        {
+            await _employerOrchestrator.PutApprenticeshipStopDate(accountId, commitmentId, apprenticeshipId, stopDate);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         [Route("{accountId}/apprenticeships/{apprenticeshipId}")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchApprenticeship(long accountId, long apprenticeshipId, [FromBody] ApprenticeshipSubmission apprenticeshipSubmission)
@@ -167,6 +185,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var response = await _employerOrchestrator.GetPendingApprenticeshipUpdate(accountId, apprenticeshipId);
             return Ok(response);
         }
+
 
         [Route("{accountId}/apprenticeships/{apprenticeshipId}/update")]
         [Authorize(Roles = "Role1")]
