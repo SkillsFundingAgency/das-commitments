@@ -11,6 +11,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [SetUp]
         public void Setup()
         {
+            var currentDate = DateTime.Today;
+
             _validator = new UpdateApprenticeshipStopDateCommandValidator();
             _exampleCommand = new UpdateApprenticeshipStopDateCommand {AccountId = 1L, ApprenticeshipId = 444L, StopDate = DateTime.Today};
         }

@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         {
             RuleFor(x => x.AccountId).GreaterThan(0);
             RuleFor(x => x.ApprenticeshipId).GreaterThan(0);
-            RuleFor(x => x.StopDate).LessThanOrEqualTo(DateTime.Today);
+            RuleFor(x => x.StopDate).GreaterThan(DateTime.MinValue);
         }
     }
 }

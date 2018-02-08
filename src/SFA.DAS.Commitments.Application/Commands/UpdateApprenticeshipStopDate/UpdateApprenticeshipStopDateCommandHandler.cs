@@ -67,8 +67,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         {
             var historyService = new HistoryService(_historyRepository);
 
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), null, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), commitment.Id, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
            
             await _apprenticeshipRepository.UpdateApprenticeshipStopDate(commitment.Id, command.ApprenticeshipId, command.StopDate);
 
@@ -78,6 +77,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
         {
             if (apprenticeship == null) throw new ArgumentException(nameof(apprenticeship));
+
+            if (apprenticeship.PaymentStatus != PaymentStatus.Withdrawn)
+            {
+                throw new ValidationException("The apprenticeship is not stopped so a new stop date cannot be applied.");
+            }
           
             if (apprenticeship.IsWaitingToStart(_currentDate))
             {
