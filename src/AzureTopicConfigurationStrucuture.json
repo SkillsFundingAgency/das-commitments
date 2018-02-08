@@ -34,6 +34,10 @@
   {
     "topicName": "provider_cohort_approval_undone_by_employer",
     "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployer" ]
+  },
+  {
+    "topicName": "relationship_update",
+    "subscription": [ "Task_RelationshipUpdate" ]
   }
 ]
 

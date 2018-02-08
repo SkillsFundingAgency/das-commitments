@@ -4,6 +4,8 @@ using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
 {
@@ -12,8 +14,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
         private readonly AbstractValidator<CreateRelationshipCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICommitmentsLogger _logger;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public CreateRelationshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateRelationshipCommand> validator, ICommitmentsLogger logger)
+        public CreateRelationshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateRelationshipCommand> validator, ICommitmentsLogger logger, IMessagePublisher messagePublisher)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -23,6 +26,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(CreateRelationshipCommand message)
@@ -34,7 +38,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            await _commitmentRepository.CreateRelationship(message.Relationship);
+            await Task.WhenAll(_commitmentRepository.CreateRelationship(message.Relationship),
+                PublishRelationshipCreatedEvent(message.Relationship.ProviderId, message.Relationship.EmployerAccountId,
+                    message.Relationship.LegalEntityId));
+        }
+
+        private async Task PublishRelationshipCreatedEvent(long providerId, long employerAccountId, string legalEntityId)
+        {
+            await _messagePublisher.PublishAsync(new RelationshipEvent(providerId, employerAccountId,
+                legalEntityId));
         }
     }
 }

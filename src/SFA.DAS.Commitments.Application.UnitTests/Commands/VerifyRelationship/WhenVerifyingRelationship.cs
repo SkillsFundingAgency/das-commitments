@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
@@ -8,6 +7,8 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
 {
@@ -18,6 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
 
         private Mock<VerifyRelationshipValidator> _validator;
         private Mock<ICommitmentRepository> _repository;
+        private Mock<IMessagePublisher> _messagePublisher;
 
         [SetUp]
         public void Arrange()
@@ -25,10 +27,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
             _validator = new Mock<VerifyRelationshipValidator>();
 
             _repository = new Mock<ICommitmentRepository>();
+            _messagePublisher = new Mock<IMessagePublisher>();
             _repository.Setup(x => x.VerifyRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(()=> Task.FromResult(new Unit()));
 
-            _handler = new VerifyRelationshipCommandHandler(_repository.Object, _validator.Object, Mock.Of<ICommitmentsLogger>());            
+            _handler = new VerifyRelationshipCommandHandler(_repository.Object, _validator.Object, Mock.Of<ICommitmentsLogger>(), _messagePublisher.Object);            
         }
 
         [Test]
@@ -79,6 +82,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
                 It.IsAny<string>(),
                 It.IsAny<bool>()),
                 Times.Never);
+        }
+
+        [Test]
+        public async Task ThenTheRelationshipEventIsCreated()
+        {
+            // Arrange
+            var request = new VerifyRelationshipCommand
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                LegalEntityId = "3",
+                Verified = true
+            };
+
+            _validator.Setup(x => x.Validate(It.IsAny<VerifyRelationshipCommand>())).Returns(new ValidationResult());
+
+            // Act
+            await _handler.Handle(request);
+
+            // Assert
+            _messagePublisher.Verify(x => x.PublishAsync(It.Is<RelationshipEvent>(y =>
+                y.ProviderId == request.ProviderId && y.EmployerAccountId == request.EmployerAccountId &&
+                y.LegalEntityId == request.LegalEntityId)), Times.Once);
         }
     }
 }

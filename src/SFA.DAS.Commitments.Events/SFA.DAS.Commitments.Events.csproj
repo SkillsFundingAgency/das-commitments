@@ -66,6 +66,7 @@
     <Compile Include="ApprenticeshipUpdateCreated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderCohortApprovalUndoneByEmployerUpdate.cs" />
+    <Compile Include="RelationshipEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
