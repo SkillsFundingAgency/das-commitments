@@ -7,6 +7,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
         ChangeOfStatus = 2,
         ApprovingChange = 3,
         DataLockFailureOccured = 4,
-        DataLockFailureResolved = 5
+        DataLockFailureResolved = 5,
+        ChangeOfStopDate = 6
     }
 }
