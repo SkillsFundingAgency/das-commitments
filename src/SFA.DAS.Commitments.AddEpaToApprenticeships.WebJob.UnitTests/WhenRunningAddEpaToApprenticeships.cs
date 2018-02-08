@@ -31,6 +31,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         private const string OrgId1 = "EPA0001", OrgId2 = "EPA0002";
         private const string OrgName1 = "ASM Org", OrgName2 = "B Org";
+        private const long apprenticeshipId = 456L;
 
         [SetUp]
         public void Arrange()
@@ -142,7 +143,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task ThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSet()
         {
-            const long apprenticeshipId = 456L;
             const long submissionEventId = 1L;
             const long sinceEventId = 0L;
 
@@ -156,14 +156,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
 
-            var submissionEventsPage = new PageOfResults<SubmissionEvent>
-            {
-                PageNumber = 1,
-                TotalNumberOfPages = 1,
-                Items = new[] {new SubmissionEvent {Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1}}
-            };
-
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            SetupSubmissionEventsPageWithSinleEvent(sinceEventId, submissionEventId);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -178,7 +171,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task ThenWeRequestNextSubmissionEventFromPreviousRun()
         {
-            const long apprenticeshipId = 456L;
             const long lastSubmissionEventId = 1024L;
             const long submissionEventId = lastSubmissionEventId + 1L;
 
@@ -194,14 +186,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync(lastSubmissionEventId);
 
-            var submissionEventsPage = new PageOfResults<SubmissionEvent>
-            {
-                PageNumber = 1,
-                TotalNumberOfPages = 1,
-                Items = new[] { new SubmissionEvent { Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1 } }
-            };
-
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            SetupSubmissionEventsPageWithSinleEvent(lastSubmissionEventId, submissionEventId);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -222,18 +207,17 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         #endregion Update Apprenticeships
 
-        //todo: use this?
-        //private void SetupSubmissionEventsPageWithSinleEvent(long sinceEventId, long submissionEventId)
-        //{
-        //    var submissionEventsPage = new PageOfResults<SubmissionEvent>
-        //    {
-        //        PageNumber = 1,
-        //        TotalNumberOfPages = 1,
-        //        Items = new[] { new SubmissionEvent { Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1 } }
-        //    };
+        private void SetupSubmissionEventsPageWithSinleEvent(long sinceEventId, long submissionEventId)
+        {
+            var submissionEventsPage = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 1,
+                Items = new[] { new SubmissionEvent { Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1 } }
+            };
 
-        //    _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
-        //}
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+        }
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
