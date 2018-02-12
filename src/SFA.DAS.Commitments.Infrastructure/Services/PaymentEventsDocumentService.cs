@@ -1,14 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Newtonsoft.Json;
-
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
@@ -16,13 +11,13 @@ using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    public class PaymentEventsDocumentSerivce : IPaymentEvents
+    public class PaymentEventsDocumentService : IPaymentEvents
     {
         private readonly string _storageConnectionString;
         private readonly IPaymentEventMapper _mapper;
         private readonly ILog _logger;
 
-        public PaymentEventsDocumentSerivce(
+        public PaymentEventsDocumentService(
             string storageConnectionString, 
             IPaymentEventMapper mapper,
             ILog logger)

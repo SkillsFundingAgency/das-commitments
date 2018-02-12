@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
         {
             if (config.UseDocumentRepository)
             {
-                For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>()
+                For<IPaymentEvents>().Use<PaymentEventsDocumentService>()
                     .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
             }
             else

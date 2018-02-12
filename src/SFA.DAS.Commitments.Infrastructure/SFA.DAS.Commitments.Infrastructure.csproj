@@ -209,7 +209,7 @@
     <Compile Include="Services\HttpClientWrapper.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />
     <Compile Include="Services\PaymentEventMapper.cs" />
-    <Compile Include="Services\PaymentEventsDocumentSerivce.cs" />
+    <Compile Include="Services\PaymentEventsDocumentService.cs" />
     <Compile Include="Services\PaymentEventsService.cs" />
   </ItemGroup>
   <ItemGroup>

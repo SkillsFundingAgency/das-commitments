@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
         {
             if (config.UsePaymentEventsDocumentRepository)
             {
-                For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>()
+                For<IPaymentEvents>().Use<PaymentEventsDocumentService>()
                     .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
             }
             else
