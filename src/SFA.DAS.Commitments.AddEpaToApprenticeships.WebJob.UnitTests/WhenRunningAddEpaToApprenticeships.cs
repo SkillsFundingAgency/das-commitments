@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             _log = new Mock<ILog>();
 
             // default to returning an empty page of submission events
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(
                     It.IsAny<long>(),
                     It.IsAny<DateTime?>(),
                     It.IsAny<long>(),
@@ -241,7 +241,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 }
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
 
             _apprenticeshipRepository.Setup(x => x.UpdateApprenticeshipEpaAsync(unknownApprenticeshipId, EpaOrgId1))
                 .Throws<ArgumentOutOfRangeException>();
@@ -334,7 +334,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert
-            _paymentEvents.Verify(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1), Times.Once);
+            _paymentEvents.Verify(x => x.GetSubmissionEvents(lastSubmissionEventId, null, 0L, 1), Times.Once);
         }
 
         //todo: integration tests?
@@ -365,7 +365,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 Items = new[] { new SubmissionEvent { Id = sinceEventId+1, ApprenticeshipId = apprenticeshipId1, EPAOrgId = EpaOrgId1 } }
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
         }
 
         private void SetupSubmissionEventsPageWithSingleEventWithNullEpaOrgId(long sinceEventId)
@@ -377,7 +377,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 Items = new[] { new SubmissionEvent { Id = sinceEventId + 1, ApprenticeshipId = apprenticeshipId1, EPAOrgId = null } }
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
         }
 
         private void SetupSubmissionEventsPageWithSingleEventWithNullApprenticeshipId(long sinceEventId)
@@ -389,7 +389,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 Items = new[] { new SubmissionEvent { Id = sinceEventId + 1, ApprenticeshipId = null, EPAOrgId = EpaOrgId1 } }
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
         }
 
         private void SetupSubmissionEventsTwoCalls(long sinceEventId)
@@ -402,7 +402,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                                 new SubmissionEvent { Id = sinceEventId+2, ApprenticeshipId = apprenticeshipId2, EPAOrgId = EpaOrgId2 }}
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall1);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall1);
 
             var submissionEventsPageCall2 = new PageOfResults<SubmissionEvent>
             {
@@ -412,7 +412,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                                 new SubmissionEvent { Id = sinceEventId+4, ApprenticeshipId = apprenticeshipId4, EPAOrgId = EpaOrgId2 }}
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId+2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId+2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
         }
 
         private void SetupSubmissionEventsTwoCallsSecondCallReturnsEmptyPage(long sinceEventId)
@@ -425,7 +425,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                     new SubmissionEvent { Id = sinceEventId+2, ApprenticeshipId = apprenticeshipId2, EPAOrgId = EpaOrgId2 }}
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall1);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall1);
 
             var submissionEventsPageCall2 = new PageOfResults<SubmissionEvent>
             {
@@ -434,7 +434,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 Items = new SubmissionEvent[0]
             };
 
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId + 2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
+            _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId + 2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
         }
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)

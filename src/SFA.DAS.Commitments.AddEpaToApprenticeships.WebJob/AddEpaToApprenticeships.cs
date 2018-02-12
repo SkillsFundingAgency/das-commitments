@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             PageOfResults<SubmissionEvent> page;
             do
             {
-                page = await _paymentEventsService.GetSubmissionEventsAsync(lastId);
+                page = await _paymentEventsService.GetSubmissionEvents(lastId);
 
                 pageLastId = await UpdateApprenticeshipsWithEPAOrgIdAsync(page.Items);
                 if (pageLastId != null)

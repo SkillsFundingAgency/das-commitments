@@ -10,6 +10,6 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
     {
         Task<IEnumerable<DataLockStatus>> GetDataLockEvents(long sinceEventId = 0, DateTime? sinceTime = null, string employerAccountId = null, long ukprn = 0, int page = 1);
 
-        Task<PageOfResults<SubmissionEvent>> GetSubmissionEventsAsync(long sinceEventId = 0, DateTime? sinceTime = null, long ukprn = 0, int page = 1);
+        Task<PageOfResults<SubmissionEvent>> GetSubmissionEvents(long sinceEventId = 0, DateTime? sinceTime = null, long ukprn = 0, int page = 1);
     }
 }

@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         //todo: if we change this to return a enumerable mapped version of submissionevent, we should remove
         // SFA.DAS.Provider.Events.Api.Client package from SFA.DAS.Commitments.Domain
         // (and ..client && ..types references from there too)
-        public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEventsAsync(long sinceEventId = 0, DateTime? sinceTime = null, long ukprn = 0, int page = 1)
+        public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEvents(long sinceEventId = 0, DateTime? sinceTime = null, long ukprn = 0, int page = 1)
         {
             return await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetSubmissionEvents(sinceEventId, sinceTime, ukprn, page));
         }
