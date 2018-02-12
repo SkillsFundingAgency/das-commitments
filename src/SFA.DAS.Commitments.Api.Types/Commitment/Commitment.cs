@@ -12,6 +12,8 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
 
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
+        public long? TransferSenderId { get; set; }
+        public string TransferSenderName { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string LegalEntityAddress { get; set; }
