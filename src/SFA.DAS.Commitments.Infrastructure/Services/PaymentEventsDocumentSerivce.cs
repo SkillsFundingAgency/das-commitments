@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             var fileName = $"{sinceEventId+1}_submission_event.json";
             var result = await ReadFromStorage(containerName, fileName);
             if (string.IsNullOrEmpty(result))
-                return new PageOfResults<SubmissionEvent> {PageNumber = 1, TotalNumberOfPages = 1, Items = new SubmissionEvent[0]};
+                return new PageOfResults<SubmissionEvent> {PageNumber = 1, TotalNumberOfPages = 0, Items = new SubmissionEvent[0]};
 
             return JsonConvert.DeserializeObject<PageOfResults<SubmissionEvent>>(result);
         }
@@ -64,9 +64,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             var fileName = $"{nextEventId}_payment_event.json";
             var result = await ReadFromStorage(containerName, fileName);
             if (string.IsNullOrEmpty(result))
-            {
                 return null;
-            }
+
             return JsonConvert.DeserializeObject<PageOfResults<DataLockEvent>>(result);
         }
 
