@@ -295,6 +295,28 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId + 4), Times.Once);
         }
+
+        [Test]
+        public async Task AndASecondEmptyPageOfSubmissionEventsIsReturnedThenFirstPageIsProcessedAndSecondPageIgnored()
+        {
+            const long sinceEventId = 0L;
+
+            SetupOrganisationSummaries();
+
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
+
+            SetupSubmissionEventsTwoCallsSecondCallReturnsEmptyPage(sinceEventId);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, EpaOrgId1), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId2, EpaOrgId2), Times.Once());
+
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId + 2), Times.Once);
+        }
+
         [Test]
         public async Task ThenWeRequestNextSubmissionEventFromPreviousRun()
         {
@@ -315,10 +337,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             _paymentEvents.Verify(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1), Times.Once);
         }
 
-        //todo: tests
-        // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
-
-        // integration tests?
+        //todo: integration tests?
         // check get/set last id
         // check (real) logging
 
@@ -394,6 +413,28 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             };
 
             _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId+2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
+        }
+
+        private void SetupSubmissionEventsTwoCallsSecondCallReturnsEmptyPage(long sinceEventId)
+        {
+            var submissionEventsPageCall1 = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 2,
+                Items = new[] { new SubmissionEvent { Id = sinceEventId+1, ApprenticeshipId = apprenticeshipId1, EPAOrgId = EpaOrgId1 },
+                    new SubmissionEvent { Id = sinceEventId+2, ApprenticeshipId = apprenticeshipId2, EPAOrgId = EpaOrgId2 }}
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall1);
+
+            var submissionEventsPageCall2 = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 0,
+                Items = new SubmissionEvent[0]
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId + 2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
         }
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
