@@ -37,7 +37,7 @@
   },
   {
     "topicName": "relationship_update",
-    "subscription": [ "Task_RelationshipUpdate" ]
+    "subscription": [ "RDS_RelationshipUpdate" ]
   }
 ]
 
