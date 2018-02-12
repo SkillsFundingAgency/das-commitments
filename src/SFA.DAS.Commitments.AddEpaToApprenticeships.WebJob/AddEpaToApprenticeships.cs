@@ -90,8 +90,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         private async Task UpdateCacheOfAssessmentOrganisationsAsync()
         {
-            //todo: add FK relationship?
-
             // fetch the highest EPAOrgId in our local cache of assessment organisations
             _logger.Info("Fetching all assessment orgs");
 

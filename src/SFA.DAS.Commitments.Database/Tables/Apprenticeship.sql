@@ -23,8 +23,9 @@
     [StopDate] DATE NULL, 
     [PauseDate] DATE NULL, 
 	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0,
-	[EPAOrgId] CHAR(7) NULL
-    CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
+	[EPAOrgId] CHAR(7) NULL,
+    CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),
+    CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
 GO
 
