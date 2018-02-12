@@ -24,7 +24,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<string> GetLatestEPAOrgIdAsync()
         {
-            _logger.Debug("Getting latest EPAOrdId");
+            _logger.Debug("Getting latest EPAOrgId");
 
             // this makes assumptions about the format of EPAOrgId (which are currently correct)
             return await WithConnection(async connection => await connection.QuerySingleOrDefaultAsync<string>(

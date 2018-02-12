@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
-                        _logger.Error(e, $"Attempt to set EPAOrdId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}");
+                        _logger.Error(e, $"Attempt to set EPAOrgId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}");
                     }
                 }
             }
