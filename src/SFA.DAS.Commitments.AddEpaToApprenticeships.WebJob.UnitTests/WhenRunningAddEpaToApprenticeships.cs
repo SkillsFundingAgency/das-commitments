@@ -46,6 +46,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _log = new Mock<ILog>();
 
+            // default to returning an empty page of submission events
             _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(
                     It.IsAny<long>(),
                     It.IsAny<DateTime?>(),
@@ -54,7 +55,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 .ReturnsAsync(new PageOfResults<SubmissionEvent>
                 {
                     PageNumber = 1,
-                    TotalNumberOfPages = 1,
+                    TotalNumberOfPages = 0,
                     Items = new SubmissionEvent[] { }
                 });
 
@@ -202,13 +203,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task AndAnEmptyPageIsReturnedThenNoApprenticeshipsAreUpdatedAndLastSubmissionEventIdIsNotChanged()
         {
-            const long sinceEventId = 0L;
-
             SetupOrganisationSummaries();
 
             _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
-
-            SetupSubmissionEventsPageWithNoEvents(sinceEventId);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -371,18 +368,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 PageNumber = 1,
                 TotalNumberOfPages = 1,
                 Items = new[] { new SubmissionEvent { Id = sinceEventId + 1, ApprenticeshipId = null, EPAOrgId = EpaOrgId1 } }
-            };
-
-            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
-        }
-
-        private void SetupSubmissionEventsPageWithNoEvents(long sinceEventId)
-        {
-            var submissionEventsPage = new PageOfResults<SubmissionEvent>
-            {
-                PageNumber = 1,
-                TotalNumberOfPages = 0,
-                Items = new SubmissionEvent[0]
             };
 
             _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
