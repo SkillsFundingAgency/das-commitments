@@ -200,6 +200,30 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         }
 
         [Test]
+        public async Task AndAnEmptyPageIsReturnedThenNoApprenticeshipsAreUpdatedAndLastSubmissionEventIdIsNotChanged()
+        {
+            const long sinceEventId = 0L;
+
+            SetupOrganisationSummaries();
+
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
+
+            SetupSubmissionEventsPageWithNoEvents(sinceEventId);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+
+            // should probably be seperate tests, but to cut down on test proliferation, we check both
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
+
+            // either of these two verify's would be ok, as it stands we don't update the last submission event id, so we check for that
+            //_jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId), Times.Once);
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(It.IsAny<long>()), Times.Never);
+        }
+
+        [Test]
         public async Task AndSubmissionEventContainsUnknownApprenticeshipThenValidApprenticeshipsAreStillUpdatedAndInvalidApprenticeshipIsLogged()
         {
             const long sinceEventId = 0L;
@@ -290,14 +314,12 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // act
             await _addEpaToApprenticeships.Update();
 
-            //todo: check this is how api is actually supposed to be called
             // assert
             _paymentEvents.Verify(x => x.GetSubmissionEventsAsync(lastSubmissionEventId, null, 0L, 1), Times.Once);
         }
 
         //todo: tests
         // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
-        // null results -> page no 1, total pages 0
 
         // integration tests?
         // check get/set last id
@@ -349,6 +371,18 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 PageNumber = 1,
                 TotalNumberOfPages = 1,
                 Items = new[] { new SubmissionEvent { Id = sinceEventId + 1, ApprenticeshipId = null, EPAOrgId = EpaOrgId1 } }
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+        }
+
+        private void SetupSubmissionEventsPageWithNoEvents(long sinceEventId)
+        {
+            var submissionEventsPage = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 0,
+                Items = new SubmissionEvent[0]
             };
 
             _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
