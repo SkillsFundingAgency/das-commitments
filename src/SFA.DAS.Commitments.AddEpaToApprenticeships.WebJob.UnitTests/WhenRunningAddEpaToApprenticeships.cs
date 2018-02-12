@@ -156,7 +156,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         }
 
         [Test]
-        public async Task ThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSetX()
+        public async Task AndTheSubmissionEventsDontFitInOnePageThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSet()
         {
             const long sinceEventId = 0L;
 
@@ -164,7 +164,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
 
-            SetupSubmissionEventsPageWithSingleEvent(sinceEventId);
+            SetupSubmissionEventsTwoCalls(sinceEventId);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -173,7 +173,11 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             // should probably be seperate tests, but to cut down on test proliferation, we check both
             _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, OrgId1), Times.Once());
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId+1), Times.Once);
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId2, OrgId2), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId3, OrgId1), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId4, OrgId2), Times.Once());
+
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId+4), Times.Once);
         }
 
         [Test]
@@ -198,7 +202,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         }
 
         //todo: tests
-        // 2 pages of events
         // update unknown apprenticeship -> verify logged & before & after events updated apprenticeships
         // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
         // submission events apprenticeshipid is nullable, test null
