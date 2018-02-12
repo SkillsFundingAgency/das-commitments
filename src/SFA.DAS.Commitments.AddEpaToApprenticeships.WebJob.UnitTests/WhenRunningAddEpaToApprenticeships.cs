@@ -337,10 +337,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             _paymentEvents.Verify(x => x.GetSubmissionEvents(lastSubmissionEventId, null, 0L, 1), Times.Once);
         }
 
-        //todo: integration tests?
-        // check get/set last id
-        // check (real) logging
-
         #endregion Update Apprenticeships
 
         #region Helpers
