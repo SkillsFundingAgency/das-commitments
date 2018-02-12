@@ -179,6 +179,27 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         }
 
         [Test]
+        public async Task AndSubmissionEventContainsNullApprenticeshipIdThenSubmissionEventIsIgnored()
+        {
+            const long sinceEventId = 0L;
+
+            SetupOrganisationSummaries();
+
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
+
+            SetupSubmissionEventsPageWithSingleEventWithNullApprenticeshipId(sinceEventId);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
+
+            // verify a log message is written with the submission event id that was ignored
+            _log.Verify(x => x.Info(It.Is<string>(message => message.Contains($"{sinceEventId+1}"))), Times.Once);
+        }
+
+        [Test]
         public async Task AndSubmissionEventContainsUnknownApprenticeshipThenValidApprenticeshipsAreStillUpdatedAndInvalidApprenticeshipIsLogged()
         {
             const long sinceEventId = 0L;
@@ -276,7 +297,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         //todo: tests
         // 2 pages, second is empty (shouldn't happen, but we handle it anyway)
-        // submission events apprenticeshipid is nullable, test null
         // null results -> page no 1, total pages 0
 
         // integration tests?
@@ -317,6 +337,18 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 PageNumber = 1,
                 TotalNumberOfPages = 1,
                 Items = new[] { new SubmissionEvent { Id = sinceEventId + 1, ApprenticeshipId = apprenticeshipId1, EPAOrgId = null } }
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+        }
+
+        private void SetupSubmissionEventsPageWithSingleEventWithNullApprenticeshipId(long sinceEventId)
+        {
+            var submissionEventsPage = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 1,
+                Items = new[] { new SubmissionEvent { Id = sinceEventId + 1, ApprenticeshipId = null, EPAOrgId = EpaOrgId1 } }
             };
 
             _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
