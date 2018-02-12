@@ -3,29 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Microsoft.WindowsAzure.Storage;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.NLog.Logger;
+using SFA.DAS.Commitments.Infrastructure.AzureStorage;
 using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
     public class PaymentEventsDocumentService : IPaymentEvents
     {
-        private readonly string _storageConnectionString;
+        private readonly IAzureBlobStorage _azureBlobStorage;
         private readonly IPaymentEventMapper _mapper;
-        private readonly ILog _logger;
 
         public PaymentEventsDocumentService(
-            string storageConnectionString, 
-            IPaymentEventMapper mapper,
-            ILog logger)
+            IAzureBlobStorage azureBlobStorage,
+            IPaymentEventMapper mapper)
         {
-            // ToDo: Move azure storage to separate file?
-            _storageConnectionString = storageConnectionString;
+            _azureBlobStorage = azureBlobStorage;
             _mapper = mapper;
-            _logger = logger;
         }
 
         public async Task<IEnumerable<DataLockStatus>> GetDataLockEvents(
@@ -46,7 +41,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         {
             const string containerName = "paymentevents-repository";
             var fileName = $"{sinceEventId+1}_submission_event.json";
-            var result = await ReadFromStorage(containerName, fileName);
+            var result = await _azureBlobStorage.ReadBlob(containerName, fileName);
             if (string.IsNullOrEmpty(result))
                 return new PageOfResults<SubmissionEvent> {PageNumber = 1, TotalNumberOfPages = 0, Items = new SubmissionEvent[0]};
 
@@ -57,31 +52,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         {
             const string containerName = "paymentevents-repository";
             var fileName = $"{nextEventId}_payment_event.json";
-            var result = await ReadFromStorage(containerName, fileName);
+            var result = await _azureBlobStorage.ReadBlob(containerName, fileName);
             if (string.IsNullOrEmpty(result))
                 return null;
 
             return JsonConvert.DeserializeObject<PageOfResults<DataLockEvent>>(result);
-        }
-
-        //todo: don't just cut and paste, put in a static util class or create a base class
-        private async Task<string> ReadFromStorage(string containerName, string blobName)
-        {
-            var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
-            var blobClient = storageAccount.CreateCloudBlobClient();
-
-            var container = blobClient.GetContainerReference(containerName);
-            if (!container.Exists())
-            {
-                _logger.Warn($"Container '{containerName}' not found.");
-                return string.Empty;
-            }
-
-            var blob = container.GetBlockBlobReference(blobName);
-            if (!blob.Exists())
-                return string.Empty;
-
-            return await blob.DownloadTextAsync();
         }
     }
 }

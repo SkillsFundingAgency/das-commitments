@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Azure;
 using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.AzureStorage;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
@@ -45,6 +42,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IJobProgressRepository>().Use<JobProgressRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
+            For<IAzureBlobStorage>().Use<AzureBlobStorage>()
+                .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
+
             ConfigurePaymentsApiService(config);
             ConfigureAssessmentOrgsService(config);
 
@@ -71,9 +71,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
             var configurationService = new ConfigurationService(configurationRepository,
                 new ConfigurationOptions(serviceName, environment, "1.0"));
 
-            var result = configurationService.Get<AddEpaToApprenticeshipsConfiguration>();
-
-            return result;
+            return configurationService.Get<AddEpaToApprenticeshipsConfiguration>();
         }
 
         private static IConfigurationRepository GetConfigurationRepository()
@@ -84,10 +82,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
         private void ConfigurePaymentsApiService(AddEpaToApprenticeshipsConfiguration config)
         {
             if (config.UsePaymentEventsDocumentRepository)
-            {
-                For<IPaymentEvents>().Use<PaymentEventsDocumentService>()
-                    .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
-            }
+                For<IPaymentEvents>().Use<PaymentEventsDocumentService>();
             else
                 For<IPaymentEvents>().Use<PaymentEventsService>();
         }
@@ -95,10 +90,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
         private void ConfigureAssessmentOrgsService(AddEpaToApprenticeshipsConfiguration config)
         {
             if (config.UseAssessmentOrgsDocumentRepository)
-            {
-                For<IAssessmentOrgs>().Use<AssessmentOrgsDocumentService>()
-                    .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
-            }
+                For<IAssessmentOrgs>().Use<AssessmentOrgsDocumentService>();
             else
                 For<IAssessmentOrgs>().Use<AssessmentOrgsService>();
         }
