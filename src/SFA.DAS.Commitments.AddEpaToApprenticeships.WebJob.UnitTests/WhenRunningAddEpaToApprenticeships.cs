@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         private const string OrgId1 = "EPA0001", OrgId2 = "EPA0002";
         private const string OrgName1 = "ASM Org", OrgName2 = "B Org";
-        private const long apprenticeshipId = 456L;
+        private const long apprenticeshipId1 = 456L, apprenticeshipId2 = 999L, apprenticeshipId3 = 7, apprenticeshipId4 = 22;
 
         [SetUp]
         public void Arrange()
@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 {
                     PageNumber = 1,
                     TotalNumberOfPages = 1,
-                    Items = new SubmissionEvent[] {}
+                    Items = new SubmissionEvent[] { }
                 });
 
             _addEpaToApprenticeships = new AddEpaToApprenticeships(
@@ -71,13 +71,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task ThenAllOrganisationSummariesFromApiAreWrittenToTableWhenTableIsEmpty()
         {
-            var organisationSummaries = new[]
-            {
-                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
-            };
-
-            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+            SetupOrganisationSummaries();
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -143,20 +137,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
         [Test]
         public async Task ThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSet()
         {
-            const long submissionEventId = 1L;
             const long sinceEventId = 0L;
 
-            var organisationSummaries = new[]
-            {
-                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
-            };
-
-            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+            SetupOrganisationSummaries();
 
             _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
 
-            SetupSubmissionEventsPageWithSinleEvent(sinceEventId, submissionEventId);
+            SetupSubmissionEventsPageWithSingleEvent(sinceEventId);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -164,29 +151,43 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // assert
 
             // should probably be seperate tests, but to cut down on test proliferation, we check both
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId, OrgId1), Times.Once());
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(submissionEventId), Times.Once);
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, OrgId1), Times.Once());
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId+1), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenApprenticeshipIsUpdatedFromSubmissionEventAndLastSubmissionEventIdIsSetX()
+        {
+            const long sinceEventId = 0L;
+
+            SetupOrganisationSummaries();
+
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync((long?)null);
+
+            SetupSubmissionEventsPageWithSingleEvent(sinceEventId);
+
+            // act
+            await _addEpaToApprenticeships.Update();
+
+            // assert
+
+            // should probably be seperate tests, but to cut down on test proliferation, we check both
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, OrgId1), Times.Once());
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId+1), Times.Once);
         }
 
         [Test]
         public async Task ThenWeRequestNextSubmissionEventFromPreviousRun()
         {
             const long lastSubmissionEventId = 1024L;
-            const long submissionEventId = lastSubmissionEventId + 1L;
-
-            var organisationSummaries = new[]
-            {
-                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
-            };
 
             //todo: what standard setup can we move into setup?
-
-            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+            //todo: split into 2 files, one for unit testing organisation summaries, and one for submission events
+            SetupOrganisationSummaries();
 
             _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync(lastSubmissionEventId);
 
-            SetupSubmissionEventsPageWithSinleEvent(lastSubmissionEventId, submissionEventId);
+            SetupSubmissionEventsPageWithSingleEvent(lastSubmissionEventId);
 
             // act
             await _addEpaToApprenticeships.Update();
@@ -204,19 +205,56 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
         // integration tests?
         // check get/set last id
+        // check (real) logging
 
         #endregion Update Apprenticeships
 
-        private void SetupSubmissionEventsPageWithSinleEvent(long sinceEventId, long submissionEventId)
+        #region Helpers
+
+        private void SetupOrganisationSummaries()
+        {
+            var organisationSummaries = new[]
+            {
+                new OrganisationSummary { Id = OrgId1, Name = OrgName1 }
+            };
+
+            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+        }
+
+        private void SetupSubmissionEventsPageWithSingleEvent(long sinceEventId)
         {
             var submissionEventsPage = new PageOfResults<SubmissionEvent>
             {
                 PageNumber = 1,
                 TotalNumberOfPages = 1,
-                Items = new[] { new SubmissionEvent { Id = submissionEventId, ApprenticeshipId = apprenticeshipId, EPAOrgId = OrgId1 } }
+                Items = new[] { new SubmissionEvent { Id = sinceEventId+1, ApprenticeshipId = apprenticeshipId1, EPAOrgId = OrgId1 } }
             };
 
             _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
+        }
+
+        private void SetupSubmissionEventsTwoCalls(long sinceEventId)
+        {
+            var submissionEventsPageCall1 = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 2,
+                Items = new[] { new SubmissionEvent { Id = sinceEventId+1, ApprenticeshipId = apprenticeshipId1, EPAOrgId = OrgId1 },
+                                new SubmissionEvent { Id = sinceEventId+2, ApprenticeshipId = apprenticeshipId2, EPAOrgId = OrgId2 }}
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall1);
+
+            var submissionEventsPageCall2 = new PageOfResults<SubmissionEvent>
+            {
+                PageNumber = 1,
+                TotalNumberOfPages = 1,
+                Items = new[] { new SubmissionEvent { Id = sinceEventId+3, ApprenticeshipId = apprenticeshipId3, EPAOrgId = OrgId1 },
+                                new SubmissionEvent { Id = sinceEventId+4, ApprenticeshipId = apprenticeshipId4, EPAOrgId = OrgId2 }}
+            };
+
+            _paymentEvents.Setup(x => x.GetSubmissionEventsAsync(sinceEventId+2, null, 0L, 1)).ReturnsAsync(submissionEventsPageCall2);
         }
 
         private bool IEnumerablesAreEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
@@ -224,5 +262,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             return new CompareLogic(new ComparisonConfig {IgnoreObjectTypes = true})
                 .Compare(expected, actual).AreEqual;
         }
+
+        #endregion Helpers
     }
 }
