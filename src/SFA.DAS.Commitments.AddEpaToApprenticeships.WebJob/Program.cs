@@ -9,7 +9,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
     {
         static void Main()
         {
-            //todo: add config to confluence page
             //todo: db will need to be deployed
 
             var container = IoC.Initialize();
