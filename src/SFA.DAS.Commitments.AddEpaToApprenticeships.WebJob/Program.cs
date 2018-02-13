@@ -9,8 +9,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
     {
         static void Main()
         {
-            //todo: db will need to be deployed
-
             var container = IoC.Initialize();
 
             var logger = container.GetInstance<ILog>();
