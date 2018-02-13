@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln
@@ -29,10 +28,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var result = new GetActiveApprenticeshipsByUlnResponse
-            {
-                Data = new List<ApprenticeshipResult>()
-            };
+            var result = new GetActiveApprenticeshipsByUlnResponse();
 
             if (string.IsNullOrWhiteSpace(query.Uln))
                 return result;
@@ -43,8 +39,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln
             {
                 _logger.Info($"Found active apprenticeships for Uln: {query.Uln} " +
                              $"Apprenticeship Id: {apprenticeship.Id} {apprenticeship.StartDate:MMM yyyy} - {apprenticeship.EndDate:MMM yyyy}");
-                result.Data.Add(apprenticeship);
             }
+
+            result.Data = apprenticeships;
 
             return result;
         }

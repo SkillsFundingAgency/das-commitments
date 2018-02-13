@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -101,13 +102,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetActiveApprentices
 
             _apprenticeshipRepository
                 .Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>()))
-                .ReturnsAsync(new List<ApprenticeshipResult>() { testRecord });
+                .ReturnsAsync(new List<ApprenticeshipResult> { testRecord });
 
             var request = new GetActiveApprenticeshipsByUlnRequest { Uln = TestUln };
 
             var result = await _handler.Handle(request);
 
-            var firstResult = result.Data[0];
+            var firstResult = result.Data.First();
 
             testRecord.Should().NotBeNull();
             testRecord.ShouldBeEquivalentTo(firstResult);
