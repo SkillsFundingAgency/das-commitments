@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -19,6 +18,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         private readonly IAssessmentOrganisationRepository _assessmentOrganisationRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IJobProgressRepository _jobProgressRepository;
+
+        private bool _assessmentOrganisationCacheUpdated;
 
         public AddEpaToApprenticeships(ILog logger,
             IAssessmentOrgs assessmentOrgsService,
@@ -37,23 +38,24 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         public async Task Update()
         {
-            await UpdateCacheOfAssessmentOrganisationsAsync();
-
-            await UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync();
+            await UpdateApprenticeshipsWithEpaOrgIdFromSubmissionEvents();
         }
 
-        private async Task UpdateApprenticeshipsWithEPAOrgIdFromSubmissionEventsAsync()
+        private async Task UpdateApprenticeshipsWithEpaOrgIdFromSubmissionEvents()
         {
             long? pageLastId;
             var lastId = await _jobProgressRepository.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync() ?? 0;
 
-            // we could page through or only deal with the 1st page and update the lastId
+            // instead of paging through, we only deal with the 1st page(s) and update the lastId
             PageOfResults<SubmissionEvent> page;
             do
             {
                 page = await _paymentEventsService.GetSubmissionEvents(lastId);
 
-                pageLastId = await UpdateApprenticeshipsWithEPAOrgIdAsync(page.Items);
+                if (page.Items != null && page.Items.Any())
+                    await UpdateCacheOfAssessmentOrganisationsAsync();
+
+                pageLastId = await UpdateApprenticeshipsWithEpaOrgId(page.Items);
                 if (pageLastId != null)
                 {
                     await _jobProgressRepository.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(pageLastId.Value);
@@ -63,7 +65,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             } while (pageLastId.HasValue && page.TotalNumberOfPages > page.PageNumber);
         }
 
-        private async Task<long?> UpdateApprenticeshipsWithEPAOrgIdAsync(IEnumerable<SubmissionEvent> submissionEvents)
+        private async Task<long?> UpdateApprenticeshipsWithEpaOrgId(IEnumerable<SubmissionEvent> submissionEvents)
         {
             foreach (var submissionEvent in submissionEvents)
             {
@@ -90,6 +92,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
         private async Task UpdateCacheOfAssessmentOrganisationsAsync()
         {
+            if (_assessmentOrganisationCacheUpdated)
+                return;
+
             // fetch the highest EPAOrgId in our local cache of assessment organisations
             _logger.Info("Fetching all assessment orgs");
 
@@ -115,6 +120,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             var assessmentOrganisationsToAdd = organisationSummariesToAdd.Select(os => new AssessmentOrganisation { EPAOrgId = os.Id, Name = os.Name });
 
             await _assessmentOrganisationRepository.AddAsync(assessmentOrganisationsToAdd);
+
+            _assessmentOrganisationCacheUpdated = true;
         }
     }
 }

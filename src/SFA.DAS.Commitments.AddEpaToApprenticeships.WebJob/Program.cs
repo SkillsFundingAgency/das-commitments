@@ -11,8 +11,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         {
             //todo: add config to confluence page
             //todo: db will need to be deployed
-            //todo: add schedule - chron line in root? check with devops
-            //todo: only fetch assessment orgs if there is at least 1 submission event to process
 
             var container = IoC.Initialize();
 
