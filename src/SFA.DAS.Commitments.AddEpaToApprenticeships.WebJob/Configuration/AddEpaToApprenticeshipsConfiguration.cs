@@ -5,9 +5,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration
 {
     public class AddEpaToApprenticeshipsConfiguration : IConfiguration // is this the base class we need/want?
     {
-        //public string BaseUrl { get; set; }
-        //public string ClientToken { get; set; }
-
         public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
 
