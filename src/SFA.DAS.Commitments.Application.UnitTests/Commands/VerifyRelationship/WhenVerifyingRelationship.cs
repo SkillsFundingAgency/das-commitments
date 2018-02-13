@@ -102,9 +102,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
             await _handler.Handle(request);
 
             // Assert
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<RelationshipEvent>(y =>
-                y.ProviderId == request.ProviderId && y.EmployerAccountId == request.EmployerAccountId &&
-                y.LegalEntityId == request.LegalEntityId)), Times.Once);
+            _messagePublisher.Verify(x =>
+                x.PublishAsync(It.Is<RelationshipVerified>(y => y.EmployerAccountId == request.EmployerAccountId &&
+                                                                y.ProviderId == request.ProviderId &&
+                                                                y.LegalEntityId == request.LegalEntityId)), Times.Once);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
@@ -39,14 +40,28 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
                 throw new ValidationException(validationResult.Errors);
 
             await Task.WhenAll(_commitmentRepository.CreateRelationship(message.Relationship),
-                PublishRelationshipCreatedEvent(message.Relationship.ProviderId, message.Relationship.EmployerAccountId,
-                    message.Relationship.LegalEntityId));
+                PublishRelationshipCreatedEvent(message.Relationship));
         }
 
-        private async Task PublishRelationshipCreatedEvent(long providerId, long employerAccountId, string legalEntityId)
+        private async Task PublishRelationshipCreatedEvent(Domain.Entities.Relationship relationship)
         {
-            await _messagePublisher.PublishAsync(new RelationshipEvent(providerId, employerAccountId,
-                legalEntityId));
+            await _messagePublisher.PublishAsync(new RelationshipCreated(Map(relationship)));
+        }
+
+        private static Relationship Map(Domain.Entities.Relationship entity)
+        {
+            return new Relationship
+            {
+                EmployerAccountId = entity.EmployerAccountId,
+                Id = entity.Id,
+                LegalEntityId = entity.LegalEntityId,
+                LegalEntityName = entity.LegalEntityName,
+                LegalEntityAddress = entity.LegalEntityAddress,
+                LegalEntityOrganisationType = entity.LegalEntityOrganisationType,
+                ProviderId = entity.ProviderId,
+                ProviderName = entity.ProviderName,
+                Verified = entity.Verified
+            };
         }
     }
 }

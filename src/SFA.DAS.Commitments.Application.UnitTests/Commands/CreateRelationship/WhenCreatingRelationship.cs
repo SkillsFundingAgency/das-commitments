@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
+using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
 {
@@ -61,7 +62,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
             // Arrange
             var request = new CreateRelationshipCommand
             {
-                Relationship = new Relationship {EmployerAccountId = 1, ProviderId = 2, LegalEntityId = "3"}
+                Relationship = new Relationship
+                {
+                    EmployerAccountId = 1,
+                    LegalEntityId = "123",
+                    LegalEntityName = "Name",
+                    LegalEntityAddress = "Street 1, Street 2, Town, City, Postcode",
+                    LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
+                    ProviderId = 2,
+                    ProviderName = "Provider name",
+                    Verified = false
+                }
             };
 
             _validator.Setup(x => x.Validate(It.IsAny<CreateRelationshipCommand>())).Returns(new ValidationResult());
@@ -70,11 +81,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateRelationship
             await _handler.Handle(request);
 
             // Assert
-            _messagePublisher.Verify(
-                x => x.PublishAsync(It.Is<RelationshipEvent>(y =>
-                    y.ProviderId == request.Relationship.ProviderId &&
-                    y.EmployerAccountId == request.Relationship.EmployerAccountId &&
-                    y.LegalEntityId == request.Relationship.LegalEntityId)), Times.Once);
+            _messagePublisher.Verify(x => x.PublishAsync(It.Is<RelationshipCreated>(y =>
+                y.Relationship.EmployerAccountId == request.Relationship.EmployerAccountId &&
+                y.Relationship.LegalEntityId == request.Relationship.LegalEntityId &&
+                y.Relationship.LegalEntityName == request.Relationship.LegalEntityName &&
+                y.Relationship.LegalEntityAddress == request.Relationship.LegalEntityAddress &&
+                y.Relationship.LegalEntityOrganisationType == request.Relationship.LegalEntityOrganisationType &&
+                y.Relationship.ProviderId == request.Relationship.ProviderId &&
+                y.Relationship.ProviderName == request.Relationship.ProviderName &&
+                y.Relationship.Verified == request.Relationship.Verified
+            )), Times.Once);
         }
     }
 }

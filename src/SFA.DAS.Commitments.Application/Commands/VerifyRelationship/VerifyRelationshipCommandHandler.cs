@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
@@ -35,12 +34,12 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
 
             await Task.WhenAll(_commitmentRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId,
                 message.LegalEntityId, message.Verified.Value),
-                PublishRelationshipVerifiedEvent(message.ProviderId, message.EmployerAccountId, message.LegalEntityId));
+                PublishRelationshipVerifiedEvent(message.ProviderId, message.EmployerAccountId, message.LegalEntityId, message.Verified.Value));
         }
 
-        private async Task PublishRelationshipVerifiedEvent(long providerId, long employerAccountId, string legalEntityId)
+        private async Task PublishRelationshipVerifiedEvent(long providerId, long employerAccountId, string legalEntityId, bool? verified)
         {
-            await _messagePublisher.PublishAsync(new RelationshipEvent(providerId, employerAccountId, legalEntityId));
+            await _messagePublisher.PublishAsync(new RelationshipVerified(providerId, employerAccountId, legalEntityId, verified));
         }
     }
 }
