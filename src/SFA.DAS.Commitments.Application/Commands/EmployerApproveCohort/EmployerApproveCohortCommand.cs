@@ -10,5 +10,6 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
         public string LastUpdatedByEmail { get; set; }
         public string LastUpdatedByName { get; set; }
         public string UserId { get; set; }
+        public string Message { get; set; }
     }
 }

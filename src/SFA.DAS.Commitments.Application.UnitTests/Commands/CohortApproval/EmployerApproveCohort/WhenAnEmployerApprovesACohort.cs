@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         [SetUp]
         public void SetUp()
         {
-            _command = new EmployerApproveCohortCommand { Caller = new Caller(213, CallerType.Employer), CommitmentId = 123, LastUpdatedByName = "Test", LastUpdatedByEmail = "test@email.com" };
+            _command = new EmployerApproveCohortCommand { Caller = new Caller(213, CallerType.Employer), CommitmentId = 123, LastUpdatedByName = "Test", LastUpdatedByEmail = "test@email.com", Message = "Some text" };
             _commitment = CreateCommitment();
 
             _validator = new EmployerApproveCohortCommandValidator();;
@@ -162,12 +162,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             _historyRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.FinalApproval))), Times.Once);
         }
 
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentPriceHistoryIsCreatedForTheApprenticeships()
+        {
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            _apprenticeshipRepository.Verify(x => x.CreatePriceHistoryForApprenticeshipsInCommitment(_commitment.Id));
+            Assert.AreEqual(_commitment.Apprenticeships[0].Id, _commitment.Apprenticeships[0].PriceHistory[0].ApprenticeshipId);
+            Assert.AreEqual(_commitment.Apprenticeships[0].StartDate, _commitment.Apprenticeships[0].PriceHistory[0].FromDate);
+            Assert.AreEqual(_commitment.Apprenticeships[0].Cost, _commitment.Apprenticeships[0].PriceHistory[0].Cost);
+            Assert.AreEqual(_commitment.Apprenticeships[1].Id, _commitment.Apprenticeships[1].PriceHistory[0].ApprenticeshipId);
+            Assert.AreEqual(_commitment.Apprenticeships[1].StartDate, _commitment.Apprenticeships[1].PriceHistory[0].FromDate);
+            Assert.AreEqual(_commitment.Apprenticeships[1].Cost, _commitment.Apprenticeships[1].PriceHistory[0].Cost);
+        }
+
+        [Test]
+        public async Task ThenAMessageIsCreatedForTheProvider()
+        {
+            await _target.Handle(_command);
+
+            Assert.AreEqual(_command.LastUpdatedByName, _commitment.Messages.Last().Author);
+            Assert.AreEqual(_command.Message, _commitment.Messages.Last().Text);
+            Assert.AreEqual(CallerType.Employer, _commitment.Messages.Last().CreatedBy);
+            _commitmentRepository.Verify(x => x.SaveMessage(_commitment.Id, _commitment.Messages.Last()));
+        }
+
         private Commitment CreateCommitment()
         {
             var apprenticeships = new List<Apprenticeship>
             {
-                new Apprenticeship {ULN = "1233435", Id = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed},
-                new Apprenticeship {ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), AgreementStatus = AgreementStatus.NotAgreed}
+                new Apprenticeship {ULN = "1233435", Id = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed, Cost = 2347 },
+                new Apprenticeship {ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), AgreementStatus = AgreementStatus.NotAgreed, Cost = 23812}
             };
             return new Commitment { CommitmentStatus = CommitmentStatus.New, EditStatus = EditStatus.EmployerOnly, Id = _command.CommitmentId, EmployerAccountId = _command.Caller.Id, EmployerCanApproveCommitment = true, Apprenticeships = apprenticeships, ProviderId = 12453 };
         }

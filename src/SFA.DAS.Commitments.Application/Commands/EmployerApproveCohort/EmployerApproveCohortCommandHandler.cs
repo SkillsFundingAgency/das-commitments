@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -41,11 +42,11 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
 
             var isFinalApproval = IsFinalApproval(commitment);
-            await SetApprenticeshipStatuses(commitment, isFinalApproval);
-            await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail);
+            await UpdateApprenticeships(commitment, isFinalApproval);
+            await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
         }
 
-        private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail)
+        private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
         {
             var updatedEditStatus = DetermineNewEditStatus(isFinalApproval);
             var changeType = DetermineHistoryChangeType(isFinalApproval);
@@ -56,11 +57,25 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             commitment.LastUpdatedByEmployerEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
 
+            AddMessageToCommitment(commitment, lastUpdatedByName, message);
+
             await Task.WhenAll(
                 _commitmentRepository.UpdateCommitment(commitment), 
+                _commitmentRepository.SaveMessage(commitment.Id, commitment.Messages.Last()),
                 _historyService.Save()
             );
             ;
+        }
+
+        private void AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText)
+        {
+            var message = new Message
+            {
+                Author = lastUpdatedByName,
+                Text = messageText ?? string.Empty,
+                CreatedBy = CallerType.Employer
+            };
+            commitment.Messages.Add(message);
         }
 
         private CommitmentChangeType DetermineHistoryChangeType(bool isFinalApproval)
@@ -79,7 +94,30 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
         }
 
-        private async Task SetApprenticeshipStatuses(Commitment commitment, bool isFinalApproval)
+        private async Task UpdateApprenticeships(Commitment commitment, bool isFinalApproval)
+        {
+            UpdateApprenticeshipStatuses(commitment, isFinalApproval);
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
+            if (isFinalApproval)
+            {
+                await CreatePriceHistory(commitment);
+            }
+        }
+
+        private async Task CreatePriceHistory(Commitment commitment)
+        {
+            await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
+
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                apprenticeship.PriceHistory = new List<PriceHistory>
+                {
+                    new PriceHistory { ApprenticeshipId = apprenticeship.Id, Cost = apprenticeship.Cost.Value, FromDate = apprenticeship.StartDate.Value }
+                };
+            }
+        }
+
+        private void UpdateApprenticeshipStatuses(Commitment commitment, bool isFinalApproval)
         {
             var newAgreementStatus = DetermineNewAgreementStatus(isFinalApproval);
             var newPaymentStatus = DetermineNewPaymentStatus(isFinalApproval);
@@ -89,7 +127,6 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
                 x.PaymentStatus = newPaymentStatus;
                 x.AgreedOn = DetermineAgreedOnDate(isFinalApproval);
             });
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
         }
 
         private DateTime? DetermineAgreedOnDate(bool isFinalApproval)
