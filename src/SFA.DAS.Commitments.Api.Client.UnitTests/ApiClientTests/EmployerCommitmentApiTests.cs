@@ -16,7 +16,6 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 
 namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
@@ -293,6 +292,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
             _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
 
             await _employerApiClient.PatchDataLocks(EmployerAccountId, ApprenticeshipId, new DataLocksTriageResolutionSubmission());
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task PutApprenticeshipStopDate()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments/{CommitmentId}/apprenticeships/{ApprenticeshipId}/stopdate"), JsonConvert.SerializeObject(new ApprenticeshipStopDate()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.PutApprenticeshipStopDate(EmployerAccountId, CommitmentId, ApprenticeshipId, new ApprenticeshipStopDate());
 
             Assert.Pass();
         }

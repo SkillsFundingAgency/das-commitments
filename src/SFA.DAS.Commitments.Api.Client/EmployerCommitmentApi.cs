@@ -194,5 +194,12 @@ namespace SFA.DAS.Commitments.Api.Client
             var data = JsonConvert.SerializeObject(submission);
             await PatchAsync(url, data);
         }
+
+        public async Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}/stopdate";
+            var data = JsonConvert.SerializeObject(stopDate);
+            await PutAsync(url, data);
+        }
     }
 }
