@@ -34,5 +34,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<List<DataLockStatus>> GetDataLocks(long employerAccountId, long apprenticeshipId);
         Task<DataLockSummary> GetDataLockSummary(long employerAccountId, long apprenticeshipId);
         Task PatchDataLocks(long employerAccountId, long apprenticeshipId, DataLocksTriageResolutionSubmission submission);
+        Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
     }
 }
