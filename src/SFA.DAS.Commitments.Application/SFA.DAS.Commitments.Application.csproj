@@ -100,6 +100,9 @@
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipValidator.cs" />
+    <Compile Include="Commands\EmployerApproveCohort\EmployerApproveCohortCommand.cs" />
+    <Compile Include="Commands\EmployerApproveCohort\EmployerApproveCohortCommandHandler.cs" />
+    <Compile Include="Commands\EmployerApproveCohort\EmployerApproveCohortCommandValidator.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeValidator.cs" />
@@ -202,6 +205,7 @@
     <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
+    <Compile Include="Resources.cs" />
     <Compile Include="Rules\ApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
     <Compile Include="Rules\IApprenticeshipOverlapRules.cs" />
