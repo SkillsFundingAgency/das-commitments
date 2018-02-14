@@ -18,12 +18,14 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
     {
         private readonly AbstractValidator<EmployerApproveCohortCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly OverlappingApprenticeshipService _overlappingApprenticeshipService;
 
         public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _overlappingApprenticeshipService = new OverlappingApprenticeshipService(apprenticeshipRepository, overlapRules);
         }
 
@@ -33,6 +35,38 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
 
             var commitment = await GetCommitment(message.CommitmentId);
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
+            await SetApprenticeshipStatuses(commitment);
+        }
+
+        private async Task SetApprenticeshipStatuses(Commitment commitment)
+        {
+            var newAgreementStatus = DetermineNewAgreementStatus(commitment);
+            var newPaymentStatus = DetermineNewPaymentStatus(newAgreementStatus);
+            commitment.Apprenticeships.ForEach(x =>
+            {
+                x.AgreementStatus = newAgreementStatus;
+                x.PaymentStatus = newPaymentStatus;
+            });
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
+        }
+
+        private static PaymentStatus DetermineNewPaymentStatus(AgreementStatus newAgreementStatus)
+        {
+            return newAgreementStatus == AgreementStatus.BothAgreed ? PaymentStatus.Active : PaymentStatus.PendingApproval;
+        }
+
+        private static AgreementStatus DetermineNewAgreementStatus(Commitment commitment)
+        {
+            var currentAgreementStatus = GetCurrentAgreementStatus(commitment);
+            var newAgreementStatus = currentAgreementStatus == AgreementStatus.ProviderAgreed ? AgreementStatus.BothAgreed : AgreementStatus.EmployerAgreed;
+            return newAgreementStatus;
+        }
+
+        private static AgreementStatus GetCurrentAgreementStatus(Commitment commitment)
+        {
+            // Comment 1: This assumes, correctly, that during approval all apprenticeships have the same status.
+            // Comment 2: I hate comments.
+            return commitment.Apprenticeships.First().AgreementStatus;
         }
 
         private async Task CheckCommitmentCanBeApproved(Commitment commitment, long callerEmployerAccountId)

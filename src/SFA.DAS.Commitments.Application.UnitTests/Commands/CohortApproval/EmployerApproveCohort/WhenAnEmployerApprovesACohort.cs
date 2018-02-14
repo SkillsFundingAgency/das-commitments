@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
@@ -35,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _commitmentRepository.Setup(x => x.GetCommitmentById(_command.CommitmentId)).ReturnsAsync(_commitment);
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
+            _overlapRules = new Mock<IApprenticeshipOverlapRules>();
             SetupSuccessfulOverlapCheck();
 
             _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object);
@@ -99,9 +101,35 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Assert.ThrowsAsync<ValidationException>(() => _target.Handle(_command));
         }
 
+        [Test]
+        public async Task ThenIfTheProviderHasNotYetApprovedTheApprenticeshipAgreementStatusesAreSetToEmployerAgreedAndTheApprenticeshipsAreNotActive()
+        {
+            await _target.Handle(_command);
+
+            Assert.IsTrue(_commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.EmployerAgreed));
+            Assert.IsTrue(_commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.PendingApproval));
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(_commitment.Apprenticeships), Times.Once());
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheApprenticeshipAgreementStatusesAreSetToBothAgreedAndTheApprenticeshipsAreActive()
+        {
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            Assert.IsTrue(_commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.BothAgreed));
+            Assert.IsTrue(_commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.Active));
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(_commitment.Apprenticeships), Times.Once());
+        }
+
         private Commitment CreateCommitment()
         {
-            var apprenticeships = new List<Apprenticeship> { new Apprenticeship {  ULN = "1233435", Id = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(1) }, new Apprenticeship { ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2) } };
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship {ULN = "1233435", Id = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed},
+                new Apprenticeship {ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), AgreementStatus = AgreementStatus.NotAgreed}
+            };
             return new Commitment { CommitmentStatus = CommitmentStatus.New, EditStatus = EditStatus.EmployerOnly, Id = _command.CommitmentId, EmployerAccountId = _command.Caller.Id, EmployerCanApproveCommitment = true, Apprenticeships = apprenticeships };
         }
 
@@ -110,7 +138,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             var apprenticeship = _commitment.Apprenticeships.First();
             var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN };
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult> {apprenticeshipResult});
-            _overlapRules = new Mock<IApprenticeshipOverlapRules>();
             _overlapRules.Setup(x => x.DetermineOverlap(It.Is<ApprenticeshipOverlapValidationRequest>(r => r.Uln == apprenticeship.ULN && r.ApprenticeshipId == apprenticeship.Id && r.StartDate == apprenticeship.StartDate.Value && r.EndDate == apprenticeship.EndDate.Value), apprenticeshipResult)).Returns(ValidationFailReason.None);
         }
     }
