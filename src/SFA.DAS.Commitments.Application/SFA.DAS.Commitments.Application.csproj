@@ -228,6 +228,7 @@
     <Compile Include="Rules\ICommitmentRules.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
+    <Compile Include="Services\OverlappingApprenticeshipService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
