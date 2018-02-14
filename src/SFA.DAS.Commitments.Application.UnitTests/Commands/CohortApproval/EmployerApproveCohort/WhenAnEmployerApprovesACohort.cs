@@ -11,7 +11,9 @@ using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Entities.Validation;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
 {
@@ -22,6 +24,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<IApprenticeshipOverlapRules> _overlapRules;
+        private Mock<ICurrentDateTime> _currentDateTime;
+        private Mock<IHistoryRepository> _historyRepository;
         private EmployerApproveCohortCommandHandler _target;
         private EmployerApproveCohortCommand _command;
         private Commitment _commitment;
@@ -38,8 +42,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _overlapRules = new Mock<IApprenticeshipOverlapRules>();
             SetupSuccessfulOverlapCheck();
+            _currentDateTime = new Mock<ICurrentDateTime>();
+            _historyRepository = new Mock<IHistoryRepository>();
 
-            _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object);
+            _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object, _historyRepository.Object);
         }
 
         [Test]
@@ -102,25 +108,58 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasNotYetApprovedTheApprenticeshipAgreementStatusesAreSetToEmployerAgreedAndTheApprenticeshipsAreNotActive()
+        public async Task ThenIfTheProviderHasNotYetApprovedTheApprenticeshipsAgreementsStatusesEmployerAgreedAndAreNotActive()
         {
             await _target.Handle(_command);
 
             Assert.IsTrue(_commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.EmployerAgreed));
             Assert.IsTrue(_commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.PendingApproval));
+            Assert.IsTrue(_commitment.Apprenticeships.All(x => x.AgreedOn == null));
             _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(_commitment.Apprenticeships), Times.Once());
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheApprenticeshipAgreementStatusesAreSetToBothAgreedAndTheApprenticeshipsAreActive()
+        public async Task ThenIfTheProviderHasNotYetApprovedTheCommitmentIsEditableByTheProviderAndHistoryIsCreated()
         {
+            await _target.Handle(_command);
+
+            Assert.AreEqual(EditStatus.ProviderOnly, _commitment.EditStatus);
+            Assert.AreEqual(LastAction.Approve, _commitment.LastAction);
+            Assert.AreEqual(_command.LastUpdatedByEmail, _commitment.LastUpdatedByEmployerEmail);
+            Assert.AreEqual(_command.LastUpdatedByName, _commitment.LastUpdatedByEmployerName);
+            _commitmentRepository.Verify(x => x.UpdateCommitment(_commitment), Times.Once);
+            _historyRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.SentForApproval))), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheApprenticeshipsAgreementsAreAgreedAndTheAreActive()
+        {
+            var expectedAgreedOnDate = DateTime.Now;
+            _currentDateTime.SetupGet(x => x.Now).Returns(expectedAgreedOnDate);
+
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
 
             await _target.Handle(_command);
 
             Assert.IsTrue(_commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.BothAgreed));
             Assert.IsTrue(_commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.Active));
+            Assert.IsTrue(_commitment.Apprenticeships.All(x => x.AgreedOn == expectedAgreedOnDate));
             _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(_commitment.Apprenticeships), Times.Once());
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentIsEditableByBothPartiesAndHistoryIsCreated()
+        {
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            Assert.AreEqual(EditStatus.Both, _commitment.EditStatus);
+            Assert.AreEqual(LastAction.Approve, _commitment.LastAction);
+            Assert.AreEqual(_command.LastUpdatedByEmail, _commitment.LastUpdatedByEmployerEmail);
+            Assert.AreEqual(_command.LastUpdatedByName, _commitment.LastUpdatedByEmployerName);
+            _commitmentRepository.Verify(x => x.UpdateCommitment(_commitment), Times.Once);
+            _historyRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.FinalApproval))), Times.Once);
         }
 
         private Commitment CreateCommitment()
@@ -130,7 +169,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
                 new Apprenticeship {ULN = "1233435", Id = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed},
                 new Apprenticeship {ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), AgreementStatus = AgreementStatus.NotAgreed}
             };
-            return new Commitment { CommitmentStatus = CommitmentStatus.New, EditStatus = EditStatus.EmployerOnly, Id = _command.CommitmentId, EmployerAccountId = _command.Caller.Id, EmployerCanApproveCommitment = true, Apprenticeships = apprenticeships };
+            return new Commitment { CommitmentStatus = CommitmentStatus.New, EditStatus = EditStatus.EmployerOnly, Id = _command.CommitmentId, EmployerAccountId = _command.Caller.Id, EmployerCanApproveCommitment = true, Apprenticeships = apprenticeships, ProviderId = 12453 };
         }
 
         private void SetupSuccessfulOverlapCheck()
@@ -139,6 +178,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN };
             _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult> {apprenticeshipResult});
             _overlapRules.Setup(x => x.DetermineOverlap(It.Is<ApprenticeshipOverlapValidationRequest>(r => r.Uln == apprenticeship.ULN && r.ApprenticeshipId == apprenticeship.Id && r.StartDate == apprenticeship.StartDate.Value && r.EndDate == apprenticeship.EndDate.Value), apprenticeshipResult)).Returns(ValidationFailReason.None);
+        }
+
+        private bool VerifyHistoryItem(HistoryItem historyItem, CommitmentChangeType changeType)
+        {
+            return historyItem.ChangeType == changeType.ToString() &&
+                   historyItem.TrackedObject == _commitment &&
+                   historyItem.CommitmentId == _commitment.Id &&
+                   historyItem.UpdatedByRole == CallerType.Employer.ToString() &&
+                   historyItem.UserId == _command.UserId &&
+                   historyItem.ProviderId == _commitment.ProviderId &&
+                   historyItem.EmployerAccountId == _commitment.EmployerAccountId &&
+                   historyItem.UpdatedByName == _command.LastUpdatedByName;
         }
     }
 }

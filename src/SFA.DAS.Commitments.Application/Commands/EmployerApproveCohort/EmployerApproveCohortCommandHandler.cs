@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
-using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.Validation;
+using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
 {
@@ -19,14 +19,18 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
         private readonly AbstractValidator<EmployerApproveCohortCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly ICurrentDateTime _currentDateTime;
         private readonly OverlappingApprenticeshipService _overlappingApprenticeshipService;
+        private readonly HistoryService _historyService;
 
-        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules)
+        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _currentDateTime = currentDateTime;
             _overlappingApprenticeshipService = new OverlappingApprenticeshipService(apprenticeshipRepository, overlapRules);
+            _historyService = new HistoryService(historyRepository);
         }
 
         protected override async Task HandleCore(EmployerApproveCohortCommand message)
@@ -35,30 +39,72 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
 
             var commitment = await GetCommitment(message.CommitmentId);
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
-            await SetApprenticeshipStatuses(commitment);
+
+            var isFinalApproval = IsFinalApproval(commitment);
+            await SetApprenticeshipStatuses(commitment, isFinalApproval);
+            await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail);
         }
 
-        private async Task SetApprenticeshipStatuses(Commitment commitment)
+        private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail)
         {
-            var newAgreementStatus = DetermineNewAgreementStatus(commitment);
-            var newPaymentStatus = DetermineNewPaymentStatus(newAgreementStatus);
+            var updatedEditStatus = DetermineNewEditStatus(isFinalApproval);
+            var changeType = DetermineHistoryChangeType(isFinalApproval);
+            _historyService.TrackUpdate(commitment, changeType.ToString(), commitment.Id, null, CallerType.Employer, userId, commitment.ProviderId, commitment.EmployerAccountId, lastUpdatedByName);
+
+            commitment.EditStatus = updatedEditStatus;
+            commitment.LastAction = LastAction.Approve;
+            commitment.LastUpdatedByEmployerEmail = lastUpdatedByEmail;
+            commitment.LastUpdatedByEmployerName = lastUpdatedByName;
+
+            await Task.WhenAll(
+                _commitmentRepository.UpdateCommitment(commitment), 
+                _historyService.Save()
+            );
+            ;
+        }
+
+        private CommitmentChangeType DetermineHistoryChangeType(bool isFinalApproval)
+        {
+            return isFinalApproval ? CommitmentChangeType.FinalApproval : CommitmentChangeType.SentForApproval;
+        }
+
+        private EditStatus DetermineNewEditStatus(bool isFinalApproval)
+        {
+            return isFinalApproval ? EditStatus.Both : EditStatus.ProviderOnly;
+        }
+
+        private bool IsFinalApproval(Commitment commitment)
+        {
+            var currentAgreementStatus = GetCurrentAgreementStatus(commitment);
+            return currentAgreementStatus == AgreementStatus.ProviderAgreed;
+        }
+
+        private async Task SetApprenticeshipStatuses(Commitment commitment, bool isFinalApproval)
+        {
+            var newAgreementStatus = DetermineNewAgreementStatus(isFinalApproval);
+            var newPaymentStatus = DetermineNewPaymentStatus(isFinalApproval);
             commitment.Apprenticeships.ForEach(x =>
             {
                 x.AgreementStatus = newAgreementStatus;
                 x.PaymentStatus = newPaymentStatus;
+                x.AgreedOn = DetermineAgreedOnDate(isFinalApproval);
             });
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
         }
 
-        private static PaymentStatus DetermineNewPaymentStatus(AgreementStatus newAgreementStatus)
+        private DateTime? DetermineAgreedOnDate(bool isFinalApproval)
         {
-            return newAgreementStatus == AgreementStatus.BothAgreed ? PaymentStatus.Active : PaymentStatus.PendingApproval;
+            return isFinalApproval ? _currentDateTime.Now : (DateTime?)null;
         }
 
-        private static AgreementStatus DetermineNewAgreementStatus(Commitment commitment)
+        private static PaymentStatus DetermineNewPaymentStatus(bool isFinalApproval)
         {
-            var currentAgreementStatus = GetCurrentAgreementStatus(commitment);
-            var newAgreementStatus = currentAgreementStatus == AgreementStatus.ProviderAgreed ? AgreementStatus.BothAgreed : AgreementStatus.EmployerAgreed;
+            return isFinalApproval ? PaymentStatus.Active : PaymentStatus.PendingApproval;
+        }
+
+        private static AgreementStatus DetermineNewAgreementStatus(bool isFinalApproval)
+        {
+            var newAgreementStatus = isFinalApproval ? AgreementStatus.BothAgreed : AgreementStatus.EmployerAgreed;
             return newAgreementStatus;
         }
 
