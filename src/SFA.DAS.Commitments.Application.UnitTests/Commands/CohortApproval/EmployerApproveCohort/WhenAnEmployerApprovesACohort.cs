@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -26,6 +27,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         private Mock<IApprenticeshipOverlapRules> _overlapRules;
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<IHistoryRepository> _historyRepository;
+        private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
+        private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
         private EmployerApproveCohortCommandHandler _target;
         private EmployerApproveCohortCommand _command;
         private Commitment _commitment;
@@ -44,8 +47,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             SetupSuccessfulOverlapCheck();
             _currentDateTime = new Mock<ICurrentDateTime>();
             _historyRepository = new Mock<IHistoryRepository>();
+            _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
+            _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
 
-            _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object, _historyRepository.Object);
+            _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object, _historyRepository.Object, _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object);
         }
 
         [Test]
@@ -132,6 +137,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
+        public async Task ThenIfTheProviderHasNotYetApprovedEventsArePublishedForApprenticeshipsWithNoEffectiveFromDate()
+        {
+            await _target.Handle(_command);
+
+            _apprenticeshipEventsList.Verify(x => x.Add(_commitment, _commitment.Apprenticeships[0], "APPRENTICESHIP-AGREEMENT-UPDATED", null, null), Times.Once);
+            _apprenticeshipEventsList.Verify(x => x.Add(_commitment, _commitment.Apprenticeships[1], "APPRENTICESHIP-AGREEMENT-UPDATED", null, null), Times.Once);
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
+        }
+
+        [Test]
         public async Task ThenIfTheProviderHasAlreadyApprovedTheApprenticeshipsAgreementsAreAgreedAndTheAreActive()
         {
             var expectedAgreedOnDate = DateTime.Now;
@@ -179,6 +194,47 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentAndAnApprenticeHasAPreviousApprenticeshipEndingInTheSameMonthThenAnEventIsPublishedWithTheStartDateADayAfterThePreviousApprentieceshipStopped()
+        {
+            var apprenticeship = _commitment.Apprenticeships.First();
+            var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN, StopDate = apprenticeship.StartDate.Value.AddDays(-10) };
+            _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == _commitment.Apprenticeships.First().ULN && y.Last() == _commitment.Apprenticeships.Last().ULN))).ReturnsAsync(new List<ApprenticeshipResult> { apprenticeshipResult });
+
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            _apprenticeshipEventsList.Verify(x => x.Add(_commitment, _commitment.Apprenticeships[0], "APPRENTICESHIP-AGREEMENT-UPDATED", apprenticeshipResult.StopDate.Value.AddDays(1), null), Times.Once);
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentAndAnApprenticeHasAPreviousApprenticeshipEndingPriorToTheStartMonthThenAnEventIsPublishedWithTheStartDateAsTheFirstDayOfTheMonthTheApprentieceshipStarted()
+        {
+            var apprenticeship = _commitment.Apprenticeships.First();
+            var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN, StopDate = apprenticeship.StartDate.Value.AddMonths(-1) };
+            _apprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == _commitment.Apprenticeships.First().ULN && y.Last() == _commitment.Apprenticeships.Last().ULN))).ReturnsAsync(new List<ApprenticeshipResult> { apprenticeshipResult });
+
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            _apprenticeshipEventsList.Verify(x => x.Add(_commitment, _commitment.Apprenticeships[0], "APPRENTICESHIP-AGREEMENT-UPDATED", new DateTime(apprenticeship.StartDate.Value.Year, apprenticeship.StartDate.Value.Month, 1), null), Times.Once);
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentAndAnApprenticeDoesNotHaveAPreviousApprenticeshipThenAnEventIsPublishedWithTheStartDateAsTheFirstDayOfTheMonthTheApprentieceshipStarted()
+        {
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            _apprenticeshipEventsList.Verify(x => x.Add(_commitment, _commitment.Apprenticeships[0], "APPRENTICESHIP-AGREEMENT-UPDATED", new DateTime(_commitment.Apprenticeships[0].StartDate.Value.Year, _commitment.Apprenticeships[0].StartDate.Value.Month, 1), null), Times.Once);
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
+        }
+
+        [Test]
         public async Task ThenAMessageIsCreatedForTheProvider()
         {
             await _target.Handle(_command);
@@ -193,7 +249,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         {
             var apprenticeships = new List<Apprenticeship>
             {
-                new Apprenticeship {ULN = "1233435", Id = 1, StartDate = DateTime.Now, EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed, Cost = 2347 },
+                new Apprenticeship {ULN = "1233435", Id = 1, StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.AddMonths(-1).Month, 25), EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed, Cost = 2347 },
                 new Apprenticeship {ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), AgreementStatus = AgreementStatus.NotAgreed, Cost = 23812}
             };
             return new Commitment { CommitmentStatus = CommitmentStatus.New, EditStatus = EditStatus.EmployerOnly, Id = _command.CommitmentId, EmployerAccountId = _command.Caller.Id, EmployerCanApproveCommitment = true, Apprenticeships = apprenticeships, ProviderId = 12453 };

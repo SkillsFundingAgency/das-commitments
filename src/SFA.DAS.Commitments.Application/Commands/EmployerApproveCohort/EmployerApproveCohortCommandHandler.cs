@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -23,8 +24,9 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
         private readonly ICurrentDateTime _currentDateTime;
         private readonly OverlappingApprenticeshipService _overlappingApprenticeshipService;
         private readonly HistoryService _historyService;
+        private readonly ApprenticeshipEventsService _apprenticeshipEventsService;
 
-        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository)
+        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -32,6 +34,7 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             _currentDateTime = currentDateTime;
             _overlappingApprenticeshipService = new OverlappingApprenticeshipService(apprenticeshipRepository, overlapRules);
             _historyService = new HistoryService(historyRepository);
+            _apprenticeshipEventsService = new ApprenticeshipEventsService(apprenticeshipEventsList, apprenticeshipEventsPublisher, _apprenticeshipRepository);
         }
 
         protected override async Task HandleCore(EmployerApproveCohortCommand message)
@@ -44,6 +47,19 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             var isFinalApproval = IsFinalApproval(commitment);
             await UpdateApprenticeships(commitment, isFinalApproval);
             await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
+            await PublishApprenticeshipEvents(commitment, isFinalApproval);
+        }
+
+        private async Task PublishApprenticeshipEvents(Commitment commitment, bool isFinalApproval)
+        {
+            if (!isFinalApproval)
+            {
+                await _apprenticeshipEventsService.PublishApprenticeshipAgreementUpdatedEvents(commitment);
+            }
+            else
+            {
+                await _apprenticeshipEventsService.PublishApprenticeshipFinalApprovalEvents(commitment);
+            }
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
@@ -57,25 +73,17 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             commitment.LastUpdatedByEmployerEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
 
-            AddMessageToCommitment(commitment, lastUpdatedByName, message);
-
             await Task.WhenAll(
+                AddMessageToCommitment(commitment, lastUpdatedByName, message),
                 _commitmentRepository.UpdateCommitment(commitment), 
-                _commitmentRepository.SaveMessage(commitment.Id, commitment.Messages.Last()),
                 _historyService.Save()
             );
-            ;
         }
 
-        private void AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText)
+        private async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText)
         {
-            var message = new Message
-            {
-                Author = lastUpdatedByName,
-                Text = messageText ?? string.Empty,
-                CreatedBy = CallerType.Employer
-            };
-            commitment.Messages.Add(message);
+            var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);
+            await cohortStatusChangeService.AddMessageToCommitment(commitment, lastUpdatedByName, messageText);
         }
 
         private CommitmentChangeType DetermineHistoryChangeType(bool isFinalApproval)
