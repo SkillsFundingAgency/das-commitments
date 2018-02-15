@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using SFA.DAS.Commitments.Domain;
 
-namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
+namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort
 {
-    public sealed class EmployerApproveCohortCommand : IAsyncRequest
+    public sealed class ProviderApproveCohortCommand : IAsyncRequest
     {
         public Caller Caller { get; set; }
         public long CommitmentId { get; set; }

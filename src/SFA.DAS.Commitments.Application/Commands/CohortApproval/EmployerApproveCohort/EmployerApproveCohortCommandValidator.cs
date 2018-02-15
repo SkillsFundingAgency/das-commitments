@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using SFA.DAS.Commitments.Domain;
 
-namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
+namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort
 {
     public sealed class EmployerApproveCohortCommandValidator : AbstractValidator<EmployerApproveCohortCommand>
     {

@@ -15,13 +15,13 @@ namespace SFA.DAS.Commitments.Application.Services
             _commitmentRepository = commitmentRepository;
         }
 
-        internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText)
+        internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText, CallerType createdBy)
         {
             var message = new Message
             {
                 Author = lastUpdatedByName,
                 Text = messageText ?? string.Empty,
-                CreatedBy = CallerType.Employer
+                CreatedBy = createdBy
             };
             commitment.Messages.Add(message);
             await _commitmentRepository.SaveMessage(commitment.Id, commitment.Messages.Last());

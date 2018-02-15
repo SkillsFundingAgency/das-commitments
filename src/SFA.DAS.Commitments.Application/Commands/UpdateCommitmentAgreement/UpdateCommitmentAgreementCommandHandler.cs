@@ -167,7 +167,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private async Task CreateCommitmentMessage(UpdateCommitmentAgreementCommand command, Commitment commitment)
         {
             var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);
-            await cohortStatusChangeService.AddMessageToCommitment(commitment, command.LastUpdatedByName, command.Message);
+            await cohortStatusChangeService.AddMessageToCommitment(commitment, command.LastUpdatedByName, command.Message, command.Caller.CallerType);
         }
 
         private async Task UpdateCommitmentStatuses(UpdateCommitmentAgreementCommand command, Commitment updatedCommitment, bool areAnyApprenticeshipsPendingAgreement, LastAction latestAction)

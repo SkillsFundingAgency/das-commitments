@@ -115,8 +115,11 @@
     <Compile Include="Commands\AcceptApprenticeshipChange\WhenAcceptingApprenticeshipChange.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenCreatingApprenticeships.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ApproveCohortTestBase.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohort.cs" />
+    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />

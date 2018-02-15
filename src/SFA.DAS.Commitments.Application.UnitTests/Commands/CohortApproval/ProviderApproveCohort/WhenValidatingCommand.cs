@@ -1,23 +1,23 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
+using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Domain;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.ProviderApproveCohort
 {
     [TestFixture]
     public class WhenValidatingCommand
     {
-        private EmployerApproveCohortCommandValidator _target;
-        private EmployerApproveCohortCommand _command;
+        private ProviderApproveCohortCommandValidator _target;
+        private ProviderApproveCohortCommand _command;
 
         [SetUp]
         public void Setup()
         {
-            _target = new EmployerApproveCohortCommandValidator();
+            _target = new ProviderApproveCohortCommandValidator();
 
-            _command = new EmployerApproveCohortCommand
+            _command = new ProviderApproveCohortCommand
             {
-                Caller = new Caller(23, CallerType.Employer),
+                Caller = new Caller(23, CallerType.Provider),
                 CommitmentId = 123,
                 LastUpdatedByEmail = "test@email.com",
                 LastUpdatedByName = "Someone"
@@ -56,9 +56,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public void ThenIsInvalidIfCallerTypeIsNotEmployer()
+        public void ThenIsInvalidIfCallerTypeIsNotProvider()
         {
-            _command.Caller.CallerType = CallerType.Provider;
+            _command.Caller.CallerType = CallerType.Employer;
             var validationResult = _target.Validate(_command);
             Assert.IsFalse(validationResult.IsValid);
         }

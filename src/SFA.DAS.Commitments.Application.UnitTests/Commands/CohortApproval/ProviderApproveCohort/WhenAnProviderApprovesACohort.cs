@@ -5,35 +5,32 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
+using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
-using SFA.DAS.Commitments.Events;
-using SFA.DAS.Messaging.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.ProviderApproveCohort
 {
     [TestFixture]
-    public class WhenAnEmployerApprovesACohort : ApproveCohortTestBase<EmployerApproveCohortCommand>
+    public class WhenAProviderApprovesACohort : ApproveCohortTestBase<ProviderApproveCohortCommand>
     {
-        private Mock<IMessagePublisher> _messagePublisher;
-        
         [SetUp]
         public void SetUp()
         {
-            Validator = new EmployerApproveCohortCommandValidator();
-            Command = new EmployerApproveCohortCommand { Caller = new Caller(213, CallerType.Employer), CommitmentId = 123, LastUpdatedByName = "Test", LastUpdatedByEmail = "test@email.com", Message = "Some text" };
+            Validator = new ProviderApproveCohortCommandValidator();
+            Command = new ProviderApproveCohortCommand { Caller = new Caller(213, CallerType.Provider), CommitmentId = 123, LastUpdatedByName = "Test", LastUpdatedByEmail = "test@email.com", Message = "Some text" };
             SetUpCommonMocks();
-            Commitment = CreateCommitment(Command.CommitmentId, Command.Caller.Id, 234587);
+
+            Commitment = CreateCommitment(Command.CommitmentId, 11234, Command.Caller.Id);
+            Commitment.EditStatus = EditStatus.ProviderOnly;
+
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
             
-            _messagePublisher = new Mock<IMessagePublisher>();
-
-            Target = new EmployerApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, _messagePublisher.Object);
+            Target = new ProviderApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object);
         }
 
         [Test]
@@ -45,55 +42,55 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public void ThenIfTheCommitmentCanOnlyBeEditedByTheProviderItCannotBeApproved()
+        public void ThenIfTheCommitmentCanOnlyBeEditedByEmployerItCannotBeApproved()
         {
-            Commitment.EditStatus = EditStatus.ProviderOnly;
+            Commitment.EditStatus = EditStatus.EmployerOnly;
 
             Assert.ThrowsAsync<UnauthorizedException>(() => Target.Handle(Command));
         }
 
         [Test]
-        public void ThenIfTheCallerIsNotTheEmployerForTheCommitmentItCannotBeApproved()
+        public void ThenIfTheCallerIsNotTheProviderForTheCommitmentItCannotBeApproved()
         {
-            Commitment.EmployerAccountId = Command.Caller.Id + 1;
+            Commitment.ProviderId = Command.Caller.Id + 1;
 
             Assert.ThrowsAsync<UnauthorizedException>(() => Target.Handle(Command));
         }
 
         [Test]
-        public void ThenIfTheCommitmentIsNotReadyToBeApprovedByTheEmployerItCannotBeApproved()
+        public void ThenIfTheCommitmentIsNotReadyToBeApprovedByTheProviderItCannotBeApproved()
         {
-            Commitment.EmployerCanApproveCommitment = false;
+            Commitment.ProviderCanApproveCommitment = false;
 
             Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasNotYetApprovedTheApprenticeshipsAgreementsStatusesEmployerAgreedAndAreNotActive()
+        public async Task ThenIfTheEmployerHasNotYetApprovedTheApprenticeshipsAgreementsStatusesEmployerAgreedAndAreNotActive()
         {
             await Target.Handle(Command);
 
-            Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.EmployerAgreed));
+            Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.ProviderAgreed));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.PendingApproval));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreedOn == null));
             ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Apprenticeships), Times.Once());
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasNotYetApprovedTheCommitmentIsEditableByTheProviderAndHistoryIsCreated()
+        public async Task ThenIfTheEmployerrHasNotYetApprovedTheCommitmentIsEditableByTheProviderAndHistoryIsCreated()
         {
             await Target.Handle(Command);
 
-            Assert.AreEqual(EditStatus.ProviderOnly, Commitment.EditStatus);
+            Assert.AreEqual(EditStatus.EmployerOnly, Commitment.EditStatus);
             Assert.AreEqual(LastAction.Approve, Commitment.LastAction);
-            Assert.AreEqual(Command.LastUpdatedByEmail, Commitment.LastUpdatedByEmployerEmail);
-            Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByEmployerName);
+            Assert.AreEqual(Command.LastUpdatedByEmail, Commitment.LastUpdatedByProviderEmail);
+            Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByProviderName);
             CommitmentRepository.Verify(x => x.UpdateCommitment(Commitment), Times.Once);
-            HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.SentForApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Employer))), Times.Once);
+            HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.SentForApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Provider))), Times.Once);
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasNotYetApprovedEventsArePublishedForApprenticeshipsWithNoEffectiveFromDate()
+        public async Task ThenIfTheEmployerHasNotYetApprovedEventsArePublishedForApprenticeshipsWithNoEffectiveFromDate()
         {
             await Target.Handle(Command);
 
@@ -103,12 +100,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheApprenticeshipsAgreementsAreAgreedAndTheAreActive()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedTheApprenticeshipsAgreementsAreAgreedAndTheAreActive()
         {
             var expectedAgreedOnDate = DateTime.Now;
             CurrentDateTime.SetupGet(x => x.Now).Returns(expectedAgreedOnDate);
 
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
@@ -119,24 +116,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentIsEditableByBothPartiesAndHistoryIsCreated()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedTheCommitmentIsEditableByBothPartiesAndHistoryIsCreated()
         {
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
             Assert.AreEqual(EditStatus.Both, Commitment.EditStatus);
             Assert.AreEqual(LastAction.Approve, Commitment.LastAction);
-            Assert.AreEqual(Command.LastUpdatedByEmail, Commitment.LastUpdatedByEmployerEmail);
-            Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByEmployerName);
+            Assert.AreEqual(Command.LastUpdatedByEmail, Commitment.LastUpdatedByProviderEmail);
+            Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByProviderName);
             CommitmentRepository.Verify(x => x.UpdateCommitment(Commitment), Times.Once);
-            HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.FinalApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Employer))), Times.Once);
+            HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.FinalApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Provider))), Times.Once);
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentPriceHistoryIsCreatedForTheApprenticeships()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedTheCommitmentPriceHistoryIsCreatedForTheApprenticeships()
         {
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
@@ -150,13 +147,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentAndAnApprenticeHasAPreviousApprenticeshipEndingInTheSameMonthThenAnEventIsPublishedWithTheStartDateADayAfterThePreviousApprentieceshipStopped()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedTheCommitmentAndAnApprenticeHasAPreviousApprenticeshipEndingInTheSameMonthThenAnEventIsPublishedWithTheStartDateADayAfterThePreviousApprentieceshipStopped()
         {
             var apprenticeship = Commitment.Apprenticeships.First();
             var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN, StopDate = apprenticeship.StartDate.Value.AddDays(-10) };
             ApprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == Commitment.Apprenticeships.First().ULN && y.Last() == Commitment.Apprenticeships.Last().ULN))).ReturnsAsync(new List<ApprenticeshipResult> { apprenticeshipResult });
 
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
@@ -165,13 +162,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentAndAnApprenticeHasAPreviousApprenticeshipEndingPriorToTheStartMonthThenAnEventIsPublishedWithTheStartDateAsTheFirstDayOfTheMonthTheApprentieceshipStarted()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedTheCommitmentAndAnApprenticeHasAPreviousApprenticeshipEndingPriorToTheStartMonthThenAnEventIsPublishedWithTheStartDateAsTheFirstDayOfTheMonthTheApprentieceshipStarted()
         {
             var apprenticeship = Commitment.Apprenticeships.First();
             var apprenticeshipResult = new ApprenticeshipResult { Uln = apprenticeship.ULN, StopDate = apprenticeship.StartDate.Value.AddMonths(-1) };
             ApprenticeshipRepository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.Is<IEnumerable<string>>(y => y.First() == Commitment.Apprenticeships.First().ULN && y.Last() == Commitment.Apprenticeships.Last().ULN))).ReturnsAsync(new List<ApprenticeshipResult> { apprenticeshipResult });
 
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
@@ -180,9 +177,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentAndAnApprenticeDoesNotHaveAPreviousApprenticeshipThenAnEventIsPublishedWithTheStartDateAsTheFirstDayOfTheMonthTheApprentieceshipStarted()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedTheCommitmentAndAnApprenticeDoesNotHaveAPreviousApprenticeshipThenAnEventIsPublishedWithTheStartDateAsTheFirstDayOfTheMonthTheApprentieceshipStarted()
         {
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
@@ -191,9 +188,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedThePaymentOrderIsUpdated()
+        public async Task ThenIfTheEmployerHasAlreadyApprovedThePaymentOrderIsUpdated()
         {
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
 
             await Target.Handle(Command);
 
@@ -201,24 +198,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenAMessageIsCreatedForTheProvider()
+        public async Task ThenAMessageIsCreatedForTheEmployer()
         {
             await Target.Handle(Command);
 
             Assert.AreEqual(Command.LastUpdatedByName, Commitment.Messages.Last().Author);
             Assert.AreEqual(Command.Message, Commitment.Messages.Last().Text);
-            Assert.AreEqual(CallerType.Employer, Commitment.Messages.Last().CreatedBy);
+            Assert.AreEqual(CallerType.Provider, Commitment.Messages.Last().CreatedBy);
             CommitmentRepository.Verify(x => x.SaveMessage(Commitment.Id, Commitment.Messages.Last()));
-        }
-
-        [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedAnApprovalMessageIsPublished()
-        {
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
-
-            await Target.Handle(Command);
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
         }
     }
 }
