@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 );
         }
 
-        public async Task<IEnumerable<OrganisationSummary>> AllAsync()
+        public async Task<IEnumerable<OrganisationSummary>> All()
         {
             return await _retryPolicy.ExecuteAsync(() => _assessmentOrgsApi.FindAllAsync());
         }

@@ -44,7 +44,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
         private async Task UpdateApprenticeshipsWithEpaOrgIdFromSubmissionEvents()
         {
             long? pageLastId;
-            var lastId = await _jobProgressRepository.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync() ?? 0;
+            var lastId = await _jobProgressRepository.Get_AddEpaToApprenticeships_LastSubmissionEventId() ?? 0;
 
             // instead of paging through, we only deal with the 1st page(s) and update the lastId
             PageOfResults<SubmissionEvent> page;
@@ -53,12 +53,12 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                 page = await _paymentEventsService.GetSubmissionEvents(lastId);
 
                 if (page.Items != null && page.Items.Any())
-                    await UpdateCacheOfAssessmentOrganisationsAsync();
+                    await UpdateCacheOfAssessmentOrganisations();
 
                 pageLastId = await UpdateApprenticeshipsWithEpaOrgId(page.Items);
                 if (pageLastId != null)
                 {
-                    await _jobProgressRepository.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(pageLastId.Value);
+                    await _jobProgressRepository.Set_AddEpaToApprenticeships_LastSubmissionEventId(pageLastId.Value);
                     lastId = pageLastId.Value;
                 }
 
@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                 {
                     try
                     {
-                        await _apprenticeshipRepository.UpdateApprenticeshipEpaAsync(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
+                        await _apprenticeshipRepository.UpdateApprenticeshipEpa(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             return submissionEvents.LastOrDefault()?.Id;
         }
 
-        private async Task UpdateCacheOfAssessmentOrganisationsAsync()
+        private async Task UpdateCacheOfAssessmentOrganisations()
         {
             if (_assessmentOrganisationCacheUpdated)
                 return;
@@ -97,13 +97,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             // fetch the highest EPAOrgId in our local cache of assessment organisations
             _logger.Info("Fetching all assessment orgs");
 
-            var allOrganisationSummaries = await _assessmentOrgsService.AllAsync();
+            var allOrganisationSummaries = await _assessmentOrgsService.All();
 
             // dev helpers:
             //var currentLongest = organisationSummaries.Max(o => o.Name.Length); // = 71
             //var orgs = JsonConvert.SerializeObject(allOrganisationSummaries);
 
-            var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEPAOrgIdAsync();
+            var latestCachedEPAOrgId = await _assessmentOrganisationRepository.GetLatestEpaOrgId();
 
             _logger.Info($"Latest EPAOrgId in cache is {latestCachedEPAOrgId ?? "N/A. Cache is Empty"}");
 
@@ -118,7 +118,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             // we could ditch the projection if we named the fields in the table the same as returned from the api
             var assessmentOrganisationsToAdd = organisationSummariesToAdd.Select(os => new AssessmentOrganisation { EPAOrgId = os.Id, Name = os.Name });
 
-            await _assessmentOrganisationRepository.AddAsync(assessmentOrganisationsToAdd);
+            await _assessmentOrganisationRepository.Add(assessmentOrganisationsToAdd);
 
             _assessmentOrganisationCacheUpdated = true;
         }

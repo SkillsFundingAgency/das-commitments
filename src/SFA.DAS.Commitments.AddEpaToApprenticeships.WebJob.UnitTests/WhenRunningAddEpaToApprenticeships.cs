@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new AssessmentOrganisation {EPAOrgId = EpaOrgId1, Name = EpaOrgName1}
             };
 
-            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+            _assessmentOrganisationRepository.Verify(x => x.Add(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
                 IEnumerablesAreEqual(expectedAssessmentOrganisations, o))), Times.Once);
         }
 
@@ -106,7 +106,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new AssessmentOrganisation {EPAOrgId = EpaOrgId1, Name = EpaOrgName1}
             };
 
-            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+            _assessmentOrganisationRepository.Verify(x => x.Add(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
                 IEnumerablesAreEqual(expectedAssessmentOrganisations, o))), Times.Once);
         }
 
@@ -119,8 +119,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new OrganisationSummary { Id = EpaOrgId2, Name = EpaOrgName2 },
             };
 
-            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync(EpaOrgId1);
+            _assessmentOrgs.Setup(x => x.All()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEpaOrgId()).ReturnsAsync(EpaOrgId1);
 
             const long sinceEventId = 0L;
             SetupSubmissionEventsPageWithSingleEvent(sinceEventId);
@@ -134,7 +134,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new AssessmentOrganisation {EPAOrgId = EpaOrgId2, Name = EpaOrgName2}
             };
 
-            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
+            _assessmentOrganisationRepository.Verify(x => x.Add(It.Is<IEnumerable<AssessmentOrganisation>>(o =>
                 IEnumerablesAreEqual(expectedAssessmentOrganisations, o))), Times.Once);
         }
 
@@ -147,8 +147,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new OrganisationSummary { Id = EpaOrgId2, Name = EpaOrgName2 },
             };
 
-            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync(EpaOrgId2);
+            _assessmentOrgs.Setup(x => x.All()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEpaOrgId()).ReturnsAsync(EpaOrgId2);
 
             const long sinceEventId = 0L;
             SetupSubmissionEventsPageWithSingleEvent(sinceEventId);
@@ -157,7 +157,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert
-            _assessmentOrganisationRepository.Verify(x => x.AddAsync(It.IsAny<IEnumerable<AssessmentOrganisation>>()), Times.Never);
+            _assessmentOrganisationRepository.Verify(x => x.Add(It.IsAny<IEnumerable<AssessmentOrganisation>>()), Times.Never);
         }
 
         #endregion Organisation Caching
@@ -177,8 +177,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert - should probably be seperate tests, but to cut down on test proliferation, we check both
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, EpaOrgId1), Times.Once());
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId+1), Times.Once);
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId1, EpaOrgId1), Times.Once());
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventId(sinceEventId+1), Times.Once);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, null), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId1, null), Times.Once());
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
 
             // verify a log message is written with the submission event id that was ignored
             _log.Verify(x => x.Info(It.Is<string>(message => message.Contains($"{sinceEventId+1}"))), Times.Once);
@@ -229,11 +229,11 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert - should probably be seperate tests, but to cut down on test proliferation, we check both
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
 
             // either of these two verify's would be ok, as it stands we don't update the last submission event id, so we check for that
-            //_jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId), Times.Once);
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(It.IsAny<long>()), Times.Never);
+            //_jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventId(sinceEventId), Times.Once);
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventId(It.IsAny<long>()), Times.Never);
         }
 
         [Test]
@@ -257,7 +257,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
 
             _paymentEvents.Setup(x => x.GetSubmissionEvents(sinceEventId, null, 0L, 1)).ReturnsAsync(submissionEventsPage);
 
-            _apprenticeshipRepository.Setup(x => x.UpdateApprenticeshipEpaAsync(unknownApprenticeshipId, EpaOrgId1))
+            _apprenticeshipRepository.Setup(x => x.UpdateApprenticeshipEpa(unknownApprenticeshipId, EpaOrgId1))
                 .Throws<ArgumentOutOfRangeException>();
 
             // act
@@ -266,13 +266,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             // assert
 
             // check valid apprenticeships before and after unknown apprenticeship are updated
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, EpaOrgId1), Times.Once());
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId2, EpaOrgId2), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId1, EpaOrgId1), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId2, EpaOrgId2), Times.Once());
 
             _log.Verify(x => x.Error(It.IsAny<ArgumentOutOfRangeException>(), It.Is<string>(
                 message => CheckUnknownApprenticeshipLogMessage(message))), Times.Once);
 
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId+3), Times.Once);
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventId(sinceEventId+3), Times.Once);
         }
 
         /// <summary>
@@ -298,12 +298,12 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert - should probably be seperate tests, but to cut down on test proliferation, we check both
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, EpaOrgId1), Times.Once());
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId2, EpaOrgId2), Times.Once());
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId3, EpaOrgId1), Times.Once());
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId4, EpaOrgId2), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId1, EpaOrgId1), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId2, EpaOrgId2), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId3, EpaOrgId1), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId4, EpaOrgId2), Times.Once());
 
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId + 4), Times.Once);
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventId(sinceEventId + 4), Times.Once);
         }
 
         [Test]
@@ -319,10 +319,10 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             await _addEpaToApprenticeships.Update();
 
             // assert
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId1, EpaOrgId1), Times.Once());
-            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpaAsync(apprenticeshipId2, EpaOrgId2), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId1, EpaOrgId1), Times.Once());
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(apprenticeshipId2, EpaOrgId2), Times.Once());
 
-            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(sinceEventId + 2), Times.Once);
+            _jobProgressRepository.Verify(x => x.Set_AddEpaToApprenticeships_LastSubmissionEventId(sinceEventId + 2), Times.Once);
         }
 
         [Test]
@@ -334,7 +334,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             //todo: split into 2 files, one for unit testing organisation summaries, and one for submission events
             SetupOrganisationSummaries();
 
-            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()).ReturnsAsync(lastSubmissionEventId);
+            _jobProgressRepository.Setup(x => x.Get_AddEpaToApprenticeships_LastSubmissionEventId()).ReturnsAsync(lastSubmissionEventId);
 
             SetupSubmissionEventsPageWithSingleEvent(lastSubmissionEventId);
 
@@ -356,8 +356,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 new OrganisationSummary { Id = EpaOrgId1, Name = EpaOrgName1 }
             };
 
-            _assessmentOrgs.Setup(x => x.AllAsync()).ReturnsAsync(organisationSummaries);
-            _assessmentOrganisationRepository.Setup(x => x.GetLatestEPAOrgIdAsync()).ReturnsAsync((string)null);
+            _assessmentOrgs.Setup(x => x.All()).ReturnsAsync(organisationSummaries);
+            _assessmentOrganisationRepository.Setup(x => x.GetLatestEpaOrgId()).ReturnsAsync((string)null);
         }
 
         private void SetupSubmissionEventsPageWithSingleEvent(long sinceEventId)

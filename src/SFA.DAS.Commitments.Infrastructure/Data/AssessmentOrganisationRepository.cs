@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _logger = logger;
         }
 
-        public async Task<string> GetLatestEPAOrgIdAsync()
+        public async Task<string> GetLatestEpaOrgId()
         {
             _logger.Debug("Getting latest EPAOrgId");
 
@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 commandType: CommandType.Text));
         }
 
-        public async Task AddAsync(IEnumerable<AssessmentOrganisation> assessmentOrganisations)
+        public async Task Add(IEnumerable<AssessmentOrganisation> assessmentOrganisations)
         {
             _logger.Debug($"Adding {assessmentOrganisations.Count()} assessment organisations, from {assessmentOrganisations.FirstOrDefault()?.EPAOrgId??"N/A"} to {assessmentOrganisations.LastOrDefault()?.EPAOrgId ?? "N/A"}");
 

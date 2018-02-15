@@ -6,8 +6,8 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface IAssessmentOrganisationRepository
     {
-        Task<string> GetLatestEPAOrgIdAsync();
+        Task<string> GetLatestEpaOrgId();
 
-        Task AddAsync(IEnumerable<AssessmentOrganisation> assessmentOrganisations);
+        Task Add(IEnumerable<AssessmentOrganisation> assessmentOrganisations);
     }
 }

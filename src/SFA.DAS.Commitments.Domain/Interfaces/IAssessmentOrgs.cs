@@ -6,6 +6,6 @@ namespace SFA.DAS.Commitments.Domain.Interfaces
 {
     public interface IAssessmentOrgs
     {
-        Task<IEnumerable<OrganisationSummary>> AllAsync();
+        Task<IEnumerable<OrganisationSummary>> All();
     }
 }

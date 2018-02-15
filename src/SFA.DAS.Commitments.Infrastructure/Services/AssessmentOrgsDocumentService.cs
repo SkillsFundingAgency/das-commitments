@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _azureBlobStorage = azureBlobStorage;
         }
 
-        public async Task<IEnumerable<OrganisationSummary>> AllAsync()
+        public async Task<IEnumerable<OrganisationSummary>> All()
         {
             const string containerName = "assessmentorgs-repository";
             const string blobName = "assessment_orgs.json";

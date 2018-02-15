@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.AssessmentOrgsSe
         {
             _assessmentOrgsApi.Setup(m => m.FindAllAsync()).Throws<Exception>();
 
-            Func<Task<IEnumerable<OrganisationSummary>>> act = async () => await _sut.AllAsync();
+            Func<Task<IEnumerable<OrganisationSummary>>> act = async () => await _sut.All();
 
             act.ShouldThrow<Exception>();
 
@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.AssessmentOrgsSe
             _assessmentOrgsApi.Setup(m => m.FindAllAsync())
                 .ReturnsAsync(new OrganisationSummary[0]);
 
-            await _sut.AllAsync();
+            await _sut.All();
 
             _assessmentOrgsApi.Verify(m => m.FindAllAsync(), Times.Once);
         }

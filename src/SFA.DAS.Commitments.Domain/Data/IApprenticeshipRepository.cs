@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task PauseApprenticeship(long commitmentId, long apprenticeshipId, DateTime pauseDate);
 
-        Task UpdateApprenticeshipEpaAsync(long apprenticeshipId, string epaOrgId);
+        Task UpdateApprenticeshipEpa(long apprenticeshipId, string epaOrgId);
 
         Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus);
 

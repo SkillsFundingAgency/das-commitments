@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         //     -ve : tags all same data type, or muliple columns
         // https://stackoverflow.com/questions/3967372/sql-server-how-to-constrain-a-table-to-contain-a-single-row
 
-        public async Task<long?> Get_AddEpaToApprenticeships_LastSubmissionEventIdAsync()
+        public async Task<long?> Get_AddEpaToApprenticeships_LastSubmissionEventId()
         {
             _logger.Debug("Getting last (processed by AddEpaToApprenticeships) SubmissionEvents Id");
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 commandType: CommandType.Text));
         }
 
-        public async Task Set_AddEpaToApprenticeships_LastSubmissionEventIdAsync(long lastSubmissionEventId)
+        public async Task Set_AddEpaToApprenticeships_LastSubmissionEventId(long lastSubmissionEventId)
         {
             _logger.Debug("Setting last (processed by AddEpaToApprenticeships) SubmissionEvent Id to {lastSubmissionEventId}");
 
