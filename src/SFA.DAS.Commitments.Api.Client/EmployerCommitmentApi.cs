@@ -194,5 +194,12 @@ namespace SFA.DAS.Commitments.Api.Client
             var data = JsonConvert.SerializeObject(submission);
             await PatchAsync(url, data);
         }
+
+        public async Task ApproveCohort(long employerAccountId, long commitmentId, CommitmentSubmission submission)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}/approve";
+
+            await _commitmentHelper.PatchCommitment(url, submission);
+        }
     }
 }

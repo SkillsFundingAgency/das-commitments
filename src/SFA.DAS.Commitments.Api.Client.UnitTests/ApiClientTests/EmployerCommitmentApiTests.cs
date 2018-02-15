@@ -124,6 +124,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
+        public async Task ApproveCohort()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments/{CommitmentId}/approve"), JsonConvert.SerializeObject(new CommitmentSubmission()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.ApproveCohort(EmployerAccountId, CommitmentId, new CommitmentSubmission());
+
+            Assert.Pass();
+        }
+
+        [Test]
         public async Task CreateEmployerApprenticeship()
         {
             var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments/{CommitmentId}/apprenticeships"), JsonConvert.SerializeObject(new ApprenticeshipRequest()));
