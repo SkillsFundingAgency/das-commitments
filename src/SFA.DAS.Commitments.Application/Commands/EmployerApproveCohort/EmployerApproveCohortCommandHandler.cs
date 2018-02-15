@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -13,6 +14,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
 {
@@ -22,16 +25,20 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IMediator _mediator;
+        private readonly IMessagePublisher _messagePublisher;
         private readonly OverlappingApprenticeshipService _overlappingApprenticeshipService;
         private readonly HistoryService _historyService;
         private readonly ApprenticeshipEventsService _apprenticeshipEventsService;
 
-        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
+        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator, IMessagePublisher messagePublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _currentDateTime = currentDateTime;
+            _mediator = mediator;
+            _messagePublisher = messagePublisher;
             _overlappingApprenticeshipService = new OverlappingApprenticeshipService(apprenticeshipRepository, overlapRules);
             _historyService = new HistoryService(historyRepository);
             _apprenticeshipEventsService = new ApprenticeshipEventsService(apprenticeshipEventsList, apprenticeshipEventsPublisher, _apprenticeshipRepository);
@@ -48,6 +55,23 @@ namespace SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort
             await UpdateApprenticeships(commitment, isFinalApproval);
             await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
             await PublishApprenticeshipEvents(commitment, isFinalApproval);
+
+            if (isFinalApproval)
+            {
+                await ReorderPayments(commitment.EmployerAccountId);
+                await PublishApprovalEventMessage(commitment);
+            }
+        }
+
+        private async Task PublishApprovalEventMessage(Commitment commitment)
+        {
+            var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
+            await _messagePublisher.PublishAsync(message);
+        }
+
+        private async Task ReorderPayments(long employerAccountId)
+        {
+            await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = employerAccountId });
         }
 
         private async Task PublishApprenticeshipEvents(Commitment commitment, bool isFinalApproval)

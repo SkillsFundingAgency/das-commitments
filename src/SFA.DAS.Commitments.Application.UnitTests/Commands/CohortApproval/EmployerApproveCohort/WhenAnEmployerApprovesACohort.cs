@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.EmployerApproveCohort;
+using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -15,6 +17,8 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Entities.Validation;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
 {
@@ -29,6 +33,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         private Mock<IHistoryRepository> _historyRepository;
         private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
+        private Mock<IMediator> _mediator;
+        private Mock<IMessagePublisher> _messagePublisher;
         private EmployerApproveCohortCommandHandler _target;
         private EmployerApproveCohortCommand _command;
         private Commitment _commitment;
@@ -49,8 +55,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             _historyRepository = new Mock<IHistoryRepository>();
             _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
+            _mediator = new Mock<IMediator>();
+            _messagePublisher = new Mock<IMessagePublisher>();
 
-            _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object, _historyRepository.Object, _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object);
+            _target = new EmployerApproveCohortCommandHandler(_validator, _commitmentRepository.Object, _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object, _historyRepository.Object, _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object, _messagePublisher.Object);
         }
 
         [Test]
@@ -235,6 +243,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedThePaymentOrderIsUpdated()
+        {
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            _mediator.Verify(x => x.SendAsync(It.Is<SetPaymentOrderCommand>(c => c.AccountId == _commitment.EmployerAccountId)));
+        }
+
+        [Test]
         public async Task ThenAMessageIsCreatedForTheProvider()
         {
             await _target.Handle(_command);
@@ -243,6 +261,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Assert.AreEqual(_command.Message, _commitment.Messages.Last().Text);
             Assert.AreEqual(CallerType.Employer, _commitment.Messages.Last().CreatedBy);
             _commitmentRepository.Verify(x => x.SaveMessage(_commitment.Id, _commitment.Messages.Last()));
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedAnApprovalMessageIsPublished()
+        {
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
+            await _target.Handle(_command);
+
+            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == _commitment.ProviderId && y.AccountId == _commitment.EmployerAccountId && y.CommitmentId == _commitment.Id)));
         }
 
         private Commitment CreateCommitment()
