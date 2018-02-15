@@ -60,11 +60,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
             {
                 environment = CloudConfigurationManager.GetSetting("EnvironmentName");
             }
-            //if (environment.Equals("LOCAL") || environment.Equals("AT") || environment.Equals("TEST"))
-            //{
-            //    //todo: is this required?
-            //    PopulateSystemDetails(environment);
-            //}
 
             var configurationRepository = GetConfigurationRepository();
             var configurationService = new ConfigurationService(configurationRepository,
