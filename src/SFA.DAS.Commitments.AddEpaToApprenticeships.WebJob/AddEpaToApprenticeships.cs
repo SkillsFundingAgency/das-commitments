@@ -86,7 +86,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                 }
             }
 
-            //todo: belongs in here?
             return submissionEvents.LastOrDefault()?.Id;
         }
 
