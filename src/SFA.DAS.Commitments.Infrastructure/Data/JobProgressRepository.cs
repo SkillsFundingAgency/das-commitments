@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task Set_AddEpaToApprenticeships_LastSubmissionEventId(long lastSubmissionEventId)
         {
-            _logger.Debug("Setting last (processed by AddEpaToApprenticeships) SubmissionEvent Id to {lastSubmissionEventId}");
+            _logger.Debug($"Setting last (processed by AddEpaToApprenticeships) SubmissionEvent Id to {lastSubmissionEventId}");
 
             await WithConnection(async connection =>
             {
