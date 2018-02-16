@@ -31,14 +31,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
-        private readonly ICurrentDateTime _currentDateTime;
         private readonly IMessagePublisher _messagePublisher;
 
         private readonly ICommitmentsLogger _logger;
-        private readonly IMediator _mediator;
         private readonly AbstractValidator<UpdateCommitmentAgreementCommand> _validator;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, IMediator mediator, AbstractValidator<UpdateCommitmentAgreementCommand> validator, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, AbstractValidator<UpdateCommitmentAgreementCommand> validator, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -46,10 +44,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _historyRepository = historyRepository;
-            _currentDateTime = currentDateTime;
             _messagePublisher = messagePublisher;
             _logger = logger;
-            _mediator = mediator;
             _validator = validator;
         }
 
@@ -177,10 +173,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
             {
                 apprenticeship.AgreementStatus = newApprenticeshipAgreementStatus;
-                if (apprenticeship.AgreementStatus == AgreementStatus.BothAgreed && !apprenticeship.AgreedOn.HasValue)
-                {
-                    apprenticeship.AgreedOn = _currentDateTime.Now;
-                }
                 hasChanged = true;
             }
 

@@ -4,14 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
-using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -30,26 +27,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRespository;
         private UpdateCommitmentAgreementCommandHandler _handler;
         private UpdateCommitmentAgreementCommand _validCommand;
-        private Mock<IMediator> _mockMediator;
         private Mock<IApprenticeshipEventsList> _mockApprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _mockApprenticeshipEventsPublisher;
         private Mock<IHistoryRepository> _mockHistoryRepository;
-        private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<IMessagePublisher> _messagePublisher;
 
         [SetUp]
         public void Setup()
         {
-            _mockMediator = new Mock<IMediator>();
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
-                .ReturnsAsync(new GetOverlappingApprenticeshipsResponse
-                {
-                    Data = new List<ApprenticeshipResult>()
-                });
-
-            _currentDateTime = new Mock<ICurrentDateTime>();
-            _currentDateTime.Setup(x => x.Now).Returns(new DateTime(2018,1,1));
-
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRespository = new Mock<IApprenticeshipRepository>();
             _mockApprenticeshipRespository.Setup(x => x.GetActiveApprenticeshipsByUlns(It.IsAny<IEnumerable<string>>())).ReturnsAsync(new List<ApprenticeshipResult>());
@@ -62,12 +47,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 _mockApprenticeshipRespository.Object,
                 new ApprenticeshipUpdateRules(), 
                 Mock.Of<ICommitmentsLogger>(),
-                _mockMediator.Object,
                 new UpdateCommitmentAgreementCommandValidator(),
                 _mockApprenticeshipEventsList.Object,
                 _mockApprenticeshipEventsPublisher.Object,
                 _mockHistoryRepository.Object,
-                _currentDateTime.Object,
                 _messagePublisher.Object);
 
             _validCommand = new UpdateCommitmentAgreementCommand
