@@ -10,6 +10,8 @@ using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort
 {
@@ -17,13 +19,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
     {
         private readonly AbstractValidator<ProviderApproveCohortCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IMessagePublisher _messagePublisher;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
-        public ProviderApproveCohortCommandHandler(AbstractValidator<ProviderApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator)
+        public ProviderApproveCohortCommandHandler(AbstractValidator<ProviderApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator, IMessagePublisher messagePublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
+            _messagePublisher = messagePublisher;
             _historyService = new HistoryService(historyRepository);
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
         }
@@ -45,6 +49,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             {
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
             }
+            else
+            {
+                await PublishApprovalRequestedMessage(commitment);
+            }
+        }
+
+        private async Task PublishApprovalRequestedMessage(Commitment commitment)
+        {
+            await _messagePublisher.PublishAsync(new CohortApprovalRequestedByProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)

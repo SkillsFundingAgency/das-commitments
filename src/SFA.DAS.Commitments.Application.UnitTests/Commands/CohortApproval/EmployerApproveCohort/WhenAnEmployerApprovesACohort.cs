@@ -19,8 +19,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
     [TestFixture]
     public class WhenAnEmployerApprovesACohort : ApproveCohortTestBase<EmployerApproveCohortCommand>
     {
-        private Mock<IMessagePublisher> _messagePublisher;
-        
         [SetUp]
         public void SetUp()
         {
@@ -30,10 +28,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Commitment = CreateCommitment(Command.CommitmentId, Command.Caller.Id, 234587);
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
-            
-            _messagePublisher = new Mock<IMessagePublisher>();
 
-            Target = new EmployerApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, _messagePublisher.Object);
+            Target = new EmployerApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object);
         }
 
         [Test]
@@ -218,7 +214,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
 
             await Target.Handle(Command);
 
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
+            MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
         }
     }
 }

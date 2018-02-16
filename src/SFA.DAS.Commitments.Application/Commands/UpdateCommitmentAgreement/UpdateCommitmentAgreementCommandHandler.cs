@@ -4,11 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-
-using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -65,12 +62,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
 
             CheckCommitmentCanBeUpdated(command, commitment);
-
-            if(command.LatestAction == LastAction.Approve)
-            {
-                await CheckCommitmentCanBeApproved(command, commitment);
-            }
-
+            
             var providerHasPreviouslyApprovedCommitment = commitment.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed);
 
             var updatedApprenticeships = await UpdateApprenticeshipAgreementStatuses(command, commitment, command.LatestAction);
@@ -79,21 +71,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             await UpdateCommitmentStatuses(command, commitment, anyApprenticeshipsPendingAgreement, command.LatestAction);
             await CreateCommitmentMessage(command, commitment);
 
-            if (IsFinalApproval(command.LatestAction, commitment, anyApprenticeshipsPendingAgreement))
-            {
-                await CreatePriceHistory(commitment, updatedApprenticeships);
-            }
-
             await PublishEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
-
-            if (command.LatestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0)
-            {
-                if (!anyApprenticeshipsPendingAgreement)
-                {
-                    await _mediator.SendAsync(new SetPaymentOrderCommand {AccountId = commitment.EmployerAccountId});
-                }
-                await PublishApprovalEvent(commitment, anyApprenticeshipsPendingAgreement, command.Caller.CallerType);
-            }
 
             if (ApprovedCommitmentIsBeingReturnedToProvider(command, providerHasPreviouslyApprovedCommitment))
             {
@@ -108,16 +86,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             CheckAuthorization(command, commitment);
         }
 
-        private async Task CheckCommitmentCanBeApproved(UpdateCommitmentAgreementCommand command, Commitment commitment)
-        {
-            CheckStateForApproval(commitment, command.Caller);
-            var overlaps = await GetOverlappingApprenticeships(commitment);
-            if (overlaps.Data.Any())
-            {
-                throw new ValidationException("Unable to approve commitment with overlapping apprenticeships");
-            }
-        }
-
         private static bool ApprovedCommitmentIsBeingReturnedToProvider(UpdateCommitmentAgreementCommand command, bool providerHasPreviouslyApprovedCommitment)
         {
             return providerHasPreviouslyApprovedCommitment && command.LatestAction == LastAction.Amend && command.Caller.CallerType == CallerType.Employer;
@@ -127,41 +95,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-        }
-
-        private static bool IsFinalApproval(LastAction latestAction, Commitment commitment, bool anyApprenticeshipsPendingAgreement)
-        {
-            return latestAction == LastAction.Approve && commitment.Apprenticeships.Count > 0 && !anyApprenticeshipsPendingAgreement;
-        }
-
-        private async Task CreatePriceHistory(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
-        {
-            await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
-
-            //create price history for purposes of event creation
-            foreach (var updatedApprenticeship in updatedApprenticeships)
-            {
-                updatedApprenticeship.PriceHistory = new List<PriceHistory>
-                {
-                    new PriceHistory
-                    {
-                        ApprenticeshipId = updatedApprenticeship.Id,
-                        Cost = updatedApprenticeship.Cost.Value,
-                        FromDate = updatedApprenticeship.StartDate.Value
-                    }
-                };
-            }
-        }
-
-        private async Task PublishApprovalEvent(Commitment commitment, bool anyApprenticeshipsPendingAgreement, CallerType callerType)
-        {
-            if (!anyApprenticeshipsPendingAgreement && callerType == CallerType.Employer)
-            {
-                await _messagePublisher.PublishAsync(new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
-            } else if (anyApprenticeshipsPendingAgreement && callerType == CallerType.Provider)
-            {
-                await _messagePublisher.PublishAsync(new CohortApprovalRequestedByProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
-            }
         }
 
         private async Task CreateCommitmentMessage(UpdateCommitmentAgreementCommand command, Commitment commitment)
@@ -174,7 +107,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         {
             var updatedEditStatus = _apprenticeshipUpdateRules.DetermineNewEditStatus(updatedCommitment.EditStatus, command.Caller.CallerType, areAnyApprenticeshipsPendingAgreement,
                 updatedCommitment.Apprenticeships.Count, latestAction);
-            var changeType = DetermineHistoryChangeType(latestAction, updatedEditStatus);
+            var changeType = DetermineHistoryChangeType();
             var historyService = new HistoryService(_historyRepository);
             historyService.TrackUpdate(updatedCommitment, changeType.ToString(), updatedCommitment.Id, null, command.Caller.CallerType, command.UserId, updatedCommitment.ProviderId, updatedCommitment.EmployerAccountId, command.LastUpdatedByName);
 
@@ -187,14 +120,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             await historyService.Save();
         }
 
-        private CommitmentChangeType DetermineHistoryChangeType(LastAction latestAction, EditStatus updatedEditStatus)
+        private CommitmentChangeType DetermineHistoryChangeType()
         {
             var changeType = CommitmentChangeType.SentForReview;
-            if (updatedEditStatus == EditStatus.Both && latestAction == LastAction.Approve)
-                changeType = CommitmentChangeType.FinalApproval;
-            else if (latestAction == LastAction.Approve)
-                changeType = CommitmentChangeType.SentForApproval;
-
             return changeType;
         }
 
@@ -233,19 +161,10 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task CreateEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
         {
-            var existingApprenticeships = await GetActiveApprenticeshipsForLearners(updatedApprenticeships);
-
             Parallel.ForEach(updatedApprenticeships, apprenticeship =>
             {
-                AddApprenticeshipUpdatedEvent(commitment, apprenticeship, existingApprenticeships.Where(x => x.Uln == apprenticeship.ULN));
+                AddApprenticeshipUpdatedEvent(commitment, apprenticeship);
             });
-        }
-
-        private async Task<IEnumerable<ApprenticeshipResult>>  GetActiveApprenticeshipsForLearners(IList<Apprenticeship> updatedApprenticeships)
-        {
-            var ulns = updatedApprenticeships.Select(x => x.ULN);
-            var apprenticeships = await _apprenticeshipRepository.GetActiveApprenticeshipsByUlns(ulns);
-            return apprenticeships;
         }
 
         private bool UpdateApprenticeshipStatuses(UpdateCommitmentAgreementCommand command, LastAction latestAction, Apprenticeship apprenticeship)
@@ -253,7 +172,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             bool hasChanged = false;
 
             var newApprenticeshipAgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(apprenticeship.AgreementStatus, command.Caller.CallerType, latestAction);
-            var newApprenticeshipPaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(apprenticeship.PaymentStatus, newApprenticeshipAgreementStatus);
+            var newApprenticeshipPaymentStatus = PaymentStatus.PendingApproval;
 
             if (apprenticeship.AgreementStatus != newApprenticeshipAgreementStatus)
             {
@@ -273,58 +192,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             return hasChanged;
         }
 
-        private void AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship, IEnumerable<ApprenticeshipResult> existingApprenticeships)
+        private void AddApprenticeshipUpdatedEvent(Commitment commitment, Apprenticeship apprenticeship)
         {
-            var effectiveFromDate = DetermineEffectiveFromDate(apprenticeship.AgreementStatus, existingApprenticeships, apprenticeship.StartDate);
-            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
-        }
-
-        private DateTime? DetermineEffectiveFromDate(AgreementStatus agreementStatus, IEnumerable<ApprenticeshipResult> existingApprenticeships, DateTime? startDate)
-        {
-            if (agreementStatus != AgreementStatus.BothAgreed)
-            {
-                return null;
-            }
-
-            var previousApprenticeshipStoppedDate = GetPreviousApprenticeshipStoppedDate(existingApprenticeships, startDate);
-            if (HasPreviousApprenticeshipStoppedInTheSameMonth(previousApprenticeshipStoppedDate, startDate))
-            {
-                return previousApprenticeshipStoppedDate.Value.AddDays(1);
-            }
-            
-            return new DateTime(startDate.Value.Year, startDate.Value.Month, 1);
-        }
-
-        private bool HasPreviousApprenticeshipStoppedInTheSameMonth(DateTime? previousApprenticeshipStoppedDate, DateTime? startDate)
-        {
-            if (!previousApprenticeshipStoppedDate.HasValue)
-            {
-                return false;
-            }
-
-            if (previousApprenticeshipStoppedDate.Value.Year != startDate.Value.Year || previousApprenticeshipStoppedDate.Value.Month != startDate.Value.Month)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private DateTime? GetPreviousApprenticeshipStoppedDate(IEnumerable<ApprenticeshipResult> existingApprenticeships, DateTime? startDate)
-        {
-            var previousApprenticeships = GetPreviousApprenticeships(existingApprenticeships, startDate.Value);
-            if (!previousApprenticeships.Any())
-            {
-                return null;
-            }
-
-            var latestApprenticeship = previousApprenticeships.OrderByDescending(x => x.StartDate).First();
-            return latestApprenticeship.StopDate;
-        }
-
-        private IEnumerable<ApprenticeshipResult> GetPreviousApprenticeships(IEnumerable<ApprenticeshipResult> existingApprenticeships, DateTime startDate)
-        {
-            return existingApprenticeships.Where(x => x.StartDate < startDate);
+            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED");
         }
 
         private void LogMessage(UpdateCommitmentAgreementCommand command)
@@ -371,38 +241,6 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
                         throw new UnauthorizedException($"Employer {message.Caller.Id} not authorised to access commitment: {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
                     break;
             }
-        }
-
-        private static void CheckStateForApproval(Commitment commitment, Caller caller)
-        {
-            var canBeApprovedByParty = caller.CallerType == CallerType.Employer
-                ? commitment.EmployerCanApproveCommitment
-                : commitment.ProviderCanApproveCommitment;
-
-            if (!canBeApprovedByParty)
-                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be approved because apprentice information is incomplete");
-        }
-
-        private async Task<GetOverlappingApprenticeshipsResponse> GetOverlappingApprenticeships(Commitment commitment)
-        {
-            var overlapRequests = 
-                commitment.Apprenticeships
-                .Where(x => !string.IsNullOrWhiteSpace(x.ULN) && x.StartDate.HasValue && x.EndDate.HasValue)
-                .Select(apprenticeship => 
-                    new ApprenticeshipOverlapValidationRequest
-                        {
-                            Uln = apprenticeship.ULN,
-                            StartDate = apprenticeship.StartDate.Value,
-                            EndDate = apprenticeship.EndDate.Value
-                        })
-                .ToList();
-
-            var response = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
-            {
-                OverlappingApprenticeshipRequests = overlapRequests
-            });
-
-            return response;
         }
     }
 }
