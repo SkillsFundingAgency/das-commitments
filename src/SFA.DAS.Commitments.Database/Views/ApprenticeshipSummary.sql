@@ -40,7 +40,8 @@ SELECT
 			1
 		ELSE
 			0
-	END AS 'ProviderCanApproveApprenticeship'
+	END AS 'ProviderCanApproveApprenticeship',
+	ao.Name AS 'EndpointAssessorName'
 
 	FROM 
 		Apprenticeship a
@@ -48,6 +49,10 @@ SELECT
 		Commitment c
 	ON 
 		c.Id = a.CommitmentId
+	INNER JOIN
+		AssessmentOrganisation ao
+	ON
+		ao.EPAOrgId = a.EPAOrgId
 	LEFT JOIN
 		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
 		ON au.ApprenticeshipId = a.Id
