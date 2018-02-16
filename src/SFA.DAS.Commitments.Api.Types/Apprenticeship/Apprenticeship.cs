@@ -43,7 +43,5 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public bool HasHadDataLockSuccess { get; set; }
 
         public string ApprenticeshipName => $"{FirstName} {LastName}";
-
-        public string EndpointAssessorName { get; set; }
     }
 }
