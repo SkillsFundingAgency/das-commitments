@@ -13,6 +13,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
 
         public long Id { get; set; }
         public string Reference { get; set; }
+        public long? TransferSenderId { get; set; }
+        public string TransferSenderName { get; set; }
         public long EmployerAccountId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }

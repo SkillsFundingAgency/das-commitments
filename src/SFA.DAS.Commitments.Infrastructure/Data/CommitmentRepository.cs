@@ -33,6 +33,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
+                parameters.Add("@transferSenderId", commitment.TransferSenderId, DbType.Int64);
+                parameters.Add("@transferSenderName", commitment.TransferSenderName, DbType.String);
                 parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.String);
                 parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
                 parameters.Add("@LegalEntityAddress", commitment.LegalEntityAddress, DbType.String);
@@ -52,8 +54,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, LastUpdatedByEmployerEmail) " +
-                        "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, @lastUpdateByEmployerEmail); " +
+                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, " +
+                            "EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, " +
+                            "LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName) " +
+                        "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, " +
+                            "@accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, " +
+                            "@lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName); " +
                         "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
