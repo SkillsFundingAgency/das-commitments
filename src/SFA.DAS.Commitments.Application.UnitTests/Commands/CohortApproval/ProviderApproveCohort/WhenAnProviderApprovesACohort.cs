@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Events;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.ProviderApproveCohort
 {
@@ -30,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
             
-            Target = new ProviderApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object);
+            Target = new ProviderApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object);
         }
 
         [Test]
@@ -87,6 +88,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByProviderName);
             CommitmentRepository.Verify(x => x.UpdateCommitment(Commitment), Times.Once);
             HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.SentForApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Provider))), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheEmployerrHasNotYetApprovedTheCommitmentACohortApprovalRequestedByProviderIsPublished()
+        {
+            await Target.Handle(Command);
+
+            MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalRequestedByProvider>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
         }
 
         [Test]

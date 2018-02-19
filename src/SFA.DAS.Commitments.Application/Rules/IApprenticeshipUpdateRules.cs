@@ -10,7 +10,6 @@ namespace SFA.DAS.Commitments.Application.Rules
         CommitmentStatus DetermineNewCommmitmentStatus(bool areAnyApprenticeshipsPendingAgreement);
         EditStatus DetermineNewEditStatus(EditStatus currentEditStatus, CallerType caller, bool areAnyApprenticeshipsPendingAgreement, int apprenticeshipsInCommitment, LastAction lastAction);
         PaymentStatus DetermineNewPaymentStatus(PaymentStatus currentPaymentStatus, bool doChangesRequireAgreement);
-        PaymentStatus DetermineNewPaymentStatus(PaymentStatus currentPaymentStatus, AgreementStatus newApprenticeshipAgreementStatus);
         bool DetermineWhetherChangeRequiresAgreement(Apprenticeship existingApprenticeship, Apprenticeship updatedApprenticeship);
     }
 }

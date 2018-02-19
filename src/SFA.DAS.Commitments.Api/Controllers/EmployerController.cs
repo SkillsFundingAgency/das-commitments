@@ -125,6 +125,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [HttpPatch]
         [Route("{accountId}/commitments/{commitmentId}/approve")]
         [Authorize(Roles = "Role1")]
+        [HttpPatch]
         public async Task<IHttpActionResult> ApproveCohort(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
         {
             await _employerOrchestrator.ApproveCohort(accountId, commitmentId, values);

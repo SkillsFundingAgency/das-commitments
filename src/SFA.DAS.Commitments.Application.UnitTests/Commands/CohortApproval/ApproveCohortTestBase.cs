@@ -14,6 +14,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Entities.Validation;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
 {
@@ -28,6 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<IApprenticeshipEventsList> ApprenticeshipEventsList;
         protected Mock<IApprenticeshipEventsPublisher> ApprenticeshipEventsPublisher;
         protected Mock<IMediator> Mediator;
+        protected Mock<IMessagePublisher> MessagePublisher;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
         protected Commitment Commitment;
@@ -81,6 +83,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             ApprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             ApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             Mediator = new Mock<IMediator>();
+            MessagePublisher = new Mock<IMessagePublisher>();
         }
 
         protected Commitment CreateCommitment(long commitmentId, long employerAccountId, long providerId, long? transferSenderId = null, string transferSenderName = null)
