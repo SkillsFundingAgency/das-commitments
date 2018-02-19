@@ -50,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             if (isFinalApproval)
             {
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-                await PublishApprovalEventMessage(commitment);
+                await PublishApprovalEventMessages(commitment);
             }
         }
 
@@ -66,10 +66,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
         }
 
-        private async Task PublishApprovalEventMessage(Commitment commitment)
+        private async Task PublishApprovalEventMessages(Commitment commitment)
         {
             var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
             await _messagePublisher.PublishAsync(message);
+            if (commitment.TransferSenderId > 0)
+            {
+                var senderMessage = new CommitmentRequiresApprovalByTransferSender(commitment.EmployerAccountId,
+                    commitment.ProviderId.Value, commitment.Id, commitment.TransferSenderId.Value);
+                await _messagePublisher.PublishAsync(senderMessage);
+            }
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)

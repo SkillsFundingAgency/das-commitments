@@ -24,6 +24,10 @@
     "subscription": [ "Task_CohortApproved" ]
   },
   {
+    "topicName": "cohort_approved_by_transfer_sender",
+    "subscription": [ "Task_CohortApprovedByTransferSender" ]
+  },
+  {
     "topicName": "cohort_created",
     "subscription": [ "Task_CohortCreated" ]
   },

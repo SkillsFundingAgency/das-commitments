@@ -83,14 +83,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             Mediator = new Mock<IMediator>();
         }
 
-        protected Commitment CreateCommitment(long commitmentId, long employerAccountId, long providerId)
+        protected Commitment CreateCommitment(long commitmentId, long employerAccountId, long providerId, long? transferSenderId = null, string transferSenderName = null)
         {
             var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship {ULN = "1233435", Id = 1, StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.AddMonths(-1).Month, 25), EndDate = DateTime.Now.AddYears(1), AgreementStatus = AgreementStatus.NotAgreed, Cost = 2347 },
                 new Apprenticeship {ULN = "894567645", Id = 2, StartDate = DateTime.Now.AddYears(-1), EndDate = DateTime.Now.AddYears(2), AgreementStatus = AgreementStatus.NotAgreed, Cost = 23812}
             };
-            return new Commitment { CommitmentStatus = CommitmentStatus.New, EditStatus = EditStatus.EmployerOnly, Id = commitmentId, EmployerAccountId = employerAccountId, EmployerCanApproveCommitment = true, ProviderCanApproveCommitment = true, Apprenticeships = apprenticeships, ProviderId = providerId };
+            return new Commitment
+            {
+                CommitmentStatus = CommitmentStatus.New,
+                EditStatus = EditStatus.EmployerOnly,
+                Id = commitmentId,
+                EmployerAccountId = employerAccountId,
+                EmployerCanApproveCommitment = true,
+                ProviderCanApproveCommitment = true,
+                Apprenticeships = apprenticeships,
+                ProviderId = providerId,
+                TransferSenderId = transferSenderId,
+                TransferSenderName = transferSenderName
+            };
         }
 
         protected void SetupSuccessfulOverlapCheck()
