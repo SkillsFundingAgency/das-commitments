@@ -49,7 +49,7 @@ SELECT
 		Commitment c
 	ON 
 		c.Id = a.CommitmentId
-	INNER JOIN
+	LEFT JOIN
 		AssessmentOrganisation ao
 	ON
 		ao.EPAOrgId = a.EPAOrgId
