@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -68,14 +69,17 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
         private async Task PublishApprovalEventMessages(Commitment commitment)
         {
+            var tasks = new List<Task>();
+
             var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
-            await _messagePublisher.PublishAsync(message);
+            tasks.Add(_messagePublisher.PublishAsync(message));
             if (commitment.TransferSenderId > 0)
             {
                 var senderMessage = new CommitmentRequiresApprovalByTransferSender(commitment.EmployerAccountId,
                     commitment.ProviderId.Value, commitment.Id, commitment.TransferSenderId.Value);
-                await _messagePublisher.PublishAsync(senderMessage);
+                tasks.Add(_messagePublisher.PublishAsync(senderMessage));
             }
+            await Task.WhenAll(tasks.ToArray());
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
