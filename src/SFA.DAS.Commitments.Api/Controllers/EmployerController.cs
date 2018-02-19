@@ -122,7 +122,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        [HttpPatch]
         [Route("{accountId}/commitments/{commitmentId}/approve")]
         [Authorize(Roles = "Role1")]
         [HttpPatch]
