@@ -9,17 +9,19 @@ namespace SFA.DAS.Commitments.Events
         {
         }
 
-        public CommitmentRequiresApprovalByTransferSender(long accountId, long providerId, long commitmentId, long transferSenderId)
+        public CommitmentRequiresApprovalByTransferSender(long accountId, long providerId, long commitmentId, long transferSenderId, decimal transferCost)
         {
             AccountId = accountId;
             ProviderId = providerId;
             CommitmentId = commitmentId;
             TransferSenderId = transferSenderId;
+            TransferCost = transferCost;
         }
 
         public long AccountId { get; set; }
         public long ProviderId { get; set; }
         public long CommitmentId { get; set; }
-        public long TransferSenderId { get; }
+        public long TransferSenderId { get; set; }
+        public decimal TransferCost { get; set; }
     }
 }

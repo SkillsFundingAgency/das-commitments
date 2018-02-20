@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
@@ -37,7 +38,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
             MessagePublisher.Verify(x => x.PublishAsync(It.Is<CommitmentRequiresApprovalByTransferSender>(y =>
                 y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId &&
-                y.CommitmentId == Commitment.Id && y.TransferSenderId == Commitment.TransferSenderId)), Times.Once);
+                y.CommitmentId == Commitment.Id && y.TransferSenderId == Commitment.TransferSenderId &&
+                y.TransferCost == Commitment.Apprenticeships.Sum(a => a.Cost ?? 0))), Times.Once);
         }
 
         [Test]
