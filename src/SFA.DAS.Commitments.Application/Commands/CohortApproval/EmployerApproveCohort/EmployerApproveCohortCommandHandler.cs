@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -70,14 +69,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         private async Task PublishApprovalEventMessages(Commitment commitment)
         {
             var tasks = new List<Task>();
-
             var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
             tasks.Add(_messagePublisher.PublishAsync(message));
             if (commitment.TransferSenderId > 0)
             {
-                var senderMessage = new CommitmentRequiresApprovalByTransferSender(commitment.EmployerAccountId,
-                    commitment.ProviderId.Value, commitment.Id, commitment.TransferSenderId.Value);
-                tasks.Add(_messagePublisher.PublishAsync(senderMessage));
+                tasks.Add(_cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment));
             }
             await Task.WhenAll(tasks.ToArray());
         }

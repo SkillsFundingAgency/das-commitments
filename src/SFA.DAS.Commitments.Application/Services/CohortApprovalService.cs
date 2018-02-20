@@ -12,6 +12,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Services
 {
@@ -95,6 +97,13 @@ namespace SFA.DAS.Commitments.Application.Services
             await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = employerAccountId });
         }
 
+        internal Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment)
+        {
+            var senderMessage = new CommitmentRequiresApprovalByTransferSender(commitment.EmployerAccountId,
+                commitment.ProviderId.Value, commitment.Id, commitment.TransferSenderId.Value);
+            return messagePublisher.PublishAsync(senderMessage);
+        }
+
         private async Task CreatePriceHistory(Commitment commitment)
         {
             await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
@@ -128,5 +137,7 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             return isFinalApproval ? PaymentStatus.Active : PaymentStatus.PendingApproval;
         }
+
+
     }
 }

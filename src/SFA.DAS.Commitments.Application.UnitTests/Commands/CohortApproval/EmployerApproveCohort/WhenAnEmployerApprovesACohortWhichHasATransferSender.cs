@@ -37,15 +37,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApprovedAnApprovalMessageIsPublished()
+        public async Task ThenIfTheProviderHasAlreadyApproved2ApprovalMessagesArePublished()
         {
             Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
 
             await Target.Handle(Command);
 
+            _messagePublisher.Verify(x=>x.PublishAsync(It.IsAny<CohortApprovedByEmployer>()), Times.Once);
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CommitmentRequiresApprovalByTransferSender>(y =>
                 y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId &&
-                y.CommitmentId == Commitment.Id && y.TransferSenderId == Commitment.TransferSenderId)));
+                y.CommitmentId == Commitment.Id && y.TransferSenderId == Commitment.TransferSenderId)), Times.Once);
         }
     }
 }

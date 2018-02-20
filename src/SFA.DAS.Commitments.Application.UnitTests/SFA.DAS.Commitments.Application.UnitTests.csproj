@@ -126,6 +126,7 @@
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohortWhichHasATransferSender.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohortWhichHasATransferSender.cs" />
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohort.cs" />
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />

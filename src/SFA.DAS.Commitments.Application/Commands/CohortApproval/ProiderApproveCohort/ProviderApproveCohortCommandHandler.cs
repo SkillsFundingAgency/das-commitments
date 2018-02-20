@@ -48,6 +48,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             if (isFinalApproval)
             {
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+                if (commitment.TransferSenderId > 0)
+                {
+                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment);
+                }
             }
             else
             {
