@@ -59,11 +59,11 @@ namespace SFA.DAS.Commitments.Application.Services
             return commitment.Apprenticeships.First().AgreementStatus;
         }
 
-        internal async Task UpdateApprenticeships(Commitment commitment, bool isFinalApproval, AgreementStatus newAgreementStatus)
+        internal async Task UpdateApprenticeships(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
         {
-            UpdateApprenticeshipStatuses(commitment, isFinalApproval, newAgreementStatus);
+            UpdateApprenticeshipStatuses(commitment, haveBothPartiesApproved, newAgreementStatus);
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
-            if (isFinalApproval)
+            if (haveBothPartiesApproved)
             {
                 await CreatePriceHistory(commitment);
             }
@@ -75,14 +75,14 @@ namespace SFA.DAS.Commitments.Application.Services
             await cohortStatusChangeService.AddMessageToCommitment(commitment, lastUpdatedByName, messageText, createdBy);
         }
 
-        internal CommitmentChangeType DetermineHistoryChangeType(bool isFinalApproval)
+        internal CommitmentChangeType DetermineHistoryChangeType(bool haveBothPartiesApproved)
         {
-            return isFinalApproval ? CommitmentChangeType.FinalApproval : CommitmentChangeType.SentForApproval;
+            return haveBothPartiesApproved ? CommitmentChangeType.FinalApproval : CommitmentChangeType.SentForApproval;
         }
 
-        internal async Task PublishApprenticeshipEvents(Commitment commitment, bool isFinalApproval)
+        internal async Task PublishApprenticeshipEvents(Commitment commitment, bool haveBothPartiesApproved)
         {
-            if (!isFinalApproval)
+            if (!haveBothPartiesApproved)
             {
                 await _apprenticeshipEventsService.PublishApprenticeshipAgreementUpdatedEvents(commitment);
             }
@@ -117,25 +117,25 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
-        private void UpdateApprenticeshipStatuses(Commitment commitment, bool isFinalApproval, AgreementStatus newAgreementStatus)
+        private void UpdateApprenticeshipStatuses(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
         {
-            var newPaymentStatus = DetermineNewPaymentStatus(isFinalApproval);
+            var newPaymentStatus = DetermineNewPaymentStatus(haveBothPartiesApproved);
             commitment.Apprenticeships.ForEach(x =>
             {
                 x.AgreementStatus = newAgreementStatus;
                 x.PaymentStatus = newPaymentStatus;
-                x.AgreedOn = DetermineAgreedOnDate(isFinalApproval);
+                x.AgreedOn = DetermineAgreedOnDate(haveBothPartiesApproved);
             });
         }
 
-        private DateTime? DetermineAgreedOnDate(bool isFinalApproval)
+        private DateTime? DetermineAgreedOnDate(bool haveBothPartiesApproved)
         {
-            return isFinalApproval ? _currentDateTime.Now : (DateTime?)null;
+            return haveBothPartiesApproved ? _currentDateTime.Now : (DateTime?)null;
         }
 
-        private static PaymentStatus DetermineNewPaymentStatus(bool isFinalApproval)
+        private static PaymentStatus DetermineNewPaymentStatus(bool haveBothPartiesApproved)
         {
-            return isFinalApproval ? PaymentStatus.Active : PaymentStatus.PendingApproval;
+            return haveBothPartiesApproved ? PaymentStatus.Active : PaymentStatus.PendingApproval;
         }
 
 

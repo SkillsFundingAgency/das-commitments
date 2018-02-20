@@ -39,13 +39,13 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             var commitment = await GetCommitment(message.CommitmentId);
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
 
-            var isFinalApproval = IsFinalApproval(commitment);
-            var newAgreementStatus = DetermineNewAgreementStatus(isFinalApproval);
-            await _cohortApprovalService.UpdateApprenticeships(commitment, isFinalApproval, newAgreementStatus);
-            await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
-            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, isFinalApproval);
+            var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
+            var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
+            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
+            await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
+            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
 
-            if (isFinalApproval)
+            if (haveBothPartiesApproved)
             {
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
                 if (commitment.TransferSenderId > 0)
@@ -64,10 +64,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             await _messagePublisher.PublishAsync(new CohortApprovalRequestedByProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
         }
 
-        private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
+        private async Task UpdateCommitment(Commitment commitment, bool haveBothPartiesApproved, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
         {
-            var updatedEditStatus = DetermineNewEditStatus(isFinalApproval);
-            var changeType = _cohortApprovalService.DetermineHistoryChangeType(isFinalApproval);
+            var updatedEditStatus = DetermineNewEditStatus(haveBothPartiesApproved);
+            var changeType = _cohortApprovalService.DetermineHistoryChangeType(haveBothPartiesApproved);
             _historyService.TrackUpdate(commitment, changeType.ToString(), commitment.Id, null, CallerType.Provider, userId, commitment.ProviderId, commitment.EmployerAccountId, lastUpdatedByName);
 
             commitment.EditStatus = updatedEditStatus;
@@ -83,18 +83,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             );
         }
 
-        private EditStatus DetermineNewEditStatus(bool isFinalApproval)
+        private EditStatus DetermineNewEditStatus(bool haveBothPartiesApproved)
         {
-            return isFinalApproval ? EditStatus.Both : EditStatus.EmployerOnly;
+            return haveBothPartiesApproved ? EditStatus.Both : EditStatus.EmployerOnly;
         }
 
-        private static AgreementStatus DetermineNewAgreementStatus(bool isFinalApproval)
+        private static AgreementStatus DetermineNewAgreementStatus(bool haveBothPartiesApproved)
         {
-            var newAgreementStatus = isFinalApproval ? AgreementStatus.BothAgreed : AgreementStatus.ProviderAgreed;
+            var newAgreementStatus = haveBothPartiesApproved ? AgreementStatus.BothAgreed : AgreementStatus.ProviderAgreed;
             return newAgreementStatus;
         }
 
-        private bool IsFinalApproval(Commitment commitment)
+        private bool HaveBothPartiesApproved(Commitment commitment)
         {
             var currentAgreementStatus = _cohortApprovalService.GetCurrentAgreementStatus(commitment);
             return currentAgreementStatus == AgreementStatus.EmployerAgreed;

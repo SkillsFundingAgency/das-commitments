@@ -41,26 +41,26 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             var commitment = await GetCommitment(message.CommitmentId);
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
 
-            var isFinalApproval = IsFinalApproval(commitment);
-            var newAgreementStatus = DetermineNewAgreementStatus(isFinalApproval);
-            await _cohortApprovalService.UpdateApprenticeships(commitment, isFinalApproval, newAgreementStatus);
-            await UpdateCommitment(commitment, isFinalApproval, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
-            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, isFinalApproval);
+            var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
+            var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
+            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
+            await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
+            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
 
-            if (isFinalApproval)
+            if (haveBothPartiesApproved)
             {
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
                 await PublishApprovalEventMessages(commitment);
             }
         }
 
-        private static AgreementStatus DetermineNewAgreementStatus(bool isFinalApproval)
+        private static AgreementStatus DetermineNewAgreementStatus(bool haveBothPartiesApproved)
         {
-            var newAgreementStatus = isFinalApproval ? AgreementStatus.BothAgreed : AgreementStatus.EmployerAgreed;
+            var newAgreementStatus = haveBothPartiesApproved ? AgreementStatus.BothAgreed : AgreementStatus.EmployerAgreed;
             return newAgreementStatus;
         }
 
-        private bool IsFinalApproval(Commitment commitment)
+        private bool HaveBothPartiesApproved(Commitment commitment)
         {
             var currentAgreementStatus = _cohortApprovalService.GetCurrentAgreementStatus(commitment);
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
