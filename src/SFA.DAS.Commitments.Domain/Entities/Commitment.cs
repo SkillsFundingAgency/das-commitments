@@ -37,5 +37,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public List<Apprenticeship> Apprenticeships { get; set; }
         [JsonIgnore]
         public List<Message> Messages { get; set; }
+        [JsonIgnore]
+        public bool HasTransferSenderAssigned => TransferSenderId > 0;
     }
 }

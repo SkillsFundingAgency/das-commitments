@@ -61,11 +61,14 @@ namespace SFA.DAS.Commitments.Application.Services
 
         internal async Task UpdateApprenticeships(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
         {
-            UpdateApprenticeshipStatuses(commitment, haveBothPartiesApproved, newAgreementStatus);
+            SetApprenticeshipsPaymentAndAgreementStatuses(commitment, haveBothPartiesApproved, newAgreementStatus);
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
             if (haveBothPartiesApproved)
             {
-                await CreatePriceHistory(commitment);
+                if (!commitment.HasTransferSenderAssigned)
+                {
+                    await CreatePriceHistory(commitment);
+                }
             }
         }
 
@@ -82,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         internal async Task PublishApprenticeshipEvents(Commitment commitment, bool haveBothPartiesApproved)
         {
-            if (!haveBothPartiesApproved)
+            if (!haveBothPartiesApproved || commitment.HasTransferSenderAssigned)
             {
                 await _apprenticeshipEventsService.PublishApprenticeshipAgreementUpdatedEvents(commitment);
             }
@@ -117,9 +120,9 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
-        private void UpdateApprenticeshipStatuses(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
+        private void SetApprenticeshipsPaymentAndAgreementStatuses(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
         {
-            var newPaymentStatus = DetermineNewPaymentStatus(haveBothPartiesApproved);
+            var newPaymentStatus = DetermineNewPaymentStatus(commitment, haveBothPartiesApproved);
             commitment.Apprenticeships.ForEach(x =>
             {
                 x.AgreementStatus = newAgreementStatus;
@@ -133,9 +136,9 @@ namespace SFA.DAS.Commitments.Application.Services
             return haveBothPartiesApproved ? _currentDateTime.Now : (DateTime?)null;
         }
 
-        private static PaymentStatus DetermineNewPaymentStatus(bool haveBothPartiesApproved)
+        private static PaymentStatus DetermineNewPaymentStatus(Commitment commitment, bool haveBothPartiesApproved)
         {
-            return haveBothPartiesApproved ? PaymentStatus.Active : PaymentStatus.PendingApproval;
+            return haveBothPartiesApproved && !commitment.HasTransferSenderAssigned ? PaymentStatus.Active : PaymentStatus.PendingApproval;
         }
 
 
