@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
-using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
-using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
 
@@ -29,6 +22,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             SetUpCommonMocks();
             Commitment = CreateCommitment(Command.CommitmentId, Command.Caller.Id, 234587, 1000, "Nice Company");
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+
             SetupSuccessfulOverlapCheck();
             
             _messagePublisher = new Mock<IMessagePublisher>();
@@ -39,8 +34,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         [Test]
         public async Task ThenIfTheProviderHasAlreadyApproved2ApprovalMessagesArePublished()
         {
-            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
-
             await Target.Handle(Command);
 
             _messagePublisher.Verify(x=>x.PublishAsync(It.IsAny<CohortApprovedByEmployer>()), Times.Once);
@@ -48,5 +41,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
                 y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId &&
                 y.CommitmentId == Commitment.Id && y.TransferSenderId == Commitment.TransferSenderId)), Times.Once);
         }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedNoPriceHistoryIsCreated()
+        {
+            await Target.Handle(Command);
+
+            ApprenticeshipRepository.Verify(x => x.CreatePriceHistoryForApprenticeshipsInCommitment(It.IsAny<long>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedDoNotSetAStartDateForTheApprenticeshipEventsList()
+        {
+
+            await Target.Handle(Command);
+
+            ApprenticeshipEventsList.Verify(x => x.Add(Commitment, Commitment.Apprenticeships[0], "APPRENTICESHIP-AGREEMENT-UPDATED", null, null), Times.Once);
+            ApprenticeshipEventsPublisher.Verify(x => x.Publish(ApprenticeshipEventsList.Object), Times.Once);
+        }
+
     }
 }
