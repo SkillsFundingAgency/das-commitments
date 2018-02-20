@@ -84,6 +84,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
             Assert.AreEqual(EditStatus.EmployerOnly, Commitment.EditStatus);
             Assert.AreEqual(LastAction.Approve, Commitment.LastAction);
+            Assert.AreEqual(CommitmentStatus.Active, Commitment.CommitmentStatus);
             Assert.AreEqual(Command.LastUpdatedByEmail, Commitment.LastUpdatedByProviderEmail);
             Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByProviderName);
             CommitmentRepository.Verify(x => x.UpdateCommitment(Commitment), Times.Once);
@@ -133,6 +134,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
             Assert.AreEqual(EditStatus.Both, Commitment.EditStatus);
             Assert.AreEqual(LastAction.Approve, Commitment.LastAction);
+            Assert.AreEqual(CommitmentStatus.Active, Commitment.CommitmentStatus);
             Assert.AreEqual(Command.LastUpdatedByEmail, Commitment.LastUpdatedByProviderEmail);
             Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByProviderName);
             CommitmentRepository.Verify(x => x.UpdateCommitment(Commitment), Times.Once);

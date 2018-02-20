@@ -72,6 +72,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
 
             commitment.EditStatus = updatedEditStatus;
             commitment.LastAction = LastAction.Approve;
+            commitment.CommitmentStatus = CommitmentStatus.Active;
             commitment.LastUpdatedByProviderEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByProviderName = lastUpdatedByName;
 

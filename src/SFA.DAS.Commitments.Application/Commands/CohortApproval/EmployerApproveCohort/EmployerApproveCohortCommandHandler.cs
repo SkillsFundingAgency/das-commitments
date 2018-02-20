@@ -86,6 +86,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
             commitment.EditStatus = updatedEditStatus;
             commitment.LastAction = LastAction.Approve;
+            commitment.CommitmentStatus = CommitmentStatus.Active;
             commitment.LastUpdatedByEmployerEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
 
