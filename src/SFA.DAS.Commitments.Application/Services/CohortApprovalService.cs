@@ -105,7 +105,7 @@ namespace SFA.DAS.Commitments.Application.Services
             decimal totalCost = commitment.Apprenticeships.Sum(x => x.Cost ?? 0);
 
             var senderMessage = new CommitmentRequiresApprovalByTransferSender(commitment.EmployerAccountId,
-                commitment.ProviderId.Value, commitment.Id, commitment.TransferSenderId.Value, totalCost);
+                commitment.Id, commitment.TransferSenderId.Value, totalCost);
             return messagePublisher.PublishAsync(senderMessage);
         }
 
