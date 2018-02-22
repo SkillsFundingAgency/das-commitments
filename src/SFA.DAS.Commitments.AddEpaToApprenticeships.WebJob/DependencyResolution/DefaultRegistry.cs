@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 });
 
-            var config = GetConfiguration("SFA.DAS.AddEpaToApprenticeships");
+            var config = GetConfiguration("SFA.DAS.Commitments.AddEpaToApprenticeships");
 
             // ms fake would be preferable
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
