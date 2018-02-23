@@ -10,6 +10,12 @@ using System.Web.Http.Dispatcher;
 using Microsoft.Owin.Testing;
 using Owin;
 using SFA.DAS.Commitments.Api.Controllers;
+//using SFA.DAS.Commitments.Api.DependencyResolution;
+//using SFA.DAS.Commitments.Infrastructure.Configuration;
+//using SFA.DAS.Messaging.AzureServiceBus;
+//using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
+//using SFA.DAS.NLog.Logger;
+//using WebApi.StructureMap;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
 {
@@ -47,6 +53,25 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
         {
             var config = new HttpConfiguration();
             WebApiConfig.Register(config);
+
+            // we need to set up structure map, coz as is, it can't ctruct the ctor
+            // after updating packages, and setting to same version as api, test will no longer run (inconclusive)
+            // so have undone all the package changes and we'll start from the last known working
+            //todo: this is not how the cut integrates structuremap!
+            //const string ServiceName = "SFA.DAS.Commitments";
+            //const string ServiceVersion = "1.0";
+
+            //config.UseStructureMap(x =>
+            //{
+            //    //x.Policies.Add<LoggingPolicy>();
+            //    x.AddRegistry<DefaultRegistry>();
+            //    x.Policies.Add<CurrentDatePolicy>();
+            //    x.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
+            //});
+
+            //c.AddRegistry<DefaultRegistry>();
+            //c.Policies.Add<CurrentDatePolicy>();
+            //c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
 
             config.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
 
