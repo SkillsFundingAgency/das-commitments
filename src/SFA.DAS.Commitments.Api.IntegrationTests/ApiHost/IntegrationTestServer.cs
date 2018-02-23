@@ -55,8 +55,21 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
             WebApiConfig.Register(config);
 
             // we need to set up structure map, coz as is, it can't ctruct the ctor
+
             // after updating packages, and setting to same version as api, test will no longer run (inconclusive)
             // so have undone all the package changes and we'll start from the last known working
+
+            // setting these 3 packages back to match the version throughout the solution stops the test from being able to be run!
+            // from 5.2.4 -> 5.2.3
+            // presumable the new 4.0 version of Microsoft.Owin et al requires the newer versions
+            //< package id = "Microsoft.AspNet.WebApi.Client" version = "5.2.3" targetFramework = "net461" />
+            //< package id = "Microsoft.AspNet.WebApi.Core" version = "5.2.3" targetFramework = "net461" />
+            //< package id = "Microsoft.AspNet.WebApi.Owin" version = "5.2.3" targetFramework = "net461" />
+            // unfortunatly, when the test had the latest versions it complained of assembly versioning mismatch
+            // so we'll try with the later versions of the 3 above, and match all the other versions
+            // if that doesn't work, we'll try version redirection in app.config
+            // and if that doesn't work, we'll try downgrading owin and matching all the versions
+
             //todo: this is not how the cut integrates structuremap!
             //const string ServiceName = "SFA.DAS.Commitments";
             //const string ServiceVersion = "1.0";
