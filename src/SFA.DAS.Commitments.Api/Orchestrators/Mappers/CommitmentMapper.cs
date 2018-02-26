@@ -96,6 +96,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             {
                 Reference = commitment.Reference,
                 EmployerAccountId = commitment.EmployerAccountId,
+                TransferSenderId = commitment.TransferSenderId,
+                TransferSenderName = commitment.TransferSenderName,
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityAddress = commitment.LegalEntityAddress,
