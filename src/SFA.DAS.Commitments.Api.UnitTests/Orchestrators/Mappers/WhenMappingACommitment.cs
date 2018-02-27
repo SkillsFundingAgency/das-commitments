@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
 {
@@ -57,5 +58,45 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
         {
             Assert.IsNull(_mapper.MapFrom(null as Commitment, CallerType.Employer));
         }
+
+        [Test]
+        public void ThenMappingCommitment()
+        {
+            var from = new SFA.DAS.Commitments.Api.Types.Commitment.Commitment
+            {
+                Reference = "Reference",
+                EmployerAccountId = 1,
+                TransferSenderId = 2,
+                TransferSenderName = "TransferSenderName",
+                LegalEntityId = "LegalEntityId",
+                LegalEntityName = "LegalEntityName",
+                LegalEntityAddress = "LegalEntityAddress",
+                LegalEntityOrganisationType = OrganisationType.Charities,
+                ProviderId = 3,
+                ProviderName = "ProviderName",
+                CommitmentStatus = Types.Commitment.Types.CommitmentStatus.Active,
+                EditStatus = Types.Commitment.Types.EditStatus.Both
+            };
+            from.EmployerLastUpdateInfo.Name = "Test";
+            from.EmployerLastUpdateInfo.EmailAddress = "test@test.com";
+
+
+            var result = _mapper.MapFrom(from);
+
+            Assert.AreEqual("Reference", result.Reference);
+            Assert.AreEqual(1,result.EmployerAccountId);
+            Assert.AreEqual(2,result.TransferSenderId);
+            Assert.AreEqual("TransferSenderName", result.TransferSenderName);
+            Assert.AreEqual("LegalEntityId", result.LegalEntityId);
+            Assert.AreEqual("LegalEntityName", result.LegalEntityName);
+            Assert.AreEqual("LegalEntityAddress", result.LegalEntityAddress);
+            Assert.AreEqual(OrganisationType.Charities, result.LegalEntityOrganisationType);
+            Assert.AreEqual(3,result.ProviderId);
+            Assert.AreEqual("ProviderName", result.ProviderName);
+            Assert.AreEqual(CommitmentStatus.Active, result.CommitmentStatus);
+            Assert.AreEqual(EditStatus.Both, result.EditStatus);
+
+        }
+
     }
 }
