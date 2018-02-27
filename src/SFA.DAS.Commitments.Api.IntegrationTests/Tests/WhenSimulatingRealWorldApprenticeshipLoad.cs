@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
+using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
@@ -41,6 +42,20 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var resultsAsString = await results.Content.ReadAsStringAsync();
             var apprenticeship = JsonConvert.DeserializeObject<Apprenticeship>(resultsAsString);
+        }
+
+        [Test]
+        public async Task NotSelfHosted()
+        {
+            //todo: the test will have to create these of course mf
+            long employerAccountId = 8315;
+            long apprenticeshipId = 1;
+
+            var container = IoC.Initialize();
+            container.Configure(c => c.AddRegistry<TestRegistry>());
+
+            var employerController = container.GetInstance<EmployerController>();
+            var apprenticeship = await employerController.GetApprenticeship(employerAccountId, apprenticeshipId);
         }
     }
 }

@@ -133,6 +133,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
     {
         public TestRegistry()
         {
+            // OWIN self-hosting doesn't have a HttpContext, but we need one because
+            // StructureMapDependencyScope uses the HttpContext to stash a NestedContainer
+            // if we get the authorization working, we could change StructureMapDependencyScope
+            // (also WebLoggingContext uses it, but we replace the one in the container with a null htppcontext - which it handles fine)
             var httpContext = FakeHttpContext("http://localhost");
             var httpContextBase = new System.Web.HttpContextWrapper(httpContext);
             For<HttpContextBase>().Use(httpContextBase);
