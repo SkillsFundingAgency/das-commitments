@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
+using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -10,6 +11,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     {
         Task<IEnumerable<Types.Commitment.CommitmentListItem>> GetCommitments(long accountId);
         Task<Types.Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId);
+        Task<Types.Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId, CallerType callerType);
         Task<long> CreateCommitment(long accountId, Types.Commitment.CommitmentRequest commitmentRequest);
         Task<IEnumerable<Apprenticeship>> GetApprenticeships(long accountId);
         Task<ApprenticeshipSearchResponse> GetApprenticeships(long accountId, ApprenticeshipSearchQuery query);

@@ -98,7 +98,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
-        public async Task<Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId)
+        public Task<Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId) =>
+            GetCommitment(accountId, commitmentId, CallerType.Employer);
+
+        public async Task<Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId, CallerType callerType)
         {
             _logger.Trace($"Getting commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
 
@@ -106,7 +109,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 Caller = new Caller
                 {
-                    CallerType = CallerType.Employer,
+                    CallerType = callerType,
                     Id = accountId
                 },
                 CommitmentId = commitmentId
