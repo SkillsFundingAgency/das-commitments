@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     //todo: infrastructure for integration tests (test helpers/inmemory self hosting) - remove need to authorization for requests from localhost? or in-memory?
     //todo: infrastructure generating mass data(autofixture?/sqlbulkcopy?/schema changes)
     //todo: write scenarios(parallel execution)
-    //todo: use INTTEST as env?
+    //todo: use INTTEST as env? so could have a seperate database to contain all the test data
 
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
