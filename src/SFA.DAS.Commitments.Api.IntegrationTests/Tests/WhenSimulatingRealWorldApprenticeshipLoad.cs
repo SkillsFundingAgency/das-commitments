@@ -14,6 +14,11 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
+    //todo: infrastructure for integration tests (test helpers/inmemory self hosting) - remove need to authorization for requests from localhost? or in-memory?
+    //todo: infrastructure generating mass data(autofixture?/sqlbulkcopy?/schema changes)
+    //todo: write scenarios(parallel execution)
+    //todo: use INTTEST as env?
+
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
@@ -30,7 +35,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var httpClient = IntegrationTestServer.Client;
             //Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk");
+
+
+            //this 1...
+            //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk");
             //"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk"
             //eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJUb2tlbklzc3VlciIsImF1ZCI6IkF1ZGllbmNlcyIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.NsVVWGXGeeDzPzeS0s_7J0fyc2g_YcPhU36j68qITqg
             //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJUb2tlbklzc3VlciIsImF1ZCI6IkF1ZGllbmNlcyIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.NsVVWGXGeeDzPzeS0s_7J0fyc2g_YcPhU36j68qITqg");
