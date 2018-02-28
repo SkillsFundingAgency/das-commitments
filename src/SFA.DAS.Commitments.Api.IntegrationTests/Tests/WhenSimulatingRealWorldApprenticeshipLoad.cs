@@ -9,6 +9,8 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
+using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
+using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
@@ -64,6 +66,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var employerController = container.GetInstance<EmployerController>();
             var apprenticeship = await employerController.GetApprenticeship(employerAccountId, apprenticeshipId);
+        }
+
+        [Test]
+        public async Task TestDataDevHarness()
+        {
+            var testApprenticeships = new TestData().GenerateApprenticeships();
+            await new CommitmentsDatabase().InsertApprenticeships(testApprenticeships);
         }
     }
 }
