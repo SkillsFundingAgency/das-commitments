@@ -14,10 +14,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     {
         public List<DbSetupApprenticeship> GenerateApprenticeships(long initialId = 1)
         {
-            var tt = new Fixture().Create<TrainingType>();
-
             var fixture = new Fixture();//.Customize(new IntegrationTestCustomisation());
-            //fixture.Customizations.Insert(0, new EnumGenerator());
             //fixture.Customizations.Insert(0, new RandomEnumSequenceGenerator<TableType>())
             var apprenticeships = fixture.CreateMany<DbSetupApprenticeship>(2).ToList();
             foreach (var apprenticeship in apprenticeships)
@@ -25,6 +22,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 apprenticeship.Id = initialId++;
             }
             return apprenticeships;
+        }
+
+        public List<DbSetupCommitment> GenerateCommitments(long initialId = 1)
+        {
+            var fixture = new Fixture();
+            var commitments = fixture.CreateMany<DbSetupCommitment>(2).ToList();
+            foreach (var commitment in commitments)
+            {
+                commitment.Id = initialId++;
+            }
+            return commitments;
         }
     }
 

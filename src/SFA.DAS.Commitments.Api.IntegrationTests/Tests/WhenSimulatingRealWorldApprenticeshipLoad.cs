@@ -74,6 +74,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         {
             var testApprenticeships = new TestData().GenerateApprenticeships();
             await new CommitmentsDatabase().InsertApprenticeships(testApprenticeships);
+            var testCommitments = new TestData().GenerateCommitments();
+            await new CommitmentsDatabase().InsertCommitments(testCommitments);
         }
     }
 }

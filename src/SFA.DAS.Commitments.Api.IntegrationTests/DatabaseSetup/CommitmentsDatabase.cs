@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await connection.OpenAsync();
                 using (var bcp = new SqlBulkCopy(connection))
                 using (var reader = ObjectReader.Create(apprenticeships,
-                    "Id",   //todo: incrementing
+                    "Id", //todo: incrementing
                     "CommitmentId",
                     //todo: public string Reference",
                     "FirstName",
@@ -48,9 +48,32 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     //"PauseDate",
                     //"StopDate",
                     //"HasHadDataLockSuccess"
-                    ))
+                ))
                 {
                     bcp.DestinationTableName = "[dbo].[Apprenticeship]";
+                    await bcp.WriteToServerAsync(reader);
+                }
+            }
+        }
+
+        public async Task InsertCommitments(List<DbSetupCommitment> commitments)
+        {
+            //load config from local app.config instead?
+            var config = Infrastructure.Configuration.Configuration.Get();
+
+            using (var connection = new SqlConnection(config.DatabaseConnectionString))
+            {
+                await connection.OpenAsync();
+                using (var bcp = new SqlBulkCopy(connection))
+                using (var reader = ObjectReader.Create(commitments,
+                    "Id", "Reference", "EmployerAccountId", "LegalEntityId", "LegalEntityName",
+                    "LegalEntityAddress", "LegalEntityOrganisationType", "ProviderId",
+                    "ProviderName", "CommitmentStatus", "EditStatus", "CreatedOn",
+                    "LastAction", "LastUpdatedByEmployerName", "LastUpdatedByEmployerEmail",
+                    "LastUpdatedByProviderName","LastUpdatedByProviderEmail"
+                ))
+                {
+                    bcp.DestinationTableName = "[dbo].[Commitment]";
                     await bcp.WriteToServerAsync(reader);
                 }
             }
