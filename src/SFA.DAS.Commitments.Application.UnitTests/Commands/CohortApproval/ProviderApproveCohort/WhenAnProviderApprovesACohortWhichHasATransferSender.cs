@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
             await Target.Handle(Command);
 
-            MessagePublisher.Verify(x => x.PublishAsync(It.Is<CommitmentRequiresApprovalByTransferSender>(y =>
+            MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalByTransferSenderRequested>(y =>
                 y.ReceivingEmployerAccountId == Commitment.EmployerAccountId &&
                 y.CommitmentId == Commitment.Id && y.SendingEmployerAccountId == Commitment.TransferSenderId &&
                 y.TransferCost == Commitment.Apprenticeships.Sum(a => a.Cost ?? 0))), Times.Once);
