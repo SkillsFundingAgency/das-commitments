@@ -12,22 +12,39 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class TestData
     {
-        public List<DbSetupApprenticeship> GenerateApprenticeships(long initialId = 1)
+        public (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = 80)
         {
             var fixture = new Fixture();//.Customize(new IntegrationTestCustomisation());
             //fixture.Customizations.Insert(0, new RandomEnumSequenceGenerator<TableType>())
-            var apprenticeships = fixture.CreateMany<DbSetupApprenticeship>(2).ToList();
+            var apprenticeships = fixture.CreateMany<DbSetupApprenticeship>(apprenticeshipsToGenerate).ToList();
+
+            // for the first set of apprenticeships, put them in a cohort as big as maxCohortSize (given enough apprenticeships)
+            // so that we have a max size cohort for testing purposes.
+            // then for the other apprenticeships, give them randomly sized cohorts up to the max
+
+            var random = new Random();
+            int apprenticeshipsLeftInCohort = maxCohortSize;
+
             foreach (var apprenticeship in apprenticeships)
             {
-                apprenticeship.Id = initialId++;
+                apprenticeship.Id = initialId++; //todo: required?
+
+                if (--apprenticeshipsLeftInCohort < 0)
+                {
+                    apprenticeshipsLeftInCohort = random.Next(1, maxCohortSize);
+                    ++firstCohortId;
+                }
+
+                apprenticeship.CommitmentId = firstCohortId;
             }
-            return apprenticeships;
+
+            return (apprenticeships, firstCohortId);
         }
 
-        public List<DbSetupCommitment> GenerateCommitments(long initialId = 1)
+        public List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate, long initialId = 1)
         {
             var fixture = new Fixture();
-            var commitments = fixture.CreateMany<DbSetupCommitment>(2).ToList();
+            var commitments = fixture.CreateMany<DbSetupCommitment>(commitmentsToGenerate).ToList();
             foreach (var commitment in commitments)
             {
                 commitment.Id = initialId++;

@@ -72,9 +72,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task TestDataDevHarness()
         {
-            var testApprenticeships = new TestData().GenerateApprenticeships();
+            // get latest cohortId from database
+            var latestApprenticeshipIdInDatabase = 1;
+            var latestCohortIdInDatabase = 1;
+            var firstNewCohortId = latestCohortIdInDatabase + 1;
+            (var testApprenticeships, long lastCohortId) = new TestData().GenerateApprenticeships(2, latestApprenticeshipIdInDatabase+1, firstNewCohortId);
             await new CommitmentsDatabase().InsertApprenticeships(testApprenticeships);
-            var testCommitments = new TestData().GenerateCommitments();
+
+            // generate the commitments that the new apprenticeships reference
+            int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
+
+            var testCommitments = new TestData().GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
             await new CommitmentsDatabase().InsertCommitments(testCommitments);
         }
     }
