@@ -51,6 +51,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
             return commitments;
         }
+
+        public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdate(int apprenticeshipUpdatesToGenerate, long initialId = 1)
+        {
+            var fixture = new Fixture();
+            var commitments = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
+            foreach (var commitment in commitments)
+            {
+                commitment.Id = initialId++;
+            }
+            return commitments;
+        }
     }
 
     public class RandomEnumSequenceGenerator<T> : ISpecimenBuilder where T : struct

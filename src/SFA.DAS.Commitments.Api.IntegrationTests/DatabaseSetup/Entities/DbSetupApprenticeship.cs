@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
         //https://stackoverflow.com/questions/36850313/random-enum-generation
         //https://stackoverflow.com/questions/20957010/create-anonymous-enum-value-from-a-subset-of-all-values
         //[EnumDataType(typeof(TrainingType))]
-        public TrainingType TrainingType { get; set; }
+        public TrainingType? TrainingType { get; set; }
         [StringLength(20)]
         public string TrainingCode { get; set; }
         [StringLength(126)]

@@ -142,6 +142,7 @@
     <Compile Include="ApiHost\IntegrationTestServer.cs" />
     <Compile Include="DatabaseSetup\CommitmentsDatabase.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeship.cs" />
+    <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeshipUpdate.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupCommitment.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
