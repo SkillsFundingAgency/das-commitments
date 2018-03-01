@@ -16,7 +16,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
         {
             //helpers/class for this bit
-
             var config = Infrastructure.Configuration.Configuration.Get();
 
             using (var connection = new SqlConnection(config.DatabaseConnectionString))
@@ -24,12 +23,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await connection.OpenAsync();
                 using (var bcp = new SqlBulkCopy(connection))
                 using (var reader = ObjectReader.Create(apprenticeships,
+                    "Id",   //todo: incrementing
                     "CommitmentId",
                     //todo: public string Reference",
                     "FirstName",
                     "LastName",
-                    "DateOfBirth",
-                    "NINumber",
                     "ULN",
                     "TrainingType",
                     "TrainingCode",
@@ -37,13 +35,19 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     "Cost",
                     "StartDate",
                     "EndDate",
-                    "PauseDate",
-                    "StopDate",
-                    "PaymentStatus",
                     "AgreementStatus",
+                    "PaymentStatus",
+                    "DateOfBirth",
+                    "NINumber",
                     "EmployerRef",
                     "ProviderRef",
-                    "HasHadDataLockSuccess"
+                    "CreatedOn",
+                    "AgreedOn",
+                    "PaymentOrder"
+
+                    //"PauseDate",
+                    //"StopDate",
+                    //"HasHadDataLockSuccess"
                     ))
                 {
                     bcp.DestinationTableName = "[dbo].[Apprenticeship]";

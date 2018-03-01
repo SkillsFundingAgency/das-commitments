@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using AutoFixture;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
