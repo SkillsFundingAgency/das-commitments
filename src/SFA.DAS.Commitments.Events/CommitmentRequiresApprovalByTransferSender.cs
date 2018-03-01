@@ -2,14 +2,14 @@
 
 namespace SFA.DAS.Commitments.Events
 {
-    [MessageGroup("commitment_requires_approval_by_transfer_sender")]
-    public class CommitmentRequiresApprovalByTransferSender
+    [MessageGroup("cohort_approval_by_transfer_sender_requested")]
+    public class CohortApprovalByTransferSenderRequested
     {
-        public CommitmentRequiresApprovalByTransferSender()
+        public CohortApprovalByTransferSenderRequested()
         {
         }
 
-        public CommitmentRequiresApprovalByTransferSender(long accountId, long commitmentId, long transferSenderId, decimal transferCost)
+        public CohortApprovalByTransferSenderRequested(long accountId, long commitmentId, long transferSenderId, decimal transferCost)
         {
             ReceivingEmployerAccountId = accountId;
             CommitmentId = commitmentId;
