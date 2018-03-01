@@ -55,12 +55,22 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdate(int apprenticeshipUpdatesToGenerate, long initialId = 1)
         {
             var fixture = new Fixture();
-            var commitments = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
-            foreach (var commitment in commitments)
+            var apprentieshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
+            foreach (var apprentieshipUpdate in apprentieshipUpdates)
             {
-                commitment.Id = initialId++;
+                apprentieshipUpdate.Id = initialId++;
             }
-            return commitments;
+            return apprentieshipUpdates;
+        }
+        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(int dataLockStatusesToGenerate, long initialId = 1)
+        {
+            var fixture = new Fixture();
+            var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
+            foreach (var dataLockStatuse in dataLockStatuses)
+            {
+                dataLockStatuse.Id = initialId++;
+            }
+            return dataLockStatuses;
         }
     }
 

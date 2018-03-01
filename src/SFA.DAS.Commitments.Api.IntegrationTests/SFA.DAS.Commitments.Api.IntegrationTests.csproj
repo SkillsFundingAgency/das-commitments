@@ -144,6 +144,7 @@
     <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeship.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeshipUpdate.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupCommitment.cs" />
+    <Compile Include="DatabaseSetup\Entities\DbSetupDataLockStatus.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
