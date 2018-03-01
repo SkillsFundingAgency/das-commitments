@@ -48,9 +48,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var results = await IntegrationTestServer.Client.GetAsync(
                     $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}");
 
-            //var mediator = new Mediator()
-            //var employerOrchestrator = new EmployerOrchestrator()
-
             var resultsAsString = await results.Content.ReadAsStringAsync();
             var apprenticeship = JsonConvert.DeserializeObject<Apprenticeship>(resultsAsString);
         }

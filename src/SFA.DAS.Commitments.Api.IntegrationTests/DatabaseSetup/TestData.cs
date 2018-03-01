@@ -15,28 +15,36 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     {
         public static async Task PopulateDatabaseWithTestData()
         {
-            // get latest cohortId from database
-            var latestApprenticeshipIdInDatabase = 1;
-            var latestCohortIdInDatabase = 1;
+            const int minimumNumberOfApprenticeships = 100000;
+            var commitmentsDatabase = new CommitmentsDatabase();
+
+            var latestApprenticeshipIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.ApprenticeshipTableName);
+            var latestCohortIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.CommitmentTableName);
             var firstNewApprenticeshipId = latestApprenticeshipIdInDatabase + 1;
             var firstNewCohortId = latestCohortIdInDatabase + 1;
-            (var testApprenticeships, long lastCohortId) = TestData.GenerateApprenticeships(2, firstNewApprenticeshipId, firstNewCohortId);
-            await new CommitmentsDatabase().InsertApprenticeships(testApprenticeships);
+
+            var apprenticeshipsInTable =
+                await commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
+
+            var apprenticeshipsToGenerate = minimumNumberOfApprenticeships - apprenticeshipsInTable;
+
+            (var testApprenticeships, long lastCohortId) = GenerateApprenticeships(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewCohortId);
+            await commitmentsDatabase.InsertApprenticeships(testApprenticeships);
 
             // generate the commitments that the new apprenticeships reference
             int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
 
             await TestContext.Progress.WriteLineAsync("Generating Commitments");
 
-            var testCommitments = TestData.GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
-            await new CommitmentsDatabase().InsertCommitments(testCommitments);
+            var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
+            await commitmentsDatabase.InsertCommitments(testCommitments);
 
             // (for now at least) generate non-related datalockstatuses for bulking out the table
             const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
-            var testDataLockStatuses = TestData.GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId);
+            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId);
 
-            testDataLockStatuses.AddRange(TestData.GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
-            await new CommitmentsDatabase().InsertDataLockStatuses(testDataLockStatuses);
+            testDataLockStatuses.AddRange(GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
+            await commitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
 
         public static (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = 80)

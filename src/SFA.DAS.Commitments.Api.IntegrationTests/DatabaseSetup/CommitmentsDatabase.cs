@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FastMember;
+using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
@@ -13,7 +14,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class CommitmentsDatabase
     {
-        private CommitmentsApiConfiguration _config;
+        public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
+        public const string CommitmentTableName = "[dbo].[Commitment]";
+        public const string DataLockStatusTableName = "[dbo].[DataLockStatus]";
+
+        private readonly CommitmentsApiConfiguration _config;
 
         public CommitmentsDatabase()
         {
@@ -25,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
         {
-            await BulkInsertRows(apprenticeships, "[dbo].[Apprenticeship]", new []
+            await BulkInsertRows(apprenticeships, ApprenticeshipTableName, new []
             {
                 "Id", //todo: incrementing
                 "CommitmentId",
@@ -57,7 +62,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task InsertCommitments(List<DbSetupCommitment> commitments)
         {
-            await BulkInsertRows(commitments, "[dbo].[Commitment]", new[]
+            await BulkInsertRows(commitments, CommitmentTableName, new[]
             {
                 "Id", "Reference", "EmployerAccountId", "LegalEntityId", "LegalEntityName",
                 "LegalEntityAddress", "LegalEntityOrganisationType", "ProviderId",
@@ -69,7 +74,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task InsertDataLockStatuses(List<DbSetupDataLockStatus> dataLockStatuses)
         {
-            await BulkInsertRows(dataLockStatuses, "[dbo].[DataLockStatus]", new[]
+            await BulkInsertRows(dataLockStatuses, DataLockStatusTableName, new[]
             {
                 "Id", "DataLockEventId", "DataLockEventDatetime", "PriceEpisodeIdentifier",
                 "ApprenticeshipId", "IlrTrainingCourseCode", "IlrTrainingType",
@@ -89,7 +94,36 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 using (var reader = ObjectReader.Create(rowData, columnNamesInTableOrder))
                 {
                     bcp.DestinationTableName = tableName;
+                    bcp.EnableStreaming = true;
+                    bcp.BatchSize = 10000;
+                    bcp.NotifyAfter = 1000;
+                    bcp.SqlRowsCopied += async (sender, e) => await TestContext.Progress.WriteLineAsync($"Copied {e.RowsCopied} rows into {tableName}.");
+
                     await bcp.WriteToServerAsync(reader);
+                }
+            }
+        }
+
+        public async Task<long> LastId(string tableName)
+        {
+            using (var connection = new SqlConnection(_config.DatabaseConnectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand($"SELECT MAX(Id) FROM {tableName}", connection))
+                {
+                    return (long)await command.ExecuteScalarAsync();
+                }
+            }
+        }
+
+        public async Task<int> CountOfRows(string tableName)
+        {
+            using (var connection = new SqlConnection(_config.DatabaseConnectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand($"SELECT Count(1) FROM {tableName}", connection))
+                {
+                    return (int)await command.ExecuteScalarAsync();
                 }
             }
         }
