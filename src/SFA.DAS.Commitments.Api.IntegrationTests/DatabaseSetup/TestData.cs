@@ -10,9 +10,9 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
-    public class TestData
+    public static class TestData
     {
-        public (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = 80)
+        public static (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = 80)
         {
             var fixture = new Fixture();//.Customize(new IntegrationTestCustomisation());
             //fixture.Customizations.Insert(0, new RandomEnumSequenceGenerator<TableType>())
@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return (apprenticeships, firstCohortId);
         }
 
-        public List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate, long initialId = 1)
+        public static List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate, long initialId = 1)
         {
             var fixture = new Fixture();
             var commitments = fixture.CreateMany<DbSetupCommitment>(commitmentsToGenerate).ToList();
@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return commitments;
         }
 
-        public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdate(int apprenticeshipUpdatesToGenerate, long initialId = 1)
+        public static List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdate(int apprenticeshipUpdatesToGenerate, long initialId = 1)
         {
             var fixture = new Fixture();
             var apprentieshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
@@ -62,40 +62,43 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
             return apprentieshipUpdates;
         }
-        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(int dataLockStatusesToGenerate, long initialId = 1)
+
+        public static List<DbSetupDataLockStatus> GenerateDataLockStatuses(long apprenticeshipId, long apprenticeshipUpdateId, int dataLockStatusesToGenerate, long initialId = 1)
         {
             var fixture = new Fixture();
             var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
-            foreach (var dataLockStatuse in dataLockStatuses)
+            foreach (var dataLockStatus in dataLockStatuses)
             {
-                dataLockStatuse.Id = initialId++;
+                dataLockStatus.Id = initialId++;
+                dataLockStatus.ApprenticeshipId = apprenticeshipId;
+                dataLockStatus.ApprenticeshipUpdateId = apprenticeshipUpdateId;
             }
             return dataLockStatuses;
         }
     }
 
-    public class RandomEnumSequenceGenerator<T> : ISpecimenBuilder where T : struct
-    {
-        private static Random _random = new Random();
-        private Array _values;
+    //public class RandomEnumSequenceGenerator<T> : ISpecimenBuilder where T : struct
+    //{
+    //    private static Random _random = new Random();
+    //    private Array _values;
 
-        public RandomEnumSequenceGenerator()
-        {
-            if (!typeof(T).IsEnum)
-            {
-                throw new ArgumentException("T must be an enum");
-            }
-            _values = Enum.GetValues(typeof(T));
-        }
+    //    public RandomEnumSequenceGenerator()
+    //    {
+    //        if (!typeof(T).IsEnum)
+    //        {
+    //            throw new ArgumentException("T must be an enum");
+    //        }
+    //        _values = Enum.GetValues(typeof(T));
+    //    }
 
-        public object Create(object request, ISpecimenContext context)
-        {
-            var t = request as Type;
-            if (t == null || t != typeof(T))
-                return new NoSpecimen();
+    //    public object Create(object request, ISpecimenContext context)
+    //    {
+    //        var t = request as Type;
+    //        if (t == null || t != typeof(T))
+    //            return new NoSpecimen();
 
-            var index = _random.Next(0, _values.Length - 1);
-            return _values.GetValue(index);
-        }
-    }
+    //        var index = _random.Next(0, _values.Length - 1);
+    //        return _values.GetValue(index);
+    //    }
+    //}
 }

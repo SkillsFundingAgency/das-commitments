@@ -75,15 +75,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             // get latest cohortId from database
             var latestApprenticeshipIdInDatabase = 1;
             var latestCohortIdInDatabase = 1;
+            var firstNewApprenticeshipId = latestApprenticeshipIdInDatabase + 1;
             var firstNewCohortId = latestCohortIdInDatabase + 1;
-            (var testApprenticeships, long lastCohortId) = new TestData().GenerateApprenticeships(2, latestApprenticeshipIdInDatabase+1, firstNewCohortId);
+            (var testApprenticeships, long lastCohortId) = TestData.GenerateApprenticeships(2, firstNewApprenticeshipId, firstNewCohortId);
             await new CommitmentsDatabase().InsertApprenticeships(testApprenticeships);
 
             // generate the commitments that the new apprenticeships reference
             int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
 
-            var testCommitments = new TestData().GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
+            var testCommitments = TestData.GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
             await new CommitmentsDatabase().InsertCommitments(testCommitments);
+
+            // (for now at least) generate non-related datalockstatuses for bulking out the table
+            const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
+            var testDataLockStatuses = TestData.GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId);
+
+            testDataLockStatuses.AddRange(TestData.GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
+            await new CommitmentsDatabase().InsertDataLockStatuses(testDataLockStatuses);
         }
     }
 }

@@ -13,67 +13,82 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class CommitmentsDatabase
     {
+        private CommitmentsApiConfiguration _config;
+
+        public CommitmentsDatabase()
+        {
+            //pass in?
+            //load config from local app.config instead?
+
+            _config = Infrastructure.Configuration.Configuration.Get();
+        }
+
         public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
         {
-            //helpers/class for this bit
-            var config = Infrastructure.Configuration.Configuration.Get();
-
-            using (var connection = new SqlConnection(config.DatabaseConnectionString))
+            await BulkInsertRows(apprenticeships, "[dbo].[Apprenticeship]", new []
             {
-                await connection.OpenAsync();
-                using (var bcp = new SqlBulkCopy(connection))
-                using (var reader = ObjectReader.Create(apprenticeships,
-                    "Id", //todo: incrementing
-                    "CommitmentId",
-                    //todo: public string Reference",
-                    "FirstName",
-                    "LastName",
-                    "ULN",
-                    "TrainingType",
-                    "TrainingCode",
-                    "TrainingName",
-                    "Cost",
-                    "StartDate",
-                    "EndDate",
-                    "AgreementStatus",
-                    "PaymentStatus",
-                    "DateOfBirth",
-                    "NINumber",
-                    "EmployerRef",
-                    "ProviderRef",
-                    "CreatedOn",
-                    "AgreedOn",
-                    "PaymentOrder"
+                "Id", //todo: incrementing
+                "CommitmentId",
+                //todo: public string Reference",
+                "FirstName",
+                "LastName",
+                "ULN",
+                "TrainingType",
+                "TrainingCode",
+                "TrainingName",
+                "Cost",
+                "StartDate",
+                "EndDate",
+                "AgreementStatus",
+                "PaymentStatus",
+                "DateOfBirth",
+                "NINumber",
+                "EmployerRef",
+                "ProviderRef",
+                "CreatedOn",
+                "AgreedOn",
+                "PaymentOrder"
 
-                    //"PauseDate",
-                    //"StopDate",
-                    //"HasHadDataLockSuccess"
-                ))
-                {
-                    bcp.DestinationTableName = "[dbo].[Apprenticeship]";
-                    await bcp.WriteToServerAsync(reader);
-                }
-            }
+                //"PauseDate",
+                //"StopDate",
+                //"HasHadDataLockSuccess"
+            });
         }
 
         public async Task InsertCommitments(List<DbSetupCommitment> commitments)
         {
-            //load config from local app.config instead?
-            var config = Infrastructure.Configuration.Configuration.Get();
+            await BulkInsertRows(commitments, "[dbo].[Commitment]", new[]
+            {
+                "Id", "Reference", "EmployerAccountId", "LegalEntityId", "LegalEntityName",
+                "LegalEntityAddress", "LegalEntityOrganisationType", "ProviderId",
+                "ProviderName", "CommitmentStatus", "EditStatus", "CreatedOn",
+                "LastAction", "LastUpdatedByEmployerName", "LastUpdatedByEmployerEmail",
+                "LastUpdatedByProviderName","LastUpdatedByProviderEmail"
+            });
+        }
 
-            using (var connection = new SqlConnection(config.DatabaseConnectionString))
+        public async Task InsertDataLockStatuses(List<DbSetupDataLockStatus> dataLockStatuses)
+        {
+            await BulkInsertRows(dataLockStatuses, "[dbo].[DataLockStatus]", new[]
+            {
+                "Id", "DataLockEventId", "DataLockEventDatetime", "PriceEpisodeIdentifier",
+                "ApprenticeshipId", "IlrTrainingCourseCode", "IlrTrainingType",
+                "IlrActualStartDate", "IlrEffectiveFromDate", "IlrPriceEffectiveToDate",
+                "IlrTotalCost", "ErrorCode", "Status", "TriageStatus",
+                "ApprenticeshipUpdateId", "IsResolved", "EventStatus", "IsExpired",
+                "Expired"
+            });
+        }
+
+        public async Task BulkInsertRows<T>(List<T> rowData, string tableName, string[] columnNamesInTableOrder)
+        {
+            using (var connection = new SqlConnection(_config.DatabaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var bcp = new SqlBulkCopy(connection))
-                using (var reader = ObjectReader.Create(commitments,
-                    "Id", "Reference", "EmployerAccountId", "LegalEntityId", "LegalEntityName",
-                    "LegalEntityAddress", "LegalEntityOrganisationType", "ProviderId",
-                    "ProviderName", "CommitmentStatus", "EditStatus", "CreatedOn",
-                    "LastAction", "LastUpdatedByEmployerName", "LastUpdatedByEmployerEmail",
-                    "LastUpdatedByProviderName","LastUpdatedByProviderEmail"
-                ))
+                using (var reader = ObjectReader.Create(rowData, columnNamesInTableOrder))
                 {
-                    bcp.DestinationTableName = "[dbo].[Commitment]";
+                    bcp.DestinationTableName = tableName;
                     await bcp.WriteToServerAsync(reader);
                 }
             }
