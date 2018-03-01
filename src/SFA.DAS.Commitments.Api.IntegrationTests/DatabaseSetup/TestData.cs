@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.Kernel;
+using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
@@ -12,6 +13,32 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public static class TestData
     {
+        public static async Task PopulateDatabaseWithTestData()
+        {
+            // get latest cohortId from database
+            var latestApprenticeshipIdInDatabase = 1;
+            var latestCohortIdInDatabase = 1;
+            var firstNewApprenticeshipId = latestApprenticeshipIdInDatabase + 1;
+            var firstNewCohortId = latestCohortIdInDatabase + 1;
+            (var testApprenticeships, long lastCohortId) = TestData.GenerateApprenticeships(2, firstNewApprenticeshipId, firstNewCohortId);
+            await new CommitmentsDatabase().InsertApprenticeships(testApprenticeships);
+
+            // generate the commitments that the new apprenticeships reference
+            int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
+
+            await TestContext.Progress.WriteLineAsync("Generating Commitments");
+
+            var testCommitments = TestData.GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
+            await new CommitmentsDatabase().InsertCommitments(testCommitments);
+
+            // (for now at least) generate non-related datalockstatuses for bulking out the table
+            const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
+            var testDataLockStatuses = TestData.GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId);
+
+            testDataLockStatuses.AddRange(TestData.GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
+            await new CommitmentsDatabase().InsertDataLockStatuses(testDataLockStatuses);
+        }
+
         public static (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = 80)
         {
             var fixture = new Fixture();//.Customize(new IntegrationTestCustomisation());
