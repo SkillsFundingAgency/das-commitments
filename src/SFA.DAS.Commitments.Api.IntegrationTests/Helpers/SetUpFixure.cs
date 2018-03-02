@@ -15,7 +15,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public async Task OneTimeSetUp()
         {
             await TestContext.Progress.WriteLineAsync("Running OneTimeSetUp");
-            TestApprenticeshipIds = await new TestData().PopulateDatabaseWithTestData();
+            //TestApprenticeshipIds = await new TestData().PopulateDatabaseWithTestData();
+            TestApprenticeshipIds = await new TestData().Initialise();
 
             // how to get app ids out?
             // turn this into a base class?

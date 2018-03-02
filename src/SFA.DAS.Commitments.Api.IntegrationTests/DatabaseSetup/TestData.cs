@@ -9,21 +9,55 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Commitments.Infrastructure.Data;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class TestData
     {
+        private readonly CommitmentsApiConfiguration _config;
         private readonly CommitmentsDatabase _commitmentsDatabase;
         private readonly TestApprenticeshipIds _apprenticeshipIds;
 
         public TestData()
         {
-            _commitmentsDatabase = new CommitmentsDatabase();
+            _config = Infrastructure.Configuration.Configuration.Get();
+
+            _commitmentsDatabase = new CommitmentsDatabase(_config.DatabaseConnectionString);
             _apprenticeshipIds = new TestApprenticeshipIds();
         }
 
         //todo: handle case when database already populated & schema update (regenerate all data?)
+
+        public async Task<TestApprenticeshipIds> Initialise()
+        {
+            //logger null gonna cause probs?
+            //var jobProgressRepository = new JobProgressRepository(_config.DatabaseConnectionString, null);
+            //jobProgressRepository.
+
+            var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>("IntTest_SchemaVersion");
+            if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
+            {
+                //todo:   truncate data
+                return await PopulateDatabaseWithTestData();
+            }
+
+            // else if data in db
+            //   load app ids
+            // else populate data
+            return await PopulateDatabaseWithTestData();
+
+            
+            // get schema
+            // if schema in db not current
+            //   truncate data
+            //   populate data
+            // else if data in db
+            //   load app ids
+            // else populate data
+
+        }
 
         public async Task<TestApprenticeshipIds> PopulateDatabaseWithTestData()
         {

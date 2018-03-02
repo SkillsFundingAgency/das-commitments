@@ -14,19 +14,18 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class CommitmentsDatabase
     {
+        public const int SchemaVersion = 1;
+
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
         public const string CommitmentTableName = "[dbo].[Commitment]";
         public const string DataLockStatusTableName = "[dbo].[DataLockStatus]";
 
-        private readonly CommitmentsApiConfiguration _config;
+        private readonly string _databaseConnectionString;
 
-        public CommitmentsDatabase()
+        public CommitmentsDatabase(string databaseConnectionString)
         {
-            //pass in?
-            //load config from local app.config instead?
-
-            _config = Infrastructure.Configuration.Configuration.Get();
+            _databaseConnectionString = databaseConnectionString;
         }
 
         public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
@@ -99,7 +98,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task BulkInsertRows<T>(List<T> rowData, string tableName, string[] columnNamesInTableOrder)
         {
-            using (var connection = new SqlConnection(_config.DatabaseConnectionString))
+            using (var connection = new SqlConnection(_databaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var bcp = new SqlBulkCopy(connection))
@@ -118,13 +117,52 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task<long?> LastId(string tableName)
         {
-            using (var connection = new SqlConnection(_config.DatabaseConnectionString))
+            using (var connection = new SqlConnection(_databaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand($"SELECT MAX(Id) FROM {tableName}", connection))
                 {
                     var result = await command.ExecuteScalarAsync();
                     return result == DBNull.Value ? null : (long?) result;
+                }
+            }
+        }
+
+        //store in JobProgress or a seperate table, either in db project or seperate??
+        // test apprenticeship ids are not job progresses. change tablename to something else?
+        public async Task<T> GetJobProgress<T>(string columnName)
+        {
+            using (var connection = new SqlConnection(_databaseConnectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand($"SELECT {columnName} FROM [dbo].[JobProgress]", connection))
+                {
+                    var result = await command.ExecuteScalarAsync();
+                    //todo: LastId returns DbNull, this just returns null
+                    //https://stackoverflow.com/questions/7927211/executescalar-returns-null-or-dbnull-development-or-production-server
+                    //ExecuteScalar returns DBNull for null value from query and null for no result
+                    return result == DBNull.Value ? default(T) : (T)result;
+                }
+            }
+        }
+
+        public async Task SetJobProgress<T>(string columnName, T columnValue)
+        {
+            using (var connection = new SqlConnection(_databaseConnectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand(
+$@"MERGE [dbo].[JobProgress] WITH(HOLDLOCK) as target
+using (values(@parameter)) as source (sourceColumn)
+on target.Lock = 'X'
+when matched then
+    update set {columnName} = source.sourceColumn
+when not matched then
+insert({columnName}) values(source.sourceColumn); ", connection))
+                {
+                    command.Parameters.AddWithValue("@parameter", columnValue);
+
+                    await command.ExecuteNonQueryAsync();
                 }
             }
         }
@@ -137,7 +175,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task<int> CountOfRows(string tableName)
         {
-            using (var connection = new SqlConnection(_config.DatabaseConnectionString))
+            using (var connection = new SqlConnection(_databaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand($"SELECT Count(1) FROM {tableName}", connection))

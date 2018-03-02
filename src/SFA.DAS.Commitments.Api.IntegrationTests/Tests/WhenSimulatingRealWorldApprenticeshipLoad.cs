@@ -21,6 +21,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     //todo: infrastructure generating mass data(autofixture?/sqlbulkcopy?/schema changes)
     //todo: write scenarios(parallel execution)
     //todo: use INTTEST as env? so could have a seperate database to contain all the test data
+    // /\ think we need this so we can blatt the data when necessary
 
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
@@ -29,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public async Task ThenSumfinkOrNuffink()
         {
             //todo: the test will have to create these of course mf
-            string employerAccountId = "8315";
+            string employerAccountId = "8315"; // initial look suggests this is not actually used
             long apprenticeshipId = SetUpFixure.TestApprenticeshipIds.MaxCohortSize;
 
             // when we supply a valid token, in ApiKeyHandler, JwtSecurityTokenHandler.ValidateToken complains that the header isn't base64 encoded,
