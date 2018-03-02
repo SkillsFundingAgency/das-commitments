@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // limit length in aggregate? does it matter if lazily enumerated and don't read past required?
             int maxUpdatesPerApprenticeship = 5;
             var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
-                (ids, id) => ids.Concat(Enumerable.Repeat(id, random.Next(maxUpdatesPerApprenticeship))));
+                (ids, id) => ids.Concat(Enumerable.Repeat(id, random.Next(1, maxUpdatesPerApprenticeship))));
 
             var fixture = new Fixture();
             var apprenticeshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
