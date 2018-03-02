@@ -15,6 +15,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     public class CommitmentsDatabase
     {
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
+        public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
         public const string CommitmentTableName = "[dbo].[Commitment]";
         public const string DataLockStatusTableName = "[dbo].[DataLockStatus]";
 
@@ -57,6 +58,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 //"PauseDate",
                 //"StopDate",
                 //"HasHadDataLockSuccess"
+            });
+        }
+        
+        public async Task InsertApprenticeshipUpdates(List<DbSetupApprenticeshipUpdate> apprenticeshipUpdates)
+        {
+            await BulkInsertRows(apprenticeshipUpdates, ApprenticeshipUpdateTableName, new[]
+            {
+                "Id", "ApprenticeshipId", "Originator", "Status", "FirstName", "LastName",
+                "TrainingType", "TrainingCode", "TrainingName", "Cost", "StartDate",
+                "EndDate", "DateOfBirth", "CreatedOn", "UpdateOrigin", "EffectiveFromDate",
+                "EffectiveToDate"
             });
         }
 

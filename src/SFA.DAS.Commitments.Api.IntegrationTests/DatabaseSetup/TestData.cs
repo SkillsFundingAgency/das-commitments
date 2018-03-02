@@ -15,7 +15,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     {
         public static async Task PopulateDatabaseWithTestData()
         {
-            const int minimumNumberOfApprenticeships = 100000;
             var commitmentsDatabase = new CommitmentsDatabase();
 
             var latestApprenticeshipIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.ApprenticeshipTableName);
@@ -26,7 +25,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var apprenticeshipsInTable =
                 await commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
 
-            var apprenticeshipsToGenerate = minimumNumberOfApprenticeships - apprenticeshipsInTable;
+            var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
             (var testApprenticeships, long lastCohortId) = GenerateApprenticeships(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewCohortId);
             await commitmentsDatabase.InsertApprenticeships(testApprenticeships);
@@ -39,15 +38,32 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
             await commitmentsDatabase.InsertCommitments(testCommitments);
 
+            //todo: methods for these
+            // generate apprenticeship updates
+            int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsToGenerate * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
+            var latestApprenticeshipUpdateIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
+            var testApprenticeshipUpdates = GenerateApprenticeshipUpdates(firstNewApprenticeshipId, apprenticeshipsToGenerate, latestApprenticeshipUpdateIdInDatabase, apprenticeshipUpdatesToGenerate);
+            await commitmentsDatabase.InsertApprenticeshipUpdates(testApprenticeshipUpdates);
+
             // (for now at least) generate non-related datalockstatuses for bulking out the table
             const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
-            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId);
+            var latestDataLockStatusIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.DataLockStatusTableName);
 
-            testDataLockStatuses.AddRange(GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
+            //for now..
+            var dataLockStatusesToGenerate = TestDataVolume.MinNumberOfDataLockStatuses;
+            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, dataLockStatusesToGenerate, latestDataLockStatusIdInDatabase);
+
+            //todo: keep class of apprenticeshipIds with certain conditions, e.g. 
+            // class TestApprenticehipIds
+            // { MaxCohortSize, etc.
+            // todo: if data already generated how to get these app ids? store in job progress?
+
+            //todo: generate specific statuses for later tests
+            //testDataLockStatuses.AddRange(GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
             await commitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
 
-        public static (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = 80)
+        public static (List<DbSetupApprenticeship>, long) GenerateApprenticeships(int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = TestDataVolume.MaxNumberOfApprenticeshipsInCohort)
         {
             var fixture = new Fixture();//.Customize(new IntegrationTestCustomisation());
             //fixture.Customizations.Insert(0, new RandomEnumSequenceGenerator<TableType>())
@@ -74,6 +90,31 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
 
             return (apprenticeships, firstCohortId);
+        }
+
+        public static List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, long initialId, int apprenticeshipUpdatesToGenerate)
+        {
+            var random = new Random();
+            // limit length? does it matter if lazily enumerated and don't read past required?
+            var newApprenticeshipIdsShuffled = Enumerable
+                .Range((int) firstNewApprenticeshipId, numberOfNewApprenticeships)
+                .OrderBy(au => random.Next(int.MaxValue));
+
+            // limit length in aggregate? does it matter if lazily enumerated and don't read past required?
+            int maxUpdatesPerApprenticeship = 5;
+            var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
+                (ids, id) => ids.Concat(Enumerable.Repeat(id, random.Next(maxUpdatesPerApprenticeship))));
+
+            var fixture = new Fixture();
+            var apprenticeshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
+
+            return apprenticeshipUpdates.Zip(apprenticeshipIdsForUpdates, (update, apprenticeshipId) =>
+            {
+                // bit nasty -> shouldn't alter source! but soon to go out of scope
+                update.Id = initialId++;
+                update.ApprenticeshipId = apprenticeshipId;
+                return update;
+            }).ToList();
         }
 
         public static List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate, long initialId = 1)
