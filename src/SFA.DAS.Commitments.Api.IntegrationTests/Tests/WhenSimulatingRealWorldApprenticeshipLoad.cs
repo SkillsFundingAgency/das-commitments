@@ -30,13 +30,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         {
             //todo: the test will have to create these of course mf
             string employerAccountId = "8315";
-            string apprenticeshipId = "1";
+            long apprenticeshipId = SetUpFixure.TestApprenticeshipIds.MaxCohortSize;
 
             // when we supply a valid token, in ApiKeyHandler, JwtSecurityTokenHandler.ValidateToken complains that the header isn't base64 encoded,
             // but it is. see https://stackoverflow.com/questions/43003502/jwt-unable-to-decode-the-header-as-base64url-encoded-string
             // have checked that newtonsoft.json is loaded and we have the redirect, and the token is mod 4, but still doesn't work!
 
-            var httpClient = IntegrationTestServer.Client;
+            //var httpClient = IntegrationTestServer.Client;
             //Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk
 
 

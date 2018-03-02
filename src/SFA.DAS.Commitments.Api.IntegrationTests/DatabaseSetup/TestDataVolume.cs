@@ -8,5 +8,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public const int MaxNumberOfApprenticeshipsInCohort = 80;
         public const double ApprenticeshipUpdatesToApprenticeshipsRatio = 0.1d;
         public const int MinNumberOfDataLockStatuses = 250; //100000;
+        public const int MaxApprenticeshipUpdatesPerApprenticeship = 5;
     }
 }
