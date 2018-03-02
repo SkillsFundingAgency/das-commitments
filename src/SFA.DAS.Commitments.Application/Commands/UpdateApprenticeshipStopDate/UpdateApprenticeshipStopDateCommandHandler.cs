@@ -67,15 +67,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         {
             var historyService = new HistoryService(_historyRepository);
 
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), null, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
-            apprenticeship.PaymentStatus = PaymentStatus.Withdrawn;
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), commitment.Id, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
            
             await _apprenticeshipRepository.UpdateApprenticeshipStopDate(commitment.Id, command.ApprenticeshipId, command.StopDate);
 
             await historyService.Save();
         }
 
-        private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
+        private void ValidateChangeDateForStop(DateTime newStopDate, Apprenticeship apprenticeship)
         {
             if (apprenticeship == null) throw new ArgumentException(nameof(apprenticeship));
 
@@ -84,17 +83,17 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
                 throw new ValidationException("Apprenticeship must be stopped in order to update stop date");
             }
 
-            if (dateOfChange.Date > _currentDate.Now.Date)
+            if (newStopDate.Date > _currentDate.Now.Date)
                 throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
-            if (dateOfChange.Date >= apprenticeship.StopDate)
+            if (newStopDate.Date >= apprenticeship.StopDate)
                 throw new ValidationException("Invalid Date of Change. Date must be before current stop date.");
 
-            if ( dateOfChange.Date < apprenticeship.StartDate.Value.Date)
+            if (newStopDate.Date < apprenticeship.StartDate.Value.Date)
                 throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
 
             if ( apprenticeship.PaymentStatus != PaymentStatus.PendingApproval && 
-                _academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
+                _academicYearValidator.Validate(newStopDate.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
             {
                 throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
             }
