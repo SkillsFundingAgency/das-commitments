@@ -29,14 +29,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                StopDate = DateTime.Now.Date,
+                StopDate = DateTime.UtcNow.Date,
                 UserName = "Bob"
             };
 
             TestApprenticeship = new Apprenticeship
             {
                 CommitmentId = 123L,
-                PaymentStatus = PaymentStatus.Active,
+                PaymentStatus = PaymentStatus.Withdrawn,
+                StopDate = DateTime.UtcNow.Date.AddMonths(3),
                 StartDate = DateTime.UtcNow.Date.AddMonths(-1)
             };
 
@@ -153,17 +154,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public void ThenThrowsExceptionIfApprenticeshipIsWaitingToStartAndChangeDateIsNotTrainingStartDate()
+        public void ThenThrowsExceptionIfNewStopDateIsAfterCurrentStopDate()
         {
-            var startDate = DateTime.UtcNow.AddMonths(2).Date;
-            TestApprenticeship.StartDate = startDate;
-
+            TestApprenticeship.StopDate = ExampleValidRequest.StopDate.AddDays(-1);
 
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
-            act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
+            act.ShouldThrow<ValidationException>().Which.Message.Equals("Invalid Date of Change. Date must be before current stop date.");
         }
-
 
         [Test]
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
@@ -173,6 +171,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenThrowsExceptionIfApprenticeshipIsNotStopped()
+        {
+            TestApprenticeship.PaymentStatus = PaymentStatus.Active;
+
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
+
+            act.ShouldThrow<ValidationException>().Which.Message.Equals("Apprenticeship must be stopped in order to update stop date");
         }
     }
 }
