@@ -116,16 +116,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        public async Task<long> LastId(string tableName)
+        public async Task<long?> LastId(string tableName)
         {
             using (var connection = new SqlConnection(_config.DatabaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand($"SELECT MAX(Id) FROM {tableName}", connection))
                 {
-                    return (long)await command.ExecuteScalarAsync();
+                    var result = await command.ExecuteScalarAsync();
+                    return result == DBNull.Value ? null : (long?) result;
                 }
             }
+        }
+
+        public async Task<long> FirstNewId(string tableName)
+        {
+            var latestIdInDatabase = await LastId(tableName);
+            return (latestIdInDatabase ?? 0) + 1;
         }
 
         public async Task<int> CountOfRows(string tableName)

@@ -17,10 +17,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             var commitmentsDatabase = new CommitmentsDatabase();
 
-            var latestApprenticeshipIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.ApprenticeshipTableName);
-            var latestCohortIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.CommitmentTableName);
-            var firstNewApprenticeshipId = latestApprenticeshipIdInDatabase + 1;
-            var firstNewCohortId = latestCohortIdInDatabase + 1;
+            var firstNewApprenticeshipId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
+            var firstNewCohortId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
 
             var apprenticeshipsInTable =
                 await commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
@@ -41,17 +39,18 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: methods for these
             // generate apprenticeship updates
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsToGenerate * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
-            var latestApprenticeshipUpdateIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
-            var testApprenticeshipUpdates = GenerateApprenticeshipUpdates(firstNewApprenticeshipId, apprenticeshipsToGenerate, latestApprenticeshipUpdateIdInDatabase, apprenticeshipUpdatesToGenerate);
+            var firstNewApprenticeshipUpdateId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
+
+            var testApprenticeshipUpdates = GenerateApprenticeshipUpdates(firstNewApprenticeshipId, apprenticeshipsToGenerate, firstNewApprenticeshipUpdateId, apprenticeshipUpdatesToGenerate);
             await commitmentsDatabase.InsertApprenticeshipUpdates(testApprenticeshipUpdates);
 
             // (for now at least) generate non-related datalockstatuses for bulking out the table
             const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
-            var latestDataLockStatusIdInDatabase = await commitmentsDatabase.LastId(CommitmentsDatabase.DataLockStatusTableName);
+            var firstNewDataLockStatusUpdateId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
 
             //for now..
             var dataLockStatusesToGenerate = TestDataVolume.MinNumberOfDataLockStatuses;
-            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, dataLockStatusesToGenerate, latestDataLockStatusIdInDatabase);
+            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, dataLockStatusesToGenerate, firstNewDataLockStatusUpdateId);
 
             //todo: keep class of apprenticeshipIds with certain conditions, e.g. 
             // class TestApprenticehipIds
@@ -151,6 +150,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
             return dataLockStatuses;
         }
+
+        //private static async Task<long> FirstNewId(CommitmentsDatabase commitmentsDatabase, string tableName)
+        //{
+        //    var latestIdInDatabase = await commitmentsDatabase.LastId(tableName);
+        //    return (latestIdInDatabase ?? 0) + 1;
+        //}
     }
 
     //public class RandomEnumSequenceGenerator<T> : ISpecimenBuilder where T : struct
