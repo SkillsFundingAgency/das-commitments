@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
-using AutoFixture.Kernel;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
@@ -40,23 +39,32 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
             {
                 //todo:   truncate data
-                return await PopulateDatabaseWithTestData();
+                return await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
             }
 
-            // else if data in db
-            //   load app ids
-            // else populate data
-            return await PopulateDatabaseWithTestData();
+            if (true) //data in db
+            {
+                return await FetchTestApprenticeshipIds();
+            }
 
-            
-            // get schema
-            // if schema in db not current
-            //   truncate data
-            //   populate data
-            // else if data in db
-            //   load app ids
-            // else populate data
+            //return await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
+        }
 
+        public /*async*/ Task<TestApprenticeshipIds> FetchTestApprenticeshipIds()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<TestApprenticeshipIds> PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds()
+        {
+            var testApprenticeshipIds = await PopulateDatabaseWithTestData();
+            await StoreTestApprenticeshipIds(testApprenticeshipIds);
+            return testApprenticeshipIds;
+        }
+
+        public /*async*/ Task StoreTestApprenticeshipIds(TestApprenticeshipIds testApprenticeshipIds)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<TestApprenticeshipIds> PopulateDatabaseWithTestData()
