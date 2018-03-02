@@ -150,8 +150,6 @@
     <Compile Include="Helpers\SetUpFixure.cs" />
     <Compile Include="Helpers\TestApprenticeshipIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SetupFixture\OneTimeSetUp.cs" />
-    <Compile Include="SetupFixture\OneTimeTearDown.cs" />
     <Compile Include="Tests\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
   </ItemGroup>
   <ItemGroup>
