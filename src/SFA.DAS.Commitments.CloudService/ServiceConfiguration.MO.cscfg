@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="SFA.DAS.CloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="SFA.DAS.Commitments.Api">
+    <Instances count="3" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="__StorageConnectionString__" />
+      <Setting name="EnvironmentName" value="__EnvironmentName__" />
+      <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
+      <Setting name="ApiTokenSecret" value="__ApiTokenSecret__"/>
+      <Setting name="ApiIssuer" value="__ApiIssuer__"/>
+      <Setting name="ApiAudiences" value="__ApiAudiences__"/>
+      <Setting name="LoggingRedisConnectionString" value="__LoggingRedisConnectionString__" />
+      <Setting name="LoggingRedisKey" value="__LoggingRedisKey__" />
+      <Setting name="InstrumentationKey" value="__InstrumentationKey__"/>
+      <Setting name="CurrentTime" value="" />
+    </ConfigurationSettings>
+     <Certificates>
+      <Certificate name="WebSslCert" thumbprint="E280E23D933FE3A62AF335BE9768A2C9D65CCC9A" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+  <NetworkConfiguration>
+    <VirtualNetworkSite name="__vnet__" />
+    <AddressAssignments>
+      <InstanceAddress roleName="SFA.DAS.Commitments.Api">
+        <Subnets>
+          <Subnet name="__subnet__" />
+        </Subnets>
+      </InstanceAddress>
+    </AddressAssignments>
+    <LoadBalancers>
+      <LoadBalancer name="__ilbname__">
+        <FrontendIPConfiguration type="private" subnet="__subnet__" staticVirtualNetworkIPAddress="10.98.1.253" />
+      </LoadBalancer>
+    </LoadBalancers>
+  </NetworkConfiguration>
+</ServiceConfiguration>
