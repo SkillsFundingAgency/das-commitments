@@ -8,22 +8,20 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class TestData
     {
-        private readonly CommitmentsApiConfiguration _config;
         private readonly CommitmentsDatabase _commitmentsDatabase;
         private readonly TestApprenticeshipIds _apprenticeshipIds;
 
         public TestData()
         {
-            _config = Infrastructure.Configuration.Configuration.Get();
+            var config = Infrastructure.Configuration.Configuration.Get();
 
-            _commitmentsDatabase = new CommitmentsDatabase(_config.DatabaseConnectionString);
+            _commitmentsDatabase = new CommitmentsDatabase(config.DatabaseConnectionString);
             _apprenticeshipIds = new TestApprenticeshipIds();
         }
 
@@ -35,19 +33,27 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //var jobProgressRepository = new JobProgressRepository(_config.DatabaseConnectionString, null);
             //jobProgressRepository.
 
-            var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>("IntTest_SchemaVersion");
+            // todo: check if db there and publish if necessary (to sql azure would be best to more closely match live)
+
+            const string SchemaVersionColumnName = "IntTest_SchemaVersion";
+
+            var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>(SchemaVersionColumnName);
             if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
             {
-                //todo:   truncate data
-                return await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
+                //todo:await _commitmentsDatabase.ClearData();
+                var testApprenticeshipIds =  await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
+                await _commitmentsDatabase.SetJobProgress(SchemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
+                return testApprenticeshipIds;
             }
 
-            if (true) //data in db
+            // > 0, or less than MinNumberOfApprenticeships? what if more data?
+            if (await _commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName) >= 
+                TestDataVolume.MinNumberOfApprenticeships)
             {
                 return await FetchTestApprenticeshipIds();
             }
 
-            //return await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
+            return await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
         }
 
         public /*async*/ Task<TestApprenticeshipIds> FetchTestApprenticeshipIds()

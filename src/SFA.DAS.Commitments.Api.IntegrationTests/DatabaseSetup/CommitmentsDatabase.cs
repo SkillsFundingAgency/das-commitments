@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Linq;
 using System.Text;
+//using Microsoft.SqlServer.Management.Common;
 using System.Threading.Tasks;
 using FastMember;
 using NUnit.Framework;
@@ -28,7 +29,34 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             _databaseConnectionString = databaseConnectionString;
         }
 
-        public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
+//        public async Task ClearData()
+//        {
+//            using (var connection = new SqlConnection(_databaseConnectionString))
+//            {
+//                await connection.OpenAsync();
+//                using (var command = new SqlCommand(
+//$@"truncate table {ApprenticeshipTableName} go
+//truncate table {ApprenticeshipUpdateTableName} go
+//truncate table {CommitmentTableName} go
+//truncate table {DataLockStatusTableName} go", connection))
+//                {
+//                    await command.ExecuteNonQueryAsync();
+//                }
+//            }
+//        }
+
+
+    //public void Drop()
+    //{
+    //    using (var sqlConnection = new SqlConnection(_databaseConnectionString))
+    //    {
+    //        var serverConnection = new ServerConnection(sqlConnection);
+    //        var server = new Microsoft.SqlServer.Management.Smo.Server(serverConnection);
+    //        server.KillDatabase(sqlConnection.Database);
+    //    }
+    //}
+
+    public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
         {
             await BulkInsertRows(apprenticeships, ApprenticeshipTableName, new []
             {

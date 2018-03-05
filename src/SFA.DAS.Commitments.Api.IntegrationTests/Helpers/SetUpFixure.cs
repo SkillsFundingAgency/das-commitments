@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
@@ -14,15 +15,15 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
         {
-            await TestContext.Progress.WriteLineAsync("Running OneTimeSetUp");
-            //TestApprenticeshipIds = await new TestData().PopulateDatabaseWithTestData();
-            TestApprenticeshipIds = await new TestData().Initialise();
-
-            // how to get app ids out?
-            // turn this into a base class?
-            // have as static in testdata? if so, testdata can go back to a static class.
-            // statis in this class?
-            // return from populatedb...?
+            try
+            {
+                await TestContext.Progress.WriteLineAsync("Running OneTimeSetUp");
+                TestApprenticeshipIds = await new TestData().Initialise();
+            }
+            catch (Exception exception)
+            {
+                Assert.Fail($"OneTimeSetup threw exception: {exception}");
+            }
         }
 
         [OneTimeTearDown]
