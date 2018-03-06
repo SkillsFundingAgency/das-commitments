@@ -65,9 +65,9 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
             if (command.TransferStatus == TransferApprovalStatus.TransferApproved)
             {
-                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-                await _cohortApprovalService.CreatePriceHistory(commitment);
                 await _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment);
+                await _cohortApprovalService.CreatePriceHistory(commitment);
+                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
             }
         }
 
@@ -85,9 +85,10 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
             if (commitment.TransferApprovalStatus != TransferApprovalStatus.Pending)
                 throw new InvalidOperationException($"Transfer Approval for Commitment {commitment.Id} cannot be set because the status is {commitment.TransferApprovalStatus}");
-
-            if (commitment.EditStatus != EditStatus.Both)
-                throw new UnauthorizedException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
+            
+            //The EditStatus I assumed would be set to Neither when both approvers approved, buty it doesn't look like the case. 
+            //if (commitment.EditStatus != EditStatus.Neither)
+            //    throw new UnauthorizedException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
         }
 
     }

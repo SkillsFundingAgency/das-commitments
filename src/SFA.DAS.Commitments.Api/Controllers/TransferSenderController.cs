@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
 using SFA.DAS.Commitments.Api.Orchestrators;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
@@ -33,9 +33,9 @@ namespace SFA.DAS.Commitments.Api.Controllers
         [HttpPatch]
         [Route("{transferSenderId}/transfers/{commitmentId}/approval", Name = "PatchTransferApprovalStatus")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchTransferApprovalStatus(long transferSenderId, long commitmentId, [FromBody] TransferApprovalStatus approvalStatus, [FromBody] long TransferReceiverId)
+        public async Task<IHttpActionResult> PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request)
         {
-            await _employerOrchestrator.SetTransferApprovalStatus(transferSenderId, commitmentId, transferSenderId, approvalStatus);
+            await _employerOrchestrator.SetTransferApprovalStatus(transferSenderId, commitmentId, request);
 
             return Ok();
         }

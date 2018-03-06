@@ -97,10 +97,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         internal async Task PublishApprenticeshipEventsWhenTransferSenderHasApproved(Commitment commitment)
         {
-            if (commitment.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
-            {
-                await _apprenticeshipEventsService.PublishApprenticeshipFinalApprovalEvents(commitment);
-            }
+            await _apprenticeshipEventsService.PublishApprenticeshipFinalApprovalEvents(commitment);
         }
 
         internal async Task ReorderPayments(long employerAccountId)

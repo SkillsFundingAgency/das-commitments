@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Rules;
@@ -88,7 +89,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
                     Messages = MapMessagesFrom(commitment.Messages),
                     TransferSenderId = commitment.TransferSenderId,
-                    TransferSenderName = commitment.TransferSenderName
+                    TransferSenderName = commitment.TransferSenderName,
+                    TransferApprovalStatus = (Types.TransferApprovalStatus)commitment.TransferApprovalStatus
                 };
         }
 

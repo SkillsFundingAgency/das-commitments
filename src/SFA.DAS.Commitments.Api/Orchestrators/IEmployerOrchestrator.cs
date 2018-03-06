@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -36,7 +37,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln);
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
         Task ApproveCohort(long accountId, long commitmentId, CommitmentSubmission submission);
-        Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferReceiverId,
-            TransferApprovalStatus transferApprovalStatus);
+        Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest transferApprovalRequest);
     }
 }

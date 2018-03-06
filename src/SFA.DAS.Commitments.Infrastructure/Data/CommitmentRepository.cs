@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 
@@ -192,7 +194,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             }
             catch(Exception e)
             {
-                throw e;
+                if (e.InnerException is SqlException)
+                {
+                    throw new BadRequestException(e.InnerException.Message, e);
+                }
+                throw;
             }
         }
 
