@@ -29,6 +29,7 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
+using SFA.DAS.Commitments.Application.Commands.TransferApproval;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
@@ -330,6 +331,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Approved commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
+        }
+
+        public async Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferReceiverId, TransferApprovalStatus transferApprovalStatus)
+        {
+            _logger.Trace($"Setting Approval status on commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
+
+            await _mediator.SendAsync(new TransferApprovalCommand
+            {
+                TransferSenderId = transferSenderId,
+                TransferReceiverId = transferReceiverId,
+                TransferStatus = transferApprovalStatus,
+                CommitmentId = commitmentId,
+                UserEmail = "Unknown",
+                UserName = "Unknown"
+            });
+
+            _logger.Info($"Setting Approval Status for commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
         }
 
         public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)

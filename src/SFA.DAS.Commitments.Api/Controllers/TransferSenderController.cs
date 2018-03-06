@@ -31,20 +31,14 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [HttpPatch]
-        [Route("{transferSenderId}/transfers/{commitmentId}/approval", Name = "SetTransferSenderApprovalStatus")]
+        [Route("{transferSenderId}/transfers/{commitmentId}/approval", Name = "PatchTransferApprovalStatus")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchTransferSenderApprovalStatus(long transferSenderId, long commitmentId, [FromBody] TransferApprovalStatus approvalStatus, [FromBody] long TransferReceiverId)
+        public async Task<IHttpActionResult> PatchTransferApprovalStatus(long transferSenderId, long commitmentId, [FromBody] TransferApprovalStatus approvalStatus, [FromBody] long TransferReceiverId)
         {
-            //var response = await _employerOrchestrator.TransferApproval(transferSenderId, commitmentId, transferSenderId, approvalStatus);
+            await _employerOrchestrator.SetTransferApprovalStatus(transferSenderId, commitmentId, transferSenderId, approvalStatus);
 
-            //if (response == null)
-            //{
-                return NotFound();
-            //}
-
-            //return Ok(response);
+            return Ok();
         }
-
 
     }
 }
