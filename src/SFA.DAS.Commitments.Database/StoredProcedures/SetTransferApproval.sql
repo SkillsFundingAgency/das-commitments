@@ -16,10 +16,10 @@ BEGIN
 		TransferApprovalActionedOn = GETDATE()
 	WHERE Id = @id;
 
-	IF @OldApprovalStatus IS NOT NULL
-		THROW 51000, 'Approval Status has already been updated', 1;
-
 	IF @@ROWCOUNT != 1 
 		THROW 50000, 'Incorrect Number of records were updated', 1;
+
+	IF @OldApprovalStatus IS NOT NULL
+		THROW 51000, 'Approval Status has already been updated', 1;
 
 END
