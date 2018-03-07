@@ -24,23 +24,17 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
     {
         private readonly AbstractValidator<TransferApprovalCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
-        private readonly IMessagePublisher _messagePublisher;
-        private readonly HistoryService _historyService;
         private readonly CohortApprovalService _cohortApprovalService;
 
         public TransferApprovalCommandHandler(AbstractValidator<TransferApprovalCommand> validator,
             ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime,
-            IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList,
+            IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
             IMessagePublisher messagePublisher)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
-            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
-            _messagePublisher = messagePublisher;
-            _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
                 commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
@@ -58,15 +52,16 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             }
 
             CheckAuthorization(command, commitment);
-            CheckCommitmentStatus(commitment);
+            CheckCommitmentStatus(commitment, command);
 
             await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferStatus,
                 command.UserEmail, command.UserName);
 
             if (command.TransferStatus == TransferApprovalStatus.TransferApproved)
             {
-                await _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment);
+                await _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment);
                 await _cohortApprovalService.CreatePriceHistory(commitment);
+                await _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment);
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
             }
         }
@@ -78,17 +73,20 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
                     $"Employer {message.TransferSenderId} not authorised to access commitment: {message.CommitmentId} as transfer sender, expected transfer sender {commitment.TransferSenderId}");
         }
 
-        private static void CheckCommitmentStatus(Commitment commitment)
+        private static void CheckCommitmentStatus(Commitment commitment, TransferApprovalCommand command)
         {
+
+            if (commitment.EmployerAccountId != command.TransferReceiverId)
+                throw new InvalidOperationException($"Commitment {commitment.Id} has employer account Id {commitment.EmployerAccountId} which doesn't match command receiver Id {command.TransferReceiverId}");
+
             if (commitment.CommitmentStatus == CommitmentStatus.Deleted)
                 throw new InvalidOperationException($"Commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
 
             if (commitment.TransferApprovalStatus != TransferApprovalStatus.Pending)
                 throw new InvalidOperationException($"Transfer Approval for Commitment {commitment.Id} cannot be set because the status is {commitment.TransferApprovalStatus}");
             
-            //The EditStatus I assumed would be set to Neither when both approvers approved, buty it doesn't look like the case. 
-            //if (commitment.EditStatus != EditStatus.Neither)
-            //    throw new UnauthorizedException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
+            if (commitment.EditStatus != EditStatus.Neither)
+                throw new InvalidOperationException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
         }
 
     }

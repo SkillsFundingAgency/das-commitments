@@ -72,6 +72,15 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
+        internal async Task UpdateApprenticeshipsPaymentStatusToPaid(Commitment commitment)
+        {
+            commitment.Apprenticeships.ForEach(x =>
+            {
+                x.PaymentStatus = PaymentStatus.Active;
+            });
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
+        }
+
         internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText, CallerType createdBy)
         {
             var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);

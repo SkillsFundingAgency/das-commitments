@@ -144,6 +144,8 @@
     <Compile Include="Commands\DeleteApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\TransferApproval\WhenAnTransferSenderApprovesOrRejectsTheCohort.cs" />
+    <Compile Include="Commands\TransferApproval\WhenValidatingCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\WhenRejectingApprenticeshipChange.cs" />
     <Compile Include="Commands\SetPaymentOrder\WhenUpdatingPaymentOrder.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ApprenticeshipValidationTestBase.cs" />
