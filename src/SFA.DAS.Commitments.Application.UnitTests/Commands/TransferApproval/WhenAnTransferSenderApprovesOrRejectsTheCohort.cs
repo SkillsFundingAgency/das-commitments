@@ -108,7 +108,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
             _mediator.Verify(x => x.SendAsync(It.Is<SetPaymentOrderCommand>(p => p.AccountId == _commitment.EmployerAccountId)));
         }
 
-
         [Test]
         public async Task ThenThrowExceptionIfCommitmentTransferSenderDoesntMatchCommandValue()
         {

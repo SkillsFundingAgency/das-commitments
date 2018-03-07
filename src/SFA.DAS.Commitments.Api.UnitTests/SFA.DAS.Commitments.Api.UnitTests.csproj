@@ -109,6 +109,7 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="Controllers\TransferContollerTests\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Orchestrators\Apprenticeship\ApprenticeshipOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenGettingDataLocks.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipsForUln.cs" />
+    <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentView.cs" />
