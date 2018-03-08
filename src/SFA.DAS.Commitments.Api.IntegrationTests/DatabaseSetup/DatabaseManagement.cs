@@ -46,9 +46,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             db.Create();
         }
 
-        public void Publish(string connectionString)
+        public void Publish()
         {
-            var dacServices = new DacServices(connectionString);
+            var dacServices = new DacServices(_connectionString);
 
             dacServices.Message += (sender, e) => TestContext.Progress.WriteLine($"Deploy database: {e.Message}");
             dacServices.ProgressChanged += (sender, e) => TestContext.Progress.WriteLine($"Deploy database: {e.Message}");

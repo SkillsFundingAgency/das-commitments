@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     [SetUpFixture]
     public class SetUpFixure
     {
-        public static TestApprenticeshipIds TestApprenticeshipIds { get; set; }
+        public static TestIds TestIds { get; set; }
 
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             try
             {
                 await TestContext.Progress.WriteLineAsync("Running OneTimeSetUp");
-                TestApprenticeshipIds = await new TestData().Initialise();
+                TestIds = await new TestData().Initialise();
             }
             catch (Exception exception)
             {

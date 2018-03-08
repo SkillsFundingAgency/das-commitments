@@ -45,6 +45,9 @@
     <Reference Include="AutoFixture.NUnit3, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoFixture.NUnit3.4.1.0\lib\net452\AutoFixture.NUnit3.dll</HintPath>
     </Reference>
+    <Reference Include="Dapper, Version=1.50.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.4\lib\net451\Dapper.dll</HintPath>
+    </Reference>
     <Reference Include="FastMember, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastMember.1.2.0\lib\net45\FastMember.dll</HintPath>
     </Reference>
@@ -290,6 +293,7 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiHost\IntegrationTestServer.cs" />
@@ -302,7 +306,7 @@
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="DatabaseSetup\TestDataVolume.cs" />
     <Compile Include="Helpers\SetUpFixure.cs" />
-    <Compile Include="Helpers\TestApprenticeshipIds.cs" />
+    <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
   </ItemGroup>

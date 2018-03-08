@@ -12,6 +12,7 @@ using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
@@ -31,7 +32,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         {
             //todo: the test will have to create these of course mf
             string employerAccountId = "8315"; // initial look suggests this is not actually used
-            long apprenticeshipId = SetUpFixure.TestApprenticeshipIds.MaxCohortSize;
+            long apprenticeshipId = SetUpFixure.TestIds[TestIds.MaxCohortSize];
 
             // when we supply a valid token, in ApiKeyHandler, JwtSecurityTokenHandler.ValidateToken complains that the header isn't base64 encoded,
             // but it is. see https://stackoverflow.com/questions/43003502/jwt-unable-to-decode-the-header-as-base64url-encoded-string
