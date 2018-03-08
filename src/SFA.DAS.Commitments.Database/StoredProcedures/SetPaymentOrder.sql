@@ -51,7 +51,7 @@ FROM
 			a.CommitmentId = c.Id
 
 		WHERE
-			a.AgreedOn IS NOT NULL
+			 a.PaymentStatus <> 0
 	
 		ORDER BY
 			op.ProviderOrder,
