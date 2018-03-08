@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 
@@ -19,6 +20,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         private readonly string _databaseConnectionString;
         private readonly CommitmentsDatabase _commitmentsDatabase;
         private readonly TestApprenticeshipIds _apprenticeshipIds;
+
+        private readonly Random _random = new Random();
 
         public TestData()
         {
@@ -105,16 +108,20 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
-            (var testApprenticeships, long lastCohortId) = GenerateApprenticeships(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewCohortId);
-            await _commitmentsDatabase.InsertApprenticeships(testApprenticeships);
+            if (apprenticeshipsToGenerate > 0)
+            {
+                (var testApprenticeships, long lastCohortId) = GenerateApprenticeships(apprenticeshipsToGenerate,
+                    firstNewApprenticeshipId, firstNewCohortId);
+                await _commitmentsDatabase.InsertApprenticeships(testApprenticeships);
 
-            // generate the commitments that the new apprenticeships reference
-            int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
+                // generate the commitments that the new apprenticeships reference
+                int commitmentsToGenerate = (int) (1 + lastCohortId - firstNewCohortId);
 
-            await TestContext.Progress.WriteLineAsync("Generating Commitments");
+                await TestContext.Progress.WriteLineAsync("Generating Commitments");
 
-            var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
-            await _commitmentsDatabase.InsertCommitments(testCommitments);
+                var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
+                await _commitmentsDatabase.InsertCommitments(testCommitments);
+            }
 
             await PopulateApprenticeshipUpdates(apprenticeshipsToGenerate, firstNewApprenticeshipId);
 
@@ -141,10 +148,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var firstNewDataLockStatusUpdateId = await _commitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
 
             //for now..
-            var dataLockStatusesToGenerate = TestDataVolume.MinNumberOfDataLockStatuses;
-            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, dataLockStatusesToGenerate, firstNewDataLockStatusUpdateId);
-
             //todo: generate specific statuses for later tests
+
+            // generate success DataLockStatuses
+            var successDataLockStatusesToGenerate = (int)(TestDataVolume.MinNumberOfApprenticeships *
+                    TestDataVolume.SuccessDataLockStatusesToApprenticeshipsRatio);
+            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, successDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId);
+
+            //var errorDataLockStatusesToGenerate = (int)(TestDataVolume.MinNumberOfApprenticeships *
+            //                                              TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
+
             //testDataLockStatuses.AddRange(GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
             await _commitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
@@ -161,7 +174,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: get's id that isn't generated if rows are already generated!
             _apprenticeshipIds.MaxCohortSize = initialId;
 
-            var random = new Random();
             int apprenticeshipsLeftInCohort = maxCohortSize;
 
             foreach (var apprenticeship in apprenticeships)
@@ -170,7 +182,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
                 if (--apprenticeshipsLeftInCohort < 0)
                 {
-                    apprenticeshipsLeftInCohort = random.Next(1, maxCohortSize);
+                    apprenticeshipsLeftInCohort = _random.Next(1, maxCohortSize+1);
                     ++firstCohortId;
                 }
 
@@ -180,17 +192,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return (apprenticeships, firstCohortId);
         }
 
-        public static List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, long initialId, int apprenticeshipUpdatesToGenerate)
+        public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, long initialId, int apprenticeshipUpdatesToGenerate)
         {
-            var random = new Random();
             // limit length? does it matter if lazily enumerated and don't read past required?
             var newApprenticeshipIdsShuffled = Enumerable
                 .Range((int) firstNewApprenticeshipId, numberOfNewApprenticeships)
-                .OrderBy(au => random.Next(int.MaxValue));
+                .OrderBy(au => _random.Next(int.MaxValue));
 
             // limit length in aggregate? does it matter if lazily enumerated and don't read past required?
             var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
-                (ids, id) => ids.Concat(Enumerable.Repeat(id, random.Next(1, TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship))));
+                (ids, id) => ids.Concat(Enumerable.Repeat(id, _random.Next(1, TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship+1))));
 
             var fixture = new Fixture();
             var apprenticeshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
@@ -226,7 +237,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return apprentieshipUpdates;
         }
 
-        public static List<DbSetupDataLockStatus> GenerateDataLockStatuses(long apprenticeshipId, long apprenticeshipUpdateId, int dataLockStatusesToGenerate, long initialId = 1)
+        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(long apprenticeshipId, long apprenticeshipUpdateId, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
         {
             var fixture = new Fixture();
             var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
@@ -235,8 +246,20 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 dataLockStatus.Id = initialId++;
                 dataLockStatus.ApprenticeshipId = apprenticeshipId;
                 dataLockStatus.ApprenticeshipUpdateId = apprenticeshipUpdateId;
+                dataLockStatus.ErrorCode = setError ? GenerateDataLockError() : DataLockErrorCode.None;
             }
             return dataLockStatuses;
+        }
+
+        private DataLockErrorCode GenerateDataLockError()
+        {
+            var numberOfFlags = _random.Next(1, 3+1);
+            int errorCode = 0;
+            while (numberOfFlags-- > 0)
+            {
+                errorCode |= 1 << _random.Next(9+1);
+            }
+            return (DataLockErrorCode)errorCode;
         }
 
         //private static async Task<long> FirstNewId(CommitmentsDatabase commitmentsDatabase, string tableName)
