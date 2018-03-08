@@ -8,20 +8,24 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class TestData
     {
+        //private readonly CommitmentsApiConfiguration _config;
+        private readonly string _databaseConnectionString;
         private readonly CommitmentsDatabase _commitmentsDatabase;
         private readonly TestApprenticeshipIds _apprenticeshipIds;
 
         public TestData()
         {
             var config = Infrastructure.Configuration.Configuration.Get();
+            _databaseConnectionString = config.DatabaseConnectionString;
 
-            _commitmentsDatabase = new CommitmentsDatabase(config.DatabaseConnectionString);
+            _commitmentsDatabase = new CommitmentsDatabase(_databaseConnectionString);
             _apprenticeshipIds = new TestApprenticeshipIds();
         }
 
@@ -37,10 +41,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             const string SchemaVersionColumnName = "IntTest_SchemaVersion";
 
+            //todo: handle case when database hasn't been created yet
+
             var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>(SchemaVersionColumnName);
             if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
             {
                 //todo:await _commitmentsDatabase.ClearData();
+                //required with recreate?
+                //_commitmentsDatabase.Drop();
+                var databaseManagement = new DatabaseManagement();
+                databaseManagement.PublishY(_databaseConnectionString);
                 var testApprenticeshipIds =  await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
                 await _commitmentsDatabase.SetJobProgress(SchemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
                 return testApprenticeshipIds;
