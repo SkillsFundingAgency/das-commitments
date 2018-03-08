@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             if (commitment.TransferApprovalStatus != TransferApprovalStatus.Pending)
                 throw new InvalidOperationException($"Transfer Approval for Commitment {commitment.Id} cannot be set because the status is {commitment.TransferApprovalStatus}");
             
-            if (commitment.EditStatus != EditStatus.Neither)
+            if (commitment.EditStatus != EditStatus.Both)
                 throw new InvalidOperationException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
         }
 

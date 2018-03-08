@@ -136,10 +136,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
         }
 
-        [Test]
-        public async Task ThenThrowExceptionIfEditStatusIsNotSetToNeither()
+        [TestCase(EditStatus.EmployerOnly)]
+        [TestCase(EditStatus.ProviderOnly)]
+        [TestCase(EditStatus.Neither)]
+        public async Task ThenThrowExceptionIfEditStatusIsNotSetToNeither(EditStatus status)
         {
-            _commitment.EditStatus = EditStatus.EmployerOnly;
+            _commitment.EditStatus = status;
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
         }
 
