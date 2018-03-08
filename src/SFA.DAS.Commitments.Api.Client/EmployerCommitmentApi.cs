@@ -218,7 +218,7 @@ namespace SFA.DAS.Commitments.Api.Client
 
         public Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request)
         {
-            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/transfers/{commitmentId}/approve";
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/transfers/{commitmentId}/approval";
             var data = JsonConvert.SerializeObject(request);
             return PatchAsync(url, data);
         }

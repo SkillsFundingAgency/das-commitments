@@ -1,13 +1,10 @@
 ﻿using System.Threading.Tasks;
-using System.Web.Http.Results;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
 {
