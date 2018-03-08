@@ -16,12 +16,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class DatabaseManagement
     {
-        public async Task<bool> Exists(string connectionString, string databaseName)
+        private readonly string _connectionString;
+        private readonly string _databaseName;
+
+        public DatabaseManagement(string connectionString)
         {
-            using (var connection = new SqlConnection(connectionString))
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            _databaseName = builder.InitialCatalog;
+            builder.Remove("Initial Catalog");
+            _connectionString = builder.ConnectionString;
+        }
+
+        public async Task<bool> Exists()
+        {
+            using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand($"select name from sys.databases where name = '{databaseName}'", connection))
+                using (var command = new SqlCommand($"select name from sys.databases where name = '{_databaseName}'", connection))
                 {
                     return (await command.ExecuteScalarAsync()) != null;
                 }
@@ -35,7 +46,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             db.Create();
         }
 
-        public void PublishY(string connectionString)
+        public void Publish(string connectionString)
         {
             var dacServices = new DacServices(connectionString);
 
@@ -48,6 +59,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             // these are ignored! it warns debug variable is missing, and it doesn't create a new database! others are reporting similar on t'internet
             // if we can't get the options to work, we can do some of the stuff in other ways (e.g. drop/creeate using SMO)
+            // people also report that the options aren't ignored if you generate a script (and execute that)
             var dacDeployOptions = new DacDeployOptions
             {
                 CreateNewDatabase = true
@@ -172,9 +184,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // publish profile has been set to always recreate database (supply as prop instead?)
             //https://stackoverflow.com/questions/43495509/how-to-use-buildmanager-to-build-net-core-project-or-solution-on-visual-studio
 
-        public void Drop(string databaseConnectionString)
+        public void Kill()
         {
-            using (var sqlConnection = new SqlConnection(databaseConnectionString))
+            using (var sqlConnection = new SqlConnection(_connectionString))
             {
                 var serverConnection = new ServerConnection(sqlConnection);
                 var server = new Server(serverConnection);

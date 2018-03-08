@@ -43,17 +43,28 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             //todo: handle case when database hasn't been created yet
 
-            var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>(SchemaVersionColumnName);
-            if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
+            var databaseManagement = new DatabaseManagement(_databaseConnectionString);
+
+            if (!await databaseManagement.Exists())
             {
-                //todo:await _commitmentsDatabase.ClearData();
-                //required with recreate?
-                //_commitmentsDatabase.Drop();
-                var databaseManagement = new DatabaseManagement();
-                databaseManagement.PublishY(_databaseConnectionString);
-                var testApprenticeshipIds =  await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
-                await _commitmentsDatabase.SetJobProgress(SchemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
-                return testApprenticeshipIds;
+                databaseManagement.Publish(_databaseConnectionString);
+            }
+            else
+            {
+                var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>(SchemaVersionColumnName);
+                if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
+                {
+                    //todo:await _commitmentsDatabase.ClearData();
+                    //required with recreate?
+
+                    // if we can get the deploy options working, we won't need to do this...
+                    databaseManagement.Kill();
+
+                    databaseManagement.Publish(_databaseConnectionString);
+                    //var testApprenticeshipIds = await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
+                    await _commitmentsDatabase.SetJobProgress(SchemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
+                    //return testApprenticeshipIds;
+                }
             }
 
             // > 0, or less than MinNumberOfApprenticeships? what if more data?
@@ -73,6 +84,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task<TestApprenticeshipIds> PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds()
         {
+            //todo: if this fails for some reason, do we clean up? or put whole lot in transaction, or leave and try and recover next run?
             var testApprenticeshipIds = await PopulateDatabaseWithTestData();
             await StoreTestApprenticeshipIds(testApprenticeshipIds);
             return testApprenticeshipIds;
