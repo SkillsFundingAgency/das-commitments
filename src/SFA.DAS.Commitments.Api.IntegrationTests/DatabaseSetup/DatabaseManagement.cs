@@ -156,26 +156,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         //        }
         //    }
 
-        public void Publish()
-        {
-            // same iossue as below
-            IDictionary<string, string> propertyDictionary = new Dictionary<string, string>();
-            //propertyDictionary.Add("Configuration", "Debug");
-            propertyDictionary.Add("IncludeCompositeObjects", "True");
-            //propertyDictionary.Add("TargetDatabaseName", DatabaseName);
-            propertyDictionary.Add("DeployScriptFileName", "DeploymentScript.sql");
-            //propertyDictionary.Add("TargetConnectionString", "Data Source=xxx.database.windows.net;Persist Security Info=True;User ID=xxx;Password=xxx;Pooling=False");
-            propertyDictionary.Add("PublishProfile", $@"{TestContext.CurrentContext.TestDirectory}\DatabaseSetup\PublishProfile\SFA.DAS.Commitments.IntegrationTest.publish.xml");
-
-            var projectCollection = new ProjectCollection(propertyDictionary);
-            var project = projectCollection.LoadProject($@"{TestContext.CurrentContext.TestDirectory}\..\..\..\SFA.DAS.Commitments.Database\SFA.DAS.Commitments.Database.sqlproj");
-            //project.Build("Build", "Publish");
-            project.Build("Build");
-            project.Build("Publish");
-        }
-
-        public void PublishX()
-        {
             //looks like this is the new way to do it..
             // https://www.nuget.org/packages/Microsoft.Data.Tools.Msbuild
             // https://blogs.msdn.microsoft.com/ssdt/2016/08/22/releasing-ssdt-with-visual-studio-15-preview-4-and-introducing-ssdt-msbuild-nuget-package/
@@ -191,49 +171,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //https://stackoverflow.com/questions/10438258/using-microsoft-build-evaluation-to-publish-a-database-project-sqlproj
             // publish profile has been set to always recreate database (supply as prop instead?)
             //https://stackoverflow.com/questions/43495509/how-to-use-buildmanager-to-build-net-core-project-or-solution-on-visual-studio
-
-            var props = new Dictionary<string, string> {
-                { "UpdateDatabase", "True" },
-                { "PublishScriptFileName", "SFA.DAS.Commitments.IntegrationTest.publish.sql" }, //"schema-update.sql" },
-//                { "SqlPublishProfilePath", $@"{TestContext.CurrentContext.TestDirectory}\DatabaseSetup\PublishProfile\SFA.DAS.Commitments.IntegrationTest.publish.xml"}
-                { "SqlPublishProfilePath", $@"{TestContext.CurrentContext.TestDirectory}\..\..\..\SFA.DAS.Commitments.Database\SFA.DAS.Commitments.IntegrationTest.publish.xml"}
-            };
-
-            var xxx = TestContext.CurrentContext.TestDirectory;
-            var projPath = $@"{TestContext.CurrentContext.TestDirectory}\..\..\..\SFA.DAS.Commitments.Database\SFA.DAS.Commitments.Database.sqlproj";
-
-            var result = BuildManager.DefaultBuildManager.Build(
-                new BuildParameters { Loggers = new[] { new ConsoleLogger() } },
-                new BuildRequestData(new ProjectInstance(projPath, props, null), new[] { "Publish" }));
-
-            if (result.OverallResult == BuildResultCode.Success) {
-                Console.WriteLine("Schema update succeeded!");
-            }
-            else {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Schema update failed!");
-                Console.ResetColor();
-            }
-        }
-
-        private class ConsoleLogger : ILogger
-        {
-            public void Initialize(IEventSource eventSource)
-            {
-                eventSource.ErrorRaised += (sender, e) => {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(e.Message);
-                    Console.ResetColor();
-                };
-                eventSource.MessageRaised += (sender, e) => {
-                    if (e.Importance != MessageImportance.Low)
-                        Console.WriteLine(e.Message);
-                };
-            }
-            public void Shutdown() { }
-            public LoggerVerbosity Verbosity { get; set; }
-            public string Parameters { get; set; }
-        }
 
         public void Drop(string databaseConnectionString)
         {
