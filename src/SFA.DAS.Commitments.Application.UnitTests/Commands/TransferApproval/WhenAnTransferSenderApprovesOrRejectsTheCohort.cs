@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
                 .With(x => x.TransferSenderId, _command.TransferSenderId)
                 .With(x => x.EmployerAccountId, _command.TransferReceiverId)
                 .With(x => x.TransferApprovalStatus, TransferApprovalStatus.Pending)
-                .With(x => x.EditStatus, EditStatus.Neither).Create();
+                .With(x => x.EditStatus, EditStatus.Both).Create();
 
             _commitmentRepository.Setup(x=>x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
