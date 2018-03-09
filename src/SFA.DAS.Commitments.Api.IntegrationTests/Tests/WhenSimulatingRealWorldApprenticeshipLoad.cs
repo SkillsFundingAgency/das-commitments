@@ -50,7 +50,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                     };
                 });
 
-            var getApprentishipIds = await Task.WhenAll(getApprentishipIdsTasks);
+            var getApprenticeshipIds = await Task.WhenAll(getApprentishipIdsTasks);
+
+            // pay the cost of test server setup etc. now, so the first result in our timings isn't out
+            await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIds.First().ApprenticeshipId, getApprenticeshipIds.First().EmpoyerId);
 
             //better to just for?
             //for (var preCall = 0; preCall < preGetApprenticeshipsGetApprenticeshipCalls; ++preCall)
@@ -63,7 +66,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             //    tasks.Add(CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId));
             //}
 
-            tasks.AddRange(getApprentishipIds.Take(preGetApprenticeshipsGetApprenticeshipCalls)
+            tasks.AddRange(getApprenticeshipIds.Take(preGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
 
             //currently have 1:1 cohort:employer, might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
@@ -75,11 +78,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             //    tasks.Add(CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId));
             //}
 
-            tasks.AddRange(getApprentishipIds.Skip(preGetApprenticeshipsGetApprenticeshipCalls)
+            tasks.AddRange(getApprenticeshipIds.Skip(preGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
 
-            //todo: why does first GetApprenticeship take over 7 seconds???
-            //probably the cost to start up the test server. either start up before start test proper, or skip first get
             var callTimes = await Task.WhenAll(tasks);
             var slowestGetApprenticeshipCall = callTimes.Take(preGetApprenticeshipsGetApprenticeshipCalls)
                 .Concat(callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls+1)).Max(ts => ts);
