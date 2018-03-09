@@ -46,7 +46,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                     return new
                     {
                         ApprenticeshipId,
-                        EmpoyerId = await SetUpFixure.CommitmentsDatabase.GetEmployerId(ApprenticeshipId)
+                        EmpoyerId = await SetUpFixture.CommitmentsDatabase.GetEmployerId(ApprenticeshipId)
                     };
                 });
 
@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                 .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
 
             //currently have 1:1 cohort:employer, might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
-            tasks.Add(CommitmentsApi.CallGetApprenticeships(SetUpFixure.TestIds[TestIds.MaxCohortSize]));
+            tasks.Add(CommitmentsApi.CallGetApprenticeships(SetUpFixture.TestIds[TestIds.MaxCohortSize]));
 
             //for (var postCall = 0; postCall < postGetApprenticeshipsGetApprenticeshipCalls; ++postCall)
             //{
@@ -94,7 +94,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public long GetRandomApprenticeshipId()
         {
             long apprenticeshipId;
-            while (SetUpFixure.TestIds.Ids.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships+1)))
+            while (SetUpFixture.TestIds.Ids.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships+1)))
                 { }
             return apprenticeshipId;
         }
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task ThenSumfinkOrNuffink()
         {
-            long apprenticeshipId = SetUpFixure.TestIds[TestIds.MaxCohortSize];
+            long apprenticeshipId = SetUpFixture.TestIds[TestIds.MaxCohortSize];
             long employerAccountId = apprenticeshipId; // the convention we're currently using to simplify things
 
             // when we supply a valid token, in ApiKeyHandler, JwtSecurityTokenHandler.ValidateToken complains that the header isn't base64 encoded,

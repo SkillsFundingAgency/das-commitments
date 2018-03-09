@@ -307,7 +307,7 @@
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="DatabaseSetup\TestDataVolume.cs" />
     <Compile Include="Helpers\CommitmentsApi.cs" />
-    <Compile Include="Helpers\SetUpFixure.cs" />
+    <Compile Include="Helpers\SetUpFixture.cs" />
     <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\WhenSimulatingRealWorldApprenticeshipLoad.cs" />

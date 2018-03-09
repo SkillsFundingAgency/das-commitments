@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
@@ -113,7 +114,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 // generate the commitments that the new apprenticeships reference
                 int commitmentsToGenerate = (int) (1 + lastCohortId - firstNewCohortId);
 
-                await TestContext.Progress.WriteLineAsync("Generating Commitments");
+                await SetUpFixture.LogProgress("Generating Commitments");
 
                 var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
                 await CommitmentsDatabase.InsertCommitments(testCommitments);

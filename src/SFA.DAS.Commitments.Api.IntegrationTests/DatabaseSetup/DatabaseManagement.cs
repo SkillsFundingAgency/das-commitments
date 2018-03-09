@@ -11,6 +11,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Execution;
 using Microsoft.SqlServer.Dac;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
@@ -50,8 +51,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             var dacServices = new DacServices(_connectionString);
 
-            dacServices.Message += (sender, e) => TestContext.Progress.WriteLine($"Deploy database: {e.Message}");
-            dacServices.ProgressChanged += (sender, e) => TestContext.Progress.WriteLine($"Deploy database: {e.Message}");
+            //todo: check async version
+            dacServices.Message += async (sender, e) => await SetUpFixture.LogProgress($"Deploy database: {e.Message}");
+            dacServices.ProgressChanged += async (sender, e) => await SetUpFixture.LogProgress($"Deploy database: {e.Message}");
 
             //todo: get current config DEBUG?
             var dacpacPath = $@"{TestContext.CurrentContext.TestDirectory}\..\..\..\SFA.DAS.Commitments.Database\bin\Debug\SFA.DAS.Commitments.Database.dacpac";

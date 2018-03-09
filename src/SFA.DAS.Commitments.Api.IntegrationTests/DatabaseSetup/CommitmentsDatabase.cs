@@ -10,6 +10,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -138,9 +139,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 {
                     bcp.DestinationTableName = tableName;
                     bcp.EnableStreaming = true;
-                    bcp.BatchSize = 10000;
+                    bcp.BatchSize = 5000;
                     bcp.NotifyAfter = 1000;
-                    bcp.SqlRowsCopied += async (sender, e) => await TestContext.Progress.WriteLineAsync($"Copied {e.RowsCopied} rows into {tableName}.");
+                    bcp.SqlRowsCopied += async (sender, e) => await SetUpFixture.LogProgress($"Copied {e.RowsCopied} rows into {tableName}.");
 
                     await bcp.WriteToServerAsync(reader);
                 }

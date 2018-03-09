@@ -4,7 +4,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     public static class TestDataVolume
     {
         //can get datalockstatuses for provider (as we're only interested in fully approved apprenticeships), so we can remove some predicates
-        public const int MinNumberOfApprenticeships = 250; //100000;
+        public const int MinNumberOfApprenticeships = 250000;
         //MinNumberOfCohorts?
         public const int MaxNumberOfApprenticeshipsInCohort = 80;
         public const double ApprenticeshipUpdatesToApprenticeshipsRatio = 0.025d;
