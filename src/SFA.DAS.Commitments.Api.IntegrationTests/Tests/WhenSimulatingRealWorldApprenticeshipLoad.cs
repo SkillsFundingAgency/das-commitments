@@ -31,7 +31,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public async Task SimulateSlowdownScenario()
         {
             //best way to handle concurrency? async only? tpl parallel? threads? other?
-            var tasks = new List<Task<TimeSpan>>();
+            //todo: async calls below are all on 1 thread. need to e.g. start x threads calling getapprentice, and then while they are going trigger getapprenticeships on other thread
+            var tasks = new List<Task<CallDetails>>();
 
             const int preGetApprenticeshipsGetApprenticeshipCalls = 50;
             const int postGetApprenticeshipsGetApprenticeshipCalls = 50;
@@ -83,8 +84,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var callTimes = await Task.WhenAll(tasks);
             var slowestGetApprenticeshipCall = callTimes.Take(preGetApprenticeshipsGetApprenticeshipCalls)
-                .Concat(callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls+1)).Max(ts => ts);
-            var getApprenticechipsCall = callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls).First();
+                .Concat(callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls+1)).Max(d => d.CallTime);
+            var getApprenticechipsCall = callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls).First().CallTime;
 
             Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0,0,1));
             Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0,0,1));
