@@ -56,10 +56,10 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
-            await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferStatus,
+            await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferApprovalStatus,
                 command.UserEmail, command.UserName);
 
-            if (command.TransferStatus == TransferApprovalStatus.TransferApproved)
+            if (command.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
             {
                 await Task.WhenAll(
                     _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
@@ -97,19 +97,19 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
         private async Task PublishApprovedOrRejectedMessage(TransferApprovalCommand command)
         {
-            switch (command.TransferStatus)
+            switch (command.TransferApprovalStatus)
             {
                 case TransferApprovalStatus.TransferApproved:
                 {
                     var message = new CohortApprovedByTransferSender(command.TransferReceiverId, command.CommitmentId,
-                        command.TransferSenderId, command.UserName, command.UserName);
+                        command.TransferSenderId, command.UserName, command.UserEmail);
                     await _messagePublisher.PublishAsync(message);
                     break;
                 }
                 case TransferApprovalStatus.TransferRejected:
                 {
                     var message = new CohortRejectedByTransferSender(command.TransferReceiverId, command.CommitmentId,
-                        command.TransferSenderId, command.UserName, command.UserName);
+                        command.TransferSenderId, command.UserName, command.UserEmail);
                     await _messagePublisher.PublishAsync(message);
                     break;
                 }

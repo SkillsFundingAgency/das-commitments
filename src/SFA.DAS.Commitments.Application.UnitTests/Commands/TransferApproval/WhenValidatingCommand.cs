@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
                 CommitmentId = 123,
                 TransferSenderId = 999,
                 TransferReceiverId = 777,
-                TransferStatus = TransferApprovalStatus.TransferRejected,
+                TransferApprovalStatus = TransferApprovalStatus.TransferRejected,
                 UserEmail = "test@test.com",
                 UserName = "Test"
             };
@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [TestCase(TransferApprovalStatus.TransferRejected)]
         public void ThenIsValidIfAllFieldsAreSetCorrectly(TransferApprovalStatus status)
         {
-            _command.TransferStatus = status;
+            _command.TransferApprovalStatus = status;
             var validationResult = _target.Validate(_command);
             Assert.IsTrue(validationResult.IsValid);
         }
@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public void ThenIsInvalidIfTransferApprovalStatusIsPending()
         {
-            _command.TransferStatus = TransferApprovalStatus.Pending;
+            _command.TransferApprovalStatus = TransferApprovalStatus.Pending;
             var validationResult = _target.Validate(_command);
             Assert.IsFalse(validationResult.IsValid);
         }

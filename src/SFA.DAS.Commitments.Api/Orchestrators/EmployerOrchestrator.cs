@@ -341,7 +341,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             {
                 TransferSenderId = transferSenderId,
                 TransferReceiverId = transferApprovalRequest.TransferReceiverId,
-                TransferStatus = (Domain.Entities.TransferApprovalStatus)transferApprovalRequest.TransferApprovalStatus,
+                TransferApprovalStatus = (Domain.Entities.TransferApprovalStatus)transferApprovalRequest.TransferApprovalStatus,
                 CommitmentId = commitmentId,
                 UserEmail = transferApprovalRequest.UserEmail,
                 UserName = transferApprovalRequest.UserName

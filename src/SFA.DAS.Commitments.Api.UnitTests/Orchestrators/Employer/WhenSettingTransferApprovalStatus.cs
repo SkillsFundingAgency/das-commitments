@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             MockMediator.Verify(
                 x => x.SendAsync(It.Is<TransferApprovalCommand>(p =>
                     p.TransferSenderId == 1 && p.CommitmentId == 2 &&
-                    p.TransferStatus == (Domain.Entities.TransferApprovalStatus)request.TransferApprovalStatus && 
+                    p.TransferApprovalStatus == (Domain.Entities.TransferApprovalStatus)request.TransferApprovalStatus && 
                     p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
         }
 

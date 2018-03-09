@@ -14,6 +14,7 @@ using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
@@ -49,7 +50,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
 
             var fixture = new Fixture();
             _command = fixture.Build<TransferApprovalCommand>()
-                .With(x => x.TransferStatus, TransferApprovalStatus.TransferRejected).Create();
+                .With(x => x.TransferApprovalStatus, TransferApprovalStatus.TransferRejected).Create();
             _commitment = fixture.Build<Commitment>()
                 .With(x => x.TransferSenderId, _command.TransferSenderId)
                 .With(x => x.EmployerAccountId, _command.TransferReceiverId)
@@ -70,13 +71,47 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         {
             await _sut.Handle(_command);
 
-            _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, _command.TransferStatus, _command.UserEmail, _command.UserName));
+            _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, _command.TransferApprovalStatus, _command.UserEmail, _command.UserName));
         }
+
+        [Test]
+        public async Task ThenIfTheTransferSenderRejectsCohortEnsureMessagePublisherSendsRejectedMessageAndNotApprovedMessage()
+        {
+            await _sut.Handle(_command);
+
+            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortRejectedByTransferSender>(p =>
+                p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
+                p.CommitmentId == _command.CommitmentId &&
+                p.ReceivingEmployerAccountId ==
+                _command.TransferReceiverId &&
+                p.SendingEmployerAccountId ==
+                _command.TransferSenderId)));
+
+            _messagePublisher.Verify(x=>x.PublishAsync(It.IsAny<CohortApprovedByTransferSender>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenIfTheTransferSenderApprovesCohortEnsureMessagePublisherSendsApprovedMessageAndNotRejectedMessage()
+        {
+            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
+            await _sut.Handle(_command);
+
+            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
+                p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
+                p.CommitmentId == _command.CommitmentId &&
+                p.ReceivingEmployerAccountId ==
+                _command.TransferReceiverId &&
+                p.SendingEmployerAccountId ==
+                _command.TransferSenderId)));
+
+            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortRejectedByTransferSender>()), Times.Never);
+        }
+
 
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureApprenticeshipUpdatesAreUpdatedInRepository()
         {
-            _command.TransferStatus = TransferApprovalStatus.TransferApproved;
+            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
 
             _commitment.Apprenticeships.ForEach(
@@ -87,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsurePriceHistoryIsUpdated()
         {
-            _command.TransferStatus = TransferApprovalStatus.TransferApproved;
+            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
             _apprenticeshipRepository.Verify(x => x.CreatePriceHistoryForApprenticeshipsInCommitment(_commitment.Id));
         }
@@ -95,7 +130,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureEventsPublisherIsCalledForApprovedEvents()
         {
-            _command.TransferStatus = TransferApprovalStatus.TransferApproved;
+            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
             _apprenticeshipEventsPublisher.Verify(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()));
         }
@@ -103,7 +138,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureReorderPayementsCommandIsCalled()
         {
-            _command.TransferStatus = TransferApprovalStatus.TransferApproved;
+            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
             _mediator.Verify(x => x.SendAsync(It.Is<SetPaymentOrderCommand>(p => p.AccountId == _commitment.EmployerAccountId)));
         }
