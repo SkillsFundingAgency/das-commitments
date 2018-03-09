@@ -160,6 +160,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
+        //todo: reuse existing repository? perhaps better not to use existing code, as then test code could be wrong because of bug in sut code
+
         public async Task<long> GetEmployerId(long apprenticeshipId)
         {
             using (var connection = new SqlConnection(_databaseConnectionString))
@@ -176,8 +178,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 }
             }
         }
-
-        //todo: reuse existing repository?
 
         //store in JobProgress or a seperate table, either in db project or seperate??
         // test apprenticeship ids are not job progresses. change tablename to something else?

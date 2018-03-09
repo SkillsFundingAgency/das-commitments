@@ -31,14 +31,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public async Task SimulateSlowdownScenario()
         {
             //best way to handle concurrency? async only? tpl parallel? threads? other?
-            var tasks = new List<Task>();
+            var tasks = new List<Task<TimeSpan>>();
 
             const int preGetApprenticeshipsGetApprenticeshipCalls = 50;
             const int postGetApprenticeshipsGetApprenticeshipCalls = 50;
 
             // better to fetch what we need from the generated data from the db, rather than
             // 1) read all the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory)
-            // 2) store it in the database in a similar way to the test ids, as that would require more code, increased db complexity etc. when you'd have to fetch the data from the db anyway
+            // 2) store it in the database in a similar way to the test ids, as that would require more code, increase db complexity etc. when you'd have to fetch the data from the db anyway
             var getApprentishipIdsTasks = Enumerable.Repeat(0, preGetApprenticeshipsGetApprenticeshipCalls + postGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(async x =>
                 {
@@ -78,7 +78,15 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             tasks.AddRange(getApprentishipIds.Skip(preGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
 
-            await Task.WhenAll(tasks);
+            //todo: why does first GetApprenticeship take over 7 seconds???
+            //probably the cost to start up the test server. either start up before start test proper, or skip first get
+            var callTimes = await Task.WhenAll(tasks);
+            var slowestGetApprenticeshipCall = callTimes.Take(preGetApprenticeshipsGetApprenticeshipCalls)
+                .Concat(callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls+1)).Max(ts => ts);
+            var getApprenticechipsCall = callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls).First();
+
+            Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0,0,1));
+            Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0,0,1));
         }
 
         private static readonly Random Random = new Random();
