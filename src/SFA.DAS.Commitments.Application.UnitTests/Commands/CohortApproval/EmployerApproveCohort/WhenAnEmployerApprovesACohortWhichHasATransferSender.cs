@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
+using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Events;
@@ -33,15 +34,22 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
-        public async Task ThenIfTheProviderHasAlreadyApproved2ApprovalMessagesArePublished()
+        public async Task ThenIfTheProviderHasAlreadyApprovedAMessageIsPublishedToTransferSender()
         {
             await Target.Handle(Command);
 
-            _messagePublisher.Verify(x=>x.PublishAsync(It.IsAny<CohortApprovedByEmployer>()), Times.Once);
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalByTransferSenderRequested>(y =>
                 y.ReceivingEmployerAccountId == Commitment.EmployerAccountId &&
                 y.CommitmentId == Commitment.Id && y.SendingEmployerAccountId == Commitment.TransferSenderId &&
                 y.TransferCost == Commitment.Apprenticeships.Sum(a => a.Cost ?? 0))), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedNoSetPaymentOrderCommandIsSent()
+        {
+            await Target.Handle(Command);
+
+            Mediator.Verify(x => x.SendAsync(It.IsAny<SetPaymentOrderCommand>()), Times.Never);
         }
 
         [Test]

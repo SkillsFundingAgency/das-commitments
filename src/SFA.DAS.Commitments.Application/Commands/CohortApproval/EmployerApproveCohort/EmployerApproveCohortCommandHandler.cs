@@ -50,9 +50,24 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
             if (haveBothPartiesApproved)
             {
-                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-                await PublishApprovalEventMessages(commitment);
+                if (commitment.HasTransferSenderAssigned)
+                {
+                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(
+                        _messagePublisher, commitment);
+                }
+                else
+                {
+                    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+                }
+
+                await PublishApprovedMessage(commitment);
             }
+        }
+
+        private async Task PublishApprovedMessage(Commitment commitment)
+        {
+            await _messagePublisher.PublishAsync(new CohortApprovedByEmployer(commitment.EmployerAccountId,
+                commitment.ProviderId.Value, commitment.Id));
         }
 
         private static AgreementStatus DetermineNewAgreementStatus(bool haveBothPartiesApproved)
