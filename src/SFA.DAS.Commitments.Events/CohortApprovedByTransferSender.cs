@@ -9,9 +9,9 @@ namespace SFA.DAS.Commitments.Events
         {
         }
 
-        public CohortApprovedByTransferSender(long accountId, long commitmentId, long transferSenderId, string userName, string userEmail)
+        public CohortApprovedByTransferSender(long receivingEmployerAccountId, long commitmentId, long transferSenderId, string userName, string userEmail)
         {
-            ReceivingEmployerAccountId = accountId;
+            ReceivingEmployerAccountId = receivingEmployerAccountId;
             CommitmentId = commitmentId;
             SendingEmployerAccountId = transferSenderId;
             UserName = userName;
