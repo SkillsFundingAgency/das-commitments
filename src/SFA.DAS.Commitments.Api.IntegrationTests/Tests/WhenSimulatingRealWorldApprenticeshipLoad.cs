@@ -28,6 +28,18 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
         [Test]
+        public async Task SimulateSlowdownScenario()
+        {
+            //best way to handle concurrency? async only? tpl parallel? threads?
+            var apprenticeshipId = SetUpFixure.TestIds[TestIds.MaxCohortSize];
+
+            await CommitmentsApi.CallGetApprenticeships(apprenticeshipId);
+            //todo: need to have many apprenticeships for an employer (not 1:1!)
+
+            await CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId);
+        }
+
+        [Test]
         public async Task ThenSumfinkOrNuffink()
         {
             long apprenticeshipId = SetUpFixure.TestIds[TestIds.MaxCohortSize];
