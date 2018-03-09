@@ -10,7 +10,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     [SetUpFixture]
     public class SetUpFixure
     {
-        public static TestIds TestIds { get; set; }
+        public static TestIds TestIds { get; private set; }
+        public static CommitmentsDatabase CommitmentsDatabase { get; private set; }
 
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
@@ -18,7 +19,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             try
             {
                 await TestContext.Progress.WriteLineAsync("Running OneTimeSetUp");
-                TestIds = await new TestData().Initialise();
+                var testData = new TestData();
+                TestIds = await testData.Initialise();
+                CommitmentsDatabase = testData.CommitmentsDatabase;
             }
             catch (Exception exception)
             {

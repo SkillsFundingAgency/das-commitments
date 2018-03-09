@@ -34,6 +34,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             set => _ids[key] = value;
         }
 
+        public IEnumerable<long> Ids => _ids.Values;
+
         private class NamedId
         {
 #pragma warning disable 0649

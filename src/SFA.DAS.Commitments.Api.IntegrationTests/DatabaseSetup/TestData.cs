@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     {
         //private readonly CommitmentsApiConfiguration _config;
         private readonly string _databaseConnectionString;
-        private readonly CommitmentsDatabase _commitmentsDatabase;
+        public CommitmentsDatabase CommitmentsDatabase { get; }
         //private readonly TestIds _ids;
         //do we want to bother wrapping this dictionary? would also contain names
         //private readonly Dictionary<string, long> _ids = new Dictionary<string, long>();
@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var config = Infrastructure.Configuration.Configuration.Get();
             _databaseConnectionString = config.DatabaseConnectionString;
 
-            _commitmentsDatabase = new CommitmentsDatabase(_databaseConnectionString);
+            CommitmentsDatabase = new CommitmentsDatabase(_databaseConnectionString);
         }
 
         public async Task<TestIds> Initialise()
@@ -53,10 +53,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
             else
             {
-                var existingDatabaseSchemaVersion = await _commitmentsDatabase.GetJobProgress<int?>(schemaVersionColumnName);
+                var existingDatabaseSchemaVersion = await CommitmentsDatabase.GetJobProgress<int?>(schemaVersionColumnName);
                 if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
                 {
-                    //todo:await _commitmentsDatabase.ClearData();
+                    //todo:await CommitmentsDatabase.ClearData();
                     //required with recreate?
 
                     // if we can get the deploy options working, we won't need to do this...
@@ -64,13 +64,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
                     databaseManagement.Publish();
                     //var testIdNames = await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
-                    await _commitmentsDatabase.SetJobProgress(schemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
+                    await CommitmentsDatabase.SetJobProgress(schemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
                     //return testIdNames;
                 }
             }
 
             // > 0, or less than MinNumberOfApprenticeships? what if more data?
-            if (await _commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName) >= 
+            if (await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName) >= 
                 TestDataVolume.MinNumberOfApprenticeships)
             {
                 return await TestIds.Fetch(_databaseConnectionString);
@@ -89,11 +89,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task<TestIds> PopulateDatabaseWithTestData()
         {
-            var firstNewApprenticeshipId = await _commitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
-            var firstNewCohortId = await _commitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
+            //do we want to support 'adding' to existing data, or make it son always populate from fresh db?
+            //there are currently all sorts of edge cases for expansion
+            //but if when deal with million+ rows and want to add another million might be handy to add more
+            // could assert corner cases rather than trying to handle them?
+            // if adding, would probably be better to leave current test ids alone and just generate for volume
+            var firstNewApprenticeshipId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
+            var firstNewCohortId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
 
             var apprenticeshipsInTable =
-                await _commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
+                await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
 
             var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
@@ -103,7 +108,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             {
                 (var testApprenticeships, long lastCohortId) = GenerateApprenticeships(testIds, apprenticeshipsToGenerate,
                     firstNewApprenticeshipId, firstNewCohortId);
-                await _commitmentsDatabase.InsertApprenticeships(testApprenticeships);
+                await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
 
                 // generate the commitments that the new apprenticeships reference
                 int commitmentsToGenerate = (int) (1 + lastCohortId - firstNewCohortId);
@@ -111,7 +116,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await TestContext.Progress.WriteLineAsync("Generating Commitments");
 
                 var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
-                await _commitmentsDatabase.InsertCommitments(testCommitments);
+                await CommitmentsDatabase.InsertCommitments(testCommitments);
             }
 
             await PopulateApprenticeshipUpdates(apprenticeshipsToGenerate, firstNewApprenticeshipId);
@@ -126,17 +131,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: methods for these
             // generate apprenticeship updates
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsGenerated * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
-            var firstNewApprenticeshipUpdateId = await _commitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
+            var firstNewApprenticeshipUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
 
             var testApprenticeshipUpdates = GenerateApprenticeshipUpdates(firstNewApprenticeshipId, apprenticeshipsGenerated, firstNewApprenticeshipUpdateId, apprenticeshipUpdatesToGenerate);
-            await _commitmentsDatabase.InsertApprenticeshipUpdates(testApprenticeshipUpdates);
+            await CommitmentsDatabase.InsertApprenticeshipUpdates(testApprenticeshipUpdates);
         }
 
         private async Task PopulateDatabaseWithDataLockStatuses()
         {
             // (for now at least) generate non-related datalockstatuses for bulking out the table
             const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
-            var firstNewDataLockStatusUpdateId = await _commitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
+            var firstNewDataLockStatusUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
 
             //for now..
             //todo: generate specific statuses for later tests
@@ -150,7 +155,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //                                              TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
 
             //testDataLockStatuses.AddRange(GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
-            await _commitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
+            await CommitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
 
         public (List<DbSetupApprenticeship>, long) GenerateApprenticeships(TestIds testIds, int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = TestDataVolume.MaxNumberOfApprenticeshipsInCohort)

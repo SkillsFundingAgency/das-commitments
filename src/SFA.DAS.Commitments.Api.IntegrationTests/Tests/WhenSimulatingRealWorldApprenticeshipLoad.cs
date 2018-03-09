@@ -30,13 +30,64 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task SimulateSlowdownScenario()
         {
-            //best way to handle concurrency? async only? tpl parallel? threads?
-            var apprenticeshipId = SetUpFixure.TestIds[TestIds.MaxCohortSize];
+            //best way to handle concurrency? async only? tpl parallel? threads? other?
+            var tasks = new List<Task>();
 
-            await CommitmentsApi.CallGetApprenticeships(apprenticeshipId);
-            //todo: need to have many apprenticeships for an employer (not 1:1!)
+            const int preGetApprenticeshipsGetApprenticeshipCalls = 50;
+            const int postGetApprenticeshipsGetApprenticeshipCalls = 50;
 
-            await CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId);
+            // better to fetch what we need from the generated data from the db, rather than
+            // 1) read all the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory)
+            // 2) store it in the database in a similar way to the test ids, as that would require more code, increased db complexity etc. when you'd have to fetch the data from the db anyway
+            var getApprentishipIdsTasks = Enumerable.Repeat(0, preGetApprenticeshipsGetApprenticeshipCalls + postGetApprenticeshipsGetApprenticeshipCalls)
+                .Select(async x =>
+                {
+                    var ApprenticeshipId = GetRandomApprenticeshipId();
+                    return new
+                    {
+                        ApprenticeshipId,
+                        EmpoyerId = await SetUpFixure.CommitmentsDatabase.GetEmployerId(ApprenticeshipId)
+                    };
+                });
+
+            var getApprentishipIds = await Task.WhenAll(getApprentishipIdsTasks);
+
+            //better to just for?
+            //for (var preCall = 0; preCall < preGetApprenticeshipsGetApprenticeshipCalls; ++preCall)
+            //{
+            //}
+
+            //for (var preCall = 0; preCall < preGetApprenticeshipsGetApprenticeshipCalls; ++preCall)
+            //{
+            //    var apprenticeshipId = GetRandomApprenticeshipId();
+            //    tasks.Add(CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId));
+            //}
+
+            tasks.AddRange(getApprentishipIds.Take(preGetApprenticeshipsGetApprenticeshipCalls)
+                .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
+
+            //currently have 1:1 cohort:employer, might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
+            tasks.Add(CommitmentsApi.CallGetApprenticeships(SetUpFixure.TestIds[TestIds.MaxCohortSize]));
+
+            //for (var postCall = 0; postCall < postGetApprenticeshipsGetApprenticeshipCalls; ++postCall)
+            //{
+            //    var apprenticeshipId = GetRandomApprenticeshipId();
+            //    tasks.Add(CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId));
+            //}
+
+            tasks.AddRange(getApprentishipIds.Skip(preGetApprenticeshipsGetApprenticeshipCalls)
+                .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
+
+            await Task.WhenAll(tasks);
+        }
+
+        private static readonly Random Random = new Random();
+        public long GetRandomApprenticeshipId()
+        {
+            long apprenticeshipId;
+            while (SetUpFixure.TestIds.Ids.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships+1)))
+                { }
+            return apprenticeshipId;
         }
 
         [Test]

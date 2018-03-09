@@ -17,8 +17,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     public class CommitmentsDatabase
     {
         // intial version will be null
-        //public static readonly int? SchemaVersion = null;
-        public static readonly int? SchemaVersion = 1;
+        public static readonly int? SchemaVersion = null;
 
         public const string DatabaseName = "SFA.DAS.Commitments.IntegrationTest";
 
@@ -160,6 +159,25 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 }
             }
         }
+
+        public async Task<long> GetEmployerId(long apprenticeshipId)
+        {
+            using (var connection = new SqlConnection(_databaseConnectionString))
+            {
+                await connection.OpenAsync();
+                // no need for param as apprenticeshipId comes from test code not user
+                //todo: find eisting functionality to do this?
+                using (var command = new SqlCommand(
+                    $@"select EmployerAccountId from dbo.Commitment c
+                    join dbo.Apprenticeship a on c.Id = a.CommitmentId
+                    where a.Id = {apprenticeshipId}", connection))
+                {
+                    return (long)await command.ExecuteScalarAsync();
+                }
+            }
+        }
+
+        //todo: reuse existing repository?
 
         //store in JobProgress or a seperate table, either in db project or seperate??
         // test apprenticeship ids are not job progresses. change tablename to something else?

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
+using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
@@ -31,8 +32,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             Assert.IsTrue(result.IsSuccessStatusCode);
 
             //bool verify?
-            var resultsAsString = await result.Content.ReadAsStringAsync();
-            var apprenticeships = JsonConvert.DeserializeObject<IEnumerable<Apprenticeship>>(resultsAsString);
+            //var resultsAsString = await result.Content.ReadAsStringAsync();
+            //var apprenticeships = JsonConvert.DeserializeObject<IEnumerable<Apprenticeship>>(resultsAsString);
+            ////sproc GetActiveApprenticeships filters out deleted and pre-approved PaymentStatus'es, so this isn't valid
+            ////Assert.AreEqual(TestDataVolume.MaxNumberOfApprenticeshipsInCohort, apprenticeships.Count());
+            //Assert.LessOrEqual(apprenticeships.Count(), TestDataVolume.MaxNumberOfApprenticeshipsInCohort); // we can do better than this if required - i.e. store and/or generate statuc counts
         }
     }
 }
