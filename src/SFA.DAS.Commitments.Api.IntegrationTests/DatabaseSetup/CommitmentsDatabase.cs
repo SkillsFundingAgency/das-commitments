@@ -16,8 +16,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
     public class CommitmentsDatabase
     {
-        // intial version is null
-        public static readonly int? SchemaVersion = null;
+        // intial version will be null
+        //public static readonly int? SchemaVersion = null;
+        public static readonly int? SchemaVersion = 1;
 
         public const string DatabaseName = "SFA.DAS.Commitments.IntegrationTest";
 

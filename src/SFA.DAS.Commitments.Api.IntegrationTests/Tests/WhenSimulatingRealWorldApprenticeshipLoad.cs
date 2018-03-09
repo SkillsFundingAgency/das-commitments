@@ -30,9 +30,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task ThenSumfinkOrNuffink()
         {
-            //todo: the test will have to create these of course mf
-            string employerAccountId = "8315"; // initial look suggests this is not actually used
             long apprenticeshipId = SetUpFixure.TestIds[TestIds.MaxCohortSize];
+            long employerAccountId = apprenticeshipId; // the convention we're currently using to simplify things
 
             // when we supply a valid token, in ApiKeyHandler, JwtSecurityTokenHandler.ValidateToken complains that the header isn't base64 encoded,
             // but it is. see https://stackoverflow.com/questions/43003502/jwt-unable-to-decode-the-header-as-base64url-encoded-string

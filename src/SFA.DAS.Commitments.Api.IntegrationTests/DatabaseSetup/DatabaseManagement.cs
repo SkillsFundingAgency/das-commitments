@@ -190,7 +190,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             {
                 var serverConnection = new ServerConnection(sqlConnection);
                 var server = new Server(serverConnection);
-                server.KillDatabase(sqlConnection.Database);
+                server.KillDatabase(_databaseName);
             }
         }
     }

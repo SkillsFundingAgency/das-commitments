@@ -33,8 +33,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             _commitmentsDatabase = new CommitmentsDatabase(_databaseConnectionString);
         }
 
-        //todo: handle case when database already populated & schema update (regenerate all data?)
-
         public async Task<TestIds> Initialise()
         {
             //logger null gonna cause probs?
@@ -70,12 +68,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     //return testIdNames;
                 }
             }
-
-            //var ti = new TestIds();
-            //ti["spanky"] = 22;
-            //ti["chicken"] = 33;
-            //await ti.Store(_databaseConnectionString);
-            //var fetched = await TestIds.Fetch(_databaseConnectionString);
 
             // > 0, or less than MinNumberOfApprenticeships? what if more data?
             if (await _commitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName) >= 
@@ -221,6 +213,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             foreach (var commitment in commitments)
             {
                 commitment.Id = initialId++;
+                // we'll probably have to do better than this at some point, but this might be enough
+                // for the initial tests
+                // if we do something a bit closer to real-world, we'll have to add probably 2
+                // extra columns to IntegrationTestIds, EmployerId & ProviderId (or possibly 1 column as a (c++ style) union)
+                commitment.EmployerAccountId = commitment.Id;
             }
             return commitments;
         }
