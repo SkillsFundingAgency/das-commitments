@@ -291,5 +291,16 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public async Task ApproveCohort()
+        {
+            var providerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider/{ProviderId}/commitments/{CommitmentId}/approve"), JsonConvert.SerializeObject(new CommitmentSubmission()));
+            _fakeHandler.AddFakeResponse(providerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _apiclient.ApproveCohort(ProviderId, CommitmentId, new CommitmentSubmission());
+
+            Assert.Pass();
+        }
     }
 }
