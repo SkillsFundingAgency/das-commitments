@@ -28,5 +28,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<ApprenticeshipStatusSummary>> GetAccountSummary(long accountId);
         Task<IEnumerable<Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln);
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
+        Task ApproveCohort(long accountId, long commitmentId, CommitmentSubmission submission);
     }
 }

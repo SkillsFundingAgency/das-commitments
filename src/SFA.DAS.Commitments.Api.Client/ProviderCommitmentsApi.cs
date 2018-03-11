@@ -178,5 +178,12 @@ namespace SFA.DAS.Commitments.Api.Client
             var data = JsonConvert.SerializeObject(triageSubmission);
             await PatchAsync(url, data);
         }
+
+        public async Task ApproveCohort(long providerId, long commitmentId, CommitmentSubmission submission)
+        {
+            var url = $"{_configuration.BaseUrl}api/provider/{providerId}/commitments/{commitmentId}/approve";
+
+            await _commitmentHelper.PatchCommitment(url, submission);
+        }
     }
 }

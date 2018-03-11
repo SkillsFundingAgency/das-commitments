@@ -35,20 +35,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Rules.ApprenticeshipUpdateRu
             Assert.AreEqual(AgreementStatus.NotAgreed, _rules.DetermineNewAgreementStatus(agreementStatus, CallerType.Employer, true));
         }
 
-        [TestCase(AgreementStatus.EmployerAgreed, CallerType.Provider, LastAction.Approve)]
-        [TestCase(AgreementStatus.ProviderAgreed, CallerType.Employer, LastAction.Approve)]
-        public void ThenSetToBothPartiesAgreedIfOtherPartyHasAlreadyAgreed(AgreementStatus currentAgreementStatus, CallerType caller, LastAction action)
-        {
-            Assert.AreEqual(AgreementStatus.BothAgreed, _rules.DetermineNewAgreementStatus(currentAgreementStatus, caller, action));
-        }
-
-        [TestCase(CallerType.Employer, LastAction.Approve, AgreementStatus.EmployerAgreed)]
-        [TestCase(CallerType.Provider, LastAction.Approve, AgreementStatus.ProviderAgreed)]
-        public void ThenSetToCallingPartyAgreedIfCurrentlyNotAgreed(CallerType caller, LastAction action, AgreementStatus expectedAgreementStatus)
-        {
-            Assert.AreEqual(expectedAgreementStatus, _rules.DetermineNewAgreementStatus(AgreementStatus.NotAgreed, caller, action));
-        }
-
         [TestCase(AgreementStatus.ProviderAgreed,CallerType.Employer, LastAction.Amend)]
         [TestCase(AgreementStatus.EmployerAgreed, CallerType.Provider, LastAction.Amend)]
         public void ThenSetToToNotAgreedIfOtherPartyIsApprovedAndAmending(AgreementStatus currentAgreementStatus, CallerType caller, LastAction action)
