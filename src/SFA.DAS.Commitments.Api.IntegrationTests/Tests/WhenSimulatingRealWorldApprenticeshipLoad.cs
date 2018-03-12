@@ -23,10 +23,20 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     //todo: write scenarios(parallel execution)
     //todo: use INTTEST as env? so could have a seperate database to contain all the test data
     // /\ think we need this so we can blatt the data when necessary
+    //todo: sut doesn't always pick up httpcontextbase in CurrentNestedContainer
 
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
+        //[Test]
+        //public async Task SimulateSlowdownScenarioP()
+        //{
+        //    Parallel.For(0, 10, new ParallelOptions { MaxDegreeOfParallelism = 4 }, count =>
+        //    {
+        //        Console.WriteLine(count);
+        //    });
+        //}
+
         [Test]
         public async Task SimulateSlowdownScenario()
         {

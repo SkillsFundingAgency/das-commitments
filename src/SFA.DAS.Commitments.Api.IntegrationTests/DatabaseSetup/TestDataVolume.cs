@@ -11,5 +11,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public const double SuccessDataLockStatusesToApprenticeshipsRatio = 0.98d;
         public const double ErrorDataLockStatusesToApprenticeshipsRatio = 0.025d;
         public const int MaxApprenticeshipUpdatesPerApprenticeship = 5; //todo: skew to lower?
+        public const int MaxDataLockStatusesPerApprenticeship = 5; // status & error versions?
     }
 }

@@ -120,9 +120,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await CommitmentsDatabase.InsertCommitments(testCommitments);
             }
 
+            //todo: consistent param ordering
             await PopulateApprenticeshipUpdates(apprenticeshipsToGenerate, firstNewApprenticeshipId);
 
-            await PopulateDatabaseWithDataLockStatuses();
+            await PopulateDataLockStatuses(firstNewApprenticeshipId, apprenticeshipsToGenerate);
 
             return testIds;
         }
@@ -138,24 +139,37 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             await CommitmentsDatabase.InsertApprenticeshipUpdates(testApprenticeshipUpdates);
         }
 
-        private async Task PopulateDatabaseWithDataLockStatuses()
+        private async Task PopulateDataLockStatuses(long firstNewApprenticeshipId, int numberOfNewApprenticeships)
         {
-            // (for now at least) generate non-related datalockstatuses for bulking out the table
-            const long bulkApprenticeshipId = long.MaxValue, bulkApprenticeshipUpdateId = long.MaxValue;
+            //todo: this code generates success dls and then error dls, which might not be good enough
+            // we might have to intersperse the error statuses throughout the table - we could shuffle the result before writing it to the database
+            // check what clustered index is used
+
             var firstNewDataLockStatusUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
 
-            //for now..
-            //todo: generate specific statuses for later tests
-
             // generate success DataLockStatuses
-            var successDataLockStatusesToGenerate = (int)(TestDataVolume.MinNumberOfApprenticeships *
+            var successDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
                     TestDataVolume.SuccessDataLockStatusesToApprenticeshipsRatio);
-            var testDataLockStatuses = GenerateDataLockStatuses(bulkApprenticeshipId, bulkApprenticeshipUpdateId, successDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId);
 
-            //var errorDataLockStatusesToGenerate = (int)(TestDataVolume.MinNumberOfApprenticeships *
-            //                                              TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
+            var apprenticeshipIdsForDataLockStatuses = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
+                TestDataVolume.MaxDataLockStatusesPerApprenticeship);
 
-            //testDataLockStatuses.AddRange(GenerateDataLockStatuses(firstNewApprenticeshipId, bulkApprenticeshipUpdateId, commitmentsToGenerate, firstNewCohortId));
+            var testDataLockStatuses = GenerateDataLockStatuses(apprenticeshipIdsForDataLockStatuses, successDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId, false);
+
+            var errorDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
+                                                          TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
+
+            firstNewDataLockStatusUpdateId += testDataLockStatuses.Count;
+
+            // needs to not include apprenticeshipId's that have success datalockstatuses
+            // skip the apprenticeship ids we used for the success DataLockStatuses
+            var randomlyGroupedErrorApprenticeshipIds = apprenticeshipIdsForDataLockStatuses.Skip(testDataLockStatuses.Count);
+            // the first id may have been in a group where the id was already used for success, so skip that
+            var firstIdInRemaining = randomlyGroupedErrorApprenticeshipIds.First();
+            randomlyGroupedErrorApprenticeshipIds.SkipWhile(i => i == firstIdInRemaining);
+
+            testDataLockStatuses.AddRange(GenerateDataLockStatuses(randomlyGroupedErrorApprenticeshipIds, errorDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId, true));
+
             await CommitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
 
@@ -191,14 +205,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, long initialId, int apprenticeshipUpdatesToGenerate)
         {
-            // limit length? does it matter if lazily enumerated and don't read past required?
-            var newApprenticeshipIdsShuffled = Enumerable
-                .Range((int) firstNewApprenticeshipId, numberOfNewApprenticeships)
-                .OrderBy(au => _random.Next(int.MaxValue));
+            //// limit length? does it matter if lazily enumerated and don't read past required?
+            //var newApprenticeshipIdsShuffled = Enumerable
+            //    .Range((int) firstId, countOfIds)
+            //    .OrderBy(au => _random.Next(int.MaxValue));
 
-            // limit length in aggregate? does it matter if lazily enumerated and don't read past required?
-            var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
-                (ids, id) => ids.Concat(Enumerable.Repeat(id, _random.Next(1, TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship+1))));
+            //// limit length in aggregate? does it matter if lazily enumerated and don't read past required?
+            //var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
+            //    (ids, id) => ids.Concat(Enumerable.Repeat(id, _random.Next(1, TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship+1))));
+
+            var apprenticeshipIdsForUpdates = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
+                TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship);
 
             var fixture = new Fixture();
             var apprenticeshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
@@ -210,6 +227,29 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 update.ApprenticeshipId = apprenticeshipId;
                 return update;
             }).ToList();
+        }
+
+        public IEnumerable<long> RandomIdGroups(long firstId, int countOfIds, int maxIdsPerGroup)
+        {
+            // limit length? does it matter if lazily enumerated and don't read past required?
+            var newApprenticeshipIdsShuffled = Enumerable
+                .Range((int)firstId, countOfIds)
+                .OrderBy(au => _random.Next(int.MaxValue));
+
+            //todo: looks like this may be blowing the stack for some reason (with large countOfIds)
+            // it breaks in system code
+            // An unhandled exception of type 'System.StackOverflowException' occurred in Unknown Module. occurred
+            // call stack -> The number of stack frames exceeds the limit
+
+            // limit length in aggregate? does it matter if lazily enumerated and don't read past required?
+            //var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
+            //    (ids, id) => ids.Concat(Enumerable.Repeat(id, _random.Next(1, maxIdsPerGroup + 1))));
+
+            //return apprenticeshipIdsForUpdates.Cast<long>();
+
+            //todo: could work with shuffledIds directly (not zip them) if this blows the stack also
+
+            return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, _random.Next(1, maxIdsPerGroup + 1)));
         }
 
         public static List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate, long initialId = 1)
@@ -239,22 +279,124 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return apprentieshipUpdates;
         }
 
-        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(long apprenticeshipId, long apprenticeshipUpdateId, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
+        //public List<DbSetupDataLockStatus> GenerateDataLockStatuses(long firstNewApprenticeshipId, int numberOfNewApprenticeships, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
+        //{
+        //    //and TriageStatus = 0
+        //    //and[Status] = 2
+        //    //AND[IsResolved] = 0
+        //    //AND[EventStatus] <> 3
+        //    //AND[IsExpired] = 0
+
+        //    var apprenticeshipIdsForDataLockStatuses = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
+        //        TestDataVolume.MaxDataLockStatusesPerApprenticeship);
+
+        //    var fixture = new Fixture();
+        //    var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
+
+        //    return dataLockStatuses.Zip(apprenticeshipIdsForDataLockStatuses, (dataLockStatus, apprenticeshipId) =>
+        //    {
+        //        // bit nasty -> shouldn't alter source! but soon to go out of scope. could create new
+        //        dataLockStatus.Id = initialId++;
+        //        dataLockStatus.ApprenticeshipId = apprenticeshipId;
+        //        dataLockStatus.Status = GenerateStatus(setError);
+        //        dataLockStatus.ErrorCode = GenerateDataLockError(setError);
+        //        dataLockStatus.TriageStatus = GenerateTriageStatus(dataLockStatus.ErrorCode);
+        //        dataLockStatus.IsResolved = GenerateIsResolved(dataLockStatus.TriageStatus);
+        //        dataLockStatus.EventStatus = GenerateEventStatus();
+        //        // all are currently unexpired, but we might get some next academic year
+        //        //dataLockStatus.IsExpired = false;
+
+        //        // if errorcode == course (x4), triage = restart or 0
+        //        // if errorcode != course, triage = update das
+        //        // if triagestatus, isresolved true or false
+        //        // triage = 0 if pass
+        //        // triage random if error including 0
+        //        // eventstatus majority 3
+        //        // isexpired always 0
+
+        //        return dataLockStatus;
+        //    }).ToList();
+
+
+        //    //foreach (var dataLockStatus in dataLockStatuses)
+        //    //{
+        //    //    dataLockStatus.Id = initialId++;
+        //    //    dataLockStatus.ApprenticeshipId = apprenticeshipId;
+        //    //    dataLockStatus.ApprenticeshipUpdateId = apprenticeshipUpdateId;
+        //    //    dataLockStatus.Status = setError ? Status.Pass : Status.Fail; //todo: if this correct?
+        //    //    dataLockStatus.ErrorCode = setError ? GenerateDataLockError() : DataLockErrorCode.None;
+        //    //}
+        //    //return dataLockStatuses;
+        //}
+
+        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
         {
             var fixture = new Fixture();
             var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
-            foreach (var dataLockStatus in dataLockStatuses)
+
+            return dataLockStatuses.Zip(randomlyOrderedApprenticeshipIdGroups, (dataLockStatus, apprenticeshipId) =>
             {
+                // bit nasty -> shouldn't alter source! but soon to go out of scope. could create new
                 dataLockStatus.Id = initialId++;
                 dataLockStatus.ApprenticeshipId = apprenticeshipId;
-                dataLockStatus.ApprenticeshipUpdateId = apprenticeshipUpdateId;
-                dataLockStatus.ErrorCode = setError ? GenerateDataLockError() : DataLockErrorCode.None;
-            }
-            return dataLockStatuses;
+                dataLockStatus.Status = GenerateStatus(setError);
+                dataLockStatus.ErrorCode = GenerateDataLockError(setError);
+                dataLockStatus.TriageStatus = GenerateTriageStatus(dataLockStatus.ErrorCode);
+                dataLockStatus.IsResolved = GenerateIsResolved(dataLockStatus.TriageStatus);
+                dataLockStatus.EventStatus = GenerateEventStatus();
+                // all are currently unexpired, but we might get some next academic year
+                //dataLockStatus.IsExpired = false;
+
+                // if errorcode == course (x4), triage = restart or 0
+                // if errorcode != course, triage = update das
+                // if triagestatus, isresolved true or false
+                // triage = 0 if pass
+                // triage random if error including 0
+                // eventstatus majority 3
+                // isexpired always 0
+
+                return dataLockStatus;
+            }).ToList();
         }
 
-        private DataLockErrorCode GenerateDataLockError()
+        private Status GenerateStatus(bool error)
         {
+            //todo: what about unknown?
+            return error ? Status.Fail: Status.Pass;
+        }
+
+        private TriageStatus GenerateTriageStatus(DataLockErrorCode errorCode)
+        {
+            if (errorCode == DataLockErrorCode.None)
+                return TriageStatus.Unknown;
+
+            // if errorcode is one of the 4 change codes
+            //todo: which are the change codes?
+            if ((errorCode &
+                 (DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06)) != 0)
+            {
+                return _random.Next(2) == 0 ? TriageStatus.Restart : TriageStatus.Unknown;
+            }
+
+            if ((errorCode & (DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock09)) != 0)
+            {
+                return _random.Next(2) == 0 ? TriageStatus.Change : TriageStatus.Unknown;
+            }
+
+            // FixInIlr is not currently used
+            return TriageStatus.Unknown;
+        }
+
+        private bool GenerateIsResolved(TriageStatus triageStatus)
+        {
+            return triageStatus == TriageStatus.Unknown ? false : _random.Next(2) == 0;
+        }
+
+        private DataLockErrorCode GenerateDataLockError(bool error)
+        {
+            if (!error)
+                return DataLockErrorCode.None;
+
             var numberOfFlags = _random.Next(1, 3+1);
             int errorCode = 0;
             while (numberOfFlags-- > 0)
@@ -262,6 +404,22 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 errorCode |= 1 << _random.Next(9+1);
             }
             return (DataLockErrorCode)errorCode;
+        }
+
+        private EventStatus GenerateEventStatus()
+        {
+            // majority are removed
+            //todo: pick these percentages from TestDataVolume?
+            //todo: do we need to add certain apprenticeships to TestIds? do we need certain status sets? can we rely on db query to fetch?
+            var rand = _random.Next(100);
+
+            if (rand < 10)
+                return EventStatus.New;
+
+            if (rand < 20)
+                return EventStatus.Updated;
+
+            return EventStatus.Removed;
         }
 
         //private static async Task<long> FirstNewId(CommitmentsDatabase commitmentsDatabase, string tableName)
