@@ -28,6 +28,58 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
+        private static async Task<CallDetails[]> RepeatCallGetApprenticeship(ICollection<ApprenticeshipCallParams> ids)
+        {
+            var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
+            return await Task.WhenAll(tasks);
+        }
+
+        private class ApprenticeshipCallParams
+        {
+            public long ApprenticeshipId { get; set; }
+            public long EmployerId { get; set; }
+        }
+
+        [Test]
+        public async Task SimulateSlowdownScenarioT()
+        {
+            const int numberOfTasks = 8;
+
+            const int getApprenticeshipCallsPerTask = 20;
+
+            //todo: put this in method
+            var getApprenticeshipIdsPerTask = new List<ApprenticeshipCallParams>[numberOfTasks];
+
+            var alreadyUsedIds = new HashSet<long>(SetUpFixture.TestIds.Ids);
+
+            for (var taskNo = 0; taskNo < numberOfTasks; ++taskNo)
+            {
+                getApprenticeshipIdsPerTask[taskNo] = new List<ApprenticeshipCallParams>();
+
+                for (var getApprenticeshipCall = 0;
+                    getApprenticeshipCall < getApprenticeshipCallsPerTask;
+                    ++getApprenticeshipCall)
+                {
+                    var randomApprenticeshipId = GetRandomApprenticeshipId(alreadyUsedIds);
+                    alreadyUsedIds.Add(randomApprenticeshipId);
+
+                    getApprenticeshipIdsPerTask[taskNo].Add(new ApprenticeshipCallParams {
+                        ApprenticeshipId = randomApprenticeshipId,
+                        //todo: parallelise, like below
+                        EmployerId = await SetUpFixture.CommitmentsDatabase.GetEmployerId(randomApprenticeshipId)
+                    });
+                }
+            }
+
+            // pay the cost of test server setup etc. now, so the first result in our timings isn't out
+            await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIdsPerTask.First().First().ApprenticeshipId,
+                getApprenticeshipIdsPerTask.First().First().EmployerId);
+
+            var tasks = getApprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)));
+
+            var callTimesPerTask = await Task.WhenAll(tasks);
+        }
+
         //[Test]
         //public async Task SimulateSlowdownScenarioP()
         //{
@@ -36,6 +88,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         //        Console.WriteLine(count);
         //    });
         //}
+
+        //var numbers = Enumerable
+        //    .Range(0, numberOfThreads)
+        //    .AsParallel()
+        //    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
+        //    .WithDegreeOfParallelism(numberOfThreads)
+        //    .Select(threadNumber => )
+        //    .ToArray();
 
         [Test]
         public async Task SimulateSlowdownScenario()
@@ -102,11 +162,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         }
 
         private static readonly Random Random = new Random();
-        public long GetRandomApprenticeshipId()
+        public long GetRandomApprenticeshipId(HashSet<long> exclude = null)
         {
+            if (exclude == null)
+                return Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1);
+
             long apprenticeshipId;
-            while (SetUpFixture.TestIds.Ids.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships+1)))
-                { }
+            while (exclude.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1)))
+            {
+            }
+
             return apprenticeshipId;
         }
 
