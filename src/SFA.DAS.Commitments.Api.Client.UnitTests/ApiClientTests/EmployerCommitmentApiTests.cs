@@ -319,7 +319,7 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
-        public async Task GetCommitmentFor()
+        public async Task GetSpecificCommitmentInformationForAnEmployerAsTransferSender()
         {
             var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{CommitmentId}"), string.Empty);
             _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
