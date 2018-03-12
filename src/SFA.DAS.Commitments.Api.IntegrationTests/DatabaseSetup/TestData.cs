@@ -171,6 +171,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             testDataLockStatuses.AddRange(GenerateDataLockStatuses(randomlyGroupedErrorApprenticeshipIds, errorDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId, true));
 
+            // shuffle the DataLockStatuses so that all the error rows aren't grouped at the end
+            // we'll do it this way here (if it wasn't test code, perhaps we'd do it differently)
+            // see https://stackoverflow.com/questions/6569422/how-can-i-randomly-ordering-an-ienumerable
+            testDataLockStatuses = testDataLockStatuses.OrderBy(s => _random.Next()).ToList();
+
             await CommitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
 
