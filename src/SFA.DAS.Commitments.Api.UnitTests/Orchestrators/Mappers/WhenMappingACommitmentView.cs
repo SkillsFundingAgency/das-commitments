@@ -25,20 +25,30 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             _mapper = new CommitmentMapper(_rules);
         }
 
-        [TestCase(CallerType.Employer)]
-        [TestCase(CallerType.Provider)]
-        public void ThenTransferSenderFieldsAreMappedCorrectly(CallerType callerType)
+        [TestCase(CallerType.Employer, true, false, TransferApprovalStatus.Pending)]
+        [TestCase(CallerType.Provider,false, true, TransferApprovalStatus.Pending)]
+        [TestCase(CallerType.TransferSender, false, false, TransferApprovalStatus.Pending)]
+        public void ThenTransferSenderFieldsAreMappedCorrectly(CallerType callerType, bool canEmployerApprove, bool canProviderApprove, TransferApprovalStatus transferStatus)
         {
             var commitment = new Commitment
             {
                 TransferSenderId = 1,
-                TransferSenderName = "Transfer Sender Org"
+                TransferSenderName = "Transfer Sender Org",
+                TransferApprovalStatus = transferStatus,
+                TransferApprovalActionedOn = new DateTime(2018, 09, 09),
+                TransferApprovalActionedByEmployerName = "Name",
+                ProviderCanApproveCommitment = canProviderApprove,
+                EmployerCanApproveCommitment = canEmployerApprove,
             };
 
             var result = _mapper.MapFrom(commitment, callerType);
 
-            Assert.AreEqual(commitment.TransferSenderId, result.TransferSenderId);
-            Assert.AreEqual(commitment.TransferSenderName, result.TransferSenderName);
+            Assert.AreEqual(commitment.TransferSenderId, result.TransferSenderInfo.TransferSenderId);
+            Assert.AreEqual(commitment.TransferSenderName, result.TransferSenderInfo.TransferSenderName);
+            Assert.AreEqual(commitment.TransferApprovalStatus, (TransferApprovalStatus)result.TransferSenderInfo.TransferApprovalStatus);
+            Assert.AreEqual(commitment.TransferApprovalActionedOn, result.TransferSenderInfo.TransferApprovalSetOn);
+            Assert.AreEqual(commitment.TransferApprovalActionedByEmployerName, result.TransferSenderInfo.TransferApprovalSetBy);
+            Assert.AreEqual(true, result.CanBeApproved);
         }
     }
 }
