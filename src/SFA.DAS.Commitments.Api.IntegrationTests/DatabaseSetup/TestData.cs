@@ -15,6 +15,7 @@ using SFA.DAS.Commitments.Infrastructure.Data;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
+    //todo: generating 1/4 million objects with autofixture is slow. speed it up!
     public class TestData
     {
         //private readonly CommitmentsApiConfiguration _config;
@@ -279,56 +280,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return apprentieshipUpdates;
         }
 
-        //public List<DbSetupDataLockStatus> GenerateDataLockStatuses(long firstNewApprenticeshipId, int numberOfNewApprenticeships, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
-        //{
-        //    //and TriageStatus = 0
-        //    //and[Status] = 2
-        //    //AND[IsResolved] = 0
-        //    //AND[EventStatus] <> 3
-        //    //AND[IsExpired] = 0
-
-        //    var apprenticeshipIdsForDataLockStatuses = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
-        //        TestDataVolume.MaxDataLockStatusesPerApprenticeship);
-
-        //    var fixture = new Fixture();
-        //    var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
-
-        //    return dataLockStatuses.Zip(apprenticeshipIdsForDataLockStatuses, (dataLockStatus, apprenticeshipId) =>
-        //    {
-        //        // bit nasty -> shouldn't alter source! but soon to go out of scope. could create new
-        //        dataLockStatus.Id = initialId++;
-        //        dataLockStatus.ApprenticeshipId = apprenticeshipId;
-        //        dataLockStatus.Status = GenerateStatus(setError);
-        //        dataLockStatus.ErrorCode = GenerateDataLockError(setError);
-        //        dataLockStatus.TriageStatus = GenerateTriageStatus(dataLockStatus.ErrorCode);
-        //        dataLockStatus.IsResolved = GenerateIsResolved(dataLockStatus.TriageStatus);
-        //        dataLockStatus.EventStatus = GenerateEventStatus();
-        //        // all are currently unexpired, but we might get some next academic year
-        //        //dataLockStatus.IsExpired = false;
-
-        //        // if errorcode == course (x4), triage = restart or 0
-        //        // if errorcode != course, triage = update das
-        //        // if triagestatus, isresolved true or false
-        //        // triage = 0 if pass
-        //        // triage random if error including 0
-        //        // eventstatus majority 3
-        //        // isexpired always 0
-
-        //        return dataLockStatus;
-        //    }).ToList();
-
-
-        //    //foreach (var dataLockStatus in dataLockStatuses)
-        //    //{
-        //    //    dataLockStatus.Id = initialId++;
-        //    //    dataLockStatus.ApprenticeshipId = apprenticeshipId;
-        //    //    dataLockStatus.ApprenticeshipUpdateId = apprenticeshipUpdateId;
-        //    //    dataLockStatus.Status = setError ? Status.Pass : Status.Fail; //todo: if this correct?
-        //    //    dataLockStatus.ErrorCode = setError ? GenerateDataLockError() : DataLockErrorCode.None;
-        //    //}
-        //    //return dataLockStatuses;
-        //}
-
         public List<DbSetupDataLockStatus> GenerateDataLockStatuses(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
         {
             var fixture = new Fixture();
@@ -346,14 +297,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 dataLockStatus.EventStatus = GenerateEventStatus();
                 // all are currently unexpired, but we might get some next academic year
                 //dataLockStatus.IsExpired = false;
-
-                // if errorcode == course (x4), triage = restart or 0
-                // if errorcode != course, triage = update das
-                // if triagestatus, isresolved true or false
-                // triage = 0 if pass
-                // triage random if error including 0
-                // eventstatus majority 3
-                // isexpired always 0
 
                 return dataLockStatus;
             }).ToList();
