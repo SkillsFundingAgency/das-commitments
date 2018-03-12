@@ -13,6 +13,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
     {
         Task<List<CommitmentListItem>> GetEmployerCommitments(long employerAccountId);
         Task<CommitmentView> GetEmployerCommitment(long employerAccountId, long commitmentId);
+        Task<CommitmentView> GetTransferSenderCommitment(long transferSenderAccountId, long commitmentId);
         Task<List<Apprenticeship>> GetEmployerApprenticeships(long employerAccountId);
         Task<IList<Apprenticeship>> GetActiveApprenticeshipsForUln(long employerAccountId, string uln);
         Task<ApprenticeshipSearchResponse> GetEmployerApprenticeships(long employerAccountId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);

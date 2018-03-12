@@ -317,5 +317,16 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public async Task GetSpecificCommitmentInformationForAnEmployerAsTransferSender()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{CommitmentId}"), string.Empty);
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.GetTransferSenderCommitment(EmployerAccountId, CommitmentId);
+
+            Assert.Pass();
+        }
     }
 }

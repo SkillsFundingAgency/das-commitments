@@ -62,6 +62,13 @@ namespace SFA.DAS.Commitments.Api.Client
             return await _commitmentHelper.GetCommitment(url);
         }
 
+        public async Task<CommitmentView> GetTransferSenderCommitment(long transferSenderAccountId, long commitmentId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderAccountId}/transfers/{commitmentId}";
+
+            return await _commitmentHelper.GetCommitment(url);
+        }
+
         public async Task<List<Apprenticeship>> GetEmployerApprenticeships(long employerAccountId)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/";

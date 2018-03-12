@@ -191,6 +191,7 @@
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentPriority\WhenGettingProviderPaymentPriority.cs" />
     <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />
     <Compile Include="Queries\GetDataLocks\WhenValidatingRequest.cs" />

@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     EditStatus = (Types.Commitment.Types.EditStatus) commitment.EditStatus,
                     AgreementStatus = (AgreementStatus) _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
                     LastAction = (Types.Commitment.Types.LastAction) commitment.LastAction,
-                    CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
+                    CanBeApproved = CommitmentCanBeApproved(callerType, commitment),
                     EmployerLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail},
                     ProviderLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail},
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
@@ -115,7 +115,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
             return domainCommitment;
         
-    }
+        }
+        private static bool CommitmentCanBeApproved(CallerType callerType, Commitment commitment)
+        {
+            switch (callerType)
+            {
+                case CallerType.Employer:
+                    return commitment.EmployerCanApproveCommitment;
+                case CallerType.Provider:
+                    return commitment.ProviderCanApproveCommitment;
+                case CallerType.TransferSender:
+                    return true; // This needs to reference a new field later
+                    
+            }
+            return false;
+        }
+
+
 
         //todo: could we reuse the apprenticeship mapper?       
         private static List<Types.Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Apprenticeship> apprenticeships, CallerType callerType)
@@ -142,8 +158,24 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 NINumber = x.NINumber,
                 EmployerRef = x.EmployerRef,
                 ProviderRef = x.ProviderRef,
-                CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
+                CanBeApproved = ApprenticeshipCanBeApproved(callerType, x)
             }).ToList();
         }
+
+        private static bool ApprenticeshipCanBeApproved(CallerType callerType, Apprenticeship apprenticeship)
+        {
+            switch (callerType)
+            {
+                case CallerType.Employer:
+                    return apprenticeship.EmployerCanApproveApprenticeship;
+                case CallerType.Provider:
+                    return apprenticeship.ProviderCanApproveApprenticeship;
+                case CallerType.TransferSender:
+                    return true; // This needs to reference a new field later
+            }
+            return false;
+        }
+
+
     }
 }

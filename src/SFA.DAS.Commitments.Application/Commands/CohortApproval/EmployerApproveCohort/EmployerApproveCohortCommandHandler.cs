@@ -49,24 +49,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
             if (haveBothPartiesApproved)
             {
-                if (commitment.HasTransferSenderAssigned)
-                {
-                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(
-                        _messagePublisher, commitment);
-                }
-                else
-                {
-                    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-                }
-
-                await PublishApprovedMessage(commitment);
+                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+                await PublishApprovalEventMessages(commitment);
             }
-        }
-
-        private async Task PublishApprovedMessage(Commitment commitment)
-        {
-            await _messagePublisher.PublishAsync(new CohortApprovedByEmployer(commitment.EmployerAccountId,
-                commitment.ProviderId.Value, commitment.Id));
         }
 
         private static AgreementStatus DetermineNewAgreementStatus(bool haveBothPartiesApproved)
@@ -79,6 +64,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         {
             var currentAgreementStatus = _cohortApprovalService.GetCurrentAgreementStatus(commitment);
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
+        }
+
+        private async Task PublishApprovalEventMessages(Commitment commitment)
+        {
+            var tasks = new List<Task>();
+            var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
+            tasks.Add(_messagePublisher.PublishAsync(message));
+            if (commitment.TransferSenderId > 0)
+            {
+                tasks.Add(_cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment));
+            }
+            await Task.WhenAll(tasks.ToArray());
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
