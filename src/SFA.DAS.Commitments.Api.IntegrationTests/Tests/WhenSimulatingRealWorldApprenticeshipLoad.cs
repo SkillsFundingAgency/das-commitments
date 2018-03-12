@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Newtonsoft.Json;
@@ -24,6 +25,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     //todo: use INTTEST as env? so could have a seperate database to contain all the test data
     // /\ think we need this so we can blatt the data when necessary
     //todo: sut doesn't always pick up httpcontextbase in CurrentNestedContainer
+    //todo: check testids always get written when they should
+    //todo: not reproducing slowdown. try suffling datalockstatus, run against at azure sql db (not db in ram on 56g 8 core machine!), what else? check when calls are actually made
+    //todo: all start times are basically at the same time. how to determine when async call is actually made? level of indirection
 
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
@@ -31,6 +35,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         private static async Task<CallDetails[]> RepeatCallGetApprenticeship(ICollection<ApprenticeshipCallParams> ids)
         {
             var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
+            return await Task.WhenAll(tasks);
+        }
+
+        //private static async Task<CallDetails[]> RepeatCallGetApprenticeships(ICollection<ApprenticeshipCallParams> ids)
+        //{
+        //    var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
+        //    return await Task.WhenAll(tasks);
+        //}
+
+        public static async Task<CallDetails[]> RepeatCallGetApprenticeships(ICollection<long> employerAccountIds)
+        {
+            //ideally want to use some sort of synchronization, so can kick this off in middle of getapprenticeship calls
+
+            //q&d
+            Thread.Sleep(2*1000);
+
+            var tasks = employerAccountIds.Select(CommitmentsApi.CallGetApprenticeships);
             return await Task.WhenAll(tasks);
         }
 
@@ -45,7 +66,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         {
             const int numberOfTasks = 8;
 
-            const int getApprenticeshipCallsPerTask = 20;
+            const int getApprenticeshipCallsPerTask = 50;
 
             //todo: put this in method
             var getApprenticeshipIdsPerTask = new List<ApprenticeshipCallParams>[numberOfTasks];
@@ -71,11 +92,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                 }
             }
 
+            //currently have 1:1 cohort:employer, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
+            var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
+            //tasks = tasks.Concat(new[] { CommitmentsApi.CallGetApprenticeships(employerIds) });
+
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
             await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIdsPerTask.First().First().ApprenticeshipId,
                 getApprenticeshipIdsPerTask.First().First().EmployerId);
 
-            var tasks = getApprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)));
+            var tasks = getApprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
+                .Concat(new [] {Task.Run(() => RepeatCallGetApprenticeships(employerIds))});
 
             var callTimesPerTask = await Task.WhenAll(tasks);
         }

@@ -43,6 +43,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             return callDetails;
         }
 
+        //public static async Task<CallDetails[]> CallGetApprenticeships(ICollection<long> employerAccountIds)
+        //{
+        //    var tasks = employerAccountIds.Select(CallGetApprenticeships);
+        //    return await Task.WhenAll(tasks);
+        //}
+
         public static async Task<CallDetails> CallGetApprenticeships(long employerAccountId)
         {
             var callDetails = new CallDetails
@@ -57,7 +63,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             Assert.IsTrue(result.IsSuccessStatusCode);
 
             //bool verify?
-            //var resultsAsString = await result.Content.ReadAsStringAsync();
+            var resultsAsString = await result.Content.ReadAsStringAsync();
             //var apprenticeships = JsonConvert.DeserializeObject<IEnumerable<Apprenticeship>>(resultsAsString);
             ////sproc GetActiveApprenticeships filters out deleted and pre-approved PaymentStatus'es, so this isn't valid
             ////Assert.AreEqual(TestDataVolume.MaxNumberOfApprenticeshipsInCohort, apprenticeships.Count());
