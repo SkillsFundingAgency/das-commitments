@@ -11,13 +11,6 @@ using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 {
-    public class CallDetails
-    {
-        public DateTime StartTime { get; set; }
-        public TimeSpan CallTime { get; set; }
-        public int ThreadId { get; set; }
-    }
-
     public static class CommitmentsApi
     {
         // notes on including authorisation in test when calling in-memory self-hosted service:
