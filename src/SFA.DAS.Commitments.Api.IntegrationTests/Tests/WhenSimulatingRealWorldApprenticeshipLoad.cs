@@ -14,21 +14,11 @@ using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
-using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
-using SFA.DAS.Commitments.Api.Orchestrators;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
-    //todo: infrastructure for integration tests (test helpers/inmemory self hosting) - remove need to authorization for requests from localhost? or in-memory?
-    //todo: infrastructure generating mass data(autofixture?/sqlbulkcopy?/schema changes)
-    //todo: write scenarios(parallel execution)
-    //todo: use INTTEST as env? so could have a seperate database to contain all the test data
-    // /\ think we need this so we can blatt the data when necessary
     //todo: sut doesn't always pick up httpcontextbase in CurrentNestedContainer
-    //todo: check testids always get written when they should
-    //todo: not reproducing slowdown. try suffling datalockstatus, run against at azure sql db (not db in ram on 56g 8 core machine!), what else? check when calls are actually made
     //todo: all start times are basically at the same time. how to determine when async call is actually made? level of indirection
 
     [TestFixture]
@@ -39,12 +29,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
             return await Task.WhenAll(tasks);
         }
-
-        //private static async Task<CallDetails[]> RepeatCallGetApprenticeships(ICollection<ApprenticeshipCallParams> ids)
-        //{
-        //    var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
-        //    return await Task.WhenAll(tasks);
-        //}
 
         public static async Task<CallDetails[]> RepeatCallGetApprenticeships(IEnumerable<long> employerAccountIds)
         {
