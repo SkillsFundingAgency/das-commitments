@@ -202,9 +202,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         }
 
         [Test]
-        public async Task NotSelfHosted()
+        [Ignore("Example only")]
+        public async Task ExampleTestWhereServiceIsNotSelfHosted()
         {
-            //todo: the test will have to create these of course mf
             long employerAccountId = 8315;
             long apprenticeshipId = 1;
 
@@ -212,7 +212,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             container.Configure(c => c.AddRegistry<TestRegistry>());
 
             var employerController = container.GetInstance<EmployerController>();
-            var apprenticeship = await employerController.GetApprenticeship(employerAccountId, apprenticeshipId);
+            await employerController.GetApprenticeship(employerAccountId, apprenticeshipId);
         }
     }
 }
