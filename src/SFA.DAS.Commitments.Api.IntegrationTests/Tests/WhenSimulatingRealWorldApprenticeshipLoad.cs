@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using MoreLinq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
@@ -32,7 +34,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
-        private static async Task<CallDetails[]> RepeatCallGetApprenticeship(ICollection<ApprenticeshipCallParams> ids)
+        private static async Task<CallDetails[]> RepeatCallGetApprenticeship(IEnumerable<ApprenticeshipCallParams> ids)
         {
             var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
             return await Task.WhenAll(tasks);
@@ -44,7 +46,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         //    return await Task.WhenAll(tasks);
         //}
 
-        public static async Task<CallDetails[]> RepeatCallGetApprenticeships(ICollection<long> employerAccountIds)
+        public static async Task<CallDetails[]> RepeatCallGetApprenticeships(IEnumerable<long> employerAccountIds)
         {
             //ideally want to use some sort of synchronization, so can kick this off in middle of getapprenticeship calls
 
@@ -65,20 +67,21 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public async Task SimulateSlowdownScenarioT()
         {
             const int numberOfTasks = 8;
-            const int getApprenticeshipCallsPerTask = 50;
+            const int getApprenticeshipCallsPerTask = 25;
 
             //todo: rename now callparams not apprenticeshipids
             var getApprenticeshipIdsPerTask = await GetGetApprenticeshipCallParamsPerTask(numberOfTasks, getApprenticeshipCallsPerTask);
+            var apprenticeshipIdsPerTask = getApprenticeshipIdsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipIdsPerTask.ToArray();
 
             //currently have 1:1 cohort:employer, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
             var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
             //tasks = tasks.Concat(new[] { CommitmentsApi.CallGetApprenticeships(employerIds) });
 
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
-            await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIdsPerTask.First().First().ApprenticeshipId,
-                getApprenticeshipIdsPerTask.First().First().EmployerId);
+            await CommitmentsApi.CallGetApprenticeship(apprenticeshipIdsPerTask.First().First().ApprenticeshipId,
+                apprenticeshipIdsPerTask.First().First().EmployerId);
 
-            var tasks = getApprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
+            var tasks = apprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
                 .Concat(new [] {Task.Run(() => RepeatCallGetApprenticeships(employerIds))});
 
             var callTimesPerTask = await Task.WhenAll(tasks);
@@ -90,35 +93,34 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0, 0, 1));
         }
 
-        private async Task<List<ApprenticeshipCallParams>[]> GetGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
+        private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GetGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
         {
-            var getApprenticeshipIdsPerTask = new List<ApprenticeshipCallParams>[numberOfTasks];
-
             var alreadyUsedIds = new HashSet<long>(SetUpFixture.TestIds.Ids);
 
             //todo: gracefully report when there is not enough test data to do what we require
 
-            for (var taskNo = 0; taskNo < numberOfTasks; ++taskNo)
+            var totalApprenticeshipIds = numberOfTasks * getApprenticeshipCallsPerTask;
+
+            var apprenticeshipIds = new List<long>();
+            for (var taskNo = 0; taskNo < totalApprenticeshipIds; ++taskNo)
             {
-                getApprenticeshipIdsPerTask[taskNo] = new List<ApprenticeshipCallParams>();
+                var randomApprenticeshipId = GetRandomApprenticeshipId(alreadyUsedIds);
+                apprenticeshipIds.Add(randomApprenticeshipId);
 
-                for (var getApprenticeshipCall = 0;
-                    getApprenticeshipCall < getApprenticeshipCallsPerTask;
-                    ++getApprenticeshipCall)
-                {
-                    var randomApprenticeshipId = GetRandomApprenticeshipId(alreadyUsedIds);
-                    alreadyUsedIds.Add(randomApprenticeshipId);
-
-                    getApprenticeshipIdsPerTask[taskNo].Add(new ApprenticeshipCallParams
-                    {
-                        ApprenticeshipId = randomApprenticeshipId,
-                        //todo: parallelise, like below
-                        EmployerId = await SetUpFixture.CommitmentsDatabase.GetEmployerId(randomApprenticeshipId)
-                    });
-                }
+                alreadyUsedIds.Add(randomApprenticeshipId);
             }
 
-            return getApprenticeshipIdsPerTask;
+            var employerIdTasks = apprenticeshipIds.Select(id => SetUpFixture.CommitmentsDatabase.GetEmployerId(id));
+
+            var employerIds = await Task.WhenAll(employerIdTasks);
+
+            var callParams = apprenticeshipIds.Zip(employerIds, (apprenticeshipId, employerId) => new ApprenticeshipCallParams
+            {
+                ApprenticeshipId = apprenticeshipId,
+                EmployerId = employerId
+            });
+
+            return callParams.Batch(getApprenticeshipCallsPerTask);
         }
 
         //[Test]
