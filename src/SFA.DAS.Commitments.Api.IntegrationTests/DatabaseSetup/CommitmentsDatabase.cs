@@ -61,11 +61,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         //    }
         //}
 
-        public async Task InsertApprenticeships(List<DbSetupApprenticeship> apprenticeships)
+        public async Task InsertApprenticeships(IEnumerable<DbSetupApprenticeship> apprenticeships)
         {
             await BulkInsertRows(apprenticeships, ApprenticeshipTableName, new []
             {
-                "Id", //todo: incrementing
+                // "Id" needs to be in this array, but the values supplied in the passed-in collection are ignored
+                "Id",
                 "CommitmentId",
                 //todo: public string Reference",
                 "FirstName",
@@ -87,13 +88,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 "AgreedOn",
                 "PaymentOrder"
 
-                //"PauseDate",
+                //todo: these are in the table so we need to write them
                 //"StopDate",
+                //"PauseDate",
                 //"HasHadDataLockSuccess"
             });
         }
         
-        public async Task InsertApprenticeshipUpdates(List<DbSetupApprenticeshipUpdate> apprenticeshipUpdates)
+        public async Task InsertApprenticeshipUpdates(IEnumerable<DbSetupApprenticeshipUpdate> apprenticeshipUpdates)
         {
             await BulkInsertRows(apprenticeshipUpdates, ApprenticeshipUpdateTableName, new[]
             {
@@ -104,7 +106,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             });
         }
 
-        public async Task InsertCommitments(List<DbSetupCommitment> commitments)
+        public async Task InsertCommitments(IEnumerable<DbSetupCommitment> commitments)
         {
             await BulkInsertRows(commitments, CommitmentTableName, new[]
             {
@@ -116,7 +118,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             });
         }
 
-        public async Task InsertDataLockStatuses(List<DbSetupDataLockStatus> dataLockStatuses)
+        public async Task InsertDataLockStatuses(IEnumerable<DbSetupDataLockStatus> dataLockStatuses)
         {
             await BulkInsertRows(dataLockStatuses, DataLockStatusTableName, new[]
             {
@@ -129,7 +131,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             });
         }
 
-        public async Task BulkInsertRows<T>(List<T> rowData, string tableName, string[] columnNamesInTableOrder)
+        public async Task BulkInsertRows<T>(IEnumerable<T> rowData, string tableName, string[] columnNamesInTableOrder)
         {
             using (var connection = new SqlConnection(_databaseConnectionString))
             {

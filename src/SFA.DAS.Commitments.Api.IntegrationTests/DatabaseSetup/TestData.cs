@@ -117,7 +117,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
                 await SetUpFixture.LogProgress("Generating Commitments");
 
-                var testCommitments = GenerateCommitments(commitmentsToGenerate, firstNewCohortId);
+                var testCommitments = GenerateCommitments(commitmentsToGenerate);
                 await CommitmentsDatabase.InsertCommitments(testCommitments);
             }
 
@@ -134,9 +134,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: methods for these
             // generate apprenticeship updates
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsGenerated * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
-            var firstNewApprenticeshipUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
+            //var firstNewApprenticeshipUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipUpdateTableName);
 
-            var testApprenticeshipUpdates = GenerateApprenticeshipUpdates(firstNewApprenticeshipId, apprenticeshipsGenerated, firstNewApprenticeshipUpdateId, apprenticeshipUpdatesToGenerate);
+            var testApprenticeshipUpdates = GenerateApprenticeshipUpdates(firstNewApprenticeshipId, apprenticeshipsGenerated, apprenticeshipUpdatesToGenerate);
             await CommitmentsDatabase.InsertApprenticeshipUpdates(testApprenticeshipUpdates);
         }
 
@@ -146,7 +146,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // we might have to intersperse the error statuses throughout the table - we could shuffle the result before writing it to the database
             // check what clustered index is used
 
-            var firstNewDataLockStatusUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
+            //var firstNewDataLockStatusUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
 
             // generate success DataLockStatuses
             var successDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
@@ -155,12 +155,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var apprenticeshipIdsForDataLockStatuses = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
                 TestDataVolume.MaxDataLockStatusesPerApprenticeship);
 
-            var testDataLockStatuses = GenerateDataLockStatuses(apprenticeshipIdsForDataLockStatuses, successDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId, false);
+            var testDataLockStatuses = GenerateDataLockStatuses(apprenticeshipIdsForDataLockStatuses, successDataLockStatusesToGenerate, false);
 
             var errorDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
                                                           TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
 
-            firstNewDataLockStatusUpdateId += testDataLockStatuses.Count;
+            //firstNewDataLockStatusUpdateId += testDataLockStatuses.Count;
 
             // needs to not include apprenticeshipId's that have success datalockstatuses
             // skip the apprenticeship ids we used for the success DataLockStatuses
@@ -169,7 +169,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var firstIdInRemaining = randomlyGroupedErrorApprenticeshipIds.First();
             randomlyGroupedErrorApprenticeshipIds.SkipWhile(i => i == firstIdInRemaining);
 
-            testDataLockStatuses.AddRange(GenerateDataLockStatuses(randomlyGroupedErrorApprenticeshipIds, errorDataLockStatusesToGenerate, firstNewDataLockStatusUpdateId, true));
+            testDataLockStatuses.AddRange(GenerateDataLockStatuses(randomlyGroupedErrorApprenticeshipIds, errorDataLockStatusesToGenerate, true));
 
             // shuffle the DataLockStatuses so that all the error rows aren't grouped at the end
             // we'll do it this way here (if it wasn't test code, perhaps we'd do it differently)
@@ -195,7 +195,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             foreach (var apprenticeship in apprenticeships)
             {
-                apprenticeship.Id = initialId++; //todo: required?
+                //apprenticeship.Id = initialId++; //todo: required?
 
                 if (--apprenticeshipsLeftInCohort < 0)
                 {
@@ -209,7 +209,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return (apprenticeships, firstCohortId);
         }
 
-        public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, long initialId, int apprenticeshipUpdatesToGenerate)
+        public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, int apprenticeshipUpdatesToGenerate)
         {
             //// limit length? does it matter if lazily enumerated and don't read past required?
             //var newApprenticeshipIdsShuffled = Enumerable
@@ -229,7 +229,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return apprenticeshipUpdates.Zip(apprenticeshipIdsForUpdates, (update, apprenticeshipId) =>
             {
                 // bit nasty -> shouldn't alter source! but soon to go out of scope
-                update.Id = initialId++;
+                //update.Id = initialId++;
                 update.ApprenticeshipId = apprenticeshipId;
                 return update;
             }).ToList();
@@ -258,13 +258,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, _random.Next(1, maxIdsPerGroup + 1)));
         }
 
-        public static List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate, long initialId = 1)
+        public static List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate)
         {
             var fixture = new Fixture();
             var commitments = fixture.CreateMany<DbSetupCommitment>(commitmentsToGenerate).ToList();
             foreach (var commitment in commitments)
             {
-                commitment.Id = initialId++;
+                //commitment.Id = initialId++;
                 // we'll probably have to do better than this at some point, but this might be enough
                 // for the initial tests
                 // if we do something a bit closer to real-world, we'll have to add probably 2
@@ -278,22 +278,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             var fixture = new Fixture();
             var apprentieshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
-            foreach (var apprentieshipUpdate in apprentieshipUpdates)
-            {
-                apprentieshipUpdate.Id = initialId++;
-            }
+            //foreach (var apprentieshipUpdate in apprentieshipUpdates)
+            //{
+            //    apprentieshipUpdate.Id = initialId++;
+            //}
             return apprentieshipUpdates;
         }
 
-        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, int dataLockStatusesToGenerate, long initialId = 1, bool setError = false)
+        public List<DbSetupDataLockStatus> GenerateDataLockStatuses(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, int dataLockStatusesToGenerate, bool setError = false)
         {
             var fixture = new Fixture();
             var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
 
+            //todo: don't use autofixture for these, just generate the whole lot by hand?
             return dataLockStatuses.Zip(randomlyOrderedApprenticeshipIdGroups, (dataLockStatus, apprenticeshipId) =>
             {
                 // bit nasty -> shouldn't alter source! but soon to go out of scope. could create new
-                dataLockStatus.Id = initialId++;
+                //dataLockStatus.Id = initialId++;
                 dataLockStatus.ApprenticeshipId = apprenticeshipId;
                 dataLockStatus.Status = GenerateStatus(setError);
                 dataLockStatus.ErrorCode = GenerateDataLockError(setError);

@@ -73,6 +73,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var alreadyUsedIds = new HashSet<long>(SetUpFixture.TestIds.Ids);
 
+            //todo: gracefully report when there is not enough test data to do what we require
+
             for (var taskNo = 0; taskNo < numberOfTasks; ++taskNo)
             {
                 getApprenticeshipIdsPerTask[taskNo] = new List<ApprenticeshipCallParams>();
