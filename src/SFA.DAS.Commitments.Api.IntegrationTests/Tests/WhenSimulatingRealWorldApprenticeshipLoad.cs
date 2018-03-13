@@ -65,10 +65,33 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         public async Task SimulateSlowdownScenarioT()
         {
             const int numberOfTasks = 8;
-
             const int getApprenticeshipCallsPerTask = 50;
 
-            //todo: put this in method
+            //todo: rename now callparams not apprenticeshipids
+            var getApprenticeshipIdsPerTask = await GetGetApprenticeshipCallParamsPerTask(numberOfTasks, getApprenticeshipCallsPerTask);
+
+            //currently have 1:1 cohort:employer, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
+            var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
+            //tasks = tasks.Concat(new[] { CommitmentsApi.CallGetApprenticeships(employerIds) });
+
+            // pay the cost of test server setup etc. now, so the first result in our timings isn't out
+            await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIdsPerTask.First().First().ApprenticeshipId,
+                getApprenticeshipIdsPerTask.First().First().EmployerId);
+
+            var tasks = getApprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
+                .Concat(new [] {Task.Run(() => RepeatCallGetApprenticeships(employerIds))});
+
+            var callTimesPerTask = await Task.WhenAll(tasks);
+
+            var slowestGetApprenticeshipCall = callTimesPerTask.Take(numberOfTasks).SelectMany(cd => cd).Max(d => d.CallTime);
+            var getApprenticechipsCall = callTimesPerTask.Skip(numberOfTasks).First().Max(d => d.CallTime);
+
+            Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1));
+            Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0, 0, 1));
+        }
+
+        private async Task<List<ApprenticeshipCallParams>[]> GetGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
+        {
             var getApprenticeshipIdsPerTask = new List<ApprenticeshipCallParams>[numberOfTasks];
 
             var alreadyUsedIds = new HashSet<long>(SetUpFixture.TestIds.Ids);
@@ -86,7 +109,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                     var randomApprenticeshipId = GetRandomApprenticeshipId(alreadyUsedIds);
                     alreadyUsedIds.Add(randomApprenticeshipId);
 
-                    getApprenticeshipIdsPerTask[taskNo].Add(new ApprenticeshipCallParams {
+                    getApprenticeshipIdsPerTask[taskNo].Add(new ApprenticeshipCallParams
+                    {
                         ApprenticeshipId = randomApprenticeshipId,
                         //todo: parallelise, like below
                         EmployerId = await SetUpFixture.CommitmentsDatabase.GetEmployerId(randomApprenticeshipId)
@@ -94,18 +118,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                 }
             }
 
-            //currently have 1:1 cohort:employer, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
-            var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
-            //tasks = tasks.Concat(new[] { CommitmentsApi.CallGetApprenticeships(employerIds) });
-
-            // pay the cost of test server setup etc. now, so the first result in our timings isn't out
-            await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIdsPerTask.First().First().ApprenticeshipId,
-                getApprenticeshipIdsPerTask.First().First().EmployerId);
-
-            var tasks = getApprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
-                .Concat(new [] {Task.Run(() => RepeatCallGetApprenticeships(employerIds))});
-
-            var callTimesPerTask = await Task.WhenAll(tasks);
+            return getApprenticeshipIdsPerTask;
         }
 
         //[Test]
