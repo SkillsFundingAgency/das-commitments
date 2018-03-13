@@ -50,22 +50,19 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task SimulateSlowdownScenario()
         {
-            const int numberOfTasks = 8;
-            const int getApprenticeshipCallsPerTask = 25;
+            const int numberOfTasks = 8, getApprenticeshipCallsPerTask = 25;
 
-            //todo: rename now callparams not apprenticeshipids
-            var getApprenticeshipIdsPerTask = await GetGetApprenticeshipCallParamsPerTask(numberOfTasks, getApprenticeshipCallsPerTask);
-            var apprenticeshipIdsPerTask = getApprenticeshipIdsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipIdsPerTask.ToArray();
+            var getApprenticeshipCallParamsPerTask = await GetGetApprenticeshipCallParamsPerTask(numberOfTasks, getApprenticeshipCallsPerTask);
+            var callParamsPerTask = getApprenticeshipCallParamsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipCallParamsPerTask.ToArray();
 
-            //currently have 1:1 cohort:employer, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
+            // currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
             var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
-            //tasks = tasks.Concat(new[] { CommitmentsApi.CallGetApprenticeships(employerIds) });
 
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
-            await CommitmentsApi.CallGetApprenticeship(apprenticeshipIdsPerTask.First().First().ApprenticeshipId,
-                apprenticeshipIdsPerTask.First().First().EmployerId);
+            var firstCallParams = callParamsPerTask.First().First();
+            await CommitmentsApi.CallGetApprenticeship(firstCallParams.ApprenticeshipId, firstCallParams.EmployerId);
 
-            var tasks = apprenticeshipIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
+            var tasks = callParamsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
                 .Concat(new [] {Task.Run(() => RepeatCallGetApprenticeships(employerIds))});
 
             var callTimesPerTask = await Task.WhenAll(tasks);
@@ -136,28 +133,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
             await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIds.First().ApprenticeshipId, getApprenticeshipIds.First().EmpoyerId);
 
-            //better to just for?
-            //for (var preCall = 0; preCall < preGetApprenticeshipsGetApprenticeshipCalls; ++preCall)
-            //{
-            //}
-
-            //for (var preCall = 0; preCall < preGetApprenticeshipsGetApprenticeshipCalls; ++preCall)
-            //{
-            //    var apprenticeshipId = GetRandomApprenticeshipId();
-            //    tasks.Add(CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId));
-            //}
-
             tasks.AddRange(getApprenticeshipIds.Take(preGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
 
             //currently have 1:1 cohort:employer, might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
             tasks.Add(CommitmentsApi.CallGetApprenticeships(SetUpFixture.TestIds[TestIds.MaxCohortSize]));
-
-            //for (var postCall = 0; postCall < postGetApprenticeshipsGetApprenticeshipCalls; ++postCall)
-            //{
-            //    var apprenticeshipId = GetRandomApprenticeshipId();
-            //    tasks.Add(CommitmentsApi.CallGetApprenticeship(apprenticeshipId, apprenticeshipId));
-            //}
 
             tasks.AddRange(getApprenticeshipIds.Skip(preGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
