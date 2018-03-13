@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         }
 
         [Test]
-        public async Task SimulateSlowdownScenarioT()
+        public async Task SimulateSlowdownScenario()
         {
             const int numberOfTasks = 8;
             const int getApprenticeshipCallsPerTask = 25;
@@ -123,25 +123,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             return callParams.Batch(getApprenticeshipCallsPerTask);
         }
 
-        //[Test]
-        //public async Task SimulateSlowdownScenarioP()
-        //{
-        //    Parallel.For(0, 10, new ParallelOptions { MaxDegreeOfParallelism = 4 }, count =>
-        //    {
-        //        Console.WriteLine(count);
-        //    });
-        //}
-
-        //var numbers = Enumerable
-        //    .Range(0, numberOfThreads)
-        //    .AsParallel()
-        //    .WithExecutionMode(ParallelExecutionMode.ForceParallelism)
-        //    .WithDegreeOfParallelism(numberOfThreads)
-        //    .Select(threadNumber => )
-        //    .ToArray();
-
         [Test]
-        public async Task SimulateSlowdownScenario()
+        public async Task SimulateSlowdownScenarioOld()
         {
             //best way to handle concurrency? async only? tpl parallel? threads? other?
             //todo: async calls below are all on 1 thread. need to e.g. start x threads calling getapprentice, and then while they are going trigger getapprenticeships on other thread
@@ -216,32 +199,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             }
 
             return apprenticeshipId;
-        }
-
-        [Test]
-        public async Task ThenSumfinkOrNuffink()
-        {
-            long apprenticeshipId = SetUpFixture.TestIds[TestIds.MaxCohortSize];
-            long employerAccountId = apprenticeshipId; // the convention we're currently using to simplify things
-
-            // when we supply a valid token, in ApiKeyHandler, JwtSecurityTokenHandler.ValidateToken complains that the header isn't base64 encoded,
-            // but it is. see https://stackoverflow.com/questions/43003502/jwt-unable-to-decode-the-header-as-base64url-encoded-string
-            // have checked that newtonsoft.json is loaded and we have the redirect, and the token is mod 4, but still doesn't work!
-
-            //var httpClient = IntegrationTestServer.Client;
-            //Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk
-
-
-            //this 1...
-            //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk");
-            //"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk"
-            //eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJUb2tlbklzc3VlciIsImF1ZCI6IkF1ZGllbmNlcyIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.NsVVWGXGeeDzPzeS0s_7J0fyc2g_YcPhU36j68qITqg
-            //httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJUb2tlbklzc3VlciIsImF1ZCI6IkF1ZGllbmNlcyIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.NsVVWGXGeeDzPzeS0s_7J0fyc2g_YcPhU36j68qITqg");
-            var results = await IntegrationTestServer.Client.GetAsync(
-                    $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}");
-
-            var resultsAsString = await results.Content.ReadAsStringAsync();
-            var apprenticeship = JsonConvert.DeserializeObject<Apprenticeship>(resultsAsString);
         }
 
         [Test]
