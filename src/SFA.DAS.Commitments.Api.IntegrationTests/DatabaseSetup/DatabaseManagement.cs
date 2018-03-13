@@ -198,6 +198,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public void KillAzure()
         {
+            // call this instead?
+            // https://docs.microsoft.com/en-us/powershell/module/azure/remove-azuresqldatabase?view=azuresmps-4.0.0
+            // https://blogs.msdn.microsoft.com/kebab/2014/04/28/executing-powershell-scripts-from-c/
+            // i have helper code to call powershell cmdlets from c sharp (in NCS code). could reuse that
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
                 var serverConnection = new ServerConnection(sqlConnection);
@@ -205,9 +209,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 if (!server.Databases.Contains(_databaseName))
                     return;
 
-                serverConnection.ExecuteNonQuery($"ALTER DATABASE {_databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
+                // requires Microsoft.SqlServer.BatchParser
+                // https://social.msdn.microsoft.com/Forums/sqlserver/en-US/7a71121c-83b1-49b4-ad30-3a5f20e7afbf/smo-2017-microsoftsqlserverbatchparserdll-load-error?forum=sqlsmoanddmo
+                // not doing this presumably means this'll fail if anything is already connected?
+
+                //serverConnection.ExecuteNonQuery($"ALTER DATABASE {_databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
                 var database = server.Databases[_databaseName];
-                database.Alter();
+                //database.Alter();
                 database.Drop();
             }
         }

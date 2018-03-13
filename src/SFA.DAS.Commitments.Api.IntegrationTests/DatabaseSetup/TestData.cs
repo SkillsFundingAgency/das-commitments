@@ -61,7 +61,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     //todo:await CommitmentsDatabase.ClearData();
                     //required with recreate?
 
-                    // requires Microsoft.SqlServer.BatchParser?
                     // if we can get the deploy options working, we won't need to do this...
                     databaseManagement.KillAzure();
 
