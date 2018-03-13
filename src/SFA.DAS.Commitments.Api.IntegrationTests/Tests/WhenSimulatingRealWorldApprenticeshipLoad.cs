@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var apprenticeshipIds = new List<long>();
             for (var taskNo = 0; taskNo < totalApprenticeshipIds; ++taskNo)
             {
-                var randomApprenticeshipId = GetRandomApprenticeshipId(alreadyUsedIds);
+                var randomApprenticeshipId = TestData.GetRandomApprenticeshipId(alreadyUsedIds);
                 apprenticeshipIds.Add(randomApprenticeshipId);
 
                 alreadyUsedIds.Add(randomApprenticeshipId);
@@ -120,7 +120,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var getApprentishipIdsTasks = Enumerable.Repeat(0, preGetApprenticeshipsGetApprenticeshipCalls + postGetApprenticeshipsGetApprenticeshipCalls)
                 .Select(async x =>
                 {
-                    var ApprenticeshipId = GetRandomApprenticeshipId();
+                    var ApprenticeshipId = TestData.GetRandomApprenticeshipId();
                     return new
                     {
                         ApprenticeshipId,
@@ -149,20 +149,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0,0,1));
             Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0,0,1));
-        }
-
-        private static readonly Random Random = new Random();
-        public long GetRandomApprenticeshipId(HashSet<long> exclude = null)
-        {
-            if (exclude == null)
-                return Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1);
-
-            long apprenticeshipId;
-            while (exclude.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1)))
-            {
-            }
-
-            return apprenticeshipId;
         }
 
         [Test]

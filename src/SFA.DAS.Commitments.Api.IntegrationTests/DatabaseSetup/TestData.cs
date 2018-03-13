@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         //do we want to bother wrapping this dictionary? would also contain names
         //private readonly Dictionary<string, long> _ids = new Dictionary<string, long>();
 
-        private readonly Random _random = new Random();
+        private static readonly Random Random = new Random();
 
         public TestData()
         {
@@ -174,7 +174,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // shuffle the DataLockStatuses so that all the error rows aren't grouped at the end
             // we'll do it this way here (if it wasn't test code, perhaps we'd do it differently)
             // see https://stackoverflow.com/questions/6569422/how-can-i-randomly-ordering-an-ienumerable
-            testDataLockStatuses = testDataLockStatuses.OrderBy(s => _random.Next()).ToList();
+            testDataLockStatuses = testDataLockStatuses.OrderBy(s => Random.Next()).ToList();
 
             await CommitmentsDatabase.InsertDataLockStatuses(testDataLockStatuses);
         }
@@ -199,7 +199,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
                 if (--apprenticeshipsLeftInCohort < 0)
                 {
-                    apprenticeshipsLeftInCohort = _random.Next(1, maxCohortSize+1);
+                    apprenticeshipsLeftInCohort = Random.Next(1, maxCohortSize+1);
                     ++firstCohortId;
                 }
 
@@ -240,7 +240,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // limit length? does it matter if lazily enumerated and don't read past required?
             var newApprenticeshipIdsShuffled = Enumerable
                 .Range((int)firstId, countOfIds)
-                .OrderBy(au => _random.Next(int.MaxValue));
+                .OrderBy(au => Random.Next(int.MaxValue));
 
             //todo: looks like this may be blowing the stack for some reason (with large countOfIds)
             // it breaks in system code
@@ -255,7 +255,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             //todo: could work with shuffledIds directly (not zip them) if this blows the stack also
 
-            return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, _random.Next(1, maxIdsPerGroup + 1)));
+            return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, Random.Next(1, maxIdsPerGroup + 1)));
         }
 
         public static List<DbSetupCommitment> GenerateCommitments(int commitmentsToGenerate)
@@ -324,12 +324,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             if ((errorCode &
                  (DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06)) != 0)
             {
-                return _random.Next(2) == 0 ? TriageStatus.Restart : TriageStatus.Unknown;
+                return Random.Next(2) == 0 ? TriageStatus.Restart : TriageStatus.Unknown;
             }
 
             if ((errorCode & (DataLockErrorCode.Dlock07 | DataLockErrorCode.Dlock09)) != 0)
             {
-                return _random.Next(2) == 0 ? TriageStatus.Change : TriageStatus.Unknown;
+                return Random.Next(2) == 0 ? TriageStatus.Change : TriageStatus.Unknown;
             }
 
             // FixInIlr is not currently used
@@ -338,7 +338,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         private bool GenerateIsResolved(TriageStatus triageStatus)
         {
-            return triageStatus == TriageStatus.Unknown ? false : _random.Next(2) == 0;
+            return triageStatus == TriageStatus.Unknown ? false : Random.Next(2) == 0;
         }
 
         private DataLockErrorCode GenerateDataLockError(bool error)
@@ -346,11 +346,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             if (!error)
                 return DataLockErrorCode.None;
 
-            var numberOfFlags = _random.Next(1, 3+1);
+            var numberOfFlags = Random.Next(1, 3+1);
             int errorCode = 0;
             while (numberOfFlags-- > 0)
             {
-                errorCode |= 1 << _random.Next(9+1);
+                errorCode |= 1 << Random.Next(9+1);
             }
             return (DataLockErrorCode)errorCode;
         }
@@ -360,7 +360,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // majority are removed
             //todo: pick these percentages from TestDataVolume?
             //todo: do we need to add certain apprenticeships to TestIds? do we need certain status sets? can we rely on db query to fetch?
-            var rand = _random.Next(100);
+            var rand = Random.Next(100);
 
             if (rand < 10)
                 return EventStatus.New;
@@ -369,6 +369,19 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 return EventStatus.Updated;
 
             return EventStatus.Removed;
+        }
+
+        public static long GetRandomApprenticeshipId(HashSet<long> exclude = null)
+        {
+            if (exclude == null)
+                return Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1);
+
+            long apprenticeshipId;
+            while (exclude.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1)))
+            {
+            }
+
+            return apprenticeshipId;
         }
 
         //private static async Task<long> FirstNewId(CommitmentsDatabase commitmentsDatabase, string tableName)
