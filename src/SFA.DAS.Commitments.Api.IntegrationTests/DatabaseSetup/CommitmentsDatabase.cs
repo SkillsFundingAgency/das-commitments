@@ -8,6 +8,7 @@ using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
+    //todo: split into commitmentsdatabase / generic stuff
     public class CommitmentsDatabase
     {
         // intial version will be null
@@ -30,32 +31,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             await BulkInsertRows(apprenticeships, ApprenticeshipTableName, new []
             {
                 // "Id" needs to be in this array, but the values supplied in the passed-in collection are ignored
-                "Id",
-                "CommitmentId",
-                //todo: public string Reference",
-                "FirstName",
-                "LastName",
-                "ULN",
-                "TrainingType",
-                "TrainingCode",
-                "TrainingName",
-                "Cost",
-                "StartDate",
-                "EndDate",
-                "AgreementStatus",
-                "PaymentStatus",
-                "DateOfBirth",
-                "NINumber",
-                "EmployerRef",
-                "ProviderRef",
-                "CreatedOn",
-                "AgreedOn",
-                "PaymentOrder"
-
-                //todo: these are in the table so we need to write them
-                //"StopDate",
-                //"PauseDate",
-                //"HasHadDataLockSuccess"
+                "Id", "CommitmentId", "FirstName", "LastName", "ULN", "TrainingType", "TrainingCode",
+                "TrainingName", "Cost", "StartDate", "EndDate", "AgreementStatus", "PaymentStatus",
+                "DateOfBirth", "NINumber", "EmployerRef", "ProviderRef", "CreatedOn", "AgreedOn",
+                "PaymentOrder", "StopDate", "PauseDate", "HasHadDataLockSuccess"
             });
         }
         
