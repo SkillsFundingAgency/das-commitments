@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
@@ -13,6 +14,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     {
         public static TestIds TestIds { get; private set; }
         public static CommitmentsDatabase CommitmentsDatabase { get; private set; }
+
+        //private static EventSource _eventSource = new EventSource("SFA.DAS.Commitments.Api.IntegrationTests");
 
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
@@ -45,7 +48,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             // error should output immediately: https://github.com/nunit/nunit/issues/1139
             //await TestContext.Error.WriteLineAsync(message);
 
+            // this outputs to the Debug Output window and is easy to miss, but at least it gets out!
+            // you can also enable console output in the diagnostic tools events window
+            Debug.WriteLine(message);
+
             //https://stackoverflow.com/questions/15092438/using-resharper-how-to-show-debug-output-during-a-long-running-unit-test
+
+            //_eventSource.Write(message);
 
             //TestContext.WriteLine("TestContext.WriteLine");
             //TestContext.Error.WriteLine("TestContext.Error.WriteLine");

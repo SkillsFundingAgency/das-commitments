@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             const string schemaVersionColumnName = "IntTest_SchemaVersion";
 
-            //todo: handle case when database hasn't been created yet
+            //todo: handle case when first run against old database (without schema version) - if vsts deploy deploys database, should be ok
 
             var databaseManagement = new DatabaseManagement(_databaseConnectionString);
 
@@ -61,8 +61,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     //todo:await CommitmentsDatabase.ClearData();
                     //required with recreate?
 
+                    // requires Microsoft.SqlServer.BatchParser?
                     // if we can get the deploy options working, we won't need to do this...
-                    databaseManagement.Kill();
+                    databaseManagement.KillAzure();
 
                     databaseManagement.Publish();
                     //var testIdNames = await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();

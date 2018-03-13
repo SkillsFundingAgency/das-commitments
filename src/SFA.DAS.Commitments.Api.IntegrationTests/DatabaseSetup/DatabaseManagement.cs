@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // https://stackoverflow.com/questions/31041788/publish-dacpac-in-single-user-mode-using-microsoft-sqlserver-dac-dacservices
 
             //todo: set upgradeExisting to false, as we won't do upgrades only recreations
-            dacServices.Deploy(dacPackage, "SFA.DAS.Commitments.IntegrationTest", true, dacDeployOptions);
+            dacServices.Deploy(dacPackage, _databaseName, true, dacDeployOptions);
         }
 
         //https://stackoverflow.com/questions/10438258/using-microsoft-build-evaluation-to-publish-a-database-project-sqlproj
@@ -189,7 +189,26 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             {
                 var serverConnection = new ServerConnection(sqlConnection);
                 var server = new Server(serverConnection);
+
+                // against SQL Azure database, throws Microsoft.SqlServer.Management.Smo.UnsupportedFeatureException
+                // { "This object is not supported on Microsoft Azure SQL Database."}
                 server.KillDatabase(_databaseName);
+            }
+        }
+
+        public void KillAzure()
+        {
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                var serverConnection = new ServerConnection(sqlConnection);
+                var server = new Server(serverConnection);
+                if (!server.Databases.Contains(_databaseName))
+                    return;
+
+                serverConnection.ExecuteNonQuery($"ALTER DATABASE {_databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE");
+                var database = server.Databases[_databaseName];
+                database.Alter();
+                database.Drop();
             }
         }
     }
