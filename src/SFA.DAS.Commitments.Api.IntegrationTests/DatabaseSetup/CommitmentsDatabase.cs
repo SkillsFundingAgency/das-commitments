@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Configuration;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using FastMember;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
-using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
-using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
@@ -19,8 +12,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     {
         // intial version will be null
         public static readonly int? SchemaVersion = null;
-
-        public const string DatabaseName = "SFA.DAS.Commitments.IntegrationTest";
 
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
@@ -33,33 +24,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             _databaseConnectionString = databaseConnectionString;
         }
-
-        //        public async Task ClearData()
-        //        {
-        //            using (var connection = new SqlConnection(_databaseConnectionString))
-        //            {
-        //                await connection.OpenAsync();
-        //                using (var command = new SqlCommand(
-        //$@"truncate table {ApprenticeshipTableName} go
-        //truncate table {ApprenticeshipUpdateTableName} go
-        //truncate table {CommitmentTableName} go
-        //truncate table {DataLockStatusTableName} go", connection))
-        //                {
-        //                    await command.ExecuteNonQueryAsync();
-        //                }
-        //            }
-        //        }
-
-
-        //public void Drop()
-        //{
-        //    using (var sqlConnection = new SqlConnection(_databaseConnectionString))
-        //    {
-        //        var serverConnection = new ServerConnection(sqlConnection);
-        //        var server = new Server(serverConnection);
-        //        server.KillDatabase(sqlConnection.Database);
-        //    }
-        //}
 
         public async Task InsertApprenticeships(IEnumerable<DbSetupApprenticeship> apprenticeships)
         {
