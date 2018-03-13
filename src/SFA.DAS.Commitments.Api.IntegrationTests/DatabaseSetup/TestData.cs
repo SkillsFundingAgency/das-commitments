@@ -8,10 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
-using SFA.DAS.Commitments.Infrastructure.Configuration;
-using SFA.DAS.Commitments.Infrastructure.Data;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
@@ -383,36 +380,5 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             return apprenticeshipId;
         }
-
-        //private static async Task<long> FirstNewId(CommitmentsDatabase commitmentsDatabase, string tableName)
-        //{
-        //    var latestIdInDatabase = await commitmentsDatabase.LastId(tableName);
-        //    return (latestIdInDatabase ?? 0) + 1;
-        //}
     }
-
-    //public class RandomEnumSequenceGenerator<T> : ISpecimenBuilder where T : struct
-    //{
-    //    private static Random _random = new Random();
-    //    private Array _values;
-
-    //    public RandomEnumSequenceGenerator()
-    //    {
-    //        if (!typeof(T).IsEnum)
-    //        {
-    //            throw new ArgumentException("T must be an enum");
-    //        }
-    //        _values = Enum.GetValues(typeof(T));
-    //    }
-
-    //    public object Create(object request, ISpecimenContext context)
-    //    {
-    //        var t = request as Type;
-    //        if (t == null || t != typeof(T))
-    //            return new NoSpecimen();
-
-    //        var index = _random.Next(0, _values.Length - 1);
-    //        return _values.GetValue(index);
-    //    }
-    //}
 }
