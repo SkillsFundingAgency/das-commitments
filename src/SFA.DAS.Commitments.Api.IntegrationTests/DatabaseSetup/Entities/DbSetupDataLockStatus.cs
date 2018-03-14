@@ -28,7 +28,5 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
         public EventStatus EventStatus { get; set; }
         public bool IsExpired { get; set; }
         public DateTime? Expired { get; set; }
-        //    CONSTRAINT[FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY([ApprenticeshipId]) REFERENCES[Apprenticeship] ([Id]),
-        //CONSTRAINT[FK_DataLockStatus_ApprenticeshipUpdateId] FOREIGN KEY([ApprenticeshipUpdateId]) REFERENCES[ApprenticeshipUpdate] ([Id])
     }
 }
