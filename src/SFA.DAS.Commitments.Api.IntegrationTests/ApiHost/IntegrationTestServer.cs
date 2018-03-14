@@ -51,19 +51,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
             var config = new HttpConfiguration();
             WebApiConfig.Register(config);
 
-            //todo: other tear down stuff
-
             config.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
-
-            //todo: need to do contents of this, but with new config
-            //StructuremapMvc.Start(); //todo: call end()
 
             var container = IoC.Initialize();
 
             container.Configure(c => c.AddRegistry<TestRegistry>());
-
-            //StructuremapWebApi.Start();
-            //var container = StructuremapMvc.StructureMapDependencyScope.Container;
 
             config.DependencyResolver = new StructureMapWebApiDependencyResolver(container);
 
