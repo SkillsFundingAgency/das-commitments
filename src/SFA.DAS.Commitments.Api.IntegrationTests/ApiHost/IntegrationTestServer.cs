@@ -28,14 +28,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
 
         protected IntegrationTestServer()
         {
-            StartServer();
-            //TestClient = StartClient();
-            TestClient = _server.HttpClient; // todo: remove levels of indirection if not required
-        }
-
-        void StartServer()
-        {
             _server = TestServer.Create<Startup>();
+            TestClient = _server.HttpClient;
         }
 
         public static void Shutdown()
