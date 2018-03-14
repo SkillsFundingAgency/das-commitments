@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture;
 using MoreLinq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.DependencyResolution;
@@ -37,7 +32,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             //q&d
             Thread.Sleep(2*1000);
 
-            var tasks = employerAccountIds.Select(CommitmentsApi.CallGetApprenticeships);
+            var tasks = employerAccountIds.Select(id => CommitmentsApi.CallGetApprenticeships(id, false));
             return await Task.WhenAll(tasks);
         }
 
@@ -74,6 +69,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0, 0, 1));
         }
 
+        /// <remarks>
+        /// It's better to fetch what we need from the generated data from the db, rather than...
+        /// 1) read *all* the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory and be slow to read
+        /// 2) store it in the database in a similar way to the test ids, as that would require more code, increase db complexity etc. when you'd have to fetch the data from the db anyway
+        /// </remarks>
         private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GetGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
         {
             var alreadyUsedIds = new HashSet<long>(SetUpFixture.TestIds.Ids);
@@ -102,53 +102,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             });
 
             return callParams.Batch(getApprenticeshipCallsPerTask);
-        }
-
-        [Test]
-        public async Task SimulateSlowdownScenarioOld()
-        {
-            //best way to handle concurrency? async only? tpl parallel? threads? other?
-            //todo: async calls below are all on 1 thread. need to e.g. start x threads calling getapprentice, and then while they are going trigger getapprenticeships on other thread
-            var tasks = new List<Task<CallDetails>>();
-
-            const int preGetApprenticeshipsGetApprenticeshipCalls = 50;
-            const int postGetApprenticeshipsGetApprenticeshipCalls = 50;
-
-            // better to fetch what we need from the generated data from the db, rather than
-            // 1) read all the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory)
-            // 2) store it in the database in a similar way to the test ids, as that would require more code, increase db complexity etc. when you'd have to fetch the data from the db anyway
-            var getApprentishipIdsTasks = Enumerable.Repeat(0, preGetApprenticeshipsGetApprenticeshipCalls + postGetApprenticeshipsGetApprenticeshipCalls)
-                .Select(async x =>
-                {
-                    var ApprenticeshipId = TestData.GetRandomApprenticeshipId();
-                    return new
-                    {
-                        ApprenticeshipId,
-                        EmpoyerId = await SetUpFixture.CommitmentsDatabase.GetEmployerId(ApprenticeshipId)
-                    };
-                });
-
-            var getApprenticeshipIds = await Task.WhenAll(getApprentishipIdsTasks);
-
-            // pay the cost of test server setup etc. now, so the first result in our timings isn't out
-            await CommitmentsApi.CallGetApprenticeship(getApprenticeshipIds.First().ApprenticeshipId, getApprenticeshipIds.First().EmpoyerId);
-
-            tasks.AddRange(getApprenticeshipIds.Take(preGetApprenticeshipsGetApprenticeshipCalls)
-                .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
-
-            //currently have 1:1 cohort:employer, might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
-            tasks.Add(CommitmentsApi.CallGetApprenticeships(SetUpFixture.TestIds[TestIds.MaxCohortSize]));
-
-            tasks.AddRange(getApprenticeshipIds.Skip(preGetApprenticeshipsGetApprenticeshipCalls)
-                .Select(ids => CommitmentsApi.CallGetApprenticeship(ids.ApprenticeshipId, ids.EmpoyerId)));
-
-            var callTimes = await Task.WhenAll(tasks);
-            var slowestGetApprenticeshipCall = callTimes.Take(preGetApprenticeshipsGetApprenticeshipCalls)
-                .Concat(callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls+1)).Max(d => d.CallTime);
-            var getApprenticechipsCall = callTimes.Skip(preGetApprenticeshipsGetApprenticeshipCalls).First().CallTime;
-
-            Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0,0,1));
-            Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0,0,1));
         }
 
         [Test]

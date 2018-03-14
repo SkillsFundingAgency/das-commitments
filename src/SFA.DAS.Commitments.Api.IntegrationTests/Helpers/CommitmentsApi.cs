@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
+using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
+using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 {
@@ -22,7 +24,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
         // this is how to supply the jwt...
         // httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjoiUm9sZTEgUm9sZTIiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjYyNTk2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo2MjU3MSIsImV4cCI6MTg5MjE2MDAwMCwibmJmIjoxNTA3NTQxMTU1fQ.bHMfaMfM5ruheC_p97M4jmet_6_MRL_7CoD2uLhKcrk");
 
-        public static async Task<CallDetails> CallGetApprenticeship(long apprenticeshipId, long employerAccountId)
+        public static async Task<CallDetails> CallGetApprenticeship(long apprenticeshipId, long employerAccountId, bool verifyContent = false)
         {
             var callDetails = new CallDetails
             {
@@ -36,20 +38,18 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 
             Assert.IsTrue(result.IsSuccessStatusCode);
 
-            //bool verifyApprenticeship?
-            //var resultsAsString = await result.Content.ReadAsStringAsync();
-            //var apprenticeship = JsonConvert.DeserializeObject<Apprenticeship>(resultsAsString);
+            if (verifyContent)
+            {
+                var resultsAsString = await result.Content.ReadAsStringAsync();
+                var apprenticeship = JsonConvert.DeserializeObject<Apprenticeship>(resultsAsString);
+                Assert.AreEqual(apprenticeshipId, apprenticeship.Id);
+                Assert.AreEqual(employerAccountId, apprenticeship.EmployerAccountId);
+            }
 
             return callDetails;
         }
 
-        //public static async Task<CallDetails[]> CallGetApprenticeships(ICollection<long> employerAccountIds)
-        //{
-        //    var tasks = employerAccountIds.Select(CallGetApprenticeships);
-        //    return await Task.WhenAll(tasks);
-        //}
-
-        public static async Task<CallDetails> CallGetApprenticeships(long employerAccountId)
+        public static async Task<CallDetails> CallGetApprenticeships(long employerAccountId, bool verifyContent = false)
         {
             var callDetails = new CallDetails
             {
@@ -62,12 +62,15 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 
             Assert.IsTrue(result.IsSuccessStatusCode);
 
-            //bool verify?
-            var resultsAsString = await result.Content.ReadAsStringAsync();
-            //var apprenticeships = JsonConvert.DeserializeObject<IEnumerable<Apprenticeship>>(resultsAsString);
-            ////sproc GetActiveApprenticeships filters out deleted and pre-approved PaymentStatus'es, so this isn't valid
-            ////Assert.AreEqual(TestDataVolume.MaxNumberOfApprenticeshipsInCohort, apprenticeships.Count());
-            //Assert.LessOrEqual(apprenticeships.Count(), TestDataVolume.MaxNumberOfApprenticeshipsInCohort); // we can do better than this if required - i.e. store and/or generate status counts
+            if (!verifyContent)
+            {
+                var resultsAsString = await result.Content.ReadAsStringAsync();
+                var apprenticeships = JsonConvert.DeserializeObject<IEnumerable<Apprenticeship>>(resultsAsString);
+                // sproc GetActiveApprenticeships filters out deleted and pre-approved PaymentStatus'es, so we check this...
+                // (we could do better than this if required - i.e. store and/or generate status counts)
+                Assert.LessOrEqual(apprenticeships.Count(), TestDataVolume.MaxNumberOfApprenticeshipsInCohort);
+                Assert.IsTrue(apprenticeships.All(a => a.EmployerAccountId == employerAccountId));
+            }
 
             return callDetails;
         }
