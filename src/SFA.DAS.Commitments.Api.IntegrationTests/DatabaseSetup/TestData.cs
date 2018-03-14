@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
-using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
@@ -15,13 +13,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     //todo: generating 1/4 million objects with autofixture is slow. speed it up!
     public class TestData
     {
-        //private readonly CommitmentsApiConfiguration _config;
         private readonly string _databaseConnectionString;
         public CommitmentsDatabase CommitmentsDatabase { get; }
-        //private readonly TestIds _ids;
-        //do we want to bother wrapping this dictionary? would also contain names
-        //private readonly Dictionary<string, long> _ids = new Dictionary<string, long>();
-
         private static readonly Random Random = new Random();
 
         public TestData()
@@ -34,12 +27,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task<TestIds> Initialise()
         {
-            //logger null gonna cause probs?
-            //var jobProgressRepository = new JobProgressRepository(_config.DatabaseConnectionString, null);
-            //jobProgressRepository.
-
-            // todo: check if db there and publish if necessary (to sql azure would be best to more closely match live)
-
             const string schemaVersionColumnName = "IntTest_SchemaVersion";
 
             //todo: handle case when first run against old database (without schema version) - if vsts deploy deploys database, should be ok
@@ -50,29 +37,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             {
                 databaseManagement.Publish();
             }
-            else
+            else // database already exists
             {
                 var existingDatabaseSchemaVersion = await CommitmentsDatabase.GetJobProgress<int?>(schemaVersionColumnName);
                 if (existingDatabaseSchemaVersion != CommitmentsDatabase.SchemaVersion)
                 {
-                    //todo:await CommitmentsDatabase.ClearData();
-                    //required with recreate?
-
                     // if we can get the deploy options working, we won't need to do this...
                     databaseManagement.KillAzure();
-
                     databaseManagement.Publish();
-                    //var testIdNames = await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
                     await CommitmentsDatabase.SetJobProgress(schemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
-                    //return testIdNames;
                 }
-            }
-
-            // > 0, or less than MinNumberOfApprenticeships? what if more data?
-            if (await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName) >= 
-                TestDataVolume.MinNumberOfApprenticeships)
-            {
-                return await TestIds.Fetch(_databaseConnectionString);
+                else // correct schema version
+                {
+                    if (await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName) >= TestDataVolume.MinNumberOfApprenticeships)
+                    {
+                        return await TestIds.Fetch(_databaseConnectionString);
+                    }
+                }
             }
 
             return await PopulateDatabaseWithTestDataAndStoreTestApprenticeshipIds();
@@ -139,12 +120,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         private async Task PopulateDataLockStatuses(long firstNewApprenticeshipId, int numberOfNewApprenticeships)
         {
-            //todo: this code generates success dls and then error dls, which might not be good enough
-            // we might have to intersperse the error statuses throughout the table - we could shuffle the result before writing it to the database
-            // check what clustered index is used
-
-            //var firstNewDataLockStatusUpdateId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
-
             // generate success DataLockStatuses
             var successDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
                     TestDataVolume.SuccessDataLockStatusesToApprenticeshipsRatio);
@@ -156,8 +131,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             var errorDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
                                                           TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
-
-            //firstNewDataLockStatusUpdateId += testDataLockStatuses.Count;
 
             // needs to not include apprenticeshipId's that have success datalockstatuses
             // skip the apprenticeship ids we used for the success DataLockStatuses
@@ -178,9 +151,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public (List<DbSetupApprenticeship>, long) GenerateApprenticeships(TestIds testIds, int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = TestDataVolume.MaxNumberOfApprenticeshipsInCohort)
         {
-            var fixture = new Fixture();//.Customize(new IntegrationTestCustomisation());
-            //fixture.Customizations.Insert(0, new RandomEnumSequenceGenerator<TableType>())
-            var apprenticeships = fixture.CreateMany<DbSetupApprenticeship>(apprenticeshipsToGenerate).ToList();
+            var apprenticeships = new Fixture().CreateMany<DbSetupApprenticeship>(apprenticeshipsToGenerate).ToList();
 
             // for the first set of apprenticeships, put them in a cohort as big as maxCohortSize (given enough apprenticeships)
             // so that we have a max size cohort for testing purposes.
@@ -192,8 +163,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             foreach (var apprenticeship in apprenticeships)
             {
-                //apprenticeship.Id = initialId++; //todo: required?
-
                 if (--apprenticeshipsLeftInCohort < 0)
                 {
                     apprenticeshipsLeftInCohort = Random.Next(1, maxCohortSize+1);
@@ -208,25 +177,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdates(long firstNewApprenticeshipId, int numberOfNewApprenticeships, int apprenticeshipUpdatesToGenerate)
         {
-            //// limit length? does it matter if lazily enumerated and don't read past required?
-            //var newApprenticeshipIdsShuffled = Enumerable
-            //    .Range((int) firstId, countOfIds)
-            //    .OrderBy(au => _random.Next(int.MaxValue));
-
-            //// limit length in aggregate? does it matter if lazily enumerated and don't read past required?
-            //var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
-            //    (ids, id) => ids.Concat(Enumerable.Repeat(id, _random.Next(1, TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship+1))));
-
             var apprenticeshipIdsForUpdates = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
                 TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship);
 
-            var fixture = new Fixture();
-            var apprenticeshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
+            var apprenticeshipUpdates = new Fixture().CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
 
             return apprenticeshipUpdates.Zip(apprenticeshipIdsForUpdates, (update, apprenticeshipId) =>
             {
                 // bit nasty -> shouldn't alter source! but soon to go out of scope
-                //update.Id = initialId++;
                 update.ApprenticeshipId = apprenticeshipId;
                 return update;
             }).ToList();
@@ -239,19 +197,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 .Range((int)firstId, countOfIds)
                 .OrderBy(au => Random.Next(int.MaxValue));
 
-            //todo: looks like this may be blowing the stack for some reason (with large countOfIds)
-            // it breaks in system code
-            // An unhandled exception of type 'System.StackOverflowException' occurred in Unknown Module. occurred
-            // call stack -> The number of stack frames exceeds the limit
-
-            // limit length in aggregate? does it matter if lazily enumerated and don't read past required?
-            //var apprenticeshipIdsForUpdates = newApprenticeshipIdsShuffled.Aggregate(Enumerable.Empty<int>(),
-            //    (ids, id) => ids.Concat(Enumerable.Repeat(id, _random.Next(1, maxIdsPerGroup + 1))));
-
-            //return apprenticeshipIdsForUpdates.Cast<long>();
-
-            //todo: could work with shuffledIds directly (not zip them) if this blows the stack also
-
             return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, Random.Next(1, maxIdsPerGroup + 1)));
         }
 
@@ -261,9 +206,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var commitments = fixture.CreateMany<DbSetupCommitment>(commitmentsToGenerate).ToList();
             foreach (var commitment in commitments)
             {
-                //commitment.Id = initialId++;
-                // we'll probably have to do better than this at some point, but this might be enough
-                // for the initial tests
+                // we'll probably have to do better than this at some point, but this might be enough for the initial tests
                 // if we do something a bit closer to real-world, we'll have to add probably 2
                 // extra columns to IntegrationTestIds, EmployerId & ProviderId (or possibly 1 column as a (c++ style) union)
                 commitment.EmployerAccountId = commitment.Id;
@@ -273,25 +216,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public static List<DbSetupApprenticeshipUpdate> GenerateApprenticeshipUpdate(int apprenticeshipUpdatesToGenerate, long initialId = 1)
         {
-            var fixture = new Fixture();
-            var apprentieshipUpdates = fixture.CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
-            //foreach (var apprentieshipUpdate in apprentieshipUpdates)
-            //{
-            //    apprentieshipUpdate.Id = initialId++;
-            //}
-            return apprentieshipUpdates;
+            return new Fixture().CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate).ToList();
         }
 
         public List<DbSetupDataLockStatus> GenerateDataLockStatuses(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, int dataLockStatusesToGenerate, bool setError = false)
         {
-            var fixture = new Fixture();
-            var dataLockStatuses = fixture.CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
+            var dataLockStatuses = new Fixture().CreateMany<DbSetupDataLockStatus>(dataLockStatusesToGenerate).ToList();
 
             //todo: don't use autofixture for these, just generate the whole lot by hand?
             return dataLockStatuses.Zip(randomlyOrderedApprenticeshipIdGroups, (dataLockStatus, apprenticeshipId) =>
             {
                 // bit nasty -> shouldn't alter source! but soon to go out of scope. could create new
-                //dataLockStatus.Id = initialId++;
                 dataLockStatus.ApprenticeshipId = apprenticeshipId;
                 dataLockStatus.Status = GenerateStatus(setError);
                 dataLockStatus.ErrorCode = GenerateDataLockError(setError);
