@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using FastMember;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
-    //todo: split into commitmentsdatabase / generic stuff
-    public class CommitmentsDatabase
+    public class CommitmentsDatabase : Database
     {
         // intial version will be null
         public static readonly int? SchemaVersion = null;
@@ -19,11 +16,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public const string CommitmentTableName = "[dbo].[Commitment]";
         public const string DataLockStatusTableName = "[dbo].[DataLockStatus]";
 
-        private readonly string _databaseConnectionString;
-
         public CommitmentsDatabase(string databaseConnectionString)
+            : base(databaseConnectionString)
         {
-            _databaseConnectionString = databaseConnectionString;
         }
 
         public async Task InsertApprenticeships(IEnumerable<DbSetupApprenticeship> apprenticeships)
@@ -74,47 +69,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             });
         }
 
-        public async Task BulkInsertRows<T>(IEnumerable<T> rowData, string tableName, string[] columnNamesInTableOrder)
-        {
-            using (var connection = new SqlConnection(_databaseConnectionString))
-            {
-                await connection.OpenAsync();
-                using (var bcp = new SqlBulkCopy(connection))
-                using (var reader = ObjectReader.Create(rowData, columnNamesInTableOrder))
-                {
-                    bcp.DestinationTableName = tableName;
-                    bcp.EnableStreaming = true;
-                    bcp.BatchSize = 5000;
-                    bcp.NotifyAfter = 1000;
-                    bcp.SqlRowsCopied += async (sender, e) => await SetUpFixture.LogProgress($"Copied {e.RowsCopied} rows into {tableName}.");
-
-                    await bcp.WriteToServerAsync(reader);
-                }
-            }
-        }
-
-        public async Task<long?> LastId(string tableName)
-        {
-            using (var connection = new SqlConnection(_databaseConnectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand($"SELECT MAX(Id) FROM {tableName}", connection))
-                {
-                    var result = await command.ExecuteScalarAsync();
-                    return result == DBNull.Value ? null : (long?) result;
-                }
-            }
-        }
-
-        //todo: reuse existing repository? perhaps better not to use existing code, as then test code could be wrong because of bug in sut code
-
         public async Task<long> GetEmployerId(long apprenticeshipId)
         {
-            using (var connection = new SqlConnection(_databaseConnectionString))
+            using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                // no need for param as apprenticeshipId comes from test code not user
-                //todo: find eisting functionality to do this?
+                // no need for param, as apprenticeshipId comes from test code not user
                 using (var command = new SqlCommand(
                     $@"select EmployerAccountId from dbo.Commitment c
                     join dbo.Apprenticeship a on c.Id = a.CommitmentId
@@ -125,11 +85,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        //store in JobProgress or a seperate table, either in db project or seperate??
-        // test apprenticeship ids are not job progresses. change tablename to something else?
         public async Task<T> GetJobProgress<T>(string columnName)
         {
-            using (var connection = new SqlConnection(_databaseConnectionString))
+            using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand($"SELECT {columnName} FROM [dbo].[JobProgress]", connection))
@@ -145,7 +103,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public async Task SetJobProgress<T>(string columnName, T columnValue)
         {
-            using (var connection = new SqlConnection(_databaseConnectionString))
+            using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand(
@@ -160,24 +118,6 @@ insert({columnName}) values(source.sourceColumn); ", connection))
                     command.Parameters.AddWithValue("@parameter", columnValue);
 
                     await command.ExecuteNonQueryAsync();
-                }
-            }
-        }
-
-        public async Task<long> FirstNewId(string tableName)
-        {
-            var latestIdInDatabase = await LastId(tableName);
-            return (latestIdInDatabase ?? 0) + 1;
-        }
-
-        public async Task<int> CountOfRows(string tableName)
-        {
-            using (var connection = new SqlConnection(_databaseConnectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand($"SELECT Count(1) FROM {tableName}", connection))
-                {
-                    return (int)await command.ExecuteScalarAsync();
                 }
             }
         }
