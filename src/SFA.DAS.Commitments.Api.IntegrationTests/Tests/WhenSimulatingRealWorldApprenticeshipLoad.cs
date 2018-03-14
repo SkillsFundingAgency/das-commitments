@@ -19,29 +19,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
-        private static async Task<CallDetails[]> RepeatCallGetApprenticeship(IEnumerable<ApprenticeshipCallParams> ids)
-        {
-            var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
-            return await Task.WhenAll(tasks);
-        }
-
-        public static async Task<CallDetails[]> RepeatCallGetApprenticeships(IEnumerable<long> employerAccountIds)
-        {
-            //ideally want to use some sort of synchronization, so can kick this off in middle of getapprenticeship calls
-
-            //q&d
-            Thread.Sleep(2*1000);
-
-            var tasks = employerAccountIds.Select(id => CommitmentsApi.CallGetApprenticeships(id, false));
-            return await Task.WhenAll(tasks);
-        }
-
-        private class ApprenticeshipCallParams
-        {
-            public long ApprenticeshipId { get; set; }
-            public long EmployerId { get; set; }
-        }
-
         [Test]
         public async Task SimulateSlowdownScenario()
         {
@@ -67,6 +44,29 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1));
             Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0, 0, 1));
+        }
+
+        private class ApprenticeshipCallParams
+        {
+            public long ApprenticeshipId { get; set; }
+            public long EmployerId { get; set; }
+        }
+
+        private static async Task<CallDetails[]> RepeatCallGetApprenticeship(IEnumerable<ApprenticeshipCallParams> ids)
+        {
+            var tasks = ids.Select(i => CommitmentsApi.CallGetApprenticeship(i.ApprenticeshipId, i.EmployerId));
+            return await Task.WhenAll(tasks);
+        }
+
+        public static async Task<CallDetails[]> RepeatCallGetApprenticeships(IEnumerable<long> employerAccountIds)
+        {
+            //ideally want to use some sort of synchronization, so can kick this off in middle of getapprenticeship calls
+
+            //q&d
+            Thread.Sleep(2 * 1000);
+
+            var tasks = employerAccountIds.Select(id => CommitmentsApi.CallGetApprenticeships(id, false));
+            return await Task.WhenAll(tasks);
         }
 
         /// <remarks>
