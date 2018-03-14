@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
+﻿using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -37,12 +33,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        public void Create(string databaseName)
-        {
-            var server = new Server();
-            var db = new Database(server, databaseName); //todo: setup params, esp. for azure sql
-            db.Create();
-        }
+        //public void Create(string databaseName)
+        //{
+        //    var server = new Server();
+        //    var db = new Database(server, databaseName); //todo: setup params, esp. for azure sql
+        //    db.Create();
+        //}
 
         public void Publish()
         {
