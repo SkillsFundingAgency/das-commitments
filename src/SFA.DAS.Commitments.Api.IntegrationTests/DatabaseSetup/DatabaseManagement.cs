@@ -57,10 +57,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var dacDeployOptions = new DacDeployOptions
             {
                 CreateNewDatabase = true
+                //DeployDatabaseInSingleUserMode = true
             };
             dacDeployOptions.SqlCommandVariableValues.Add("debug", "false");
-            //dbDeployOptions.DeployDatabaseInSingleUserMode = true;
-            //dbDeployOptions.CreateNewDatabase = true;
 
             // https://stackoverflow.com/questions/31041788/publish-dacpac-in-single-user-mode-using-microsoft-sqlserver-dac-dacservices
 

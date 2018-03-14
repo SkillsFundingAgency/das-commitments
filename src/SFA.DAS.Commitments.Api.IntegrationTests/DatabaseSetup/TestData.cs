@@ -232,7 +232,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 dataLockStatus.ErrorCode = GenerateDataLockError(setError);
                 dataLockStatus.TriageStatus = GenerateTriageStatus(dataLockStatus.ErrorCode);
                 dataLockStatus.IsResolved = GenerateIsResolved(dataLockStatus.TriageStatus);
-                dataLockStatus.EventStatus = GenerateEventStatus();
+                dataLockStatus.EventStatus = TestDataVolume.DataLockStatusEventStatusProbability.NextRandom();
                 // all are currently unexpired, but we might get some next academic year
                 //dataLockStatus.IsExpired = false;
 
@@ -252,7 +252,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 return TriageStatus.Unknown;
 
             // if errorcode is one of the 4 change codes
-            //todo: which are the change codes?
             if ((errorCode &
                  (DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06)) != 0)
             {
@@ -285,22 +284,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 errorCode |= 1 << Random.Next(9+1);
             }
             return (DataLockErrorCode)errorCode;
-        }
-
-        private EventStatus GenerateEventStatus()
-        {
-            // majority are removed
-            //todo: pick these percentages from TestDataVolume?
-            //todo: do we need to add certain apprenticeships to TestIds? do we need certain status sets? can we rely on db query to fetch?
-            var rand = Random.Next(100);
-
-            if (rand < 10)
-                return EventStatus.New;
-
-            if (rand < 20)
-                return EventStatus.Updated;
-
-            return EventStatus.Removed;
         }
 
         public static long GetRandomApprenticeshipId(HashSet<long> exclude = null)

@@ -308,6 +308,7 @@
     <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeshipUpdate.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupCommitment.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupDataLockStatus.cs" />
+    <Compile Include="DatabaseSetup\ProbabilityDistribution.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="DatabaseSetup\TestDataVolume.cs" />
     <Compile Include="Helpers\CallDetails.cs" />
