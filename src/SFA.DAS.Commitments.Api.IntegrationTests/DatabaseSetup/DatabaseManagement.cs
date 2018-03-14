@@ -48,7 +48,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             var dacServices = new DacServices(_connectionString);
 
-            //todo: check async version
             dacServices.Message += async (sender, e) => await SetUpFixture.LogProgress($"Deploy database: {e.Message}");
             dacServices.ProgressChanged += async (sender, e) => await SetUpFixture.LogProgress($"Deploy database: {e.Message}");
 
@@ -72,116 +71,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: set upgradeExisting to false, as we won't do upgrades only recreations
             dacServices.Deploy(dacPackage, _databaseName, true, dacDeployOptions);
         }
-
-        //https://stackoverflow.com/questions/10438258/using-microsoft-build-evaluation-to-publish-a-database-project-sqlproj
-        //https://msdn.microsoft.com/en-us/library/microsoft.sqlserver.dac.dacdeployoptions(v=sql.120).aspx
-
-        //    //https://brettwgreen.com/2016/09/16/build-a-testing-database-with-ssdt-and-nuget/
-        //    [SetUpFixture]
-        //    public class TestDatabaseSetup
-        //    {
-        //        private string DatabaseConnectionString = @&quot;Data Source = (LocalDB)mssqllocaldb; Initial Catalog = master; Integrated Security = True & quot;;
-        //private string DatabaseTargetName = &quot; AcmeDatabase&quot;;
-        //private const string VersionTag = &quot; DacVersion&quot;;
-
-        //[SetUp]
-        //        public void SetupLocalDb()
-        //        {
-        //            var rebuildDatabase = true;
-
-        //            if (!rebuildDatabase)
-        //            {
-        //                return;
-        //            }
-
-        //            var upgradeExisting = false;
-        //            using (var connection = new SqlConnection(DatabaseConnectionString))
-        //            {
-        //                connection.Open();
-
-        //                var sql = string.Format(&quot; select name from sys.databases where name = '{0}' & quot;, DatabaseTargetName);
-        //                var cmd = connection.CreateCommand();
-        //                cmd.CommandText = sql;
-        //                var result = cmd.ExecuteScalar();
-        //                upgradeExisting = result != null;
-        //                cmd.Dispose();
-        //            }
-
-        //            var instance = new DacServices(DatabaseConnectionString);
-        //            var path = Path.GetFullPath(@&quot; SSDT.Poseidon.dacpac & quot;);
-        //            var versionPresent = false;
-
-        //            using (var dacpac = DacPackage.Load(path))
-        //            {
-        //                var dacVersion = new Version(dacpac.Version.Major, dacpac.Version.Minor, dacpac.Version.Build);
-
-        //                if (upgradeExisting)
-        //                {
-        //                    var dbVersion = new Version(0, 0, 0);
-        //                    using (var connection = new SqlConnection(DatabaseConnectionString))
-        //                    {
-        //                        connection.Open();
-
-        //                        var sql = string.Format(&quot; select value from { 0}.sys.extended_properties where name = '{1}' & quot;, DatabaseTargetName, VersionTag);
-        //                        var cmd = connection.CreateCommand();
-        //                        cmd.CommandText = sql;
-        //                        var result = cmd.ExecuteScalar();
-        //                        if (result != null)
-        //                        {
-        //                            dbVersion = new Version(result.ToString());
-        //                            versionPresent = true;
-        //                        }
-        //                        cmd.Dispose();
-        //                        if (dacVersion & lt;= dbVersion)
-        //                {
-        //                            Console.WriteLine(&quot; Database { 0}, Db Version { 1}, Dac Version { 2}... declining to apply dacpac&quot;, DatabaseTargetName, dbVersion, dacVersion);
-        //                            return;
-        //                        }
-
-        //                    }
-        //                }
-
-        //                var options = new DacDeployOptions();
-        //                options.DropExtendedPropertiesNotInSource = false;
-        //                try
-        //                {
-        //                    instance.Deploy(dacpac, DatabaseTargetName, upgradeExisting, options);
-        //                    var procName = (upgradeExisting & amp; &amp; versionPresent) ? &quot; sys.sp_updateextendedproperty & quot; : &quot; sys.sp_addextendedproperty & quot; ;
-
-        //                    using (var connection = new SqlConnection(DatabaseConnectionString))
-        //                    {
-        //                        connection.Open();
-        //                        var cmd = connection.CreateCommand();
-        //                        cmd.CommandText = string.Format(&quot; EXEC { 0}.{ 1}
-        //                        @name = '{2}', @value = '{3}' & quot;, DatabaseTargetName, procName, VersionTag, dacVersion.ToString());
-        //                        cmd.ExecuteNonQuery();
-        //                        cmd.Dispose();
-        //                    }
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine(ex);
-        //                }
-        //            }
-
-        //        }
-        //    }
-
-            //looks like this is the new way to do it..
-            // https://www.nuget.org/packages/Microsoft.Data.Tools.Msbuild
-            // https://blogs.msdn.microsoft.com/ssdt/2016/08/22/releasing-ssdt-with-visual-studio-15-preview-4-and-introducing-ssdt-msbuild-nuget-package/
-            // https://brettwgreen.com/2016/09/16/build-a-testing-database-with-ssdt-and-nuget/
-
-            // can try this..
-            // https://social.msdn.microsoft.com/Forums/sqlserver/en-US/4cd87c1d-a4e1-493d-80dd-10add488439b/using-build-framework-to-build-and-publish-ssdt-project-in-c?forum=ssdt
-
-            //doesn't work as is...
-            //https://developercommunity.visualstudio.com/content/problem/43569/ssdt-sql-project-with-visual-studio-build-tools-20.html
-            //https://developercommunity.visualstudio.com/content/problem/166536/ssdt-not-present-in-visual-studio-build-tools-2017.html
-
-            //https://stackoverflow.com/questions/10438258/using-microsoft-build-evaluation-to-publish-a-database-project-sqlproj
-            // publish profile has been set to always recreate database (supply as prop instead?)
-            //https://stackoverflow.com/questions/43495509/how-to-use-buildmanager-to-build-net-core-project-or-solution-on-visual-studio
 
         public void Kill()
         {
