@@ -1,31 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using System.Web.SessionState;
-using Microsoft.Azure;
 using Microsoft.Owin.Testing;
 using Owin;
-using SFA.DAS.ApiTokens.Client;
-using SFA.DAS.Commitments.Api.App_Start;
+using StructureMap;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.NLog.Logger;
-using StructureMap;
-
-//using SFA.DAS.Commitments.Api.DependencyResolution;
-//using SFA.DAS.Commitments.Infrastructure.Configuration;
-//using SFA.DAS.Messaging.AzureServiceBus;
-//using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
-//using SFA.DAS.NLog.Logger;
-//using WebApi.StructureMap;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
 {
@@ -61,52 +48,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
     {
         public void Configuration(IAppBuilder appBuilder)
         {
-
-
             var config = new HttpConfiguration();
-            //var config = GlobalConfiguration.Configuration;
             WebApiConfig.Register(config);
 
-            //var apiKeySecret = CloudConfigurationManager.GetSetting("ApiTokenSecret");
-            //var apiIssuer = CloudConfigurationManager.GetSetting("ApiIssuer");
-            //var apiAudiences = CloudConfigurationManager.GetSetting("ApiAudiences").Split(' ');
-
-            //config.MessageHandlers.Clear(); //Remove(new ApiKeyHandler("Authorization", apiKeySecret, apiIssuer, apiAudiences));
-
-            // we need to set up structure map, coz as is, it can't ctruct the ctor
-
-            // after updating packages, and setting to same version as api, test will no longer run (inconclusive)
-            // so have undone all the package changes and we'll start from the last known working
-
-            // setting these 3 packages back to match the version throughout the solution stops the test from being able to be run!
-            // from 5.2.4 -> 5.2.3
-            // presumable the new 4.0 version of Microsoft.Owin et al requires the newer versions
-            //< package id = "Microsoft.AspNet.WebApi.Client" version = "5.2.3" targetFramework = "net461" />
-            //< package id = "Microsoft.AspNet.WebApi.Core" version = "5.2.3" targetFramework = "net461" />
-            //< package id = "Microsoft.AspNet.WebApi.Owin" version = "5.2.3" targetFramework = "net461" />
-            // unfortunatly, when the test had the latest versions it complained of assembly versioning mismatch
-            // so we'll try with the later versions of the 3 above, and match all the other versions
-            // if that doesn't work, we'll try version redirection in app.config
-            // and if that doesn't work, we'll try downgrading owin and matching all the versions
-
-            //todo: this is not how the cut integrates structuremap!
-            //const string ServiceName = "SFA.DAS.Commitments";
-            //const string ServiceVersion = "1.0";
-
-            //config.UseStructureMap(x =>
-            //{
-            //    //x.Policies.Add<LoggingPolicy>();
-            //    x.AddRegistry<DefaultRegistry>();
-            //    x.Policies.Add<CurrentDatePolicy>();
-            //    x.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
-            //});
-
             //todo: other tear down stuff
-            //remove structuremap not used int
-
-            //c.AddRegistry<DefaultRegistry>();
-            //c.Policies.Add<CurrentDatePolicy>();
-            //c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
 
             config.Services.Replace(typeof(IAssembliesResolver), new TestWebApiResolver());
 
@@ -123,9 +68,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
             config.DependencyResolver = new StructureMapWebApiDependencyResolver(container);
 
             appBuilder.UseWebApi(config);
-
-
-            //var xxx = GlobalConfiguration.Configuration;
         }
     }
 
@@ -138,7 +80,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
             // if we get the authorization working, we could change StructureMapDependencyScope
             // (also WebLoggingContext uses it, but we replace the one in the container with a null htppcontext - which it handles fine)
             var httpContext = FakeHttpContext("http://localhost");
-            var httpContextBase = new System.Web.HttpContextWrapper(httpContext);
+            var httpContextBase = new HttpContextWrapper(httpContext);
             For<HttpContextBase>().Use(httpContextBase);
 
             //For<ILoggingContext>().ClearAll().Use(x => new WebLoggingContext(httpContextBase));
@@ -148,8 +90,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
         public static HttpContext FakeHttpContext(string url)
         {
             var uri = new Uri(url);
-            var httpRequest = new HttpRequest(string.Empty, uri.ToString(),
-                uri.Query.TrimStart('?'));
+            var httpRequest = new HttpRequest(string.Empty, uri.ToString(), uri.Query.TrimStart('?'));
             var stringWriter = new StringWriter();
             var httpResponse = new HttpResponse(stringWriter);
             var httpContext = new HttpContext(httpRequest, httpResponse);
@@ -160,8 +101,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
                 10, true, HttpCookieMode.AutoDetect,
                 SessionStateMode.InProc, false);
 
-            SessionStateUtility.AddHttpSessionStateToContext(
-                httpContext, sessionContainer);
+            SessionStateUtility.AddHttpSessionStateToContext(httpContext, sessionContainer);
 
             return httpContext;
         }
