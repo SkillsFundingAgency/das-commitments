@@ -89,29 +89,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, firstNewCohortId));
             }
 
-            //todo: consistent param ordering
             await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(firstNewApprenticeshipId, apprenticeshipsToGenerate));
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
 
             return testIds;
         }
-
-        //todo: needs to take account of actual apprenticeship ids in database, e.g. when ids start at >1, this runs into problems
-        //select top 1 Id FROM Apprenticeship order by NEWID()
-        //public static long GetRandomApprenticeshipId(HashSet<long> exclude = null)
-        //{
-        //    if (exclude == null)
-        //        return Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1);
-
-        //    if (exclude.Count >= TestDataVolume.MinNumberOfApprenticeships)
-        //        throw new Exception("Not gonna work!");
-
-        //    long apprenticeshipId;
-        //    while (exclude.Contains(apprenticeshipId = Random.Next(1, TestDataVolume.MinNumberOfApprenticeships + 1)))
-        //    {
-        //    }
-
-        //    return apprenticeshipId;
-        //}
     }
 }

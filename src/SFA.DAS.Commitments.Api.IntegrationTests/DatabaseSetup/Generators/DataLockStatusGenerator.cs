@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
     public class DataLockStatusGenerator : Generator
     {
-        public async Task<IEnumerable<DbSetupDataLockStatus>> Generate(long firstNewApprenticeshipId, int numberOfNewApprenticeships)
+        public async Task<IEnumerable<DbSetupDataLockStatus>> Generate(int numberOfNewApprenticeships, long firstNewApprenticeshipId)
         {
             var successDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
                     TestDataVolume.SuccessDataLockStatusesToApprenticeshipsRatio);
