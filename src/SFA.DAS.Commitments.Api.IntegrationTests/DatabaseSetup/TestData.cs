@@ -87,7 +87,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
 
             await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
+
+            var firstNewDataLockStatusId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
+
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockStatusId));
 
             return testIds;
         }
