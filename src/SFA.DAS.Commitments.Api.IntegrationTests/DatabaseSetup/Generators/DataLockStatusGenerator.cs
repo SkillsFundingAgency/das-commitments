@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MoreLinq;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
-using SFA.DAS.Commitments.Api.Types.Validation;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
@@ -23,42 +23,91 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
         public async Task<IEnumerable<DbSetupDataLockStatus>> Generate(int numberOfNewApprenticeships, long firstNewApprenticeshipId, long firstNewDataLockStatusId)
         {
-            var successDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
-                    TestDataVolume.SuccessDataLockStatusesToApprenticeshipsRatio);
+            //options
+            // a) use probabilitydistribution to decide if each datalockstatus is success or failure
+            //      -ve as prob of failure low, might not generate any failure statuses - either rely on generating enough, or could loop through
+            //      +ve gan generate exactly how many statuses as we want
+            // b) generate random number of datalock statuses for each apprenticeship (0-3)
+            //      -ve less control over exact amount
+            //      how to decide between pass/fail?
 
-            await SetUpFixture.LogProgress($"Generating {successDataLockStatusesToGenerate} success DataLockStatuses");
+            //var errorDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships * TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
 
+
+            //var successDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships * TestDataVolume.SuccessDataLockStatusesToApprenticeshipsRatio);
+
+            //var totalDataLockStatusesToGenerate = errorDataLockStatusesToGenerate + successDataLockStatusesToGenerate;
+            // -ve only 1 max fail datalockstatus per apprenticeship id
+            //var apprenticeshipIdsWithFailDataLockStatus = Enumerable.Range((int) firstNewApprenticeshipId, numberOfNewApprenticeships)
+            //    .RandomSubset(errorDataLockStatusesToGenerate);
+
+            // there are many ways of doing this, see https://codereview.stackexchange.com/questions/61338/generate-random-numbers-without-repetitions
+            // generating into a hashset is probably fastest for this instance, but gonna go my own way
+            //var failedDataLockStatusIds = Enumerable.Range((int)firstNewDataLockStatusId, errorDataLockStatusesToGenerate + successDataLockStatusesToGenerate)
+            //    .RandomSubset(errorDataLockStatusesToGenerate);
+
+            // as we have a potentially large range, and a small random subset required we should probably do it this way...
+            //int randomRangeTop = (int)(firstNewDataLockStatusId + totalDataLockStatusesToGenerate + 1);
+            //var failedDataLockStatusIds = new HashSet<long>();
+            //while (failedDataLockStatusIds.Count < errorDataLockStatusesToGenerate)
+            //{
+            //    failedDataLockStatusIds.Add(Random.Next((int)firstNewDataLockStatusId, randomRangeTop));
+            //}
+
+
+            // doing it this way means that once we 'run out' of apprenticeship ids, there will be a sparse hole of apprenticeship ids with no datalock statuses
             var apprenticeshipIdsForDataLockStatuses = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
-                TestDataVolume.MaxDataLockStatusesPerApprenticeship);
+                TestDataVolume.MaxDataLockStatusesPerApprenticeship); //todo: use probabilitydistribution, instead of random
+                                                                      //todo: what if we don't generate enough?
+                                                                      // generate id groups first with probability distribution, then generate failed from the actual number generated
+            // lose absolute ration of statuses to apprenticeships, but probabilitydistribution will act as the ratio in effect
 
-            var testDataLockStatuses = Generate(apprenticeshipIdsForDataLockStatuses, successDataLockStatusesToGenerate, firstNewDataLockStatusId, Status.Pass);
+            var totalDataLockStatusesToGenerate = apprenticeshipIdsForDataLockStatuses.Count();
 
-            firstNewDataLockStatusId += successDataLockStatusesToGenerate;
+            await SetUpFixture.LogProgress($"Generating {totalDataLockStatusesToGenerate} DataLockStatuses");
 
-            var errorDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships *
-                                                          TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
+            var errorDataLockStatusesToGenerate = (int)(totalDataLockStatusesToGenerate * TestDataVolume.ErrorDataLockStatusProbability);
 
-            await SetUpFixture.LogProgress($"Generating {errorDataLockStatusesToGenerate} error DataLockStatuses");
+            // as we have a potentially large range, and a small random subset required we should probably do it this way...
+            int randomRangeTop = (int)(firstNewDataLockStatusId + totalDataLockStatusesToGenerate);
+            var failedDataLockStatusIds = new HashSet<long>();
+            while (failedDataLockStatusIds.Count < errorDataLockStatusesToGenerate)
+            {
+                failedDataLockStatusIds.Add(Random.Next((int)firstNewDataLockStatusId, randomRangeTop));
+            }
 
-            // needs to not include apprenticeshipId's that have success datalockstatuses
-            // skip the apprenticeship ids we used for the success DataLockStatuses
-            var randomlyGroupedErrorApprenticeshipIds = apprenticeshipIdsForDataLockStatuses.Skip(testDataLockStatuses.Count());
-            // the first id may have been in a group where the id was already used for success, so skip that
-            var firstIdInRemaining = randomlyGroupedErrorApprenticeshipIds.First();
-            randomlyGroupedErrorApprenticeshipIds.SkipWhile(i => i == firstIdInRemaining);
+            var testDataLockStatuses = Generate(apprenticeshipIdsForDataLockStatuses, totalDataLockStatusesToGenerate, firstNewDataLockStatusId, failedDataLockStatusIds);
+            return testDataLockStatuses;
 
-            testDataLockStatuses = testDataLockStatuses.Concat(Generate(randomlyGroupedErrorApprenticeshipIds, errorDataLockStatusesToGenerate, firstNewDataLockStatusId, Status.Fail));
+            //var testDataLockStatuses = Generate(apprenticeshipIdsForDataLockStatuses, successDataLockStatusesToGenerate, firstNewDataLockStatusId, Status.Pass);
 
-            // shuffle the DataLockStatuses so that all the error rows aren't grouped at the end
-            // we'll do it this way here (if it wasn't test code, perhaps we'd do it differently)
-            // see https://stackoverflow.com/questions/6569422/how-can-i-randomly-ordering-an-ienumerable
+            //firstNewDataLockStatusId += successDataLockStatusesToGenerate;
 
-            // breaks down when generate extra
-            return testDataLockStatuses.OrderBy(s => s.DataLockEventDatetime);
+            //var errorDataLockStatusesToGenerate = (int)(numberOfNewApprenticeships * TestDataVolume.ErrorDataLockStatusesToApprenticeshipsRatio);
+
+            //await SetUpFixture.LogProgress($"Generating {errorDataLockStatusesToGenerate} error DataLockStatuses");
+
+            //// needs to not include apprenticeshipId's that have success datalockstatuses
+            //// skip the apprenticeship ids we used for the success DataLockStatuses
+            //var randomlyGroupedErrorApprenticeshipIds = apprenticeshipIdsForDataLockStatuses.Skip(testDataLockStatuses.Count());
+            //// the first id may have been in a group where the id was already used for success, so skip that
+            //var firstIdInRemaining = randomlyGroupedErrorApprenticeshipIds.First();
+            //randomlyGroupedErrorApprenticeshipIds.SkipWhile(i => i == firstIdInRemaining);
+
+            //testDataLockStatuses = testDataLockStatuses.Concat(Generate(randomlyGroupedErrorApprenticeshipIds, errorDataLockStatusesToGenerate, firstNewDataLockStatusId, Status.Fail));
+
+            //// shuffle the DataLockStatuses so that all the error rows aren't grouped at the end
+            //// we'll do it this way here (if it wasn't test code, perhaps we'd do it differently)
+            //// see https://stackoverflow.com/questions/6569422/how-can-i-randomly-ordering-an-ienumerable
+
+            //// breaks down when generate extra
+            //return testDataLockStatuses.OrderBy(s => s.DataLockEventDatetime);
         }
 
-        private IEnumerable<DbSetupDataLockStatus> Generate(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, int dataLockStatusesToGenerate, long firstNewDataLockEventId, Status status)
+        private IEnumerable<DbSetupDataLockStatus> Generate(IEnumerable<long> randomlyOrderedApprenticeshipIdGroups, 
+            int dataLockStatusesToGenerate, long firstNewDataLockEventId, HashSet<long> failedDataLockStatusIds)
         {
+            //todo: if we use RandomSubset or similar we'll already have this
             var dataLockEventIds = Enumerable.Range((int)firstNewDataLockEventId, dataLockStatusesToGenerate);
 
             //long? lastApprenticeshipId = null;
@@ -66,25 +115,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             return dataLockEventIds.Zip(randomlyOrderedApprenticeshipIdGroups, (dataLockEventId, apprenticeshipId) =>
             {
-                // quick hack to stop hitting unique index of [ApprenticeshipId],[PriceEpisodeIdentifier]
-                //todo: better to abandon Zip() and process 1-up random apprenticeship ids
-                // also 1 apprenticeship can have pass and fail datalockstatuses, so model that too
+                var startDate = GenerateStartDate();
 
-                DateTime startDate = GenerateStartDate();
-
-                //if (apprenticeshipId != lastApprenticeshipId)
-                //{
-                //    lastApprenticeshipId = apprenticeshipId;
-                //    apprenticeshipStartDates = new HashSet<DateTime>();
-                //}
-                //else
-                //{
-                //    while (apprenticeshipStartDates.Contains(startDate))
-                //    {
-                //        startDate = GenerateStartDate();
-                //    }
-                //    apprenticeshipStartDates.Add(startDate);
-                //}
+                //todo: what about unknown?
+                Status status = failedDataLockStatusIds.Contains(dataLockEventId) ? Status.Fail : Status.Pass;
 
                 var dataLockStatus = new DbSetupDataLockStatus
                 {
@@ -94,6 +128,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
                     ErrorCode = GenerateDataLockError(status),
                     EventStatus = TestDataVolume.DataLockStatusEventStatusProbability.NextRandom(),
                     IlrActualStartDate = startDate, //GenerateStartDate(),
+                    IlrEffectiveFromDate = startDate,
+                    IlrPriceEffectiveToDate = GenerateIlrPriceEffectiveToDate(startDate),
                     IlrTotalCost = GenerateTotalCost(),
                     DataLockEventDatetime = GenerateDataLockEventDatetime(),
                     IlrTrainingType = GenerateIlrTrainingType()
@@ -106,8 +142,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
                 //                dataLockStatus.PriceEpisodeIdentifier = $"{dataLockStatus.IlrTrainingCourseCode}-{dataLockStatus.IlrActualStartDate:d}"; //todo: also simulate 01/08/2018
                 // until we sort out breaking the unique index
                 dataLockStatus.PriceEpisodeIdentifier = $"{Guid.NewGuid().ToString().Substring(0,25)}";
-                dataLockStatus.IlrEffectiveFromDate = dataLockStatus.IlrActualStartDate;
-                dataLockStatus.IlrPriceEffectiveToDate = GenerateIlrPriceEffectiveToDate(dataLockStatus.IlrEffectiveFromDate);
 
                 return dataLockStatus;
             });
