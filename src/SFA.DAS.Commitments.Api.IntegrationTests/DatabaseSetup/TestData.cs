@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
@@ -11,7 +9,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     {
         private readonly string _databaseConnectionString;
         public CommitmentsDatabase CommitmentsDatabase { get; }
-        private static readonly Random Random = new Random();
 
         public TestData()
         {
