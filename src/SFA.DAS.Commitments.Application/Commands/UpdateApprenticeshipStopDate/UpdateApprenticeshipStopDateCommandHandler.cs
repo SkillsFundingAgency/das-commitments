@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
 {
@@ -21,7 +22,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         private readonly ICurrentDateTime _currentDate;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
-
+        private readonly IApprenticeshipEventsPublisher _eventsPublisher;
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IAcademicYearValidator _academicYearValidator;
 
         public UpdateApprenticeshipStopDateCommandHandler(
@@ -31,8 +33,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             ICurrentDateTime currentDate,
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
-            IAcademicYearValidator academicYearValidator
-            )
+            IAcademicYearValidator academicYearValidator,
+            IApprenticeshipEventsPublisher eventsPublisher,
+            IApprenticeshipEventsList apprenticeshipEventsList)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -41,6 +44,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             _logger = logger;
             _historyRepository = historyRepository;
             _academicYearValidator = academicYearValidator;
+            _eventsPublisher = eventsPublisher;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStopDateCommand command)
@@ -61,6 +66,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
 
             await SaveChange(command, commitment, apprenticeship);
+            await PublishEvent(command, commitment, apprenticeship);
         }
 
         private async Task SaveChange(UpdateApprenticeshipStopDateCommand command, Commitment commitment, Apprenticeship apprenticeship)
@@ -72,6 +78,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             await _apprenticeshipRepository.UpdateApprenticeshipStopDate(commitment.Id, command.ApprenticeshipId, command.StopDate);
 
             await historyService.Save();
+        }
+
+        private async Task PublishEvent(UpdateApprenticeshipStopDateCommand command, Commitment commitment, Apprenticeship apprenticeship)
+        {
+            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", command.StopDate);
+            await _eventsPublisher.Publish(_apprenticeshipEventsList);
         }
 
         private void ValidateChangeDateForStop(DateTime newStopDate, Apprenticeship apprenticeship)

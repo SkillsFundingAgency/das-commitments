@@ -4,15 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
+using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStopDate
 {
@@ -35,6 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             TestApprenticeship = new Apprenticeship
             {
+                Id = 444L,
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Withdrawn,
                 StopDate = DateTime.UtcNow.Date.AddMonths(3),
@@ -60,6 +64,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 Id = 123L,
                 EmployerAccountId = ExampleValidRequest.AccountId
             });
+
+            MockApprenticeshipEventsPublisher.Setup(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()))
+                .Returns(Task.FromResult(new Unit()));
         }
 
         [TestCase(PaymentStatus.Active)]
@@ -181,6 +188,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>().Which.Message.Equals("Apprenticeship must be stopped in order to update stop date");
+        }
+
+        [Test]
+        public async Task ThenShouldPublishApprenticeshipEvent()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockApprenticeshipEventsPublisher.Verify(x =>
+                x.Publish(It.Is<ApprenticeshipEventsList>(list =>
+                    list.Events.Count == 1 &&
+                    list.Events[0].Apprenticeship.Id == ExampleValidRequest.ApprenticeshipId &&
+                    list.Events[0].EffectiveFrom == ExampleValidRequest.StopDate
+                    )), Times.Once);
         }
     }
 }
