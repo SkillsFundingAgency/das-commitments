@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
+        //todo: better handling of testids
         [Test]
         public async Task SimulateSlowdownScenario()
         {
@@ -31,6 +32,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
 
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
+            // todo: do this in setup
             var firstCallParams = callParamsPerTask.First().First();
             await CommitmentsApi.CallGetApprenticeship(firstCallParams.ApprenticeshipId, firstCallParams.EmployerId);
 
@@ -85,7 +87,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var apprenticeshipIds = new List<long>();
             for (var taskNo = 0; taskNo < totalApprenticeshipIds; ++taskNo)
             {
-                var randomApprenticeshipId = TestData.GetRandomApprenticeshipId(alreadyUsedIds);
+                //var randomApprenticeshipId = TestData.GetRandomApprenticeshipId(alreadyUsedIds);
+                //slower but handles sparse id ranges
+                var randomApprenticeshipId = await SetUpFixture.CommitmentsDatabase.GetRandomApprenticeshipId(alreadyUsedIds);
                 apprenticeshipIds.Add(randomApprenticeshipId);
 
                 alreadyUsedIds.Add(randomApprenticeshipId);
