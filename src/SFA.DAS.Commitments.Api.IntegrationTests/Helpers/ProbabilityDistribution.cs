@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
+namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 {
     public class ProbabilityDistribution<T>
     {

@@ -1,7 +1,8 @@
 ﻿
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
-using EventStatusProbability = SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.ProbabilityDistribution<SFA.DAS.Commitments.Api.Types.DataLock.Types.EventStatus>;
-using DataLockStatusCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.ProbabilityDistribution<int>;
+using EventStatusProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<SFA.DAS.Commitments.Api.Types.DataLock.Types.EventStatus>;
+using DataLockStatusCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
+using ApprenticeshipUpdateCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
@@ -16,6 +17,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
         public const double ApprenticeshipUpdatesToApprenticeshipsRatio = 0.025d;
         public const int MaxApprenticeshipUpdatesPerApprenticeship = 5; //todo: skew to lower?
+
+        //todo:
+        //public static ApprenticeshipUpdateCountProbability ApprenticeshipUpdatesPerApprenticeshipProbability = new ApprenticeshipUpdateCountProbability(
+        //new []
+        //{
+        //    new ApprenticeshipUpdateCountProbability.BoundaryValue(), 
+        //});
 
         #endregion ApprenticeshipUpdate
 

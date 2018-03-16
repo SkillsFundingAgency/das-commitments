@@ -313,7 +313,7 @@
     <Compile Include="DatabaseSetup\Generators\CommitmentGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\DataLockStatusGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\Generator.cs" />
-    <Compile Include="DatabaseSetup\ProbabilityDistribution.cs" />
+    <Compile Include="Helpers\ProbabilityDistribution.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="DatabaseSetup\TestDataVolume.cs" />
     <Compile Include="Helpers\CallDetails.cs" />
