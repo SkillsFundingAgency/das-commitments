@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
@@ -9,24 +8,29 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
     {
         protected readonly Random Random = new Random();
 
-        public IEnumerable<long> RandomIdGroups(long firstId, int countOfIds, int maxIdsPerGroup)
+        public long[] RandomIdGroups(long firstId, int countOfIds, int maxIdsPerGroup, int maxIdsRequired)
         {
-            // limit length? does it matter if lazily enumerated and don't read past required?
             var newApprenticeshipIdsShuffled = Enumerable
                 .Range((int)firstId, countOfIds)
                 .OrderBy(au => Random.Next());
 
-            return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, Random.Next(1, maxIdsPerGroup + 1)));
+            // 'lock in' the enumeration by converting to an array, otherwise you get different results for each enumeration!
+            return newApprenticeshipIdsShuffled
+                .SelectMany(id => Enumerable.Repeat((long)id, Random.Next(1, maxIdsPerGroup + 1)))
+                .Take(maxIdsRequired)
+                .ToArray();
         }
 
-        public IEnumerable<long> RandomIdGroups(long firstId, int countOfIds, ProbabilityDistribution<int> probabilityDistribution)
+        public long[] RandomIdGroups(long firstId, int countOfIds, ProbabilityDistribution<int> probabilityDistribution)
         {
-            // limit length? does it matter if lazily enumerated and don't read past required?
             var newApprenticeshipIdsShuffled = Enumerable
                 .Range((int)firstId, countOfIds)
                 .OrderBy(au => Random.Next());
 
-            return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, probabilityDistribution.NextRandom()));
+            // 'lock in' the enumeration by converting to an array, otherwise you get different results for each enumeration!
+            return newApprenticeshipIdsShuffled
+                .SelectMany(id => Enumerable.Repeat((long)id, probabilityDistribution.NextRandom()))
+                .ToArray();
         }
     }
 }

@@ -25,7 +25,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         {
             // generate id groups first with probability distribution, then generate failed from the actual number generated
             // we lose the absolute ratio of statuses to apprenticeships, but probabilitydistribution will act as the ratio in effect
-            //todo: something funny with result. to do with 0 repeats?? different randoms per enumeration?!
             var randomlyOrderedApprenticeshipIdGroups = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
                 TestDataVolume.DataLockStatusesPerApprenticeshipProbability);
 
@@ -43,8 +42,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
             {
                 failedDataLockStatusIds.Add(Random.Next((int)firstNewDataLockEventId, randomRangeTop));
             }
-            
-            //todo: mismatch between last Id & DataLockEventId
 
             var dataLockEventIds = Enumerable.Range((int)firstNewDataLockEventId, totalDataLockStatusesToGenerate);
 

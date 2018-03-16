@@ -14,8 +14,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsGenerated * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
             await SetUpFixture.LogProgress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdatess");
 
+            //todo: switch to how we decide on datalockstatuses instead?
             var apprenticeshipIdsForUpdates = RandomIdGroups(firstNewApprenticeshipId, apprenticeshipUpdatesToGenerate,
-                TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship);
+                TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship, apprenticeshipUpdatesToGenerate);
 
             var apprenticeshipUpdates = new Fixture().CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate);
 
