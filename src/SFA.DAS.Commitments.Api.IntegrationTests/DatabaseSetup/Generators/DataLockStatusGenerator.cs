@@ -25,48 +25,67 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         {
             // generate id groups first with probability distribution, then generate failed from the actual number generated
             // we lose the absolute ratio of statuses to apprenticeships, but probabilitydistribution will act as the ratio in effect
-            var randomlyOrderedApprenticeshipIdGroups = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
-                TestDataVolume.DataLockStatusesPerApprenticeshipProbability);
+            var randomlyOrderedApprenticeshipIdGroups = RandomIdGroups(firstNewApprenticeshipId,
+                numberOfNewApprenticeships,
+                TestDataVolume.DataLockStatusesPerApprenticeshipProbability, (id, count) =>
+                    GenerateStartDates(count).Select(date => new IdAndDate {Id = id, Date = date}));
+            //    //Enumerable.Repeat((long)id, groupLength).Select((i,index) => new {Id = i, StartDate = GenerateStartData })
 
-            var totalDataLockStatusesToGenerate = randomlyOrderedApprenticeshipIdGroups.Count();
+//        });
+
+            var totalDataLockStatusesToGenerate = randomlyOrderedApprenticeshipIdGroups.Length;
 
             await SetUpFixture.LogProgress($"Generating {totalDataLockStatusesToGenerate} DataLockStatuses");
 
             var errorDataLockStatusesToGenerate = (int)(totalDataLockStatusesToGenerate * TestDataVolume.ErrorDataLockStatusProbability);
 
-            // as we have a potentially large range and require only a small random subset, we do it this way...
-            //todo: methodize
-            int randomRangeTop = (int)(firstNewDataLockEventId + totalDataLockStatusesToGenerate);
-            var failedDataLockStatusIds = new HashSet<long>();
-            while (failedDataLockStatusIds.Count < errorDataLockStatusesToGenerate)
-            {
-                failedDataLockStatusIds.Add(Random.Next((int)firstNewDataLockEventId, randomRangeTop));
-            }
+            var failedDataLockStatusIds = FailedDataLockStatusIds(firstNewDataLockEventId, totalDataLockStatusesToGenerate, errorDataLockStatusesToGenerate);
 
             var dataLockEventIds = Enumerable.Range((int)firstNewDataLockEventId, totalDataLockStatusesToGenerate);
 
             return dataLockEventIds.Zip(randomlyOrderedApprenticeshipIdGroups,
-                (dataLockEventId, apprenticeshipId) =>
-                    GenerateDbSetupDataLockStatus(dataLockEventId, apprenticeshipId, failedDataLockStatusIds));
+                (dataLockEventId, apprenticeshipIdAndStartDate) =>
+                    GenerateDbSetupDataLockStatus(dataLockEventId, apprenticeshipIdAndStartDate, failedDataLockStatusIds));
         }
 
-        private DbSetupDataLockStatus GenerateDbSetupDataLockStatus(long dataLockEventId, long apprenticeshipId, HashSet<long> failedDataLockStatusIds)
+        private HashSet<long> FailedDataLockStatusIds(long firstNewDataLockEventId, int totalDataLockStatuses,
+            int errorDataLockStatusesToGenerate)
         {
-            var startDate = GenerateStartDate();
+            // as we have a potentially large range and require only a small random subset, we do it this way...
+
+            int randomRangeTop = (int) (firstNewDataLockEventId + totalDataLockStatuses);
+            var failedDataLockStatusIds = new HashSet<long>();
+            while (failedDataLockStatusIds.Count < errorDataLockStatusesToGenerate)
+            {
+                failedDataLockStatusIds.Add(Random.Next((int) firstNewDataLockEventId, randomRangeTop));
+            }
+
+            return failedDataLockStatusIds;
+        }
+
+        private class IdAndDate
+        {
+            public long Id;
+            public DateTime Date;
+        }
+
+        private DbSetupDataLockStatus GenerateDbSetupDataLockStatus(long dataLockEventId, IdAndDate apprenticeshipIdAndStartDate, HashSet<long> failedDataLockStatusIds)
+        {
+            //var startDate = GenerateStartDate();
 
             //todo: what about unknown?
-            Status status = failedDataLockStatusIds.Contains(dataLockEventId) ? Status.Fail : Status.Pass;
+            var status = failedDataLockStatusIds.Contains(dataLockEventId) ? Status.Fail : Status.Pass;
 
             var dataLockStatus = new DbSetupDataLockStatus
             {
                 DataLockEventId = dataLockEventId,
-                ApprenticeshipId = apprenticeshipId,
+                ApprenticeshipId = apprenticeshipIdAndStartDate.Id,
                 Status = status,
                 ErrorCode = GenerateDataLockError(status),
                 EventStatus = TestDataVolume.DataLockStatusEventStatusProbability.NextRandom(),
-                IlrActualStartDate = startDate, //GenerateStartDate(),
-                IlrEffectiveFromDate = startDate,
-                IlrPriceEffectiveToDate = GenerateIlrPriceEffectiveToDate(startDate),
+                IlrActualStartDate = apprenticeshipIdAndStartDate.Date,
+                IlrEffectiveFromDate = apprenticeshipIdAndStartDate.Date,
+                IlrPriceEffectiveToDate = GenerateIlrPriceEffectiveToDate(apprenticeshipIdAndStartDate.Date),
                 IlrTotalCost = GenerateTotalCost(),
                 DataLockEventDatetime = GenerateDataLockEventDatetime(),
                 IlrTrainingType = GenerateIlrTrainingType()
@@ -76,9 +95,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
             dataLockStatus.TriageStatus = GenerateTriageStatus(dataLockStatus.ErrorCode);
             dataLockStatus.IsResolved = GenerateIsResolved(dataLockStatus.TriageStatus);
             dataLockStatus.IlrTrainingCourseCode = GenerateIlrTrainingCourseCode(dataLockStatus.IlrTrainingType);
-            //                dataLockStatus.PriceEpisodeIdentifier = $"{dataLockStatus.IlrTrainingCourseCode}-{dataLockStatus.IlrActualStartDate:d}"; //todo: also simulate 01/08/2018
-            // until we sort out breaking the unique index
-            dataLockStatus.PriceEpisodeIdentifier = $"{Guid.NewGuid().ToString().Substring(0,25)}";
+            dataLockStatus.PriceEpisodeIdentifier = $"{dataLockStatus.IlrTrainingCourseCode}-{apprenticeshipIdAndStartDate.Date:d}"; //todo: also simulate 01/08/2018
 
             return dataLockStatus;
         }
@@ -107,6 +124,21 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         private DateTime GenerateDataLockEventDatetime()
         {
             return SystemStartDate + new TimeSpan(0, 0, Random.Next(SecondsSinceSystemStartDate));
+        }
+
+        private IEnumerable<DateTime> GenerateStartDates(int count)
+        {
+            // case 0 and 1 aren't necessary, they're just optimisations
+            switch (count)
+            {
+                case 0:
+                    return Enumerable.Empty<DateTime>();
+                case 1:
+                    return Enumerable.Repeat(GenerateStartDate(), 1);
+                default:
+                    return Enumerable.Range(0, MonthsSinceSystemStartDate + 6).OrderBy(m => Random.Next()).Take(count)
+                        .Select(m => SystemStartDate.AddMonths(m)).OrderBy(d => d);
+            }
         }
 
         private DateTime GenerateStartDate()
