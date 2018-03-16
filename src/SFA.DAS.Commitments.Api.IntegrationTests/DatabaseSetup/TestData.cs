@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // there are currently all sorts of edge cases for expansion
             // but if when deal with million+ rows and want to add another million might be handy to add more
             // could assert corner cases rather than trying to handle them?
-            // if adding, would probably be better to leave current test ids alone and just generate for volume
+            //todo: if adding, would probably be better to leave current test ids alone and just generate for volume
             var firstNewApprenticeshipId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
             var firstNewCohortId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
 
@@ -88,7 +88,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
 
-            //todo: check other id handling
+            // the DataLockStatus table diverges from the other tables by having its own id column seperate from the identity 'Id' column
             var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
 
             await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockEventId));
