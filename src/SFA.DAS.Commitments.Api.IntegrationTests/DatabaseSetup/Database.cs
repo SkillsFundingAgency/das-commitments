@@ -35,12 +35,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        public async Task<long?> LastId(string tableName)
+        public async Task<long?> LastId(string tableName, string columnName = "Id")
         {
             using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand($"SELECT MAX(Id) FROM {tableName}", connection))
+                using (var command = new SqlCommand($"SELECT MAX({columnName}) FROM {tableName}", connection))
                 {
                     var result = await command.ExecuteScalarAsync();
                     return result == DBNull.Value ? null : (long?)result;
@@ -48,9 +48,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        public async Task<long> FirstNewId(string tableName)
+        public async Task<long> FirstNewId(string tableName, string columnName = "Id")
         {
-            var latestIdInDatabase = await LastId(tableName);
+            var latestIdInDatabase = await LastId(tableName, columnName);
             return (latestIdInDatabase ?? 0) + 1;
         }
 

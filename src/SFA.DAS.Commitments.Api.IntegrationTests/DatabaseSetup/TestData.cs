@@ -88,9 +88,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
 
-            var firstNewDataLockStatusId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName);
+            //todo: check other id handling
+            var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
 
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockStatusId));
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockEventId));
 
             return testIds;
         }
