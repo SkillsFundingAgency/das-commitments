@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MoreLinq;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
@@ -26,12 +25,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
             // generate id groups first with probability distribution, then generate failed from the actual number generated
             // we lose the absolute ratio of statuses to apprenticeships, but probabilitydistribution will act as the ratio in effect
             var randomlyOrderedApprenticeshipIdGroups = RandomIdGroups(firstNewApprenticeshipId,
-                numberOfNewApprenticeships,
-                TestDataVolume.DataLockStatusesPerApprenticeshipProbability, (id, count) =>
-                    GenerateStartDates(count).Select(date => new IdAndDate {Id = id, Date = date}));
-            //    //Enumerable.Repeat((long)id, groupLength).Select((i,index) => new {Id = i, StartDate = GenerateStartData })
-
-//        });
+                numberOfNewApprenticeships, TestDataVolume.DataLockStatusesPerApprenticeshipProbability,
+                (id, count) => GenerateStartDates(count).Select(date => new IdAndDate {Id = id, Date = date}));
 
             var totalDataLockStatusesToGenerate = randomlyOrderedApprenticeshipIdGroups.Length;
 
@@ -71,8 +66,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
         private DbSetupDataLockStatus GenerateDbSetupDataLockStatus(long dataLockEventId, IdAndDate apprenticeshipIdAndStartDate, HashSet<long> failedDataLockStatusIds)
         {
-            //var startDate = GenerateStartDate();
-
             //todo: what about unknown?
             var status = failedDataLockStatusIds.Contains(dataLockEventId) ? Status.Fail : Status.Pass;
 
@@ -155,12 +148,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         {
             return 200+(Random.Next(300)*10);
         }
-
-        //private Status GenerateStatus(GenerateType generateType)
-        //{
-        //    //todo: what about unknown?
-        //    return generateType == GenerateType.Success ? Status.Pass : Status.Fail;
-        //}
 
         private TriageStatus GenerateTriageStatus(DataLockErrorCode errorCode)
         {
