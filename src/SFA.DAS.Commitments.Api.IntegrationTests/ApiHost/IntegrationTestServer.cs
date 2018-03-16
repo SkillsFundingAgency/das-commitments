@@ -100,14 +100,4 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
             return new List<Assembly> { typeof(EmployerController).Assembly };
         }
     }
-
-    //HttpResponseMessage response = await server.HttpClient.GetAsync("/");
-    //// TODO: Validate response
-    //}
-
-    //Requests can also be constructed and submitted with the following helper methods:
-
-    //HttpResponseMessage response = await server.CreateRequest("/")
-    //.AddHeader("header1", "headervalue1")
-    //.GetAsync();
 }

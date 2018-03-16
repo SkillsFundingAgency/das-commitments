@@ -8,7 +8,6 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
-using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
@@ -87,8 +86,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var apprenticeshipIds = new List<long>();
             for (var taskNo = 0; taskNo < totalApprenticeshipIds; ++taskNo)
             {
-                //var randomApprenticeshipId = TestData.GetRandomApprenticeshipId(alreadyUsedIds);
-                //slower but handles sparse id ranges
                 var randomApprenticeshipId = await SetUpFixture.CommitmentsDatabase.GetRandomApprenticeshipId(alreadyUsedIds);
                 apprenticeshipIds.Add(randomApprenticeshipId);
 
