@@ -18,5 +18,15 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, Random.Next(1, maxIdsPerGroup + 1)));
         }
+
+        public IEnumerable<long> RandomIdGroups(long firstId, int countOfIds, ProbabilityDistribution<int> probabilityDistribution)
+        {
+            // limit length? does it matter if lazily enumerated and don't read past required?
+            var newApprenticeshipIdsShuffled = Enumerable
+                .Range((int)firstId, countOfIds)
+                .OrderBy(au => Random.Next());
+
+            return newApprenticeshipIdsShuffled.SelectMany(id => Enumerable.Repeat((long)id, probabilityDistribution.NextRandom()));
+        }
     }
 }

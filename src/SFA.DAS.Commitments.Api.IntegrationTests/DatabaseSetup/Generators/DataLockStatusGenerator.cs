@@ -57,7 +57,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             // doing it this way means that once we 'run out' of apprenticeship ids, there will be a sparse hole of apprenticeship ids with no datalock statuses
             var apprenticeshipIdsForDataLockStatuses = RandomIdGroups(firstNewApprenticeshipId, numberOfNewApprenticeships,
-                TestDataVolume.MaxDataLockStatusesPerApprenticeship); //todo: use probabilitydistribution, instead of random
+                TestDataVolume.DataLockStatusesPerApprenticeshipProbability);
                                                                       //todo: what if we don't generate enough?
                                                                       // generate id groups first with probability distribution, then generate failed from the actual number generated
             // lose absolute ration of statuses to apprenticeships, but probabilitydistribution will act as the ratio in effect

@@ -33,5 +33,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var rand = _random.Next(_range);
             return _boundaryValues.First(bv => rand < bv.Boundary).Value();
         }
+
+        //public T LowerBound => _boundaryValues.First().Value();
     }
 }
