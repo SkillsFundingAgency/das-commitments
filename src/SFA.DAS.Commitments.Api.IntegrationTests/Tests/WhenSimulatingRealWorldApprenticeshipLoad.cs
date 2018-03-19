@@ -22,13 +22,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task SimulateSlowdownScenario()
         {
-            const int numberOfTasks = 8, getApprenticeshipCallsPerTask = 25;
+            const int numberOfTasks = 8, getApprenticeshipCallsPerTask = 10, getApprenticeshipsCalls = 5;
 
             var getApprenticeshipCallParamsPerTask = await GetGetApprenticeshipCallParamsPerTask(numberOfTasks, getApprenticeshipCallsPerTask);
             var callParamsPerTask = getApprenticeshipCallParamsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipCallParamsPerTask.ToArray();
 
             // currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
-            var employerIds = new[] { await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]) };
+            var employerIdWithMaxCohortSize = await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]);
+            var employerIds = Enumerable.Repeat(employerIdWithMaxCohortSize, getApprenticeshipsCalls);
 
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
             // todo: do this in setup
@@ -64,7 +65,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             //ideally want to use some sort of synchronization, so can kick this off in middle of getapprenticeship calls
 
             //q&d
-            Thread.Sleep(2 * 1000);
+            //Thread.Sleep(2 * 1000);
 
             var tasks = employerAccountIds.Select(id => CommitmentsApi.CallGetApprenticeships(id, false));
             return await Task.WhenAll(tasks);
