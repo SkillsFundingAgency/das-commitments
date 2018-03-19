@@ -1,18 +1,18 @@
 ﻿using FluentValidation;
+using SFA.DAS.Commitments.Domain;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
+namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort
 {
-    public sealed class UpdateCommitmentAgreementCommandValidator : AbstractValidator<UpdateCommitmentAgreementCommand>
+    public sealed class ProviderApproveCohortCommandValidator : AbstractValidator<ProviderApproveCohortCommand>
     {
-        public UpdateCommitmentAgreementCommandValidator()
+        public ProviderApproveCohortCommandValidator()
         {
-            RuleFor(x => x.LatestAction).IsInEnum();
             RuleFor(x => x.Caller).NotNull();
 
             When(x => x.Caller != null, () => 
             {
                 RuleFor(x => x.Caller.Id).GreaterThan(0);
-                RuleFor(x => x.Caller.CallerType).IsInEnum();
+                RuleFor(x => x.Caller.CallerType).Equal(CallerType.Provider);
             });
 
             RuleFor(x => x.CommitmentId).GreaterThan(0);

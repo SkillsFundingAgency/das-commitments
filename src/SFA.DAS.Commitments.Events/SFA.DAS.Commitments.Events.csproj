@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommitmentRequiresApprovalByTransferSender.cs" />
     <Compile Include="CohortCreated.cs" />
     <Compile Include="ApprovedCohortReturnedToProvider.cs" />
     <Compile Include="CohortApprovedByEmployer.cs" />
