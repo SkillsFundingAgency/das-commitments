@@ -135,27 +135,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         /// </remarks>
         private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GetGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
         {
-            // if we don't batch, either throws SqlException : The request limit for the database is 60 and has been reached
-            // https://blogs.technet.microsoft.com/latam/2015/06/01/how-to-deal-with-the-limits-of-azure-sql-database-maximum-logins/
-            // or throws SqlException : Execution Timeout Expired
-
             var totalApprenticeshipIds = numberOfTasks * getApprenticeshipCallsPerTask;
             Assert.GreaterOrEqual(TestDataVolume.MinNumberOfApprenticeships, totalApprenticeshipIds);
-
-            ////const int sqlAzureRequestLimit = 50;
-            //const int sqlQueryBatchSize = 20;
-
-            //var apprenticeshipIds = Enumerable.Empty<long>();
-
-            //int callsLeft = totalApprenticeshipIds;
-            //while (callsLeft > 0)
-            //{
-            //    int calls = Math.Min(callsLeft, sqlQueryBatchSize);
-            //    callsLeft -= calls;
-            //    var apprenticeshipIdsBatchTasks = Enumerable.Range(0, calls).Select(i => SetUpFixture.CommitmentsDatabase.GetRandomApprenticeshipId());
-            //    var apprenticeshipIdsBatch = await Task.WhenAll(apprenticeshipIdsBatchTasks);
-            //    apprenticeshipIds.Concat(apprenticeshipIdsBatch);
-            //}
 
             var apprenticeshipIds = await SetUpFixture.CommitmentsDatabase.GetRandomApprenticeshipIds(totalApprenticeshipIds);
 
@@ -193,5 +174,32 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var employerController = container.GetInstance<EmployerController>();
             await employerController.GetApprenticeship(employerAccountId, apprenticeshipId);
         }
+
+        // when using this pattern...
+
+        // var employerIdTasks = apprenticeshipIds.Select(id => SetUpFixture.CommitmentsDatabase.GetEmployerId(id));
+        // var employerIds = await Task.WhenAll(employerIdTasks);
+
+        // it might throw SqlException : The request limit for the database is 60 and has been reached
+        // https://blogs.technet.microsoft.com/latam/2015/06/01/how-to-deal-with-the-limits-of-azure-sql-database-maximum-logins/
+        // or throw SqlException : Execution Timeout Expired
+        // depending on how quickly each db query takes, and how many are kicked off in 1 go
+        // if so, we'd want a generic version of this (with callbacks)...
+
+        //{
+        //  const int sqlQueryBatchSize = 20;
+
+        //  var apprenticeshipIds = Enumerable.Empty<long>();
+
+        //  int callsLeft = totalApprenticeshipIds;
+        //  while (callsLeft > 0)
+        //  {
+        //      int calls = Math.Min(callsLeft, sqlQueryBatchSize);
+        //      callsLeft -= calls;
+        //      var apprenticeshipIdsBatchTasks = Enumerable.Range(0, calls).Select(i => SetUpFixture.CommitmentsDatabase.GetRandomApprenticeshipId());
+        //      var apprenticeshipIdsBatch = await Task.WhenAll(apprenticeshipIdsBatchTasks);
+        //      apprenticeshipIds.Concat(apprenticeshipIdsBatch);
+        //  }
+        //}
     }
 }
