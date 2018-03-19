@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         private async Task SaveChange(UpdateApprenticeshipStopDateCommand command, Commitment commitment, Apprenticeship apprenticeship)
         {
             var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), commitment.Id, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), null, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
            
             await _apprenticeshipRepository.UpdateApprenticeshipStopDate(commitment.Id, command.ApprenticeshipId, command.StopDate);
             apprenticeship.StopDate = command.StopDate;

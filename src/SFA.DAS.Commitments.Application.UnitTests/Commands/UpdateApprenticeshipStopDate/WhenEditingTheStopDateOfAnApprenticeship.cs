@@ -95,7 +95,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
                                 y.First().ChangeType == ApprenticeshipChangeType.ChangeOfStopDate.ToString() &&
-                                y.First().CommitmentId == 123L &&
+                                y.First().CommitmentId == null &&
                                 y.First().ApprenticeshipId == TestApprenticeship.Id &&
                                 y.First().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.First().UpdatedByRole == CallerType.Employer.ToString() &&
