@@ -32,8 +32,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
                 ThreadId = Thread.CurrentThread.ManagedThreadId,
             };
             var stopwatch = Stopwatch.StartNew();
-            var result = await IntegrationTestServer.Client.GetAsync(
-                    $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}");
+            //var result = await IntegrationTestServer.Client.GetAsync(
+            //        $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}");
+            var result = IntegrationTestServer.Client.GetAsync(
+                $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}").Result;
             callDetails.CallTime = stopwatch.Elapsed;
 
             Assert.IsTrue(result.IsSuccessStatusCode);
@@ -57,7 +59,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
                 ThreadId = Thread.CurrentThread.ManagedThreadId,
             };
             var stopwatch = Stopwatch.StartNew();
-            var result = await IntegrationTestServer.Client.GetAsync($"/api/employer/{employerAccountId}/apprenticeships");
+            //var result = await IntegrationTestServer.Client.GetAsync($"/api/employer/{employerAccountId}/apprenticeships");
+            var result = IntegrationTestServer.Client.GetAsync($"/api/employer/{employerAccountId}/apprenticeships").Result;
             callDetails.CallTime = stopwatch.Elapsed;
 
             Assert.IsTrue(result.IsSuccessStatusCode);

@@ -19,7 +19,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
                 // we'll probably have to do better than this at some point, but this might be enough for the initial tests
                 // if we do something a bit closer to real-world, we'll have to add probably 2
                 // extra columns to IntegrationTestIds, EmployerId & ProviderId (or possibly 1 column as a (c++ style) union)
-                commitment.EmployerAccountId = commitment.Id;
+                // this gets out of synch if rows in the commitment table are deleted!
+                commitment.EmployerAccountId = firstNewCohortId++;
             }
             return commitments;
         }
