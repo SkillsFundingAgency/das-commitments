@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MoreLinq;
 using NUnit.Framework;
@@ -13,11 +12,6 @@ using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
-    //todo: we have a quandary. either we block on each call, which means we have a max of n threads in flight but we get accurate timings
-    // or we use async and get more requests in-flight, but lose accurate timing!
-    // if we have threads>cores does that fix it?
-    //todo: sut doesn't always pick up httpcontextbase in CurrentNestedContainer
-
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
     {
@@ -25,8 +19,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task SimulateSlowdownScenario()
         {
-            // this test isn't going to work so well on a cpu with <16 cores!
-            const int numberOfGetApprenticeshipTasks = 15, getApprenticeshipCallsPerTask = 6,
+            const int numberOfGetApprenticeshipTasks = 30, getApprenticeshipCallsPerTask = 6,
                 numberOfGetApprenticeshipsTasks = 1, getApprenticeshipsCallsPerTask = 3;
 
             await SetUpFixture.LogProgress("Starting SimulateSlowdownScenario() Test");
