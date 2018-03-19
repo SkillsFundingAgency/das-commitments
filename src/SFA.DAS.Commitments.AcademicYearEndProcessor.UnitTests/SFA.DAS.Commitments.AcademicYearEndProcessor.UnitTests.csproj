@@ -104,7 +104,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob\SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.csproj">
       <Project>{72DEEA89-6555-4AAB-B48B-63C050E16B95}</Project>
-      <Name>SFA.DAS.Comitments.AcademicYearEndProcessor.WebJob</Name>
+      <Name>SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
