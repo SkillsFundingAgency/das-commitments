@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
                 // pay the cost of test server setup etc. now, so the first result in our timings isn't out
                 //todo: get 401 when called from here, but not in test!
-                //var randomApprenticeshipId = await CommitmentsDatabase.GetRandomApprenticeshipId();
+                //var randomApprenticeshipId = await CommitmentsDatabase.GetRandomApprenticeshipIds().First();
                 //await CommitmentsApi.CallGetApprenticeship(randomApprenticeshipId, randomApprenticeshipId);
             }
             catch (Exception exception)
@@ -53,9 +53,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             // error should output immediately: https://github.com/nunit/nunit/issues/1139
             //await TestContext.Error.WriteLineAsync(message);
 
+            // nunit & resharper test runner doesn't output to the test output window, and Debug.WriteLine writes out twice!!
+            // https://github.com/nunit/docs/issues/104
+
             // this outputs to the Debug Output window and is easy to miss, but at least it gets out!
             // you can also enable console output in the diagnostic tools events window
-            Debug.WriteLine(message);
+            //Debug.WriteLine(message);
+            Trace.WriteLine(message);
 
             //https://stackoverflow.com/questions/15092438/using-resharper-how-to-show-debug-output-during-a-long-running-unit-test
 

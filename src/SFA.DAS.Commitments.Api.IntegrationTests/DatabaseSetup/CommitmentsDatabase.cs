@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Dapper;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -122,17 +123,14 @@ insert({columnName}) values(source.sourceColumn); ", connection))
             }
         }
 
-        public async Task<long> GetRandomApprenticeshipId(HashSet<long> exclude = null)
+        public async Task<IEnumerable<long>> GetRandomApprenticeshipIds(int numberOfIds = 1, HashSet<long> exclude = null)
         {
             var excludeClause = exclude != null ? $"where Id not in ({string.Join(",", exclude)})" : string.Empty;
 
             using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand($"select top 1 Id FROM Apprenticeship {excludeClause} order by NEWID()", connection))
-                {
-                    return (long)await command.ExecuteScalarAsync();
-                }
+                return await connection.QueryAsync<long>($"select top {numberOfIds} Id FROM Apprenticeship {excludeClause} order by NEWID()");
             }
         }
     }
