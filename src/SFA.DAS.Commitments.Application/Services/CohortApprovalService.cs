@@ -72,6 +72,15 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
+        internal async Task UpdateApprenticeshipsPaymentStatusToPaid(Commitment commitment)
+        {
+            commitment.Apprenticeships.ForEach(x =>
+            {
+                x.PaymentStatus = PaymentStatus.Active;
+            });
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
+        }
+
         internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText, CallerType createdBy)
         {
             var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);
@@ -95,6 +104,11 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
+        internal async Task PublishApprenticeshipEventsWhenTransferSenderHasApproved(Commitment commitment)
+        {
+            await _apprenticeshipEventsService.PublishApprenticeshipFinalApprovalEvents(commitment);
+        }
+
         internal async Task ReorderPayments(long employerAccountId)
         {
             await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = employerAccountId });
@@ -109,7 +123,7 @@ namespace SFA.DAS.Commitments.Application.Services
             return messagePublisher.PublishAsync(senderMessage);
         }
 
-        private async Task CreatePriceHistory(Commitment commitment)
+        internal async Task CreatePriceHistory(Commitment commitment)
         {
             await _apprenticeshipRepository.CreatePriceHistoryForApprenticeshipsInCommitment(commitment.Id);
 

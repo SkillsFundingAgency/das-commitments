@@ -70,8 +70,8 @@
       <HintPath>..\packages\AutoFixture.NUnit3.3.50.7\lib\net40\Ploeh.AutoFixture.NUnit3.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=2.0.0.59252, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.2.0.0.59252\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Commitments.Api.Types, Version=2.0.0.62624, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Commitments.Api.Types.2.0.0.62624\lib\net45\SFA.DAS.Commitments.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Common.Domain, Version=1.3.0.44308, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.3.0.44308\lib\net45\SFA.DAS.Common.Domain.dll</HintPath>
@@ -109,6 +109,8 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="Controllers\TransferContollerTests\WhenSettingTransferApprovalStatus.cs" />
+    <Compile Include="Controllers\TransferContollerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Orchestrators\Apprenticeship\ApprenticeshipOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenGettingDataLocks.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenGettingDataLockSummary.cs" />
@@ -117,6 +119,7 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipsForUln.cs" />
+    <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentView.cs" />
