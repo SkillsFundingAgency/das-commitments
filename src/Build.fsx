@@ -16,7 +16,7 @@ open Fake
 
 "Set version number"
    ==>"Set Solution Name"
-   ==>"Custom Update Assembly Info Version Numbers"
+   ==>"Update Assembly Info Version Numbers"
    ==>"Clean Directories" 
    ==>"Build Projects"
    ==>"Run NUnit Tests"
