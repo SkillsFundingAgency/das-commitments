@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -32,8 +31,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
                 ThreadId = Thread.CurrentThread.ManagedThreadId,
             };
             var stopwatch = Stopwatch.StartNew();
-            //var result = await IntegrationTestServer.Client.GetAsync(
-            //        $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}");
+            // block on result, rather than awaiting as it gives a more realistic timing
             var result = IntegrationTestServer.Client.GetAsync(
                 $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}").Result;
             callDetails.CallTime = stopwatch.Elapsed;
@@ -59,7 +57,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
                 ThreadId = Thread.CurrentThread.ManagedThreadId,
             };
             var stopwatch = Stopwatch.StartNew();
-            //var result = await IntegrationTestServer.Client.GetAsync($"/api/employer/{employerAccountId}/apprenticeships");
+            // block on result, rather than awaiting as it gives a more realistic timing
             var result = IntegrationTestServer.Client.GetAsync($"/api/employer/{employerAccountId}/apprenticeships").Result;
             callDetails.CallTime = stopwatch.Elapsed;
 
