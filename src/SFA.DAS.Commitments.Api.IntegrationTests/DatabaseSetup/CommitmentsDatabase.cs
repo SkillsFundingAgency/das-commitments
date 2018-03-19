@@ -124,10 +124,12 @@ insert({columnName}) values(source.sourceColumn); ", connection))
 
         public async Task<long> GetRandomApprenticeshipId(HashSet<long> exclude = null)
         {
+            var excludeClause = exclude != null ? $"where Id not in ({string.Join(",", exclude)})" : string.Empty;
+
             using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand("select top 1 Id FROM Apprenticeship order by NEWID()", connection))
+                using (var command = new SqlCommand($"select top 1 Id FROM Apprenticeship {excludeClause} order by NEWID()", connection))
                 {
                     return (long)await command.ExecuteScalarAsync();
                 }

@@ -27,6 +27,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
         {
             var callDetails = new CallDetails
             {
+                Name = "GetApprenticeship",
                 StartTime = DateTime.Now,
                 ThreadId = Thread.CurrentThread.ManagedThreadId,
             };
@@ -53,6 +54,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
         {
             var callDetails = new CallDetails
             {
+                Name = "GetApprenticeships",
                 StartTime = DateTime.Now,
                 ThreadId = Thread.CurrentThread.ManagedThreadId,
             };

@@ -8,12 +8,12 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.DependencyResolution;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
+using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
     //todo: sut doesn't always pick up httpcontextbase in CurrentNestedContainer
-    //todo: all start times are basically at the same time. how to determine when async call is actually made? level of indirection
 
     [TestFixture]
     public class WhenSimulatingRealWorldApprenticeshipLoad
@@ -22,30 +22,55 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         [Test]
         public async Task SimulateSlowdownScenario()
         {
-            const int numberOfTasks = 8, getApprenticeshipCallsPerTask = 10, getApprenticeshipsCalls = 5;
+            // this test isn't going to work so well on a cpu with <16 cores!
+            const int numberOfGetApprenticeshipTasks = 15, getApprenticeshipCallsPerTask = 5,
+                numberOfGetApprenticeshipsTasks = 1, getApprenticeshipsCallsPerTask = 3;
 
-            var getApprenticeshipCallParamsPerTask = await GetGetApprenticeshipCallParamsPerTask(numberOfTasks, getApprenticeshipCallsPerTask);
+            await SetUpFixture.LogProgress("Starting SimulateSlowdownScenario() Test");
+
+            await SetUpFixture.LogProgress("Generating call parameters");
+
+            var getApprenticeshipCallParamsPerTaskTask = GetGetApprenticeshipCallParamsPerTask(numberOfGetApprenticeshipTasks, getApprenticeshipCallsPerTask);
+
+            var employerIdsPerTaskTask = GetGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
+
+            await Task.WhenAll(getApprenticeshipCallParamsPerTaskTask, employerIdsPerTaskTask);
+
+            var getApprenticeshipCallParamsPerTask = await getApprenticeshipCallParamsPerTaskTask;
             var callParamsPerTask = getApprenticeshipCallParamsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipCallParamsPerTask.ToArray();
 
-            // currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
-            var employerIdWithMaxCohortSize = await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]);
-            var employerIds = Enumerable.Repeat(employerIdWithMaxCohortSize, getApprenticeshipsCalls);
+            var employerIdsPerTask = await employerIdsPerTaskTask;
+
+            await SetUpFixture.LogProgress("Spinning up server");
+
+            //// currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
+            //var employerIdWithMaxCohortSize = await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]);
+            //var employerIds = Enumerable.Repeat(employerIdWithMaxCohortSize, getApprenticeshipsCallsPerTask);
 
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
             // todo: do this in setup
             var firstCallParams = callParamsPerTask.First().First();
             await CommitmentsApi.CallGetApprenticeship(firstCallParams.ApprenticeshipId, firstCallParams.EmployerId);
 
+            await SetUpFixture.LogProgress("Starting scenario");
+
             var tasks = callParamsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
-                .Concat(new [] {Task.Run(() => RepeatCallGetApprenticeships(employerIds))});
+                .Concat(employerIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeships(ids))));
 
             var callTimesPerTask = await Task.WhenAll(tasks);
 
-            var slowestGetApprenticeshipCall = callTimesPerTask.Take(numberOfTasks).SelectMany(cd => cd).Max(d => d.CallTime);
-            var getApprenticechipsCall = callTimesPerTask.Skip(numberOfTasks).First().Max(d => d.CallTime);
+            var getApprenticeshipCalls = callTimesPerTask.Take(numberOfGetApprenticeshipTasks).SelectMany(cd => cd);
+            var slowestGetApprenticeshipCall = getApprenticeshipCalls.Max(d => d.CallTime);
+            var getApprenticeshipsCalls = callTimesPerTask.Skip(numberOfGetApprenticeshipTasks).SelectMany(cd => cd);
+            var slowestGetApprenticeshipsCall = getApprenticeshipsCalls.Max(d => d.CallTime);
+
+            var allCalls = getApprenticeshipCalls.Concat(getApprenticeshipsCalls);
+            await SetUpFixture.LogProgress("Call Log:");
+            // if LogProgress is awaited, the details are written out-of-order
+            allCalls.OrderBy(c => c.StartTime).ForEach(c => SetUpFixture.LogProgress(c.ToString()).GetAwaiter().GetResult());
 
             Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1));
-            Assert.LessOrEqual(getApprenticechipsCall, new TimeSpan(0, 0, 1));
+            Assert.LessOrEqual(slowestGetApprenticeshipsCall, new TimeSpan(0, 0, 1));
         }
 
         private class ApprenticeshipCallParams
@@ -80,10 +105,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         {
             var alreadyUsedIds = new HashSet<long>(SetUpFixture.TestIds.Ids);
 
-            //todo: gracefully report when there is not enough test data to do what we require
-
             var totalApprenticeshipIds = numberOfTasks * getApprenticeshipCallsPerTask;
 
+            Assert.GreaterOrEqual(TestDataVolume.MinNumberOfApprenticeships, totalApprenticeshipIds);
+
+            //todo: kick these all off and whenall with the employer ids later on (would have to remove the exclude list, but does it really matter?)
             var apprenticeshipIds = new List<long>();
             for (var taskNo = 0; taskNo < totalApprenticeshipIds; ++taskNo)
             {
@@ -104,6 +130,15 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             });
 
             return callParams.Batch(getApprenticeshipCallsPerTask);
+        }
+
+        private async Task<IEnumerable<IEnumerable<long>>> GetGetApprenticeshipsCallParamsPerTask(int numberOfTasks, int getApprenticeshipsCallsPerTask)
+        {
+            // currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
+            var employerIdWithMaxCohortSize = await SetUpFixture.CommitmentsDatabase.GetEmployerId(SetUpFixture.TestIds[TestIds.MaxCohortSize]);
+            var employerIds = Enumerable.Repeat(employerIdWithMaxCohortSize, numberOfTasks * getApprenticeshipsCallsPerTask);
+
+            return employerIds.Batch(getApprenticeshipsCallsPerTask);
         }
 
         [Test]

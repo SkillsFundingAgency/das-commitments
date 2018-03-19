@@ -27,6 +27,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
                 var testData = new TestData();
                 TestIds = await testData.Initialise();
                 CommitmentsDatabase = testData.CommitmentsDatabase;
+
+                // pay the cost of test server setup etc. now, so the first result in our timings isn't out
+                //todo: get 401 when called from here, but not in test!
+                //var randomApprenticeshipId = await CommitmentsDatabase.GetRandomApprenticeshipId();
+                //await CommitmentsApi.CallGetApprenticeship(randomApprenticeshipId, randomApprenticeshipId);
             }
             catch (Exception exception)
             {
@@ -40,10 +45,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             IntegrationTestServer.Shutdown();
         }
 
-        public static async Task LogProgress(string message)
+        public static Task LogProgress(string message)
         {
             // https://stackoverflow.com/questions/41877586/nunit-text-output-not-behaving
-            await TestContext.Progress.WriteLineAsync(message);
+            //await TestContext.Progress.WriteLineAsync(message);
 
             // error should output immediately: https://github.com/nunit/nunit/issues/1139
             //await TestContext.Error.WriteLineAsync(message);
@@ -66,6 +71,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             //Trace.TraceInformation("Trace.TraceInformation");
             //Debug.WriteLine("Debug.WriteLine");
             //Console.WriteLine("Console.WriteLine");
+
+            return Task.FromResult(0);
         }
     }
 }
