@@ -2,7 +2,7 @@
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using EventStatusProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<SFA.DAS.Commitments.Api.Types.DataLock.Types.EventStatus>;
 using DataLockStatusCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
-using ApprenticeshipUpdateCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
+//using ApprenticeshipUpdateCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
