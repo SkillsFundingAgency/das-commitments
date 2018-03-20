@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await connection.OpenAsync();
                 using (var command = new SqlCommand($"select name from sys.databases where name = '{_databaseName}'", connection))
                 {
-                    return (await command.ExecuteScalarAsync()) != null;
+                    return await command.ExecuteScalarAsync() != null;
                 }
             }
         }
