@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
@@ -123,14 +124,16 @@ insert({columnName}) values(source.sourceColumn); ", connection))
             }
         }
 
-        public async Task<IEnumerable<long>> GetRandomApprenticeshipIds(int numberOfIds = 1, HashSet<long> exclude = null)
+        /// <returns>The number of random apprenticeship ids from the table you asked for,
+        /// or less if there aren't enough ids in the table after the exclusions</returns>
+        public async Task<IEnumerable<long>> GetRandomApprenticeshipIds(int numberOfIds = 1, IEnumerable<long> exclude = null)
         {
-            var excludeClause = exclude != null ? $"where Id not in ({string.Join(",", exclude)})" : string.Empty;
-
             using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                return await connection.QueryAsync<long>($"select top {numberOfIds} Id FROM Apprenticeship {excludeClause} order by NEWID()");
+                return await connection.QueryAsync<long>(
+                    "select top (@numberOfIds) Id FROM Apprenticeship where Id not in @excludeList order by NEWID()",
+                    new { numberOfIds, excludeList = exclude?.ToList() ?? new List<long>() });
             }
         }
     }
