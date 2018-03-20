@@ -1,8 +1,4 @@
-﻿
-// better name for ns & class?
-
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +8,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 {
     public class TestIds
     {
-//instead of this have property for each??
+        //instead of this have property for each??
         public const string MaxCohortSize = "MaxCohortSize";
         //these will be fetched from the db if its already populated
         //public long MaxCohortSize { get; set; }
