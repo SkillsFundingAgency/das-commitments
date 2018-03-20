@@ -124,7 +124,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("{accountId}/commitments/{commitmentId}/approve")]
-        [Authorize(Roles = "Role1")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
         [HttpPatch]
         public async Task<IHttpActionResult> ApproveCohort(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
         {
