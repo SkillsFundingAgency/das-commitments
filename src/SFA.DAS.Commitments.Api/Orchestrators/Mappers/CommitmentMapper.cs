@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     ProviderLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail},
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
                     Messages = MapMessagesFrom(commitment.Messages),
-                    TransferSenderInfo = MapTransferSenderInfo(commitment)
+                    TransferSender = MapTransferSenderInfo(commitment)
                 };
         }
 
