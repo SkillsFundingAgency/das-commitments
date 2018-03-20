@@ -16,7 +16,7 @@ using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.ApiHost
 {
-    class IntegrationTestServer
+    public class IntegrationTestServer
     {
         public static HttpClient Client => Instance.TestClient;
 
