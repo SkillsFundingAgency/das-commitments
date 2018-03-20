@@ -93,16 +93,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 };
         }
 
-        private TransferSenderInfo MapTransferSenderInfo(Commitment commitment)
+        private TransferSender MapTransferSenderInfo(Commitment commitment)
         {
             if (commitment.TransferSenderId == null)
             {
                 return null;
             }
-            return new TransferSenderInfo
+            return new TransferSender
             {
-                TransferSenderId = commitment.TransferSenderId,
-                TransferSenderName = commitment.TransferSenderName,
+                Id = commitment.TransferSenderId,
+                Name = commitment.TransferSenderName,
                 TransferApprovalStatus = (Types.TransferApprovalStatus)commitment.TransferApprovalStatus,
                 TransferApprovalSetBy = commitment.TransferApprovalActionedByEmployerName,
                 TransferApprovalSetOn = commitment.TransferApprovalActionedOn
