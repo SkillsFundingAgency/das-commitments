@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoFixture;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
@@ -11,7 +10,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
     {
         public async Task<(IEnumerable<DbSetupApprenticeship>, long)> Generate(TestIds testIds, int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = TestDataVolume.MaxNumberOfApprenticeshipsInCohort)
         {
-            await TestSetup.LogProgress($"Generating {apprenticeshipsToGenerate} Apprenticeships");
+            await TestLog.Progress($"Generating {apprenticeshipsToGenerate} Apprenticeships");
 
             var apprenticeships = new Fixture().CreateMany<DbSetupApprenticeship>(apprenticeshipsToGenerate);
 

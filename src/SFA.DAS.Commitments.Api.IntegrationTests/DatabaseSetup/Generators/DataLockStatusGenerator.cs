@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 
@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             var totalDataLockStatusesToGenerate = randomlyOrderedApprenticeshipIdGroups.Length;
 
-            await TestSetup.LogProgress($"Generating {totalDataLockStatusesToGenerate} DataLockStatuses");
+            await TestLog.Progress($"Generating {totalDataLockStatusesToGenerate} DataLockStatuses");
 
             var errorDataLockStatusesToGenerate = (int)(totalDataLockStatusesToGenerate * TestDataVolume.ErrorDataLockStatusProbability);
 

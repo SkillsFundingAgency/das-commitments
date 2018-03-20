@@ -22,8 +22,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             const int numberOfGetApprenticeshipTasks = 30, getApprenticeshipCallsPerTask = 6,
                 numberOfGetApprenticeshipsTasks = 1, getApprenticeshipsCallsPerTask = 3;
 
-            await TestSetup.LogProgress("Starting SimulateSlowdownScenario() Test");
-            await TestSetup.LogProgress("Generating call parameters");
+            await TestLog.Progress("Starting SimulateSlowdownScenario() Test");
+            await TestLog.Progress("Generating call parameters");
 
             var getApprenticeshipCallParamsPerTaskTask = GetGetApprenticeshipCallParamsPerTask(numberOfGetApprenticeshipTasks, getApprenticeshipCallsPerTask);
 
@@ -33,14 +33,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var getApprenticeshipCallParamsPerTask = await getApprenticeshipCallParamsPerTaskTask;
             var callParamsPerTask = getApprenticeshipCallParamsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipCallParamsPerTask.ToArray();
 
-            await TestSetup.LogProgress("Spinning up server");
+            await TestLog.Progress("Spinning up server");
 
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
             // todo: do this in setup
             var firstCallParams = callParamsPerTask.First().First();
             await CommitmentsApi.CallGetApprenticeship(firstCallParams.ApprenticeshipId, firstCallParams.EmployerId);
 
-            await TestSetup.LogProgress("Starting scenario");
+            await TestLog.Progress("Starting scenario");
 
             var tasks = callParamsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeship(ids)))
                 .Concat(employerIdsPerTask.Select(ids => Task.Run(() => RepeatCallGetApprenticeships(ids))));
@@ -53,12 +53,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var slowestGetApprenticeshipsCall = getApprenticeshipsCalls.Max(d => d.CallTime);
 
             var allCalls = getApprenticeshipCalls.Concat(getApprenticeshipsCalls);
-            await TestSetup.LogProgress("Call Log:");
+            await TestLog.Progress("Call Log:");
             // if LogProgress is awaited, the details are written out-of-order
-            allCalls.OrderBy(c => c.StartTime).ForEach(c => TestSetup.LogProgress(c.ToString()).GetAwaiter().GetResult());
+            allCalls.OrderBy(c => c.StartTime).ForEach(c => TestLog.Progress(c.ToString()).GetAwaiter().GetResult());
 
-            TestSetup.LogProgress($"Slowest GetApprenticeship  {slowestGetApprenticeshipCall}").GetAwaiter().GetResult();
-            TestSetup.LogProgress($"Slowest GetApprenticeships {slowestGetApprenticeshipsCall}").GetAwaiter().GetResult();
+            TestLog.Progress($"Slowest GetApprenticeship  {slowestGetApprenticeshipCall}").GetAwaiter().GetResult();
+            TestLog.Progress($"Slowest GetApprenticeships {slowestGetApprenticeshipsCall}").GetAwaiter().GetResult();
 
             Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1));
             Assert.LessOrEqual(slowestGetApprenticeshipsCall, new TimeSpan(0, 0, 1));

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
@@ -12,7 +12,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         public async Task<IEnumerable<DbSetupApprenticeshipUpdate>> Generate(int apprenticeshipsGenerated, long firstNewApprenticeshipId)
         {
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsGenerated * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
-            await TestSetup.LogProgress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdatess");
+            await TestLog.Progress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdatess");
 
             //todo: switch to how we decide on datalockstatuses instead?
             var apprenticeshipIdsForUpdates = RandomIdGroups(firstNewApprenticeshipId, apprenticeshipUpdatesToGenerate,

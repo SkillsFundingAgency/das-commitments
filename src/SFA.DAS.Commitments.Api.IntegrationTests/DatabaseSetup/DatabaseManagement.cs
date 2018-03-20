@@ -4,7 +4,7 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Dac;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
@@ -44,8 +44,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             var dacServices = new DacServices(_connectionString);
 
-            dacServices.Message += async (sender, e) => await TestSetup.LogProgress($"Deploy database: {e.Message}");
-            dacServices.ProgressChanged += async (sender, e) => await TestSetup.LogProgress($"Deploy database: {e.Message}");
+            dacServices.Message += async (sender, e) => await TestLog.Progress($"Deploy database: {e.Message}");
+            dacServices.ProgressChanged += async (sender, e) => await TestLog.Progress($"Deploy database: {e.Message}");
 
             //todo: get current config DEBUG?
             var dacpacPath = $@"{TestContext.CurrentContext.TestDirectory}\..\..\..\SFA.DAS.Commitments.Database\bin\Debug\SFA.DAS.Commitments.Database.dacpac";

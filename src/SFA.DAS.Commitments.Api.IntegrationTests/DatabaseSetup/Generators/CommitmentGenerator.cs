@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         public async Task<IEnumerable<DbSetupCommitment>> Generate(long lastCohortId, long firstNewCohortId)
         {
             int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
-            await TestSetup.LogProgress($"Generating {commitmentsToGenerate} Commitments");
+            await TestLog.Progress($"Generating {commitmentsToGenerate} Commitments");
 
             var commitments = new Fixture().CreateMany<DbSetupCommitment>(commitmentsToGenerate);
             foreach (var commitment in commitments)

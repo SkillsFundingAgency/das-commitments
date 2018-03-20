@@ -318,6 +318,7 @@
     <Compile Include="DatabaseSetup\TestDataVolume.cs" />
     <Compile Include="Helpers\CallDetails.cs" />
     <Compile Include="Helpers\CommitmentsApi.cs" />
+    <Compile Include="Helpers\TestLog.cs" />
     <Compile Include="Helpers\TestSetup.cs" />
     <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
