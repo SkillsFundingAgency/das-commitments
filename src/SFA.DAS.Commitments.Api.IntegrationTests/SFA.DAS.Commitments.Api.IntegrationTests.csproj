@@ -301,6 +301,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiHost\IntegrationTestServer.cs" />
+    <Compile Include="ApiHost\Startup.cs" />
+    <Compile Include="ApiHost\TestRegistry.cs" />
+    <Compile Include="ApiHost\TestWebApiResolver.cs" />
     <Compile Include="DatabaseSetup\CommitmentsDatabase.cs" />
     <Compile Include="DatabaseSetup\Database.cs" />
     <Compile Include="DatabaseSetup\DatabaseManagement.cs" />
