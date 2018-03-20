@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             {
                 Name = "GetApprenticeship",
                 StartTime = DateTime.Now,
-                ThreadId = Thread.CurrentThread.ManagedThreadId,
+                ThreadId = Thread.CurrentThread.ManagedThreadId
             };
             var stopwatch = Stopwatch.StartNew();
             // block on result, rather than awaiting as it gives a more realistic timing
@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             {
                 Name = "GetApprenticeships",
                 StartTime = DateTime.Now,
-                ThreadId = Thread.CurrentThread.ManagedThreadId,
+                ThreadId = Thread.CurrentThread.ManagedThreadId
             };
             var stopwatch = Stopwatch.StartNew();
             // block on result, rather than awaiting as it gives a more realistic timing
