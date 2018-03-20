@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
     {
         public async Task<(IEnumerable<DbSetupApprenticeship>, long)> Generate(TestIds testIds, int apprenticeshipsToGenerate, long initialId = 1, long firstCohortId = 1, int maxCohortSize = TestDataVolume.MaxNumberOfApprenticeshipsInCohort)
         {
-            await SetUpFixture.LogProgress($"Generating {apprenticeshipsToGenerate} Apprenticeships");
+            await TestSetup.LogProgress($"Generating {apprenticeshipsToGenerate} Apprenticeships");
 
             var apprenticeships = new Fixture().CreateMany<DbSetupApprenticeship>(apprenticeshipsToGenerate);
 

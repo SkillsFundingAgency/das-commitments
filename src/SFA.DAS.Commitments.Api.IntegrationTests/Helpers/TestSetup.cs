@@ -10,7 +10,7 @@ using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
     [SetUpFixture]
-    public class SetUpFixture
+    public class TestSetup
     {
         public static TestIds TestIds { get; private set; }
         public static CommitmentsDatabase CommitmentsDatabase { get; private set; }

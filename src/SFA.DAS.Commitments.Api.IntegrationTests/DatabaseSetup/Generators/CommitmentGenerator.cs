@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         public async Task<IEnumerable<DbSetupCommitment>> Generate(long lastCohortId, long firstNewCohortId)
         {
             int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
-            await SetUpFixture.LogProgress($"Generating {commitmentsToGenerate} Commitments");
+            await TestSetup.LogProgress($"Generating {commitmentsToGenerate} Commitments");
 
             var commitments = new Fixture().CreateMany<DbSetupCommitment>(commitmentsToGenerate);
             foreach (var commitment in commitments)

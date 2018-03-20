@@ -44,8 +44,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         {
             var dacServices = new DacServices(_connectionString);
 
-            dacServices.Message += async (sender, e) => await SetUpFixture.LogProgress($"Deploy database: {e.Message}");
-            dacServices.ProgressChanged += async (sender, e) => await SetUpFixture.LogProgress($"Deploy database: {e.Message}");
+            dacServices.Message += async (sender, e) => await TestSetup.LogProgress($"Deploy database: {e.Message}");
+            dacServices.ProgressChanged += async (sender, e) => await TestSetup.LogProgress($"Deploy database: {e.Message}");
 
             //todo: get current config DEBUG?
             var dacpacPath = $@"{TestContext.CurrentContext.TestDirectory}\..\..\..\SFA.DAS.Commitments.Database\bin\Debug\SFA.DAS.Commitments.Database.dacpac";

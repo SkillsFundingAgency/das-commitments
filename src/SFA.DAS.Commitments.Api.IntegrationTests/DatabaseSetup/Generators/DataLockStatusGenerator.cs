@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             var totalDataLockStatusesToGenerate = randomlyOrderedApprenticeshipIdGroups.Length;
 
-            await SetUpFixture.LogProgress($"Generating {totalDataLockStatusesToGenerate} DataLockStatuses");
+            await TestSetup.LogProgress($"Generating {totalDataLockStatusesToGenerate} DataLockStatuses");
 
             var errorDataLockStatusesToGenerate = (int)(totalDataLockStatusesToGenerate * TestDataVolume.ErrorDataLockStatusProbability);
 
