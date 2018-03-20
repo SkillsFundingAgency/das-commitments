@@ -39,11 +39,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
 
             var result = _mapper.MapFrom(commitment, callerType);
 
-            Assert.AreEqual(commitment.TransferSenderId, result.TransferSenderInfo.Id);
-            Assert.AreEqual(commitment.TransferSenderName, result.TransferSenderInfo.Name);
-            Assert.AreEqual(commitment.TransferApprovalStatus, (TransferApprovalStatus)result.TransferSenderInfo.TransferApprovalStatus);
-            Assert.AreEqual(commitment.TransferApprovalActionedOn, result.TransferSenderInfo.TransferApprovalSetOn);
-            Assert.AreEqual(commitment.TransferApprovalActionedByEmployerName, result.TransferSenderInfo.TransferApprovalSetBy);
+            Assert.AreEqual(1, result.TransferSenderInfo.Id);
+            Assert.AreEqual("Transfer Sender Org", result.TransferSenderInfo.Name);
+            Assert.AreEqual(transferStatus, (TransferApprovalStatus)result.TransferSenderInfo.TransferApprovalStatus);
+            Assert.AreEqual(new DateTime(2018, 09, 09), result.TransferSenderInfo.TransferApprovalSetOn);
+            Assert.AreEqual("Name", result.TransferSenderInfo.TransferApprovalSetBy);
             Assert.AreEqual(true, result.CanBeApproved);
         }
     }
