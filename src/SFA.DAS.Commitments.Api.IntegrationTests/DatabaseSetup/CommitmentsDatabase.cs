@@ -95,10 +95,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 using (var command = new SqlCommand($"SELECT {columnName} FROM [dbo].[JobProgress]", connection))
                 {
                     var result = await command.ExecuteScalarAsync();
-                    //todo: LastId returns DbNull, this just returns null
-                    //https://stackoverflow.com/questions/7927211/executescalar-returns-null-or-dbnull-development-or-production-server
-                    //ExecuteScalar returns DBNull for null value from query and null for no result
-                    return result == DBNull.Value ? default(T) : (T)result;
+                    // ExecuteScalar returns DBNull for null value from query and null for no result
+                    return result == DBNull.Value ? default : (T)result;
                 }
             }
         }
