@@ -13,6 +13,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
 
         public long Id { get; set; }
         public string Reference { get; set; }
+        public long? TransferSenderId { get; set; }
+        public string TransferSenderName { get; set; }
         public long EmployerAccountId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
@@ -35,5 +37,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public List<Apprenticeship> Apprenticeships { get; set; }
         [JsonIgnore]
         public List<Message> Messages { get; set; }
+        [JsonIgnore]
+        public bool HasTransferSenderAssigned => TransferSenderId > 0;
     }
 }

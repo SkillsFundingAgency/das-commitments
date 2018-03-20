@@ -50,9 +50,8 @@
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=2.0.0.57745, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.0.0.57745\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.HashingService, Version=1.0.0.42526, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.HashingService.1.0.0.42526\lib\net45\SFA.DAS.HashingService.dll</HintPath>
@@ -100,6 +99,12 @@
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipValidator.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommand.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandHandler.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandValidator.cs" />
+    <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandHandler.cs" />
+    <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandValidator.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeValidator.cs" />
@@ -202,6 +207,7 @@
     <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
+    <Compile Include="Resources.cs" />
     <Compile Include="Rules\ApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
     <Compile Include="Rules\IApprenticeshipOverlapRules.cs" />
@@ -222,8 +228,12 @@
     <Compile Include="Queries\QueryResponse{T}.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
+    <Compile Include="Services\ApprenticeshipEventsService.cs" />
+    <Compile Include="Services\CohortApprovalService.cs" />
+    <Compile Include="Services\CohortStatusChangeService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
+    <Compile Include="Services\OverlappingApprenticeshipService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

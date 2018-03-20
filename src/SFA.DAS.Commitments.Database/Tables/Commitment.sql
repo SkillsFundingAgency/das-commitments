@@ -16,7 +16,9 @@
 	[LastUpdatedByEmployerName] NVARCHAR(255) NOT NULL,
     [LastUpdatedByEmployerEmail] NVARCHAR(255) NOT NULL, 
     [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
-    [LastUpdatedByProviderEmail] NVARCHAR(255) NULL
+    [LastUpdatedByProviderEmail] NVARCHAR(255) NULL,
+    [TransferSenderId] BIGINT NULL,
+    [TransferSenderName] NVARCHAR(100) NULL,
 )
 GO
 

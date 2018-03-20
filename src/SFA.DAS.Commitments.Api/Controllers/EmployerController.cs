@@ -123,6 +123,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [Route("{accountId}/commitments/{commitmentId}/approve")]
+        [Authorize(Roles = "Role1")]
+        [HttpPatch]
+        public async Task<IHttpActionResult> ApproveCohort(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)
+        {
+            await _employerOrchestrator.ApproveCohort(accountId, commitmentId, values);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         [Route("{accountId}/commitments/{commitmentId}")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> DeleteCommitment(long accountId, long commitmentId, [FromBody] DeleteRequest deleteRequest)
