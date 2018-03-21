@@ -25,15 +25,15 @@
   },
   {
     "topicName": "cohort_approval_by_transfer_sender_requested",
-    "subscription": [ "Task_CohortApprovalByTransferSenderRequested" ]
+    "subscription": [ "MA_CohortApprovalByTransferSenderRequested" ]
   },
   {
     "topicName": "cohort_approved_by_transfer_sender",
-    "subscription": [ "Task_CohortApprovedByTransferSender" ]
+    "subscription": [ "MA_CohortApprovedByTransferSender" ]
   },
   {
     "topicName": "cohort_rejected_by_transfer_sender",
-    "subscription": [ "Task_CohortRejectedByTransferSender" ]
+    "subscription": [ "MA_CohortRejectedByTransferSender" ]
   },
   {
     "topicName": "cohort_created",
