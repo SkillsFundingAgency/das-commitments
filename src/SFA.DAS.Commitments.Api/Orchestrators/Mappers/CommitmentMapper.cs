@@ -12,6 +12,7 @@ using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -88,10 +89,24 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     ProviderLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail},
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
                     Messages = MapMessagesFrom(commitment.Messages),
-                    TransferSenderId = commitment.TransferSenderId,
-                    TransferSenderName = commitment.TransferSenderName,
-                    TransferApprovalStatus = (Types.TransferApprovalStatus)commitment.TransferApprovalStatus
+                    TransferSender = MapTransferSenderInfo(commitment)
                 };
+        }
+
+        private TransferSender MapTransferSenderInfo(Commitment commitment)
+        {
+            if (commitment.TransferSenderId == null)
+            {
+                return null;
+            }
+            return new TransferSender
+            {
+                Id = commitment.TransferSenderId,
+                Name = commitment.TransferSenderName,
+                TransferApprovalStatus = (Types.TransferApprovalStatus)commitment.TransferApprovalStatus,
+                TransferApprovalSetBy = commitment.TransferApprovalActionedByEmployerName,
+                TransferApprovalSetOn = commitment.TransferApprovalActionedOn
+            };
         }
 
         public Commitment MapFrom(Types.Commitment.Commitment commitment)
@@ -127,8 +142,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 case CallerType.Provider:
                     return commitment.ProviderCanApproveCommitment;
                 case CallerType.TransferSender:
-                    return true; // This needs to reference a new field later
-                    
+                    return commitment.TransferApprovalStatus == TransferApprovalStatus.Pending;                    
             }
             return false;
         }
