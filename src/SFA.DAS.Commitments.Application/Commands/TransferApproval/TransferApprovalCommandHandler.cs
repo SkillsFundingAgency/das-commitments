@@ -26,17 +26,20 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly CohortApprovalService _cohortApprovalService;
+        private readonly HistoryService _historyService;
 
         public TransferApprovalCommandHandler(AbstractValidator<TransferApprovalCommand> validator,
             ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime,
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
-            IMessagePublisher messagePublisher)
+            IMessagePublisher messagePublisher,
+            IHistoryRepository historyRepository)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
+            _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
                 commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
@@ -67,6 +70,8 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
                     _cohortApprovalService.CreatePriceHistory(commitment),
                     _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
                     _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId));
+                _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
+                await _historyService.Save();
             }
 
             await PublishApprovedOrRejectedMessage(command);
