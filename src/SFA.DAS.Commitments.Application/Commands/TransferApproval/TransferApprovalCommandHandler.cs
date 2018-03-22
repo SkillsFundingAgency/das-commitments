@@ -61,6 +61,7 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
             if (command.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
             {
+                commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
                 await Task.WhenAll(
                     _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
                     _cohortApprovalService.CreatePriceHistory(commitment),
