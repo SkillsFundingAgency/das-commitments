@@ -67,9 +67,9 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             if (command.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
             {
                 // Unfortunately we need to keep the commitment object explicitly updated as the HistoryService keeps a reference to the orginal object 
-                // This problem can be resolved in c# 7.0 using new local ref eg 'ref commitment = ref await .....' syntax to re-get the updated commitment object
+                // This problem may be resolved in c# 7.0 using new local ref eg 'ref commitment = ref await .....' syntax to re-get the updated commitment object
                 // but the behaviour of the HistoryItem object may be problematic as it's making assumptions of how updates will occur
-                await UpdateCommitmentObjectWithNewValues(command, commitment);
+                await UpdateCommitmentObjectWithNewValues(commitment);
 
                 await Task.WhenAll(
                     _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
@@ -83,9 +83,9 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
         }
 
-        private async Task UpdateCommitmentObjectWithNewValues(TransferApprovalCommand command, Commitment commitment)
+        private async Task UpdateCommitmentObjectWithNewValues(Commitment commitment)
         {
-            var updatedCommitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            var updatedCommitment = await _commitmentRepository.GetCommitmentById(commitment.Id);
             commitment.TransferApprovalStatus = updatedCommitment.TransferApprovalStatus;
             commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
             commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
