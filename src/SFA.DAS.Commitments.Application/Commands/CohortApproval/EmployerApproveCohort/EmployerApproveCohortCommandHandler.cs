@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Application.Commands.TransferApproval;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -79,6 +80,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         {
             var currentAgreementStatus = _cohortApprovalService.GetCurrentAgreementStatus(commitment);
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
+        }
+
+        private async Task PublishApprovalEventMessages(Commitment commitment)
+        {
+            var tasks = new List<Task>();
+            var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
+            tasks.Add(_messagePublisher.PublishAsync(message));
+            if (commitment.HasTransferSenderAssigned)
+            {
+                tasks.Add(_cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment));
+            }
+            await Task.WhenAll(tasks.ToArray());
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
