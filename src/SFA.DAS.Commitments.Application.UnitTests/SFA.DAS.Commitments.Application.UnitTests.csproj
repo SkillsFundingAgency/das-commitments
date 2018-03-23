@@ -144,6 +144,8 @@
     <Compile Include="Commands\DeleteApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\TransferApproval\WhenAnTransferSenderApprovesOrRejectsTheCohort.cs" />
+    <Compile Include="Commands\TransferApproval\WhenValidatingCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\WhenRejectingApprenticeshipChange.cs" />
     <Compile Include="Commands\SetPaymentOrder\WhenUpdatingPaymentOrder.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ApprenticeshipValidationTestBase.cs" />
@@ -191,6 +193,7 @@
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
     <Compile Include="Queries\GetApprenticeshipsByUln\WhenGetApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentPriority\WhenGettingProviderPaymentPriority.cs" />
     <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />

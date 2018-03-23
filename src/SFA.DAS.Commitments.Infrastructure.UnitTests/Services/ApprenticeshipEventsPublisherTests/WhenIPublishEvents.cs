@@ -118,6 +118,17 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             _eventsList.Verify(x => x.Clear(), Times.Once);
         }
 
+        [Test]
+        public async Task AndTheCommitmentIsATransferWhichHasBeenApprovedThenEventMapsCorrectly()
+        {
+            _commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
+
+            await _publisher.Publish(_eventsList.Object);
+
+            VerifyEventWasAdded(_event);
+        }
+
+
         private void VerifyEventWasAdded(string @event, DateTime? effectiveFrom = null, DateTime? effectiveTo = null)
         {
             _eventsApi.Verify(x => x.BulkCreateApprenticeshipEvent(It.Is<IList<ApprenticeshipEvent>>(y => EventMatchesParameters(y, effectiveFrom, effectiveTo))));
@@ -145,6 +156,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.TrainingType == (_apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard) &&
                    apprenticeshipEvent.PaymentOrder == _apprenticeship.PaymentOrder &&
                    apprenticeshipEvent.LegalEntityId == _commitment.LegalEntityId &&
+                   apprenticeshipEvent.TransferSenderApproved == (_commitment.TransferApprovalStatus == TransferApprovalStatus.TransferApproved) &&
                    apprenticeshipEvent.LegalEntityName == _commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == _commitment.LegalEntityOrganisationType.ToString() &&
                    apprenticeshipEvent.DateOfBirth == _apprenticeship.DateOfBirth &&
