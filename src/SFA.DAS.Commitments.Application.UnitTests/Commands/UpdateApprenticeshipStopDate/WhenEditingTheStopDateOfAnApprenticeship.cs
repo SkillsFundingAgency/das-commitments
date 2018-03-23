@@ -4,15 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
+using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.History;
+using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStopDate
 {
@@ -29,14 +32,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 AccountId = 111L,
                 ApprenticeshipId = 444L,
-                StopDate = DateTime.Now.Date,
+                StopDate = DateTime.UtcNow.Date,
                 UserName = "Bob"
             };
 
             TestApprenticeship = new Apprenticeship
             {
+                Id = 444L,
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Withdrawn,
+                StopDate = DateTime.UtcNow.Date.AddMonths(3),
                 StartDate = DateTime.UtcNow.Date.AddMonths(-1)
             };
 
@@ -59,6 +64,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 Id = 123L,
                 EmployerAccountId = ExampleValidRequest.AccountId
             });
+
+            MockApprenticeshipEventsPublisher.Setup(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()))
+                .Returns(Task.FromResult(new Unit()));
         }
 
         [TestCase(PaymentStatus.Active)]
@@ -87,7 +95,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                         It.Is<IEnumerable<HistoryItem>>(
                             y =>
                                 y.First().ChangeType == ApprenticeshipChangeType.ChangeOfStopDate.ToString() &&
-                                y.First().CommitmentId == 123L &&
+                                y.First().CommitmentId == null &&
                                 y.First().ApprenticeshipId == TestApprenticeship.Id &&
                                 y.First().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.First().UpdatedByRole == CallerType.Employer.ToString() &&
@@ -153,17 +161,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public void ThenThrowsExceptionIfApprenticeshipIsWaitingToStartAndChangeDateIsNotTrainingStartDate()
+        public void ThenThrowsExceptionIfNewStopDateIsAfterCurrentStopDate()
         {
-            var startDate = DateTime.UtcNow.AddMonths(2).Date;
-            TestApprenticeship.StartDate = startDate;
-
+            TestApprenticeship.StopDate = ExampleValidRequest.StopDate.AddDays(-1);
 
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
-            act.ShouldThrow<ValidationException>().Which.Message.Contains("Invalid Date of Change");
+            act.ShouldThrow<ValidationException>().Which.Message.Equals("Invalid Date of Change. Date must be before current stop date.");
         }
-
 
         [Test]
         public void ThenWhenValidationFailsAnInvalidRequestExceptionIsThrown()
@@ -173,6 +178,29 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<ValidationException>();
+        }
+
+        [Test]
+        public void ThenThrowsExceptionIfApprenticeshipIsNotStopped()
+        {
+            TestApprenticeship.PaymentStatus = PaymentStatus.Active;
+
+            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
+
+            act.ShouldThrow<ValidationException>().Which.Message.Equals("Apprenticeship must be stopped in order to update stop date");
+        }
+
+        [Test]
+        public async Task ThenShouldPublishApprenticeshipEvent()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockApprenticeshipEventsPublisher.Verify(x =>
+                x.Publish(It.Is<ApprenticeshipEventsList>(list =>
+                    list.Events.Count == 1 &&
+                    list.Events[0].Apprenticeship.Id == ExampleValidRequest.ApprenticeshipId &&
+                    list.Events[0].EffectiveFrom == ExampleValidRequest.StopDate
+                    )), Times.Once);
         }
     }
 }

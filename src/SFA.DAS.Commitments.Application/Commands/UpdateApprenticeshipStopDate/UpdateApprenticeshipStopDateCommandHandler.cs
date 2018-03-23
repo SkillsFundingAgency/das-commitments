@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Services;
@@ -10,6 +8,9 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using System;
+using System.Threading.Tasks;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
 {
@@ -21,7 +22,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         private readonly ICurrentDateTime _currentDate;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
-
+        private readonly IApprenticeshipEventsPublisher _eventsPublisher;
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IAcademicYearValidator _academicYearValidator;
 
         public UpdateApprenticeshipStopDateCommandHandler(
@@ -31,8 +33,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             ICurrentDateTime currentDate,
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
-            IAcademicYearValidator academicYearValidator
-            )
+            IAcademicYearValidator academicYearValidator,
+            IApprenticeshipEventsPublisher eventsPublisher,
+            IApprenticeshipEventsList apprenticeshipEventsList)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -41,6 +44,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             _logger = logger;
             _historyRepository = historyRepository;
             _academicYearValidator = academicYearValidator;
+            _eventsPublisher = eventsPublisher;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStopDateCommand command)
@@ -61,47 +66,50 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
 
             await SaveChange(command, commitment, apprenticeship);
+            await PublishEvent(command, commitment, apprenticeship);
         }
 
         private async Task SaveChange(UpdateApprenticeshipStopDateCommand command, Commitment commitment, Apprenticeship apprenticeship)
         {
             var historyService = new HistoryService(_historyRepository);
-
-            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), commitment.Id, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
+            historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.ChangeOfStopDate.ToString(), null, apprenticeship.Id, CallerType.Employer, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
            
             await _apprenticeshipRepository.UpdateApprenticeshipStopDate(commitment.Id, command.ApprenticeshipId, command.StopDate);
+            apprenticeship.StopDate = command.StopDate;
 
             await historyService.Save();
         }
 
-        private void ValidateChangeDateForStop(DateTime dateOfChange, Apprenticeship apprenticeship)
+        private async Task PublishEvent(UpdateApprenticeshipStopDateCommand command, Commitment commitment, Apprenticeship apprenticeship)
+        {
+            _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", command.StopDate);
+            await _eventsPublisher.Publish(_apprenticeshipEventsList);
+        }
+
+        private void ValidateChangeDateForStop(DateTime newStopDate, Apprenticeship apprenticeship)
         {
             if (apprenticeship == null) throw new ArgumentException(nameof(apprenticeship));
 
             if (apprenticeship.PaymentStatus != PaymentStatus.Withdrawn)
             {
-                throw new ValidationException("The apprenticeship is not stopped so a new stop date cannot be applied.");
+                throw new ValidationException("Apprenticeship must be stopped in order to update stop date");
             }
-          
-            if (apprenticeship.IsWaitingToStart(_currentDate))
-            {
-                if (dateOfChange.Date != apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date should be value of start date if training has not started.");
-            }
-            else
-            {
-                if (dateOfChange.Date > _currentDate.Now.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
-                if ( dateOfChange.Date < apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
+            if (newStopDate.Date > _currentDate.Now.Date)
+                throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
-                if ( apprenticeship.PaymentStatus != PaymentStatus.PendingApproval && 
-                    _academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
-                {
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
-                }
+            if (newStopDate.Date >= apprenticeship.StopDate)
+                throw new ValidationException("Invalid Date of Change. Date must be before current stop date.");
+
+            if (newStopDate.Date < apprenticeship.StartDate.Value.Date)
+                throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
+
+            if ( apprenticeship.PaymentStatus != PaymentStatus.PendingApproval && 
+                _academicYearValidator.Validate(newStopDate.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
+            {
+                throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
             }
+            
         }
 
         private static void CheckAuthorization(UpdateApprenticeshipStopDateCommand message, Commitment commitment)

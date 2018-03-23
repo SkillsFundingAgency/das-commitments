@@ -122,6 +122,13 @@
     <Compile Include="Commands\AcceptApprenticeshipChange\WhenAcceptingApprenticeshipChange.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenCreatingApprenticeships.cs" />
     <Compile Include="Commands\BulkUploadApprenticeships\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ApproveCohortTestBase.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohortWhichHasATransferSender.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenAnEmployerApprovesACohort.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohortWhichHasATransferSender.cs" />
+    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenAnProviderApprovesACohort.cs" />
+    <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
     <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
@@ -137,6 +144,8 @@
     <Compile Include="Commands\DeleteApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenValidatingCommand.cs" />
+    <Compile Include="Commands\TransferApproval\WhenAnTransferSenderApprovesOrRejectsTheCohort.cs" />
+    <Compile Include="Commands\TransferApproval\WhenValidatingCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\WhenRejectingApprenticeshipChange.cs" />
     <Compile Include="Commands\SetPaymentOrder\WhenUpdatingPaymentOrder.cs" />
     <Compile Include="Commands\SharedValidation\Apprenticeships\ApprenticeshipValidationTestBase.cs" />
@@ -184,6 +193,7 @@
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentPriority\WhenGettingProviderPaymentPriority.cs" />
     <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />
     <Compile Include="Queries\GetDataLocks\WhenValidatingRequest.cs" />
