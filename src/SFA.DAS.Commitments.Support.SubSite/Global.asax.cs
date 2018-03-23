@@ -25,7 +25,6 @@ namespace SFA.DAS.Commitments.Support.SubSite
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             logger.Info("Web role started");
         }
