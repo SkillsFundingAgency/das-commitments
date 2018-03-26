@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 
@@ -162,6 +164,42 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     return returnCode;
                 }
             });
+        }
+
+        public async Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
+        {
+            _logger.Debug($"Setting Transfer Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
+            try
+            {
+                await WithConnection(async connection =>
+                {
+                    using (var tran = connection.BeginTransaction())
+                    {
+                        var count = await connection.ExecuteAsync(
+                            sql: "[dbo].[SetTransferApproval]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: new
+                            {
+                                @Id = commitmentId,
+                                @transferApprovalStatus = transferApprovalStatus,
+                                @transferStatusSetByEmployerName = userName,
+                                @transferStatusSetByEmployerEmail = userEmail
+                            }
+                        );
+                        tran.Commit();
+                        return count;
+                    }
+                });
+            }
+            catch(Exception e)
+            {
+                if (e.InnerException is SqlException)
+                {
+                    throw new BadRequestException(e.InnerException.Message, e);
+                }
+                throw;
+            }
         }
 
         public async Task<long> CreateRelationship(Relationship relationship)
