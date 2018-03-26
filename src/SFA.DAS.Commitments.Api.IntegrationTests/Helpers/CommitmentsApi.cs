@@ -65,7 +65,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 
             Assert.IsTrue(result.IsSuccessStatusCode);
 
-            if (!verifyContent)
+            if (verifyContent)
             {
                 var resultsAsString = await result.Content.ReadAsStringAsync();
                 var apprenticeships = JsonConvert.DeserializeObject<IEnumerable<Apprenticeship>>(resultsAsString);
