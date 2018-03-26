@@ -93,40 +93,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         /// 1) read *all* the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory and be slow to read
         /// 2) store it in the database in a similar way to the test ids, as that would require more code, increase db complexity etc. when you'd have to fetch the data from the db anyway
         /// </remarks>
-        private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GetGetApprenticeshipDistinctCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
-        {
-            var alreadyUsedIds = new HashSet<long>(TestSetup.TestIds.Ids);
-
-            var totalApprenticeshipIds = numberOfTasks * getApprenticeshipCallsPerTask;
-            Assert.GreaterOrEqual(TestDataVolume.MinNumberOfApprenticeships, totalApprenticeshipIds);
-
-            var apprenticeshipIds = new List<long>();
-            for (var taskNo = 0; taskNo < totalApprenticeshipIds; ++taskNo)
-            {
-                var randomApprenticeshipId = (await TestSetup.CommitmentsDatabase.GetRandomApprenticeshipIds(1, alreadyUsedIds)).First();
-                apprenticeshipIds.Add(randomApprenticeshipId);
-
-                alreadyUsedIds.Add(randomApprenticeshipId);
-            }
-
-            var employerIdTasks = apprenticeshipIds.Select(id => TestSetup.CommitmentsDatabase.GetEmployerId(id));
-
-            var employerIds = await Task.WhenAll(employerIdTasks);
-
-            var callParams = apprenticeshipIds.Zip(employerIds, (apprenticeshipId, employerId) => new ApprenticeshipCallParams
-            {
-                ApprenticeshipId = apprenticeshipId,
-                EmployerId = employerId
-            });
-
-            return callParams.Batch(getApprenticeshipCallsPerTask);
-        }
-
-        /// <remarks>
-        /// It's better to fetch what we need from the generated data from the db, rather than...
-        /// 1) read *all* the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory and be slow to read
-        /// 2) store it in the database in a similar way to the test ids, as that would require more code, increase db complexity etc. when you'd have to fetch the data from the db anyway
-        /// </remarks>
         private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GenerateGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
         {
             var totalApprenticeshipIds = numberOfTasks * getApprenticeshipCallsPerTask;
