@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers.Probability;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {

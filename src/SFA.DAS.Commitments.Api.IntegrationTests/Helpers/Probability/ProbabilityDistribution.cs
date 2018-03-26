@@ -2,27 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
+namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers.Probability
 {
     public class ProbabilityDistribution<T>
     {
-        public class BoundaryValue
-        {
-            public int Boundary { get; set; }
-            public Func<T> Value { get; set; }
-
-            public BoundaryValue(int boundary, Func<T> value)
-            {
-                Boundary = boundary;
-                Value = value;
-            }
-        }
-
-        private readonly IEnumerable<BoundaryValue> _boundaryValues;
+        private readonly IEnumerable<BoundaryValue<T>> _boundaryValues;
         private readonly int _range;
         private readonly Random _random = new Random();
 
-        public ProbabilityDistribution(IEnumerable<BoundaryValue> boundaryValues)
+        public ProbabilityDistribution(IEnumerable<BoundaryValue<T>> boundaryValues)
         {
             _boundaryValues = boundaryValues;
             _range = boundaryValues.Last().Boundary;

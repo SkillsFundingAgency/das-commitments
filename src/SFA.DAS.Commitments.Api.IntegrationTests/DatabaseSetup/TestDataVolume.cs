@@ -1,7 +1,8 @@
 ﻿
+using SFA.DAS.Commitments.Api.IntegrationTests.Helpers.Probability;
 using SFA.DAS.Commitments.Api.Types.DataLock.Types;
-using EventStatusProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<SFA.DAS.Commitments.Api.Types.DataLock.Types.EventStatus>;
-using DataLockStatusCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
+using EventStatusProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.Probability.ProbabilityDistribution<SFA.DAS.Commitments.Api.Types.DataLock.Types.EventStatus>;
+using EventStatusBoundary = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.Probability.BoundaryValue<SFA.DAS.Commitments.Api.Types.DataLock.Types.EventStatus>;
 //using ApprenticeshipUpdateCountProbability = SFA.DAS.Commitments.Api.IntegrationTests.Helpers.ProbabilityDistribution<int>;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -35,23 +36,23 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         // you get 1 per price episode identifier, and per academic year, so currently there are about 1 per apprenticeship
         // but in subsequent years (with courses lasting say 3 years), the average will rise to about 3
 
-        public static DataLockStatusCountProbability DataLockStatusesPerApprenticeshipProbability = new DataLockStatusCountProbability(
+        public static ProbabilityDistribution<int> DataLockStatusesPerApprenticeshipProbability = new ProbabilityDistribution<int>(
             new[]
             {
-                new DataLockStatusCountProbability.BoundaryValue(   50_000, () => 0),
-                new DataLockStatusCountProbability.BoundaryValue(  900_000, () => 1),
-                new DataLockStatusCountProbability.BoundaryValue(  950_000, () => 2),
-                new DataLockStatusCountProbability.BoundaryValue(  980_000, () => 3),
-                new DataLockStatusCountProbability.BoundaryValue(  995_000, () => 4),
-                new DataLockStatusCountProbability.BoundaryValue(1_000_000, () => 5)
+                new BoundaryValue<int>(   50_000, () => 0),
+                new BoundaryValue<int>(  900_000, () => 1),
+                new BoundaryValue<int>(  950_000, () => 2),
+                new BoundaryValue<int>(  980_000, () => 3),
+                new BoundaryValue<int>(  995_000, () => 4),
+                new BoundaryValue<int>(1_000_000, () => 5)
             });
 
         public static EventStatusProbability DataLockStatusEventStatusProbability = new EventStatusProbability(
             new []
             {
-                new EventStatusProbability.BoundaryValue(10, () => EventStatus.New),
-                new EventStatusProbability.BoundaryValue(20, () => EventStatus.Updated),
-                new EventStatusProbability.BoundaryValue(100, () => EventStatus.Removed) // majority are removed
+                new EventStatusBoundary(10, () => EventStatus.New),
+                new EventStatusBoundary(20, () => EventStatus.Updated),
+                new EventStatusBoundary(100, () => EventStatus.Removed) // majority are removed
             });
 
         #endregion DataLockStatus
