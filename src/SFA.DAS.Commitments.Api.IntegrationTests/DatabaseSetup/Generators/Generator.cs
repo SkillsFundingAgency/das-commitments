@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
@@ -12,6 +13,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
         public long[] RandomIdGroups(long firstId, int countOfIds, int maxIdsPerGroup, int maxIdsRequired)
         {
+            Assert.LessOrEqual(firstId, int.MaxValue);
+
             var newApprenticeshipIdsShuffled = Enumerable
                 .Range((int)firstId, countOfIds)
                 .OrderBy(au => Random.Next());
@@ -27,6 +30,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         public T[] RandomIdGroups<T>(long firstId, int countOfIds, ProbabilityDistribution<int> probabilityDistribution,
             Func<long,int,IEnumerable<T>> generateGroup)
         {
+            Assert.LessOrEqual(firstId, int.MaxValue);
+
             var newApprenticeshipIdsShuffled = Enumerable
                 .Range((int)firstId, countOfIds)
                 .OrderBy(au => Random.Next());
