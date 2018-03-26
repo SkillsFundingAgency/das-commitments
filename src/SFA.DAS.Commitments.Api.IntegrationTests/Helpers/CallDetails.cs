@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 
         public override string ToString()
         {
-            return $"{ThreadId,3} {Name,-18} {StartTime} {CallTime}";
+            return $"{ThreadId,3} {Name,-18} {StartTime} {CallTime} {new string('*', (int)CallTime.TotalSeconds)}";
         }
     }
 }
