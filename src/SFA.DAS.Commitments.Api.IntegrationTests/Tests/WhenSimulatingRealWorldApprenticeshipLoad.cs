@@ -53,16 +53,21 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var getApprenticeshipsCalls = callTimesPerTask.Skip(numberOfGetApprenticeshipTasks).SelectMany(cd => cd);
             var slowestGetApprenticeshipsCall = getApprenticeshipsCalls.Max(d => d.CallTime);
 
-            var allCalls = getApprenticeshipCalls.Concat(getApprenticeshipsCalls);
             await TestLog.Progress("Call Log:");
+
+            var allCallsOrdered = getApprenticeshipCalls.Concat(getApprenticeshipsCalls).OrderBy(c => c.StartTime);
+
+            var globalStart = allCallsOrdered.First().StartTime;
+            var globalTime = allCallsOrdered.Select(c => c.StartTime + c.CallTime).Max() - globalStart;
+
             // if LogProgress is awaited, the details are written out-of-order
-            allCalls.OrderBy(c => c.StartTime).ForEach(c => TestLog.Progress(c.ToString()).GetAwaiter().GetResult());
+            allCallsOrdered.ForEach(c => TestLog.Progress(c.ToString(globalStart, globalTime, 150)).GetAwaiter().GetResult());
 
             TestLog.Progress($"Slowest GetApprenticeship  {slowestGetApprenticeshipCall}").GetAwaiter().GetResult();
             TestLog.Progress($"Slowest GetApprenticeships {slowestGetApprenticeshipsCall}").GetAwaiter().GetResult();
 
-            Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1));
-            Assert.LessOrEqual(slowestGetApprenticeshipsCall, new TimeSpan(0, 0, 1));
+            Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1), "Slowest GetApprenticeship call took too long");
+            Assert.LessOrEqual(slowestGetApprenticeshipsCall, new TimeSpan(0, 0, 1), "Slowest GetApprenticeships call took too long");
         }
 
         private class ApprenticeshipCallParams
