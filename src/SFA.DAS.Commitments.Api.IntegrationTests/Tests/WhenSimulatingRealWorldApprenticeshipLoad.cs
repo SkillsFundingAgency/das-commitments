@@ -27,8 +27,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var getApprenticeshipCallParamsPerTaskTask = GenerateGetApprenticeshipCallParamsPerTask(numberOfGetApprenticeshipTasks, getApprenticeshipCallsPerTask);
 
-            var employerIdsPerTaskTask = GenerateGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
-            var employerIdsPerTask = await employerIdsPerTaskTask;
+            var employerIdsPerTask = await GenerateGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
 
             var getApprenticeshipCallParamsPerTask = await getApprenticeshipCallParamsPerTaskTask;
             var callParamsPerTask = getApprenticeshipCallParamsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipCallParamsPerTask.ToArray();
