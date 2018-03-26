@@ -146,7 +146,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
         private decimal? GenerateTotalCost()
         {
-            return 200+(Random.Next(300)*10);
+            return Random.Next(300)*10+200;
         }
 
         private TriageStatus GenerateTriageStatus(DataLockErrorCode errorCode)
