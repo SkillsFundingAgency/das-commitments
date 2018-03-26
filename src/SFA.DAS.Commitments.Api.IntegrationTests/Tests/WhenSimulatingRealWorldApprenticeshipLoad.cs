@@ -27,10 +27,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var getApprenticeshipCallParamsPerTaskTask = GenerateGetApprenticeshipCallParamsPerTask(numberOfGetApprenticeshipTasks, getApprenticeshipCallsPerTask);
 
-            var employerIdsPerTask = await GenerateGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
+            var employerIdsPerTaskTask = GenerateGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
 
             var getApprenticeshipCallParamsPerTask = await getApprenticeshipCallParamsPerTaskTask;
             var callParamsPerTask = getApprenticeshipCallParamsPerTask as IEnumerable<ApprenticeshipCallParams>[] ?? getApprenticeshipCallParamsPerTask.ToArray();
+
+            var employerIdsPerTask = await employerIdsPerTaskTask;
 
             await TestLog.Progress("Spinning up server");
 
