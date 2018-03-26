@@ -25,9 +25,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             await TestLog.Progress("Starting SimulateSlowdownScenario() Test");
             await TestLog.Progress("Generating call parameters");
 
-            var getApprenticeshipCallParamsPerTaskTask = GetGetApprenticeshipCallParamsPerTask(numberOfGetApprenticeshipTasks, getApprenticeshipCallsPerTask);
+            var getApprenticeshipCallParamsPerTaskTask = GenerateGetApprenticeshipCallParamsPerTask(numberOfGetApprenticeshipTasks, getApprenticeshipCallsPerTask);
 
-            var employerIdsPerTaskTask = GetGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
+            var employerIdsPerTaskTask = GenerateGetApprenticeshipsCallParamsPerTask(numberOfGetApprenticeshipsTasks, getApprenticeshipsCallsPerTask);
             var employerIdsPerTask = await employerIdsPerTaskTask;
 
             var getApprenticeshipCallParamsPerTask = await getApprenticeshipCallParamsPerTaskTask;
@@ -126,7 +126,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
         /// 1) read *all* the db data into memory (a la provider events api in test), as would use an unnecessarily large amount of memory and be slow to read
         /// 2) store it in the database in a similar way to the test ids, as that would require more code, increase db complexity etc. when you'd have to fetch the data from the db anyway
         /// </remarks>
-        private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GetGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
+        private async Task<IEnumerable<IEnumerable<ApprenticeshipCallParams>>> GenerateGetApprenticeshipCallParamsPerTask(int numberOfTasks, int getApprenticeshipCallsPerTask)
         {
             var totalApprenticeshipIds = numberOfTasks * getApprenticeshipCallsPerTask;
             Assert.GreaterOrEqual(TestDataVolume.MinNumberOfApprenticeships, totalApprenticeshipIds);
@@ -145,7 +145,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             return callParams.Batch(getApprenticeshipCallsPerTask);
         }
 
-        private async Task<IEnumerable<IEnumerable<long>>> GetGetApprenticeshipsCallParamsPerTask(int numberOfTasks, int getApprenticeshipsCallsPerTask)
+        private async Task<IEnumerable<IEnumerable<long>>> GenerateGetApprenticeshipsCallParamsPerTask(int numberOfTasks, int getApprenticeshipsCallsPerTask)
         {
             // currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
             var employerIdWithMaxCohortSize = await TestSetup.CommitmentsDatabase.GetEmployerId(TestSetup.TestIds[TestIds.MaxCohortSize]);
