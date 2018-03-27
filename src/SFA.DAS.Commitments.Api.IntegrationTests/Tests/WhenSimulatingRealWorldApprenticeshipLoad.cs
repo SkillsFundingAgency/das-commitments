@@ -119,9 +119,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
         private static async Task<IEnumerable<IEnumerable<long>>> GenerateGetApprenticeshipsCallParamsPerTask(int numberOfTasks, int getApprenticeshipsCallsPerTask)
         {
-            // currently have 1:1 ids for cohort:employer in test data, so we can supply the cohort id as the employer id. might have to do better than that, i.e. employer with multiple cohorts, employer with none? perhaps not for our purposes
-            var employerIdWithMaxCohortSize = await TestSetup.CommitmentsDatabase.GetEmployerId(TestSetup.TestIds[TestIds.MaxCohortSize]);
-            var employerIds = Enumerable.Repeat(employerIdWithMaxCohortSize, numberOfTasks * getApprenticeshipsCallsPerTask);
+            var totalEmployerIds = numberOfTasks * getApprenticeshipsCallsPerTask;
+
+            var randomApprenticeshipIds = await TestSetup.CommitmentsDatabase.GetRandomApprenticeshipIds(totalEmployerIds-1);
+            var apprenticeshipIds = new[] {TestSetup.TestIds[TestIds.MaxCohortSize]}.Concat(randomApprenticeshipIds);
+
+            var employerIdTasks = apprenticeshipIds.Select(id => TestSetup.CommitmentsDatabase.GetEmployerId(id));
+            var employerIds = await Task.WhenAll(employerIdTasks);
 
             return employerIds.Batch(getApprenticeshipsCallsPerTask);
         }
