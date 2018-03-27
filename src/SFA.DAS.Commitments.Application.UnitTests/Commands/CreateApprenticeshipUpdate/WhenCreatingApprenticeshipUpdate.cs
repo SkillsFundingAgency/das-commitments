@@ -550,7 +550,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                     EffectiveFromDate = DateTime.Now
                 }
             };
-            
+
             var apprenticeship = new Apprenticeship
             {
                 EmployerAccountId = 1,
@@ -565,7 +565,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             await _handler.Handle(command);
 
             _apprenticeshipEventsList.Verify(x=>x.Add(It.IsAny<Commitment>(), It.Is<Apprenticeship>(p=>p.ULN == "NewValue"), "APPRENTICESHIP-UPDATED", 
-                It.Is<DateTime?>(p=>p == command.ApprenticeshipUpdate.EffectiveFromDate), null));
+                It.Is<DateTime?>(p=>p == _mockCurrentDateTime.Object.Now), null));
             _apprenticeshipEventsPublisher.Verify(x=>x.Publish(_apprenticeshipEventsList.Object));
         }
     }

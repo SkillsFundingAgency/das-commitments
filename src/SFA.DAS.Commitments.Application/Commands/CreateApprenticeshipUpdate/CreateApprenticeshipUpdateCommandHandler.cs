@@ -100,7 +100,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             if (command.ApprenticeshipUpdate.ULN != null)
             {
-                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", command.ApprenticeshipUpdate.EffectiveFromDate);
+                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
                 await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
             }
         }
