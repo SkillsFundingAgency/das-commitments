@@ -317,5 +317,27 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public async Task GetSpecificCommitmentInformationForAnEmployerAsTransferSender()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{CommitmentId}"), string.Empty);
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.GetTransferSenderCommitment(EmployerAccountId, CommitmentId);
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task PatchTransferApprovalStatus()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{CommitmentId}/approval"), JsonConvert.SerializeObject(new TransferApprovalRequest()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.PatchTransferApprovalStatus(EmployerAccountId, CommitmentId, new TransferApprovalRequest());
+
+            Assert.Pass();
+        }
     }
 }

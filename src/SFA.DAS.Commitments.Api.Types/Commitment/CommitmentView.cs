@@ -20,8 +20,7 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public string LegalEntityName { get; set; }
         public long? ProviderId { get; set; }
         public string ProviderName { get; set; }
-        public long? TransferSenderId { get; set; }
-        public string TransferSenderName { get; set; }
+        public TransferSender TransferSender { get; set; }
         public EditStatus EditStatus { get; set; }
         public List<Apprenticeship.Apprenticeship> Apprenticeships { get; set; }
         public AgreementStatus AgreementStatus { get; set; }

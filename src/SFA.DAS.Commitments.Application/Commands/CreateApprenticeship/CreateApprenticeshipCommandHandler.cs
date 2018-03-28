@@ -56,6 +56,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             CheckCommitmentStatus(commitment);
 
             var publishMessage = command.Caller.CallerType == CallerType.Employer
+                && commitment.Apprenticeships.Any()
                 && commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.ProviderAgreed);
 
             var apprenticeship = UpdateApprenticeship(command.Apprenticeship, command);
