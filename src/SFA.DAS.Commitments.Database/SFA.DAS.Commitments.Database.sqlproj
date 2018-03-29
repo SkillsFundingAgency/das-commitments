@@ -111,6 +111,8 @@
     <Build Include="StoredProcedures\GetActiveApprenticeships.sql" />
     <Build Include="StoredProcedures\SetTransferApproval.sql" />
     <Build Include="Tables\TransferRequest.sql" />
+    <Build Include="StoredProcedures\StartATransferRequest.sql" />
+    <Build Include="StoredProcedures\SetTransferRequestApproval.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
