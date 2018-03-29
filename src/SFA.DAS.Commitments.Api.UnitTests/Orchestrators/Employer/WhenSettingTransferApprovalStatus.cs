@@ -2,8 +2,10 @@
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Application.Commands.TransferApproval;
+using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
+using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
 {
@@ -12,21 +14,42 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
     {
 
         [Test]
-        public async Task ThenAppropriateCommandIsSentToMediator()
+        public async Task ThenAppropriateCommandIsSentToMediatorOnApproval()
         {
             //Arrange
             var fixture = new Fixture();
 
-            var request = fixture.Build<TransferApprovalRequest>().Create();
+            var request = fixture.Build<TransferApprovalRequest>()
+                .With(x => x.TransferApprovalStatus == TransferApprovalStatus.Rejected)
+                .Create();
 
             //Act
             await Orchestrator.SetTransferApprovalStatus(1, 2, request);
              
             //Assert
             MockMediator.Verify(
-                x => x.SendAsync(It.Is<TransferApprovalCommand>(p =>
+                x => x.SendAsync(It.Is<ApproveTransferRequestCommand>(p =>
                     p.TransferSenderId == 1 && p.CommitmentId == 2 &&
-                    p.TransferApprovalStatus == (Domain.Entities.TransferApprovalStatus)request.TransferApprovalStatus && 
+                    p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenAppropriateCommandIsSentToMediatorOnRejection()
+        {
+            //Arrange
+            var fixture = new Fixture();
+
+            var request = fixture.Build<TransferApprovalRequest>()
+                .With(x => x.TransferApprovalStatus == TransferApprovalStatus.Rejected)
+                .Create();
+
+            //Act
+            await Orchestrator.SetTransferApprovalStatus(1, 2, request);
+
+            //Assert
+            MockMediator.Verify(
+                x => x.SendAsync(It.Is<RejectTransferRequestCommand>(p =>
+                    p.TransferSenderId == 1 && p.CommitmentId == 2 &&
                     p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
         }
 

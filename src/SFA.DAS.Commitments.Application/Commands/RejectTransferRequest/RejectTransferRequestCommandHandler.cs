@@ -1,34 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
-using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
+namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 {
-    public sealed class TransferApprovalCommandHandler : AsyncRequestHandler<TransferApprovalCommand>
+    public class RejectTransferRequestCommandHandler: AsyncRequestHandler<RejectTransferRequestCommand>
     {
-        private readonly AbstractValidator<TransferApprovalCommand> _validator;
+        private readonly AbstractValidator<RejectTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
-        public TransferApprovalCommandHandler(AbstractValidator<TransferApprovalCommand> validator,
+        public RejectTransferRequestCommandHandler(AbstractValidator<RejectTransferRequestCommand> validator,
             ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime,
             IApprenticeshipEventsList apprenticeshipEventsList,
@@ -46,7 +40,7 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
         }
 
-        protected override async Task HandleCore(TransferApprovalCommand command)
+        protected override async Task HandleCore(RejectTransferRequestCommand command)
         {
             _validator.ValidateAndThrow(command);
 
@@ -59,33 +53,21 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
-            await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferApprovalStatus,
+            await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
                 command.UserEmail, command.UserName);
 
-            if (command.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
-            {
-                commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
-                await Task.WhenAll(
-                    _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
-                    _cohortApprovalService.CreatePriceHistory(commitment),
-                    _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
-                    _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId));
-                _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
-                await _historyService.Save();
-            }
-
-            await PublishApprovedOrRejectedMessage(command);
+            await PublishRejectedMessage(command);
 
         }
 
-        private static void CheckAuthorization(TransferApprovalCommand message, Commitment commitment)
+        private static void CheckAuthorization(RejectTransferRequestCommand message, Commitment commitment)
         {
             if (commitment.TransferSenderId != message.TransferSenderId)
                 throw new UnauthorizedException(
                     $"Employer {message.TransferSenderId} not authorised to access commitment: {message.CommitmentId} as transfer sender, expected transfer sender {commitment.TransferSenderId}");
         }
 
-        private static void CheckCommitmentStatus(Commitment commitment, TransferApprovalCommand command)
+        private static void CheckCommitmentStatus(Commitment commitment, RejectTransferRequestCommand command)
         {
 
             if (commitment.EmployerAccountId != command.TransferReceiverId)
@@ -96,36 +78,16 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
 
             if (commitment.TransferApprovalStatus != TransferApprovalStatus.Pending)
                 throw new InvalidOperationException($"Transfer Approval for Commitment {commitment.Id} cannot be set because the status is {commitment.TransferApprovalStatus}");
-            
+
             if (commitment.EditStatus != EditStatus.Both)
-                throw new InvalidOperationException($"Transfer Sender {commitment.TransferSenderId} not allowed to approve until both the provider and receiving employer have approved");
+                throw new InvalidOperationException($"Transfer Sender {commitment.TransferSenderId} not allowed to reject until both the provider and receiving employer have approved");
         }
 
-        private async Task PublishApprovedOrRejectedMessage(TransferApprovalCommand command)
+        private async Task PublishRejectedMessage(RejectTransferRequestCommand command)
         {
-            switch (command.TransferApprovalStatus)
-            {
-                case TransferApprovalStatus.TransferApproved:
-                {
-                    var message = new CohortApprovedByTransferSender(command.TransferReceiverId, command.CommitmentId,
-                        command.TransferSenderId, command.UserName, command.UserEmail);
-                    await _messagePublisher.PublishAsync(message);
-                    break;
-                }
-                case TransferApprovalStatus.TransferRejected:
-                {
-                    var message = new CohortRejectedByTransferSender(command.TransferReceiverId, command.CommitmentId,
-                        command.TransferSenderId, command.UserName, command.UserEmail);
-                    await _messagePublisher.PublishAsync(message);
-                    break;
-                }
-                default:
-                    throw new Exception("The Transfer Approval Status is not Approved or Rejected");
-            }
+            var message = new CohortRejectedByTransferSender(command.TransferReceiverId, command.CommitmentId,
+                command.TransferSenderId, command.UserName, command.UserEmail);
+            await _messagePublisher.PublishAsync(message);         
         }
-
-
-
     }
 }
-

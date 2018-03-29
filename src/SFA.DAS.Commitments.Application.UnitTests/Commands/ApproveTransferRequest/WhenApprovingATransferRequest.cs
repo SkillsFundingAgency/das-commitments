@@ -7,8 +7,8 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
+using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
-using SFA.DAS.Commitments.Application.Commands.TransferApproval;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -19,13 +19,13 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequest
 {
     [TestFixture]
-    public class WhenAnTransferSenderApprovesOrRejectsTheCohort 
+    public class WhenApprovingATransferRequest
     {
-        private AbstractValidator<TransferApprovalCommand> _validator;
-        private TransferApprovalCommand _command;
+        private AbstractValidator<ApproveTransferRequestCommand> _validator;
+        private ApproveTransferRequestCommand _command;
         private Commitment _commitment;
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
@@ -36,12 +36,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         private Mock<IMediator> _mediator;
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IHistoryRepository> _historyRepository;
-        private TransferApprovalCommandHandler _sut;
+        private ApproveTransferRequestCommandHandler _sut;
 
         [SetUp]
         public void SetUp()
         {
-            _validator = new TransferApprovalValidator();
+            _validator = new ApproveTransferRequestValidator();
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _overlapRules = new Mock<IApprenticeshipOverlapRules>();
@@ -53,8 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
             _historyRepository = new Mock<IHistoryRepository>();
 
             var fixture = new Fixture();
-            _command = fixture.Build<TransferApprovalCommand>()
-                .With(x => x.TransferApprovalStatus, TransferApprovalStatus.TransferRejected).Create();
+            _command = fixture.Build<ApproveTransferRequestCommand>().Create();
             _commitment = fixture.Build<Commitment>()
                 .With(x => x.TransferSenderId, _command.TransferSenderId)
                 .With(x => x.EmployerAccountId, _command.TransferReceiverId)
@@ -64,7 +63,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
             _commitmentRepository.Setup(x=>x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
 
-            _sut = new TransferApprovalCommandHandler(_validator, _commitmentRepository.Object,
+            _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object,
                 _messagePublisher.Object, _historyRepository.Object);
@@ -75,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         {
             await _sut.Handle(_command);
 
-            _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, _command.TransferApprovalStatus, _command.UserEmail, _command.UserName));
+            _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName));
         }
 
         [Test]
@@ -97,7 +96,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureMessagePublisherSendsApprovedMessageAndNotRejectedMessage()
         {
-            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
 
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
@@ -115,7 +113,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureApprenticeshipUpdatesAreUpdatedInRepository()
         {
-            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
 
             _commitment.Apprenticeships.ForEach(
@@ -126,7 +123,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsurePriceHistoryIsUpdated()
         {
-            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
             _apprenticeshipRepository.Verify(x => x.CreatePriceHistoryForApprenticeshipsInCommitment(_commitment.Id));
         }
@@ -134,7 +130,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureHistoryRecordIsAddedInRepository()
         {
-            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
 
             //_historyRepository.Verify(x => x.InsertHistory(It.IsAny<List<HistoryItem>>()));
@@ -148,7 +143,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureEventsPublisherIsCalledForApprovedEvents()
         {
-            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
             _apprenticeshipEventsPublisher.Verify(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()));
         }
@@ -156,7 +150,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureReorderPayementsCommandIsCalled()
         {
-            _command.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             await _sut.Handle(_command);
             _mediator.Verify(x => x.SendAsync(It.Is<SetPaymentOrderCommand>(p => p.AccountId == _commitment.EmployerAccountId)));
         }
