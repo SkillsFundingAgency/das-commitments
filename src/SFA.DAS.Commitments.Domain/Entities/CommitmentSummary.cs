@@ -21,6 +21,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public int ApprenticeshipCount { get; set; }
         public AgreementStatus AgreementStatus { get; set; }
         public LastAction LastAction { get; set; }
+        public long? TransferSenderId { get; set; }
+        public TransferApprovalStatus TransferApprovalStatus { get; set; }
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
         public string LastUpdatedByEmployerName { get; set; }
