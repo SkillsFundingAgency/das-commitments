@@ -54,7 +54,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
 
             var fixture = new Fixture();
             _command = fixture.Build<TransferApprovalCommand>()
-                .With(x => x.TransferApprovalStatus, TransferApprovalStatus.TransferRejected).Create();
+                .With(x => x.TransferApprovalStatus, TransferApprovalStatus.TransferRejected)
+                .With(x=>x.TransferRequestId, 0).Create();
             _commitment = fixture.Build<Commitment>()
                 .With(x => x.TransferSenderId, _command.TransferSenderId)
                 .With(x => x.EmployerAccountId, _command.TransferReceiverId)
@@ -78,12 +79,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
             _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, _command.TransferApprovalStatus, _command.UserEmail, _command.UserName));
         }
 
+        [TestCase(TransferApprovalStatus.TransferApproved)]
+        [TestCase(TransferApprovalStatus.TransferRejected)]
+        public async Task ThenIfTheTransferRequestIsRejectedOrApprovedEnsureRespositoryIsCalled(TransferApprovalStatus status)
+        {
+            _command.TransferRequestId = 6467;
+            _command.TransferApprovalStatus = status;
+            await _sut.Handle(_command);
+
+            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, _command.TransferApprovalStatus, _command.UserEmail, _command.UserName));
+        }
+
+
         [Test]
         public async Task ThenIfTheTransferSenderRejectsCohortEnsureMessagePublisherSendsRejectedMessageAndNotApprovedMessage()
         {
             await _sut.Handle(_command);
 
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortRejectedByTransferSender>(p =>
+                p.TransferRequestId == _command.TransferRequestId &&
                 p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
                 p.CommitmentId == _command.CommitmentId &&
                 p.ReceivingEmployerAccountId ==
@@ -101,6 +115,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
             await _sut.Handle(_command);
 
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
+                p.TransferRequestId == _command.TransferRequestId &&
                 p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
                 p.CommitmentId == _command.CommitmentId &&
                 p.ReceivingEmployerAccountId ==

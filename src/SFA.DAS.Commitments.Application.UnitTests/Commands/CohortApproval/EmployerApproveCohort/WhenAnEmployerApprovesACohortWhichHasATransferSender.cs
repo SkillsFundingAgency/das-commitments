@@ -26,7 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             SetUpCommonMocks();
             Commitment = CreateCommitment(Command.CommitmentId, Command.Caller.Id, 234587, 1000, "Nice Company");
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
-            CommitmentRepository.Setup(x => x.StartNewTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(),
+            CommitmentRepository.Setup(x => x.StartTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(),
                 It.IsAny<List<TrainingCourseSummary>>())).ReturnsAsync(_transferRequestId);
 
             Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
@@ -83,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
 
             await Target.Handle(Command);
 
-            CommitmentRepository.Verify(x => x.StartNewTransferRequestApproval(Commitment.Id,
+            CommitmentRepository.Verify(x => x.StartTransferRequestApproval(Commitment.Id,
                 expectedTotal, It.Is<List<TrainingCourseSummary>>(p =>
                     p.Count == 1 && p[0].ApprenticeshipCount == 2 &&
                     p[0].CourseTitle == Commitment.Apprenticeships[0].TrainingName)));

@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             {
                 if (commitment.HasTransferSenderAssigned)
                 {
-                    var transferRequestId = await _commitmentRepository.StartNewTransferRequestApproval(commitment.Id,
+                    var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id,
                         _cohortApprovalService.CurrentCostOfCohort(commitment),
                         _cohortApprovalService.TrainingCourseSummaries(commitment));
 

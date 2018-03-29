@@ -59,8 +59,17 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
-            await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferApprovalStatus,
-                command.UserEmail, command.UserName);
+            if (command.TransferRequestId > 0)
+            {
+                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                    command.TransferApprovalStatus, command.UserEmail, command.UserName);
+            }
+            else
+            {
+                // TODO Remove This route when old Approval route decomes obslete 
+                await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferApprovalStatus,
+                    command.UserEmail, command.UserName);
+            }
 
             if (command.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
             {
@@ -107,14 +116,14 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             {
                 case TransferApprovalStatus.TransferApproved:
                 {
-                    var message = new CohortApprovedByTransferSender(command.TransferReceiverId, command.CommitmentId,
+                    var message = new CohortApprovedByTransferSender(command.TransferRequestId, command.TransferReceiverId, command.CommitmentId,
                         command.TransferSenderId, command.UserName, command.UserEmail);
                     await _messagePublisher.PublishAsync(message);
                     break;
                 }
                 case TransferApprovalStatus.TransferRejected:
                 {
-                    var message = new CohortRejectedByTransferSender(command.TransferReceiverId, command.CommitmentId,
+                    var message = new CohortRejectedByTransferSender(command.TransferRequestId, command.TransferReceiverId, command.CommitmentId,
                         command.TransferSenderId, command.UserName, command.UserEmail);
                     await _messagePublisher.PublishAsync(message);
                     break;
