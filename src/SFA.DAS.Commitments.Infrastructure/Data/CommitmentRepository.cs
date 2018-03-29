@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -201,6 +202,47 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 throw;
             }
         }
+
+        public async Task<long> StartNewTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses)
+        {
+            _logger.Debug($"Starting a Transfer Request Approval", commitmentId: commitmentId);
+            try
+            {
+                long transferRequestId = 0;
+                var parameters = new DynamicParameters();
+                parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+                parameters.Add("@cost", cost, DbType.Decimal);
+                parameters.Add("@trainingCourses", JsonConvert.SerializeObject(trainingCourses), DbType.String);
+                parameters.Add("@transferRequestId", transferRequestId, DbType.Int64, ParameterDirection.Output);
+
+                return await WithConnection(async connection =>
+                {
+                    using (var tran = connection.BeginTransaction())
+                    {
+                        await connection.ExecuteAsync(
+                            sql: "[dbo].[StartATransferRequest]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: parameters
+                        );
+                        tran.Commit();
+                        transferRequestId = parameters.Get<long>("@transferRequestId");
+                        return transferRequestId;
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException is SqlException)
+                {
+                    throw new BadRequestException(e.InnerException.Message, e);
+                }
+                throw;
+            }
+        }
+
+
+
 
         public async Task<long> CreateRelationship(Relationship relationship)
         {
