@@ -78,22 +78,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         }
 
         [Test]
-        public async Task ThenIfTheTransferSenderRejectsCohortEnsureMessagePublisherSendsRejectedMessageAndNotApprovedMessage()
-        {
-            await _sut.Handle(_command);
-
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortRejectedByTransferSender>(p =>
-                p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
-                p.CommitmentId == _command.CommitmentId &&
-                p.ReceivingEmployerAccountId ==
-                _command.TransferReceiverId &&
-                p.SendingEmployerAccountId ==
-                _command.TransferSenderId)));
-
-            _messagePublisher.Verify(x=>x.PublishAsync(It.IsAny<CohortApprovedByTransferSender>()), Times.Never);
-        }
-
-        [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureMessagePublisherSendsApprovedMessageAndNotRejectedMessage()
         {
             await _sut.Handle(_command);

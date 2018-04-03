@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Moq;
@@ -11,6 +13,7 @@ using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
@@ -57,7 +60,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
                 .With(x => x.EditStatus, EditStatus.Both).Create();
 
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
-            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.BothAgreed);
+
+            _historyRepository.Setup(x => x.InsertHistory(It.IsAny<List<HistoryItem>>()))
+                .Returns(() => Task.FromResult(new Unit()));
 
             _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
@@ -66,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         }
 
         [Test]
-        public async Task ThenIfTheTransferSenderRejectsCohortEnsureRespositoryIsCalled()
+        public async Task ThenRespositoryIsCalled()
         {
             await _sut.Handle(_command);
 
@@ -74,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         }
 
         [Test]
-        public async Task ThenIfTheTransferSenderRejectsCohortEnsureMessagePublisherSendsRejectedMessageAndNotApprovedMessage()
+        public async Task ThenMessagePublisherSendsRejectedMessageAndNotApprovedMessage()
         {
             await _sut.Handle(_command);
 
@@ -87,6 +93,59 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
                 _command.TransferSenderId)));
 
             _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortApprovedByTransferSender>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ThenApprenticeshipAgreementStatusesAreReset()
+        {
+            await _sut.Handle(_command);
+
+            _commitment.Apprenticeships.ForEach(
+                x => x.AgreementStatus.Should().Be(AgreementStatus.NotAgreed));
+            _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(_commitment.Apprenticeships));
+        }
+
+        [Test]
+        public async Task ThenCohortRejectedMessageIsPublished()
+        {
+            await _sut.Handle(_command);
+
+            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<CohortRejectedByTransferSender>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ThenApprenticeshipUpdateEventsAreEmitted()
+        {
+            await _sut.Handle(_command);
+
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()), Times.Once);
+
+            _apprenticeshipEventsList.Verify(
+                x => x.Add(It.IsAny<Commitment>(),
+                    It.Is<Apprenticeship>(apprenticeship =>
+                        apprenticeship.AgreementStatus == AgreementStatus.NotAgreed),
+                    It.Is<string>(evt => evt == "APPRENTICESHIP-UPDATED"),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<DateTime?>()));
+        }
+
+        [Test]
+        public async Task ThenHistoryRecordsAreCreated()
+        {
+            await _sut.Handle(_command);
+
+            _historyRepository.Verify(x => x.InsertHistory(It.Is<List<HistoryItem>>(
+                    items => items.Count == _commitment.Apprenticeships.Count)),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task ThenCommitmentEditStatusIsSetToEmployer()
+        {
+            await _sut.Handle(_command);
+
+            _commitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(
+                commitment => commitment.EditStatus == EditStatus.EmployerOnly)));
         }
 
         [Test]

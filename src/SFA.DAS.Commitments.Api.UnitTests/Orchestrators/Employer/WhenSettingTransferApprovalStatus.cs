@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             var fixture = new Fixture();
 
             var request = fixture.Build<TransferApprovalRequest>()
-                .With(x => x.TransferApprovalStatus == TransferApprovalStatus.Rejected)
+                .With(x => x.TransferApprovalStatus, TransferApprovalStatus.Approved)
                 .Create();
 
             //Act
@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             var fixture = new Fixture();
 
             var request = fixture.Build<TransferApprovalRequest>()
-                .With(x => x.TransferApprovalStatus == TransferApprovalStatus.Rejected)
+                .With(x => x.TransferApprovalStatus, TransferApprovalStatus.Rejected)
                 .Create();
 
             //Act

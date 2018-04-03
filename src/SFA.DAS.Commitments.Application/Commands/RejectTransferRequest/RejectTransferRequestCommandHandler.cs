@@ -6,8 +6,10 @@ using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
@@ -18,6 +20,9 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
     {
         private readonly AbstractValidator<RejectTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly ICurrentDateTime _currentDateTime;
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
+        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IMessagePublisher _messagePublisher;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
@@ -32,12 +37,14 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
+            _currentDateTime = currentDateTime;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
+            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _messagePublisher = messagePublisher;
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
                 commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
-
         }
 
         protected override async Task HandleCore(RejectTransferRequestCommand command)
@@ -53,11 +60,41 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
+            StartTrackingApprenticeshipHistory(commitment, command);
+
+            commitment.EditStatus = EditStatus.EmployerOnly;
+
             await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
                 command.UserEmail, command.UserName);
+            
+            await _commitmentRepository.UpdateCommitment(commitment);
+
+            await _cohortApprovalService.ResetApprenticeshipsAgreementStatuses(commitment);
+
+            await EmitApprenticeshipUpdatedEvents(commitment);
+
+            await _historyService.Save();
 
             await PublishRejectedMessage(command);
 
+        }
+
+        private async Task EmitApprenticeshipUpdatedEvents(Commitment commitment)
+        {
+            commitment.Apprenticeships.ForEach(apprenticeship =>
+                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED",
+                    _currentDateTime.Now, null)
+            );
+            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+        }
+
+        private void StartTrackingApprenticeshipHistory(Commitment commitment, RejectTransferRequestCommand command)
+        {
+            commitment.Apprenticeships.ForEach(apprenticeship => 
+                _historyService.TrackUpdate(apprenticeship, "Updated", null, apprenticeship.Id,
+                    CallerType.TransferSender, command.UserName, commitment.ProviderId,
+                    commitment.EmployerAccountId, command.UserName)
+            );
         }
 
         private static void CheckAuthorization(RejectTransferRequestCommand message, Commitment commitment)
