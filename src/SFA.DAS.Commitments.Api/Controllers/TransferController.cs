@@ -8,11 +8,11 @@ using SFA.DAS.Commitments.Domain;
 namespace SFA.DAS.Commitments.Api.Controllers
 {
     [RoutePrefix("api/employer")]
-    public class TransferSenderController : ApiController
+    public class TransferController : ApiController
     {
         private readonly IEmployerOrchestrator _employerOrchestrator;
 
-        public TransferSenderController(IEmployerOrchestrator employerOrchestrator)
+        public TransferController(IEmployerOrchestrator employerOrchestrator)
         {
             _employerOrchestrator = employerOrchestrator;
         }
@@ -23,6 +23,15 @@ namespace SFA.DAS.Commitments.Api.Controllers
         public async Task<IHttpActionResult> GetTransferRequestsForTransferSender(long transferSenderId)
         {
             var response = await _employerOrchestrator.GetTransferRequestsForSender(transferSenderId);
+
+            return Ok(response);
+        }
+
+        [Route("{transferReceiverId}/receiver/transfers", Name = "GetTransferRequestsForTransferReceiver")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetTransferRequestsForTransferReceiver(long transferReceiverId)
+        {
+            var response = await _employerOrchestrator.GetTransferRequestsForReceiver(transferReceiverId);
 
             return Ok(response);
         }

@@ -14,14 +14,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
     public class WhenGettingASingleCommitment
     {
         private Mock<IEmployerOrchestrator> _mockEmployerOrchestrator;
-        private TransferSenderController _sut;
+        private TransferController _sut;
         private CommitmentView _commitmentView = new CommitmentView();
 
         [SetUp]
         public void Setup()
         {
             _mockEmployerOrchestrator = new Mock<IEmployerOrchestrator>();
-            _sut = new TransferSenderController(_mockEmployerOrchestrator.Object);
+            _sut = new TransferController(_mockEmployerOrchestrator.Object);
             _mockEmployerOrchestrator.Setup(x => x.GetCommitment(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<CallerType>())).ReturnsAsync(_commitmentView);
         }
 

@@ -39,5 +39,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task ApproveCohort(long accountId, long commitmentId, CommitmentSubmission submission);
         Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest transferApprovalRequest);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId);
+        Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId);
     }
 }

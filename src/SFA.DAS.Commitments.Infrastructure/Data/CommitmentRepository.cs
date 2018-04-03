@@ -295,6 +295,21 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId)
+        {
+            return WithConnection<IList<TransferRequestSummary>>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@receiverEmployerAccountId", transferReceiverAccountId);
+
+                var results = await c.QueryAsync<TransferRequestSummary>(
+                    sql: $"[dbo].[GetTransferRequestsForReceiver]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return results.ToList();
+            });
+        }
 
         public async Task<long> CreateRelationship(Relationship relationship)
         {

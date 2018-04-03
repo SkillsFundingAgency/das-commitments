@@ -35,6 +35,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForReceiver;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -361,6 +362,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Retrieved transfer requests for employer sender account {transferSenderId}. {response.Data.Count} transfer requests found", accountId: transferSenderId);
+
+            return response.Data;
+        }
+
+        public async Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId)
+        {
+            _logger.Trace($"Getting transfer requests employer receiver account {transferReceiverId}", accountId: transferReceiverId);
+
+            var response = await _mediator.SendAsync(new GetTransferRequestsForReceiverRequest
+            {
+                TransferReceiverAccountId = transferReceiverId
+            });
+
+            _logger.Info($"Retrieved transfer requests for employer receiver account {transferReceiverId}. {response.Data.Count} transfer requests found", accountId: transferReceiverId);
 
             return response.Data;
         }
