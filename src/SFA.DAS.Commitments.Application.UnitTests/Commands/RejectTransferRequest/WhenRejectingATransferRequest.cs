@@ -124,7 +124,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
                 x => x.Add(It.IsAny<Commitment>(),
                     It.Is<Apprenticeship>(apprenticeship =>
                         apprenticeship.AgreementStatus == AgreementStatus.NotAgreed),
-                    It.Is<string>(evt => evt == "APPRENTICESHIP-UPDATED"),
+                    It.Is<string>(evt => evt == "APPRENTICESHIP-AGREEMENT-UPDATED"),
                     It.IsAny<DateTime>(),
                     It.IsAny<DateTime?>()));
         }
