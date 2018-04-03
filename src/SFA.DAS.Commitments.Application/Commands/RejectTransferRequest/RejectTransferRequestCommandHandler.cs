@@ -82,7 +82,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
         private async Task EmitApprenticeshipUpdatedEvents(Commitment commitment)
         {
             commitment.Apprenticeships.ForEach(apprenticeship =>
-                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED",
+                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED",
                     _currentDateTime.Now, null)
             );
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
