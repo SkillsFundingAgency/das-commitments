@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Web.Http;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.Commitment;
@@ -16,6 +17,17 @@ namespace SFA.DAS.Commitments.Api.Controllers
             _employerOrchestrator = employerOrchestrator;
         }
 
+
+        [Route("{transferSenderId}/sender/transfers", Name = "GetTransferRequestsForTransferSender")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetTransferRequestsForTransferSender(long transferSenderId)
+        {
+            var response = await _employerOrchestrator.GetTransferRequestsForSender(transferSenderId);
+
+            return Ok(response);
+        }
+
+        [Obsolete]
         [Route("{transferSenderId}/transfers/{commitmentId}", Name = "GetCommitmentForTransferSender")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitment(long transferSenderId, long commitmentId)
@@ -30,6 +42,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
+        [Obsolete]
         [HttpPatch]
         [Route("{transferSenderId}/transfers/{commitmentId}/approval", Name = "PatchTransferApprovalStatus")]
         [Authorize(Roles = "Role1")]

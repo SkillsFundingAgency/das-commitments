@@ -35,6 +35,7 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipStatusSummary;
@@ -348,6 +349,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Setting Approval Status for commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
+        }
+
+        public async Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId)
+        {
+            _logger.Trace($"Getting transfer requests employer sender account {transferSenderId}", accountId: transferSenderId);
+
+            var response = await _mediator.SendAsync(new GetTransferRequestsForSenderRequest
+            {
+                TransferSenderAccountId = transferSenderId
+            });
+
+            _logger.Info($"Retrieved transfer requests for employer sender account {transferSenderId}. {response.Data.Count} transfer requests found", accountId: transferSenderId);
+
+            return response.Data;
         }
 
         public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)
