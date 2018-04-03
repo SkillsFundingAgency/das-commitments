@@ -65,6 +65,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
             _historyRepository.Setup(x => x.InsertHistory(It.IsAny<List<HistoryItem>>()))
                 .Returns(() => Task.FromResult(new Unit()));
 
+            _commitmentRepository.Setup(x => x.ResetEditStatusToEmployer(It.IsAny<long>()))
+                .Returns(() => Task.FromResult(new Unit()));
+
             _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object,
@@ -145,8 +148,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         {
             await _sut.Handle(_command);
 
-            _commitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(
-                commitment => commitment.EditStatus == EditStatus.EmployerOnly)));
+            _commitmentRepository.Verify(x => x.ResetEditStatusToEmployer(It.Is<long>(
+                commitmentId => commitmentId == _command.CommitmentId)), Times.Once);
         }
 
         [Test]

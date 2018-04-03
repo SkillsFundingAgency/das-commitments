@@ -62,21 +62,32 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderRejection.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
-            commitment.EditStatus = EditStatus.EmployerOnly;
+            await _commitmentRepository.SetTransferApproval(command.CommitmentId,
+                TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
+
+            await _commitmentRepository.ResetEditStatusToEmployer(command.CommitmentId);
+
+            await UpdateCommitmentObjectWithNewValues(commitment);
 
             await Task.WhenAll(
-                 _commitmentRepository.SetTransferApproval(command.CommitmentId,
-                     TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName),
-                 _commitmentRepository.UpdateCommitment(commitment),
                  _cohortApprovalService.ResetApprenticeshipsAgreementStatuses(commitment),
                  _historyService.Save(),
                  PublishApprenticeshipUpdatedEvents(commitment),
                  PublishRejectedMessage(command)
             );
-
         }
 
-        private async Task PublishApprenticeshipUpdatedEvents(Commitment commitment)
+        private async Task UpdateCommitmentObjectWithNewValues(Commitment commitment)
+        {
+            var updatedCommitment = await _commitmentRepository.GetCommitmentById(commitment.Id);
+            commitment.TransferApprovalStatus = updatedCommitment.TransferApprovalStatus;
+            commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
+            commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
+            commitment.TransferApprovalActionedOn = updatedCommitment.TransferApprovalActionedOn;
+            commitment.EditStatus = updatedCommitment.EditStatus;
+        }
+
+    private async Task PublishApprenticeshipUpdatedEvents(Commitment commitment)
         {
             commitment.Apprenticeships.ForEach(apprenticeship =>
                 _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED",

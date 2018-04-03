@@ -55,22 +55,33 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
+
             await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferApproved,
                 command.UserEmail, command.UserName);
 
-            commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
+            await UpdateCommitmentObjectWithNewValues(commitment);
+
             await Task.WhenAll(
                 _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
                 _cohortApprovalService.CreatePriceHistory(commitment),
                 _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
-                _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId));
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
-            await _historyService.Save();
+                _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId),
+                _historyService.Save());
 
             await PublishApprovedMessage(command);
         }
 
-        private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)
+        private async Task UpdateCommitmentObjectWithNewValues(Commitment commitment)
+        {
+            var updatedCommitment = await _commitmentRepository.GetCommitmentById(commitment.Id);
+            commitment.TransferApprovalStatus = updatedCommitment.TransferApprovalStatus;
+            commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
+            commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
+            commitment.TransferApprovalActionedOn = updatedCommitment.TransferApprovalActionedOn;
+        }
+
+    private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)
         {
             if (commitment.TransferSenderId != message.TransferSenderId)
                 throw new UnauthorizedException(
