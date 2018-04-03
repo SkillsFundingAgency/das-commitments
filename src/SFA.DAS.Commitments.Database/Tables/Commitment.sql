@@ -17,9 +17,9 @@
     [LastUpdatedByEmployerEmail] NVARCHAR(255) NOT NULL, 
     [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
     [LastUpdatedByProviderEmail] NVARCHAR(255) NULL,
-    [TransferSenderId] BIGINT NULL,
-    [TransferSenderName] NVARCHAR(100) NULL,
-	[TransferApprovalStatus] TINYINT NULL,
+    [TransferSenderId] BIGINT SPARSE,
+    [TransferSenderName] NVARCHAR(100) SPARSE,
+	[TransferApprovalStatus] TINYINT SPARSE,
 	[TransferApprovalActionedByEmployerName] NVARCHAR(255),
 	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
 	[TransferApprovalActionedOn] DATETIME2
@@ -35,4 +35,7 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_Status]
 ON [dbo].[Commitment] ([ProviderId],[CommitmentStatus])
 INCLUDE ([Reference],[EmployerAccountId],[LegalEntityId],[LegalEntityName],[LegalEntityAddress],[LegalEntityOrganisationType],[ProviderName],[EditStatus],[CreatedOn],[LastAction],[LastUpdatedByEmployerName],[LastUpdatedByEmployerEmail],[LastUpdatedByProviderName],[LastUpdatedByProviderEmail])
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
 GO
