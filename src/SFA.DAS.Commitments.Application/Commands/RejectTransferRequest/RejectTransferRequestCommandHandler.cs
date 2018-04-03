@@ -60,41 +60,29 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
-            StartTrackingApprenticeshipHistory(commitment, command);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderRejection.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
             commitment.EditStatus = EditStatus.EmployerOnly;
 
-            await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
-                command.UserEmail, command.UserName);
-            
-            await _commitmentRepository.UpdateCommitment(commitment);
-
-            await _cohortApprovalService.ResetApprenticeshipsAgreementStatuses(commitment);
-
-            await EmitApprenticeshipUpdatedEvents(commitment);
-
-            await _historyService.Save();
-
-            await PublishRejectedMessage(command);
+            await Task.WhenAll(
+                 _commitmentRepository.SetTransferApproval(command.CommitmentId,
+                     TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName),
+                 _commitmentRepository.UpdateCommitment(commitment),
+                 _cohortApprovalService.ResetApprenticeshipsAgreementStatuses(commitment),
+                 _historyService.Save(),
+                 PublishApprenticeshipUpdatedEvents(commitment),
+                 PublishRejectedMessage(command)
+            );
 
         }
 
-        private async Task EmitApprenticeshipUpdatedEvents(Commitment commitment)
+        private async Task PublishApprenticeshipUpdatedEvents(Commitment commitment)
         {
             commitment.Apprenticeships.ForEach(apprenticeship =>
                 _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED",
                     _currentDateTime.Now, null)
             );
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
-        }
-
-        private void StartTrackingApprenticeshipHistory(Commitment commitment, RejectTransferRequestCommand command)
-        {
-            commitment.Apprenticeships.ForEach(apprenticeship => 
-                _historyService.TrackUpdate(apprenticeship, "Updated", null, apprenticeship.Id,
-                    CallerType.TransferSender, command.UserName, commitment.ProviderId,
-                    commitment.EmployerAccountId, command.UserName)
-            );
         }
 
         private static void CheckAuthorization(RejectTransferRequestCommand message, Commitment commitment)

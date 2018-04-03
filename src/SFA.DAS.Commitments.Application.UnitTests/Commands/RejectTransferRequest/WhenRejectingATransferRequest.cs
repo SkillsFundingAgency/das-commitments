@@ -130,12 +130,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         }
 
         [Test]
-        public async Task ThenHistoryRecordsAreCreated()
+        public async Task ThenCommitmentHistoryRecordsAreCreated()
         {
             await _sut.Handle(_command);
 
             _historyRepository.Verify(x => x.InsertHistory(It.Is<List<HistoryItem>>(
-                    items => items.Count == _commitment.Apprenticeships.Count)),
+                    items => items.Count == 1
+                             && items[0].CommitmentId == _commitment.Id)),
                 Times.Once);
         }
 
