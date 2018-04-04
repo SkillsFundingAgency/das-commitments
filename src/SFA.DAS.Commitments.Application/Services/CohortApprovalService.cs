@@ -81,6 +81,15 @@ namespace SFA.DAS.Commitments.Application.Services
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
         }
 
+        internal async Task ResetApprenticeshipsAgreementStatuses(Commitment commitment)
+        {
+            commitment.Apprenticeships.ForEach(x =>
+            {
+                x.AgreementStatus = AgreementStatus.NotAgreed;
+            });
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
+        }
+
         internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText, CallerType createdBy)
         {
             var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);

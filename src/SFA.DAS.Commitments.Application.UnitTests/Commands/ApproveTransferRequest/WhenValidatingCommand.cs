@@ -1,40 +1,29 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.Commitments.Application.Commands.TransferApproval;
+using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Domain.Entities;
 
-namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
+namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequest
 {
     [TestFixture]
     public class WhenValidatingCommand
     {
-        private TransferApprovalValidator _target;
-        private TransferApprovalCommand _command;
+        private ApproveTransferRequestValidator _target;
+        private ApproveTransferRequestCommand _command;
 
         [SetUp]
         public void Setup()
         {
-            _target = new TransferApprovalValidator();
+            _target = new ApproveTransferRequestValidator();
 
-            _command = new TransferApprovalCommand
+            _command = new ApproveTransferRequestCommand
             {
                 CommitmentId = 123,
                 TransferSenderId = 999,
                 TransferReceiverId = 777,
-                TransferApprovalStatus = TransferApprovalStatus.TransferRejected,
                 UserEmail = "test@test.com",
                 UserName = "Test"
             };
         }
-
-        [TestCase(TransferApprovalStatus.TransferApproved)]
-        [TestCase(TransferApprovalStatus.TransferRejected)]
-        public void ThenIsValidIfAllFieldsAreSetCorrectly(TransferApprovalStatus status)
-        {
-            _command.TransferApprovalStatus = status;
-            var validationResult = _target.Validate(_command);
-            Assert.IsTrue(validationResult.IsValid);
-        }
-
 
         [TestCase(0)]
         [TestCase(-1)]
@@ -75,14 +64,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TransferApproval
         public void ThenIsInvalidIfUserNameIsNull()
         {
             _command.UserName = null;
-            var validationResult = _target.Validate(_command);
-            Assert.IsFalse(validationResult.IsValid);
-        }
-
-        [Test]
-        public void ThenIsInvalidIfTransferApprovalStatusIsPending()
-        {
-            _command.TransferApprovalStatus = TransferApprovalStatus.Pending;
             var validationResult = _target.Validate(_command);
             Assert.IsFalse(validationResult.IsValid);
         }

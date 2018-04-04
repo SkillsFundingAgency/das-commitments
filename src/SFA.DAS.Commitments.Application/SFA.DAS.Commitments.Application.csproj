@@ -94,9 +94,9 @@
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
-    <Compile Include="Commands\TransferApproval\TransferApprovalCommand.cs" />
-    <Compile Include="Commands\TransferApproval\TransferApprovalCommandHandler.cs" />
-    <Compile Include="Commands\TransferApproval\TransferApprovalValidator.cs" />
+    <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestCommand.cs" />
+    <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestCommandHandler.cs" />
+    <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestValidator.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
@@ -111,6 +111,9 @@
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeValidator.cs" />
+    <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommand.cs" />
+    <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommandHandler.cs" />
+    <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestValidator.cs" />
     <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommand.cs" />
     <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
