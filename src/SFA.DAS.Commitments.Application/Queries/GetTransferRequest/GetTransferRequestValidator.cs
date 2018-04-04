@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Application.Queries.GetTransferRequest
