@@ -3,22 +3,24 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
-using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
 {
     [TestFixture]
     public class WhenGettingTransferRequestsForASender : EmployerOrchestratorTestBase
     {
-        private List<TransferRequestSummary> _matches;
+        private List<Domain.Entities.TransferRequestSummary> _domainMatches;
+        private List<Types.Commitment.TransferRequestSummary> _apiMatches;
 
         [SetUp]
         public new void SetUp()
         {
-            _matches = new List<TransferRequestSummary>();
+            _domainMatches = new List<Domain.Entities.TransferRequestSummary>();
+            _apiMatches = new List<Types.Commitment.TransferRequestSummary>();
             MockMediator.Setup(x => x.SendAsync(It.IsAny<GetTransferRequestsForSenderRequest>()))
-                .ReturnsAsync(new GetTransferRequestsForSenderResponse { Data = _matches });
-
+                .ReturnsAsync(new GetTransferRequestsForSenderResponse { Data = _domainMatches });
+            MockTransferRequestMapper.Setup(x => x.MapFrom(It.IsAny<IList<Domain.Entities.TransferRequestSummary>>()))
+                .Returns(_apiMatches);
         }
 
         [Test]
@@ -34,14 +36,21 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         }
 
         [Test]
+        public async Task ThenDomainMatchesAreSentToMapper()
+        {
+            //Act
+            await Orchestrator.GetTransferRequestsForSender(123);
+
+            //Assert
+            MockTransferRequestMapper.Verify(x => x.MapFrom(_domainMatches));
+        }
+        [Test]
         public async Task ThenShouldReturnFoundMatches()
         {
-            // Arrange
-
             //Act
             var result = await Orchestrator.GetTransferRequestsForSender(123);
 
-            Assert.AreSame(_matches, result);
+            Assert.AreEqual(_domainMatches, result);
         }
     }
 }

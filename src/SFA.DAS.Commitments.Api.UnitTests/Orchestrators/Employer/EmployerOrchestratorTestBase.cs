@@ -15,6 +15,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         protected EmployerOrchestrator Orchestrator;
         protected Mock<FacetMapper> MockFacetMapper;
         protected Mock<ApprenticeshipFilterService> MockApprenticeshipFilter;
+        protected Mock<ITransferRequestMapper> MockTransferRequestMapper;
 
         [SetUp]
         public void SetUp()
@@ -22,13 +23,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             MockMediator = new Mock<IMediator>();
             MockFacetMapper = new Mock<FacetMapper>(Mock.Of<ICurrentDateTime>());
             MockApprenticeshipFilter = new Mock<ApprenticeshipFilterService>(MockFacetMapper.Object);
+            MockTransferRequestMapper = new Mock<ITransferRequestMapper>();
             Orchestrator = new EmployerOrchestrator(
                 MockMediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 MockFacetMapper.Object,
                 MockApprenticeshipFilter.Object,
                 new ApprenticeshipMapper(),
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(),
+                MockTransferRequestMapper.Object);
         }
     }
 }

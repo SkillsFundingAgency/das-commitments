@@ -10,6 +10,7 @@ using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticesh
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatusSummary;
 using ApprenticeshipUpdate = SFA.DAS.Commitments.Api.Types.Apprenticeship.ApprenticeshipUpdate;
 using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
+using TransferRequestSummary = SFA.DAS.Commitments.Api.Types.Commitment.TransferRequestSummary;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {

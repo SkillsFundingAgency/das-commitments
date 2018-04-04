@@ -122,6 +122,7 @@
     <Compile Include="Orchestrators\Employer\WhenGettingTransferRequestsForASender.cs" />
     <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
+    <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequest.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentView.cs" />
     <Compile Include="StubCurrentDateTime.cs" />

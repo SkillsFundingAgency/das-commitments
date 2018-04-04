@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 new FacetMapper(Mock.Of<ICurrentDateTime>()), 
                 new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())), 
                 Mock.Of<IApprenticeshipMapper>(), 
-                _commitmentMapper.Object);
+                _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>());
 
             var apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
                 _mockMediator.Object,
