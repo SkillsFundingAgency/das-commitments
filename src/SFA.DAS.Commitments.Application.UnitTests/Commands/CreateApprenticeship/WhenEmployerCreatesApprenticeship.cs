@@ -31,7 +31,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IUlnValidator> _mockUlnValidator;
         private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         private Mock<IMessagePublisher> _mockMessagePublisher;
-        private ProviderCohortApprovalUndoneByEmployerUpdate _emittedEvent;
 
         private long expectedApprenticeshipId = 12;
 
@@ -50,7 +49,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockMessagePublisher = new Mock<IMessagePublisher>();
 
             _mockMessagePublisher.Setup(x => x.PublishAsync(It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()))
-                .Callback<object>((obj) => _emittedEvent = obj as ProviderCohortApprovalUndoneByEmployerUpdate)
                 .Returns(() => Task.FromResult(new Unit()));
 
             var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
@@ -96,12 +94,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _emittedEvent = null;
-        }
-
         [TestCase(true, true)]
         [TestCase(false, false)]
         public async Task ThenIfCohortIsPendingFinalApprovalByEmployerThenAMessageIsEmitted(bool pendingFinalApprovalByEmployer, bool expectEmitEvent)
@@ -131,15 +123,42 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             //Assert
             if (expectEmitEvent)
             {
-                Assert.IsNotNull(_emittedEvent, "Event expected but not emitted");
-                Assert.AreEqual(_providerId, _emittedEvent.ProviderId);
-                Assert.AreEqual(_employerAccountId, _emittedEvent.AccountId);
-                Assert.AreEqual(_exampleValidRequest.CommitmentId, _emittedEvent.CommitmentId);
+                _mockMessagePublisher.Verify(
+                    x => x.PublishAsync(It.Is<ProviderCohortApprovalUndoneByEmployerUpdate>(
+                        m => m.ProviderId == _providerId
+                             && m.AccountId == _employerAccountId
+                             && m.CommitmentId == _exampleValidRequest.CommitmentId
+                        )), Times.Once);
             }
             else
             {
-                Assert.IsNull(_emittedEvent, "Unexpected event emitted");
+                _mockMessagePublisher.Verify(
+                    x => x.PublishAsync(It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()),
+                    Times.Never);
             }
+        }
+
+        [Test]
+        public async Task ThenIfTheCohortIsCurrentlyEmptyThenAMessageToUndoProviderApprovalIsNotEmitted()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                EmployerAccountId = _exampleValidRequest.Caller.Id,
+                ProviderId = 10012,
+                Id = _exampleValidRequest.CommitmentId,
+                Apprenticeships = new List<Apprenticeship>()
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockMessagePublisher.Verify(
+                x => x.PublishAsync(It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()),
+                Times.Never);
         }
     }
 }
