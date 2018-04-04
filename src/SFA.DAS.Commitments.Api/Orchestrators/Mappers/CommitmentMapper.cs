@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
         public CommitmentListItem MapFrom(CommitmentSummary source, CallerType callerType)
         {
-            return new CommitmentListItem
+            var commitmentListItem = new CommitmentListItem
             {
                 Id = source.Id,
                 Reference = source.Reference,
@@ -41,8 +41,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ApprenticeshipCount = source.ApprenticeshipCount,
                 AgreementStatus = (Types.AgreementStatus)source.AgreementStatus,
                 LastAction = (Types.Commitment.Types.LastAction)source.LastAction,
-                TransferSenderId = source.TransferSenderId,
-                TransferApprovalStatus = (Types.TransferApprovalStatus)source.TransferApprovalStatus,
                 CanBeApproved = callerType == CallerType.Employer
                         ? source.EmployerCanApproveCommitment
                         : source.ProviderCanApproveCommitment,
@@ -52,6 +50,17 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     new LastUpdateInfo { Name = source.LastUpdatedByProviderName, EmailAddress = source.LastUpdatedByProviderEmail },
                 Messages = MapMessagesFrom(source.Messages)
             };
+
+            if (source.TransferSenderId.HasValue)
+            {
+                commitmentListItem.TransferSender = new TransferSender
+                {
+                    Id = source.TransferSenderId,
+                    TransferApprovalStatus = (Types.TransferApprovalStatus) source.TransferApprovalStatus
+                };
+            }
+
+            return commitmentListItem;
         }
 
         public IEnumerable<CommitmentListItem> MapFrom(IEnumerable<CommitmentSummary> source, CallerType callerType)
