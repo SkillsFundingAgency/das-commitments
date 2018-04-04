@@ -30,6 +30,7 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         private const long EmployerAccountId = 666;
         private const long ApprenticeshipId = 9990;
         private const long CommitmentId = 876;
+        private const long TransferRequestId = 199991;
         private const string Uln = "6791776799";
 
         [SetUp]
@@ -341,6 +342,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
+        public async Task PatchTransferApprovalStatusWithTransferRequestId()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{TransferRequestId}/approval/{CommitmentId}"), JsonConvert.SerializeObject(new TransferApprovalRequest()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.PatchTransferApprovalStatus(EmployerAccountId, CommitmentId, TransferRequestId, new TransferApprovalRequest());
+
+            Assert.Pass();
+        }
+
+        [Test]
         public async Task GetTransferRequestsForSender()
         {
             var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/sender/transfers"), string.Empty);
@@ -354,8 +366,8 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         [Test]
         public async Task GetTransferRequestsForReceiver()
         {
-            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/receiver/transfers"), string.Empty);
-            _fakeHandler.AddFakeResponse(transferRequestForSenderRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<TransferRequestSummary>())) });
+            var transferRequestForReceiverRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/receiver/transfers"), string.Empty);
+            _fakeHandler.AddFakeResponse(transferRequestForReceiverRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<TransferRequestSummary>())) });
 
             var transfers = await _employerApiClient.GetTransferRequestsForReceiver(EmployerAccountId);
 

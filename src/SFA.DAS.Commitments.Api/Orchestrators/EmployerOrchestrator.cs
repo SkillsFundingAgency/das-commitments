@@ -327,7 +327,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Approved commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
         }
 
-        public async Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, Commitment.TransferApprovalRequest transferApprovalRequest)
+        public async Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, Commitment.TransferApprovalRequest transferApprovalRequest)
         {
             _logger.Trace($"Setting Approval status on commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
 
@@ -336,6 +336,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 TransferSenderId = transferSenderId,
                 TransferReceiverId = transferApprovalRequest.TransferReceiverId,
                 TransferApprovalStatus = (Domain.Entities.TransferApprovalStatus)transferApprovalRequest.TransferApprovalStatus,
+                TransferRequestId = transferRequestId,
                 CommitmentId = commitmentId,
                 UserEmail = transferApprovalRequest.UserEmail,
                 UserName = transferApprovalRequest.UserName

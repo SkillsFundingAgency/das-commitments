@@ -20,12 +20,12 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             var request = fixture.Build<TransferApprovalRequest>().Create();
 
             //Act
-            await Orchestrator.SetTransferApprovalStatus(1, 2, request);
+            await Orchestrator.SetTransferApprovalStatus(1, 2, 3, request);
              
             //Assert
             MockMediator.Verify(
                 x => x.SendAsync(It.Is<TransferApprovalCommand>(p =>
-                    p.TransferSenderId == 1 && p.CommitmentId == 2 &&
+                    p.TransferSenderId == 1 && p.CommitmentId == 2 && p.TransferRequestId == 3 &&
                     p.TransferApprovalStatus == (Domain.Entities.TransferApprovalStatus)request.TransferApprovalStatus && 
                     p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
         }
