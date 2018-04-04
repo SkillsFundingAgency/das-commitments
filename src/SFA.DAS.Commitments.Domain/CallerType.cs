@@ -4,6 +4,7 @@
     {
         Employer = 0,
         Provider,
-        TransferSender
+        TransferSender,
+        TransferReceiver
     }
 }
