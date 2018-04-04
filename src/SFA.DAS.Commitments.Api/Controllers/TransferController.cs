@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [HttpPatch]
-        [Route("{transferSenderId}/transfers/{transferRequestId}/approval/{commitmentId}", Name = "PatchTransferApprovalStatus")]
+        [Route("{transferSenderId}/transfers/{transferRequestId}/approval/{commitmentId}", Name = "PatchTransferRequestStatus")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest request)
         {
