@@ -311,6 +311,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task ResetEditStatusToEmployer(long commitmentId)
+        {
+            _logger.Debug($"Resetting edit status of commitment {commitmentId} to Employer", commitmentId: commitmentId);
+
+            await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", commitmentId, DbType.Int64);
+                parameters.Add("@editStatus", EditStatus.EmployerOnly, DbType.Int32);
+
+                var returnCode = await connection.ExecuteAsync(
+                    sql: "UPDATE [dbo].[Commitment] SET EditStatus=@editStatus WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+
+                return returnCode;
+            });
+        }
+
         public async Task<long> CreateRelationship(Relationship relationship)
         {
             _logger.Debug(

@@ -29,7 +29,8 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
-using SFA.DAS.Commitments.Application.Commands.TransferApproval;
+using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
+using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
@@ -44,6 +45,7 @@ using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
 using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
+using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -331,16 +333,34 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _logger.Trace($"Setting Approval status on commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
 
-            await _mediator.SendAsync(new TransferApprovalCommand
+            if (transferApprovalRequest.TransferApprovalStatus == TransferApprovalStatus.Approved)
             {
-                TransferSenderId = transferSenderId,
-                TransferReceiverId = transferApprovalRequest.TransferReceiverId,
-                TransferApprovalStatus = (Domain.Entities.TransferApprovalStatus)transferApprovalRequest.TransferApprovalStatus,
-                TransferRequestId = transferRequestId,
-                CommitmentId = commitmentId,
-                UserEmail = transferApprovalRequest.UserEmail,
-                UserName = transferApprovalRequest.UserName
-            });
+                await _mediator.SendAsync(new ApproveTransferRequestCommand
+                {
+                    TransferSenderId = transferSenderId,
+                    TransferReceiverId = transferApprovalRequest.TransferReceiverId,
+                    TransferRequestId = transferRequestId,
+                    CommitmentId = commitmentId,
+                    UserEmail = transferApprovalRequest.UserEmail,
+                    UserName = transferApprovalRequest.UserName
+                });
+            }
+            else if (transferApprovalRequest.TransferApprovalStatus == TransferApprovalStatus.Rejected)
+            {
+                await _mediator.SendAsync(new RejectTransferRequestCommand
+                {
+                    TransferSenderId = transferSenderId,
+                    TransferReceiverId = transferApprovalRequest.TransferReceiverId,
+                    TransferRequestId = transferRequestId,
+                    CommitmentId = commitmentId,
+                    UserEmail = transferApprovalRequest.UserEmail,
+                    UserName = transferApprovalRequest.UserName
+                });
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid Transfer Approval Status of {transferApprovalRequest.TransferApprovalStatus}");
+            }          
 
             _logger.Info($"Setting Approval Status for commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
         }
