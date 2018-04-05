@@ -9,6 +9,7 @@
 	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
 	[TransferApprovalActionedOn] DATETIME2,
 
+    [CreatedOn] DATETIME2 NOT NULL DEFAULT GETDATE(), 
     CONSTRAINT [FK_TransferRequest_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 
 )
