@@ -107,6 +107,7 @@
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestsForReceiver.cs" />
+    <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForSender.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestsForSender.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingASingleCommitment.cs" />

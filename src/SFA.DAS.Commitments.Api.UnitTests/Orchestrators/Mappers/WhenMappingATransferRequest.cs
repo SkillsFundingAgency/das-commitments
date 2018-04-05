@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
-using SFA.DAS.Commitments.Domain.Entities;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
@@ -43,6 +41,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             result.SendingEmployerAccountId.Should().Be(_source.SendingEmployerAccountId);
             result.Status.Should().Be((TransferApprovalStatus)_source.Status);
             result.TransferCost.Should().Be(_source.TransferCost);
+            result.TrainingList.Count.Should().Be(_courses.Count);
             result.TrainingList[0].ApprenticeshipCount.Should().Be(_courses[0].ApprenticeshipCount);
             result.TrainingList[0].CourseTitle.Should().Be(_courses[0].CourseTitle);
 
@@ -51,11 +50,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
         [Test]
         public void ThenMappingANullSourceObjectReturnsANullResponse()
         {
-            Domain.Entities.TransferRequest source = null;
-            var result = _mapper.MapFrom(source);
-
+            var result = _mapper.MapFrom((Domain.Entities.TransferRequest)null);
             result.Should().BeNull();
-
         }
     }
 }
