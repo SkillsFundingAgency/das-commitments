@@ -52,10 +52,10 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
                 throw new ResourceNotFoundException();
             }
 
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
-
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
+
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
             if (command.TransferRequestId > 0)
             {
