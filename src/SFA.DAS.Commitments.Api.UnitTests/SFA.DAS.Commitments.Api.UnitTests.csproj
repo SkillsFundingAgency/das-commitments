@@ -118,6 +118,7 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipsForUln.cs" />
+    <Compile Include="Orchestrators\Employer\WhenGettingATransferRequest.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingTransferRequestsForAReciever.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingTransferRequestsForASender.cs" />
     <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
