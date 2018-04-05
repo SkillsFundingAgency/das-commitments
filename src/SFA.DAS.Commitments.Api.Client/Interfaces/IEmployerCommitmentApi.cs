@@ -38,5 +38,8 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
         Task ApproveCohort(long employerAccountId, long commitmentId, CommitmentSubmission submission);
         Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request);
+        Task<List<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId);
+        Task<List<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId);
+        Task<TransferRequest> GetTransferRequestForSender(long transferSenderId, long transferRequestId);
     }
 }
