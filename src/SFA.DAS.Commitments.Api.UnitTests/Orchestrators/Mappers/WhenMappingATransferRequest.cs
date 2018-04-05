@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.Commitments.Domain.Entities;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
@@ -12,38 +14,47 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
     public class WhenMappingATransferRequest
     {
         private TransferRequestMapper _mapper;
-        private IList<Domain.Entities.TransferRequestSummary> _source;
+        private Domain.Entities.TransferRequest _source;
+        private List<Domain.Entities.TrainingCourseSummary> _courses;
 
         [SetUp]
         public void Setup()
         {
             var fixture = new Fixture();
-            _source = fixture.Create<IList<Domain.Entities.TransferRequestSummary>>();
+            _courses = fixture.Create<List<Domain.Entities.TrainingCourseSummary>>();
+            _source = fixture.Create<Domain.Entities.TransferRequest>();
+            _source.TrainingCourses = JsonConvert.SerializeObject(_courses);
+            
             _mapper = new TransferRequestMapper();
         }
 
         [Test]
-        public void ThenMappingTheListReturnsTheCorrectCount()
+        public void ThenMappingTheSourceObjectReturnsTheApiObjectValuesCorrectly()
         {
             var result = _mapper.MapFrom(_source);
 
-            result.Count().Should().Be(_source.Count);
+            result.TransferRequestId.Should().Be(_source.TransferRequestId);
+            result.ApprovedOrRejectedByUserEmail.Should().Be(_source.ApprovedOrRejectedByUserEmail);
+            result.ApprovedOrRejectedByUserName.Should().Be(_source.ApprovedOrRejectedByUserName);
+            result.ApprovedOrRejectedOn.Should().Be(_source.ApprovedOrRejectedOn);
+            result.CommitmentId.Should().Be(_source.CommitmentId);
+            result.LegalEntityName.Should().Be(_source.LegalEntityName);
+            result.ReceivingEmployerAccountId.Should().Be(_source.ReceivingEmployerAccountId);
+            result.SendingEmployerAccountId.Should().Be(_source.SendingEmployerAccountId);
+            result.Status.Should().Be((TransferApprovalStatus)_source.Status);
+            result.TransferCost.Should().Be(_source.TransferCost);
+            result.TrainingList[0].ApprenticeshipCount.Should().Be(_courses[0].ApprenticeshipCount);
+            result.TrainingList[0].CourseTitle.Should().Be(_courses[0].CourseTitle);
 
         }
 
         [Test]
-        public void ThenMappingToNewObjectMatches()
+        public void ThenMappingANullSourceObjectReturnsANullResponse()
         {
-            var result = _mapper.MapFrom(_source[0]);
+            Domain.Entities.TransferRequest source = null;
+            var result = _mapper.MapFrom(source);
 
-            result.TransferRequestId.Should().Be(_source[0].TransferRequestId);
-            result.ReceivingEmployerAccountId.Should().Be(_source[0].ReceivingEmployerAccountId);
-            result.CommitmentId.Should().Be(_source[0].CommitmentId);
-            result.SendingEmployerAccountId.Should().Be(_source[0].SendingEmployerAccountId);
-            result.Status.Should().Be((TransferApprovalStatus)_source[0].Status);
-            result.ApprovedOrRejectedByUserName.Should().Be(_source[0].ApprovedOrRejectedByUserName);
-            result.ApprovedOrRejectedByUserEmail.Should().Be(_source[0].ApprovedOrRejectedByUserEmail);
-            result.ApprovedOrRejectedOn.Should().Be(_source[0].ApprovedOrRejectedOn);
+            result.Should().BeNull();
 
         }
     }
