@@ -241,22 +241,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             }
         }
 
-        public Task<TransferRequest> GetTransferRequest(long transferRequestId)
-        {
-            return WithConnection(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add($"@transferRequestId", transferRequestId);
-
-                var results = await c.QueryAsync<TransferRequest>(
-                    sql: $"[dbo].[GetTransferRequest]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-
-                return results.FirstOrDefault();
-            });
-        }
-
         public async Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses)
         {
             _logger.Debug($"Starting a Transfer Request Approval", commitmentId: commitmentId);
@@ -293,6 +277,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
                 throw;
             }
+        }
+
+        public Task<TransferRequest> GetTransferRequest(long transferRequestId)
+        {
+            return WithConnection(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@transferRequestId", transferRequestId);
+
+                var results = await c.QueryAsync<TransferRequest>(
+                    sql: $"[dbo].[GetTransferRequest]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return results.FirstOrDefault();
+            });
         }
 
         public Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId)
