@@ -6,6 +6,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
 {
@@ -16,6 +17,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         protected Mock<FacetMapper> MockFacetMapper;
         protected Mock<ApprenticeshipFilterService> MockApprenticeshipFilter;
         protected Mock<ITransferRequestMapper> MockTransferRequestMapper;
+        protected Mock<IHashingService> MockHashingService;
 
         [SetUp]
         public void SetUp()
@@ -24,6 +26,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             MockFacetMapper = new Mock<FacetMapper>(Mock.Of<ICurrentDateTime>());
             MockApprenticeshipFilter = new Mock<ApprenticeshipFilterService>(MockFacetMapper.Object);
             MockTransferRequestMapper = new Mock<ITransferRequestMapper>();
+            MockHashingService = new Mock<IHashingService>();
             Orchestrator = new EmployerOrchestrator(
                 MockMediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
@@ -31,7 +34,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 MockApprenticeshipFilter.Object,
                 new ApprenticeshipMapper(),
                 Mock.Of<ICommitmentMapper>(),
-                MockTransferRequestMapper.Object);
+                MockTransferRequestMapper.Object,
+                MockHashingService.Object);
         }
     }
 }

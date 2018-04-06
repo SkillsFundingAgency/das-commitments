@@ -22,9 +22,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
         [Test]
         public async Task ThenCallsOrchestratorWithTheCorrectParameters()
         {
-            await _sut.GetTransferRequestsForTransferReceiver(12);
+            await _sut.GetTransferRequestsForTransferReceiver("12");
 
-            _mockEmployerOrchestrator.Verify(x => x.GetTransferRequestsForReceiver(12));
+            _mockEmployerOrchestrator.Verify(x => x.GetTransferRequestsForReceiver("12"));
         }
 
     }
