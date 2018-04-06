@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.HashingService;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
@@ -14,16 +16,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
         private TransferRequestMapper _mapper;
         private Domain.Entities.TransferRequest _source;
         private List<Domain.Entities.TrainingCourseSummary> _courses;
+        private Mock<IHashingService> _hashingService;
 
         [SetUp]
         public void Setup()
         {
+            _hashingService = new Mock<IHashingService>();
             var fixture = new Fixture();
             _courses = fixture.Create<List<Domain.Entities.TrainingCourseSummary>>();
             _source = fixture.Create<Domain.Entities.TransferRequest>();
             _source.TrainingCourses = JsonConvert.SerializeObject(_courses);
             
-            _mapper = new TransferRequestMapper();
+            _mapper = new TransferRequestMapper(_hashingService.Object);
         }
 
         [Test]

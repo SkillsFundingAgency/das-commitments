@@ -40,7 +40,7 @@ using SFA.DAS.Commitments.Application.Queries.GetTransferRequest;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForReceiver;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
 using SFA.DAS.Commitments.Domain.Entities;
-
+using SFA.DAS.HashingService;
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipStatusSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
@@ -57,6 +57,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly ICommitmentMapper _commitmentMapper;
         private readonly ITransferRequestMapper _transferRequestMapper;
+        private readonly IHashingService _hashingService;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -67,7 +68,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             ApprenticeshipFilterService apprenticeshipFilterService,
             IApprenticeshipMapper apprenticeshipMapper,
             ICommitmentMapper commitmentMapper,
-            ITransferRequestMapper transferRequestMapper)
+            ITransferRequestMapper transferRequestMapper,
+            IHashingService hashingService)
         {
             _mediator = mediator;
             _logger = logger;
@@ -76,6 +78,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _apprenticeshipMapper = apprenticeshipMapper;
             _commitmentMapper = commitmentMapper;
             _transferRequestMapper = transferRequestMapper;
+            _hashingService = hashingService;
         }
 
         public async Task<IEnumerable<Commitment.CommitmentListItem>> GetCommitments(long accountId)
@@ -381,8 +384,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _transferRequestMapper.MapFrom(response.Data);
         }
 
-        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId)
+        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForSender(string hashedTransferSenderId)
         {
+            var transferSenderId = _hashingService.DecodeValue(hashedTransferSenderId);
+
             _logger.Trace($"Getting transfer requests employer sender account {transferSenderId}", accountId: transferSenderId);
 
             var response = await _mediator.SendAsync(new GetTransferRequestsForSenderRequest
@@ -395,8 +400,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _transferRequestMapper.MapFrom(response.Data).ToList();
         }
 
-        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId)
+        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForReceiver(string hashedtransferReceiverId)
         {
+            var transferReceiverId = _hashingService.DecodeValue(hashedtransferReceiverId);
+
             _logger.Trace($"Getting transfer requests employer receiver account {transferReceiverId}", accountId: transferReceiverId);
 
             var response = await _mediator.SendAsync(new GetTransferRequestsForReceiverRequest

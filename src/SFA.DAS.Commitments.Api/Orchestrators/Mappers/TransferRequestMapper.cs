@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using SFA.DAS.HashingService;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 using TransferRequest = SFA.DAS.Commitments.Api.Types.Commitment.TransferRequest;
 using TransferRequestSummary = SFA.DAS.Commitments.Api.Types.Commitment.TransferRequestSummary;
@@ -9,15 +10,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public class TransferRequestMapper : ITransferRequestMapper 
     {
+        private readonly IHashingService _hashingService;
+
+        public TransferRequestMapper(IHashingService hashingService)
+        {
+            _hashingService = hashingService;
+        }
         public TransferRequestSummary MapFrom(Domain.Entities.TransferRequestSummary source)
         {
             return new TransferRequestSummary
             {
-                TransferRequestId = source.TransferRequestId,
-
-                ReceivingEmployerAccountId = source.ReceivingEmployerAccountId,
-                CommitmentId = source.CommitmentId,
-                SendingEmployerAccountId = source.SendingEmployerAccountId,
+                HashedTransferRequestId = _hashingService.HashValue(source.TransferRequestId),
+                HashedReceivingEmployerAccountId = _hashingService.HashValue(source.ReceivingEmployerAccountId),
+                HashedCohortRef = _hashingService.HashValue(source.CommitmentId),
+                HashedSendingEmployerAccountId = _hashingService.HashValue(source.SendingEmployerAccountId),
                 TransferCost = source.TransferCost,
                 Status = (TransferApprovalStatus) source.Status,
                 ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,

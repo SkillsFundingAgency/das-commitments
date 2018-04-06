@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -21,13 +22,15 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 .ReturnsAsync(new GetTransferRequestsForReceiverResponse() { Data = _domainMatches });
             MockTransferRequestMapper.Setup(x => x.MapFrom(It.IsAny<IList<Domain.Entities.TransferRequestSummary>>()))
                 .Returns(_apiMatches);
+            MockHashingService.Setup(x => x.DecodeValue(It.IsAny<string>())).Returns((string param) => Convert.ToInt64(param));
         }
+    
 
         [Test]
         public async Task ThenAppropriateCommandIsSentToMediator()
         {
             //Act
-            await Orchestrator.GetTransferRequestsForReceiver(123);
+            await Orchestrator.GetTransferRequestsForReceiver("123");
              
             //Assert
             MockMediator.Verify(
@@ -39,7 +42,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         public async Task ThenDomainMatchesAreSentToMapper()
         {
             //Act
-            await Orchestrator.GetTransferRequestsForReceiver(123);
+            await Orchestrator.GetTransferRequestsForReceiver("123");
 
             //Assert
             MockTransferRequestMapper.Verify(x=>x.MapFrom(_domainMatches));
@@ -49,7 +52,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         public async Task ThenShouldReturnFoundMatches()
         {
             //Act
-            var result = await Orchestrator.GetTransferRequestsForReceiver(123);
+            var result = await Orchestrator.GetTransferRequestsForReceiver("123");
             
             // Assert
             Assert.AreEqual(_apiMatches, result);

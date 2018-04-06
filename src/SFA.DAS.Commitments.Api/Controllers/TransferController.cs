@@ -18,20 +18,20 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
 
-        [Route("{transferSenderId}/sender/transfers", Name = "GetTransferRequestsForTransferSender")]
+        [Route("{hashedTransferSenderId}/sender/transfers", Name = "GetTransferRequestsForTransferSender")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetTransferRequestsForTransferSender(long transferSenderId)
+        public async Task<IHttpActionResult> GetTransferRequestsForTransferSender(string hashedTransferSenderId)
         {
-            var response = await _employerOrchestrator.GetTransferRequestsForSender(transferSenderId);
+            var response = await _employerOrchestrator.GetTransferRequestsForSender(hashedTransferSenderId);
 
             return Ok(response);
         }
 
-        [Route("{transferReceiverId}/receiver/transfers", Name = "GetTransferRequestsForTransferReceiver")]
+        [Route("{hashedTransferReceiverId}/receiver/transfers", Name = "GetTransferRequestsForTransferReceiver")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetTransferRequestsForTransferReceiver(long transferReceiverId)
+        public async Task<IHttpActionResult> GetTransferRequestsForTransferReceiver(string hashedTransferReceiverId)
         {
-            var response = await _employerOrchestrator.GetTransferRequestsForReceiver(transferReceiverId);
+            var response = await _employerOrchestrator.GetTransferRequestsForReceiver(hashedTransferReceiverId);
 
             return Ok(response);
         }

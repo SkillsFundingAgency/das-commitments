@@ -4,10 +4,10 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
 {
     public class TransferRequestSummary
     {
-        public long TransferRequestId { get; set; }
-        public long ReceivingEmployerAccountId { get; set; }
-        public long CommitmentId { get; set; }
-        public long SendingEmployerAccountId { get; set; }
+        public string HashedTransferRequestId { get; set; }
+        public string HashedReceivingEmployerAccountId { get; set; }
+        public string HashedCohortRef { get; set; }
+        public string HashedSendingEmployerAccountId { get; set; }
         public decimal TransferCost { get; set; }
         public TransferApprovalStatus Status { get; set; }
         public string ApprovedOrRejectedByUserName { get; set; }
