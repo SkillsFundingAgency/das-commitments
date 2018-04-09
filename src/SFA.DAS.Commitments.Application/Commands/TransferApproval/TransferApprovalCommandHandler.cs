@@ -59,23 +59,37 @@ namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(commitment, command);
 
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
+
             await _commitmentRepository.SetTransferApproval(command.CommitmentId, command.TransferApprovalStatus,
                 command.UserEmail, command.UserName);
 
             if (command.TransferApprovalStatus == TransferApprovalStatus.TransferApproved)
             {
-                commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
+                // Unfortunately we need to keep the commitment object explicitly updated as the HistoryService keeps a reference to the orginal object 
+                // This problem may be resolved in c# 7.0 using new local ref eg 'ref commitment = ref await .....' syntax to re-get the updated commitment object
+                // but the behaviour of the HistoryItem object may be problematic as it's making assumptions of how updates will occur
+                await UpdateCommitmentObjectWithNewValues(commitment);
+
                 await Task.WhenAll(
                     _cohortApprovalService.UpdateApprenticeshipsPaymentStatusToPaid(commitment),
                     _cohortApprovalService.CreatePriceHistory(commitment),
                     _cohortApprovalService.PublishApprenticeshipEventsWhenTransferSenderHasApproved(commitment),
-                    _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId));
-                _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
-                await _historyService.Save();
+                    _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId),
+                    _historyService.Save());
             }
 
             await PublishApprovedOrRejectedMessage(command);
 
+        }
+
+        private async Task UpdateCommitmentObjectWithNewValues(Commitment commitment)
+        {
+            var updatedCommitment = await _commitmentRepository.GetCommitmentById(commitment.Id);
+            commitment.TransferApprovalStatus = updatedCommitment.TransferApprovalStatus;
+            commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
+            commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
+            commitment.TransferApprovalActionedOn = updatedCommitment.TransferApprovalActionedOn;
         }
 
         private static void CheckAuthorization(TransferApprovalCommand message, Commitment commitment)
