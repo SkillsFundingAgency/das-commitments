@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
-
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
 

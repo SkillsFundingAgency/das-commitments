@@ -4,16 +4,14 @@ using System.Threading.Tasks;
 using Moq;
 using MediatR;
 using SFA.DAS.Commitments.Api.Controllers;
-using Ploeh.AutoFixture.NUnit3;
 using System.Web.Http.Results;
-
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 

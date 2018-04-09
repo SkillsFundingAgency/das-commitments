@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -14,10 +15,6 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerCommitments
 {
-    using Ploeh.AutoFixture;
-
-    using SFA.DAS.Commitments.Application.Rules;
-
     [TestFixture]
     public class WhenGettingEmployerCommitments
     {

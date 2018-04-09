@@ -3,7 +3,6 @@ using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
@@ -13,9 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
-
-using Castle.Components.DictionaryAdapter.Xml;
-
+using AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
