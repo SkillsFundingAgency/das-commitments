@@ -2,7 +2,7 @@
 {
     public enum TransferApprovalStatus
     {
-        Pending,
+        Pending = 0,
         TransferApproved = 1,
         TransferRejected = 2 
     }

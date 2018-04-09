@@ -10,7 +10,7 @@ SELECT
 	,C.LegalEntityName
     ,TR.[Cost] AS TransferCost
 	,TR.TrainingCourses
-    ,TR.[Status] AS TransferApprovalStatus
+    ,TR.[Status]
     ,TR.TransferApprovalActionedByEmployerName AS ApprovedOrRejectedByUserName
     ,TR.TransferApprovalActionedByEmployerEmail AS ApprovedOrRejectedByUserEmail
     ,TR.TransferApprovalActionedOn AS ApprovedOrRejectedOn
