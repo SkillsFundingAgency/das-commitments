@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -34,6 +35,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<ICurrentDateTime> _mockCurrentDateTime;
         private Mock<IMessagePublisher> _messagePublisher;
+        private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
+        private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
@@ -49,6 +52,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _commitmentRepository = new Mock<ICommitmentRepository>();
             _mockCurrentDateTime = new Mock<ICurrentDateTime>();
             _messagePublisher = new Mock<IMessagePublisher>();
+            _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
+            _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
 
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
@@ -91,7 +96,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _historyRepository.Object, 
                 _commitmentRepository.Object, 
                 _mockCurrentDateTime.Object,
-                _messagePublisher.Object);
+                _messagePublisher.Object,
+                _apprenticeshipEventsList.Object,
+                _apprenticeshipEventsPublisher.Object);
         }
 
         [Test]
@@ -528,5 +535,39 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                         It.Is<ApprenticeshipUpdateCreated>(
                             y => y.ApprenticeshipId == apprenticeship.Id && y.AccountId == apprenticeship.EmployerAccountId && y.ProviderId == apprenticeship.ProviderId)), Times.Once);
         }
+
+        [Test]
+        public async Task ThenIfTheCommandChangesTheULNThenAnEventIsPublishedAsItIsUpdatedImmediately()
+        {
+            //Arrange
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    ULN = "NewValue",
+                    ApprenticeshipId = 3,
+                    EffectiveFromDate = DateTime.Now
+                }
+            };
+
+            var apprenticeship = new Apprenticeship
+            {
+                EmployerAccountId = 1,
+                ProviderId = 2,
+                ULN = "OldValue",
+                StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddDays(-1),
+                EndDate = new DateTime(DateTime.Now.Year + 1, 5, 1),
+            };
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(apprenticeship);
+            
+            await _handler.Handle(command);
+
+            _apprenticeshipEventsList.Verify(x=>x.Add(It.IsAny<Commitment>(), It.Is<Apprenticeship>(p=>p.ULN == "NewValue"), "APPRENTICESHIP-UPDATED", 
+                It.Is<DateTime?>(p=>p == _mockCurrentDateTime.Object.Now), null));
+            _apprenticeshipEventsPublisher.Verify(x=>x.Publish(_apprenticeshipEventsList.Object));
+        }
     }
+
 }
