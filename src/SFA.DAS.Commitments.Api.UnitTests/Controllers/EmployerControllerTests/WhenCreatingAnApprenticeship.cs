@@ -16,6 +16,7 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.HashingService;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
@@ -43,7 +44,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 new FacetMapper(Mock.Of<ICurrentDateTime>()), 
                 new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
                 _apprenticeshipMapper.Object,
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(),
+                Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
                 _mockMediator.Object,

@@ -79,6 +79,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         {
             await _sut.Handle(_command);
 
+            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferRejected, _command.UserEmail, _command.UserName));
+        }
+
+
+        [Test]
+        public async Task ThenOldRespositoryIsCalledWhenThereIsNoTransferRequestId()
+        {
+            _command.TransferRequestId = 0;
+            await _sut.Handle(_command);
+
             _commitmentRepository.Verify(x => x.SetTransferApproval(_command.CommitmentId, TransferApprovalStatus.TransferRejected, _command.UserEmail, _command.UserName));
         }
 

@@ -62,8 +62,17 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderRejection.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
-            await _commitmentRepository.SetTransferApproval(command.CommitmentId,
-                TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
+            if (command.TransferRequestId > 0)
+            {
+                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                    TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
+            }
+            else
+            {
+                // TODO Remove This route when old Approval route decomes obslete 
+                await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
+                    command.UserEmail, command.UserName);
+            }
 
             await _commitmentRepository.ResetEditStatusToEmployer(command.CommitmentId);
 
@@ -121,7 +130,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
         private async Task PublishRejectedMessage(RejectTransferRequestCommand command)
         {
-            var message = new CohortRejectedByTransferSender(command.TransferReceiverId, command.CommitmentId,
+            var message = new CohortRejectedByTransferSender(command.TransferRequestId, command.TransferReceiverId, command.CommitmentId,
                 command.TransferSenderId, command.UserName, command.UserEmail);
             await _messagePublisher.PublishAsync(message);         
         }

@@ -9,14 +9,15 @@ namespace SFA.DAS.Commitments.Events
         {
         }
 
-        public CohortApprovalByTransferSenderRequested(long accountId, long commitmentId, long transferSenderId, decimal transferCost)
+        public CohortApprovalByTransferSenderRequested(long transferRequestId, long accountId, long commitmentId, long transferSenderId, decimal transferCost)
         {
+            TransferRequestId = transferRequestId;
             ReceivingEmployerAccountId = accountId;
             CommitmentId = commitmentId;
             SendingEmployerAccountId = transferSenderId;
             TransferCost = transferCost;
         }
-
+        public long TransferRequestId { get; set; }
         public long ReceivingEmployerAccountId { get; set; }
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }

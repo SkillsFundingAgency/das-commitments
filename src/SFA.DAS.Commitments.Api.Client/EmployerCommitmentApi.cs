@@ -222,5 +222,23 @@ namespace SFA.DAS.Commitments.Api.Client
             var data = JsonConvert.SerializeObject(request);
             return PatchAsync(url, data);
         }
+
+        public Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest request)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/transfers/{transferRequestId}/approval/{commitmentId}";
+            var data = JsonConvert.SerializeObject(request);
+            return PatchAsync(url, data);
+        }
+
+        public Task<List<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/sender/transfers";
+            return _commitmentHelper.GetTransferRequests(url);
+        }
+        public Task<List<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferReceiverId}/receiver/transfers";
+            return _commitmentHelper.GetTransferRequests(url);
+        }
     }
 }

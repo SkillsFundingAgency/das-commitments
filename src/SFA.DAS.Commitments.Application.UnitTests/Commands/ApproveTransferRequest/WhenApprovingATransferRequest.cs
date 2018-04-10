@@ -70,12 +70,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         }
 
         [Test]
-        public async Task ThenIfTheTransferSenderRejectsCohortEnsureRespositoryIsCalled()
+        public async Task ThenIfTheTransferSenderRejectsCohortEnsureOldRespositoryFunctionIsCalledWhenNoTransferRequestIdIsSet()
         {
+            _command.TransferRequestId = 0;
             await _sut.Handle(_command);
 
             _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName));
         }
+
+        [Test]
+        public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus()
+        {
+            _command.TransferRequestId = 6467;
+            await _sut.Handle(_command);
+
+            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName));
+        }
+
 
         [Test]
         public async Task ThenIfTheTransferSenderApprovesCohortEnsureMessagePublisherSendsApprovedMessageAndNotRejectedMessage()
@@ -83,6 +94,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             await _sut.Handle(_command);
 
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByTransferSender>(p =>
+                p.TransferRequestId == _command.TransferRequestId &&
                 p.UserName == _command.UserName && p.UserEmail == _command.UserEmail &&
                 p.CommitmentId == _command.CommitmentId &&
                 p.ReceivingEmployerAccountId ==

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -166,6 +167,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        [Obsolete]
         public async Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
         {
             _logger.Debug($"Setting Transfer Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
@@ -200,6 +202,113 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 }
                 throw;
             }
+        }
+
+        public async Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
+        {
+            _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
+            try
+            {
+                await WithConnection(async connection =>
+                {
+                    using (var tran = connection.BeginTransaction())
+                    {
+                        var count = await connection.ExecuteAsync(
+                            sql: "[dbo].[SetTransferRequestApproval]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: new
+                            {
+                                @transferRequestId = transferRequestId,
+                                @commitmentId = commitmentId,
+                                @transferApprovalStatus = transferApprovalStatus,
+                                @transferStatusSetByEmployerName = userName,
+                                @transferStatusSetByEmployerEmail = userEmail
+                            }
+                        );
+                        tran.Commit();
+                        return count;
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException is SqlException)
+                {
+                    throw new BadRequestException(e.InnerException.Message, e);
+                }
+                throw;
+            }
+        }
+
+        public async Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses)
+        {
+            _logger.Debug($"Starting a Transfer Request Approval", commitmentId: commitmentId);
+            try
+            {
+                long transferRequestId = 0;
+                var parameters = new DynamicParameters();
+                parameters.Add("@commitmentId", commitmentId, DbType.Int64);
+                parameters.Add("@cost", cost, DbType.Decimal);
+                parameters.Add("@trainingCourses", JsonConvert.SerializeObject(trainingCourses), DbType.String);
+                parameters.Add("@transferRequestId", transferRequestId, DbType.Int64, ParameterDirection.Output);
+
+                return await WithConnection(async connection =>
+                {
+                    using (var tran = connection.BeginTransaction())
+                    {
+                        await connection.ExecuteAsync(
+                            sql: "[dbo].[StartATransferRequest]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: parameters
+                        );
+                        tran.Commit();
+                        transferRequestId = parameters.Get<long>("@transferRequestId");
+                        return transferRequestId;
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                if (e.InnerException is SqlException)
+                {
+                    throw new BadRequestException(e.InnerException.Message, e);
+                }
+                throw;
+            }
+        }
+
+        public Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId)
+        {
+            return WithConnection<IList<TransferRequestSummary>>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@senderEmployerAccountId", transferSenderAccountId);
+
+                var results = await c.QueryAsync<TransferRequestSummary>(
+                    sql: $"[dbo].[GetTransferRequestsForSender]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return results.ToList();
+            });
+        }
+
+        public Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId)
+        {
+            return WithConnection<IList<TransferRequestSummary>>(async c =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add($"@receiverEmployerAccountId", transferReceiverAccountId);
+
+                var results = await c.QueryAsync<TransferRequestSummary>(
+                    sql: $"[dbo].[GetTransferRequestsForReceiver]",
+                    param: parameters,
+                    commandType: CommandType.StoredProcedure);
+
+                return results.ToList();
+            });
         }
 
         public async Task ResetEditStatusToEmployer(long commitmentId)

@@ -5,6 +5,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
     public sealed class ApproveTransferRequestCommand : IAsyncRequest
     {
         public long CommitmentId { get; set; }
+        public long TransferRequestId { get; set; }
         public long TransferSenderId { get; set; }
         public long TransferReceiverId { get; set; }
         public string UserEmail { get; set; }

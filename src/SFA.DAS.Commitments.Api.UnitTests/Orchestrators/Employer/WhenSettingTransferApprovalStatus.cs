@@ -24,12 +24,12 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 .Create();
 
             //Act
-            await Orchestrator.SetTransferApprovalStatus(1, 2, request);
+            await Orchestrator.SetTransferApprovalStatus(1, 2, 3, request);
              
             //Assert
             MockMediator.Verify(
                 x => x.SendAsync(It.Is<ApproveTransferRequestCommand>(p =>
-                    p.TransferSenderId == 1 && p.CommitmentId == 2 &&
+                    p.TransferSenderId == 1 && p.CommitmentId == 2 && p.TransferRequestId == 3 &&
                     p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
         }
 
@@ -44,12 +44,12 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 .Create();
 
             //Act
-            await Orchestrator.SetTransferApprovalStatus(1, 2, request);
-
+            await Orchestrator.SetTransferApprovalStatus(1, 2, 3, request);
+             
             //Assert
             MockMediator.Verify(
                 x => x.SendAsync(It.Is<RejectTransferRequestCommand>(p =>
-                    p.TransferSenderId == 1 && p.CommitmentId == 2 &&
+                    p.TransferSenderId == 1 && p.CommitmentId == 2 && p.TransferRequestId == 3 &&
                     p.TransferReceiverId == request.TransferReceiverId)), Times.Once);
         }
 

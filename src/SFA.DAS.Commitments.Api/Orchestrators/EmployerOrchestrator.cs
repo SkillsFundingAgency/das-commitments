@@ -36,8 +36,10 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
+using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForReceiver;
+using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
 using SFA.DAS.Commitments.Domain.Entities;
-
+using SFA.DAS.HashingService;
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipStatusSummary;
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
@@ -53,6 +55,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly ICommitmentMapper _commitmentMapper;
+        private readonly ITransferRequestMapper _transferRequestMapper;
+        private readonly IHashingService _hashingService;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
 
@@ -62,25 +66,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             FacetMapper facetMapper,
             ApprenticeshipFilterService apprenticeshipFilterService,
             IApprenticeshipMapper apprenticeshipMapper,
-            ICommitmentMapper commitmentMapper)
+            ICommitmentMapper commitmentMapper,
+            ITransferRequestMapper transferRequestMapper,
+            IHashingService hashingService)
         {
-            if (mediator == null)
-                throw new ArgumentNullException(nameof(mediator));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (facetMapper == null)
-                throw new ArgumentNullException(nameof(facetMapper));
-            if (apprenticeshipFilterService == null)
-                throw new ArgumentNullException(nameof(apprenticeshipFilterService));
-            if(apprenticeshipMapper == null)
-                throw new ArgumentNullException(nameof(apprenticeshipMapper));
-
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
             _apprenticeshipFilterService = apprenticeshipFilterService;
             _apprenticeshipMapper = apprenticeshipMapper;
             _commitmentMapper = commitmentMapper;
+            _transferRequestMapper = transferRequestMapper;
+            _hashingService = hashingService;
         }
 
         public async Task<IEnumerable<Commitment.CommitmentListItem>> GetCommitments(long accountId)
@@ -335,7 +332,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Approved commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
         }
 
-        public async Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, Commitment.TransferApprovalRequest transferApprovalRequest)
+        public async Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, Commitment.TransferApprovalRequest transferApprovalRequest)
         {
             _logger.Trace($"Setting Approval status on commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
 
@@ -345,6 +342,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 {
                     TransferSenderId = transferSenderId,
                     TransferReceiverId = transferApprovalRequest.TransferReceiverId,
+                    TransferRequestId = transferRequestId,
                     CommitmentId = commitmentId,
                     UserEmail = transferApprovalRequest.UserEmail,
                     UserName = transferApprovalRequest.UserName
@@ -356,6 +354,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 {
                     TransferSenderId = transferSenderId,
                     TransferReceiverId = transferApprovalRequest.TransferReceiverId,
+                    TransferRequestId = transferRequestId,
                     CommitmentId = commitmentId,
                     UserEmail = transferApprovalRequest.UserEmail,
                     UserName = transferApprovalRequest.UserName
@@ -367,6 +366,38 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             }          
 
             _logger.Info($"Setting Approval Status for commitment {commitmentId} for transfer sender employer account {transferSenderId}", accountId: transferSenderId, commitmentId: commitmentId);
+        }
+
+        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForSender(string hashedTransferSenderId)
+        {
+            var transferSenderId = _hashingService.DecodeValue(hashedTransferSenderId);
+
+            _logger.Trace($"Getting transfer requests employer sender account {transferSenderId}", accountId: transferSenderId);
+
+            var response = await _mediator.SendAsync(new GetTransferRequestsForSenderRequest
+            {
+                TransferSenderAccountId = transferSenderId
+            });
+
+            _logger.Info($"Retrieved transfer requests for employer sender account {transferSenderId}. {response.Data.Count} transfer requests found", accountId: transferSenderId);
+
+            return _transferRequestMapper.MapFrom(response.Data).ToList();
+        }
+
+        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForReceiver(string hashedtransferReceiverId)
+        {
+            var transferReceiverId = _hashingService.DecodeValue(hashedtransferReceiverId);
+
+            _logger.Trace($"Getting transfer requests employer receiver account {transferReceiverId}", accountId: transferReceiverId);
+
+            var response = await _mediator.SendAsync(new GetTransferRequestsForReceiverRequest
+            {
+                TransferReceiverAccountId = transferReceiverId
+            });
+
+            _logger.Info($"Retrieved transfer requests for employer receiver account {transferReceiverId}. {response.Data.Count} transfer requests found", accountId: transferReceiverId);
+
+            return _transferRequestMapper.MapFrom(response.Data).ToList();
         }
 
         public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)

@@ -17,6 +17,7 @@ using System.Web.Http.Results;
 using Castle.Components.DictionaryAdapter.Xml;
 
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
@@ -38,7 +39,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 Mock.Of<ICommitmentsLogger>(), 
                 mapper, new ApprenticeshipFilterService(mapper),
                 Mock.Of<IApprenticeshipMapper>(),
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(), Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
             _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<IDataLockMapper>(), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentsLogger>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);
