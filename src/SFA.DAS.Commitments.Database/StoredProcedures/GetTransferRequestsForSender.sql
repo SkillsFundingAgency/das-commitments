@@ -12,6 +12,7 @@ SELECT
     ,ApprovedOrRejectedByUserName
     ,ApprovedOrRejectedByUserEmail
     ,ApprovedOrRejectedOn
+	,CreatedOn
 FROM [dbo].[TransferRequestSummary]
 WHERE SendingEmployerAccountId = @senderEmployerAccountId
-ORDER BY CommitmentId, TransferRequestId
+ORDER BY CommitmentId, CreatedOn

@@ -18,20 +18,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
 
-        [Route("{hashedTransferSenderId}/sender/transfers", Name = "GetTransferRequestsForTransferSender")]
+        [Route("{hashedAccountId}/transfers", Name = "GetTransferRequests")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetTransferRequestsForTransferSender(string hashedTransferSenderId)
+        public async Task<IHttpActionResult> GetTransferRequests(string hashedAccountId)
         {
-            var response = await _employerOrchestrator.GetTransferRequestsForSender(hashedTransferSenderId);
-
-            return Ok(response);
-        }
-
-        [Route("{hashedTransferReceiverId}/receiver/transfers", Name = "GetTransferRequestsForTransferReceiver")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetTransferRequestsForTransferReceiver(string hashedTransferReceiverId)
-        {
-            var response = await _employerOrchestrator.GetTransferRequestsForReceiver(hashedTransferReceiverId);
+            var response = await _employerOrchestrator.GetTransferRequests(hashedAccountId);
 
             return Ok(response);
         }

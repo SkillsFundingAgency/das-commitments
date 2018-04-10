@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.HashingService;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 using TransferRequest = SFA.DAS.Commitments.Api.Types.Commitment.TransferRequest;
@@ -16,7 +17,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         {
             _hashingService = hashingService;
         }
-        public TransferRequestSummary MapFrom(Domain.Entities.TransferRequestSummary source)
+        public TransferRequestSummary MapFrom(Domain.Entities.TransferRequestSummary source, TransferType transferType)
         {
             return new TransferRequestSummary
             {
@@ -28,13 +29,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 Status = (TransferApprovalStatus) source.Status,
                 ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,
                 ApprovedOrRejectedByUserEmail = source.ApprovedOrRejectedByUserEmail,
-                ApprovedOrRejectedOn = source.ApprovedOrRejectedOn
+                ApprovedOrRejectedOn = source.ApprovedOrRejectedOn,
+                CreatedOn = source.CreatedOn,
+                TransferType = transferType
             };
         }
 
-        public IEnumerable<TransferRequestSummary> MapFrom(IEnumerable<Domain.Entities.TransferRequestSummary> source)
+        public IEnumerable<TransferRequestSummary> MapFrom(IEnumerable<Domain.Entities.TransferRequestSummary> source, TransferType transferType)
         {
-            return source.Select(MapFrom);
+            return source.Select(x=>MapFrom(x, transferType));
         }
 
         public TransferRequest MapFrom(Domain.Entities.TransferRequest source)

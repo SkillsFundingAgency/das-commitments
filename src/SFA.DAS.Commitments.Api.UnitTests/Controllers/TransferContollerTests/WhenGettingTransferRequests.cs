@@ -7,7 +7,7 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
 {
     [TestFixture]
-    public class WhenGettingTransferRequestsForSender
+    public class WhenGettingTransferRequests
     {
         private Mock<IEmployerOrchestrator> _mockEmployerOrchestrator;
         private TransferController _sut;
@@ -22,9 +22,9 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
         [Test]
         public async Task ThenCallsOrchestratorWithTheCorrectParameters()
         {
-            await _sut.GetTransferRequestsForTransferSender("111");
+            await _sut.GetTransferRequests("12");
 
-            _mockEmployerOrchestrator.Verify(x => x.GetTransferRequestsForSender("111"));
+            _mockEmployerOrchestrator.Verify(x => x.GetTransferRequests("12"));
         }
 
     }

@@ -79,6 +79,7 @@
     <Compile Include="Commitment\TransferRequest.cs" />
     <Compile Include="Commitment\TransferRequestSummary.cs" />
     <Compile Include="Commitment\TransferSender.cs" />
+    <Compile Include="Commitment\TransferType.cs" />
     <Compile Include="Commitment\Types\MessageCreator.cs" />
     <Compile Include="DataLock\DataLockStatus.cs" />
     <Compile Include="DataLock\DataLocksTriageResolutionSubmission.cs" />
