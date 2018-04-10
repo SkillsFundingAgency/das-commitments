@@ -110,6 +110,8 @@
     <Build Include="StoredProcedures\GetApprenticeshipUpdatesByDateAndStatus.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeships.sql" />
     <Build Include="StoredProcedures\SetTransferApproval.sql" />
+    <Build Include="Tables\JobProgress.sql" />
+    <Build Include="Tables\IntegrationTestIds.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
