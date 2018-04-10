@@ -70,13 +70,9 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             else
             {
                 // TODO Remove This route when old Approval route decomes obslete 
-                await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferApproved,
+                await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
                     command.UserEmail, command.UserName);
             }
-
-
-            await _commitmentRepository.SetTransferApproval(command.CommitmentId,
-                TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
 
             await _commitmentRepository.ResetEditStatusToEmployer(command.CommitmentId);
 
