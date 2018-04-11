@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Application.Rules;
@@ -43,6 +42,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LastAction = (Types.Commitment.Types.LastAction)source.LastAction,
                 TransferSenderId = source.TransferSenderId,
                 TransferApprovalStatus = (Types.TransferApprovalStatus)source.TransferApprovalStatus,
+                TransferSenderName = source.TransferSenderName,
                 CanBeApproved = callerType == CallerType.Employer
                         ? source.EmployerCanApproveCommitment
                         : source.ProviderCanApproveCommitment,

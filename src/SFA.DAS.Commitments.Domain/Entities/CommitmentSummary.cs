@@ -23,6 +23,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public LastAction LastAction { get; set; }
         public long? TransferSenderId { get; set; }
         public TransferApprovalStatus TransferApprovalStatus { get; set; }
+        public string TransferSenderName { get; set; }
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
         public string LastUpdatedByEmployerName { get; set; }
