@@ -15,11 +15,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Runtime.InteropServices.ComTypes;
 using System.Web;
 using FluentValidation;
 using MediatR;
-using Microsoft.Azure;
 
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Data;
@@ -28,8 +26,6 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Logging;
-using SFA.DAS.Configuration;
-using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Client.Configuration;
 using SFA.DAS.NLog.Logger;
@@ -44,7 +40,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
     public class DefaultRegistry : Registry
     {
         private const string ServiceName = "SFA.DAS.Commitments";
-        private const string Version = "1.0";
 
         public DefaultRegistry()
         {
@@ -60,7 +55,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
                 });
 
-            var config = GetConfiguration();
+            var config = Infrastructure.Configuration.Configuration.Get();
 
             ConfigureHashingService(config);
 
@@ -103,25 +98,9 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             return new CommitmentsLogger(new NLogLogger(parentType, x.GetInstance<ILoggingContext>()));
         }
 
-        private static CommitmentsApiConfiguration GetConfiguration()
-        {
-            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-
-            var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(ServiceName, environment, Version));
-
-            return configurationService.Get<CommitmentsApiConfiguration>();
-        }
-
-        private static IConfigurationRepository GetConfigurationRepository()
-        {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
-        }
-
         private void ConfigureHashingService(CommitmentsApiConfiguration config)
         {
             For<IHashingService>().Use(x => new HashingService.HashingService(config.AllowedHashstringCharacters, config.Hashstring));
         }
-
     }
 }
