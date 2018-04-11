@@ -439,9 +439,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             return WithConnection<IList<CommitmentSummary>>(async c =>
             {
                 var parameters = new DynamicParameters();
-                parameters.Add($"@id", identifierValue);
+                parameters.Add("@id", identifierValue);
 
-                var results = await c.QueryAsync(
+                await c.QueryAsync(
                     sql: $"SELECT * FROM [dbo].[CommitmentSummaryWithMessages] WHERE {identifierName} = @id AND CommitmentStatus <> {(int)CommitmentStatus.Deleted} ORDER BY CreatedOn DESC;",
                     param: parameters,
                     map: mapper.Map(lookup, x => x.Id, x => x.Messages),

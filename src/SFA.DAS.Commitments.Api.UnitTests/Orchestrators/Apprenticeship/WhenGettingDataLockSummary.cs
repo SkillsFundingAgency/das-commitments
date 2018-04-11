@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using AutoFixture;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 using SFA.DAS.Commitments.Application.Queries.GetDataLocks;
 using SFA.DAS.Commitments.Domain;
