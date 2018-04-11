@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.Facets
         public void ShouldHaveWaitingForStopped()
         {
             _data.Add(new Apprenticeship { PaymentStatus = PaymentStatus.Withdrawn });
-            _data.Add(new Apprenticeship { FirstName = "Started", PaymentStatus = PaymentStatus.Active, StartDate = DateTime.Now.AddMonths(-1) });
+            _data.Add(new Apprenticeship { FirstName = "Started", PaymentStatus = PaymentStatus.Active, StartDate = _currentDateTime.Object.Now.AddMonths(-1) });
 
             _userQuery.ApprenticeshipStatuses = new List<ApprenticeshipStatus> { ApprenticeshipStatus.Stopped };
 
