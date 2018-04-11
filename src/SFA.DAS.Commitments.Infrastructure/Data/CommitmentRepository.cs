@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 
@@ -33,6 +35,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
+                parameters.Add("@transferSenderId", commitment.TransferSenderId, DbType.Int64);
+                parameters.Add("@transferSenderName", commitment.TransferSenderName, DbType.String);
                 parameters.Add("@legalEntityId", commitment.LegalEntityId, DbType.String);
                 parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
                 parameters.Add("@LegalEntityAddress", commitment.LegalEntityAddress, DbType.String);
@@ -52,8 +56,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 {
                     commitmentId = (await connection.QueryAsync<long>(
                         sql:
-                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, LastUpdatedByEmployerEmail) " +
-                        "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, @lastUpdateByEmployerEmail); " +
+                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, " +
+                            "EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, " +
+                            "LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName) " +
+                        "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, " +
+                            "@accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, " +
+                            "@lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName); " +
                         "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
@@ -156,6 +164,42 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     return returnCode;
                 }
             });
+        }
+
+        public async Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
+        {
+            _logger.Debug($"Setting Transfer Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
+            try
+            {
+                await WithConnection(async connection =>
+                {
+                    using (var tran = connection.BeginTransaction())
+                    {
+                        var count = await connection.ExecuteAsync(
+                            sql: "[dbo].[SetTransferApproval]",
+                            transaction: tran,
+                            commandType: CommandType.StoredProcedure,
+                            param: new
+                            {
+                                @Id = commitmentId,
+                                @transferApprovalStatus = transferApprovalStatus,
+                                @transferStatusSetByEmployerName = userName,
+                                @transferStatusSetByEmployerEmail = userEmail
+                            }
+                        );
+                        tran.Commit();
+                        return count;
+                    }
+                });
+            }
+            catch(Exception e)
+            {
+                if (e.InnerException is SqlException)
+                {
+                    throw new BadRequestException(e.InnerException.Message, e);
+                }
+                throw;
+            }
         }
 
         public async Task<long> CreateRelationship(Relationship relationship)

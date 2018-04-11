@@ -1,9 +1,11 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStopDate
 {
@@ -18,6 +20,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<ICurrentDateTime> MockCurrentDateTime;
         protected Mock<IDataLockRepository> MockDataLockRepository;
         protected Mock<IHistoryRepository> MockHistoryRepository;
+        protected Mock<IApprenticeshipEventsPublisher> MockApprenticeshipEventsPublisher;
         protected Apprenticeship TestApprenticeship;
 
         [SetUp]
@@ -30,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockAcademicYearValidator = new Mock<IAcademicYearValidator>();
             MockCommitmentsLogger = new Mock<ICommitmentsLogger>();
+            MockApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
 
             Handler = new UpdateApprenticeshipStopDateCommandHandler(
                 MockCommitmentRespository.Object,
@@ -38,7 +42,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 MockCurrentDateTime.Object,
                 MockCommitmentsLogger.Object,
                 MockHistoryRepository.Object,
-                MockAcademicYearValidator.Object);
+                MockAcademicYearValidator.Object,
+                MockApprenticeshipEventsPublisher.Object,
+                new ApprenticeshipEventsList());
         }
     }
 }

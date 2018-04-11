@@ -13,6 +13,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
     {
         Task<List<CommitmentListItem>> GetEmployerCommitments(long employerAccountId);
         Task<CommitmentView> GetEmployerCommitment(long employerAccountId, long commitmentId);
+        Task<CommitmentView> GetTransferSenderCommitment(long transferSenderAccountId, long commitmentId);
         Task<List<Apprenticeship>> GetEmployerApprenticeships(long employerAccountId);
         Task<IList<Apprenticeship>> GetActiveApprenticeshipsForUln(long employerAccountId, string uln);
         Task<ApprenticeshipSearchResponse> GetEmployerApprenticeships(long employerAccountId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);
@@ -35,5 +36,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<DataLockSummary> GetDataLockSummary(long employerAccountId, long apprenticeshipId);
         Task PatchDataLocks(long employerAccountId, long apprenticeshipId, DataLocksTriageResolutionSubmission submission);
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
+        Task ApproveCohort(long employerAccountId, long commitmentId, CommitmentSubmission submission);
+        Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request);
     }
 }

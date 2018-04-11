@@ -57,6 +57,10 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                     if (commitment.ProviderId != message.Caller.Id)
                         throw new UnauthorizedException($"Provider {message.Caller.Id} not authorised to access commitment {message.CommitmentId}, expected provider {commitment.ProviderId}");
                     break;
+                case CallerType.TransferSender:
+                    if (commitment.TransferSenderId != message.Caller.Id)
+                        throw new UnauthorizedException($"Transfer Sender {message.Caller.Id} not authorised to access commitment {message.CommitmentId}, expected transfer sender {commitment.TransferSenderId}");
+                    break;
                 case CallerType.Employer:
                 default:
                     if (commitment.EmployerAccountId != message.Caller.Id)

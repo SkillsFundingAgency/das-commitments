@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Commitment]
 (
-	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
+	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, -- This may be a problem, I believe each time we deploy, the PK index is rebuilt (if the table changes)
     [Reference] NVARCHAR(100) NOT NULL, 
     [EmployerAccountId] BIGINT NOT NULL, 
     [LegalEntityId] NVARCHAR(50) NOT NULL, 
@@ -16,7 +16,13 @@
 	[LastUpdatedByEmployerName] NVARCHAR(255) NOT NULL,
     [LastUpdatedByEmployerEmail] NVARCHAR(255) NOT NULL, 
     [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
-    [LastUpdatedByProviderEmail] NVARCHAR(255) NULL
+    [LastUpdatedByProviderEmail] NVARCHAR(255) NULL,
+    [TransferSenderId] BIGINT NULL,
+    [TransferSenderName] NVARCHAR(100) NULL,
+	[TransferApprovalStatus] TINYINT NULL,
+	[TransferApprovalActionedByEmployerName] NVARCHAR(255),
+	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
+	[TransferApprovalActionedOn] DATETIME2
 )
 GO
 
