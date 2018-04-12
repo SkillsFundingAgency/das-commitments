@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     public class CommitmentsDatabase : Database
     {
         // intial version will be null
-        public static readonly int? SchemaVersion = null;
+        public static readonly int? SchemaVersion = 1;
 
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
@@ -54,7 +54,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 "LegalEntityAddress", "LegalEntityOrganisationType", "ProviderId",
                 "ProviderName", "CommitmentStatus", "EditStatus", "CreatedOn",
                 "LastAction", "LastUpdatedByEmployerName", "LastUpdatedByEmployerEmail",
-                "LastUpdatedByProviderName","LastUpdatedByProviderEmail"
+                "LastUpdatedByProviderName","LastUpdatedByProviderEmail",
+                "TransferSenderId", "TransferSenderName", "TransferApprovalStatus",
+                "TransferApprovalActionedByEmployerName", "TransferApprovalActionedByEmployerEmail",
+                "TransferApprovalActionedOn"
             });
         }
 
