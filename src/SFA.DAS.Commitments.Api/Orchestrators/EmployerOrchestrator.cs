@@ -383,8 +383,15 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             return _transferRequestMapper.MapFrom(response.Data);
         }
+        public async Task<IList<Types.Commitment.TransferRequestSummary>> GetTransferRequests(string hashedAccountId)
+        {
+            var receiverRequests = await GetTransferRequestsForReceiver(hashedAccountId);
+            var senderTransfers = await GetTransferRequestsForSender(hashedAccountId);
 
-        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForSender(string hashedTransferSenderId)
+            return receiverRequests.Concat(senderTransfers).ToList();
+        }
+
+        private async Task<IList<Types.Commitment.TransferRequestSummary>> GetTransferRequestsForSender(string hashedTransferSenderId)
         {
             var transferSenderId = _hashingService.DecodeValue(hashedTransferSenderId);
 
@@ -397,10 +404,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved transfer requests for employer sender account {transferSenderId}. {response.Data.Count} transfer requests found", accountId: transferSenderId);
 
-            return _transferRequestMapper.MapFrom(response.Data).ToList();
+            return _transferRequestMapper.MapFrom(response.Data, Commitment.TransferType.AsSender).ToList();
         }
 
-        public async Task<IList<Commitment.TransferRequestSummary>> GetTransferRequestsForReceiver(string hashedtransferReceiverId)
+        private async Task<IList<Types.Commitment.TransferRequestSummary>> GetTransferRequestsForReceiver(string hashedtransferReceiverId)
         {
             var transferReceiverId = _hashingService.DecodeValue(hashedtransferReceiverId);
 
@@ -413,7 +420,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved transfer requests for employer receiver account {transferReceiverId}. {response.Data.Count} transfer requests found", accountId: transferReceiverId);
 
-            return _transferRequestMapper.MapFrom(response.Data).ToList();
+            return _transferRequestMapper.MapFrom(response.Data, Commitment.TransferType.AsReceiver).ToList();
         }
 
         public async Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission)

@@ -6,8 +6,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
     public interface ITransferRequestMapper
     {
-        TransferRequestSummary MapFrom(Domain.Entities.TransferRequestSummary source);
-        IEnumerable<TransferRequestSummary> MapFrom(IEnumerable<Domain.Entities.TransferRequestSummary> source);
+        TransferRequestSummary MapFrom(Domain.Entities.TransferRequestSummary source, TransferType transferType);
+        IEnumerable<TransferRequestSummary> MapFrom(IEnumerable<Domain.Entities.TransferRequestSummary> source, TransferType transferType);
         TransferRequest MapFrom(Domain.Entities.TransferRequest source);
     }
 }

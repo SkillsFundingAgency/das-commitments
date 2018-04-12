@@ -13,5 +13,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string ApprovedOrRejectedByUserName { get; set; }
         public string ApprovedOrRejectedByUserEmail { get; set; }
         public DateTime? ApprovedOrRejectedOn { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

@@ -38,8 +38,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
         Task ApproveCohort(long accountId, long commitmentId, CommitmentSubmission submission);
         Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest transferApprovalRequest);
-        Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(string hashedTransferSenderId);
-        Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(string hashedTransferReceiverId);
+        Task<IList<TransferRequestSummary>> GetTransferRequests(string hashedAccountId);
         Task<Types.Commitment.TransferRequest> GetTransferRequest(long transferRequestId, long accountId, CallerType callerType);
     }
 }

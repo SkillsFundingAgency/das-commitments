@@ -28,6 +28,7 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
         private const string ExpectedApiBaseUrl = "http://test.local.url/";
         private const long EmployerAccountId = 666;
+        private const string HashedEmployerAccountId = "XXX";
         private const long ApprenticeshipId = 9990;
         private const long CommitmentId = 876;
         private const long TransferRequestId = 199991;
@@ -353,23 +354,12 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
-        public async Task GetTransferRequestsForSender()
+        public async Task GetTransferRequests()
         {
-            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/sender/transfers"), string.Empty);
+            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{HashedEmployerAccountId}/transfers"), string.Empty);
             _fakeHandler.AddFakeResponse(transferRequestForSenderRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<TransferRequestSummary>())) });
 
-            var transfers = await _employerApiClient.GetTransferRequestsForSender(EmployerAccountId);
-
-            Assert.Pass();
-        }
-
-        [Test]
-        public async Task GetTransferRequestsForReceiver()
-        {
-            var transferRequestForReceiverRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/receiver/transfers"), string.Empty);
-            _fakeHandler.AddFakeResponse(transferRequestForReceiverRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<TransferRequestSummary>())) });
-
-            var transfers = await _employerApiClient.GetTransferRequestsForReceiver(EmployerAccountId);
+            var transfers = await _employerApiClient.GetTransferRequests(HashedEmployerAccountId);
 
             Assert.Pass();
         }
@@ -384,5 +374,6 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
+
     }
 }

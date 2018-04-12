@@ -39,8 +39,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task ApproveCohort(long employerAccountId, long commitmentId, CommitmentSubmission submission);
         Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request);
         Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest request);
-        Task<List<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId);
-        Task<List<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId);
+        Task<List<TransferRequestSummary>> GetTransferRequests(string hashedAccountId);
         Task<TransferRequest> GetTransferRequestForSender(long transferSenderId, long transferRequestId);
     }
 }

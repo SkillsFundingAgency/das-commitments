@@ -230,14 +230,9 @@ namespace SFA.DAS.Commitments.Api.Client
             return PatchAsync(url, data);
         }
 
-        public Task<List<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderId)
+        public Task<List<TransferRequestSummary>> GetTransferRequests(string hashedAccountId)
         {
-            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/sender/transfers";
-            return _commitmentHelper.GetTransferRequests(url);
-        }
-        public Task<List<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverId)
-        {
-            var url = $"{_configuration.BaseUrl}api/employer/{transferReceiverId}/receiver/transfers";
+            var url = $"{_configuration.BaseUrl}api/employer/{hashedAccountId}/transfers";
             return _commitmentHelper.GetTransferRequests(url);
         }
 
