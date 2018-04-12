@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
-using SFA.DAS.Common.Domain.Types;
+using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
 {
@@ -33,5 +34,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
         public string LastUpdatedByProviderName { get; set; }
         [StringLength(255)]
         public string LastUpdatedByProviderEmail { get; set; }
+        public long? TransferSenderId { get; set; }
+        [StringLength(100)]
+        public string TransferSenderName { get; set; }
+        public TransferApprovalStatus? TransferApprovalStatus { get; set; }
+        [StringLength(255)]
+        public string TransferApprovalActionedByEmployerName { get; set; }
+        [StringLength(255)]
+        public string TransferApprovalActionedByEmployerEmail { get; set; }
+        public DateTime? TransferApprovalActionedOn { get; set; }
     }
 }
