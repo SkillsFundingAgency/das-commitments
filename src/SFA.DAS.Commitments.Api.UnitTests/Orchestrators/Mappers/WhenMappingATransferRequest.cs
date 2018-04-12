@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.HashingService;
@@ -15,43 +14,48 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
     public class WhenMappingATransferRequest
     {
         private TransferRequestMapper _mapper;
-        private IList<Domain.Entities.TransferRequestSummary> _source;
+        private Domain.Entities.TransferRequest _source;
+        private List<Domain.Entities.TrainingCourseSummary> _courses;
         private Mock<IHashingService> _hashingService;
 
         [SetUp]
         public void Setup()
         {
             _hashingService = new Mock<IHashingService>();
-            _hashingService.Setup(x => x.HashValue(It.IsAny<long>())).Returns((long param) => param.ToString());
-
             var fixture = new Fixture();
-            _source = fixture.Create<IList<Domain.Entities.TransferRequestSummary>>();
+            _courses = fixture.Create<List<Domain.Entities.TrainingCourseSummary>>();
+            _source = fixture.Create<Domain.Entities.TransferRequest>();
+            _source.TrainingCourses = JsonConvert.SerializeObject(_courses);
+            
             _mapper = new TransferRequestMapper(_hashingService.Object);
         }
 
         [Test]
-        public void ThenMappingTheListReturnsTheCorrectCount()
+        public void ThenMappingTheSourceObjectReturnsTheApiObjectValuesCorrectly()
         {
             var result = _mapper.MapFrom(_source);
 
-            result.Count().Should().Be(_source.Count);
+            result.TransferRequestId.Should().Be(_source.TransferRequestId);
+            result.ApprovedOrRejectedByUserEmail.Should().Be(_source.ApprovedOrRejectedByUserEmail);
+            result.ApprovedOrRejectedByUserName.Should().Be(_source.ApprovedOrRejectedByUserName);
+            result.ApprovedOrRejectedOn.Should().Be(_source.ApprovedOrRejectedOn);
+            result.CommitmentId.Should().Be(_source.CommitmentId);
+            result.LegalEntityName.Should().Be(_source.LegalEntityName);
+            result.ReceivingEmployerAccountId.Should().Be(_source.ReceivingEmployerAccountId);
+            result.SendingEmployerAccountId.Should().Be(_source.SendingEmployerAccountId);
+            result.Status.Should().Be((TransferApprovalStatus)_source.Status);
+            result.TransferCost.Should().Be(_source.TransferCost);
+            result.TrainingList.Count.Should().Be(_courses.Count);
+            result.TrainingList[0].ApprenticeshipCount.Should().Be(_courses[0].ApprenticeshipCount);
+            result.TrainingList[0].CourseTitle.Should().Be(_courses[0].CourseTitle);
 
         }
 
         [Test]
-        public void ThenMappingToNewObjectMatches()
+        public void ThenMappingANullSourceObjectReturnsANullResponse()
         {
-            var result = _mapper.MapFrom(_source[0]);
-
-            result.HashedTransferRequestId.Should().Be(_source[0].TransferRequestId.ToString());
-            result.HashedReceivingEmployerAccountId.Should().Be(_source[0].ReceivingEmployerAccountId.ToString());
-            result.HashedCohortRef.Should().Be(_source[0].CommitmentId.ToString());
-            result.HashedSendingEmployerAccountId.Should().Be(_source[0].SendingEmployerAccountId.ToString());
-            result.Status.Should().Be((TransferApprovalStatus)_source[0].Status);
-            result.ApprovedOrRejectedByUserName.Should().Be(_source[0].ApprovedOrRejectedByUserName);
-            result.ApprovedOrRejectedByUserEmail.Should().Be(_source[0].ApprovedOrRejectedByUserEmail);
-            result.ApprovedOrRejectedOn.Should().Be(_source[0].ApprovedOrRejectedOn);
-
+            var result = _mapper.MapFrom((Domain.Entities.TransferRequest)null);
+            result.Should().BeNull();
         }
     }
 }

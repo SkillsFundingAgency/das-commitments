@@ -40,5 +40,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest transferApprovalRequest);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(string hashedTransferSenderId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(string hashedTransferReceiverId);
+        Task<Types.Commitment.TransferRequest> GetTransferRequest(long transferRequestId, long accountId, CallerType callerType);
     }
 }

@@ -172,6 +172,10 @@
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestQueryHandler.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestRequest.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestResponse.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestValidator.cs" />
     <Compile Include="Queries\GetTransferRequestsForReceiver\GetTransferRequestsForReceiverQueryHandler.cs" />
     <Compile Include="Queries\GetTransferRequestsForReceiver\GetTransferRequestsForReceiverRequest.cs" />
     <Compile Include="Queries\GetTransferRequestsForReceiver\GetTransferRequestsForReceiverResponse.cs" />

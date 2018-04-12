@@ -111,6 +111,7 @@
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestsForReceiver.cs" />
+    <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForSender.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestsForSender.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingASingleCommitment.cs" />
@@ -122,10 +123,12 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipsForUln.cs" />
+    <Compile Include="Orchestrators\Employer\WhenGettingATransferRequest.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingTransferRequestsForAReciever.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingTransferRequestsForASender.cs" />
     <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
+    <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequestSummary.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequest.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentListItem.cs" />

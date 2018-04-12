@@ -8,7 +8,7 @@ SELECT
 	,CommitmentId
 	,SendingEmployerAccountId
     ,TransferCost
-    ,TransferApprovalStatus
+    ,[Status]
     ,ApprovedOrRejectedByUserName
     ,ApprovedOrRejectedByUserEmail
     ,ApprovedOrRejectedOn

@@ -18,6 +18,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         [Obsolete]
         Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName);
         Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName);
+        Task<TransferRequest> GetTransferRequest(long transferRequestId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
         Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses);
