@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using FluentAssertions;
-using FluentValidation;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Domain;
@@ -25,9 +22,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [SetUp]
         public void Setup()
         {
-            var fixture = new Fixture();
-            var mockApprenticeshipValidator = new Mock<AbstractValidator<Apprenticeship>>();
-
             _mockUlnValidator = new Mock<IUlnValidator>();
             _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
 

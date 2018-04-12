@@ -24,6 +24,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             _rules = Mock.Of<ICommitmentRules>();
             _mapper = new CommitmentMapper(_rules);
         }
+
         [Test]
         public void ThenMappingCompletesSuccessfully()
         {

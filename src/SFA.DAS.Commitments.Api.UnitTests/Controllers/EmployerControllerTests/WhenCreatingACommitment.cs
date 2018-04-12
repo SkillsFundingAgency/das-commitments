@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http.Results;
+using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-
-using Ploeh.AutoFixture;
 
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;

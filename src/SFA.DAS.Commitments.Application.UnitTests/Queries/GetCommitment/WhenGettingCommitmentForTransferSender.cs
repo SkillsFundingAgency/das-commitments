@@ -6,8 +6,8 @@ using Moq;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;
+using AutoFixture;
 using SFA.DAS.Commitments.Application.Exceptions;
-using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Application.Rules;
 
@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
             _handler = new GetCommitmentQueryHandler(_mockCommitmentRespository.Object, new GetCommitmentValidator(),
                 new CommitmentRules());
 
-            Fixture dataFixture = new Fixture();
+            var dataFixture = new Fixture();
             _fakeCommitment = dataFixture.Build<Commitment>().Create();
             _exampleValidRequest = new GetCommitmentRequest
             {
