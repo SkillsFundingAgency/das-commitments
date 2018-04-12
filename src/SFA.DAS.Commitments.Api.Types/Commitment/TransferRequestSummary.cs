@@ -13,5 +13,7 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public string ApprovedOrRejectedByUserName { get; set; }
         public string ApprovedOrRejectedByUserEmail { get; set; }
         public DateTime? ApprovedOrRejectedOn { get; set; }
+        public TransferType TransferType { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }
