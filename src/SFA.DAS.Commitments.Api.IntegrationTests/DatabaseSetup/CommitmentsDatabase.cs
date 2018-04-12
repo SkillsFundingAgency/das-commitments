@@ -111,15 +111,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await connection.OpenAsync();
                 using (var command = new SqlCommand(
 $@"MERGE [dbo].[JobProgress] WITH(HOLDLOCK) as target
-using (values(@parameter)) as source (sourceColumn)
+using (values({columnValue})) as source (sourceColumn)
 on target.Lock = 'X'
 when matched then
     update set {columnName} = source.sourceColumn
 when not matched then
 insert({columnName}) values(source.sourceColumn); ", connection))
                 {
-                    command.Parameters.AddWithValue("@parameter", columnValue);
-
                     await command.ExecuteNonQueryAsync();
                 }
             }
