@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
+using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -23,6 +24,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<ICohortTransferService> _mockCohortTransferService;
         private AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private DeleteApprenticeshipCommandHandler _handler;
         private DeleteApprenticeshipCommand _validCommand;
@@ -35,8 +37,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _mockCohortTransferService = new Mock<ICohortTransferService>();
+
+            _mockCohortTransferService.Setup(x => x.ResetCommitmentTransferRejection(It.IsAny<Commitment>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => Task.FromResult(new Unit()));
+
             _validator = new DeleteApprenticeshipValidator();
-            _handler = new DeleteApprenticeshipCommandHandler(_mockCommitmentRepository.Object, _mockApprenticeshipRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object);
+            _handler = new DeleteApprenticeshipCommandHandler(_mockCommitmentRepository.Object,
+                _mockApprenticeshipRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(),
+                _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object, _mockCohortTransferService.Object);
 
             _validCommand = new DeleteApprenticeshipCommand { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserName = "Bob", UserId = "User" };
 
@@ -165,6 +174,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
                                 y.First().ProviderId == testCommitment.ProviderId  &&
                                 y.First().EmployerAccountId == testCommitment.EmployerAccountId &&
                                 y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
+        }
+
+
+        [Test]
+        public async Task ThenCohortTransferRejectionStatusIsReset()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockCohortTransferService.Verify(
+                x => x.ResetCommitmentTransferRejection(It.Is<Commitment>(c => c == testCommitment), It.IsAny<string>(),
+                    It.IsAny<string>()),
+                Times.Once);
         }
     }
 }

@@ -31,8 +31,14 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private readonly IHistoryRepository _historyRepository;
         private HistoryService _historyService;
         private IMessagePublisher _messagePublisher;
+        private readonly ICohortTransferService _cohortTransferService;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
+            AbstractValidator<UpdateApprenticeshipCommand> validator,
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents,
+            ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher,
+            ICohortTransferService cohortTransferService)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -42,6 +48,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             _logger = logger;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _cohortTransferService = cohortTransferService;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipCommand command)
@@ -73,7 +80,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller),
                 UpdateStatusOfApprenticeship(commitment, apprenticeship),
                 _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED"),
-                CreateHistory()
+                CreateHistory(),
+                _cohortTransferService.ResetCommitmentTransferRejection(commitment, command.UserId, command.UserName)
             );
 
             if (publishMessage)

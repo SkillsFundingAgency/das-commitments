@@ -6,6 +6,7 @@ using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -32,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<AbstractValidator<UpdateApprenticeshipCommand>> _mockValidator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IApprenticeshipUpdateRules> _mockApprenticeshipUpdateRules;
+        private Mock<ICohortTransferService> _mockCohortTransferService;
 
         [SetUp]
         public void SetUp()
@@ -42,6 +44,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockValidator = new Mock<AbstractValidator<UpdateApprenticeshipCommand>>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockApprenticeshipUpdateRules = new Mock<IApprenticeshipUpdateRules>();
+            _mockCohortTransferService = new Mock<ICohortTransferService>();
+
+            _mockCohortTransferService.Setup(x => x.ResetCommitmentTransferRejection(It.IsAny<Commitment>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(() => Task.FromResult(new Unit()));
 
             _handler = new UpdateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object, 
@@ -51,7 +57,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
-                Mock.Of<IMessagePublisher>());
+                Mock.Of<IMessagePublisher>(),
+                _mockCohortTransferService.Object);
             
             _mockValidator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipCommand>())).Returns(new ValidationResult());
 
