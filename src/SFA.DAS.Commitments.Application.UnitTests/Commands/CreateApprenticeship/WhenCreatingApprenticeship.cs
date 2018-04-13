@@ -62,7 +62,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _mockApprenticeshipEvents.Object, 
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
-                Mock.Of<IMessagePublisher>());
+                Mock.Of<IMessagePublisher>(),
+                Mock.Of<ICohortTransferService>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()

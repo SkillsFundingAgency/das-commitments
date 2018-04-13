@@ -167,6 +167,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task ResetTransferApprovalStatus(long commitmentId)
+        {
+            _logger.Debug($"Resetting transfer approval status for commitment {commitmentId}", commitmentId: commitmentId);
+
+            await WithConnection(async connection =>
+            {
+                var returnCode = await connection.ExecuteAsync(
+                    sql: "update [dbo].Commitment set TransferApprovalStatus=null where Id=@commitmentId;",
+                    commandType: CommandType.Text,
+                    param: new { @commitmentId = commitmentId }
+                );
+
+                return returnCode;
+            });
+        }
+
         [Obsolete]
         public async Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
         {

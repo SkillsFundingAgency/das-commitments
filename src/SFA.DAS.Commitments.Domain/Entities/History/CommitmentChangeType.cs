@@ -12,6 +12,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.History
         FinalApproval = 7,
         BulkUploadedApprenticeships = 8,
         TransferSenderApproval = 9,
-        TransferSenderRejection = 10
+        TransferSenderRejection = 10,
+        TransferApprovalReset = 11
     }
 }
