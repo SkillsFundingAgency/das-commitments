@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution;
 using SFA.DAS.NLog.Logger;
 
@@ -22,8 +21,6 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
             var container = IoC.Initialize();
 
             var logger = container.GetInstance<ILog>();
-            var addEpaToApprenticeship = container.GetInstance<IAddEpaToApprenticeships>();
-
             logger.Info("Starting AddEpaToApprenticeships.WebJob");
 
             // we don't need to use JobHost - the other web jobs in the solution don't. here's why...
@@ -31,11 +28,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
 
             try
             {
+                var addEpaToApprenticeship = container.GetInstance<IAddEpaToApprenticeships>();
                 addEpaToApprenticeship.Update().Wait();
+                logger.Info("Th-th-th-that's all folks!");
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Error running AddEpaToApprenticeship.WebJob");
+                logger.Error(ex, "Error running AddEpaToApprenticeship.WebJob/r/n");
             }
         }
     }

@@ -122,7 +122,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task UpdateApprenticeshipEpa(long apprenticeshipId, string epaOrgId)
         {
-            _logger.Debug($"Updating apprenticeship {apprenticeshipId} EPAOrgId to {epaOrgId}");
+            _logger.Info($"Updating apprenticeship {apprenticeshipId} EPAOrgId to {epaOrgId}");
 
             var rowsAffected = await WithConnection(async connection =>
             {

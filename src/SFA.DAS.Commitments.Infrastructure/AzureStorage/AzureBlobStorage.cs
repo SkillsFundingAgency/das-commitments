@@ -6,18 +6,18 @@ namespace SFA.DAS.Commitments.Infrastructure.AzureStorage
 {
     public class AzureBlobStorage : IAzureBlobStorage
     {
-        private readonly string _storageConnectionString;
+        public string StorageConnectionString { get; }
         private readonly ILog _logger;
 
         public AzureBlobStorage(string storageConnectionString, ILog logger)
         {
-            _storageConnectionString = storageConnectionString;
+            StorageConnectionString = storageConnectionString;
             _logger = logger;
         }
 
         public async Task<string> ReadBlob(string containerName, string blobName)
         {
-            var storageAccount = CloudStorageAccount.Parse(_storageConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             var container = blobClient.GetContainerReference(containerName);
