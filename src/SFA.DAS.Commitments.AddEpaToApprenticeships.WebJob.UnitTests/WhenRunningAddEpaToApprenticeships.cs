@@ -217,7 +217,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
             _apprenticeshipRepository.Verify(x => x.UpdateApprenticeshipEpa(It.IsAny<long>(), It.IsAny<string>()), Times.Never());
 
             // verify a log message is written with the submission event id that was ignored
-            _log.Verify(x => x.Info(It.Is<string>(message => message.Contains($"{sinceEventId+1}"))), Times.Once);
+            _log.Verify(x => x.Warn(It.Is<string>(message => message.Contains($"{sinceEventId+1}"))), Times.Once);
         }
 
         [Test]
