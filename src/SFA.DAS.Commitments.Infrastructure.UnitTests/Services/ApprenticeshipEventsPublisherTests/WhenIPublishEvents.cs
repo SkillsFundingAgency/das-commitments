@@ -156,7 +156,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.TrainingType == (_apprenticeship.TrainingType == TrainingType.Framework ? TrainingTypes.Framework : TrainingTypes.Standard) &&
                    apprenticeshipEvent.PaymentOrder == _apprenticeship.PaymentOrder &&
                    apprenticeshipEvent.LegalEntityId == _commitment.LegalEntityId &&
-                   apprenticeshipEvent.TransferApprovalStatus ==(Events.Api.Types.TransferApprovalStatus) _commitment.TransferApprovalStatus &&
+                   apprenticeshipEvent.TransferApprovalStatus ==(Events.Api.Types.TransferApprovalStatus?) _commitment.TransferApprovalStatus &&
                    apprenticeshipEvent.LegalEntityName == _commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == _commitment.LegalEntityOrganisationType.ToString() &&
                    apprenticeshipEvent.DateOfBirth == _apprenticeship.DateOfBirth &&
