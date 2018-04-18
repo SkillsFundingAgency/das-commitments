@@ -140,6 +140,7 @@
     <Compile Include="Interfaces\IAcademicYearDateProvider.cs" />
     <Compile Include="Interfaces\IAcademicYearValidator.cs" />
     <Compile Include="Interfaces\IApprenticeshipEvents.cs" />
+    <Compile Include="Interfaces\ICohortTransferService.cs" />
     <Compile Include="Interfaces\ICommitmentsLogger.cs" />
     <Compile Include="Interfaces\IConfiguration.cs" />
     <Compile Include="Interfaces\ICurrentDateTime.cs" />

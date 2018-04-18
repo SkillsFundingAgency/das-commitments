@@ -218,5 +218,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
 
             MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
         }
+
+        [Test]
+        public async Task ThenTheTransferApprovalStatusFlagIsSetToPending()
+        {
+            await Target.Handle(Command);
+            
+            CommitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c => c.TransferApprovalStatus == TransferApprovalStatus.Pending)));
+        }
     }
 }

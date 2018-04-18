@@ -27,8 +27,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
         private IMessagePublisher _messagePublisher;
+        private readonly ICohortTransferService _cohortTransferService;
 
-        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher, ICohortTransferService cohortTransferService)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -37,6 +38,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             _logger = logger;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _cohortTransferService = cohortTransferService;
         }
 
         public async Task<long> Handle(CreateApprenticeshipCommand command)
@@ -66,7 +68,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             await Task.WhenAll(
                 _apprenticeshipEvents.PublishEvent(commitment, savedApprenticeship, "APPRENTICESHIP-CREATED"),
                 UpdateStatusOfApprenticeship(commitment),
-                CreateHistory(commitment, savedApprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
+                CreateHistory(commitment, savedApprenticeship, command.Caller.CallerType, command.UserId, command.UserName),
+                 _cohortTransferService.ResetCommitmentTransferRejection(commitment, command.UserId, command.UserName)
             );
 
             if (publishMessage)
