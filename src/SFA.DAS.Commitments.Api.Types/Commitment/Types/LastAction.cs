@@ -4,6 +4,7 @@
     {
         None = 0,
         Amend = 1,
-        Approve = 2
+        Approve = 2,
+        AmendAfterRejected = 3
     }
 }

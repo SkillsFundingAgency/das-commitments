@@ -175,7 +175,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             await WithConnection(async connection =>
             {
                 var returnCode = await connection.ExecuteAsync(
-                    sql: "update [dbo].Commitment set TransferApprovalStatus=null where Id=@commitmentId;",
+                    sql: "update [dbo].Commitment set TransferApprovalStatus=null, LastAction=3 where Id=@commitmentId;",
                     commandType: CommandType.Text,
                     param: new { @commitmentId = commitmentId }
                 );

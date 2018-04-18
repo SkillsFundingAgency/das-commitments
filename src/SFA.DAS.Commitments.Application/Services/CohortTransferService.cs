@@ -39,6 +39,7 @@ namespace SFA.DAS.Commitments.Application.Services
             historyService.TrackUpdate(commitment, CommitmentChangeType.TransferApprovalReset.ToString(), commitment.Id, null, CallerType.TransferReceiver, userId, commitment.ProviderId, commitment.EmployerAccountId, userName);
 
             commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
+            commitment.LastAction = LastAction.AmendAfterRejected;
             
             await _commitmentRepository.ResetTransferApprovalStatus(commitment.Id);
 
