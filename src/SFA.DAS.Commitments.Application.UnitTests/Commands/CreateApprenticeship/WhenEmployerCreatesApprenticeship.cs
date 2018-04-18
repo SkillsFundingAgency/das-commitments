@@ -29,6 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IUlnValidator> _mockUlnValidator;
         private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         private Mock<IMessagePublisher> _mockMessagePublisher;
+        private Mock<ICohortTransferService> _mockCohortTransferService;
 
         private long expectedApprenticeshipId = 12;
 
@@ -45,8 +46,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockUlnValidator = new Mock<IUlnValidator>();
             _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
             _mockMessagePublisher = new Mock<IMessagePublisher>();
+            _mockCohortTransferService = new Mock<ICohortTransferService>();
 
             _mockMessagePublisher.Setup(x => x.PublishAsync(It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()))
+                .Returns(() => Task.FromResult(new Unit()));
+
+            _mockCohortTransferService.Setup(x => x.ResetCommitmentTransferRejection(It.IsAny<Commitment>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(() => Task.FromResult(new Unit()));
 
             var validator = new CreateApprenticeshipValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
@@ -57,7 +62,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _mockApprenticeshipEvents.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
-                _mockMessagePublisher.Object);
+                _mockMessagePublisher.Object,
+                _mockCohortTransferService.Object);
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
@@ -157,6 +163,30 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _mockMessagePublisher.Verify(
                 x => x.PublishAsync(It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()),
                 Times.Never);
+        }
+
+        [Test]
+        public async Task ThenCohortTransferRejectionStatusIsReset()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                EmployerAccountId = _exampleValidRequest.Caller.Id,
+                ProviderId = 10012,
+                Id = _exampleValidRequest.CommitmentId,
+                Apprenticeships = new List<Apprenticeship>()
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCohortTransferService.Verify(
+                x => x.ResetCommitmentTransferRejection(It.Is<Commitment>(c => c == testCommitment), It.IsAny<string>(),
+                    It.IsAny<string>()),
+                Times.Once);
         }
     }
 }

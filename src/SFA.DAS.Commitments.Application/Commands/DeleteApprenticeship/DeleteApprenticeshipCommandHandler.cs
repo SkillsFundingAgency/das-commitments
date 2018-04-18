@@ -23,8 +23,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly IHistoryRepository _historyRepository;
+        private readonly ICohortTransferService _cohortTransferService;
 
-        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository)
+        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository, ICohortTransferService cohortTransferService)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -32,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             _logger = logger;
             _apprenticeshipEvents = apprenticeshipEvents;
             _historyRepository = historyRepository;
+            _cohortTransferService = cohortTransferService;
         }
 
         protected override async Task HandleCore(DeleteApprenticeshipCommand command)
@@ -60,7 +62,8 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             await Task.WhenAll(
                 _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId),
                  _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
-                CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName)
+                CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName),
+                _cohortTransferService.ResetCommitmentTransferRejection(commitment, command.UserId, command.UserName)
             );
         }
 

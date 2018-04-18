@@ -246,6 +246,7 @@
     <Compile Include="Rules\ICommitmentRules.cs" />
     <Compile Include="Services\ApprenticeshipEventsService.cs" />
     <Compile Include="Services\CohortApprovalService.cs" />
+    <Compile Include="Services\CohortTransferService.cs" />
     <Compile Include="Services\CohortStatusChangeService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
