@@ -50,8 +50,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 
             var getApprenticeshipCalls = callTimesPerTask.Take(numberOfGetApprenticeshipTasks).SelectMany(cd => cd);
             var slowestGetApprenticeshipCall = getApprenticeshipCalls.Max(d => d.CallTime);
+            var meanGetApprenticeshipCall = new TimeSpan(Convert.ToInt64(getApprenticeshipCalls.Average(d => d.CallTime.Ticks)));
+
             var getApprenticeshipsCalls = callTimesPerTask.Skip(numberOfGetApprenticeshipTasks).SelectMany(cd => cd);
             var slowestGetApprenticeshipsCall = getApprenticeshipsCalls.Max(d => d.CallTime);
+            var meanGetApprenticeshipsCall = new TimeSpan(Convert.ToInt64(getApprenticeshipsCalls.Average(d => d.CallTime.Ticks)));
 
             await TestLog.Progress("Call Log:");
 
@@ -61,10 +64,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             var globalTime = allCallsOrdered.Select(c => c.StartTime + c.CallTime).Max() - globalStart;
 
             // if LogProgress is awaited, the details are written out-of-order
+            // todo: LogProgress should output in order, and we shouldn't have to do this as a consumer
             allCallsOrdered.ForEach(c => TestLog.Progress(c.ToString(globalStart, globalTime, 150)).GetAwaiter().GetResult());
 
             TestLog.Progress($"Slowest GetApprenticeship  {slowestGetApprenticeshipCall}").GetAwaiter().GetResult();
+            TestLog.Progress($"Mean GetApprenticeship  {meanGetApprenticeshipCall}").GetAwaiter().GetResult();
             TestLog.Progress($"Slowest GetApprenticeships {slowestGetApprenticeshipsCall}").GetAwaiter().GetResult();
+            TestLog.Progress($"Mean GetApprenticeships {meanGetApprenticeshipsCall}").GetAwaiter().GetResult();
 
             Assert.LessOrEqual(slowestGetApprenticeshipCall, new TimeSpan(0, 0, 1), "Slowest GetApprenticeship call took too long");
             Assert.LessOrEqual(slowestGetApprenticeshipsCall, new TimeSpan(0, 0, 1), "Slowest GetApprenticeships call took too long");

@@ -49,8 +49,8 @@ SELECT
 	ON 
 		c.Id = a.CommitmentId
 	LEFT JOIN
-		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
-		ON au.ApprenticeshipId = a.Id
+		ApprenticeshipUpdate au
+		ON au.ApprenticeshipId = a.Id and au.Status = 0
 	LEFT JOIN DataLockStatus dlPrice on dlPrice.Id =
 		(
 			SELECT TOP 1 

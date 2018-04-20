@@ -17,6 +17,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API
     {
         //todo: if we make optimisation to GetApprenticeships we need to cover the refactoring with integrationtest(s)
         //      which means we have to set up a specific data set
+        //todo: check everything returned (s.*) is actually mapped (and therefore used)
+        //todo: GetActiveApprenticeships orders by first name & last name. Is that required? If so, might be better to do that in c sharp
         [Test]
         public async Task GetEmployerApprenticeships()
         {
