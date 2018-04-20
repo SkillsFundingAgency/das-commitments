@@ -22,3 +22,6 @@ GO
 
 CREATE INDEX [IDX_APPRENTICESHIPUPDATE_APPRENTICESHIPID] ON [dbo].[ApprenticeshipUpdate] ([ApprenticeshipId]) WITH(ONLINE=ON)
 GO
+
+CREATE NONCLUSTERED INDEX [IX_ApprenticeshipUpdate_Status] ON [dbo].[ApprenticeshipUpdate] ([Status]) INCLUDE ([ApprenticeshipId],[Originator]) WITH (ONLINE = ON)
+GO
