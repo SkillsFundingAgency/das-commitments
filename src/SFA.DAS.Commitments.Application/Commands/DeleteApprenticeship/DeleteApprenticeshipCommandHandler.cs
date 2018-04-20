@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -23,9 +24,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly IHistoryRepository _historyRepository;
-        private readonly ICohortTransferService _cohortTransferService;
+        private HistoryService _historyService;
 
-        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository, ICohortTransferService cohortTransferService)
+        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -33,7 +34,6 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             _logger = logger;
             _apprenticeshipEvents = apprenticeshipEvents;
             _historyRepository = historyRepository;
-            _cohortTransferService = cohortTransferService;
         }
 
         protected override async Task HandleCore(DeleteApprenticeshipCommand command)
@@ -53,25 +53,42 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             }
 
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
+            var transferRejected = commitment.TransferApprovalStatus == TransferApprovalStatus.TransferRejected;
 
             CheckAuthorization(command, apprenticeship);
             CheckCommitmentStatus(command, commitment);
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
+            StartTrackingHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
+
+            await _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId);
+
             await Task.WhenAll(
-                _apprenticeshipRepository.DeleteApprenticeship(command.ApprenticeshipId),
+                ResetCommitmentTransferRejectionIfRequired(commitment),
                  _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
-                CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName),
-                _cohortTransferService.ResetCommitmentTransferRejection(commitment, command.UserId, command.UserName)
+                PublishApprenticeshipUpdateEvents(commitment, apprenticeship, transferRejected),
+                _historyService.Save()
             );
         }
-
-        private async Task CreateHistory(Commitment commitment, CallerType callerType, string userId, string userName)
+        
+        private void StartTrackingHistory(Commitment commitment, CallerType callerType, string userId, string userName)
         {
-            var commitmentHistory = new HistoryService(_historyRepository);
-            commitmentHistory.TrackUpdate(commitment, CommitmentChangeType.DeletedApprenticeship.ToString(), commitment.Id, null, callerType, userId, commitment.ProviderId, commitment.EmployerAccountId, userName);
-            await commitmentHistory.Save();
+            _historyService = new HistoryService(_historyRepository);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.DeletedApprenticeship.ToString(), commitment.Id, null, callerType, userId, commitment.ProviderId, commitment.EmployerAccountId, userName);
+        }
+
+        private async Task PublishApprenticeshipUpdateEvents(Commitment commitment, Apprenticeship deletedApprenticeship, bool transferRejected)
+        {
+            if (!transferRejected)
+            {
+                return;
+            }
+
+            foreach (var apprenticeship in commitment.Apprenticeships.Where(x => x.Id != deletedApprenticeship.Id))
+            {
+                await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED");
+            }
         }
 
         private void LogMessage(DeleteApprenticeshipCommand command)
@@ -88,6 +105,17 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
         {
             if (commitment.CommitmentStatus != CommitmentStatus.New && commitment.CommitmentStatus != CommitmentStatus.Active)
                 throw new InvalidOperationException($"Apprenticeship {message.ApprenticeshipId} in commitment {commitment.Id} cannot be updated because status is {commitment.CommitmentStatus}");
+        }
+
+        private async Task ResetCommitmentTransferRejectionIfRequired(Commitment commitment)
+        {
+            if (commitment.TransferApprovalStatus != TransferApprovalStatus.TransferRejected)
+                return;
+
+            commitment.TransferApprovalStatus = null;
+            commitment.TransferApprovalActionedOn = null;
+            commitment.LastAction = LastAction.AmendAfterRejected;
+            await _commitmentRepository.UpdateCommitment(commitment);
         }
 
         private static void CheckEditStatus(DeleteApprenticeshipCommand message, Commitment commitment)

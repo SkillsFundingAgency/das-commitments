@@ -23,7 +23,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
         Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses);
         Task ResetEditStatusToEmployer(long commitmentId);
-        Task ResetTransferApprovalStatus(long commitmentId);
         Task<long> CreateRelationship(Relationship relationship);
         Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode);
         Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified);
