@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Commands.TransferApproval;
+using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -45,15 +45,20 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
             var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
             await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
-            await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
+            await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName,
+                message.LastUpdatedByEmail, message.Message);
             await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
 
             if (haveBothPartiesApproved)
             {
                 if (commitment.HasTransferSenderAssigned)
                 {
+                    var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id,
+                        _cohortApprovalService.CurrentCostOfCohort(commitment),
+                        _cohortApprovalService.TrainingCourseSummaries(commitment));
+
                     await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(
-                        _messagePublisher, commitment);
+                        _messagePublisher, commitment, transferRequestId);
                 }
                 else
                 {
@@ -80,18 +85,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         {
             var currentAgreementStatus = _cohortApprovalService.GetCurrentAgreementStatus(commitment);
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
-        }
-
-        private async Task PublishApprovalEventMessages(Commitment commitment)
-        {
-            var tasks = new List<Task>();
-            var message = new CohortApprovedByEmployer(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id);
-            tasks.Add(_messagePublisher.PublishAsync(message));
-            if (commitment.HasTransferSenderAssigned)
-            {
-                tasks.Add(_cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment));
-            }
-            await Task.WhenAll(tasks.ToArray());
         }
 
         private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Domain;
@@ -15,7 +14,6 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Learners.Validators;
 using SFA.DAS.Messaging.Interfaces;
-
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeship
 {

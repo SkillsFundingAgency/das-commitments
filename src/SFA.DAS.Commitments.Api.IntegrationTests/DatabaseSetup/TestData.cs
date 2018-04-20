@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 {
@@ -10,9 +11,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         private readonly string _databaseConnectionString;
         public CommitmentsDatabase CommitmentsDatabase { get; }
 
-        public TestData()
+        public TestData(CommitmentsApiConfiguration config)
         {
-            var config = Infrastructure.Configuration.Configuration.Get();
             _databaseConnectionString = config.DatabaseConnectionString;
 
             CommitmentsDatabase = new CommitmentsDatabase(_databaseConnectionString);

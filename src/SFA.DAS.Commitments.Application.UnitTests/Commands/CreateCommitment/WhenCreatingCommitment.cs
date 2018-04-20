@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 _mockHistoryRepository.Object,
                 _messagePublisher.Object);
 
-            Fixture fixture = new Fixture();
+            var fixture = new Fixture();
             fixture.Customize<Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())

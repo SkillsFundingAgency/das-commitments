@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using Newtonsoft.Json;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -81,6 +82,15 @@ namespace SFA.DAS.Commitments.Application.Services
             await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
         }
 
+        internal async Task ResetApprenticeshipsAgreementStatuses(Commitment commitment)
+        {
+            commitment.Apprenticeships.ForEach(x =>
+            {
+                x.AgreementStatus = AgreementStatus.NotAgreed;
+            });
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
+        }
+
         internal async Task AddMessageToCommitment(Commitment commitment, string lastUpdatedByName, string messageText, CallerType createdBy)
         {
             var cohortStatusChangeService = new CohortStatusChangeService(_commitmentRepository);
@@ -114,11 +124,30 @@ namespace SFA.DAS.Commitments.Application.Services
             await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = employerAccountId });
         }
 
-        internal Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment)
+        internal decimal CurrentCostOfCohort(Commitment commitment)
         {
-            decimal totalCost = commitment.Apprenticeships.Sum(x => x.Cost ?? 0);
+            return commitment.Apprenticeships.Sum(x => x.Cost ?? 0);
+        }
 
-            var senderMessage = new CohortApprovalByTransferSenderRequested(commitment.EmployerAccountId,
+        internal List<TrainingCourseSummary> TrainingCourseSummaries(Commitment commitment)
+        {
+            var apprenticeships = commitment.Apprenticeships ?? new List<Apprenticeship>();
+
+            var grouped = apprenticeships.GroupBy(l => l.TrainingCode).Select(cl =>
+                new TrainingCourseSummary
+                {
+                    CourseTitle = cl.First().TrainingName,
+                    ApprenticeshipCount = cl.Count()
+                });
+
+            return grouped.ToList();
+        }
+
+        internal Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment, long transferRequestId)
+        {
+            decimal totalCost = CurrentCostOfCohort(commitment);
+
+            var senderMessage = new CohortApprovalByTransferSenderRequested(transferRequestId, commitment.EmployerAccountId,
                 commitment.Id, commitment.TransferSenderId.Value, totalCost);
             return messagePublisher.PublishAsync(senderMessage);
         }

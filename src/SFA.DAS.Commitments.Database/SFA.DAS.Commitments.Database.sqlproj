@@ -112,6 +112,13 @@
     <Build Include="StoredProcedures\SetTransferApproval.sql" />
     <Build Include="Tables\JobProgress.sql" />
     <Build Include="Tables\IntegrationTestIds.sql" />
+    <Build Include="Tables\TransferRequest.sql" />
+    <Build Include="StoredProcedures\StartATransferRequest.sql" />
+    <Build Include="StoredProcedures\SetTransferRequestApproval.sql" />
+    <Build Include="StoredProcedures\GetTransferRequestsForSender.sql" />
+    <Build Include="StoredProcedures\GetTransferRequestsForReceiver.sql" />
+    <Build Include="Views\TransferRequestSummary.sql" />
+    <Build Include="StoredProcedures\GetTransferRequest.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

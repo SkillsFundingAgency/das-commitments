@@ -90,6 +90,9 @@
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="Entities\TransferRequest.cs" />
+    <Compile Include="Entities\TransferRequestSummary.cs" />
+    <Compile Include="Entities\TrainingCourseSummary.cs" />
     <Compile Include="Entities\DataLock\DataLockUpdateType.cs" />
     <Compile Include="Entities\EventStatus.cs" />
     <Compile Include="Entities\PriceHistory.cs" />
