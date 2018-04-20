@@ -340,6 +340,7 @@
     <Compile Include="Helpers\TestSetup.cs" />
     <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\API\GetApprenticeships.cs" />
     <Compile Include="Tests\API\GetCommitments.cs" />
     <Compile Include="Tests\Scenarios\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
   </ItemGroup>
