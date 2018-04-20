@@ -227,7 +227,6 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewAgreementStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineWhetherChangeRequireAgreement.cs" />
     <Compile Include="Rules\CommitmentRules\WhenDetermineAgreementStatus.cs" />
-    <Compile Include="Services\CohortTransferService\WhenResettingTransferApprovalStatus.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
   </ItemGroup>
   <ItemGroup>

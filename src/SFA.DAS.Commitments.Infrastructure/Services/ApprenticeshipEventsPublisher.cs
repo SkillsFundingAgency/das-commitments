@@ -57,7 +57,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 PriceHistory = MapPriceHistory(apprenticeship.PriceHistory),
                 TransferSenderId = commitment.TransferSenderId,
                 TransferSenderName = commitment.TransferSenderName,
-                TransferApprovalStatus = (Events.Api.Types.TransferApprovalStatus?) commitment.TransferApprovalStatus
+                TransferApprovalStatus = (Events.Api.Types.TransferApprovalStatus?) commitment.TransferApprovalStatus,
+                TransferApprovalActionedOn = commitment.TransferApprovalActionedOn
             };
         }
 
