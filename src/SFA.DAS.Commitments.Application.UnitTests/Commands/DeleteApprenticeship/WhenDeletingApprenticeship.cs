@@ -211,10 +211,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         }
 
 
-        [TestCase(TransferApprovalStatus.TransferRejected, true)]
-        [TestCase(TransferApprovalStatus.Pending, false)]
-        [TestCase(null, false)]
-        public async Task ThenCohortTransferRejectionStatusIsReset(TransferApprovalStatus status, bool expectReset)
+        [Test]
+        public async Task ThenCohortTransferStatusIsResetIfRejected()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                TransferApprovalStatus = TransferApprovalStatus.TransferRejected
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c =>
+                c.TransferApprovalStatus == null
+                && c.TransferApprovalActionedOn == null
+            )), Times.Once);
+        }
+
+        [TestCase(TransferApprovalStatus.Pending)]
+        [TestCase(null)]
+        public async Task ThenCohortTransferStatusIsNotResetIfNotRejected(TransferApprovalStatus status)
         {
             //Arrange
             var testCommitment = new Commitment
@@ -229,17 +250,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             await _handler.Handle(_validCommand);
 
             //Assert
-            if (expectReset)
-            {
-                _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c =>
-                    c.TransferApprovalStatus == null
-                    && c.TransferApprovalActionedOn == null
-                )), Times.Once);
-            }
-            else
-            {
-                _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.IsAny<Commitment>()), Times.Never);
-            }
+            _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.IsAny<Commitment>()), Times.Never);
+            
         }
     }
 }

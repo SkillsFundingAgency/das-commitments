@@ -80,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             await _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller);
 
             await Task.WhenAll(
-                ResetCommitmentTransferRejection(commitment),
+                ResetCommitmentTransferRejectionIfRequired(commitment),
                 UpdateStatusOfApprenticeships(apprenticeshipStatusUpdates, apprenticeship.AgreementStatus),
                 PublishApprenticeshipUpdateEvents(commitment, apprenticeship, transferRejected, apprenticeshipStatusUpdates),
                 _historyService.Save()
@@ -92,7 +92,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
             }
         }
 
-        private async Task ResetCommitmentTransferRejection(Commitment commitment)
+        private async Task ResetCommitmentTransferRejectionIfRequired(Commitment commitment)
         {
             if (commitment.TransferApprovalStatus != TransferApprovalStatus.TransferRejected)
                 return;

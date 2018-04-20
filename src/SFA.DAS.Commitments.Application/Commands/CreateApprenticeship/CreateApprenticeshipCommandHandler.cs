@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 savedApprenticeship.Id, command.Caller.CallerType, command.UserId, savedApprenticeship.ProviderId,
                 savedApprenticeship.EmployerAccountId, command.UserName);
 
-            await ResetCommitmentTransferRejection(commitment);
+            await ResetCommitmentTransferRejectionIfRequired(commitment);
 
             var apprenticeshipStatusUpdates = GetApprenticeshipsRequiringStatusUpdates(commitment, apprenticeship);
 
@@ -139,7 +139,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             return result;
         }
 
-        private async Task ResetCommitmentTransferRejection(Commitment commitment)
+        private async Task ResetCommitmentTransferRejectionIfRequired(Commitment commitment)
         {
             if (commitment.TransferApprovalStatus != TransferApprovalStatus.TransferRejected)
                 return;
