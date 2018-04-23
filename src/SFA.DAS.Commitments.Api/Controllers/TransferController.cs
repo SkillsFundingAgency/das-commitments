@@ -56,11 +56,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
-        [Route("{transferSenderId}/sender/transfers/{transferRequestId}", Name = "GetTransferRequestForReceiver")]
+        [Route("{transferReceiverId}/receiver/transfers/{transferRequestId}", Name = "GetTransferRequestForReceiver")]
         [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetTransferRequestForReceiver(long transferSenderId, long transferRequestId)
+        public async Task<IHttpActionResult> GetTransferRequestForReceiver(long transferReceiverId, long transferRequestId)
         {
-            var response = await _employerOrchestrator.GetTransferRequest(transferRequestId, transferSenderId, CallerType.TransferReceiver);
+            var response = await _employerOrchestrator.GetTransferRequest(transferRequestId, transferReceiverId, CallerType.TransferReceiver);
 
             if (response == null)
             {
