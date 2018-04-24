@@ -24,11 +24,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IHistoryRepository> _mockHistoryRepository;
-        private Mock<ICohortTransferService> _mockCohortTransferService;
         private AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private DeleteApprenticeshipCommandHandler _handler;
         private DeleteApprenticeshipCommand _validCommand;
         private Apprenticeship _apprenticeship;
+        IEnumerable<HistoryItem> _historyResult;
 
         [SetUp]
         public void Setup()
@@ -37,20 +37,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
-            _mockCohortTransferService = new Mock<ICohortTransferService>();
 
-            _mockCohortTransferService.Setup(x => x.ResetCommitmentTransferRejection(It.IsAny<Commitment>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(() => Task.FromResult(new Unit()));
+            _mockHistoryRepository.Setup(x => x.InsertHistory(It.IsAny<IEnumerable<HistoryItem>>()))
+                .Callback((object o) => { _historyResult = o as IEnumerable<HistoryItem>; })
+                .Returns(() => Task.CompletedTask);
 
             _validator = new DeleteApprenticeshipValidator();
             _handler = new DeleteApprenticeshipCommandHandler(_mockCommitmentRepository.Object,
                 _mockApprenticeshipRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(),
-                _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object, _mockCohortTransferService.Object);
+                _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object);
 
             _validCommand = new DeleteApprenticeshipCommand { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserName = "Bob", UserId = "User" };
 
             _apprenticeship = new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, ProviderId = 123, EmployerAccountId = 123 };
             _mockApprenticeshipRepository.Setup(r => r.GetApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _historyResult = null;
         }
 
         [Test]
@@ -78,6 +84,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         [Test]
         public void ShouldNotAllowDeleteIfProviderIsNotAssociatedToCommitments()
         {
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval }
+                }
+            };
+
+            _apprenticeship.PaymentStatus = PaymentStatus.Active;
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
             _apprenticeship.ProviderId = 555;
             
             Func<Task> act = async () => await _handler.Handle(_validCommand);
@@ -88,6 +108,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         [Test]
         public void ShouldNotAllowDeleteIfEmployerIsNotAssociatedToCommitments()
         {
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval },
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval }
+                }
+            };
+
+            _apprenticeship.PaymentStatus = PaymentStatus.Active;
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
             _apprenticeship.EmployerAccountId = 555;
 
             _validCommand.Caller.CallerType = Domain.CallerType.Employer;
@@ -159,31 +193,32 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
 
             await _handler.Handle(_validCommand);
 
-            _mockHistoryRepository.Verify(
-                x =>
-                    x.InsertHistory(
-                        It.Is<IEnumerable<HistoryItem>>(
-                            y =>
-                                y.First().ChangeType == CommitmentChangeType.DeletedApprenticeship.ToString() &&
-                                y.First().CommitmentId == testCommitment.Id &&
-                                y.First().ApprenticeshipId == null &&
-                                y.First().OriginalState == expectedOriginalState &&
-                                y.First().UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
-                                y.First().UpdatedState == expectedOriginalState &&
-                                y.First().UserId == _validCommand.UserId &&
-                                y.First().ProviderId == testCommitment.ProviderId  &&
-                                y.First().EmployerAccountId == testCommitment.EmployerAccountId &&
-                                y.First().UpdatedByName == _validCommand.UserName)), Times.Once);
+            Assert.AreEqual(1, _historyResult.Count());
+
+            Assert.AreEqual(1, _historyResult.Count(item =>
+                item.ChangeType == CommitmentChangeType.DeletedApprenticeship.ToString() &&
+                item.CommitmentId == testCommitment.Id &&
+                item.ApprenticeshipId == null &&
+                item.OriginalState == expectedOriginalState &&
+                item.UpdatedByRole == _validCommand.Caller.CallerType.ToString() &&
+                item.UpdatedState == expectedOriginalState &&
+                item.UserId == _validCommand.UserId &&
+                item.ProviderId == testCommitment.ProviderId &&
+                item.EmployerAccountId == testCommitment.EmployerAccountId &&
+                item.UpdatedByName == _validCommand.UserName
+            ));
+            
         }
 
 
         [Test]
-        public async Task ThenCohortTransferRejectionStatusIsReset()
+        public async Task ThenCohortTransferStatusIsResetIfRejected()
         {
             //Arrange
             var testCommitment = new Commitment
             {
                 ProviderId = 123,
+                TransferApprovalStatus = TransferApprovalStatus.TransferRejected
             };
 
             _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
@@ -192,10 +227,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             await _handler.Handle(_validCommand);
 
             //Assert
-            _mockCohortTransferService.Verify(
-                x => x.ResetCommitmentTransferRejection(It.Is<Commitment>(c => c == testCommitment), It.IsAny<string>(),
-                    It.IsAny<string>()),
-                Times.Once);
+            _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c =>
+                c.TransferApprovalStatus == null
+                && c.TransferApprovalActionedOn == null
+            )), Times.Once);
+        }
+
+        [TestCase(TransferApprovalStatus.Pending)]
+        [TestCase(null)]
+        public async Task ThenCohortTransferStatusIsNotResetIfNotRejected(TransferApprovalStatus status)
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                TransferApprovalStatus = status
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.IsAny<Commitment>()), Times.Never);
+            
         }
     }
 }

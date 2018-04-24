@@ -33,7 +33,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<IMessagePublisher> _mockMessagePublisher;
         private Commitment _testCommitment;
         private ProviderCohortApprovalUndoneByEmployerUpdate _emittedEvent;
-        private Mock<ICohortTransferService> _mockCohortTransferService;
 
         [SetUp]
         public void SetUp()
@@ -45,10 +44,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockApprenticeshipUpdateRules = new Mock<IApprenticeshipUpdateRules>();
             _mockMessagePublisher = new Mock<IMessagePublisher>();
-            _mockCohortTransferService = new Mock<ICohortTransferService>();
-
-            _mockCohortTransferService.Setup(x => x.ResetCommitmentTransferRejection(It.IsAny<Commitment>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(() => Task.FromResult(new Unit()));
 
             _handler = new UpdateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
@@ -58,8 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 _mockApprenticeshipEvents.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
-                _mockMessagePublisher.Object,
-                _mockCohortTransferService.Object
+                _mockMessagePublisher.Object
                 );
 
             _mockValidator.Setup(x => x.Validate(It.IsAny<UpdateApprenticeshipCommand>())).Returns(new ValidationResult());
@@ -147,7 +141,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public async Task ThenCohortTransferRejectionStatusIsReset()
+        public async Task ThenCohortTransferStatusIsResetIfRejected()
         {
             //Arrange
             var testCommitment = new Commitment
@@ -175,10 +169,43 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await _handler.Handle(_exampleValidRequest);
 
             //Assert
-            _mockCohortTransferService.Verify(
-                x => x.ResetCommitmentTransferRejection(It.Is<Commitment>(c => c == testCommitment), It.IsAny<string>(),
-                    It.IsAny<string>()),
-                Times.Once);
+            _mockCommitmentRespository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c =>
+                c.TransferApprovalStatus == null
+                && c.TransferApprovalActionedOn == null
+            )), Times.Once);
+        }
+
+        [TestCase(TransferApprovalStatus.Pending)]
+        [TestCase(null)]
+        public async Task ThenCohortTransferStatusIsNotResetIfNotRejected(TransferApprovalStatus status)
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                EmployerAccountId = _exampleValidRequest.Caller.Id,
+                ProviderId = 10012,
+                Id = _exampleValidRequest.CommitmentId,
+                TransferApprovalStatus = status,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship
+                    {
+                        Id = _exampleValidRequest.ApprenticeshipId,
+                        AgreementStatus = AgreementStatus.BothAgreed
+                    }
+                }
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId))
+                .ReturnsAsync(testCommitment.Apprenticeships.First());
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(x => x.UpdateCommitment(It.IsAny<Commitment>()), Times.Never);
         }
     }
 }
