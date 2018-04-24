@@ -33,9 +33,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
 
-            ApprenticeshipEventsList.Setup(x => x.Add(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(),
-                It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime>()));
-
             Target = new ProviderApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object);
         }
 
