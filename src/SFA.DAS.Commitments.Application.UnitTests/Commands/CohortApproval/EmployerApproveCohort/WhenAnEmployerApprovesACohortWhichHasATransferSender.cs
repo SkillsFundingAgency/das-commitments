@@ -90,7 +90,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
 
         }
 
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedThenEventsEmittedShouldIndicatePendingTransferApproval()
+        {
+            await Target.Handle(Command);
 
+            ApprenticeshipEventsList.Verify(x => x.Add(
+                It.Is<Commitment>(c => c.TransferApprovalStatus == TransferApprovalStatus.Pending),
+                It.IsAny<Apprenticeship>(),
+                It.IsAny<string>(),
+                null,
+                null
+            ), Times.Exactly(Commitment.Apprenticeships.Count));
+        }
 
     }
 }
