@@ -9,6 +9,7 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public long ReceivingEmployerAccountId { get; set; }
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }
+        public string TransferSenderName { get; set; }
         public string LegalEntityName { get; set; }
         public decimal TransferCost { get; set; }
         public List<TrainingCourseSummary> TrainingList { get; set; }
