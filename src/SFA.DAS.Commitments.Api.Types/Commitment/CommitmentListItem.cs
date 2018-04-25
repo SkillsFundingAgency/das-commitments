@@ -22,6 +22,9 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public int ApprenticeshipCount { get; set; }
         public AgreementStatus AgreementStatus { get; set; }
         public LastAction LastAction { get; set; }
+        public long? TransferSenderId { get; set; }
+        public TransferApprovalStatus TransferApprovalStatus { get; set; }
+        public string TransferSenderName { get; set; }
         public bool CanBeApproved { get; set; }
         public LastUpdateInfo EmployerLastUpdateInfo { get; set; }
         public LastUpdateInfo ProviderLastUpdateInfo { get; set; }

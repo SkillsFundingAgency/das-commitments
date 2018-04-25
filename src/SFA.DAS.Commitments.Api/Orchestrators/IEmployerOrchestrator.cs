@@ -5,11 +5,11 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Domain.Entities;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Api.Types.ApprenticeshipStatusSummary;
 using ApprenticeshipUpdate = SFA.DAS.Commitments.Api.Types.Apprenticeship.ApprenticeshipUpdate;
 using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
+using TransferRequestSummary = SFA.DAS.Commitments.Api.Types.Commitment.TransferRequestSummary;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -37,6 +37,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln);
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
         Task ApproveCohort(long accountId, long commitmentId, CommitmentSubmission submission);
-        Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest transferApprovalRequest);
+        Task SetTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest transferApprovalRequest);
+        Task<IList<TransferRequestSummary>> GetTransferRequests(string hashedAccountId);
+        Task<Types.Commitment.TransferRequest> GetTransferRequest(long transferRequestId, long accountId, CallerType callerType);
     }
 }

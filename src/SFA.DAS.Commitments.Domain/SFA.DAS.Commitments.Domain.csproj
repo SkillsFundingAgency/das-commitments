@@ -75,6 +75,7 @@
     <Compile Include="Data\IApprenticeshipRepository.cs" />
     <Compile Include="Data\IApprenticeshipUpdateRepository.cs" />
     <Compile Include="Data\IBulkUploadRepository.cs" />
+    <Compile Include="Data\IJobProgressRepository.cs" />
     <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
@@ -89,6 +90,9 @@
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="Entities\TransferRequest.cs" />
+    <Compile Include="Entities\TransferRequestSummary.cs" />
+    <Compile Include="Entities\TrainingCourseSummary.cs" />
     <Compile Include="Entities\DataLock\DataLockUpdateType.cs" />
     <Compile Include="Entities\EventStatus.cs" />
     <Compile Include="Entities\PriceHistory.cs" />

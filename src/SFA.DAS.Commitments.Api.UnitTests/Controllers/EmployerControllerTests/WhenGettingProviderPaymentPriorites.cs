@@ -3,7 +3,6 @@ using FluentValidation;
 using MediatR;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Controllers;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
@@ -13,10 +12,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http.Results;
-
-using Castle.Components.DictionaryAdapter.Xml;
-
+using AutoFixture.NUnit3;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
@@ -38,7 +36,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 Mock.Of<ICommitmentsLogger>(), 
                 mapper, new ApprenticeshipFilterService(mapper),
                 Mock.Of<IApprenticeshipMapper>(),
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(), Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
             _apprenticeshipOrchestor = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<IDataLockMapper>(), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentsLogger>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipOrchestor);

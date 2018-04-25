@@ -5,9 +5,9 @@ using Moq;
 using SFA.DAS.Commitments.Domain;
 using FluentAssertions;
 using System;
+using AutoFixture;
 using FluentValidation;
 using SFA.DAS.Commitments.Application.Exceptions;
-using Ploeh.AutoFixture;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Domain.Entities;
 

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using AutoFixture;
 using Moq;
 
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;

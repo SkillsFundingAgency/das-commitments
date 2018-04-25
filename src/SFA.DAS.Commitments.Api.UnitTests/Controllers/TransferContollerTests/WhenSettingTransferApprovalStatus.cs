@@ -12,14 +12,14 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
     public class WhenSettingTransferApprovalStatus
     {
         private Mock<IEmployerOrchestrator> _mockEmployerOrchestrator;
-        private TransferSenderController _sut;
+        private TransferController _sut;
         private CommitmentView _commitmentView = new CommitmentView();
 
         [SetUp]
         public void Setup()
         {
             _mockEmployerOrchestrator = new Mock<IEmployerOrchestrator>();
-            _sut = new TransferSenderController(_mockEmployerOrchestrator.Object);
+            _sut = new TransferController(_mockEmployerOrchestrator.Object);
         }
 
         [Test]
@@ -33,7 +33,21 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
 
             await _sut.PatchTransferApprovalStatus(111, 3, request);
 
-            _mockEmployerOrchestrator.Verify(x => x.SetTransferApprovalStatus(111, 3, request));
+            _mockEmployerOrchestrator.Verify(x => x.SetTransferApprovalStatus(111, 3, 0, request));
+        }
+
+        [Test]
+        public async Task ThenCallsOrchestratorWithTheCorrectParametersWhenTransferRequestIdIsAdded()
+        {
+            var request = new TransferApprovalRequest
+            {
+                TransferReceiverId = 112,
+                TransferApprovalStatus = TransferApprovalStatus.Approved
+            };
+
+            await _sut.PatchTransferApprovalStatus(111, 3, 12, request);
+
+            _mockEmployerOrchestrator.Verify(x => x.SetTransferApprovalStatus(111, 3, 12, request));
         }
 
     }

@@ -4,18 +4,17 @@ using System.Threading.Tasks;
 using Moq;
 using MediatR;
 using SFA.DAS.Commitments.Api.Controllers;
-using Ploeh.AutoFixture.NUnit3;
 using System.Web.Http.Results;
-
+using AutoFixture.NUnit3;
 using FluentAssertions;
 using FluentValidation;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 {
@@ -31,7 +30,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         public void Setup()
         {
             _mockMediator = new Mock<IMediator>();
-            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(Mock.Of<ICurrentDateTime>()), new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentMapper>());
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(),
+                new FacetMapper(Mock.Of<ICurrentDateTime>()),
+                new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
+                Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentMapper>(), Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
                 _mockMediator.Object,
