@@ -11,5 +11,4 @@ SELECT
 	AND
 		(@employerId IS NULL OR @employerId = s.EmployerAccountId)
 	AND
-		NOT s.PaymentStatus IN (0,5) --Not deleted or pre-approved
-	ORDER BY s.FirstName asc, s.LastName asc;
+		NOT s.PaymentStatus IN (0,5); --Not deleted or pre-approved
