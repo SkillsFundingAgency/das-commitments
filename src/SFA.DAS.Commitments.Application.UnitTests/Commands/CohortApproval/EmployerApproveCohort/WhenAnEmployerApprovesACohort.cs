@@ -79,7 +79,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         public async Task ThenTheTransferApprovalStatusIsReset()
         {
             await Target.Handle(Command);
-            Assert.AreEqual(null, Commitment.TransferApprovalStatus);
+            Assert.IsNull(Commitment.TransferApprovalStatus);
         }
 
         [Test]
