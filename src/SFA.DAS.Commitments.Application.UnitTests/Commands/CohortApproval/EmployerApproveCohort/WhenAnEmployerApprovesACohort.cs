@@ -76,6 +76,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
+        public async Task ThenTheTransferApprovalStatusIsReset()
+        {
+            await Target.Handle(Command);
+            Assert.AreEqual(null, Commitment.TransferApprovalStatus);
+        }
+
+        [Test]
         public async Task ThenIfTheProviderHasNotYetApprovedTheCommitmentIsEditableByTheProviderAndHistoryIsCreated()
         {
             await Target.Handle(Command);
