@@ -375,5 +375,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
             Assert.Pass();
         }
 
+        [Test]
+        public async Task GetTransferRequestForReceiver()
+        {
+            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/receiver/transfers/{TransferRequestId}"), string.Empty);
+            _fakeHandler.AddFakeResponse(transferRequestForSenderRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new TransferRequest())) });
+
+            var transferRequest = await _employerApiClient.GetTransferRequestForReceiver(EmployerAccountId, TransferRequestId);
+
+            Assert.Pass();
+        }
+
+
     }
 }
