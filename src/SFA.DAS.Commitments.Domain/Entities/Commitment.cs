@@ -16,10 +16,10 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string Reference { get; set; }
         public long? TransferSenderId { get; set; }
         public string TransferSenderName { get; set; }
-        public TransferApprovalStatus TransferApprovalStatus { get; set; }
+        public TransferApprovalStatus? TransferApprovalStatus { get; set; }
         public string TransferApprovalActionedByEmployerName { get; set; }
         public string TransferApprovalActionedByEmployerEmail { get; set; }
-        public DateTime TransferApprovalActionedOn { get; set; }
+        public DateTime? TransferApprovalActionedOn { get; set; }
         public long EmployerAccountId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
