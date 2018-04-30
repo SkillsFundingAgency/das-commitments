@@ -101,6 +101,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             commitment.CommitmentStatus = CommitmentStatus.Active;
             commitment.LastUpdatedByEmployerEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
+            commitment.TransferApprovalStatus = null;
 
             await Task.WhenAll(
                 _cohortApprovalService.AddMessageToCommitment(commitment, lastUpdatedByName, message, CallerType.Employer),
