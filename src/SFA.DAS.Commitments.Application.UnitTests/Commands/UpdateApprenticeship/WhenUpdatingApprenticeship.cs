@@ -6,6 +6,7 @@ using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
+using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -32,6 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<AbstractValidator<UpdateApprenticeshipCommand>> _mockValidator;
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IApprenticeshipUpdateRules> _mockApprenticeshipUpdateRules;
+        private IEnumerable<HistoryItem> _historyResult;
 
         [SetUp]
         public void SetUp()
@@ -42,6 +44,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockValidator = new Mock<AbstractValidator<UpdateApprenticeshipCommand>>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockApprenticeshipUpdateRules = new Mock<IApprenticeshipUpdateRules>();
+
+            _mockHistoryRepository.Setup(x => x.InsertHistory(It.IsAny<IEnumerable<HistoryItem>>()))
+                .Callback((object o) => { _historyResult = o as IEnumerable<HistoryItem>; })
+                .Returns(() => Task.CompletedTask);
 
             _handler = new UpdateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object, 
@@ -78,13 +84,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
-                ProviderId = _exampleValidRequest.Caller.Id
-            });
-
-            _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(new Apprenticeship
-            {
-                Id = _exampleValidRequest.ApprenticeshipId,
-                PaymentStatus = PaymentStatus.PendingApproval
+                ProviderId = _exampleValidRequest.Caller.Id,
+                Apprenticeships =
+                {
+                    new Apprenticeship
+                    {
+                        Id = _exampleValidRequest.ApprenticeshipId,
+                        PaymentStatus = PaymentStatus.PendingApproval
+                    }
+                }
             });
 
             await _handler.Handle(_exampleValidRequest);
@@ -109,7 +117,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(_exampleValidRequest.CommitmentId)).ReturnsAsync(new Commitment
             {
                 Id = _exampleValidRequest.CommitmentId,
-                ProviderId = _exampleValidRequest.Caller.Id++
+                ProviderId = _exampleValidRequest.Caller.Id++,
+                Apprenticeships =
+                {
+                    new Apprenticeship
+                    {
+                        Id = _exampleValidRequest.ApprenticeshipId
+                    }
+                }
             });
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
@@ -130,10 +145,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 Apprenticeships =
                                 new List<Apprenticeship>
                                     {
-                                        new Apprenticeship { Id = 1, AgreementStatus = AgreementStatus.BothAgreed, PaymentStatus = PaymentStatus.PendingApproval },
-                                        new Apprenticeship { Id = 2, AgreementStatus = AgreementStatus.EmployerAgreed, PaymentStatus = PaymentStatus.PendingApproval },
-                                        new Apprenticeship { Id = 3, AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval },
-                                        new Apprenticeship { Id = 4, AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.PendingApproval }
+                                        new Apprenticeship { Id = 1, CommitmentId = 123L, AgreementStatus = AgreementStatus.BothAgreed, PaymentStatus = PaymentStatus.PendingApproval },
+                                        new Apprenticeship { Id = 2, CommitmentId = 123L, AgreementStatus = AgreementStatus.EmployerAgreed, PaymentStatus = PaymentStatus.PendingApproval },
+                                        new Apprenticeship { Id = 3, CommitmentId = 123L, AgreementStatus = AgreementStatus.ProviderAgreed, PaymentStatus = PaymentStatus.PendingApproval },
+                                        new Apprenticeship { Id = 4, CommitmentId = 123L, AgreementStatus = AgreementStatus.NotAgreed, PaymentStatus = PaymentStatus.PendingApproval }
                                     }
             };
 
@@ -147,6 +162,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                         });
 
             _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
+            _exampleValidRequest.ApprenticeshipId = 1;
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipRepository.Verify(x =>
@@ -156,19 +172,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [Test]
         public async Task ThenHistoryRecordsAreCreated()
         {
-            var testCommitment = new Commitment
-            {
-                ProviderId = _exampleValidRequest.Caller.Id,
-                Id = _exampleValidRequest.CommitmentId
-            };
-            var expectedOriginalCommitmentState = JsonConvert.SerializeObject(testCommitment);
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
-
             var testApprenticeship = new Apprenticeship
             {
                 Id = _exampleValidRequest.ApprenticeshipId,
-                PaymentStatus = PaymentStatus.PendingApproval
+                PaymentStatus = PaymentStatus.PendingApproval,
+                CommitmentId = _exampleValidRequest.CommitmentId,
+                ProviderId = _exampleValidRequest.Caller.Id
             };
+
+            var testCommitment = new Commitment
+            {
+                ProviderId = _exampleValidRequest.Caller.Id,
+                Id = _exampleValidRequest.CommitmentId,
+                Apprenticeships = { testApprenticeship }
+            };
+
+            var expectedOriginalCommitmentState = JsonConvert.SerializeObject(testCommitment);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
             _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(testApprenticeship);
             var expectedOriginalApprenticeshipState = JsonConvert.SerializeObject(testApprenticeship);
 
@@ -176,56 +197,54 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             var expectedNewApprenticeshipState = JsonConvert.SerializeObject(testApprenticeship);
 
-            _mockHistoryRepository.Verify(
-                x =>
-                    x.InsertHistory(
-                        It.Is<IEnumerable<HistoryItem>>(
-                            y =>
-                                y.First().ChangeType == CommitmentChangeType.EditedApprenticeship.ToString() &&
-                                y.First().CommitmentId == testCommitment.Id &&
-                                y.First().ApprenticeshipId == null &&
-                                y.First().OriginalState == expectedOriginalCommitmentState &&
-                                y.First().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
-                                y.First().UpdatedState == expectedOriginalCommitmentState &&
-                                y.First().UserId == _exampleValidRequest.UserId &&
-                                y.First().ProviderId == testApprenticeship.ProviderId &&
-                                y.First().EmployerAccountId == testApprenticeship.EmployerAccountId &&
-                                y.First().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
+            Assert.AreEqual(2, _historyResult.Count());
 
-            _mockHistoryRepository.Verify(
-                x =>
-                    x.InsertHistory(
-                        It.Is<IEnumerable<HistoryItem>>(
-                            y =>
-                                y.Last().ChangeType == ApprenticeshipChangeType.Updated.ToString() &&
-                                y.Last().CommitmentId == null &&
-                                y.Last().ApprenticeshipId == testApprenticeship.Id &&
-                                y.Last().OriginalState == expectedOriginalApprenticeshipState &&
-                                y.Last().UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString() &&
-                                y.Last().UpdatedState == expectedNewApprenticeshipState &&
-                                y.Last().UserId == _exampleValidRequest.UserId &&
-                                y.Last().ProviderId == testApprenticeship.ProviderId &&
-                                y.Last().EmployerAccountId == testApprenticeship.EmployerAccountId &&
-                                y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
+            Assert.AreEqual(1, _historyResult.Count(item =>
+                item.ChangeType == CommitmentChangeType.EditedApprenticeship.ToString()
+                && item.CommitmentId == testCommitment.Id
+                && item.ApprenticeshipId == null
+                && item.OriginalState == expectedOriginalCommitmentState
+                && item.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString()
+                && item.UpdatedState == expectedOriginalCommitmentState
+                && item.UserId == _exampleValidRequest.UserId
+                && item.ProviderId == testApprenticeship.ProviderId
+                && item.EmployerAccountId == testApprenticeship.EmployerAccountId
+                && item.UpdatedByName == _exampleValidRequest.UserName
+            ));
+
+            Assert.AreEqual(1, _historyResult.Count(item =>
+                item.ChangeType == ApprenticeshipChangeType.Updated.ToString()
+                && item.CommitmentId == null
+                && item.ApprenticeshipId == testApprenticeship.Id
+                && item.OriginalState == expectedOriginalApprenticeshipState
+                && item.UpdatedByRole == _exampleValidRequest.Caller.CallerType.ToString()
+                && item.UpdatedState == expectedNewApprenticeshipState
+                && item.UserId == _exampleValidRequest.UserId
+                && item.ProviderId == testApprenticeship.ProviderId
+                && item.EmployerAccountId == testApprenticeship.EmployerAccountId
+                && item.UpdatedByName == _exampleValidRequest.UserName
+            ));
         }
 
         [Test]
         public async Task ThenIfNoChangesWereMadeThenTheAgreementStatusRemainsUnchanged()
         {
             //Arrange
-            var testCommitment = new Commitment
-            {
-                ProviderId = _exampleValidRequest.Caller.Id,
-                Id = _exampleValidRequest.CommitmentId
-            };
-            
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
-
             var testApprenticeship = new Apprenticeship
             {
                 Id = _exampleValidRequest.ApprenticeshipId,
                 AgreementStatus = AgreementStatus.EmployerAgreed
             };
+
+            var testCommitment = new Commitment
+            {
+                ProviderId = _exampleValidRequest.Caller.Id,
+                Id = _exampleValidRequest.CommitmentId,
+                Apprenticeships = { testApprenticeship }
+            };
+            
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
             _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId)).ReturnsAsync(testApprenticeship);
 
             _mockApprenticeshipUpdateRules.Setup(x => x.DetermineNewAgreementStatus(
