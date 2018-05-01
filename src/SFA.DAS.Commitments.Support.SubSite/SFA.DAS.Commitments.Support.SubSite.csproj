@@ -56,14 +56,14 @@
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Data.Edm, Version=5.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.Edm.5.7.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+    <Reference Include="Microsoft.Data.Edm, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Edm.5.8.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Data.OData, Version=5.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.OData.5.7.0\lib\net40\Microsoft.Data.OData.dll</HintPath>
+    <Reference Include="Microsoft.Data.OData, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.OData.5.8.2\lib\net40\Microsoft.Data.OData.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Data.Services.Client, Version=5.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Data.Services.Client.5.7.0\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
+    <Reference Include="Microsoft.Data.Services.Client, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Services.Client.5.8.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=3.18.0.2306, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.3.18.0\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
@@ -83,20 +83,38 @@
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=2.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Storage, Version=8.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\WindowsAzure.Storage.8.0.1\lib\net45\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    <Reference Include="Microsoft.WindowsAzure.Storage, Version=9.1.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.Storage.9.1.1\lib\net45\Microsoft.WindowsAzure.Storage.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Polly, Version=5.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Polly.5.1.0\lib\net45\Polly.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Configuration, Version=1.0.0.53229, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.53229\lib\net45\SFA.DAS.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Configuration.AzureTableStorage, Version=1.0.0.53229, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Configuration.AzureTableStorage.1.0.0.53229\lib\net45\SFA.DAS.Configuration.AzureTableStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Configuration.FileStorage, Version=1.0.0.53229, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Configuration.FileStorage.1.0.0.53229\lib\net45\SFA.DAS.Configuration.FileStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Learners, Version=1.0.0.39408, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Learners.1.0.0.39408\lib\net45\SFA.DAS.Learners.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.43242, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.43242\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.NLog.Targets.Redis, Version=1.0.0.34273, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Targets.Redis.1.0.0.34273\lib\net45\SFA.DAS.NLog.Targets.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.44965, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.44965\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Support.Shared, Version=2.0.0.62776, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Support.Shared.2.0.0.62776\lib\net462\SFA.DAS.Support.Shared.dll</HintPath>
@@ -123,8 +141,8 @@
     <Reference Include="System.Net.Http.Formatting, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.4\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
-    <Reference Include="System.Spatial, Version=5.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Spatial.5.7.0\lib\net40\System.Spatial.dll</HintPath>
+    <Reference Include="System.Spatial, Version=5.8.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Spatial.5.8.2\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -222,6 +240,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\StructuremapMvc.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Configuration\CommitmentSupportSiteConfiguartion.cs" />
     <Compile Include="Controllers\ApprenticeshipsController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
@@ -233,21 +252,116 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ApprenticeshipSearchQuery.cs" />
     <Compile Include="Models\ApprenticeshipSearchType.cs" />
     <Compile Include="Models\ServiceStatusViewModel.cs" />
-    <Compile Include="Models\UlnSearchResult.cs" />
+    <Compile Include="Models\UlnSearchResultViewModel.cs" />
     <Compile Include="Models\UlnSearchResultSummaryViewModel.cs" />
     <Compile Include="Orchestrators\ApprenticeshipsOrchestrator.cs" />
     <Compile Include="Orchestrators\IApprenticeshipsOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\fontawesome-5.0.2\LICENSE.txt" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fa-brands.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fa-brands.min.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fa-regular.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fa-regular.min.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fa-solid.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fa-solid.min.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fontawesome-all.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fontawesome-all.min.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fontawesome.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\css\fontawesome.min.css" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-brands-400.svg" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-regular-400.svg" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-solid-900.svg" />
+    <Content Include="assets\images\apple-touch-icon-120x120.png" />
+    <Content Include="assets\images\apple-touch-icon-152x152.png" />
+    <Content Include="assets\images\apple-touch-icon-60x60.png" />
+    <Content Include="assets\images\apple-touch-icon-76x76.png" />
+    <Content Include="assets\images\favicon.ico" />
+    <Content Include="assets\images\gov.uk_logotype_crown.svg" />
+    <Content Include="assets\images\gov.uk_logotype_crown_invert.png" />
+    <Content Include="assets\images\gov.uk_logotype_crown_invert_trans.png" />
+    <Content Include="assets\images\icon-pointer-2x.png" />
+    <Content Include="assets\images\opengraph-image.png" />
+    <Content Include="assets\javascripts\app.js" />
+    <Content Include="assets\javascripts\ie.js" />
+    <Content Include="assets\javascripts\search-index.js" />
+    <Content Include="assets\stylesheets\application.css" />
+    <Content Include="assets\stylesheets\external-links\external-link-24x24.png" />
+    <Content Include="assets\stylesheets\external-links\external-link-black-12x12.png" />
+    <Content Include="assets\stylesheets\external-links\external-link-black-24x24.png" />
+    <Content Include="assets\stylesheets\external-links\external-link.png" />
+    <Content Include="assets\stylesheets\fonts-ie8.css" />
+    <Content Include="assets\stylesheets\fonts.css" />
+    <Content Include="assets\stylesheets\govuk-template-ie6.css" />
+    <Content Include="assets\stylesheets\govuk-template-ie7.css" />
+    <Content Include="assets\stylesheets\govuk-template-ie8.css" />
+    <Content Include="assets\stylesheets\govuk-template-print.css" />
+    <Content Include="assets\stylesheets\govuk-template.css" />
+    <Content Include="assets\stylesheets\govuk_elements\images\examples\15px-gutter-example.png" />
+    <Content Include="assets\stylesheets\govuk_elements\images\examples\30px-gutter-example.png" />
+    <Content Include="assets\stylesheets\govuk_elements\images\examples\3by2.jpg" />
+    <Content Include="assets\stylesheets\govuk_elements\images\examples\larry-the-cat.jpg" />
+    <Content Include="assets\stylesheets\govuk_elements\images\examples\pm.jpg" />
+    <Content Include="assets\stylesheets\govuk_elements\images\icon-arrow-left.png" />
+    <Content Include="assets\stylesheets\govuk_elements\images\separator-2x.png" />
+    <Content Include="assets\stylesheets\govuk_elements\images\separator.png" />
+    <Content Include="assets\stylesheets\govuk_elements\javascripts\application.js" />
+    <Content Include="assets\stylesheets\govuk_elements\javascripts\redirect.js" />
+    <Content Include="assets\stylesheets\govuk_elements\javascripts\vendor\jquery-1.11.0.min.js" />
+    <Content Include="assets\stylesheets\govuk_elements\javascripts\vendor\prism.js" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation-ie6.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation-ie6.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation-ie7.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation-ie7.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation-ie8.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation-ie8.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\elements-documentation.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles-ie6.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles-ie6.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles-ie7.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles-ie7.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles-ie8.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles-ie8.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\govuk-elements-styles.min.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\vendor\prism.css" />
+    <Content Include="assets\stylesheets\govuk_elements\stylesheets\vendor\prism.min.css" />
+    <Content Include="assets\stylesheets\images\close.png" />
+    <Content Include="assets\stylesheets\images\gov.uk_logotype_crown-1x.png" />
+    <Content Include="assets\stylesheets\images\gov.uk_logotype_crown.png" />
+    <Content Include="assets\stylesheets\images\govuk-crest-2x.png" />
+    <Content Include="assets\stylesheets\images\govuk-crest-ie.png" />
+    <Content Include="assets\stylesheets\images\govuk-crest.png" />
+    <Content Include="assets\stylesheets\images\open-government-licence.png" />
+    <Content Include="assets\stylesheets\images\open-government-licence_2x.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\fontawesome-5.0.2\README.md" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-brands-400.eot" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-brands-400.ttf" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-brands-400.woff" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-brands-400.woff2" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-regular-400.eot" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-regular-400.ttf" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-regular-400.woff" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-regular-400.woff2" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-solid-900.eot" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-solid-900.ttf" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-solid-900.woff" />
+    <Content Include="assets\fontawesome-5.0.2\web-fonts-with-css\webfonts\fa-solid-900.woff2" />
+    <Content Include="assets\stylesheets\fonts\GDSTransportTabular-Bold.eot" />
+    <Content Include="assets\stylesheets\fonts\GDSTransportTabular-Light.eot" />
+    <Content Include="assets\stylesheets\fonts\GDSTransportWebsite-Bold.eot" />
+    <Content Include="assets\stylesheets\fonts\GDSTransportWebsite.eot" />
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -263,7 +377,8 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\Apprenticeship\FindApprenticeship.cshtml" />
+    <Content Include="Views\Apprenticeships\FindApprenticeship.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -284,6 +399,14 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
       <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
       <Name>SFA.DAS.Commitments.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
+      <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
+      <Name>SFA.DAS.Commitments.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
+      <Project>{7C2C2688-ABF9-4A08-9FC3-BA169A5888C4}</Project>
+      <Name>SFA.DAS.Commitments.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

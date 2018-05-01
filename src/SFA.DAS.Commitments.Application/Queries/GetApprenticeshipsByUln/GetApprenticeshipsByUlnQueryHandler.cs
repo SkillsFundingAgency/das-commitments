@@ -46,6 +46,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln
 
             if (validationResult != UlnValidationResult.Success)
             {
+                _logger.Warn($"Invalid Uln {request.Uln}");
+
                 throw new ValidationException(ValidationErrorMessage(validationResult));
             }
         }

@@ -17,6 +17,17 @@
 
 namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 {
+    using MediatR;
+    using Microsoft.Azure;
+    using SFA.DAS.Commitments.Domain.Data;
+    using SFA.DAS.Commitments.Domain.Interfaces;
+    using SFA.DAS.Commitments.Infrastructure.Data;
+    using SFA.DAS.Commitments.Infrastructure.Logging;
+    using SFA.DAS.Commitments.Support.SubSite.Configuration;
+    using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
+    using SFA.DAS.Configuration;
+    using SFA.DAS.Configuration.AzureTableStorage;
+    using SFA.DAS.Learners.Validators;
     using SFA.DAS.NLog.Logger;
     using StructureMap;
     using StructureMap.Configuration.DSL;
@@ -25,7 +36,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
     public class DefaultRegistry : Registry
     {
-        #region Constructors and Destructors
+        private const string ServiceName = "SFA.DAS.Support.Commitments";
+        private const string Version = "1.0";
 
         public DefaultRegistry()
         {
@@ -41,20 +53,47 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
         private void ConfigureLog()
         {
+
+            var config = GetConfiguration();
+
+            For<IUlnValidator>().Use<UlnValidator>();
+            For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+
             For<ILoggingPropertyFactory>().Use<LoggingPropertyFactory>();
             HttpContextBase conTextBase = null;
             if (HttpContext.Current != null)
             {
                 conTextBase = new HttpContextWrapper(HttpContext.Current);
             }
+
             For<IWebLoggingContext>().Use(x => new WebLoggingContext(conTextBase));
             For<ILog>().Use(x => new NLogLogger(
                 x.ParentType,
                 x.GetInstance<IWebLoggingContext>(),
                 x.GetInstance<ILoggingPropertyFactory>().GetProperties())).AlwaysUnique();
+
+            For<ICommitmentsLogger>().Use(x => new CommitmentsLogger(x.GetInstance<ILog>())).AlwaysUnique();
+
+            For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
+            For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
+            For<IMediator>().Use<Mediator>();
+
+            For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
+
         }
 
+        private CommitmentSupportSiteConfiguartion GetConfiguration()
+        {
+            var environment = CloudConfigurationManager.GetSetting("EnvironmentName") ?? "LOCAL";
+            var storageConnectionString = CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString") ?? "UseDevelopmentStorage=true;";
+            var configurationRepository = new AzureTableStorageConfigurationRepository(storageConnectionString);
+            var configurationOptions = new ConfigurationOptions(ServiceName, environment, Version);
+            var configurationService = new ConfigurationService(configurationRepository, configurationOptions);
+            var webConfiguration = configurationService.Get<CommitmentSupportSiteConfiguartion>();
 
-        #endregion
+            return webConfiguration;
+        }
+
     }
 }

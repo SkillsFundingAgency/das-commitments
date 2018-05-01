@@ -1,7 +1,7 @@
 ﻿
 namespace SFA.DAS.Commitments.Support.SubSite.Models
 {
-    public class UlnSearchResult
+    public class UlnSearchResultViewModel
     {
 
         public string ApprenticeName { get; set; }

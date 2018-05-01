@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
 
         public int ApprenticeshipsCount { get; set; }
 
-        public List<UlnSearchResult> SearchResults { get; set; }
+        public List<UlnSearchResultViewModel> SearchResults { get; set; }
 
     }
 }
