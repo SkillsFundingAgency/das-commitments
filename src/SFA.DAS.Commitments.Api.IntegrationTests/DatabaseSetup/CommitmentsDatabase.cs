@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     public class CommitmentsDatabase : Database
     {
         // intial version will be null
-        public static readonly int? SchemaVersion = 1;
+        public static readonly int? SchemaVersion = 2;
 
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
