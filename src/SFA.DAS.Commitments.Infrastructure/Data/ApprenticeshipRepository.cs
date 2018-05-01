@@ -585,15 +585,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByProvider(long providerId)
         {
-            return await GetActiveApprenticeshipsByIdentifier("[GetActiveApprenticeshipsForProvider]", providerId);
+            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForProvider]", providerId);
         }
 
         public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByEmployer(long accountId)
         {
-            return await GetActiveApprenticeshipsByIdentifier("[GetActiveApprenticeshipsForEmployer]", accountId);
+            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForEmployer]", accountId);
         }
 
-        private Task<ApprenticeshipsResult> GetActiveApprenticeshipsByIdentifier(string sprocName, long id)
+        private Task<ApprenticeshipsResult> GetActiveApprenticeships(string sprocName, long id)
         {
             return WithConnection(async c =>
             {

@@ -62,3 +62,11 @@ BEGIN
 	FROM [dbo].[Commitment] c WHERE c.TransferSenderId IS NOT NULL AND c.EditStatus = 0 AND c.CommitmentStatus = 1
 	
 END
+
+--todo: one-time update to be run when the system quiesces
+--UPDATE Apprenticeship
+--SET    PendingOriginator = AU.Originator
+--FROM   Apprenticeship A
+--INNER JOIN ApprenticeshipUpdate AU
+--ON     A.Id = AU.ApprenticeshipId
+--	   AND AU.Status = 0;

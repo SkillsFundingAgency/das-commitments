@@ -22,7 +22,12 @@
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
     [PauseDate] DATE NULL, 
-	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0
+	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0,
+	-- PendingOriginator is a combination of ApprenticeshipUpdate Originator and Status
+	-- if not null, Status = Pending, contains PendingOriginator = Originator
+	-- if null, no ApprenticeshipUpdate or Status != Pending
+	-- we could store Originator and Status instead
+	[PendingOriginator] TINYINT NULL
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 )
 GO
