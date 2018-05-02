@@ -43,7 +43,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
             await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
             await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
-            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
 
             if (haveBothPartiesApproved)
             {
@@ -54,6 +53,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
                         _cohortApprovalService.TrainingCourseSummaries(commitment));
 
                     await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment, transferRequestId);
+
+                    commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
                 }
                 else
                 {
@@ -64,6 +65,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             {
                 await PublishApprovalRequestedMessage(commitment);
             }
+
+            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
         }
 
         private async Task PublishApprovalRequestedMessage(Commitment commitment)

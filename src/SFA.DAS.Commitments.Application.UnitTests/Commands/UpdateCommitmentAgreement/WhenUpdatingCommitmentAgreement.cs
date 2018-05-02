@@ -266,7 +266,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfTheCallerIsTheProviderThenTheCommitmentStatusesAreUpdatedCorrectly()
         {
-            var commitment = new Commitment { Id = 123L, ProviderId = 444, ProviderCanApproveCommitment = false, EditStatus = EditStatus.ProviderOnly };
+            var commitment = new Commitment { Id = 123L, ProviderId = 444, ProviderCanApproveCommitment = false, EditStatus = EditStatus.ProviderOnly};
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             _validCommand.Caller.CallerType = CallerType.Provider;

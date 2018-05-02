@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -31,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
-            
+
             Target = new ProviderApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object);
         }
 
@@ -90,6 +91,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
 
         }
 
+        [Test]
+        public async Task ThenIfTheEmployerHasAlreadyApprovedThenEventsEmittedShouldIndicatePendingTransferApproval()
+        {
+            await Target.Handle(Command);
 
+            ApprenticeshipEventsList.Verify(x => x.Add(
+                It.Is<Commitment>(c => c.TransferApprovalStatus == TransferApprovalStatus.Pending),
+                It.IsAny<Apprenticeship>(),
+                It.IsAny<string>(),
+                null,
+                null
+                ), Times.Exactly(Commitment.Apprenticeships.Count));
+        }
     }
 }

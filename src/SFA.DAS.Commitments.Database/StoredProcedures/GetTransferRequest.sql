@@ -7,6 +7,7 @@ SELECT
 	,C.EmployerAccountId AS ReceivingEmployerAccountId
 	,TR.[CommitmentId]
 	,C.TransferSenderId AS SendingEmployerAccountId
+	,C.TransferSenderName
 	,C.LegalEntityName
     ,TR.[Cost] AS TransferCost
 	,TR.TrainingCourses
