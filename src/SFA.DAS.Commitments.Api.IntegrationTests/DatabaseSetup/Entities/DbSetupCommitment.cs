@@ -6,7 +6,7 @@ using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
 {
-    public class DbSetupCommitment
+    public class DbSetupCommitment : IDbSetupEntity
     {
         public long Id { get; set; }
         [StringLength(100)]

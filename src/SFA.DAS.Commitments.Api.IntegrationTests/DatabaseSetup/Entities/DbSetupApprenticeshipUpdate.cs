@@ -4,7 +4,7 @@ using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
 {
-    public class DbSetupApprenticeshipUpdate
+    public class DbSetupApprenticeshipUpdate : IDbSetupEntity
     {
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }

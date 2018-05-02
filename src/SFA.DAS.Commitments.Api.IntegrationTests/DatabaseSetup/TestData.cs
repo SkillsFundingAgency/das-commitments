@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -70,6 +73,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // but if when deal with million+ rows and want to add another million might be handy to add more
             // could assert corner cases rather than trying to handle them?
             //todo: if adding, would probably be better to leave current test ids alone and just generate for volume
+
+            var testSpecificData = GetTestSpecificData();
+
+            //todo: use entities contained in testSpecificData first (ideally interspersed) before generating random volume data
+            //      and store the id of any entity given a name into testids
+
             var firstNewApprenticeshipId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
             var firstNewCohortId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
 
@@ -97,6 +106,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockEventId));
 
             return testIds;
+        }
+
+        public IEnumerable<TestDbSetupEntity> GetTestSpecificData()
+        {
+            // *** add your call to get the specific data your integration test needs here ***
+            //return WhenSimulatingRealWorldApprenticeshipLoad.GetTestSpecificData();
+            return Enumerable.Empty<TestDbSetupEntity>();
         }
     }
 }
