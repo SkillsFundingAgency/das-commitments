@@ -29,6 +29,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             if (!await databaseManagement.Exists())
             {
                 databaseManagement.Publish();
+                // we still need to set the schema version, to handle the cases where...
+                // someone has manually deleted the db or we're running in a new environment
+                await CommitmentsDatabase.SetJobProgress(schemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
             }
             else // database already exists
             {
