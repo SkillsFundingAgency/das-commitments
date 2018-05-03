@@ -5,7 +5,7 @@ using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
 {
-    public class DbSetupDataLockStatus : IDbSetupEntity
+    public class DbSetupDataLockStatus
     {
         public long Id { get; set; }
         public long DataLockEventId { get; set; }

@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
 {
-    public class DbSetupPriceHistory : IDbSetupEntity
+    public class DbSetupPriceHistory
     {
         public long ApprenticeshipId { get; set; }
         public decimal Cost { get; set; }
