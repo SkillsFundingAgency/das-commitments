@@ -26,28 +26,24 @@
 )
 GO
 
---CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId] ON [dbo].[Commitment] ([ProviderId]) include([CommitmentStatus])
---GO
-
---CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId] ON [dbo].[Commitment] ([EmployerAccountId])
---GO
-
---CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_Status]
---ON [dbo].[Commitment] ([ProviderId],[CommitmentStatus])
---INCLUDE ([Reference],[EmployerAccountId],[LegalEntityId],[LegalEntityName],[LegalEntityAddress],[LegalEntityOrganisationType],[ProviderName],[EditStatus],[CreatedOn],[LastAction],[LastUpdatedByEmployerName],[LastUpdatedByEmployerEmail],[LastUpdatedByProviderName],[LastUpdatedByProviderEmail])
---GO
-
--- have as clustered?
--- but have 2 natural id's,, providerid and [EmployerAccountId]. do we need the same indexes for both??
---CREATE NONCLUSTERED INDEX [nci_wi_Commitment_EFCDA8FF89A63E1DCDDEDCD63D9E4DDF] 
-CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_Status]
+-- this was recommented by azure and has been added directly to prod
+--todo: check slowdown scenario with and without the included columns
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus]
 ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) 
 INCLUDE ([CreatedOn], [EditStatus], [EmployerAccountId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_Status]
+-- but we have 2 natural id's, providerid and EmployerAccountId
+-- do we need this equivalent indexes for employeraccountid?
+--CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_Status]
+--ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
+--INCLUDE ([CreatedOn], [EditStatus], [ProviderId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
+--GO
+
+--compromise with index on EmployerAccountId (which we had before), but add in CommitmentStatus, and don't have all the columns included
+--todo: reasses these indexes when they're in live, by liasing with devops to see what's recommended
+CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_CommitmentStatus]
 ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
-INCLUDE ([CreatedOn], [EditStatus], [ProviderId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
 GO
 
 CREATE NONCLUSTERED INDEX [IX_Commitment_TransferSenderId] ON [dbo].[Commitment] ([TransferSenderId]) WHERE [TransferSenderId] IS NOT NULL 
