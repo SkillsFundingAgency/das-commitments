@@ -62,9 +62,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API
             });
         }
 
-        //todo: if we make optimisation to GetApprenticeships we need to cover the refactoring with integrationtest(s)
-        //      which means we have to set up a specific data set
-        //todo: check everything returned (s.*) is actually mapped (and therefore used)
         [Test]
         public async Task GetEmployerApprenticeships()
         {
