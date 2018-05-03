@@ -99,7 +99,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, firstNewDataLockEventId));
 
             await CommitmentsDatabase.InsertPriceHistories(
-                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
+                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, testDataInjector));
 
             return testIds;
         }
@@ -107,6 +107,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public void GatherTestSpecificData(TestDataInjector testDataInjector)
         {
             // *** add your call to inject the specific data your integration test needs here ***
+            GetApprenticeship.InjectTestSpecificData(testDataInjector);
             GetApprenticeships.InjectTestSpecificData(testDataInjector);
         }
     }

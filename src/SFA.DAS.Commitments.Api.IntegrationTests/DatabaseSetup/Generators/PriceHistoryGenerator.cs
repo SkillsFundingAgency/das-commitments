@@ -9,9 +9,11 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
     public class PriceHistoryGenerator : Generator
     {
-        public async Task<IEnumerable<DbSetupPriceHistory>> Generate(int apprenticeshipsGenerated, long firstNewApprenticeshipId)
+        public async Task<IEnumerable<DbSetupPriceHistory>> Generate(int apprenticeshipsGenerated, long firstNewApprenticeshipId, TestDataInjector testDataInjector)
         {
-            //todo: support injection
+            await TestLog.Progress($"Injecting {testDataInjector.PriceHistories.Count} PriceHistory's");
+            apprenticeshipsGenerated -= testDataInjector.Apprenticeships.Count;
+
             //todo: better handle dates, like we do with DataLockStatus setup
             var apprenticeshipIdsForPriceHistories = RandomIdGroups(firstNewApprenticeshipId, apprenticeshipsGenerated,
                 TestDataVolume.PriceHistoryPerApprenticeshipProbability, Enumerable.Repeat);
@@ -20,12 +22,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             var priceHistories = new Fixture().CreateMany<DbSetupPriceHistory>(apprenticeshipIdsForPriceHistories.Length);
 
-            return priceHistories.Zip(apprenticeshipIdsForPriceHistories, (priceHistory, apprenticeshipId) =>
+            var generatedPriceHistories = priceHistories.Zip(apprenticeshipIdsForPriceHistories, (priceHistory, apprenticeshipId) =>
             {
                 // bit nasty -> shouldn't alter source! but soon to go out of scope
                 priceHistory.ApprenticeshipId = apprenticeshipId;
                 return priceHistory;
             });
+
+            return testDataInjector.PriceHistories.Concat(generatedPriceHistories);
         }
 
         //todo: hand-roll rather than using autofixture? 
