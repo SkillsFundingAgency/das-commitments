@@ -36,32 +36,20 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln
 
         private void ValidateRequest(GetApprenticeshipsByUlnRequest request)
         {
+            var validationMsg = $"Invalid Uln {request.Uln}";
 
             if (String.IsNullOrWhiteSpace(request.Uln))
             {
-                throw new ValidationException(ValidationErrorMessage(UlnValidationResult.IsEmptyUlnNumber));
+                throw new ValidationException(validationMsg);
             }
 
             var validationResult = _ulnValidator.Validate(request.Uln);
 
             if (validationResult != UlnValidationResult.Success)
             {
-                _logger.Warn($"Invalid Uln {request.Uln}");
+                _logger.Warn(validationMsg);
 
-                throw new ValidationException(ValidationErrorMessage(validationResult));
-            }
-        }
-
-        private string ValidationErrorMessage(UlnValidationResult validationResult)
-        {
-            switch (validationResult)
-            {
-                case UlnValidationResult.IsEmptyUlnNumber:
-                    return "Please enter a Unl Number";
-                case UlnValidationResult.IsInValidTenDigitUlnNumber:
-                    return "Please enter a Ten Digit Unl Number";
-                default:
-                    return "Please enter a Valid Unl";
+                throw new ValidationException(validationMsg);
             }
         }
 

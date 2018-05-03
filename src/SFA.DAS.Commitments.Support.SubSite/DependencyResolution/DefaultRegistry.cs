@@ -17,14 +17,21 @@
 
 namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 {
+    using FluentValidation;
     using MediatR;
     using Microsoft.Azure;
+    using SFA.DAS.Commitments.Application.Queries;
+    using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
     using SFA.DAS.Commitments.Domain.Data;
     using SFA.DAS.Commitments.Domain.Interfaces;
     using SFA.DAS.Commitments.Infrastructure.Data;
+    using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
     using SFA.DAS.Commitments.Infrastructure.Logging;
+    using SFA.DAS.Commitments.Infrastructure.Services;
     using SFA.DAS.Commitments.Support.SubSite.Configuration;
+    using SFA.DAS.Commitments.Support.SubSite.Models;
     using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
+    using SFA.DAS.Commitments.Support.SubSite.Validation;
     using SFA.DAS.Configuration;
     using SFA.DAS.Configuration.AzureTableStorage;
     using SFA.DAS.Learners.Validators;
@@ -38,30 +45,49 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     {
         private const string ServiceName = "SFA.DAS.Support.Commitments";
         private const string Version = "1.0";
+        private const string ServiceAssembly = "SFA.DAS.Commitments";
 
         public DefaultRegistry()
         {
             Scan(
-                scan =>
-                {
-                    scan.TheCallingAssembly();
-                    scan.WithDefaultConventions();
-                });
+                 scan =>
+                 {
+                     scan.TheCallingAssembly();
+                     scan.WithDefaultConventions();
+
+                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
+                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
+                     scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
+                     scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequestHandler<,>));
+                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncRequest<>));
+                     scan.ConnectImplementationsToTypesClosing(typeof(INotificationHandler<>));
+                     scan.ConnectImplementationsToTypesClosing(typeof(IAsyncNotificationHandler<>));
+                 });
 
             ConfigureLog();
-        }
 
-        private void ConfigureLog()
-        {
+            For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
+            For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
+            For<IMediator>().Use<Mediator>();
 
             var config = GetConfiguration();
 
             For<IUlnValidator>().Use<UlnValidator>();
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
+            For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>();
 
+            For<ICurrentDateTime>().Use<CurrentDateTime>();
+            For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
+        }
+
+        private void ConfigureLog()
+        {
             For<ILoggingPropertyFactory>().Use<LoggingPropertyFactory>();
             HttpContextBase conTextBase = null;
+
             if (HttpContext.Current != null)
             {
                 conTextBase = new HttpContextWrapper(HttpContext.Current);
@@ -74,13 +100,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
                 x.GetInstance<ILoggingPropertyFactory>().GetProperties())).AlwaysUnique();
 
             For<ICommitmentsLogger>().Use(x => new CommitmentsLogger(x.GetInstance<ILog>())).AlwaysUnique();
-
-            For<SingleInstanceFactory>().Use<SingleInstanceFactory>(ctx => t => ctx.GetInstance(t));
-            For<MultiInstanceFactory>().Use<MultiInstanceFactory>(ctx => t => ctx.GetAllInstances(t));
-            For<IMediator>().Use<Mediator>();
-
-            For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
-
         }
 
         private CommitmentSupportSiteConfiguartion GetConfiguration()

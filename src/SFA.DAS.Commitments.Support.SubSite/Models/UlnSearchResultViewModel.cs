@@ -6,13 +6,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
 
         public string ApprenticeName { get; set; }
 
-        public int ProviderUkprn  { get; set; }
+        public long ProviderUkprn  { get; set; }
 
         public string EmployerName  { get; set; }
 
         public string TrainingDates { get; set; }
 
-        public string Alerts { get; set; }
+        public string PaymentStatus { get; set; }
 
     }
 }
