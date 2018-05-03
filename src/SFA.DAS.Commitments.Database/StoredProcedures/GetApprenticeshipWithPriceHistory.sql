@@ -9,30 +9,28 @@ SELECT
 	s.*,
 	CASE
 		WHEN
-			a.PaymentStatus = 0
+			s.PaymentStatus = 0
 		THEN
-			a.Cost
+			s.Cost
 		ELSE
 			(
-			SELECT TOP 1 Cost FROM PriceHistory WHERE ApprenticeshipId = a.Id
+			SELECT TOP 1 Cost FROM PriceHistory WHERE ApprenticeshipId = s.Id
 				AND ( 
 					-- If started take if now with a PriceHistory or the last one (NULL end date)
-					( a.StartDate <= @now
+					( s.StartDate <= @now
 					  AND ( 
 						( FromDate <= @now AND ToDate >= FORMAT(@now,'yyyMMdd')) 
 						  OR ToDate IS NULL
 						)
 					)
 					-- If not started take the first one
-					OR (a.StartDate > @now) 
+					OR (s.StartDate > @now) 
 				)
 				ORDER BY FromDate
 			 )
 	END AS 'Cost',
 	p.*
 	FROM ApprenticeshipSummary s
-	inner join Apprenticeship a on a.Id = s.Id
 	left join PriceHistory p on p.ApprenticeshipId = s.Id
 	WHERE
 	s.Id = @id
-
