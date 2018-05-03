@@ -333,7 +333,7 @@
     <Compile Include="DatabaseSetup\Generators\DataLockStatusGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\Generator.cs" />
     <Compile Include="DatabaseSetup\Generators\PriceHistoryGenerator.cs" />
-    <Compile Include="DatabaseSetup\TestDbSetupEntity.cs" />
+    <Compile Include="DatabaseSetup\TestDataInjector.cs" />
     <Compile Include="Helpers\Probability\BoundaryValue.cs" />
     <Compile Include="Helpers\Probability\ProbabilityDistribution.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />

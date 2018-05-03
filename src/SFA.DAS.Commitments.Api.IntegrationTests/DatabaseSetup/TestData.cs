@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -74,45 +72,42 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // could assert corner cases rather than trying to handle them?
             //todo: if adding, would probably be better to leave current test ids alone and just generate for volume
 
-            var testSpecificData = GetTestSpecificData();
+            var testIds = new TestIds();    //todo: injector could take ownership of testids
+            var testDataInjector = await TestDataInjector.Construct(CommitmentsDatabase, testIds);
+
+            GatherTestSpecificData(testDataInjector);
 
             //todo: use entities contained in testSpecificData first (ideally interspersed) before generating random volume data
             //      and store the id of any entity given a name into testids
-
-            var firstNewApprenticeshipId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
-            var firstNewCohortId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
 
             var apprenticeshipsInTable = await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
 
             //todo: this is usually in generate method
             var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
-            var testIds = new TestIds();
-
             if (apprenticeshipsToGenerate > 0)
             {
                 (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
-                    testIds, apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewCohortId);
+                    testIds, apprenticeshipsToGenerate, testDataInjector);
                 await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
 
-                await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, firstNewCohortId));
+                await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
             }
 
-            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
+            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
 
             // the DataLockStatus table diverges from the other tables by having its own id column seperate from the identity 'Id' column
             var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
 
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockEventId));
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, firstNewDataLockEventId));
 
             return testIds;
         }
 
-        public IEnumerable<TestDbSetupEntity> GetTestSpecificData()
+        public void GatherTestSpecificData(TestDataInjector testDataInjector)
         {
-            // *** add your call to get the specific data your integration test needs here ***
-            //return WhenSimulatingRealWorldApprenticeshipLoad.GetTestSpecificData();
-            return Enumerable.Empty<TestDbSetupEntity>();
+            // *** add your call to inject the specific data your integration test needs here ***
+            GetApprenticeships.InjectTestSpecificData(testDataInjector);
         }
     }
 }
