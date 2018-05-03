@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -12,7 +10,6 @@ using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
-using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
@@ -21,21 +18,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API
     [TestFixture]
     public sealed class GetApprenticeships
     {
-        //public static IEnumerable<TestDbSetupEntity> GetTestSpecificData()
-        //{
-        //    //todo: ask for next id of a type, or *supply to this method* ids that can be used, otherwise int tests will interfere with each other
-        //    // or clash with the randomly generated data
-        //    // or let generator generate ids, but how do we handle foreign keys?
-        //    // we could have multiple calls to ienumerable<testdbsetupentity> returning methods, and later methods
-        //    // could ask for the ids earlier calls requested
-        //    // could ask for IEnumerable<Func<IEnumerable<TestDbSetupEntity>>>
-        //    var testSpecificData = new List<TestDbSetupEntity>
-        //    {
-        //        {new TestDbSetupEntity { DbSetupEntity = new DbSetupCommitment {}}},
-
-        //    };
-        //}
-
         // by using the convention TestClassName_TestName_IdType, we don't have to centrally store TestId names in TestId as const strings
         private const string GetEmployerApprenticeshipsEmployerId = "GetApprenticeships_GetEmployerApprenticeships_EmployerId";
 
