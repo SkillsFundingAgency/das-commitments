@@ -82,14 +82,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: this is usually in generate method
             var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
-            if (apprenticeshipsToGenerate > 0)
-            {
-                (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
-                    testIds, apprenticeshipsToGenerate, testDataInjector);
-                await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
+            if (apprenticeshipsToGenerate <= 0)
+                return testIds; // do we load these instead?
 
-                await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
-            }
+            (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
+                testIds, apprenticeshipsToGenerate, testDataInjector);
+            await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
+
+            await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
 
             await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
 
@@ -97,6 +97,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
 
             await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, firstNewDataLockEventId));
+
+            await CommitmentsDatabase.InsertPriceHistories(
+                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
 
             return testIds;
         }

@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
         public const string CommitmentTableName = "[dbo].[Commitment]";
         public const string DataLockStatusTableName = "[dbo].[DataLockStatus]";
+        public const string PriceHistoryTableName = "[dbo].[PriceHistory]";
 
         public CommitmentsDatabase(string databaseConnectionString)
             : base(databaseConnectionString)
@@ -73,6 +74,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 "IlrTotalCost", "ErrorCode", "Status", "TriageStatus",
                 "ApprenticeshipUpdateId", "IsResolved", "EventStatus", "IsExpired",
                 "Expired"
+            });
+        }
+
+        public async Task InsertPriceHistories(IEnumerable<DbSetupPriceHistory> priceHistories)
+        {
+            await BulkInsertRows(priceHistories, PriceHistoryTableName, new[]
+            {
+                "Id", "ApprenticeshipId", "Cost", "FromDate", "ToDate"
             });
         }
 
