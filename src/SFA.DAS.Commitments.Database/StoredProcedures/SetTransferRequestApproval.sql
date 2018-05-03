@@ -8,10 +8,12 @@ AS
 BEGIN
 
 	DECLARE @OldApprovalStatus AS TINYINT = NULL
+	DECLARE @ApproveDate AS DATETIME = GETDATE()  
 
 	UPDATE [dbo].[Commitment] SET 
 		@OldApprovalStatus = TransferApprovalStatus,
-		TransferApprovalStatus = @transferApprovalStatus
+		TransferApprovalStatus = @transferApprovalStatus,
+		TransferApprovalActionedOn = @ApproveDate
 	WHERE Id = @commitmentId;
 
 	IF @@ROWCOUNT != 1 
@@ -25,7 +27,7 @@ BEGIN
 		[Status] = @transferApprovalStatus,
 		TransferApprovalActionedByEmployerEmail = @transferStatusSetByEmployerEmail,
 		TransferApprovalActionedByEmployerName = @transferStatusSetByEmployerName,
-		TransferApprovalActionedOn = GETDATE()
+		TransferApprovalActionedOn = @ApproveDate
 	WHERE Id = @transferRequestId AND CommitmentId = @commitmentId;
 
 	IF @@ROWCOUNT != 1 

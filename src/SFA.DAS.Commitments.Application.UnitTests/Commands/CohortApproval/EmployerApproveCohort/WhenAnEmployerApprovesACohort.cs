@@ -76,6 +76,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         }
 
         [Test]
+        public async Task ThenTheTransferApprovalStatusIsReset()
+        {
+            await Target.Handle(Command);
+            Assert.IsNull(Commitment.TransferApprovalStatus);
+        }
+
+        [Test]
         public async Task ThenIfTheProviderHasNotYetApprovedTheCommitmentIsEditableByTheProviderAndHistoryIsCreated()
         {
             await Target.Handle(Command);
@@ -217,14 +224,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             await Target.Handle(Command);
 
             MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovedByEmployer>(y => y.ProviderId == Commitment.ProviderId && y.AccountId == Commitment.EmployerAccountId && y.CommitmentId == Commitment.Id)));
-        }
-
-        [Test]
-        public async Task ThenTheTransferApprovalStatusFlagIsSetToPending()
-        {
-            await Target.Handle(Command);
-            
-            CommitmentRepository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c => c.TransferApprovalStatus == TransferApprovalStatus.Pending)));
         }
     }
 }

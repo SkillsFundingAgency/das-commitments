@@ -56,6 +56,21 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
+        [Route("{transferReceiverId}/receiver/transfers/{transferRequestId}", Name = "GetTransferRequestForReceiver")]
+        [Authorize(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetTransferRequestForReceiver(long transferReceiverId, long transferRequestId)
+        {
+            var response = await _employerOrchestrator.GetTransferRequest(transferRequestId, transferReceiverId, CallerType.TransferReceiver);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
+
+
         [Obsolete]
         [HttpPatch]
         [Route("{transferSenderId}/transfers/{commitmentId}/approval", Name = "PatchTransferApprovalStatus")]
