@@ -77,9 +77,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             GatherTestSpecificData(testDataInjector);
 
-            //todo: use entities contained in testSpecificData first (ideally interspersed) before generating random volume data
-            //      and store the id of any entity given a name into testids
-
             var apprenticeshipsInTable = await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
 
             //todo: this is usually in generate method
