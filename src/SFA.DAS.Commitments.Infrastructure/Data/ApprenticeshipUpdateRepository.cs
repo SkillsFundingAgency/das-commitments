@@ -53,17 +53,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 if (apprenticeshipUpdate != null)
                 {
+                    // this also sets PendingOriginator to null on apprenticeship
                     await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate);
                 }
 
                 if (apprenticeship != null)
                 {
-                    //todo: add setting of new originator field
-                    //todo: check if apprenticeship always supplied, if not create new Update that sets originator only
-                    // or we can do it in [CreateApprenticeshipUpdate], we have the apprenticeship id
-                    //todo: we can either have a nullable PendingOriginator, if not null, then is pending,
-                    //      and other non-pending states set it to 0,
-                    //      or we can store originator and updatestatus in apprenticeship
                     await _apprenticeshipUpdateTransactions.UpdateApprenticeshipReferenceAndUln(connection, trans, apprenticeship);
                 }
 
@@ -75,12 +70,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             await WithTransaction(async (connection, trans) =>
             {
-                //todo: set originator back to null
-                //todo: merge the 2 update calls into 1 that does it all
                 await _apprenticeshipTransactions.UpdateApprenticeship(connection, trans, apprenticeship, caller);
 
                 await _apprenticeshipTransactions.UpdateCurrentPrice(connection, trans, apprenticeship);
 
+                // this also sets PendingOriginator to null in apprenticeship
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, ApprenticeshipUpdateStatus.Approved);
 
                 if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
@@ -96,8 +90,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             await WithTransaction(async (connection, trans) =>
                 {
-                    //todo: update originator on apprenticeship to null
-
+                    // this also sets PendingOriginator to null in apprenticeship
                     await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id,
                         ApprenticeshipUpdateStatus.Rejected);
 
@@ -114,7 +107,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             await WithTransaction(async (connection, trans) =>
             {
-                //todo: update originator to null
+                // this also sets PendingOriginator to null in apprenticeship
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id,
                     ApprenticeshipUpdateStatus.Deleted);
 
@@ -129,17 +122,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         private async Task UpdateApprenticeshipUpdate(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId, ApprenticeshipUpdateStatus updateStatus)
         {
-            //todo: all updates come through here
-            // could create stored proc, so don't have to change consuming code to send down apprenticeshipid
-            // we could pick it up from the apprenticeshipupdate row instead
             var parameters = new DynamicParameters();
             parameters.Add("@id", apprenticeshipUpdateId, DbType.Int64);
             parameters.Add("@status", updateStatus, DbType.Int16);
 
             await connection.ExecuteAsync(
                     sql: "[UpdateApprenticeshipUpdateStatus]",
-                    //"UPDATE [dbo].[ApprenticeshipUpdate] SET Status = @status " +
-                    //"WHERE Id = @id;",
                     param: parameters,
                     commandType: CommandType.StoredProcedure,
                     transaction: trans);
@@ -175,7 +163,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
         {
-            _logger.Info($"Getting all expired apprenticeship update");
+            _logger.Info("Getting all expired apprenticeship update");
 
             var parameters = new DynamicParameters();
             parameters.Add("@status", ApprenticeshipUpdateStatus.Pending, DbType.Int16);
