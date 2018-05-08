@@ -11,7 +11,7 @@ AS
 		-- but they all have the same actual execution plan
 
 		--UPDATE [dbo].[Apprenticeship]
-		--SET [PendingOriginator] = NULL
+		--SET [PendingUpdateOriginator] = NULL
 		--FROM [dbo].[Apprenticeship] AS A
 		--INNER JOIN [dbo].[ApprenticeshipUpdate] AS AU
 		--	ON A.Id = AU.ApprenticeshipId
@@ -19,14 +19,14 @@ AS
 		--	AU.Id = @id;
 
 		--UPDATE [dbo].[Apprenticeship]
-		--SET [PendingOriginator] = NULL
+		--SET [PendingUpdateOriginator] = NULL
 		--FROM [dbo].[Apprenticeship] AS A
 		--INNER JOIN [dbo].[ApprenticeshipUpdate] AS AU
 		--	ON A.Id = AU.ApprenticeshipId
 		--	AND AU.Id = @id;
 
 		UPDATE [dbo].[Apprenticeship]
-		SET [PendingOriginator] = NULL
+		SET [PendingUpdateOriginator] = NULL
 		WHERE Id=(SELECT ApprenticeshipId from ApprenticeshipUpdate where Id = @Id)
 
 		UPDATE [dbo].[ApprenticeshipUpdate]

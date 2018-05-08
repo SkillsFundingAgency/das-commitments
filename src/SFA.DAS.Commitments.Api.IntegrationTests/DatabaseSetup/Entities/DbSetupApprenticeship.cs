@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Entities
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
-        public Originator? PendingOriginator { get; set; }
+        public Originator? PendingUpdateOriginator { get; set; }
         [StringLength(50)]
         // todo: depends whether we get merged before EPA PR's
         public string EPAOrgId { get; set; }

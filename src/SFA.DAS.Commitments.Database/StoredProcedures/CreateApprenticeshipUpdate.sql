@@ -23,7 +23,7 @@ AS
 	BEGIN TRAN
 
 		UPDATE [dbo].[Apprenticeship]
-		SET [PendingOriginator] = @Originator
+		SET [PendingUpdateOriginator] = @Originator
 		WHERE Id = @ApprenticeshipId
 
 		INSERT INTO [dbo].[ApprenticeshipUpdate]
