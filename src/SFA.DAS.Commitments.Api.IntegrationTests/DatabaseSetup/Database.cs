@@ -28,6 +28,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     bcp.EnableStreaming = true;
                     bcp.BatchSize = 5000;
                     bcp.NotifyAfter = 1000;
+                    bcp.BulkCopyTimeout = 60;
                     bcp.SqlRowsCopied += async (sender, e) => await TestLog.Progress($"Copied {e.RowsCopied} rows into {tableName}.");
 
                     await bcp.WriteToServerAsync(reader);
