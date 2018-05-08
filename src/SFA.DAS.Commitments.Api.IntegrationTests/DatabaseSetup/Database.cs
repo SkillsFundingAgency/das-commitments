@@ -36,23 +36,21 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        public async Task<long?> LastId(string tableName, string columnName = "Id")
+        public async Task<long> NextId(string tableName)
         {
             using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand($"SELECT MAX({columnName}) FROM {tableName}", connection))
+                using (var command = new SqlCommand(
+                    $@"if exists (select 1 from {tableName})
+                    select IDENT_CURRENT('{tableName}')
+                    else
+                    select 0", connection))
                 {
                     var result = await command.ExecuteScalarAsync();
-                    return result == DBNull.Value ? null : (long?)result;
+                    return (int)result + 1L;
                 }
             }
-        }
-
-        public async Task<long> FirstNewId(string tableName, string columnName = "Id")
-        {
-            var latestIdInDatabase = await LastId(tableName, columnName);
-            return (latestIdInDatabase ?? 0) + 1;
         }
 
         public async Task<int> CountOfRows(string tableName)

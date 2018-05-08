@@ -95,7 +95,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
 
             // the DataLockStatus table diverges from the other tables by having its own id column seperate from the identity 'Id' column
-            var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
+            var firstNewDataLockEventId = await CommitmentsDatabase.NextId(CommitmentsDatabase.DataLockStatusTableName);
 
             await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, firstNewDataLockEventId));
 

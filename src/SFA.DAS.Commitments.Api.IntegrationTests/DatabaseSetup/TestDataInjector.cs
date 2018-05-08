@@ -23,9 +23,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             {
                 _testIds = testIds,
                 //todo: this will get the wrong next-id if rows at end of id range are deleted
-                FirstApprenticeshipId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName),
-                NextCommitmentId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName),
-                NextPriceHistoryId = await commitmentsDatabase.FirstNewId(CommitmentsDatabase.PriceHistoryTableName)
+                FirstApprenticeshipId = await commitmentsDatabase.NextId(CommitmentsDatabase.ApprenticeshipTableName),
+                NextCommitmentId = await commitmentsDatabase.NextId(CommitmentsDatabase.CommitmentTableName),
+                NextPriceHistoryId = await commitmentsDatabase.NextId(CommitmentsDatabase.PriceHistoryTableName)
             };
             testDataInjector.NextApprenticeshipId = testDataInjector.FirstApprenticeshipId;
             return testDataInjector;
