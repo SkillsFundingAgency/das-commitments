@@ -51,6 +51,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ReceivingEmployerAccountId = source.ReceivingEmployerAccountId,
                 CommitmentId = source.CommitmentId,
                 SendingEmployerAccountId = source.SendingEmployerAccountId,
+                TransferSenderName = source.TransferSenderName,
                 LegalEntityName = source.LegalEntityName,
                 TransferCost = source.TransferCost,
                 TrainingList = JsonConvert.DeserializeObject<List<Types.Commitment.TrainingCourseSummary>>(source.TrainingCourses),

@@ -36,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IUlnValidator> _mockUlnValidator;
         private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
+        private Mock<ICurrentDateTime> _stubCurrentDateTime;
 
         private Commitment _existingCommitment;
         private List<Apprenticeship> _existingApprenticeships;
@@ -51,8 +52,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _mockUlnValidator = new Mock<IUlnValidator>();
             _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
+            _stubCurrentDateTime = new Mock<ICurrentDateTime>();
 
-            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(new StubCurrentDateTime(), _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
+            var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(_stubCurrentDateTime.Object, _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
 
             _handler = new BulkUploadApprenticeshipsCommandHandler(
                 _mockCommitmentRespository.Object,
@@ -62,6 +64,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                 Mock.Of<ICommitmentsLogger>(), 
                 _mockMediator.Object,
                 _mockHistoryRepository.Object);
+
+            _stubCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2018, 4, 1));
 
             _exampleApprenticships = new List<Apprenticeship>
             {

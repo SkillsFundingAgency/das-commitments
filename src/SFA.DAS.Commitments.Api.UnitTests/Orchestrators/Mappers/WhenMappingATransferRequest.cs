@@ -43,6 +43,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             result.LegalEntityName.Should().Be(_source.LegalEntityName);
             result.ReceivingEmployerAccountId.Should().Be(_source.ReceivingEmployerAccountId);
             result.SendingEmployerAccountId.Should().Be(_source.SendingEmployerAccountId);
+            result.TransferSenderName.Should().Be(_source.TransferSenderName);
             result.Status.Should().Be((TransferApprovalStatus)_source.Status);
             result.TransferCost.Should().Be(_source.TransferCost);
             result.TrainingList.Count.Should().Be(_courses.Count);
