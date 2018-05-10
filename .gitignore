@@ -261,4 +261,4 @@ src/Tools/**/*.*
 src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 *.ncrunchsolution
 *.ncrunchproject
-/src/SFA.DAS.Commitments.Host.WebJob/Data
+
