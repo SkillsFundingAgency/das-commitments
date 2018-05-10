@@ -43,6 +43,20 @@
     </div>
 
 
+    @if (Model.ErrorMessages != null && Model.ErrorMessages.Any())
+    {
+
+        <div class="grid-row">
+            <div class="column-full">
+
+                <p class="error-message font-medium">@Model.ErrorMessages.FirstOrDefault()  </p>
+
+            </div>
+        </div>
+
+    }
+
+
 </section>
 
 

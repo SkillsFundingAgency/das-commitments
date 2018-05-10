@@ -46,7 +46,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             if (searchResult.HasError)
             {
                 searchQuery.ErrorMessages = searchResult.ErrorMessages;
-                return View(searchQuery);
+                return View("Search", searchQuery);
             }
             return View("ApprenticeshipsUlnSearchSummary", searchResult);
         }
