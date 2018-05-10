@@ -49,6 +49,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             return new UlnSearchResultSummaryViewModel
             {
+                Uln = searchQuery.SearchTerm,
                 ApprenticeshipsCount = response.TotalCount,
                 SearchResults = response.Apprenticeships.Select(o => new UlnSearchResultViewModel
                 {

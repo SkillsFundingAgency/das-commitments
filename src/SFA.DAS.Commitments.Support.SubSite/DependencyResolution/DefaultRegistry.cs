@@ -45,7 +45,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     {
         private const string ServiceName = "SFA.DAS.Support.Commitments";
         private const string Version = "1.0";
-        private const string ServiceAssembly = "SFA.DAS.Commitments";
 
         public DefaultRegistry()
         {
@@ -55,7 +54,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
                      scan.TheCallingAssembly();
                      scan.WithDefaultConventions();
 
-                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
+                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith("SFA.DAS"));
                      scan.RegisterConcreteTypesAgainstTheFirstInterface();
                      scan.ConnectImplementationsToTypesClosing(typeof(AbstractValidator<>));
                      scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
@@ -81,6 +80,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
             For<ICurrentDateTime>().Use<CurrentDateTime>();
             For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
+
+            // Mediator Handler Mapping - TODO -Fix generic type issue
+            For<IAsyncRequestHandler<GetApprenticeshipsByUlnRequest, GetApprenticeshipsByUlnResponse>>().Use<GetApprenticeshipsByUlnQueryHandler>();	
+
         }
 
         private void ConfigureLog()

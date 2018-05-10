@@ -1,5 +1,7 @@
 ﻿CREATE PROCEDURE [dbo].[GetApprenticeshipsByULN]
+(
   @ULN NVARCHAR(50)
+)
 AS
 
 SELECT 
