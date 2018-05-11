@@ -301,6 +301,7 @@
     <Compile Include="App_Start\CustomErrorResult.cs" />
     <Compile Include="App_Start\CustomExceptionHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\StatisticsController.cs" />
     <Compile Include="Controllers\TransferController.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
     <Compile Include="Controllers\HealthCheckController.cs" />
@@ -321,9 +322,12 @@
     <Compile Include="Orchestrators\IApprenticeshipsOrchestrator.cs" />
     <Compile Include="Orchestrators\IEmployerOrchestrator.cs" />
     <Compile Include="Orchestrators\IProviderOrchestrator.cs" />
+    <Compile Include="Orchestrators\IStatisticsOrchestrator.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipFilterService.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\IStatisticsMapper.cs" />
     <Compile Include="Orchestrators\Mappers\ITransferRequestMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\StatisticsMapper.cs" />
     <Compile Include="Orchestrators\Mappers\TransferRequestMapper.cs" />
     <Compile Include="Orchestrators\Mappers\CommitmentMapper.cs" />
     <Compile Include="Orchestrators\Mappers\FacetMapper.cs" />
@@ -331,6 +335,7 @@
     <Compile Include="Orchestrators\Mappers\ICommitmentMapper.cs" />
     <Compile Include="Orchestrators\Mappers\IDataLockMapper.cs" />
     <Compile Include="Orchestrators\ProviderOrchestrator.cs" />
+    <Compile Include="Orchestrators\StatisticsOrchestrator.cs" />
     <Compile Include="Orchestrators\ValidationOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
