@@ -6,24 +6,10 @@ AS
 
 	BEGIN TRAN
 		-- assumes Status != pending
-
-		-- different ways of doing the same thing
-		-- but they all have the same actual execution plan
-
-		--UPDATE [dbo].[Apprenticeship]
-		--SET [PendingUpdateOriginator] = NULL
-		--FROM [dbo].[Apprenticeship] AS A
-		--INNER JOIN [dbo].[ApprenticeshipUpdate] AS AU
-		--	ON A.Id = AU.ApprenticeshipId
-		--WHERE
-		--	AU.Id = @id;
-
-		--UPDATE [dbo].[Apprenticeship]
-		--SET [PendingUpdateOriginator] = NULL
-		--FROM [dbo].[Apprenticeship] AS A
-		--INNER JOIN [dbo].[ApprenticeshipUpdate] AS AU
-		--	ON A.Id = AU.ApprenticeshipId
-		--	AND AU.Id = @id;
+		IF @Status = 0
+		BEGIN;
+			THROW 100000, 'State must != Pending (0)', 0
+		END
 
 		UPDATE [dbo].[Apprenticeship]
 		SET [PendingUpdateOriginator] = NULL
