@@ -22,7 +22,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             var testDataInjector = new TestDataInjector
             {
                 _testIds = testIds,
-                //todo: this will get the wrong next-id if rows at end of id range are deleted
                 FirstApprenticeshipId = await commitmentsDatabase.NextId(CommitmentsDatabase.ApprenticeshipTableName),
                 NextCommitmentId = await commitmentsDatabase.NextId(CommitmentsDatabase.CommitmentTableName),
                 NextPriceHistoryId = await commitmentsDatabase.NextId(CommitmentsDatabase.PriceHistoryTableName)

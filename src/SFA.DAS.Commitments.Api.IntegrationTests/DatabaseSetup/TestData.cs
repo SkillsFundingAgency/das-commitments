@@ -92,15 +92,15 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
 
             await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
 
-            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
+            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId));
 
             // the DataLockStatus table diverges from the other tables by having its own id column seperate from the identity 'Id' column
             var firstNewDataLockEventId = await CommitmentsDatabase.NextId(CommitmentsDatabase.DataLockStatusTableName);
 
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, firstNewDataLockEventId));
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId, firstNewDataLockEventId));
 
             await CommitmentsDatabase.InsertPriceHistories(
-                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, testDataInjector));
+                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId, testDataInjector));
 
             return testIds;
         }

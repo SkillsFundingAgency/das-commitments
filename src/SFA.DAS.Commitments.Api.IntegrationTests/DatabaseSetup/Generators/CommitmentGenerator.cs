@@ -14,7 +14,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
             await TestLog.Progress($"Injecting {testDataInjector.Commitments.Count} Commitments");
 
             var firstNewCohortId = testDataInjector.NextCommitmentId;
-            int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId) - testDataInjector.Commitments.Count;
+            int commitmentsToGenerate = (int)(1 + lastCohortId - firstNewCohortId);
 
             await TestLog.Progress($"Generating {commitmentsToGenerate} Commitments");
             var commitments = new Fixture().CreateMany<DbSetupCommitment>(commitmentsToGenerate);

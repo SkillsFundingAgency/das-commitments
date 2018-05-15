@@ -42,13 +42,14 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand(
-                    $@"if exists (select 1 from {tableName})
-                    select IDENT_CURRENT('{tableName}')
-                    else
-                    select 0", connection))
+$@"declare @i bigint
+set @i=(select IDENT_CURRENT('{tableName}'))
+if (@i = 1 AND not exists (select 1 from {tableName}))
+  set @i=0
+select @i", connection))
                 {
                     var result = await command.ExecuteScalarAsync();
-                    return (int)result + 1L;
+                    return (long)result + 1L;
                 }
             }
         }
