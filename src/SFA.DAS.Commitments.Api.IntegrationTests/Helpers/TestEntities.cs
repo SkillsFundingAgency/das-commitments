@@ -36,11 +36,5 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
                 PaymentStatus = PaymentStatus.Active
             };
         }
-
-        //public static T Clone<T>(T source)
-        //{
-        //    var serialized = JsonConvert.SerializeObject(source);
-        //    return JsonConvert.DeserializeObject<T>(serialized);
-        //}
     }
 }
