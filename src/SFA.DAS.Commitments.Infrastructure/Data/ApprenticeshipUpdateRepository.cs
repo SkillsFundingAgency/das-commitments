@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 if (apprenticeshipUpdate != null)
                 {
-                    // this also sets PendingOriginator to null on apprenticeship
+                    // this also sets PendingUpdateOriginator to null on apprenticeship
                     await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate);
                 }
 
@@ -74,7 +74,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 await _apprenticeshipTransactions.UpdateCurrentPrice(connection, trans, apprenticeship);
 
-                // this also sets PendingOriginator to null in apprenticeship
+                // this also sets PendingUpdateOriginator to null in apprenticeship
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, ApprenticeshipUpdateStatus.Approved);
 
                 if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             await WithTransaction(async (connection, trans) =>
                 {
-                    // this also sets PendingOriginator to null in apprenticeship
+                    // this also sets PendingUpdateOriginator to null in apprenticeship
                     await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id,
                         ApprenticeshipUpdateStatus.Rejected);
 
@@ -107,7 +107,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             await WithTransaction(async (connection, trans) =>
             {
-                // this also sets PendingOriginator to null in apprenticeship
+                // this also sets PendingUpdateOriginator to null in apprenticeship
                 await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id,
                     ApprenticeshipUpdateStatus.Deleted);
 

@@ -65,7 +65,7 @@ END
 
 --todo: one-time update to be run when the system quiesces
 --UPDATE Apprenticeship
---SET    PendingOriginator = AU.Originator
+--SET    PendingUpdateOriginator = AU.Originator
 --FROM   Apprenticeship A
 --INNER JOIN ApprenticeshipUpdate AU
 --ON     A.Id = AU.ApprenticeshipId

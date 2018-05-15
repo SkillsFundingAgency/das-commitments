@@ -20,8 +20,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 
             var apprenticeshipUpdates = new Fixture().CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate);
 
-            //todo: we need to make sure that where we have ApprenticeshipUpdates with Status=0, then the Originator needs to go into Apprenticeship.PendingOriginator
-            //      and when there's no apprenticeshipupdate with status 0, then Apprenticeship.PendingOriginator is null
+            //todo: we need to make sure that where we have ApprenticeshipUpdates with Status=0, then the Originator needs to go into Apprenticeship.PendingUpdateOriginator
+            //      and when there's no apprenticeshipupdate with status 0, then Apprenticeship.PendingUpdateOriginator is null
             //      do we write back over Apprenticeships we've already written, or do we hold apprenticeships in memory until after apprenticeshipupdates are generated
             //      then write both out <- probably the latter, otherwise will take too long (as long as we don't run out of memory!)
 
