@@ -31,10 +31,10 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             switch (searchQuery.SearchType)
             {
                 case ApprenticeshipSearchType.SearchByUln:
-                    return await UlnSearch( searchQuery);
+                    return await UlnSearch(searchQuery);
 
                 case ApprenticeshipSearchType.SearchByCohort:
-                    return await CohortSearch(searchQuery);
+                    return CohortSearch(searchQuery);
             }
 
             return View(searchQuery);
@@ -45,21 +45,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             var searchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
             if (searchResult.HasError)
             {
-                searchQuery.ErrorMessages = searchResult.ErrorMessages;
+                searchQuery.ErrorMessages = searchResult.ReponseMessages;
                 return View("Search", searchQuery);
             }
             return View("ApprenticeshipsUlnSearchSummary", searchResult);
         }
 
-        private async Task<ActionResult> CohortSearch(ApprenticeshipSearchQuery searchQuery)
+        private ActionResult CohortSearch(ApprenticeshipSearchQuery searchQuery)
         {
-            var searchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
-            if (searchResult.HasError)
-            {
-                searchQuery.ErrorMessages = searchResult.ErrorMessages;
-                return View(searchQuery);
-            }
-            return View("ApprenticeshipsCohortSearchSummary", searchResult);
+            throw new NotImplementedException();
         }
 
     }

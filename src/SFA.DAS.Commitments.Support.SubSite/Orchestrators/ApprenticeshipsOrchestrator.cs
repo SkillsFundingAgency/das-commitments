@@ -30,13 +30,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
         {
             _logger.Trace("Retrieving Apprenticeships Record Count");
 
-            var validationResult = await  _searchValidator.ValidateAsync(searchQuery);
+            var validationResult =   _searchValidator.Validate(searchQuery);
 
             if (!validationResult.IsValid)
             {
                 return new UlnSearchResultSummaryViewModel
                 {
-                    ErrorMessages = validationResult.Errors.Select(o => o.ErrorMessage)
+                    ReponseMessages = validationResult.Errors.Select(o => o.ErrorMessage).ToList()
                 };
             }
 
@@ -44,6 +44,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             { 
                 Uln = searchQuery.SearchTerm
             });
+
+            if(response?.TotalCount == 0)
+            {
+                return new UlnSearchResultSummaryViewModel
+                {
+                    ReponseMessages = { "No record Found" }
+                };
+            }
 
             _logger.Info($"Apprenticeships Record Count: {response.TotalCount}");
 
