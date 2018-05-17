@@ -1,31 +1,28 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-
-using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Notification.WebJob.Configuration;
+using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
 using SFA.DAS.Notifications.Api.Types;
 
 namespace SFA.DAS.Commitments.Notification.WebJob
 {
     public class NotificationJob : INotificationJob
     {
-        private readonly IEmployerEmailTemplatesService _emailTemplatesService;
-        private readonly IProviderEmailTemplatesService _providerEmailTemplatesService;
+        private readonly IEmployerAlertSummaryEmailTemplateService _emailTemplatesService;
+        private readonly IProviderAlertSummaryEmailTemplateService _providerEmailTemplatesService;
         private readonly INotificationsApi _notificationsApi;
         private readonly ILog _logger;
 
         private readonly CommitmentNotificationConfiguration _config;
 
         public NotificationJob(
-            IEmployerEmailTemplatesService emailTemplatesService,
-            IProviderEmailTemplatesService providerEmailTemplatesService,
+            IEmployerAlertSummaryEmailTemplateService emailTemplatesService,
+            IProviderAlertSummaryEmailTemplateService providerEmailTemplatesService,
             INotificationsApi notificationsApi,
             ILog logger,
             CommitmentNotificationConfiguration config

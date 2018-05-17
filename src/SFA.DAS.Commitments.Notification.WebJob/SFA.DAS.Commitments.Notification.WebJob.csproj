@@ -180,15 +180,15 @@
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\FakeAccountApiClient.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
-    <Compile Include="EmployerEmailTemplatesService.cs" />
-    <Compile Include="IEmailTemplatesService.cs" />
+    <Compile Include="EmailServices\EmployerAlertSummaryEmailService.cs" />
+    <Compile Include="EmailServices\IEmployerAlertSummaryEmailService.cs" />
     <Compile Include="INotificationJob.cs" />
-    <Compile Include="IProviderEmailTemplatesService.cs" />
+    <Compile Include="EmailServices\IProviderAlertSummaryEmailService.cs" />
     <Compile Include="NotificationJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\UserModel.cs" />
-    <Compile Include="ProviderEmailTemplatesService.cs" />
+    <Compile Include="EmailServices\ProviderAlertSummaryEmailService.cs" />
     <Compile Include="Services\FakeProviderEmailServiceWrapper.cs" />
   </ItemGroup>
   <ItemGroup>

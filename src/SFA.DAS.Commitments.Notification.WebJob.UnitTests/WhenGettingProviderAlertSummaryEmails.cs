@@ -11,6 +11,7 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
+using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
 using SFA.DAS.PAS.Account.Api.Types;
 
 using IAccountApiClient = SFA.DAS.PAS.Account.Api.Client.IAccountApiClient;
@@ -18,13 +19,13 @@ using IAccountApiClient = SFA.DAS.PAS.Account.Api.Client.IAccountApiClient;
 namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 {
     [TestFixture]
-    public class WhenGettingProviderEmails
+    public class WhenGettingProviderAlertSummaryEmails
     {
         private Mock<IApprenticeshipRepository> _apprenticeshipRepostory;
 
         private Mock<IProviderEmailServiceWrapper> _providerUserService;
 
-        private ProviderEmailTemplatesService _sut;
+        private ProviderAlertSummaryEmailTemplateService _sut;
 
         private Mock<IAccountApiClient> _accountService;
 
@@ -62,7 +63,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             _accountService = new Mock<PAS.Account.Api.Client.IAccountApiClient>();
 
-            _sut = new ProviderEmailTemplatesService(
+            _sut = new ProviderAlertSummaryEmailTemplateService(
                 _apprenticeshipRepostory.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 _providerUserService.Object,

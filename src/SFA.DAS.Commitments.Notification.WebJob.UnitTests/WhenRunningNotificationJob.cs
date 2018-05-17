@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 
 using SFA.DAS.Commitments.Notification.WebJob.Configuration;
+using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Client;
 using SFA.DAS.Notifications.Api.Types;
@@ -13,17 +14,17 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
     [TestFixture]
     public class WhenRunningNotificationJob
     {
-        private Mock<IEmployerEmailTemplatesService> _mockEmailService;
+        private Mock<IEmployerAlertSummaryEmailTemplateService> _mockEmailService;
         private Mock<INotificationsApi> _mockNotificationApi;
         private NotificationJob _sur;
-        private Mock<IProviderEmailTemplatesService> _providerEmailService;
+        private Mock<IProviderAlertSummaryEmailTemplateService> _providerEmailService;
 
         [SetUp]
         public void SetUp()
         {
-            _mockEmailService = new Mock<IEmployerEmailTemplatesService>();
+            _mockEmailService = new Mock<IEmployerAlertSummaryEmailTemplateService>();
             _mockNotificationApi = new Mock<INotificationsApi>();
-            _providerEmailService = new Mock<IProviderEmailTemplatesService>();
+            _providerEmailService = new Mock<IProviderAlertSummaryEmailTemplateService>();
             _sur = new NotificationJob(
                 _mockEmailService.Object, 
                 _providerEmailService.Object, 

@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using SFA.DAS.Notifications.Api.Types;
 
-namespace SFA.DAS.Commitments.Notification.WebJob
+namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
-    public interface IProviderEmailTemplatesService
+    public interface IEmployerAlertSummaryEmailTemplateService
     {
         Task<IEnumerable<Email>> GetEmails();
     }

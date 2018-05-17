@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Polly;
 using Polly.Retry;
-
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -13,9 +11,9 @@ using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Notifications.Api.Types;
 using SFA.DAS.PAS.Account.Api.Client;
 
-namespace SFA.DAS.Commitments.Notification.WebJob
+namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
-    public class ProviderEmailTemplatesService : IProviderEmailTemplatesService
+    public class ProviderAlertSummaryEmailTemplateService : IProviderAlertSummaryEmailTemplateService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentsLogger _logger;
@@ -23,7 +21,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         private readonly IAccountApiClient _providerAccountClient;
         private RetryPolicy _retryPolicy;
 
-        public ProviderEmailTemplatesService(
+        public ProviderAlertSummaryEmailTemplateService(
             IApprenticeshipRepository apprenticeshipRepository,
             ICommitmentsLogger logger,
             IProviderEmailServiceWrapper emailService,
