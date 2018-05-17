@@ -38,7 +38,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             // pay the cost of test server setup etc. now, so the first result in our timings isn't out
             // todo: do this in setup
             var firstCallParams = callParamsPerTask.First().First();
-            await CommitmentsApi.CallGetApprenticeship(firstCallParams.ApprenticeshipId, firstCallParams.EmployerId);
+            await CommitmentsApi.CallGetApprenticeship(firstCallParams.ApprenticeshipId, firstCallParams.EmployerId, true);
+            await CommitmentsApi.CallGetApprenticeships(employerIdsPerTask.First().First(), true);
 
             await TestLog.Progress("Starting scenario");
 
