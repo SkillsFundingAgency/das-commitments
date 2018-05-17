@@ -178,7 +178,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ShouldThrowExceptionIfCommitmentDoesNotExist()
         {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(null);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync((Commitment)null);
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 

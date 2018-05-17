@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetTransfeRequest
         [Test]
         public async Task ThenIfNoTransferFoundShouldReturnANullDataElementInResponse()
         {
-            _mockCommitmentRespository.Setup(x => x.GetTransferRequest(It.IsAny<long>())).ReturnsAsync(null);
+            _mockCommitmentRespository.Setup(x => x.GetTransferRequest(It.IsAny<long>())).ReturnsAsync((TransferRequest)null);
 
             var response = await _handler.Handle(_exampleValidRequest);
 
