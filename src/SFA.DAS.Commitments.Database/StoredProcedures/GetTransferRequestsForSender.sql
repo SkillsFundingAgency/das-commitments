@@ -5,6 +5,7 @@ AS
 SELECT 
 	TransferRequestId
 	,ReceivingEmployerAccountId
+	,ReceivingLegalEntityName
 	,CommitmentId
 	,SendingEmployerAccountId
     ,TransferCost

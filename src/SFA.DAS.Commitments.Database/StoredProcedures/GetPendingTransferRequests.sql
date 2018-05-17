@@ -1,5 +1,4 @@
-﻿CREATE PROCEDURE [dbo].GetTransferRequestsForReceiver
-	@receiverEmployerAccountId BIGINT
+﻿CREATE PROCEDURE [dbo].[GetPendingTransferRequests]
 AS
 
 SELECT 
@@ -15,5 +14,5 @@ SELECT
     ,ApprovedOrRejectedOn
 	,CreatedOn
 FROM [dbo].[TransferRequestSummary]
-WHERE ReceivingEmployerAccountId = @receiverEmployerAccountId
+WHERE [Status] = 0
 ORDER BY CommitmentId, CreatedOn

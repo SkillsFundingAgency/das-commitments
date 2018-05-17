@@ -4,6 +4,7 @@ AS
 SELECT 
 	TR.Id AS TransferRequestId
 	,C.EmployerAccountId AS ReceivingEmployerAccountId
+	,C.LegalEntityName as ReceivingLegalEntityName
 	,TR.[CommitmentId]
 	,C.TransferSenderId AS SendingEmployerAccountId
     ,TR.[Cost] AS TransferCost

@@ -182,6 +182,8 @@
     <Compile Include="DependencyResolution\IoC.cs" />
     <Compile Include="EmailServices\EmployerAlertSummaryEmailService.cs" />
     <Compile Include="EmailServices\IEmployerAlertSummaryEmailService.cs" />
+    <Compile Include="EmailServices\ISendingEmployerTransferRequestEmailService.cs" />
+    <Compile Include="EmailServices\SendingEmployerTransferRequestEmailService.cs" />
     <Compile Include="INotificationJob.cs" />
     <Compile Include="EmailServices\IProviderAlertSummaryEmailService.cs" />
     <Compile Include="NotificationJob.cs" />
