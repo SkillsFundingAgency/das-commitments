@@ -33,13 +33,8 @@ INCLUDE ([CreatedOn], [EditStatus], [EmployerAccountId], [LastAction], [LastUpda
 GO
 
 -- but we have 2 natural id's, providerid and EmployerAccountId
--- do we need this equivalent indexes for employeraccountid?
---CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_Status]
---ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
---INCLUDE ([CreatedOn], [EditStatus], [ProviderId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
---GO
-
---compromise with index on EmployerAccountId (which we had before), but add in CommitmentStatus, and don't have all the columns included
+-- do we need an equivalent index for employeraccountid with all the fields included?
+-- we compromise with index on EmployerAccountId (which we had before), but add in CommitmentStatus, and don't have all the columns included
 --todo: reasses these indexes when they're in live, by liasing with devops to see what's recommended
 CREATE NONCLUSTERED INDEX [IX_Commitment_EmployerAccountId_CommitmentStatus]
 ON [dbo].[Commitment] ([EmployerAccountId], [CommitmentStatus]) 
