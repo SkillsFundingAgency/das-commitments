@@ -81,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             if (HasImmediateUpdate(command))
             {
-                await StartHistoryTracking(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
+                StartHistoryTracking(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
                 MapImmediateApprenticeshipUpdate(apprenticeship, command);
                 immediateUpdate = apprenticeship;
             }
@@ -118,7 +118,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
         }
 
-        private async Task StartHistoryTracking(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
+        private void StartHistoryTracking(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
         {
             _historyService = new HistoryService(_historyRepository);
             _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, null, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
