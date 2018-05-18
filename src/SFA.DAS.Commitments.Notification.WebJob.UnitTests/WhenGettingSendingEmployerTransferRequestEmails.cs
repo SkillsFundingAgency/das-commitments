@@ -128,6 +128,21 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             Assert.IsEmpty(result);
         }
 
+        [TestCase("Owner", true)]
+        [TestCase("Transactor", true)]
+        [TestCase("SomeExcludedRole", false)]
+        public async Task ThenEmailsAreOnlyReturnedForOwnersOrTransactors(string role, bool expectEmail)
+        {
+            //Arrange
+            _accountTeamMembers[0].Role = role;
+
+            //Act
+            var result = await _service.GetEmails();
+
+            //Assert
+            Assert.AreEqual(expectEmail, result.Any());
+        }
+
         [Test]
         public async Task ThenEmailMessageTemplateIdIsSetCorrectly()
         {
