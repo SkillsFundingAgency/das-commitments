@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetTransfeRequest
         }
 
         [Test]
-        public async Task ThenShouldEnsureTransferSenderIdMatches()
+        public void ThenShouldEnsureTransferSenderIdMatches()
         {
             Func<Task> act = async () =>
             {
@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetTransfeRequest
         }
 
         [Test]
-        public async Task ThenShouldEnsureTransferReceiverIdMatches()
+        public void ThenShouldEnsureTransferReceiverIdMatches()
         {
             Func<Task> act = async () =>
             {
