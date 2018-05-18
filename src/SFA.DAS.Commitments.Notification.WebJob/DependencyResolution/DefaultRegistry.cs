@@ -43,9 +43,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<ProviderUserApiConfiguration>().Use(config.ProviderUserApi);
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
             For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
             For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
+            For<ISendingEmployerTransferRequestEmailService>().Use<SendingEmployerTransferRequestEmailService>();
             For<INotificationJob>().Use<NotificationJob>();
 
             For<PAS.Account.Api.Client.IAccountApiClient>().Use<PAS.Account.Api.Client.AccountApiClient>()

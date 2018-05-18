@@ -65,20 +65,21 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
             var accountsWithUsers = userPerAccountTasks
                 .Select(x => x.Result)
                 .Where(u => u.Users != null)
-                .Where(x => accountIds.Contains(x.AccountId));
+                .Where(x => accountIds.Contains(x.AccountId))
+                .ToList();
 
-            return accountsWithUsers.SelectMany(m =>
-                {
-                    var account = accounts.FirstOrDefault(a => a.AccountId == m.AccountId);
-                    var transferRequest = transferRequests.Single(r => r.SendingEmployerAccountId == m.AccountId);
+            return transferRequests.SelectMany(t =>
+            {
+                var account = accounts.Single(a => a.AccountId == t.SendingEmployerAccountId);
 
-                    return m.Users
-                        .Where(u => u.CanReceiveNotifications)
-                        .Where(u => u.Role == "Owner" || u.Role == "Transactor")
-                        .Select(userModel => MapToEmail(userModel, transferRequest, account.HashedAccountId, account.DasAccountName));
-                }
-            );
+                var users = accountsWithUsers.Where(a => a.AccountId == account.AccountId)
+                    .SelectMany(a => a.Users)
+                    .Where(u => u.CanReceiveNotifications)
+                    .Where(u => u.Role == "Owner" || u.Role == "Transactor");
 
+                return (users.Select(userModel =>
+                    MapToEmail(userModel, t, account.HashedAccountId, account.DasAccountName)));
+            });  
         }
 
         private Email MapToEmail(TeamMemberViewModel recipient, TransferRequestSummary transferRequest, string accountHashedAccountId, string accountDasAccountName)
