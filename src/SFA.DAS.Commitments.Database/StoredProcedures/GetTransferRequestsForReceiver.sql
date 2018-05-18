@@ -6,6 +6,7 @@ SELECT
 	TransferRequestId
 	,ReceivingEmployerAccountId
 	,ReceivingLegalEntityName
+	,CohortReference
 	,CommitmentId
 	,SendingEmployerAccountId
     ,TransferCost

@@ -4,7 +4,7 @@ using SFA.DAS.Notifications.Api.Types;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
-    public interface IProviderAlertSummaryEmailTemplateService
+    public interface IProviderAlertSummaryEmailService
     {
         Task<IEnumerable<Email>> GetEmails();
     }

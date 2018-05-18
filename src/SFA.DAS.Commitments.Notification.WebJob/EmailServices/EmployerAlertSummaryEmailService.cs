@@ -14,14 +14,14 @@ using Polly;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
-    public class EmployerAlertSummaryEmailTemplateService : IEmployerAlertSummaryEmailTemplateService
+    public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
         private readonly ILog _logger;
         private readonly Policy _retryPolicy;
 
-        public EmployerAlertSummaryEmailTemplateService(
+        public EmployerAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
             ILog logger)

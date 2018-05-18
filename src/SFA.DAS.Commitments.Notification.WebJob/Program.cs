@@ -32,9 +32,9 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 
             logger.Trace($"Starting CommitmentNotification.WebJob, JobId: {notificationJobId}");
 
-            var t1 = notificationJob.RunEmployerNotification($"{notificationJobId}.Employer")
+            var t1 = notificationJob.RunEmployerAlertSummaryNotification($"{notificationJobId}.Employer")
                 .ContinueWith(t => WhenDone(t, logger, "Employer"));
-            var t2 = notificationJob.RunProviderNotification($"{notificationJobId}.Provider")
+            var t2 = notificationJob.RunProviderAlertSummaryNotification($"{notificationJobId}.Provider")
                 .ContinueWith(t => WhenDone(t, logger, "Provider"));
 
             Task.WaitAll(t1, t2);

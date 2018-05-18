@@ -13,7 +13,7 @@ using SFA.DAS.PAS.Account.Api.Client;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
-    public class ProviderAlertSummaryEmailTemplateService : IProviderAlertSummaryEmailTemplateService
+    public class ProviderAlertSummaryEmailService : IProviderAlertSummaryEmailService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentsLogger _logger;
@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
         private readonly IAccountApiClient _providerAccountClient;
         private RetryPolicy _retryPolicy;
 
-        public ProviderAlertSummaryEmailTemplateService(
+        public ProviderAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
             ICommitmentsLogger logger,
             IProviderEmailServiceWrapper emailService,

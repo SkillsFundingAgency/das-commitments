@@ -13,37 +13,45 @@ namespace SFA.DAS.Commitments.Notification.WebJob
 {
     public class NotificationJob : INotificationJob
     {
-        private readonly IEmployerAlertSummaryEmailTemplateService _emailTemplatesService;
-        private readonly IProviderAlertSummaryEmailTemplateService _providerEmailTemplatesService;
+        private readonly IEmployerAlertSummaryEmailService _employerAlertsEmailService;
+        private readonly IProviderAlertSummaryEmailService _providerAlertsEmailService;
+        private readonly ISendingEmployerTransferRequestEmailService _sendingEmployerTransferRequestEmailService;
         private readonly INotificationsApi _notificationsApi;
         private readonly ILog _logger;
 
         private readonly CommitmentNotificationConfiguration _config;
 
         public NotificationJob(
-            IEmployerAlertSummaryEmailTemplateService emailTemplatesService,
-            IProviderAlertSummaryEmailTemplateService providerEmailTemplatesService,
+            IEmployerAlertSummaryEmailService employerAlertsEmailService,
+            IProviderAlertSummaryEmailService providerAlertsEmailService,
+            ISendingEmployerTransferRequestEmailService sendingEmployerTransferRequestEmailService,
             INotificationsApi notificationsApi,
             ILog logger,
-            CommitmentNotificationConfiguration config
-            )
+            CommitmentNotificationConfiguration config)
         {
-            _emailTemplatesService = emailTemplatesService;
-            _providerEmailTemplatesService = providerEmailTemplatesService;
+            _employerAlertsEmailService = employerAlertsEmailService;
+            _providerAlertsEmailService = providerAlertsEmailService;
+            _sendingEmployerTransferRequestEmailService = sendingEmployerTransferRequestEmailService;
             _notificationsApi = notificationsApi;
             _logger = logger;
             _config = config;
         }
 
-        public async Task RunEmployerNotification(string jobId)
+        public async Task RunEmployerAlertSummaryNotification(string jobId)
         {
             var emails = await GetEmployerEmails(jobId);
             await SendEmails(emails, jobId);
         }
 
-        public async Task RunProviderNotification(string jobId)
+        public async Task RunProviderAlertSummaryNotification(string jobId)
         {
             var emails = await GetProviderEmails(jobId);
+            await SendEmails(emails, jobId);
+        }
+
+        public async Task RunSendingEmployerTransferRequestNotification(string jobId)
+        {
+            var emails = await GetSendingEmployerTransferRequestEmails(jobId);
             await SendEmails(emails, jobId);
         }
 
@@ -51,9 +59,21 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var emails = await _emailTemplatesService.GetEmails();
+            var emails = await _employerAlertsEmailService.GetEmails();
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine employer emails to send, JobId: {jobId}", 
+                new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
+
+            return emails;
+        }
+
+        private async Task<IEnumerable<Email>> GetSendingEmployerTransferRequestEmails(string jobId)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            var emails = await _sendingEmployerTransferRequestEmailService.GetEmails();
+
+            _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine sending employer transfer request emails to send, JobId: {jobId}",
                 new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });
 
             return emails;
@@ -63,7 +83,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob
         {
             var stopwatch = Stopwatch.StartNew();
 
-            var emails = await _providerEmailTemplatesService.GetEmails();
+            var emails = await _providerAlertsEmailService.GetEmails();
 
             _logger.Debug($"Took {stopwatch.ElapsedMilliseconds} milliseconds to determine provider emails to send, JobId: {jobId}", 
                 new Dictionary<string, object> { { "duration", stopwatch.ElapsedMilliseconds } });

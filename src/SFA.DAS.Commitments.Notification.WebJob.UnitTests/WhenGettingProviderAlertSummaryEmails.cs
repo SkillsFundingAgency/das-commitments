@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
         private Mock<IProviderEmailServiceWrapper> _providerUserService;
 
-        private ProviderAlertSummaryEmailTemplateService _sut;
+        private ProviderAlertSummaryEmailService _sut;
 
         private Mock<IAccountApiClient> _accountService;
 
@@ -63,7 +63,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 
             _accountService = new Mock<PAS.Account.Api.Client.IAccountApiClient>();
 
-            _sut = new ProviderAlertSummaryEmailTemplateService(
+            _sut = new ProviderAlertSummaryEmailService(
                 _apprenticeshipRepostory.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 _providerUserService.Object,
