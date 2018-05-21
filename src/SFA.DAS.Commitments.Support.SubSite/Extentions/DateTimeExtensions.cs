@@ -33,7 +33,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Extensions
 
         public static string ToGdsFormatWithSlashSeperator(this DateTime? date)
         {
-            return date?.ToString("MM/yy");
+            return date.HasValue ? date.Value.ToString("MM/yy") : string.Empty;
+        }
+
+        public static string ToGdsFormatWithSpaceSeperator(this DateTime? date)
+        {
+            return date.HasValue ? date.Value.ToString("dd MMMM yyyy") : string.Empty;
         }
     }
 }

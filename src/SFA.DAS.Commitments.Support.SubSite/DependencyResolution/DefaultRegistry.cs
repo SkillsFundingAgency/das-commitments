@@ -34,6 +34,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using SFA.DAS.Commitments.Support.SubSite.Validation;
     using SFA.DAS.Configuration;
     using SFA.DAS.Configuration.AzureTableStorage;
+    using SFA.DAS.HashingService;
     using SFA.DAS.Learners.Validators;
     using SFA.DAS.NLog.Logger;
     using StructureMap;
@@ -77,11 +78,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
             For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>();
-
             For<ICurrentDateTime>().Use<CurrentDateTime>();
             For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
+            For<IApprenticeshipMapper>().Use<ApprenticeshipMapper>();
+            For<IHashingService>().Use(x => new HashingService(config.AllowedHashstringCharacters, config.Hashstring));
 
-            // Mediator Handler Mapping - TODO -Fix generic type issue
+            // Mediator Handler Mapping 
             For<IAsyncRequestHandler<GetApprenticeshipsByUlnRequest, GetApprenticeshipsByUlnResponse>>().Use<GetApprenticeshipsByUlnQueryHandler>();	
 
         }

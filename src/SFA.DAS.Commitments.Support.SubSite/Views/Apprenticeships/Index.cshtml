@@ -1,0 +1,193 @@
+﻿@using SFA.DAS.Commitments.Support.SubSite.Extensions
+@using SFA.DAS.Commitments.Support.SubSite.Models
+@model ApprenticeshipViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="grid-row">
+
+    <div class="column-full">
+
+        <h1 class="heading-xlarge">
+            @Model.Name
+        </h1>
+
+        <div>
+            <table class="responsive">
+                <thead>
+                    <tr>
+                        <th colspan="2"> <h2 class="heading-medium">Status</h2></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Agreement status</td>
+                        <td>@Model.AgreementStatus</td>
+
+                    </tr>
+                    <tr>
+                        <td>Payment status</td>
+                        <td>@Model.PaymentStatus</td>
+
+                    </tr>
+
+                    @if (Model.Alerts != null && Model.Alerts.Any())
+                    {
+                        for (int i = 0; i < Model.Alerts.Count(); i++)
+                        {
+                            if (i == 0)
+                            {
+                                <tr>
+                                    <td>Alerts</td>
+                                    <td><a href="#"> Model.Alerts[i]</a></td>
+
+                                </tr>
+                            }
+
+                            <tr>
+                                <td></td>
+                                <td><a href="#"> Model.Alerts[i]</a></td>
+
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+
+            <table class="responsive">
+                <thead>
+                    <tr>
+                        <th colspan="2"> <h2 class="heading-medium">Apprentice</h2></th>
+                    </tr>
+
+                </thead>
+            </table>
+
+            <table class="responsive">
+                <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>@Model.Name</td>
+
+                    </tr>
+                    <tr id="ULN">
+                        <td>Unique learner number</td>
+                        <td>@Model.ULN</td>
+                    </tr>
+                    <tr>
+                        <td>Date of birth</td>
+                        <td>@Model.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
+                    </tr>
+                    <tr id="referenceNumber">
+                        <td>Cohort reference</td>
+                        <td>@Model.CohortReference</td>
+                    </tr>
+
+                    <tr id="referenceNumber">
+                        <td>Employer reference</td>
+                        <td>@Model.EmployerReference</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+            <table class="responsive">
+                <thead>
+                    <tr>
+                        <th colspan="2"> <h2 class="heading-medium">Training</h2></th>
+                    </tr>
+                </thead>
+            </table>
+
+            <table class="responsive">
+                <tbody>
+                    <tr id="employer">
+                        <td>Legal entity</td>
+                        <td>@Model.LegalEntity</td>
+                    </tr>
+                    <tr id="trainingProvider">
+                        <td>Training provider</td>
+                        <td>@Model.TrainingProvider</td>
+                    </tr>
+                    <tr id="trainingProvider">
+                        <td>UKPRN</td>
+                        <td>@Model.UKPRN</td>
+                    </tr>
+
+                    <tr>
+                        <td>Apprenticeship training course</td>
+                        <td>@Model.Trainingcourse</td>
+                    </tr>
+                    <tr>
+                        <td>Apprenticeship code<br>(needed for ILR)</td>
+                        <td>@Model.ApprenticeshipCode</td>
+                    </tr>
+
+
+                </tbody>
+            </table>
+
+
+            <table class="responsive">
+                <thead>
+                    <tr>
+                        <th colspan="2"> <h2 class="heading-medium">Dates</h2></th>
+                    </tr>
+                </thead>
+            </table>
+
+            <table class="responsive">
+                <tbody>
+
+                    <tr>
+                        <td>AS training start date</td>
+                        <td>
+                            @{
+                                var startDate = Model.DasTrainingStartDate.HasValue ? Model.DasTrainingStartDate.Value.ToGdsFormatWithoutDay() : "";
+                            }
+
+                            @startDate
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>AS training end date</td>
+                        <td>
+                            @{
+                                var endDate = Model.DasTrainingEndDate.HasValue ? Model.DasTrainingEndDate.Value.ToGdsFormatWithoutDay() : "";
+                            }
+
+                            @endDate
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table class="responsive">
+                <thead>
+                    <tr>
+                        <th colspan="2"> <h2 class="heading-medium">Payment</h2></th>
+                    </tr>
+                </thead>
+            </table>
+
+            <table class="responsive">
+                <tbody>
+                    <tr>
+                        <td>Cost</td>
+                        <td>@Model.TrainingCost.ToGdsCurrencyFormat()</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+</div>

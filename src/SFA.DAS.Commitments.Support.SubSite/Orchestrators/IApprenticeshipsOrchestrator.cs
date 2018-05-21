@@ -7,6 +7,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
     public interface IApprenticeshipsOrchestrator
     {
         Task<UlnSearchResultSummaryViewModel> GetApprenticeshipsByUln(ApprenticeshipSearchQuery searchQuery);
-
+        Task<ApprenticeshipViewModel> GetApprenticeship(string hashId, string accountHashedId);
     }
 }

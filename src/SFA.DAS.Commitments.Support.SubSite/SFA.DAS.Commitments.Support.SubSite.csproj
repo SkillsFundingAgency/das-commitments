@@ -49,6 +49,9 @@
     <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
     </Reference>
+    <Reference Include="Hashids.net, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hashids.net.1.2.2\lib\net45\Hashids.net.dll</HintPath>
+    </Reference>
     <Reference Include="MediatR, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MediatR.2.1.0\lib\net45\MediatR.dll</HintPath>
     </Reference>
@@ -106,6 +109,9 @@
     </Reference>
     <Reference Include="SFA.DAS.Configuration.FileStorage, Version=1.0.0.53229, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.FileStorage.1.0.0.53229\lib\net45\SFA.DAS.Configuration.FileStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.HashingService, Version=1.0.0.57835, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.HashingService.1.0.0.57835\lib\net45\SFA.DAS.HashingService.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Learners, Version=1.0.0.39408, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Learners.1.0.0.39408\lib\net45\SFA.DAS.Learners.dll</HintPath>
@@ -259,15 +265,19 @@
     <Compile Include="DependencyResolution\StructureMapDependencyScope.cs" />
     <Compile Include="DependencyResolution\StructureMapScopeModule.cs" />
     <Compile Include="Extentions\DateTimeExtensions.cs" />
+    <Compile Include="Extentions\DecimalFormatExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ApprenticeshipSearchQuery.cs" />
     <Compile Include="Models\ApprenticeshipSearchType.cs" />
+    <Compile Include="Models\ApprenticeshipViewModel.cs" />
     <Compile Include="Models\ServiceStatusViewModel.cs" />
     <Compile Include="Models\UlnSearchResultViewModel.cs" />
     <Compile Include="Models\UlnSearchResultSummaryViewModel.cs" />
+    <Compile Include="Orchestrators\ApprenticeshipMapper.cs" />
     <Compile Include="Orchestrators\ApprenticeshipsOrchestrator.cs" />
+    <Compile Include="Orchestrators\IApprenticeshipMapper.cs" />
     <Compile Include="Orchestrators\IApprenticeshipsOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Validation\ApprenticeshipsSearchQueryValidator.cs" />
@@ -390,7 +400,8 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Apprenticeships\Search.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Apprenticeships\ApprenticeshipsUlnSearchSummary.cshtml" />
+    <Content Include="Views\Apprenticeships\UlnSearchSummary.cshtml" />
+    <Content Include="Views\Apprenticeships\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

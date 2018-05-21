@@ -1,17 +1,22 @@
-﻿using Moq;
+﻿using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Support.SubSite.Controllers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
 using System.Web.Mvc;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.ApprenticeshipsControllerTests
 {
     [TestFixture]
-    public class WhenSearchingApprenticeships
+    public class WhenGettingApprenticeshipDetails
     {
+
         private Mock<IApprenticeshipsOrchestrator> _orchestrator;
 
         [SetUp]
@@ -21,31 +26,31 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
         }
 
         [Test]
-        public async Task GivenValidUlnSearchShouldReturnUlnView()
+        public async Task GivenValidUlnAndAccountIdShouldCallServiceAndReturnApprenticeshipView()
         {
             ///Arrange
-            var query = new ApprenticeshipSearchQuery
+            var apprenticeshipHashId = "V673UHWE";
+            var accountHashId = "HTYDUD120";
+            var apprenticeshipVm = new ApprenticeshipViewModel
             {
-                SearchTerm = "25632323233",
-                SearchType = ApprenticeshipSearchType.SearchByUln
+                ULN = "123456782"
             };
 
             _orchestrator
-                .Setup(x => x.GetApprenticeshipsByUln(query))
-                .ReturnsAsync(new UlnSearchResultSummaryViewModel())
+                .Setup(x => x.GetApprenticeship(apprenticeshipHashId, accountHashId))
+                .ReturnsAsync(apprenticeshipVm)
                 .Verifiable();
 
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
+            var controller = new ApprenticeshipsController(_orchestrator.Object);
 
             // Act
-            var result = await sut.Search(query);
+            var result = await controller.Index(apprenticeshipHashId, accountHashId);
 
             // Assert
             var view = result as ViewResult;
 
             view.Should().NotBeNull();
-
-            Assert.AreEqual(view.ViewName, "UlnSearchSummary");
+            view.Model.Should().BeOfType<ApprenticeshipViewModel>();
         }
 
 
