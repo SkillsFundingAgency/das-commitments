@@ -16,4 +16,4 @@ SELECT
 	,CreatedOn
 FROM [dbo].[TransferRequestSummary]
 WHERE [Status] = 0
-ORDER BY CommitmentId, CreatedOn
+ORDER BY CommitmentId
