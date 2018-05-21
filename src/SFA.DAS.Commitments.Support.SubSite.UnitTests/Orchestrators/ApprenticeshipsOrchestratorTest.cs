@@ -12,6 +12,7 @@ using SFA.DAS.NLog.Logger;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.HashingService;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 {
@@ -21,6 +22,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         private Mock<ILog> _logger;
         private Mock<IMediator> _mediator;
         private Mock<IValidator<ApprenticeshipSearchQuery>> _searchValidator;
+        private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
+        private  Mock<IHashingService> _hashingService;
 
         [SetUp]
         public void Setup()
@@ -28,6 +31,21 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             _logger = new Mock<ILog>();
             _mediator = new Mock<IMediator>();
             _searchValidator = new Mock<IValidator<ApprenticeshipSearchQuery>>();
+            _apprenticeshipMapper = new Mock<IApprenticeshipMapper>();
+            _hashingService = new Mock<IHashingService>();
+
+            _apprenticeshipMapper
+              .Setup(o => o.MapToUlnResultView(It.IsAny<GetApprenticeshipsByUlnResponse>()))
+              .Returns(new UlnSearchResultSummaryViewModel())
+              .Verifiable();
+
+            _hashingService
+                .Setup(o => o.DecodeValue(It.IsAny<string>()))
+                .Returns(100);
+
+            _hashingService
+             .Setup(o => o.HashValue(It.IsAny<long>()))
+             .Returns("ABCDE500");
 
             _logger.Setup(x => x.Trace(It.IsAny<string>()));
             _logger.Setup(x => x.Info(It.IsAny<string>()));
@@ -36,12 +54,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
         [Test]
         public void ShouldThrowExceptionIfDependentServiceIsNull()
         {
-            TestDelegate action = () => { new ApprenticeshipsOrchestrator(null, null, null); };
+            TestDelegate action = () => { new ApprenticeshipsOrchestrator(null, null, null, null, null); };
             Assert.Throws<ArgumentException>(action);
         }
 
         [Test]
-        public async Task GivenValidUlnShouldReturmUlnSearchModelAndCallRequiredServices()
+        public async Task GivenValidUlnShouldCallRequiredServices()
         {
             // Arrasnge
             ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery
@@ -64,7 +82,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Returns(validationResult.Object)
                 .Verifiable();
 
-            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object, _mediator.Object, _searchValidator.Object);
+            _apprenticeshipMapper
+                .Setup(o => o.MapToUlnResultView(It.IsAny<GetApprenticeshipsByUlnResponse>()))
+                .Returns(new UlnSearchResultSummaryViewModel())
+                .Verifiable();
+
+            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object, _mediator.Object, _apprenticeshipMapper.Object, _searchValidator.Object, _hashingService.Object);
 
             // Act
             var result = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
@@ -72,11 +95,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
             // Arrange
             _searchValidator.VerifyAll();
             _mediator.VerifyAll();
-
-
-            result.Should().NotBeNull();
-            result.Should().BeOfType<UlnSearchResultSummaryViewModel>();
-            result.ApprenticeshipsCount.Should().Be(1);
+            _apprenticeshipMapper.VerifyAll();
 
         }
 
@@ -109,7 +128,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Returns(validationResult)
                 .Verifiable();
 
-            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object, _mediator.Object, _searchValidator.Object);
+            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object, _mediator.Object, _apprenticeshipMapper.Object, _searchValidator.Object ,_hashingService.Object);
 
             // Act
             var result = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
@@ -140,7 +159,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
              .ReturnsAsync(new GetApprenticeshipsByUlnResponse
              {
                  TotalCount = 0,
-                 Apprenticeships =  null
+                 Apprenticeships = null
              });
 
 
@@ -151,7 +170,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
                 .Returns(validationResult.Object)
                 .Verifiable();
 
-            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object, _mediator.Object, _searchValidator.Object);
+            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object, _mediator.Object, _apprenticeshipMapper.Object, _searchValidator.Object, _hashingService.Object);
 
             // Act
             var result = await _orchestrator.GetApprenticeshipsByUln(searchQuery);

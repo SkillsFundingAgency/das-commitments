@@ -40,6 +40,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(searchQuery);
         }
 
+        public async Task<ActionResult> Index(string Id, string accountId)
+        {
+            if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(accountId))
+            {
+                return RedirectToAction(nameof(Search));
+            }
+            var model = await _orchestrator.GetApprenticeship(Id, accountId);
+            return View(model);
+        }
+
         private async Task<ActionResult> UlnSearch(ApprenticeshipSearchQuery searchQuery)
         {
             var searchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
@@ -48,13 +58,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
                 searchQuery.ErrorMessages = searchResult.ReponseMessages;
                 return View("Search", searchQuery);
             }
-            return View("ApprenticeshipsUlnSearchSummary", searchResult);
+            return View("UlnSearchSummary", searchResult);
         }
 
         private ActionResult CohortSearch(ApprenticeshipSearchQuery searchQuery)
         {
             throw new NotImplementedException();
         }
+
+
 
     }
 }

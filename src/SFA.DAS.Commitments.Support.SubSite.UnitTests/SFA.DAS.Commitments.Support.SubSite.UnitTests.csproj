@@ -39,6 +39,9 @@
     <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
     </Reference>
+    <Reference Include="Hashids.net, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hashids.net.1.2.2\lib\net45\Hashids.net.dll</HintPath>
+    </Reference>
     <Reference Include="MediatR, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MediatR.2.1.0\lib\net45\MediatR.dll</HintPath>
     </Reference>
@@ -83,6 +86,9 @@
     </Reference>
     <Reference Include="SFA.DAS.Configuration.AzureTableStorage, Version=1.0.0.53229, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.AzureTableStorage.1.0.0.53229\lib\net45\SFA.DAS.Configuration.AzureTableStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.HashingService, Version=1.0.0.57835, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.HashingService.1.0.0.57835\lib\net45\SFA.DAS.HashingService.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Learners, Version=1.0.0.39408, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Learners.1.0.0.39408\lib\net45\SFA.DAS.Learners.dll</HintPath>
@@ -145,8 +151,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ApprenticeshipsControllerTests\WhenGettingApprenticeshipDetails.cs" />
     <Compile Include="Controllers\ApprenticeshipsControllerTests\WhenSearchingApprenticeships.cs" />
     <Compile Include="Controllers\StatusControllerTests\WhenGettingStatus.cs" />
+    <Compile Include="Orchestrators\ApprenticeshipMapperTest.cs" />
     <Compile Include="Orchestrators\ApprenticeshipsOrchestratorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
