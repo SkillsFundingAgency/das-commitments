@@ -64,21 +64,20 @@ namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 
             var accountsWithUsers = userPerAccountTasks
                 .Select(x => x.Result)
-                .Where(u => u.Users != null)
-                .Where(x => accountIds.Contains(x.AccountId))
+                .Where(u => u.Users != null && accountIds.Contains(u.AccountId))
                 .ToList();
 
-            return transferRequests.SelectMany(t =>
+            return transferRequests.SelectMany(transferRequest =>
             {
-                var account = accounts.Single(a => a.AccountId == t.SendingEmployerAccountId);
+                var account = accounts.Single(a => a.AccountId == transferRequest.SendingEmployerAccountId);
 
                 var users = accountsWithUsers.Where(a => a.AccountId == account.AccountId)
                     .SelectMany(a => a.Users)
-                    .Where(u => u.CanReceiveNotifications)
-                    .Where(u => u.Role == "Owner" || u.Role == "Transactor");
+                    .Where(u => u.CanReceiveNotifications
+                                && (u.Role == "Owner" || u.Role == "Transactor"));
 
                 return (users.Select(userModel =>
-                    MapToEmail(userModel, t, account.HashedAccountId, account.DasAccountName)));
+                    MapToEmail(userModel, transferRequest, account.HashedAccountId, account.DasAccountName)));
             });  
         }
 
