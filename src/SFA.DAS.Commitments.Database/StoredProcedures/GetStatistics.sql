@@ -8,7 +8,7 @@ SELECT
 (
 	SELECT COUNT(Id)
 	FROM [Apprenticeship]
-) AS TotalAprrenticeships,
+) AS TotalApprenticeships,
 (
 	SELECT COUNT(Id)
 	FROM [Apprenticeship]
