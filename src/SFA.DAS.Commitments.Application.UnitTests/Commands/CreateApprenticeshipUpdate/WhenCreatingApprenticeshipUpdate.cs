@@ -59,7 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .Returns(() => new ValidationResult());
 
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((ApprenticeshipUpdate)null);
 
             _apprenticeshipUpdateRepository.Setup(x => x.CreateApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<Apprenticeship>()))
                 .Returns(() => Task.FromResult(new Unit()));

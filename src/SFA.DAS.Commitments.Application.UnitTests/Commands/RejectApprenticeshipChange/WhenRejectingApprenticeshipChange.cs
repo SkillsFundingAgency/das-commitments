@@ -98,7 +98,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectApprenticeshi
             };
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(5L))
-                .ReturnsAsync(null);
+                .ReturnsAsync((ApprenticeshipUpdate)null);
 
             Func<Task> act = async () => await _sut.Handle(command);
             act.ShouldThrow<ValidationException>().WithMessage("No existing apprenticeship update pending for apprenticeship 5");

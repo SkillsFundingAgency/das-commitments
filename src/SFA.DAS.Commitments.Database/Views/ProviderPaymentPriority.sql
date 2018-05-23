@@ -32,7 +32,7 @@ FROM
 INNER JOIN 
 	CustomProviderPaymentPriority cp
 ON 
-	a1.ProviderId = cp.Providerid AND a1.EmployerAccountId = cp.EmployerAccountId
+	a1.ProviderId = cp.ProviderId AND a1.EmployerAccountId = cp.EmployerAccountId
 RIGHT JOIN 
 	AllProviders a2 
 ON 
