@@ -12,7 +12,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         public async Task<IEnumerable<DbSetupApprenticeshipUpdate>> Generate(int apprenticeshipsGenerated, long firstNewApprenticeshipId)
         {
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsGenerated * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
-            await TestLog.Progress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdatess");
+            await TestLog.Progress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdates");
 
             //todo: switch to how we decide on datalockstatuses instead?
             var apprenticeshipIdsForUpdates = RandomIdGroups(firstNewApprenticeshipId, apprenticeshipUpdatesToGenerate,

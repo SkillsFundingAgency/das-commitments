@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeship;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeships;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -82,21 +83,24 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             //todo: this is usually in generate method
             var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
-            if (apprenticeshipsToGenerate > 0)
-            {
-                (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
-                    testIds, apprenticeshipsToGenerate, testDataInjector);
-                await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
+            if (apprenticeshipsToGenerate <= 0)
+                return testIds; // do we load these instead?
 
-                await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
-            }
+            (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
+                testIds, apprenticeshipsToGenerate, testDataInjector);
+            await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
 
-            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId));
+            await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
+
+            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId));
 
             // the DataLockStatus table diverges from the other tables by having its own id column seperate from the identity 'Id' column
-            var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
+            var firstNewDataLockEventId = await CommitmentsDatabase.NextId(CommitmentsDatabase.DataLockStatusTableName);
 
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.FirstApprenticeshipId, firstNewDataLockEventId));
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId, firstNewDataLockEventId));
+
+            await CommitmentsDatabase.InsertPriceHistories(
+                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId, testDataInjector));
 
             return testIds;
         }
@@ -104,7 +108,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public void GatherTestSpecificData(TestDataInjector testDataInjector)
         {
             // *** add your call to inject the specific data your integration test needs here ***
-            GetApprenticeships.InjectTestSpecificData(testDataInjector);
+            WhenGettingEmployerApprenticeshipCost.InjectTestSpecificData(testDataInjector);
+            WhenGettingEmployerApprenticeships.InjectTestSpecificData(testDataInjector);
         }
     }
 }

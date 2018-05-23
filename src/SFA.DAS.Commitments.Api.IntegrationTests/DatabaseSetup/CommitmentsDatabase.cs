@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
         public const string CommitmentTableName = "[dbo].[Commitment]";
         public const string DataLockStatusTableName = "[dbo].[DataLockStatus]";
+        public const string PriceHistoryTableName = "[dbo].[PriceHistory]";
 
         public CommitmentsDatabase(string databaseConnectionString)
             : base(databaseConnectionString)
@@ -76,19 +77,36 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             });
         }
 
+        public async Task InsertPriceHistories(IEnumerable<DbSetupPriceHistory> priceHistories)
+        {
+            await BulkInsertRows(priceHistories, PriceHistoryTableName, new[]
+            {
+                "Id", "ApprenticeshipId", "Cost", "FromDate", "ToDate"
+            });
+        }
+
         public async Task<long> GetEmployerId(long apprenticeshipId)
         {
-            using (var connection = new SqlConnection(DatabaseConnectionString))
+            try
             {
-                await connection.OpenAsync();
-                // no need for param, as apprenticeshipId comes from test code not user
-                using (var command = new SqlCommand(
-                    $@"select EmployerAccountId from dbo.Commitment c
+                var sql = $@"select EmployerAccountId from dbo.Commitment c
                     join dbo.Apprenticeship a on c.Id = a.CommitmentId
-                    where a.Id = {apprenticeshipId}", connection))
+                    where a.Id = {apprenticeshipId}";
+
+                using (var connection = new SqlConnection(DatabaseConnectionString))
                 {
-                    return (long)await command.ExecuteScalarAsync();
+                    await connection.OpenAsync();
+                    // no need for param, as apprenticeshipId comes from test code not user
+                    using (var command = new SqlCommand(sql, connection))
+                    {
+                        // this has thrown a NullReferenceException, so we've added a try-catch to capture more info
+                        return (long)await command.ExecuteScalarAsync();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Unable to get employerId for apprenticeship id {apprenticeshipId}", e);
             }
         }
 
