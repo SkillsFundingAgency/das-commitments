@@ -325,11 +325,14 @@
     <Compile Include="DatabaseSetup\Entities\DbSetupApprenticeshipUpdate.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupCommitment.cs" />
     <Compile Include="DatabaseSetup\Entities\DbSetupDataLockStatus.cs" />
+    <Compile Include="DatabaseSetup\Entities\DbSetupPriceHistory.cs" />
     <Compile Include="DatabaseSetup\Generators\ApprenticeshipGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\ApprenticeshipUpdateGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\CommitmentGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\DataLockStatusGenerator.cs" />
     <Compile Include="DatabaseSetup\Generators\Generator.cs" />
+    <Compile Include="DatabaseSetup\Generators\PriceHistoryGenerator.cs" />
+    <Compile Include="DatabaseSetup\TestDataInjector.cs" />
     <Compile Include="Helpers\Probability\BoundaryValue.cs" />
     <Compile Include="Helpers\Probability\ProbabilityDistribution.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />
@@ -340,6 +343,7 @@
     <Compile Include="Helpers\TestSetup.cs" />
     <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\API\GetApprenticeships.cs" />
     <Compile Include="Tests\API\GetCommitments.cs" />
     <Compile Include="Tests\Scenarios\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
   </ItemGroup>

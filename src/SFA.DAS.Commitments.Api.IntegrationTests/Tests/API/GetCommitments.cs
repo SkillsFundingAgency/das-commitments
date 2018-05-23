@@ -16,7 +16,7 @@ using SFA.DAS.Commitments.Api.Types.Commitment;
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
     [TestFixture]
-    public class GetCommitments
+    public sealed class GetCommitments
     {
         //private ICommitmentsApiClientConfiguration _clientConfig;
 
