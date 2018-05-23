@@ -17,42 +17,51 @@
 		@EffectiveToDate DATETIME NULL
 )
 AS
+	-- is this enough, do we *need* to try/catch rollback?
+	SET XACT_ABORT ON
 
-	INSERT INTO [dbo].[ApprenticeshipUpdate]
-	(
-		[ApprenticeshipId],
-		[Originator] ,
-		[FirstName], 
-		[LastName], 
-		[TrainingType], 
-		[TrainingCode], 
-		[TrainingName], 
-		[Cost], 
-		[StartDate], 
-		[EndDate], 
-		[DateOfBirth],
-		[CreatedOn],
-		[UpdateOrigin],
-		[EffectiveFromDate],
-		[EffectiveToDate]
-	)
-	values
-	(
-		@ApprenticeshipId,
-		@Originator,
-		@FirstName, 
-		@LastName, 
-		@TrainingType, 
-		@TrainingCode, 
-		@TrainingName, 
-		@Cost, 
-		@StartDate, 
-		@EndDate, 
-		@DateOfBirth,
-		@CreatedOn,
-		@UpdateOrigin,
-		@EffectiveFromDate,
-		@EffectiveToDate
-	)
+	BEGIN TRAN
 
-	SELECT SCOPE_IDENTITY()
+		UPDATE [dbo].[Apprenticeship]
+		SET [PendingUpdateOriginator] = @Originator
+		WHERE Id = @ApprenticeshipId
+
+		INSERT INTO [dbo].[ApprenticeshipUpdate]
+		(
+			[ApprenticeshipId],
+			[Originator] ,
+			[FirstName], 
+			[LastName], 
+			[TrainingType], 
+			[TrainingCode], 
+			[TrainingName], 
+			[Cost], 
+			[StartDate], 
+			[EndDate], 
+			[DateOfBirth],
+			[CreatedOn],
+			[UpdateOrigin],
+			[EffectiveFromDate],
+			[EffectiveToDate]
+		)
+		VALUES
+		(
+			@ApprenticeshipId,
+			@Originator,
+			@FirstName, 
+			@LastName, 
+			@TrainingType, 
+			@TrainingCode, 
+			@TrainingName, 
+			@Cost, 
+			@StartDate, 
+			@EndDate, 
+			@DateOfBirth,
+			@CreatedOn,
+			@UpdateOrigin,
+			@EffectiveFromDate,
+			@EffectiveToDate
+		)
+
+		SELECT SCOPE_IDENTITY()
+	COMMIT
