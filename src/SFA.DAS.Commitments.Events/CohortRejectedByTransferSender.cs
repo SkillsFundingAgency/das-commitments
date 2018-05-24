@@ -9,8 +9,9 @@ namespace SFA.DAS.Commitments.Events
         {
         }
 
-        public CohortRejectedByTransferSender(long accountId, long commitmentId, long transferSenderId, string userName, string userEmail)
+        public CohortRejectedByTransferSender(long transferRequestId, long accountId, long commitmentId, long transferSenderId, string userName, string userEmail)
         {
+            TransferRequestId = transferRequestId;
             ReceivingEmployerAccountId = accountId;
             CommitmentId = commitmentId;
             SendingEmployerAccountId = transferSenderId;
@@ -18,6 +19,7 @@ namespace SFA.DAS.Commitments.Events
             UserEmail = userEmail;
         }
 
+        public long TransferRequestId { get; set; }
         public long ReceivingEmployerAccountId { get; set; }
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }

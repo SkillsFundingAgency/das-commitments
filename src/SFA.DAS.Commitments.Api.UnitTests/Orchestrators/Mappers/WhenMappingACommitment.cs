@@ -24,6 +24,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             _rules = Mock.Of<ICommitmentRules>();
             _mapper = new CommitmentMapper(_rules);
         }
+
         [Test]
         public void ThenMappingCompletesSuccessfully()
         {
@@ -107,7 +108,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             var from = new Commitment
             {
                 EmployerCanApproveCommitment = employerCanApprove,
-                ProviderCanApproveCommitment = providerCanApprove
+                ProviderCanApproveCommitment = providerCanApprove,
+                TransferApprovalStatus = TransferApprovalStatus.Pending
             };
 
             var result = _mapper.MapFrom(from, callerType);

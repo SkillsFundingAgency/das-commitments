@@ -164,5 +164,19 @@ namespace SFA.DAS.Commitments.Api.Client
 
             return JsonConvert.DeserializeObject<List<ApprenticeshipStatusSummary>>(content);
         }
+
+        public async Task<List<TransferRequestSummary>> GetTransferRequests(string url)
+        {
+            var content = await GetAsync(url);
+
+            return JsonConvert.DeserializeObject<List<TransferRequestSummary>>(content);
+        }
+
+        public async Task<TransferRequest> GetTransferRequest(string url)
+        {
+            var content = await GetAsync(url);
+
+            return JsonConvert.DeserializeObject<TransferRequest>(content);
+        }
     }
 }

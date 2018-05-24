@@ -11,7 +11,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
     public class CommitmentsDatabase : Database
     {
         // intial version will be null
-        public static readonly int? SchemaVersion = null;
+        public static readonly int? SchemaVersion = 1;
 
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";
@@ -54,7 +54,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 "LegalEntityAddress", "LegalEntityOrganisationType", "ProviderId",
                 "ProviderName", "CommitmentStatus", "EditStatus", "CreatedOn",
                 "LastAction", "LastUpdatedByEmployerName", "LastUpdatedByEmployerEmail",
-                "LastUpdatedByProviderName","LastUpdatedByProviderEmail"
+                "LastUpdatedByProviderName","LastUpdatedByProviderEmail",
+                "TransferSenderId", "TransferSenderName", "TransferApprovalStatus",
+                "TransferApprovalActionedByEmployerName", "TransferApprovalActionedByEmployerEmail",
+                "TransferApprovalActionedOn"
             });
         }
 
@@ -108,15 +111,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                 await connection.OpenAsync();
                 using (var command = new SqlCommand(
 $@"MERGE [dbo].[JobProgress] WITH(HOLDLOCK) as target
-using (values(@parameter)) as source (sourceColumn)
+using (values({columnValue})) as source (sourceColumn)
 on target.Lock = 'X'
 when matched then
     update set {columnName} = source.sourceColumn
 when not matched then
 insert({columnName}) values(source.sourceColumn); ", connection))
                 {
-                    command.Parameters.AddWithValue("@parameter", columnValue);
-
                     await command.ExecuteNonQueryAsync();
                 }
             }

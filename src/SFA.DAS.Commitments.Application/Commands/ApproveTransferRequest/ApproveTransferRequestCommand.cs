@@ -1,14 +1,13 @@
 ﻿using MediatR;
-using SFA.DAS.Commitments.Domain.Entities;
 
-namespace SFA.DAS.Commitments.Application.Commands.TransferApproval
+namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
 {
-    public sealed class TransferApprovalCommand : IAsyncRequest
+    public sealed class ApproveTransferRequestCommand : IAsyncRequest
     {
         public long CommitmentId { get; set; }
+        public long TransferRequestId { get; set; }
         public long TransferSenderId { get; set; }
         public long TransferReceiverId { get; set; }
-        public TransferApprovalStatus TransferApprovalStatus { get; set; }
         public string UserEmail { get; set; }
         public string UserName { get; set; }
     }

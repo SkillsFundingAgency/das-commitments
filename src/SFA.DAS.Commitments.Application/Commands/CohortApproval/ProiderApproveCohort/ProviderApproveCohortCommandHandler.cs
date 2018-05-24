@@ -43,22 +43,30 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
             await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
             await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
-            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
 
             if (haveBothPartiesApproved)
             {
                 if (commitment.HasTransferSenderAssigned)
                 {
-                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment);
-                }
-                else
-                {
-                    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+                    var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id,
+                        _cohortApprovalService.CurrentCostOfCohort(commitment),
+                        _cohortApprovalService.TrainingCourseSummaries(commitment));
+
+                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment, transferRequestId);
+
+                    commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
                 }
             }
             else
             {
                 await PublishApprovalRequestedMessage(commitment);
+            }
+
+            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
+
+            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            {
+                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
             }
         }
 

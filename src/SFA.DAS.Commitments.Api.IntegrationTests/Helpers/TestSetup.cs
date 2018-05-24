@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
+using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
 {
@@ -12,6 +13,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
     {
         public static TestIds TestIds { get; private set; }
         public static CommitmentsDatabase CommitmentsDatabase { get; private set; }
+        public static CommitmentsApiConfiguration Configuration { get; private set; }
 
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
@@ -20,7 +22,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
             {
                 //Debug.Listeners.Add(new DefaultTraceListener());
                 await TestLog.Progress("Running OneTimeSetUp");
-                var testData = new TestData();
+
+                Configuration = Infrastructure.Configuration.Configuration.Get();
+
+                var testData = new TestData(Configuration);
                 TestIds = await testData.Initialise();
                 CommitmentsDatabase = testData.CommitmentsDatabase;
 

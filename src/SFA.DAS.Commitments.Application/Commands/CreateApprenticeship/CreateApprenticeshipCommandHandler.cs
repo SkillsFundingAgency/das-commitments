@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -26,6 +27,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
+        private HistoryService _historyService;
         private IMessagePublisher _messagePublisher;
 
         public CreateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<CreateApprenticeshipCommand> validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
@@ -50,6 +52,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
             // TODO: Throw Exception if commitment doesn't exist
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
+            var transferRejected = commitment.TransferApprovalStatus == TransferApprovalStatus.TransferRejected;
 
             CheckAuthorization(command, commitment);
             CheckEditStatus(command, commitment);
@@ -59,14 +62,26 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
                 && commitment.Apprenticeships.Any()
                 && commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.ProviderAgreed);
 
+            StartTrackingHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
+
             var apprenticeship = UpdateApprenticeship(command.Apprenticeship, command);
             var apprenticeshipId = await _apprenticeshipRepository.CreateApprenticeship(apprenticeship);
             var savedApprenticeship = await _apprenticeshipRepository.GetApprenticeship(apprenticeshipId);
 
+            _historyService.TrackInsert(savedApprenticeship, ApprenticeshipChangeType.Created.ToString(), null,
+                savedApprenticeship.Id, command.Caller.CallerType, command.UserId, savedApprenticeship.ProviderId,
+                savedApprenticeship.EmployerAccountId, command.UserName);
+
+            await ResetCommitmentTransferRejectionIfRequired(commitment);
+
+            var apprenticeshipStatusUpdates = GetApprenticeshipsRequiringStatusUpdates(commitment, apprenticeship);
+
             await Task.WhenAll(
+                
                 _apprenticeshipEvents.PublishEvent(commitment, savedApprenticeship, "APPRENTICESHIP-CREATED"),
-                UpdateStatusOfApprenticeship(commitment),
-                CreateHistory(commitment, savedApprenticeship, command.Caller.CallerType, command.UserId, command.UserName)
+                PublishApprenticeshipUpdateEvents(commitment, transferRejected, apprenticeshipStatusUpdates),
+                UpdateStatusOfApprenticeships(apprenticeshipStatusUpdates, AgreementStatus.NotAgreed),
+                _historyService.Save()
             );
 
             if (publishMessage)
@@ -76,6 +91,65 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
 
             return apprenticeshipId;
         }
+
+        private void StartTrackingHistory(Commitment commitment, CallerType callerType, string userId, string userName)
+        {
+            _historyService = new HistoryService(_historyRepository);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, null, callerType, userId, commitment.ProviderId, commitment.EmployerAccountId, userName);
+
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), null, apprenticeship.Id, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
+            }
+        }
+
+        private async Task PublishApprenticeshipUpdateEvents(Commitment commitment, bool transferRejected, List<Apprenticeship> statusUpdates)
+        {
+            var apprenticeshipsPublish = transferRejected
+                ? commitment.Apprenticeships //entire cohort
+                : statusUpdates; //just those having had status updates
+
+            foreach (var apprenticeship in apprenticeshipsPublish)
+            {
+                await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED");
+            }
+        }
+
+        private async Task UpdateStatusOfApprenticeships(List<Apprenticeship> apprenticeships, AgreementStatus agreementStatus)
+        {
+            foreach (var apprenticeship in apprenticeships)
+            {
+                await _apprenticeshipRepository.UpdateApprenticeshipStatus(apprenticeship.CommitmentId, apprenticeship.Id, agreementStatus);
+            }
+        }
+
+        private List<Apprenticeship> GetApprenticeshipsRequiringStatusUpdates(Commitment commitment, Apprenticeship updatedApprenticeship)
+        {
+            var result = new List<Apprenticeship>();
+
+            foreach (var apprenticeship in commitment.Apprenticeships.Where(x => x.Id != updatedApprenticeship.Id))
+            {
+                if (apprenticeship.AgreementStatus != updatedApprenticeship.AgreementStatus)
+                {
+                    apprenticeship.AgreementStatus = updatedApprenticeship.AgreementStatus;
+                    result.Add(apprenticeship);
+                }
+            }
+
+            return result;
+        }
+
+        private async Task ResetCommitmentTransferRejectionIfRequired(Commitment commitment)
+        {
+            if (commitment.TransferApprovalStatus != TransferApprovalStatus.TransferRejected)
+                return;
+
+            commitment.TransferApprovalStatus = null;
+            commitment.TransferApprovalActionedOn = null;
+            commitment.LastAction = LastAction.AmendAfterRejected;
+            await _commitmentRepository.UpdateCommitment(commitment);
+        }
+
 
         private async Task PublishMessage(Commitment commitment)
         {
@@ -91,26 +165,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeship
             apprenticeship.CommitmentId = command.CommitmentId;
             apprenticeship.PaymentStatus = PaymentStatus.PendingApproval;
             return apprenticeship;
-        }
-
-        private async Task CreateHistory(Commitment commitment, Domain.Entities.Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
-        {
-            var historyService = new HistoryService(_historyRepository);
-            historyService.TrackUpdate(commitment, CommitmentChangeType.CreatedApprenticeship.ToString(), commitment.Id, null, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
-            historyService.TrackInsert(apprenticeship, ApprenticeshipChangeType.Created.ToString(), null, apprenticeship.Id, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
-            await historyService.Save();
-        }
-
-        private async Task UpdateStatusOfApprenticeship(Commitment commitment)
-        {
-            // TODO: Should we do just a blanket update accross all apprenticeships in the Commitment?
-            foreach (var apprenticeship in commitment.Apprenticeships)
-            {
-                if (apprenticeship.AgreementStatus != Domain.Entities.AgreementStatus.NotAgreed)
-                {
-                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, Domain.Entities.AgreementStatus.NotAgreed);
-                }
-            }
         }
 
         private static void CheckAuthorization(CreateApprenticeshipCommand message, Commitment commitment)

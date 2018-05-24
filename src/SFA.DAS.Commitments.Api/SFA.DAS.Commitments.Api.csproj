@@ -171,8 +171,8 @@
     <Reference Include="SFA.DAS.Events.Api.Client, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Client.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Client.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=2.0.0.57745, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.0.0.57745\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=2.1.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.1.9\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.HashingService, Version=1.0.0.42526, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.HashingService.1.0.0.42526\lib\net45\SFA.DAS.HashingService.dll</HintPath>
@@ -301,7 +301,7 @@
     <Compile Include="App_Start\CustomErrorResult.cs" />
     <Compile Include="App_Start\CustomExceptionHandler.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\TransferSenderController.cs" />
+    <Compile Include="Controllers\TransferController.cs" />
     <Compile Include="Controllers\EmployerController.cs" />
     <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
@@ -323,6 +323,8 @@
     <Compile Include="Orchestrators\IProviderOrchestrator.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipFilterService.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\ITransferRequestMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\TransferRequestMapper.cs" />
     <Compile Include="Orchestrators\Mappers\CommitmentMapper.cs" />
     <Compile Include="Orchestrators\Mappers\FacetMapper.cs" />
     <Compile Include="Orchestrators\Mappers\IApprenticeshipMapper.cs" />

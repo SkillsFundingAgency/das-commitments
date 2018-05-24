@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
-
+using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using Ploeh.AutoFixture;
 
 using SFA.DAS.Commitments.Notification.WebJob.Configuration;
 using SFA.DAS.NLog.Logger;

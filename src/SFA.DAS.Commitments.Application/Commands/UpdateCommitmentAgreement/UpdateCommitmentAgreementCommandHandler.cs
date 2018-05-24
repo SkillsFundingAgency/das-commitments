@@ -110,6 +110,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             updatedCommitment.EditStatus = updatedEditStatus;
             updatedCommitment.CommitmentStatus = _apprenticeshipUpdateRules.DetermineNewCommmitmentStatus(areAnyApprenticeshipsPendingAgreement);
             updatedCommitment.LastAction = latestAction;
+            updatedCommitment.TransferApprovalStatus = null;
 
             SetLastUpdatedDetails(command, updatedCommitment);
             await _commitmentRepository.UpdateCommitment(updatedCommitment);
