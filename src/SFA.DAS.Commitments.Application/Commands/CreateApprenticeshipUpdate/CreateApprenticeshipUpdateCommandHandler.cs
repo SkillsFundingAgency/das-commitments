@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -29,9 +30,17 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private HistoryService _historyService;
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
+        private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
 
-        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator, IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger, IApprenticeshipRepository apprenticeshipRepository, IMediator mediator, IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository, ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher)
-        { 
+        public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator,
+            IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger,
+            IApprenticeshipRepository apprenticeshipRepository, IMediator mediator,
+            IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository,
+            ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher,
+            IApprenticeshipEventsList apprenticeshipEventsList,
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
+        {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _logger = logger;
@@ -41,6 +50,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
             _messagePublisher = messagePublisher;
+            _apprenticeshipEventsList = apprenticeshipEventsList;
+            _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -57,6 +68,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipUpdate.ApprenticeshipId);
+            var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
 
             if (!ValidateStartedApprenticeship(apprenticeship, command.ApprenticeshipUpdate))
                 throw new ValidationException("Unable to create an update for an apprenticeship that is already started ");
@@ -69,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
             if (HasImmediateUpdate(command))
             {
-                await StartHistoryTracking(apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
+                await StartHistoryTracking(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
                 MapImmediateApprenticeshipUpdate(apprenticeship, command);
                 immediateUpdate = apprenticeship;
             }
@@ -85,6 +97,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                     _apprenticeshipUpdateRepository.CreateApprenticeshipUpdate(pendingUpdate, immediateUpdate),
                     SaveHistory()
                 );
+
+            if (command.ApprenticeshipUpdate.ULN != null)
+            {
+                _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
+                await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+            }
         }
 
         private async Task SendApprenticeshipUpdateCreatedEvent(Apprenticeship apprenticeship)
@@ -100,9 +118,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             }
         }
 
-        private async Task StartHistoryTracking(Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
+        private async Task StartHistoryTracking(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
         {
-            var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
             _historyService = new HistoryService(_historyRepository);
             _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, null, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
             _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), null, apprenticeship.Id, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);

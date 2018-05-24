@@ -11,6 +11,7 @@ using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -34,18 +35,21 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 EmployerAccountId = source.EmployerAccountId,
                 LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
-                CommitmentStatus = (Types.Commitment.Types.CommitmentStatus) source.CommitmentStatus,
-                EditStatus = (Types.Commitment.Types.EditStatus) source.EditStatus,
+                CommitmentStatus = (Types.Commitment.Types.CommitmentStatus)source.CommitmentStatus,
+                EditStatus = (Types.Commitment.Types.EditStatus)source.EditStatus,
                 ApprenticeshipCount = source.ApprenticeshipCount,
-                AgreementStatus = (Types.AgreementStatus) source.AgreementStatus,
-                LastAction = (Types.Commitment.Types.LastAction) source.LastAction,
+                AgreementStatus = (Types.AgreementStatus)source.AgreementStatus,
+                LastAction = (Types.Commitment.Types.LastAction)source.LastAction,
+                TransferSenderId = source.TransferSenderId,
+                TransferApprovalStatus = (Types.TransferApprovalStatus)source.TransferApprovalStatus,
+                TransferSenderName = source.TransferSenderName,
                 CanBeApproved = callerType == CallerType.Employer
                         ? source.EmployerCanApproveCommitment
                         : source.ProviderCanApproveCommitment,
                 EmployerLastUpdateInfo =
-                    new LastUpdateInfo {Name = source.LastUpdatedByEmployerName, EmailAddress = source.LastUpdatedByEmployerEmail},
+                    new LastUpdateInfo { Name = source.LastUpdatedByEmployerName, EmailAddress = source.LastUpdatedByEmployerEmail },
                 ProviderLastUpdateInfo =
-                    new LastUpdateInfo {Name = source.LastUpdatedByProviderName, EmailAddress = source.LastUpdatedByProviderEmail},
+                    new LastUpdateInfo { Name = source.LastUpdatedByProviderName, EmailAddress = source.LastUpdatedByProviderEmail },
                 Messages = MapMessagesFrom(source.Messages)
             };
         }
@@ -79,15 +83,32 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     EmployerAccountId = commitment.EmployerAccountId,
                     LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
-                    EditStatus = (Types.Commitment.Types.EditStatus) commitment.EditStatus,
-                    AgreementStatus = (AgreementStatus) _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
-                    LastAction = (Types.Commitment.Types.LastAction) commitment.LastAction,
-                    CanBeApproved = callerType == CallerType.Employer ? commitment.EmployerCanApproveCommitment : commitment.ProviderCanApproveCommitment,
-                    EmployerLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail},
-                    ProviderLastUpdateInfo = new LastUpdateInfo {Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail},
+                    EditStatus = (Types.Commitment.Types.EditStatus)commitment.EditStatus,
+                    AgreementStatus = (AgreementStatus)_commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
+                    LastAction = (Types.Commitment.Types.LastAction)commitment.LastAction,
+                    CanBeApproved = CommitmentCanBeApproved(callerType, commitment),
+                    EmployerLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByEmployerName, EmailAddress = commitment.LastUpdatedByEmployerEmail },
+                    ProviderLastUpdateInfo = new LastUpdateInfo { Name = commitment.LastUpdatedByProviderName, EmailAddress = commitment.LastUpdatedByProviderEmail },
                     Apprenticeships = MapApprenticeshipsFrom(commitment.Apprenticeships, callerType),
-                    Messages = MapMessagesFrom(commitment.Messages)
+                    Messages = MapMessagesFrom(commitment.Messages),
+                    TransferSender = MapTransferSenderInfo(commitment)
                 };
+        }
+
+        private TransferSender MapTransferSenderInfo(Commitment commitment)
+        {
+            if (commitment.TransferSenderId == null)
+            {
+                return null;
+            }
+            return new TransferSender
+            {
+                Id = commitment.TransferSenderId,
+                Name = commitment.TransferSenderName,
+                TransferApprovalStatus = (Types.TransferApprovalStatus?)commitment.TransferApprovalStatus,
+                TransferApprovalSetBy = commitment.TransferApprovalActionedByEmployerName,
+                TransferApprovalSetOn = commitment.TransferApprovalActionedOn
+            };
         }
 
         public Commitment MapFrom(Types.Commitment.Commitment commitment)
@@ -96,6 +117,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             {
                 Reference = commitment.Reference,
                 EmployerAccountId = commitment.EmployerAccountId,
+                TransferSenderId = commitment.TransferSenderId,
+                TransferSenderName = commitment.TransferSenderName,
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityAddress = commitment.LegalEntityAddress,
@@ -110,8 +133,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             };
 
             return domainCommitment;
-        
-    }
+
+        }
+        private static bool CommitmentCanBeApproved(CallerType callerType, Commitment commitment)
+        {
+            switch (callerType)
+            {
+                case CallerType.Employer:
+                    return commitment.EmployerCanApproveCommitment;
+                case CallerType.Provider:
+                    return commitment.ProviderCanApproveCommitment;
+                case CallerType.TransferSender:
+                    return commitment.TransferApprovalStatus == TransferApprovalStatus.Pending;
+            }
+            return false;
+        }
+
+
 
         //todo: could we reuse the apprenticeship mapper?       
         private static List<Types.Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Apprenticeship> apprenticeships, CallerType callerType)
@@ -138,8 +176,22 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 NINumber = x.NINumber,
                 EmployerRef = x.EmployerRef,
                 ProviderRef = x.ProviderRef,
-                CanBeApproved = callerType == CallerType.Employer ? x.EmployerCanApproveApprenticeship : x.ProviderCanApproveApprenticeship
+                CanBeApproved = ApprenticeshipCanBeApproved(callerType, x)
             }).ToList();
+        }
+
+        private static bool ApprenticeshipCanBeApproved(CallerType callerType, Apprenticeship apprenticeship)
+        {
+            switch (callerType)
+            {
+                case CallerType.Employer:
+                    return apprenticeship.EmployerCanApproveApprenticeship;
+                case CallerType.Provider:
+                    return apprenticeship.ProviderCanApproveApprenticeship;
+                case CallerType.TransferSender:
+                    return true; // This needs to reference a new field later
+            }
+            return false;
         }
     }
 }

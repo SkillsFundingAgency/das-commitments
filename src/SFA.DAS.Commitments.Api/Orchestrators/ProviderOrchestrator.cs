@@ -34,6 +34,7 @@ using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
+using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
@@ -285,6 +286,27 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             });
 
             _logger.Info($"Updated latest action to {submission.Action} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+        }
+
+        public async Task ApproveCohort(long providerId, long commitmentId, CommitmentSubmission submission)
+        {
+            _logger.Trace($"Approving commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
+
+            await _mediator.SendAsync(new ProviderApproveCohortCommand
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = providerId
+                },
+                CommitmentId = commitmentId,
+                LastUpdatedByName = submission.LastUpdatedByInfo.Name,
+                LastUpdatedByEmail = submission.LastUpdatedByInfo.EmailAddress,
+                UserId = submission.UserId,
+                Message = submission.Message
+            });
+
+            _logger.Info($"Approved commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
         }
 
         public async Task DeleteApprenticeship(long providerId, long apprenticeshipId, string userId, string userName)

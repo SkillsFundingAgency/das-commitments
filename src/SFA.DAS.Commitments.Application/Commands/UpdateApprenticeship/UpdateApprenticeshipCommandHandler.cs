@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -32,7 +33,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
         private HistoryService _historyService;
         private IMessagePublisher _messagePublisher;
 
-        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<UpdateApprenticeshipCommand> validator, IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public UpdateApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
+            AbstractValidator<UpdateApprenticeshipCommand> validator,
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules, IApprenticeshipEvents apprenticeshipEvents,
+            ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -54,14 +59,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                 throw new ValidationException(validationResult.Errors);
 
             var commitment = await _commitmentRepository.GetCommitmentById(command.CommitmentId);
-            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(command.ApprenticeshipId);
+            var apprenticeship = commitment.Apprenticeships.Single(x => x.Id == command.ApprenticeshipId);
+            var transferRejected = commitment.TransferApprovalStatus == TransferApprovalStatus.TransferRejected;
 
             CheckAuthorization(command, commitment);
             CheckCommitmentStatus(command, commitment);
             CheckEditStatus(command, commitment);
             CheckPaymentStatus(apprenticeship);
 
-            StartTrackingHistory(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
+            StartTrackingHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
 
             var publishMessage = command.Caller.CallerType == CallerType.Employer
                 && _apprenticeshipUpdateRules.DetermineWhetherChangeRequiresAgreement(apprenticeship, command.Apprenticeship)
@@ -69,17 +75,44 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             UpdateApprenticeshipEntity(apprenticeship, command.Apprenticeship, command);
 
+            var apprenticeshipStatusUpdates = GetApprenticeshipsRequiringStatusUpdates(commitment, apprenticeship);
+
+            await _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller);
+
             await Task.WhenAll(
-                _apprenticeshipRepository.UpdateApprenticeship(apprenticeship, command.Caller),
-                UpdateStatusOfApprenticeship(commitment, apprenticeship),
-                _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED"),
-                CreateHistory()
+                ResetCommitmentTransferRejectionIfRequired(commitment),
+                UpdateStatusOfApprenticeships(apprenticeshipStatusUpdates, apprenticeship.AgreementStatus),
+                PublishApprenticeshipUpdateEvents(commitment, apprenticeship, transferRejected, apprenticeshipStatusUpdates),
+                _historyService.Save()
             );
 
             if (publishMessage)
             {
                 await PublishMessage(commitment);
             }
+        }
+
+        private async Task ResetCommitmentTransferRejectionIfRequired(Commitment commitment)
+        {
+            if (commitment.TransferApprovalStatus != TransferApprovalStatus.TransferRejected)
+                return;
+
+            commitment.TransferApprovalStatus = null;
+            commitment.TransferApprovalActionedOn = null;
+            commitment.LastAction = LastAction.AmendAfterRejected;
+            await _commitmentRepository.UpdateCommitment(commitment);
+        }
+
+        private async Task PublishApprenticeshipUpdateEvents(Commitment commitment, Apprenticeship updatedApprenticeship, bool transferRejected, List<Apprenticeship> statusUpdates)
+        {
+            var apprenticeshipsPublish = transferRejected
+                ? commitment.Apprenticeships //entire cohort
+                : statusUpdates.Union(new List<Apprenticeship>{ updatedApprenticeship }); //just those having had status updates
+
+            foreach (var apprenticeship in apprenticeshipsPublish)
+            {
+                await _apprenticeshipEvents.PublishEvent(commitment, apprenticeship, "APPRENTICESHIP-UPDATED");
+            }          
         }
 
         private async Task PublishMessage(Commitment commitment)
@@ -91,27 +124,39 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
                           commitment.Id));
         }
 
-        private async Task CreateHistory()
+        private async Task UpdateStatusOfApprenticeships(List<Apprenticeship> apprenticeships, AgreementStatus agreementStatus)
         {
-            await _historyService.Save();
+            foreach (var apprenticeship in apprenticeships)
+            {
+                await _apprenticeshipRepository.UpdateApprenticeshipStatus(apprenticeship.CommitmentId, apprenticeship.Id, agreementStatus);
+            }
         }
 
-        private async Task UpdateStatusOfApprenticeship(Commitment commitment, Apprenticeship updatedApprenticeship)
+        private List<Apprenticeship> GetApprenticeshipsRequiringStatusUpdates(Commitment commitment, Apprenticeship updatedApprenticeship)
         {
+            var result = new List<Apprenticeship>();
+        
             foreach (var apprenticeship in commitment.Apprenticeships.Where(x => x.Id != updatedApprenticeship.Id))
             {
                 if (apprenticeship.AgreementStatus != updatedApprenticeship.AgreementStatus)
                 {
-                    await _apprenticeshipRepository.UpdateApprenticeshipStatus(commitment.Id, apprenticeship.Id, updatedApprenticeship.AgreementStatus);
+                    apprenticeship.AgreementStatus = updatedApprenticeship.AgreementStatus;
+                    result.Add(apprenticeship);
                 }
             }
+
+            return result;
         }
 
-        private void StartTrackingHistory(Commitment commitment, Apprenticeship apprenticeship, CallerType callerType, string userId, string userName)
+        private void StartTrackingHistory(Commitment commitment, CallerType callerType, string userId, string userName)
         {
             _historyService = new HistoryService(_historyRepository);
-            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, null, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
-            _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), null, apprenticeship.Id, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
+            _historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, null, callerType, userId, commitment.ProviderId, commitment.EmployerAccountId, userName);
+
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                _historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), null, apprenticeship.Id, callerType, userId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, userName);
+            }
         }
 
         private void LogMessage(UpdateApprenticeshipCommand command)
@@ -190,6 +235,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship
 
             existingApprenticeship.AgreementStatus = _apprenticeshipUpdateRules.DetermineNewAgreementStatus(existingApprenticeship.AgreementStatus, message.Caller.CallerType, doChangesRequireAgreement);
             existingApprenticeship.PaymentStatus = _apprenticeshipUpdateRules.DetermineNewPaymentStatus(existingApprenticeship.PaymentStatus, doChangesRequireAgreement);
+
+            
+
         }
     }
 }
