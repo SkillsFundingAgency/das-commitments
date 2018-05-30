@@ -51,3 +51,14 @@ BEGIN
 	ON h.ApprenticeshipId = a.Id
 
 END
+
+-- This is a One time Action. We only need to import the old tansfer records on upgrade. New records will always add a TransferRequest record (when both parties approve)
+IF NOT EXISTS(SELECT * FROM [dbo].[TransferRequest]) 
+BEGIN
+
+  	INSERT INTO TransferRequest (CommitmentId, TrainingCourses, Cost, [Status], TransferApprovalActionedByEmployerEmail, TransferApprovalActionedByEmployerName, TransferApprovalActionedOn)
+	SELECT Id, '[]', (SELECT SUM(Cost) FROM Apprenticeship a WHERE a.CommitmentId = c.Id),  ISNULL(TransferApprovalStatus, 0), 
+		TransferApprovalActionedByEmployerEmail, TransferApprovalActionedByEmployerName, TransferApprovalActionedOn  
+	FROM [dbo].[Commitment] c WHERE c.TransferSenderId IS NOT NULL AND c.EditStatus = 0 AND c.CommitmentStatus = 1
+	
+END

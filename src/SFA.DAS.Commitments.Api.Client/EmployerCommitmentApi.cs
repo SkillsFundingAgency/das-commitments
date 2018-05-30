@@ -62,6 +62,13 @@ namespace SFA.DAS.Commitments.Api.Client
             return await _commitmentHelper.GetCommitment(url);
         }
 
+        public async Task<CommitmentView> GetTransferSenderCommitment(long transferSenderAccountId, long commitmentId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderAccountId}/transfers/{commitmentId}";
+
+            return await _commitmentHelper.GetCommitment(url);
+        }
+
         public async Task<List<Apprenticeship>> GetEmployerApprenticeships(long employerAccountId)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/";
@@ -193,6 +200,51 @@ namespace SFA.DAS.Commitments.Api.Client
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}/datalocks/resolve";
             var data = JsonConvert.SerializeObject(submission);
             await PatchAsync(url, data);
+        }
+
+        public async Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}/stopdate";
+            var data = JsonConvert.SerializeObject(stopDate);
+            await PutAsync(url, data);
+        }
+
+        public async Task ApproveCohort(long employerAccountId, long commitmentId, CommitmentSubmission submission)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments/{commitmentId}/approve";
+
+            await _commitmentHelper.PatchCommitment(url, submission);
+        }
+
+        public Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/transfers/{commitmentId}/approval";
+            var data = JsonConvert.SerializeObject(request);
+            return PatchAsync(url, data);
+        }
+
+        public Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest request)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/transfers/{transferRequestId}/approval/{commitmentId}";
+            var data = JsonConvert.SerializeObject(request);
+            return PatchAsync(url, data);
+        }
+
+        public Task<List<TransferRequestSummary>> GetTransferRequests(string hashedAccountId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{hashedAccountId}/transfers";
+            return _commitmentHelper.GetTransferRequests(url);
+        }
+
+        public Task<TransferRequest> GetTransferRequestForSender(long transferSenderId, long transferRequestId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/sender/transfers/{transferRequestId}";
+            return _commitmentHelper.GetTransferRequest(url);
+        }
+        public Task<TransferRequest> GetTransferRequestForReceiver(long transferSenderId, long transferRequestId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/receiver/transfers/{transferRequestId}";
+            return _commitmentHelper.GetTransferRequest(url);
         }
     }
 }

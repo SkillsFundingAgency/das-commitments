@@ -16,7 +16,6 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 
 namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
@@ -29,8 +28,10 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
         private const string ExpectedApiBaseUrl = "http://test.local.url/";
         private const long EmployerAccountId = 666;
+        private const string HashedEmployerAccountId = "XXX";
         private const long ApprenticeshipId = 9990;
         private const long CommitmentId = 876;
+        private const long TransferRequestId = 199991;
         private const string Uln = "6791776799";
 
         [SetUp]
@@ -119,6 +120,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
             _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
 
             await _employerApiClient.PatchEmployerCommitment(EmployerAccountId, CommitmentId, new CommitmentSubmission());
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task ApproveCohort()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments/{CommitmentId}/approve"), JsonConvert.SerializeObject(new CommitmentSubmission()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.ApproveCohort(EmployerAccountId, CommitmentId, new CommitmentSubmission());
 
             Assert.Pass();
         }
@@ -296,5 +308,84 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
 
             Assert.Pass();
         }
+
+        [Test]
+        public async Task PutApprenticeshipStopDate()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments/{CommitmentId}/apprenticeships/{ApprenticeshipId}/stopdate"), JsonConvert.SerializeObject(new ApprenticeshipStopDate()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.PutApprenticeshipStopDate(EmployerAccountId, CommitmentId, ApprenticeshipId, new ApprenticeshipStopDate());
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task GetSpecificCommitmentInformationForAnEmployerAsTransferSender()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{CommitmentId}"), string.Empty);
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.GetTransferSenderCommitment(EmployerAccountId, CommitmentId);
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task PatchTransferApprovalStatus()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{CommitmentId}/approval"), JsonConvert.SerializeObject(new TransferApprovalRequest()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.PatchTransferApprovalStatus(EmployerAccountId, CommitmentId, new TransferApprovalRequest());
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task PatchTransferApprovalStatusWithTransferRequestId()
+        {
+            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/transfers/{TransferRequestId}/approval/{CommitmentId}"), JsonConvert.SerializeObject(new TransferApprovalRequest()));
+            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _employerApiClient.PatchTransferApprovalStatus(EmployerAccountId, CommitmentId, TransferRequestId, new TransferApprovalRequest());
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task GetTransferRequests()
+        {
+            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{HashedEmployerAccountId}/transfers"), string.Empty);
+            _fakeHandler.AddFakeResponse(transferRequestForSenderRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<TransferRequestSummary>())) });
+
+            var transfers = await _employerApiClient.GetTransferRequests(HashedEmployerAccountId);
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task GetTransferRequestForSender()
+        {
+            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/sender/transfers/{TransferRequestId}"), string.Empty);
+            _fakeHandler.AddFakeResponse(transferRequestForSenderRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new TransferRequest())) });
+
+            var transferRequest = await _employerApiClient.GetTransferRequestForSender(EmployerAccountId, TransferRequestId);
+
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task GetTransferRequestForReceiver()
+        {
+            var transferRequestForSenderRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/receiver/transfers/{TransferRequestId}"), string.Empty);
+            _fakeHandler.AddFakeResponse(transferRequestForSenderRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new TransferRequest())) });
+
+            var transferRequest = await _employerApiClient.GetTransferRequestForReceiver(EmployerAccountId, TransferRequestId);
+
+            Assert.Pass();
+        }
+
+
     }
 }

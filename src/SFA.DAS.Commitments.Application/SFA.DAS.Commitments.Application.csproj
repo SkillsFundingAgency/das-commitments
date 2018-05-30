@@ -53,9 +53,9 @@
     <Reference Include="SFA.DAS.Common.Domain, Version=1.3.0.44308, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.3.0.44308\lib\net45\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Events.Api.Types, Version=2.0.0.35796, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.0.0.35796\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
-      <Private>True</Private>
+
+    <Reference Include="SFA.DAS.Events.Api.Types, Version=2.1.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.1.9\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.HashingService, Version=1.0.0.42526, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.HashingService.1.0.0.42526\lib\net45\SFA.DAS.HashingService.dll</HintPath>
@@ -98,14 +98,26 @@
     <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
     <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
+    <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestCommand.cs" />
+    <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestCommandHandler.cs" />
+    <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestValidator.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommandHandler.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\DeleteCommitmentValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommand.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipValidator.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommand.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandHandler.cs" />
+    <Compile Include="Commands\CohortApproval\EmployerApproveCohort\EmployerApproveCohortCommandValidator.cs" />
+    <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommand.cs" />
+    <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandHandler.cs" />
+    <Compile Include="Commands\CohortApproval\ProiderApproveCohort\ProviderApproveCohortCommandValidator.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\RejectApprenticeshipChange\RejectApprenticeshipChangeValidator.cs" />
+    <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommand.cs" />
+    <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestCommandHandler.cs" />
+    <Compile Include="Commands\RejectTransferRequest\RejectTransferRequestValidator.cs" />
     <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommand.cs" />
     <Compile Include="Commands\SetPaymentOrder\SetPaymentOrderCommandHandler.cs" />
     <Compile Include="Commands\BulkUploadApprenticships\BulkUploadApprenticeshipsCommand.cs" />
@@ -164,6 +176,16 @@
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestQueryHandler.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestRequest.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestResponse.cs" />
+    <Compile Include="Queries\GetTransferRequest\GetTransferRequestValidator.cs" />
+    <Compile Include="Queries\GetTransferRequestsForReceiver\GetTransferRequestsForReceiverQueryHandler.cs" />
+    <Compile Include="Queries\GetTransferRequestsForReceiver\GetTransferRequestsForReceiverRequest.cs" />
+    <Compile Include="Queries\GetTransferRequestsForReceiver\GetTransferRequestsForReceiverResponse.cs" />
+    <Compile Include="Queries\GetTransferRequestsForSender\GetTransferRequestsForSenderQueryHandler.cs" />
+    <Compile Include="Queries\GetTransferRequestsForSender\GetTransferRequestsForSenderRequest.cs" />
+    <Compile Include="Queries\GetTransferRequestsForSender\GetTransferRequestsForSenderResponse.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentsPriority\GetProviderPaymentsPriorityValidator.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksRequest.cs" />
     <Compile Include="Queries\GetDataLocks\GetDataLocksQueryHandler.cs" />
@@ -205,6 +227,7 @@
     <Compile Include="Queries\GetRelationship\GetRelationshipRequest.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipResponse.cs" />
     <Compile Include="Queries\GetRelationship\GetRelationshipValidator.cs" />
+    <Compile Include="Resources.cs" />
     <Compile Include="Rules\ApprenticeshipOverlapRules.cs" />
     <Compile Include="Rules\CommitmentRules.cs" />
     <Compile Include="Rules\IApprenticeshipOverlapRules.cs" />
@@ -225,8 +248,12 @@
     <Compile Include="Queries\QueryResponse{T}.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules.cs" />
     <Compile Include="Rules\ICommitmentRules.cs" />
+    <Compile Include="Services\ApprenticeshipEventsService.cs" />
+    <Compile Include="Services\CohortApprovalService.cs" />
+    <Compile Include="Services\CohortStatusChangeService.cs" />
     <Compile Include="Services\HistoryService.cs" />
     <Compile Include="Services\InMemoryCache.cs" />
+    <Compile Include="Services\OverlappingApprenticeshipService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

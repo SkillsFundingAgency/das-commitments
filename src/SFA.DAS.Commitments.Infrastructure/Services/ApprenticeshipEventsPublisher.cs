@@ -54,7 +54,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 DateOfBirth = apprenticeship.DateOfBirth,
                 EffectiveFrom = effectiveFrom,
                 EffectiveTo = effectiveTo,
-                PriceHistory = MapPriceHistory(apprenticeship.PriceHistory)
+                PriceHistory = MapPriceHistory(apprenticeship.PriceHistory),
+                TransferSenderId = commitment.TransferSenderId,
+                TransferSenderName = commitment.TransferSenderName,
+                TransferApprovalStatus = (Events.Api.Types.TransferApprovalStatus?) commitment.TransferApprovalStatus,
+                TransferApprovalActionedOn = commitment.TransferApprovalActionedOn
             };
         }
 

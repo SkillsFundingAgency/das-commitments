@@ -259,3 +259,5 @@ src/Tools/**/*.*
 
 # Custom
 src/Tools/PhantomJS/tools/phantomjs/ChangeLog
+*.ncrunchsolution
+*.ncrunchproject

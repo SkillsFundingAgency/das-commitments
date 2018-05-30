@@ -1,16 +1,13 @@
-﻿namespace SFA.DAS.Commitments.Application.UnitTests.Rules.CommitmentRules
+﻿using System.Collections.Generic;
+using AutoFixture;
+using FluentAssertions;
+
+using NUnit.Framework;
+
+using SFA.DAS.Commitments.Domain.Entities;
+
+namespace SFA.DAS.Commitments.Application.UnitTests.Rules.CommitmentRules
 {
-    using System.Collections.Generic;
-
-    using FluentAssertions;
-
-    using NUnit.Framework;
-
-    using Ploeh.AutoFixture;
-
-    using SFA.DAS.Commitments.Application.Rules;
-    using SFA.DAS.Commitments.Domain.Entities;
-
     [TestFixture]
     public class WhenDetermineAgreementStatus
     {
@@ -20,7 +17,7 @@
         [TestCase(AgreementStatus.EmployerAgreed)]
         public void ShouldReturnSameAsAllApprenticeships(AgreementStatus agreementStatus)
         {
-            var _sut = new CommitmentRules();
+            var _sut = new Application.Rules.CommitmentRules();
 
             var fixture = new Fixture();
 

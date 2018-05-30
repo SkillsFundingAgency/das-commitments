@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[IntegrationTestIds]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[Name] VARCHAR(256) NOT NULL,
+	[ObjectId] BIGINT NOT NULL
+)

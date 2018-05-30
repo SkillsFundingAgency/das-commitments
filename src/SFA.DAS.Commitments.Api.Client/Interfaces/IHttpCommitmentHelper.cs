@@ -53,5 +53,10 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<string> GetBulkuploadFile(string url);
 
         Task<List<ApprenticeshipStatusSummary>> GetEmployerAccountSummary(string url);
+
+        Task<List<TransferRequestSummary>> GetTransferRequests(string url);
+
+        Task<TransferRequest> GetTransferRequest(string url);
+
     }
 }

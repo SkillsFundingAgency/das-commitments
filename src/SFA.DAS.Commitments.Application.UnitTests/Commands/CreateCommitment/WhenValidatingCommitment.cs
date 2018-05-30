@@ -1,7 +1,6 @@
-﻿using NUnit.Framework;
+﻿using AutoFixture;
+using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-
-using Ploeh.AutoFixture;
 using FluentAssertions;
 
 using SFA.DAS.Commitments.Domain.Entities;
@@ -17,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [SetUp]
         public void Setup()
         {
-            Fixture fixture = new Fixture();
+            var fixture = new Fixture();
             fixture.Customize<Apprenticeship>(ob => ob
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
             );

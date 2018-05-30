@@ -3,6 +3,8 @@
     public enum CallerType
     {
         Employer = 0,
-        Provider
+        Provider,
+        TransferSender,
+        TransferReceiver
     }
 }
