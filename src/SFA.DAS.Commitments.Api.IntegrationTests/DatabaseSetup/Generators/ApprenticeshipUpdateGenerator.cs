@@ -12,13 +12,18 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
         public async Task<IEnumerable<DbSetupApprenticeshipUpdate>> Generate(int apprenticeshipsGenerated, long firstNewApprenticeshipId)
         {
             int apprenticeshipUpdatesToGenerate = (int)(apprenticeshipsGenerated * TestDataVolume.ApprenticeshipUpdatesToApprenticeshipsRatio);
-            await TestLog.Progress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdatess");
+            await TestLog.Progress($"Generating {apprenticeshipUpdatesToGenerate} ApprenticeshipUpdates");
 
             //todo: switch to how we decide on datalockstatuses instead?
             var apprenticeshipIdsForUpdates = RandomIdGroups(firstNewApprenticeshipId, apprenticeshipUpdatesToGenerate,
                 TestDataVolume.MaxApprenticeshipUpdatesPerApprenticeship, apprenticeshipUpdatesToGenerate);
 
             var apprenticeshipUpdates = new Fixture().CreateMany<DbSetupApprenticeshipUpdate>(apprenticeshipUpdatesToGenerate);
+
+            //todo: we need to make sure that where we have ApprenticeshipUpdates with Status=0, then the Originator needs to go into Apprenticeship.PendingUpdateOriginator
+            //      and when there's no apprenticeshipupdate with status 0, then Apprenticeship.PendingUpdateOriginator is null
+            //      do we write back over Apprenticeships we've already written, or do we hold apprenticeships in memory until after apprenticeshipupdates are generated
+            //      then write both out <- probably the latter, otherwise will take too long (as long as we don't run out of memory!)
 
             return apprenticeshipUpdates.Zip(apprenticeshipIdsForUpdates, (update, apprenticeshipId) =>
             {

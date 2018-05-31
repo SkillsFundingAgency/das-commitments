@@ -11,6 +11,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
     {
         protected readonly Random Random = new Random();
 
+        //todo: this will either (unless very lucky)
+        // leave out the last apprenticeships (where take(max) < total selectmany'ed
+        // or return less than max
+
         public long[] RandomIdGroups(long firstId, int countOfIds, int maxIdsPerGroup, int maxIdsRequired)
         {
             Assert.LessOrEqual(firstId, int.MaxValue);

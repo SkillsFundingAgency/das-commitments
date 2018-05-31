@@ -104,7 +104,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
             //Arrange
             _mockCommitmentRespository.Setup(
                 x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((Relationship)null);
 
             //Act
             var result = await _handler.Handle(new GetRelationshipRequest
