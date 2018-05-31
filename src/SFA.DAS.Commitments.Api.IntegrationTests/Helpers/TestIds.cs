@@ -8,6 +8,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
 {
     public class TestIds
     {
+        //todo: remove this - by using the convention TestClassName_TestName_IdType, we don't have to centrally store TestId names in TestId as const strings
         //instead of this have property for each??
         public const string MaxCohortSize = "MaxCohortSize";
         //these will be fetched from the db if its already populated

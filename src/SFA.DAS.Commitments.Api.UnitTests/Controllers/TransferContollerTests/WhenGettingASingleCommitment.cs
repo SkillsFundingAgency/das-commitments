@@ -45,7 +45,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
         [Test]
         public async Task ThenReturnsANotFoundResponse()
         {
-            _mockEmployerOrchestrator.Setup(x => x.GetCommitment(12, 3, It.IsAny<CallerType>())).ReturnsAsync(null);
+            _mockEmployerOrchestrator.Setup(x => x.GetCommitment(12, 3, It.IsAny<CallerType>())).ReturnsAsync((CommitmentView)null);
             var result = await _sut.GetCommitment(12, 3);
 
             result.Should().BeOfType<NotFoundResult>();

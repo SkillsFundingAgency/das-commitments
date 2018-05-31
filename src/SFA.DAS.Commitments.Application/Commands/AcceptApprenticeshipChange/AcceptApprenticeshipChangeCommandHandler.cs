@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
             _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
 
             await Task.WhenAll(
-                _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate, command.UserId, apprenticeship, command.Caller),
+                _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate, apprenticeship, command.Caller),
                 CreateEvents(commitment, originalApprenticeship, apprenticeship, pendingUpdate),
                 historyService.Save(),
                 _messagePublisher.PublishAsync(new ApprenticeshipUpdateAccepted(commitment.EmployerAccountId, commitment.ProviderId.Value, command.ApprenticeshipId))

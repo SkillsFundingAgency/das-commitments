@@ -37,7 +37,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
                 $"/api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}").Result;
             callDetails.CallTime = stopwatch.Elapsed;
 
-            Assert.IsTrue(result.IsSuccessStatusCode);
+            if (!result.IsSuccessStatusCode)
+            {
+                var resultsAsString = await result.Content.ReadAsStringAsync();
+
+                Assert.Fail($"Call to GetApprenticeship failed with {(int)result.StatusCode} {result.ReasonPhrase}\r\n{resultsAsString}");
+            }
 
             if (verifyContent)
             {
@@ -63,7 +68,12 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Helpers
             var result = IntegrationTestServer.Client.GetAsync($"/api/employer/{employerAccountId}/apprenticeships").Result;
             callDetails.CallTime = stopwatch.Elapsed;
 
-            Assert.IsTrue(result.IsSuccessStatusCode);
+            if (!result.IsSuccessStatusCode)
+            {
+                var resultsAsString = await result.Content.ReadAsStringAsync();
+
+                Assert.Fail($"Call to GetApprenticeships failed with {(int)result.StatusCode} {result.ReasonPhrase}\r\n{resultsAsString}");
+            }
 
             if (verifyContent)
             {
