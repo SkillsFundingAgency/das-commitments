@@ -6,7 +6,7 @@ AS
 	FROM Apprenticeship a
 	INNER JOIN
 	ApprenticeshipUpdate au
-	ON au.ApprenticeshipId = a.ID
+	ON au.ApprenticeshipId = a.Id
 	WHERE au.Status = @status
 	AND a.StartDate < @date
 

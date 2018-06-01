@@ -56,5 +56,17 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             });
 
         #endregion DataLockStatus
+
+        #region PriceHistory
+
+        public static ProbabilityDistribution<int> PriceHistoryPerApprenticeshipProbability = new ProbabilityDistribution<int>(
+            new[]
+            {   //todo:
+                new BoundaryValue<int>(10, () => 0),
+                new BoundaryValue<int>(90, () => 1),
+                new BoundaryValue<int>(100, () => 2)
+            });
+
+        #endregion PriceHistory
     }
 }
