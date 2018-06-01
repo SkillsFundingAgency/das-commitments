@@ -69,7 +69,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
 
             _exampleApprenticships = new List<Apprenticeship>
             {
-                new Apprenticeship { FirstName = "Bob", LastName = "Smith", ULN = "1234567890", StartDate = new DateTime(2018,5,1), EndDate = new DateTime(2018,5,2)},
+                new Apprenticeship { FirstName = "Bob", LastName = "Smith", ULN = "1234567890", StartDate = new DateTime(2018,5,1), EndDate = DateTime.Now.AddMonths(2)},
                 new Apprenticeship { FirstName = "Jane", LastName = "Jones", ULN = "1122334455", StartDate = new DateTime(2019,3,1), EndDate = new DateTime(2019,9,2)},
             };
 
@@ -178,7 +178,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public void ShouldThrowExceptionIfCommitmentDoesNotExist()
         {
-            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(null);
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync((Commitment)null);
 
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
 

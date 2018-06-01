@@ -10,7 +10,7 @@ BEGIN
 
 	INSERT INTO [dbo].[TransferRequest] (CommitmentId, Cost, TrainingCourses, [Status]) VALUES (@commitmentid, @cost, @trainingCourses, 0)
 
-	SELECT @TransferRequestId = SCOPE_IDENTITY()
+	SELECT @transferRequestId = SCOPE_IDENTITY()
 
 	IF @@ROWCOUNT != 1 
 		THROW 50000, 'Failed to Insert TransferRequest record', 1;

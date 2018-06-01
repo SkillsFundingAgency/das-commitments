@@ -61,15 +61,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
                     commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
                 }
-                else
-                {
-                    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-                }
 
                 await PublishApprovedMessage(commitment);
             }
 
             await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
+
+            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            {
+                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+            }
         }
 
         private async Task PublishApprovedMessage(Commitment commitment)

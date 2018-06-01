@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange
 
             ValidateCommand(command, pendingUpdate, apprenticeship);
 
-            await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate, command.UserId);
+            await _apprenticeshipUpdateRepository.UndoApprenticeshipUpdate(pendingUpdate);
             await SendApprenticeshipUpdateCancelledEvent(apprenticeship);
         }
 

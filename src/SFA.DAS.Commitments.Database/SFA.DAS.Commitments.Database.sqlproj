@@ -17,18 +17,19 @@
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
     <IsEncryptionOn>True</IsEncryptionOn>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <DefineDebug>false</DefineDebug>
@@ -39,7 +40,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\</OutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -108,7 +109,6 @@
     <Build Include="StoredProcedures\GetDataLockStatusExpiryCandidates.sql" />
     <Build Include="StoredProcedures\UpdateDatalockStatusIsExpired.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipUpdatesByDateAndStatus.sql" />
-    <Build Include="StoredProcedures\GetActiveApprenticeships.sql" />
     <Build Include="StoredProcedures\SetTransferApproval.sql" />
     <Build Include="Tables\JobProgress.sql" />
     <Build Include="Tables\IntegrationTestIds.sql" />
@@ -119,6 +119,9 @@
     <Build Include="StoredProcedures\GetTransferRequestsForReceiver.sql" />
     <Build Include="Views\TransferRequestSummary.sql" />
     <Build Include="StoredProcedures\GetTransferRequest.sql" />
+    <Build Include="StoredProcedures\GetActiveApprenticeshipsForEmployer.sql" />
+    <Build Include="StoredProcedures\GetActiveApprenticeshipsForProvider.sql" />
+    <Build Include="StoredProcedures\UpdateApprenticeshipUpdateStatus.sql" />
     <Build Include="StoredProcedures\GetStatistics.sql" />
   </ItemGroup>
   <ItemGroup>

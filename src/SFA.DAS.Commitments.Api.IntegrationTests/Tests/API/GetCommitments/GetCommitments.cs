@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using FakeItEasy;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Client;
-using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.IntegrationTests.ApiHost;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 
-namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests
+namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetCommitments
 {
     [TestFixture]
-    public class GetCommitments
+    public sealed class GetCommitments
     {
         //private ICommitmentsApiClientConfiguration _clientConfig;
 

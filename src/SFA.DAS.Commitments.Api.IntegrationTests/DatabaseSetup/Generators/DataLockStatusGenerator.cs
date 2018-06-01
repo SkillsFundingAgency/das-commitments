@@ -9,10 +9,6 @@ using SFA.DAS.Commitments.Api.Types.DataLock.Types;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators
 {
-    /// <remarks>
-    /// We generate more realistic data than the slowdown test requires, but the idea is that when we add additional integration tests, they can use the generated data.
-    /// If your new test requires more realistic data, then update the generation here to the benefit of all tests.
-    /// </remarks>
     public class DataLockStatusGenerator : Generator
     {
         private static readonly DateTime SystemStartDate = new DateTime(2016, 8, 1);

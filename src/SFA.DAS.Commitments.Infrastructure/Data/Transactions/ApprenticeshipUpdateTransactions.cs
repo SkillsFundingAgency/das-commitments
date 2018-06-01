@@ -43,6 +43,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
                 commandType: CommandType.StoredProcedure)).Single();
         }
 
+        // why is this in ApprenticeshipUpdateTransactions?
         public async Task<long> UpdateApprenticeshipReferenceAndUln(IDbConnection connection, IDbTransaction trans, Apprenticeship apprenticeship)
         {
             var parameters = new DynamicParameters();
