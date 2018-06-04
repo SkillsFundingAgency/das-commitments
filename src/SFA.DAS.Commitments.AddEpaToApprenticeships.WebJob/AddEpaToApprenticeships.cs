@@ -91,9 +91,9 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob
                     {
                         await _apprenticeshipRepository.UpdateApprenticeshipEpa(submissionEvent.ApprenticeshipId.Value, submissionEvent.EPAOrgId);
                     }
-                    catch (ArgumentOutOfRangeException e)
+                    catch (Exception e)
                     {
-                        _logger.Error(e, $"Attempt to set EPAOrgId for unknown apprenticeship with id {submissionEvent.ApprenticeshipId.Value}\r\n");
+                        _logger.Error(e, $"Ignoring failed attempt to set EPAOrgId to '{submissionEvent.EPAOrgId}' for apprenticeship with id '{submissionEvent.ApprenticeshipId.Value}'\r\n");
                     }
                 }
             }

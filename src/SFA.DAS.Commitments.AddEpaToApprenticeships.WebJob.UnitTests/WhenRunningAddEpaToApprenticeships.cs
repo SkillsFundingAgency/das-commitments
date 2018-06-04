@@ -16,6 +16,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
     [TestFixture]
     public class WhenRunningAddEpaToApprenticeships
     {
+        #region Setup
+
         private IAddEpaToApprenticeships _addEpaToApprenticeships;
 
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
@@ -65,6 +67,8 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.UnitTests
                 _apprenticeshipRepository.Object,
                 _jobProgressRepository.Object);
         }
+
+        #endregion Setup
 
         #region Organisation Caching
 
