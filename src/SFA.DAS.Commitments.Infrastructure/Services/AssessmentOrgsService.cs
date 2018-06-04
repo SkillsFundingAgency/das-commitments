@@ -11,7 +11,7 @@ using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    public class AssessmentOrgsService : IAssessmentOrgs
+    public class AssessmentOrgsService : IAssessmentOrgs, IDisposable
     {
         private readonly ILog _logger;
         private readonly IAssessmentOrgsApiClient _assessmentOrgsApi;
@@ -35,6 +35,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         public async Task<IEnumerable<OrganisationSummary>> All()
         {
             return await _retryPolicy.ExecuteAsync(() => _assessmentOrgsApi.FindAllAsync());
+        }
+
+        public void Dispose()
+        {
+            _assessmentOrgsApi.Dispose();
         }
     }
 }
