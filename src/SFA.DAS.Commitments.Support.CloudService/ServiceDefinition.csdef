@@ -4,15 +4,14 @@
     <Sites>
       <Site name="Web">
         <Bindings>
-          <Binding name="Endpoint1" endpointName="Endpoint1" />
+          <Binding name="Endpoint1" endpointName="SimpleEndPoint" />
         </Bindings>
       </Site>
     </Sites>
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+      <InputEndpoint name="SimpleEndPoint" protocol="http" port="80" />
     </Endpoints>
   </WebRole>
 </ServiceDefinition>

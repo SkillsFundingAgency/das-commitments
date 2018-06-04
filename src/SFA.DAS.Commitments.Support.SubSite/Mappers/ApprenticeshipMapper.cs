@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
+using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
@@ -11,7 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 
-namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
+namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
     public class ApprenticeshipMapper : IApprenticeshipMapper
     {
@@ -22,22 +23,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             _hashingService = hashingService;
         }
 
-        public UlnSearchResultSummaryViewModel MapToUlnResultView(GetApprenticeshipsByUlnResponse response)
+        public UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsByUlnResponse response)
         {
-            return new UlnSearchResultSummaryViewModel
+            return new UlnSummaryViewModel
             {
                 Uln = response.Apprenticeships.First().ULN,
                 ApprenticeshipsCount = response.TotalCount,
-                SearchResults = response.Apprenticeships.Select(o => new UlnSearchResultViewModel
-                {
-                    HashedAccountId = _hashingService.HashValue(o.EmployerAccountId),
-                    ApprenticeshipHashId = _hashingService.HashValue(o.Id),
-                    ApprenticeName = $"{o.FirstName} {o.LastName}",
-                    EmployerName = o.LegalEntityName,
-                    ProviderUkprn = o.ProviderId,
-                    TrainingDates = $"{o.StartDate.ToGdsFormatWithSlashSeperator() ?? "-"} to {o.EndDate.ToGdsFormatWithSlashSeperator() ?? "-"}",
-                    PaymentStatus = MapPaymentStatus(o.PaymentStatus, o.StartDate, o.StopDate)
-                }).ToList()
+                SearchResults = response.Apprenticeships.Select(o => MapToApprenticeshipSearchItemViewModel(o)).ToList()
             };
         }
 
@@ -49,7 +41,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             {
                 FirstName = apprenticeship.FirstName,
                 LastName = apprenticeship.LastName,
-                AgreementStatus = GetEnumDescription(apprenticeship.AgreementStatus),
+                AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
                 PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate),
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
                 ULN = apprenticeship.ULN,
@@ -61,10 +53,25 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 UKPRN = apprenticeship.ProviderId,
                 Trainingcourse = apprenticeship.TrainingName,
                 ApprenticeshipCode = apprenticeship.TrainingCode,
-
                 DasTrainingStartDate = apprenticeship.StartDate,
                 DasTrainingEndDate = apprenticeship.StopDate,
                 TrainingCost = apprenticeship.Cost
+            };
+        }
+
+        public ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(Apprenticeship apprenticeship)
+        {
+            return new ApprenticeshipSearchItemViewModel
+            {
+                HashedAccountId = _hashingService.HashValue(apprenticeship.EmployerAccountId),
+                ApprenticeshipHashId = _hashingService.HashValue(apprenticeship.Id),
+                ApprenticeName = $"{apprenticeship.FirstName} {apprenticeship.LastName}",
+                EmployerName = apprenticeship.LegalEntityName,
+                ProviderUkprn = apprenticeship.ProviderId,
+                TrainingDates = $"{apprenticeship.StartDate.ToGdsFormatWithSlashSeperator() ?? "-"} to {apprenticeship.EndDate.ToGdsFormatWithSlashSeperator() ?? "-"}",
+                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate),
+                DateOfBirth = apprenticeship.DateOfBirth,
+                ULN = apprenticeship.ULN
             };
         }
 
@@ -115,23 +122,5 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             return statuses.Distinct();
         }
-
-        private string GetEnumDescription(Enum value)
-        {
-            FieldInfo fi = value.GetType().GetField(value.ToString());
-
-            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-            if (attributes != null && attributes.Length > 0)
-            {
-                return attributes[0].Description;
-            }
-            else
-            {
-                return value.ToString();
-            }
-
-        }
-
     }
 }

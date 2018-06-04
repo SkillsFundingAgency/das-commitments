@@ -2,12 +2,13 @@
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 
-namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
+namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
     public interface IApprenticeshipMapper
     {
 
         ApprenticeshipViewModel MapToApprenticeshipViewModel(Apprenticeship response);
-        UlnSearchResultSummaryViewModel MapToUlnResultView(GetApprenticeshipsByUlnResponse response);
+        UlnSummaryViewModel MapToUlnResultView(GetApprenticeshipsByUlnResponse response);
+        ApprenticeshipSearchItemViewModel MapToApprenticeshipSearchItemViewModel(Apprenticeship apprenticeship);
     }
 }

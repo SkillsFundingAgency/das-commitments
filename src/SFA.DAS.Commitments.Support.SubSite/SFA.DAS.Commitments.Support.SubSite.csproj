@@ -264,22 +264,30 @@
     <Compile Include="DependencyResolution\LoggingPropertyFactory.cs" />
     <Compile Include="DependencyResolution\StructureMapDependencyScope.cs" />
     <Compile Include="DependencyResolution\StructureMapScopeModule.cs" />
+    <Compile Include="Enums\ApprenticeshipSearchType.cs" />
+    <Compile Include="Enums\CommitmentRequestStatus.cs" />
     <Compile Include="Extentions\DateTimeExtensions.cs" />
     <Compile Include="Extentions\DecimalFormatExtensions.cs" />
+    <Compile Include="Extentions\EnumExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Mappers\ApprenticeshipMapper.cs" />
+    <Compile Include="Mappers\CommitmentMapper.cs" />
+    <Compile Include="Mappers\IApprenticeshipMapper.cs" />
+    <Compile Include="Mappers\ICommitmentMapper.cs" />
     <Compile Include="Models\ApprenticeshipSearchQuery.cs" />
-    <Compile Include="Models\ApprenticeshipSearchType.cs" />
     <Compile Include="Models\ApprenticeshipViewModel.cs" />
+    <Compile Include="Models\CommitmentDetailViewModel.cs" />
+    <Compile Include="Models\CommitmentSummaryViewModel.cs" />
     <Compile Include="Models\ServiceStatusViewModel.cs" />
-    <Compile Include="Models\UlnSearchResultViewModel.cs" />
-    <Compile Include="Models\UlnSearchResultSummaryViewModel.cs" />
-    <Compile Include="Orchestrators\ApprenticeshipMapper.cs" />
+    <Compile Include="Models\ApprenticeshipSearchItemViewModel.cs" />
+    <Compile Include="Models\UlnSummaryViewModel.cs" />
     <Compile Include="Orchestrators\ApprenticeshipsOrchestrator.cs" />
-    <Compile Include="Orchestrators\IApprenticeshipMapper.cs" />
     <Compile Include="Orchestrators\IApprenticeshipsOrchestrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CommitmentStatusCalculator.cs" />
+    <Compile Include="Services\ICommitmentStatusCalculator.cs" />
     <Compile Include="Validation\ApprenticeshipsSearchQueryValidator.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -402,6 +410,8 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Apprenticeships\UlnSearchSummary.cshtml" />
     <Content Include="Views\Apprenticeships\Index.cshtml" />
+    <Content Include="Views\Apprenticeships\CohortSearchSummary.cshtml" />
+    <Content Include="Views\Apprenticeships\CohortDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -47,8 +47,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var result = await controller.Index(apprenticeshipHashId, accountHashId);
 
             // Assert
-            var view = result as ViewResult;
+            _orchestrator.VerifyAll();
 
+            var view = result as ViewResult;
             view.Should().NotBeNull();
             view.Model.Should().BeOfType<ApprenticeshipViewModel>();
         }

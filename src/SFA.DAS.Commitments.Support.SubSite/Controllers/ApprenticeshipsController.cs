@@ -8,6 +8,8 @@ using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
 using SFA.DAS.Support.Shared;
+using SFA.DAS.Commitments.Support.SubSite.Enums;
+using Mvc = System.Web.Mvc;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 {
@@ -22,7 +24,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 
         public async Task<ActionResult> Search(ApprenticeshipSearchQuery searchQuery)
         {
-
             if (string.IsNullOrWhiteSpace(searchQuery.SearchTerm))
             {
                 return View(searchQuery);
@@ -34,12 +35,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
                     return await UlnSearch(searchQuery);
 
                 case ApprenticeshipSearchType.SearchByCohort:
-                    return CohortSearch(searchQuery);
+                    return await CohortSearch(searchQuery);
             }
 
             return View(searchQuery);
         }
 
+        [Mvc.Route("Apprenticeships/{Id}/account/{accountId}", Name = "ApprenticeshipDetails")]
         public async Task<ActionResult> Index(string Id, string accountId)
         {
             if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(accountId))
@@ -50,23 +52,38 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
+        [Mvc.Route("Apprenticeships/Cohort/{cohortId}/", Name = "CohortDetails")]
+        public async Task<ActionResult> CohortDetails(string cohortId)
+        {
+            if (string.IsNullOrWhiteSpace(cohortId))
+            {
+                return RedirectToAction(nameof(Search));
+            }
+            var model = await _orchestrator.GetCommitmentDetails(cohortId);
+            return View(model);
+        }
+
         private async Task<ActionResult> UlnSearch(ApprenticeshipSearchQuery searchQuery)
         {
-            var searchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
-            if (searchResult.HasError)
+            var unlSearchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
+            if (unlSearchResult.HasError)
             {
-                searchQuery.ErrorMessages = searchResult.ReponseMessages;
+                searchQuery.ReponseMessages = unlSearchResult.ReponseMessages;
                 return View("Search", searchQuery);
             }
-            return View("UlnSearchSummary", searchResult);
+            return View("UlnSearchSummary", unlSearchResult);
         }
 
-        private ActionResult CohortSearch(ApprenticeshipSearchQuery searchQuery)
+        private async Task<ActionResult> CohortSearch(ApprenticeshipSearchQuery searchQuery)
         {
-            throw new NotImplementedException();
+            var cohortSearchResult = await _orchestrator.GetCommitmentSummary(searchQuery);
+            if (cohortSearchResult.HasError)
+            {
+                searchQuery.ReponseMessages = cohortSearchResult.ReponseMessages;
+                return View("Search", searchQuery);
+            }
+            return View("CohortSearchSummary", cohortSearchResult);
         }
-
-
 
     }
 }

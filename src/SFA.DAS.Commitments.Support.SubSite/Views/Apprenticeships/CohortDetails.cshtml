@@ -1,44 +1,15 @@
 ﻿@using SFA.DAS.Commitments.Support.SubSite.Models
-@model UlnSummaryViewModel
+@using SFA.DAS.Commitments.Support.SubSite.Extensions
 
-
+@model CommitmentDetailViewModel
 @{
+    ViewBag.Title = "CommitmentDetails";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 
-<div class="grid-row">
-    <div class="column-two-thirds">
-        <h1 class="heading-xlarge" id="commitmentsHeader">View ULN</h1>
-    </div>
-</div>
-
-<div class="grid-row" style="padding-bottom:15px">
-    <div class="column-two-thirds">
-
-        <div class="grid-row">
-
-            <div class="column-one-half">
-                <p class="bold">ULN: &nbsp; @Model.Uln</p>
-            </div>
-        </div>
-        <div class="grid-row">
-
-            <div class="column-one-half">
-                <p class="bold">Number of apprenticeships: &nbsp;  @Model.ApprenticeshipsCount</p>
-            </div>
-
-        </div>
-
-
-    </div>
-</div>
-
-
-@if (Model.SearchResults != null && Model.SearchResults.Any())
+@if (Model.CommitmentApprenticeships != null && Model.CommitmentApprenticeships.Any())
 {
-
-
     <div class="grid-row">
 
         <div class="column-full">
@@ -47,8 +18,8 @@
                 <thead>
                     <tr>
                         <th scope="col" class="">Name</th>
-                        <th scope="col" class="">UKPRN</th>
-                        <th scope="col" class="">Organisation</th>
+                        <th scope="col" class="">ULN</th>
+                        <th scope="col" class="">Date Of Birth</th>
                         <th scope="col" class="">Training dates</th>
                         <th scope="col" class="">Status</th>
                         <th scope="col" class=""></th>
@@ -56,21 +27,18 @@
                 </thead>
                 <tbody>
 
-                    @foreach (var apprenticeship in Model.SearchResults)
+                    @foreach (var apprenticeship in Model.CommitmentApprenticeships)
                     {
-
                         <tr>
                             <td data-label="Name">@apprenticeship.ApprenticeName</td>
-                            <td data-label0="UKPRN">@apprenticeship.ProviderUkprn</td>
-                            <td data-label="Organisation">@apprenticeship.EmployerName</td>
+                            <td data-label0="UKPRN">@apprenticeship.ULN</td>
+                            <td data-label="Organisation">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
                             <td data-label="Training dates">@apprenticeship.TrainingDates</td>
                             <td data-label="Status">@apprenticeship.PaymentStatus</td>
                             <td scope="col" class=""> <a href="@Url.RouteUrl("ApprenticeshipDetails", new { id = apprenticeship.ApprenticeshipHashId, accountId = apprenticeship.HashedAccountId})"> View</a>  </td>
                         </tr>
 
                     }
-
-
                 </tbody>
             </table>
 
@@ -82,4 +50,6 @@
 
 
 }
+
+
 

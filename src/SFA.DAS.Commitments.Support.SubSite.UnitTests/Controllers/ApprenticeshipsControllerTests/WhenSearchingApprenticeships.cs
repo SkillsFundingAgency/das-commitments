@@ -6,6 +6,7 @@ using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using System.Threading.Tasks;
 using FluentAssertions;
 using System.Web.Mvc;
+using SFA.DAS.Commitments.Support.SubSite.Enums;
 
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.ApprenticeshipsControllerTests
 {
@@ -32,7 +33,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
 
             _orchestrator
                 .Setup(x => x.GetApprenticeshipsByUln(query))
-                .ReturnsAsync(new UlnSearchResultSummaryViewModel())
+                .ReturnsAsync(new UlnSummaryViewModel())
                 .Verifiable();
 
             var sut = new ApprenticeshipsController(_orchestrator.Object);
@@ -49,6 +50,33 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
         }
 
 
+        [Test]
+        public async Task GivenValidCohortIdSearchShouldReturnCohortView()
+        {
+            ///Arrange
+            var query = new ApprenticeshipSearchQuery
+            {
+                SearchTerm = "JRML7V",
+                SearchType = ApprenticeshipSearchType.SearchByCohort
+            };
+
+            _orchestrator
+                .Setup(x => x.GetApprenticeshipsByUln(query))
+                .ReturnsAsync(new UlnSummaryViewModel())
+                .Verifiable();
+
+            var sut = new ApprenticeshipsController(_orchestrator.Object);
+
+            // Act
+            var result = await sut.Search(query);
+
+            // Assert
+            var view = result as ViewResult;
+
+            view.Should().NotBeNull();
+
+            Assert.AreEqual(view.ViewName, "UlnSearchSummary");
+        }
 
     }
 }

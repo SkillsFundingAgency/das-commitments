@@ -621,6 +621,12 @@ table.responsive tr.total {
   table.responsive tr th.tw-70 {
     width: 70%;
   }
+
+  table.twoColumn tr td {
+        width: 50%;
+    }
+
+
 }
 
 /* Equalise heading-large margins */

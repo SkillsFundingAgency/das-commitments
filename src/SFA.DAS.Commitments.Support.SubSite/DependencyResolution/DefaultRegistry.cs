@@ -22,6 +22,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using Microsoft.Azure;
     using SFA.DAS.Commitments.Application.Queries;
     using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
+    using SFA.DAS.Commitments.Application.Queries.GetCommitment;
     using SFA.DAS.Commitments.Domain.Data;
     using SFA.DAS.Commitments.Domain.Interfaces;
     using SFA.DAS.Commitments.Infrastructure.Data;
@@ -29,6 +30,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using SFA.DAS.Commitments.Infrastructure.Logging;
     using SFA.DAS.Commitments.Infrastructure.Services;
     using SFA.DAS.Commitments.Support.SubSite.Configuration;
+    using SFA.DAS.Commitments.Support.SubSite.Mappers;
     using SFA.DAS.Commitments.Support.SubSite.Models;
     using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
     using SFA.DAS.Commitments.Support.SubSite.Validation;
@@ -84,8 +86,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             For<IHashingService>().Use(x => new HashingService(config.AllowedHashstringCharacters, config.Hashstring));
 
             // Mediator Handler Mapping 
-            For<IAsyncRequestHandler<GetApprenticeshipsByUlnRequest, GetApprenticeshipsByUlnResponse>>().Use<GetApprenticeshipsByUlnQueryHandler>();	
-
+            For<IAsyncRequestHandler<GetApprenticeshipsByUlnRequest, GetApprenticeshipsByUlnResponse>>().Use<GetApprenticeshipsByUlnQueryHandler>();
+            For<IAsyncRequestHandler<GetCommitmentRequest, GetCommitmentResponse>>().Use<GetCommitmentQueryHandler>();
         }
 
         private void ConfigureLog()
