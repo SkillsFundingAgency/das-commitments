@@ -1,5 +1,4 @@
 ﻿using StructureMap;
-//using StructureMap.Graph.Scanning;
 using System.Diagnostics;
 
 namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolution
@@ -8,14 +7,13 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
     {
         public static IContainer Initialize()
         {
-            //TypeRepository.AssertNoTypeScanningFailures();
-
             var container = new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
             });
 
             //Debug.WriteLine(container.WhatDidIScan());
+            //container.AssertConfigurationIsValid();
 
             return container;
         }
