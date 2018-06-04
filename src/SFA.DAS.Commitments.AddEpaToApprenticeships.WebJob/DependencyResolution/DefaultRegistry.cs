@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.Azure;
 using SFA.DAS.AssessmentOrgs.Api.Client;
 using SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.Configuration;
@@ -19,6 +20,11 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
     {
         public DefaultRegistry()
         {
+            ////SFA.DAS.NLog.Logger
+            //AssemblyName an = AssemblyName.GetAssemblyName(@"C:\git\das-commitments\src\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob\bin\Debug\SFA.DAS.Commitments.Infrastructure.dll");
+            //var xxx = Assembly.Load(an);
+            //var yyy = xxx.GetExportedTypes();
+
             Scan(
                 scan =>
                 {
