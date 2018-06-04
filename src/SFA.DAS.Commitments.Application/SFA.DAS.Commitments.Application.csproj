@@ -176,6 +176,9 @@
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\GetEmployerAccountIdsRequest.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\GetEmployerAccountIdsResponse.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\GetEmployerAccountIdsQueryHandler.cs" />
     <Compile Include="Queries\GetTransferRequest\GetTransferRequestQueryHandler.cs" />
     <Compile Include="Queries\GetTransferRequest\GetTransferRequestRequest.cs" />
     <Compile Include="Queries\GetTransferRequest\GetTransferRequestResponse.cs" />

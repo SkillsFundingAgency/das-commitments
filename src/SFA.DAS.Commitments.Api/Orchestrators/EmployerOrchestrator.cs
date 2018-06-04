@@ -34,6 +34,7 @@ using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
+using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountIds;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequest;
@@ -690,6 +691,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved {response.Data.Count()} account summary items for employer account {accountId}", accountId: accountId);
 
             return Map(response.Data);
+        }
+        public async Task<IEnumerable<long>> GetEmployerAccountIds()
+        {
+            _logger.Trace($"Getting all employer account ids");
+
+            var response = await _mediator.SendAsync(new GetEmployerAccountIdsRequest());
+
+            _logger.Info($"Retrieved {response.Data.Count()} account Ids");
+
+            return response.Data;
         }
 
         private IEnumerable<Types.ApprenticeshipStatusSummary> Map(IEnumerable<ApprenticeshipStatusSummary> data)
