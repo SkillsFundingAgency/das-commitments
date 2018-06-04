@@ -12,5 +12,5 @@ SELECT
 (
 	SELECT COUNT(Id)
 	FROM [Apprenticeship]
-	WHERE PaymentStatus = 1
+	WHERE PaymentStatus = 1 OR PaymentStatus = 2
 ) AS ActiveApprenticeships
