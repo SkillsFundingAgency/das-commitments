@@ -20,8 +20,7 @@ namespace SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob.DependencyResolutio
     {
         public DefaultRegistry()
         {
-            ////SFA.DAS.NLog.Logger
-            //AssemblyName an = AssemblyName.GetAssemblyName(@"C:\git\das-commitments\src\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob\bin\Debug\SFA.DAS.Commitments.Infrastructure.dll");
+            //AssemblyName an = AssemblyName.GetAssemblyName(@"C:\git\das-commitments\src\SFA.DAS.Commitments.AddEpaToApprenticeships.WebJob\bin\Debug\SFA.DAS.NLog.Logger.dll");
             //var xxx = Assembly.Load(an);
             //var yyy = xxx.GetExportedTypes();
 
