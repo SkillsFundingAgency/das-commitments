@@ -87,7 +87,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WhenInitializingContainer.cs" />
     <Compile Include="WhenRunningAddEpaToApprenticeships.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
