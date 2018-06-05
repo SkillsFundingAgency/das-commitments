@@ -10,55 +10,21 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
------- Extended EDIT
+--one-time update to set the new PendingUpdateOriginator column on Apprenticeship from the ApprenticeshipUpdateColumn
+--todo: needs to be removes once has been deployed to production
+UPDATE Apprenticeship
+SET    PendingUpdateOriginator = AU.Originator
+FROM   Apprenticeship A
+INNER JOIN ApprenticeshipUpdate AU
+ON     A.Id = AU.ApprenticeshipId
+	   AND AU.Status = 0;
 
--- Marking Apprenticeships as HasHadDataLockSuccess so that they cannot be used in extended edit. 
--- Only if they have a DataLockStatus with ErrirCode Success (0)
+--after deployment, we need to check that the update didn't miss any in-flight apprenticeshipupdate changes
+--this query should return 0 rows. if it doesn't, then the returned rows will need updating, either manually, or by running the update above again (rinse and repeat)
 
-UPDATE Apprenticeship 
-SET HasHadDataLockSuccess = 1
-WHERE Id IN (
-  SELECT ApprenticeshipId FROM DataLockStatus
-  WHERE ErrorCode = 0
-)
-
-
--- Setting CommitmentId or ApprenticeshipId values on new Columns
-
-BEGIN
-
-	UPDATE History
-	SET CommitmentId = EntityId, 
-	EntityId = NULL, 
-	EntityType = NULL
-	WHERE EntityType = 'Commitment'
-
-	UPDATE History
-	SET ApprenticeshipId = EntityId,
-	EntityId = NULL,  
-	EntityType = NULL
-	WHERE EntityType = 'Apprenticeship'
-
-
-	UPDATE History
-	SET ProviderId = c.ProviderId, EmployerAccountId = c.EmployerAccountId
-	FROM History h JOIN Commitment c
-	ON h.CommitmentId = c.Id
-
-	UPDATE History
-	SET ProviderId = a.ProviderId, EmployerAccountId = a.EmployerAccountId
-	FROM History h JOIN ApprenticeshipSummary a
-	ON h.ApprenticeshipId = a.Id
-
-END
-
--- This is a One time Action. We only need to import the old tansfer records on upgrade. New records will always add a TransferRequest record (when both parties approve)
-IF NOT EXISTS(SELECT * FROM [dbo].[TransferRequest]) 
-BEGIN
-
-  	INSERT INTO TransferRequest (CommitmentId, TrainingCourses, Cost, [Status], TransferApprovalActionedByEmployerEmail, TransferApprovalActionedByEmployerName, TransferApprovalActionedOn)
-	SELECT Id, '[]', (SELECT SUM(Cost) FROM Apprenticeship a WHERE a.CommitmentId = c.Id),  ISNULL(TransferApprovalStatus, 0), 
-		TransferApprovalActionedByEmployerEmail, TransferApprovalActionedByEmployerName, TransferApprovalActionedOn  
-	FROM [dbo].[Commitment] c WHERE c.TransferSenderId IS NOT NULL AND c.EditStatus = 0 AND c.CommitmentStatus = 1
-	
-END
+--select a.Id, a.PendingUpdateOriginator
+--from apprenticeship a
+--inner join apprenticeshipupdate au
+--on a.Id = au.ApprenticeshipId
+--where (au.Status = 0 and (a.PendingUpdateOriginator <> au.Originator or a.PendingUpdateOriginator is null))
+--or (au.Status <> 0 and a.PendingUpdateOriginator is not null)

@@ -41,7 +41,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.TriageDataLock
 
             _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((ApprenticeshipUpdate)null);
 
             _handler = new TriageDataLockCommandHandler(
                 _validator.Object,  

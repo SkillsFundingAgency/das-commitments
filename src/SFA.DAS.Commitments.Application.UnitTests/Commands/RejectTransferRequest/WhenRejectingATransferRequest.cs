@@ -163,28 +163,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         }
 
         [Test]
-        public async Task ThenThrowExceptionIfCommitmentTransferSenderDoesntMatchCommandValue()
+        public void ThenThrowExceptionIfCommitmentTransferSenderDoesntMatchCommandValue()
         {
             _commitment.TransferSenderId = 988;
             Assert.ThrowsAsync<UnauthorizedException>(() => _sut.Handle(_command));
         }
 
         [Test]
-        public async Task ThenThrowExceptionIfCommitmentEmployerAccountIdNotMatchingTransferReceiverId()
+        public void ThenThrowExceptionIfCommitmentEmployerAccountIdNotMatchingTransferReceiverId()
         {
             _commitment.EmployerAccountId = 19989809;
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
         }
 
         [Test]
-        public async Task ThenThrowExceptionIfCommitmentStatusIsDeleted()
+        public void ThenThrowExceptionIfCommitmentStatusIsDeleted()
         {
             _commitment.CommitmentStatus = CommitmentStatus.Deleted;
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
         }
 
         [Test]
-        public async Task ThenThrowExceptionIfTransferApprovalStatusIsNotPending()
+        public void ThenThrowExceptionIfTransferApprovalStatusIsNotPending()
         {
             _commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
@@ -193,7 +193,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         [TestCase(EditStatus.EmployerOnly)]
         [TestCase(EditStatus.ProviderOnly)]
         [TestCase(EditStatus.Neither)]
-        public async Task ThenThrowExceptionIfEditStatusIsNotSetToNeither(EditStatus status)
+        public void ThenThrowExceptionIfEditStatusIsNotSetToNeither(EditStatus status)
         {
             _commitment.EditStatus = status;
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));

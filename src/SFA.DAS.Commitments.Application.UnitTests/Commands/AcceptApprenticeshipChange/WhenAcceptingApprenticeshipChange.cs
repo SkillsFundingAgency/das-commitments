@@ -153,9 +153,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId, It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
-            _repository.Verify(m => m.RejectApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
-            _repository.Verify(m => m.UndoApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), UserId), Times.Never);
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42), It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
+            _repository.Verify(m => m.RejectApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42)), Times.Never);
+            _repository.Verify(m => m.UndoApprenticeshipUpdate(It.Is<ApprenticeshipUpdate>(u => u.Id == 42)), Times.Never);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), null, null), Times.Never);
             _apprenticeshipEvents.Verify(x => x.PublishEvent(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>(), It.IsAny<string>(), _effectiveDate, null), Times.Once);
         }
@@ -171,7 +171,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             };
 
             _repository.Setup(m => m.GetPendingApprenticeshipUpdate(5L))
-                .ReturnsAsync(null);
+                .ReturnsAsync((ApprenticeshipUpdate)null);
 
             Func<Task> act = async () => await _sut.Handle(command);
             act.ShouldThrow<ValidationException>().WithMessage("No existing apprenticeship update pending for apprenticeship 5");
@@ -234,7 +234,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<string>(),
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(),
                 It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
 
             // Old apprenticeship
@@ -283,7 +283,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     Caller = new Caller(555, CallerType.Employer)
                 });
 
-            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(), It.IsAny<string>(),
+            _repository.Verify(m => m.ApproveApprenticeshipUpdate(It.IsAny<ApprenticeshipUpdate>(),
                 It.Is<Apprenticeship>(p =>
                        p.StartDate == newStartDate
                     && p.EndDate == newEndDate
