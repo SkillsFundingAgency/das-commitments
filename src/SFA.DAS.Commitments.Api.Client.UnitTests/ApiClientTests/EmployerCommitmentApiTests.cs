@@ -386,6 +386,16 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
             Assert.Pass();
         }
 
+        [Test]
+        public async Task GetEmployerAccountIds()
+        {
+            var request = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/ids"), string.Empty);
+            _fakeHandler.AddFakeResponse(request, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(JsonConvert.SerializeObject(new List<long>())) });
+
+            var list = await _employerApiClient.GetTransferRequestForReceiver(EmployerAccountId, TransferRequestId);
+
+            Assert.Pass();
+        }
 
     }
 }
