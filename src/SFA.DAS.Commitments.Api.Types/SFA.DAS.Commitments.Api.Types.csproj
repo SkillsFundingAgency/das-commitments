@@ -83,6 +83,7 @@
     <Compile Include="Commitment\TransferSender.cs" />
     <Compile Include="Commitment\TransferType.cs" />
     <Compile Include="Commitment\Types\MessageCreator.cs" />
+    <Compile Include="ConsistencyStatistics.cs" />
     <Compile Include="DataLock\DataLockStatus.cs" />
     <Compile Include="DataLock\DataLocksTriageResolutionSubmission.cs" />
     <Compile Include="DataLock\DataLockSummary.cs" />
