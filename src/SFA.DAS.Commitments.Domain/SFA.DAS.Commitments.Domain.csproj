@@ -94,6 +94,7 @@
     <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
+    <Compile Include="Data\IStatisticsRepository.cs" />
     <Compile Include="Entities\AcademicYear\AcademicYearValidationResult.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
     <Compile Include="Entities\AlertSummary.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
     <Compile Include="Entities\AssessmentOrganisation.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
+    <Compile Include="Entities\Statistics.cs" />
     <Compile Include="Entities\TransferRequest.cs" />
     <Compile Include="Entities\TransferRequestSummary.cs" />
     <Compile Include="Entities\TrainingCourseSummary.cs" />

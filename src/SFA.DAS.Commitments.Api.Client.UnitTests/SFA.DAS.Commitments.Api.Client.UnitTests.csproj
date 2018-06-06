@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="ApiClientTests\EmployerCommitmentApiTests.cs" />
     <Compile Include="ApiClientTests\ProviderCommitmentApiTests.cs" />
+    <Compile Include="ApiClientTests\StatisticsApiTests.cs" />
     <Compile Include="FakeResponseHandler.cs" />
     <Compile Include="TestRequest.cs" />
     <Compile Include="HelperTest.cs" />
