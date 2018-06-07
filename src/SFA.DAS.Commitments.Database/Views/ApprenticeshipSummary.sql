@@ -6,7 +6,7 @@ SELECT
 	a.StartDate,a.EndDate,a.AgreementStatus,a.PaymentStatus,a.DateOfBirth,a.NINumber,a.EmployerRef,
 	a.ProviderRef,a.CreatedOn,a.AgreedOn,a.PaymentOrder,a.StopDate, a.PauseDate, a.HasHadDataLockSuccess,
 	c.EmployerAccountId, c.ProviderId, c.Reference, c.LegalEntityName, c.ProviderName, c.LegalEntityId,
-	au.Originator AS UpdateOriginator,
+	a.PendingUpdateOriginator AS UpdateOriginator,
 	CASE WHEN dlPrice.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPrice',
 	CASE WHEN dlPriceTriaged.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockPriceTriaged',
 	CASE WHEN dlCourse.Id IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit) END 'DataLockCourse',
@@ -53,9 +53,6 @@ SELECT
 		AssessmentOrganisation ao
 	ON
 		ao.EPAOrgId = a.EPAOrgId
-	LEFT JOIN
-		(SELECT ApprenticeshipId, Originator FROM ApprenticeshipUpdate WHERE Status = 0) AS au 
-		ON au.ApprenticeshipId = a.Id
 	LEFT JOIN DataLockStatus dlPrice on dlPrice.Id =
 		(
 			SELECT TOP 1 
