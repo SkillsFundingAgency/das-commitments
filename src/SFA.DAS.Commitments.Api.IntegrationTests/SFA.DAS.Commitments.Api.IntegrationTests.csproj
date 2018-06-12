@@ -347,7 +347,6 @@
     <Compile Include="Tests\API\GetApprenticeship\WhenGettingEmployerApprenticeshipCost.cs" />
     <Compile Include="Tests\API\GetApprenticeships\WhenGettingEmployerApprenticeships.cs" />
     <Compile Include="Tests\API\GetCommitments\GetCommitments.cs" />
-    <Compile Include="Tests\API\ValidateOverlappingApprenticeships\WhenValidatingOverlappingApprenticeships.cs" />
     <Compile Include="Tests\Scenarios\WhenSimulatingRealWorldApprenticeshipLoad.cs" />
   </ItemGroup>
   <ItemGroup>

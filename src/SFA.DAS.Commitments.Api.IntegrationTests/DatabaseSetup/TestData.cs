@@ -3,7 +3,6 @@ using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeship;
 using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeships;
-using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.ValidateOverlappingApprenticeships;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -111,7 +110,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // *** add your call to inject the specific data your integration test needs here ***
             WhenGettingEmployerApprenticeshipCost.InjectTestSpecificData(testDataInjector);
             WhenGettingEmployerApprenticeships.InjectTestSpecificData(testDataInjector);
-            WhenValidatingOverlappingApprenticeships.InjectTestSpecificData(testDataInjector);
         }
     }
 }
