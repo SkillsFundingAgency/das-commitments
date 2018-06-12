@@ -19,12 +19,6 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.ValidateOverlapping
     [TestFixture]
     public class WhenValidatingOverlappingApprenticeships
     {
-        private const string ValidateOverlappingApprenticeshipsEmployerId =
-            "WhenValidatingOverlappingApprenticeships_ThenApprenticeshipWaitingForSenderApprovalIsIncludedInCheck_EmployerId";
-
-        private const string ValidateOverlappingApprenticeshipsApprenticeshipId =
-            "WhenValidatingOverlappingApprenticeships_ThenApprenticeshipWaitingForSenderApprovalIsIncludedInCheck_ApprenticeshipId";
-
         private const string FirstName = "ValidateOverlappingApprenticeships";
         private const string LastName = "ThenApprenticeshipWaitingForSenderApprovalIsIncludedInCheck";
 
@@ -32,11 +26,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.ValidateOverlapping
 
         public static void InjectTestSpecificData(TestDataInjector injector)
         {
-            var commitmentId = injector.AddCommitment(
-                TestEntities.GetDbSetupCommitment(),
-                ValidateOverlappingApprenticeshipsEmployerId);
-
-            var apprenticeship = TestEntities.GetDbSetupApprenticeship(commitmentId, FirstName, LastName);
+            var apprenticeship = TestEntities.GetDbSetupApprenticeship(
+                injector.AddCommitment(TestEntities.GetDbSetupCommitment()), FirstName, LastName);
 
             apprenticeship.ULN = Uln;
             apprenticeship.AgreementStatus = AgreementStatus.BothAgreed;
@@ -44,15 +35,13 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.ValidateOverlapping
             apprenticeship.StartDate = new DateTime(2010, 1, 1);
             apprenticeship.EndDate = new DateTime(2011, 1, 1);
             
-            injector.AddApprenticeship(apprenticeship, ValidateOverlappingApprenticeshipsApprenticeshipId);
+            injector.AddApprenticeship(apprenticeship);
         }
 
         [Test]
         public async Task ThenApprenticeshipWaitingForSenderApprovalIsIncludedInCheck()
         {
-            long employerId = TestSetup.TestIds[ValidateOverlappingApprenticeshipsEmployerId];
-            long apprenticeshipId = TestSetup.TestIds[ValidateOverlappingApprenticeshipsApprenticeshipId];
-            var url = "api/validation/apprenticeships/overlapping";
+            const string url = "api/validation/apprenticeships/overlapping";
 
             var request = new List<ApprenticeshipOverlapValidationRequest>
             {
