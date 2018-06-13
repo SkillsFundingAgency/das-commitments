@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             {
                 Uln = response.Apprenticeships.First().ULN,
                 ApprenticeshipsCount = response.TotalCount,
-                SearchResults = response.Apprenticeships.Select(o => MapToApprenticeshipSearchItemViewModel(o)).ToList()
+                SearchResults = response.Apprenticeships?.Select(o => MapToApprenticeshipSearchItemViewModel(o)).OrderBy(a => a.ApprenticeName).ToList()
             };
         }
 
@@ -42,19 +42,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 FirstName = apprenticeship.FirstName,
                 LastName = apprenticeship.LastName,
                 AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
-                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate),
+                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
                 ULN = apprenticeship.ULN,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 CohortReference = _hashingService.HashValue(apprenticeship.CommitmentId),
                 EmployerReference = apprenticeship.EmployerRef,
                 LegalEntity = apprenticeship.LegalEntityName,
-                TrainingProvider = apprenticeship.TrainingName,
+                TrainingProvider = apprenticeship.ProviderName,
                 UKPRN = apprenticeship.ProviderId,
                 Trainingcourse = apprenticeship.TrainingName,
                 ApprenticeshipCode = apprenticeship.TrainingCode,
                 DasTrainingStartDate = apprenticeship.StartDate,
-                DasTrainingEndDate = apprenticeship.StopDate,
+                DasTrainingEndDate = apprenticeship.EndDate,
                 TrainingCost = apprenticeship.Cost
             };
         }
@@ -69,13 +69,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 EmployerName = apprenticeship.LegalEntityName,
                 ProviderUkprn = apprenticeship.ProviderId,
                 TrainingDates = $"{apprenticeship.StartDate.ToGdsFormatWithSlashSeperator() ?? "-"} to {apprenticeship.EndDate.ToGdsFormatWithSlashSeperator() ?? "-"}",
-                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate),
+                PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 DateOfBirth = apprenticeship.DateOfBirth,
                 ULN = apprenticeship.ULN
             };
         }
 
-        private string MapPaymentStatus(PaymentStatus paymentStatus, DateTime? startDate, DateTime? stopDate)
+        private string MapPaymentStatus(PaymentStatus paymentStatus, DateTime? startDate, DateTime? stopDate, DateTime? pauseDate)
         {
             var isStartDateInFuture = startDate.HasValue && startDate.Value > new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
@@ -84,12 +84,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 case PaymentStatus.PendingApproval:
                     return "Approval needed";
                 case PaymentStatus.Active:
-                    return
-                        isStartDateInFuture ? "Waiting to start" : "Live";
+                    return isStartDateInFuture ? "Waiting to start" : "Live";
                 case PaymentStatus.Paused:
-                    return "Paused";
+                    return pauseDate.HasValue ? $"Paused on {pauseDate.ToGdsFormatWithSpaceSeperator()}" : "Paused";
                 case PaymentStatus.Withdrawn:
-                    return stopDate.HasValue ? "Stopped" : $"Stopped on {stopDate.ToGdsFormatWithSpaceSeperator()}";
+                    return stopDate.HasValue ?  $"Stopped on {stopDate.ToGdsFormatWithSpaceSeperator()}" : "Stopped" ;
                 case PaymentStatus.Completed:
                     return "Finished";
                 case PaymentStatus.Deleted:
