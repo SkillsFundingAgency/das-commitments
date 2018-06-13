@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerAccountId
         }
 
         [Test]
-        public async Task ThenShouldMatchingList()
+        public async Task ThenTheEmployerIdsReturnedShouldMatchTheExpectedList()
         {
 
             var response = await _handler.Handle(new GetEmployerAccountIdsRequest());

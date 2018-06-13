@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountIds;
-using SFA.DAS.Commitments.Application.Queries.GetTransferRequest;
-using SFA.DAS.Commitments.Domain;
 
 namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
 {
@@ -19,7 +17,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
             _employerAccountIds = new List<long>();
 
             MockMediator.Setup(x => x.SendAsync(It.IsAny<GetEmployerAccountIdsRequest>()))
-                .ReturnsAsync(new GetEmployerAccountIdsResponse() { Data = _employerAccountIds });
+                .ReturnsAsync(new GetEmployerAccountIdsResponse { Data = _employerAccountIds });
         }
 
         [Test]

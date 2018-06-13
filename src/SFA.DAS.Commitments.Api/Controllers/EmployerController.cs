@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
         }
 
         [Route("ids", Name = "GetAllEmployerAccountIds")]
-        [Authorize(Roles = "Role1")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> GetAllEmployerAccountIds()
         {
             var response = await _employerOrchestrator.GetEmployerAccountIds();

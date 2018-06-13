@@ -694,7 +694,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         }
         public async Task<IEnumerable<long>> GetEmployerAccountIds()
         {
-            _logger.Trace($"Getting all employer account ids");
+            _logger.Trace("Getting all employer account ids");
 
             var response = await _mediator.SendAsync(new GetEmployerAccountIdsRequest());
 
