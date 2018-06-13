@@ -199,6 +199,7 @@
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenValidatingRequest.cs" />
+    <Compile Include="Queries\GetStatistics\WhenGettingStatistics.cs" />
     <Compile Include="Queries\GetTransfeRequest\WhenGettingATransferRequest.cs" />
     <Compile Include="Queries\GetTransfeRequest\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
