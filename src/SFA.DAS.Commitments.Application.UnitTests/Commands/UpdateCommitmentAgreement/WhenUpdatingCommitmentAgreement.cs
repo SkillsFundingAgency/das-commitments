@@ -256,7 +256,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                 x =>
                     x.UpdateCommitment(It.Is<Commitment>(
                             y => y.EditStatus == EditStatus.ProviderOnly 
-                                && y.CommitmentStatus == CommitmentStatus.Active 
+                                && y.CommitmentStatus == CommitmentStatus.Active
+                                && y.TransferApprovalStatus == null
                                 && y.LastUpdatedByEmployerEmail == _validCommand.LastUpdatedByEmail
                                 && y.LastUpdatedByEmployerName == _validCommand.LastUpdatedByName
                                 && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction)), Times.Once);
@@ -265,7 +266,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
         [Test]
         public async Task ThenIfTheCallerIsTheProviderThenTheCommitmentStatusesAreUpdatedCorrectly()
         {
-            var commitment = new Commitment { Id = 123L, ProviderId = 444, ProviderCanApproveCommitment = false, EditStatus = EditStatus.ProviderOnly };
+            var commitment = new Commitment { Id = 123L, ProviderId = 444, ProviderCanApproveCommitment = false, EditStatus = EditStatus.ProviderOnly};
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(commitment);
 
             _validCommand.Caller.CallerType = CallerType.Provider;
@@ -277,6 +278,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateCommitmentAgr
                     x.UpdateCommitment(It.Is<Commitment>(
                             y => y.EditStatus == EditStatus.EmployerOnly
                                 && y.CommitmentStatus == CommitmentStatus.Active
+                                && y.TransferApprovalStatus == null
                                 && y.LastUpdatedByProviderEmail == _validCommand.LastUpdatedByEmail
                                 && y.LastUpdatedByProviderName == _validCommand.LastUpdatedByName
                                 && y.LastAction == (Domain.Entities.LastAction)_validCommand.LatestAction)), Times.Once);

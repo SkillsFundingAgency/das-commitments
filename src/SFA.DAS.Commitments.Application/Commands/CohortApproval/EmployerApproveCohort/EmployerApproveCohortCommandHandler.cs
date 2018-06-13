@@ -47,7 +47,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
             await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName,
                 message.LastUpdatedByEmail, message.Message);
-            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
 
             if (haveBothPartiesApproved)
             {
@@ -59,13 +58,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
                     await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(
                         _messagePublisher, commitment, transferRequestId);
-                }
-                else
-                {
-                    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+
+                    commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
                 }
 
                 await PublishApprovedMessage(commitment);
+            }
+
+            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
+
+            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            {
+                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
             }
         }
 
@@ -98,6 +102,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             commitment.CommitmentStatus = CommitmentStatus.Active;
             commitment.LastUpdatedByEmployerEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
+            commitment.TransferApprovalStatus = null;
 
             await Task.WhenAll(
                 _cohortApprovalService.AddMessageToCommitment(commitment, lastUpdatedByName, message, CallerType.Employer),

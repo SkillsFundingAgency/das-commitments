@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
 
             _apprenticeshipUpdateRepository.Setup(x => x.GetPendingApprenticeshipUpdate(It.IsAny<long>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((ApprenticeshipUpdate)null);
 
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))

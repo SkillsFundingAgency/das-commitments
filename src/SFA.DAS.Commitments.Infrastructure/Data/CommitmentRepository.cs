@@ -98,6 +98,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@commitmentStatus", commitment.CommitmentStatus, DbType.Int16);
                 parameters.Add("@editStatus", commitment.EditStatus, DbType.Int16);
                 parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
+                parameters.Add("@transferApprovalStatus", commitment.TransferApprovalStatus, DbType.Int16);
                 parameters.Add("@lastUpdatedByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdatedByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
                 parameters.Add("@lastUpdatedByProviderName", commitment.LastUpdatedByProviderName, DbType.String);

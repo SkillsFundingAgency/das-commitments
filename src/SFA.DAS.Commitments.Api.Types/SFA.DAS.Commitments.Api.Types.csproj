@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SFA.DAS.Commitments.Api.Types</RootNamespace>
     <AssemblyName>SFA.DAS.Commitments.Api.Types</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SyncToOfflineSchemaModel>True</SyncToOfflineSchemaModel>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SFA.DAS.Common.Domain, Version=1.3.0.44308, Culture=neutral, processorArchitecture=MSIL">
@@ -81,6 +83,7 @@
     <Compile Include="Commitment\TransferSender.cs" />
     <Compile Include="Commitment\TransferType.cs" />
     <Compile Include="Commitment\Types\MessageCreator.cs" />
+    <Compile Include="ConsistencyStatistics.cs" />
     <Compile Include="DataLock\DataLockStatus.cs" />
     <Compile Include="DataLock\DataLocksTriageResolutionSubmission.cs" />
     <Compile Include="DataLock\DataLockSummary.cs" />

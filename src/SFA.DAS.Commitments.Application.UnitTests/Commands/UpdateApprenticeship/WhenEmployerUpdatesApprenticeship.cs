@@ -31,7 +31,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IApprenticeshipUpdateRules> _mockApprenticeshipUpdateRules;
         private Mock<IMessagePublisher> _mockMessagePublisher;
-        private Commitment _testCommitment;
         private ProviderCohortApprovalUndoneByEmployerUpdate _emittedEvent;
 
         [SetUp]
@@ -138,6 +137,74 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             {
                 Assert.IsNull(_emittedEvent, "Unexpected event emitted");
             }
+        }
+
+        [Test]
+        public async Task ThenCohortTransferStatusIsResetIfRejected()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                EmployerAccountId = _exampleValidRequest.Caller.Id,
+                ProviderId = 10012,
+                Id = _exampleValidRequest.CommitmentId,
+                TransferApprovalStatus = TransferApprovalStatus.TransferRejected,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship
+                    {
+                        Id = _exampleValidRequest.ApprenticeshipId,
+                        AgreementStatus = AgreementStatus.BothAgreed
+                    }
+                }
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId))
+                .ReturnsAsync(testCommitment.Apprenticeships.First());
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(x => x.UpdateCommitment(It.Is<Commitment>(c =>
+                c.TransferApprovalStatus == null
+                && c.TransferApprovalActionedOn == null
+            )), Times.Once);
+        }
+
+        [TestCase(TransferApprovalStatus.Pending)]
+        [TestCase(null)]
+        public async Task ThenCohortTransferStatusIsNotResetIfNotRejected(TransferApprovalStatus status)
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                EmployerAccountId = _exampleValidRequest.Caller.Id,
+                ProviderId = 10012,
+                Id = _exampleValidRequest.CommitmentId,
+                TransferApprovalStatus = status,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship
+                    {
+                        Id = _exampleValidRequest.ApprenticeshipId,
+                        AgreementStatus = AgreementStatus.BothAgreed
+                    }
+                }
+            };
+
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            _mockApprenticeshipRepository.Setup(x => x.GetApprenticeship(_exampleValidRequest.ApprenticeshipId))
+                .ReturnsAsync(testCommitment.Apprenticeships.First());
+
+            //Act
+            await _handler.Handle(_exampleValidRequest);
+
+            //Assert
+            _mockCommitmentRespository.Verify(x => x.UpdateCommitment(It.IsAny<Commitment>()), Times.Never);
         }
     }
 }
