@@ -15,6 +15,26 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             throw new NotImplementedException();
         }
 
+        public Task<TransactionsViewModel> GetTransactions(string accountId, int year, int month)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<TransactionSummaryViewModel>> GetTransactionSummary(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<TransferConnectionViewModel>> GetTransferConnections(string accountHashedId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICollection<LevyDeclarationViewModel>> GetLevyDeclarations(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
         Task<PagedApiResponseViewModel<AccountWithBalanceViewModel>> IAccountApiClient.GetPageOfAccounts(int pageNumber, int pageSize, DateTime? toDate)
         {
             throw new NotImplementedException();

@@ -123,6 +123,7 @@
     <Build Include="StoredProcedures\GetActiveApprenticeshipsForProvider.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipUpdateStatus.sql" />
     <Build Include="StoredProcedures\GetStatistics.sql" />
+    <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

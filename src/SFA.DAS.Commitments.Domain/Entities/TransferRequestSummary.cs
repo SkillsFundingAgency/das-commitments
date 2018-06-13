@@ -6,6 +6,8 @@ namespace SFA.DAS.Commitments.Domain.Entities
     {
         public long TransferRequestId { get; set; }
         public long ReceivingEmployerAccountId { get; set; }
+        public string ReceivingLegalEntityName { get; set; }
+        public string CohortReference { get; set; }
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }
         public decimal TransferCost { get; set; }
