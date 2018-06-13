@@ -97,7 +97,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
         public async Task ThenReturnsNotFoundWhenOrchestratorReturnsNull()
         {
             var orchestrator = new Mock<IProviderOrchestrator>();
-            orchestrator.Setup(x => x.GetCommitment(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(null);
+            orchestrator.Setup(x => x.GetCommitment(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync((CommitmentView)null);
             var controller = new ProviderController(orchestrator.Object, Mock.Of<IApprenticeshipsOrchestrator>());
 
             var result = await controller.GetCommitment(1L, 1L);

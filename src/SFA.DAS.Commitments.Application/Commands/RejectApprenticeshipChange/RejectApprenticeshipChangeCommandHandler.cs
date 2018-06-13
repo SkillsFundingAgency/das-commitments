@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange
 
             ValidateCommand(command, pendingUpdate, apprenticeship);
 
-            await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate, command.UserId);
+            await _apprenticeshipUpdateRepository.RejectApprenticeshipUpdate(pendingUpdate);
             await SendApprenticeshipUpdateRejectedEvent(apprenticeship);
         }
 

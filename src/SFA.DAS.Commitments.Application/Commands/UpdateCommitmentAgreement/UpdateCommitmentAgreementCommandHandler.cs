@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         private async Task PublishEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
         {
-            await CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
+            CreateEventsForUpdatedApprenticeships(commitment, updatedApprenticeships);
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
 
@@ -156,7 +156,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             return updatedApprenticeships;
         }
 
-        private async Task CreateEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
+        private void CreateEventsForUpdatedApprenticeships(Commitment commitment, IList<Apprenticeship> updatedApprenticeships)
         {
             Parallel.ForEach(updatedApprenticeships, apprenticeship =>
             {

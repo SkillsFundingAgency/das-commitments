@@ -56,10 +56,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
 
                     commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
                 }
-                else
-                {
-                    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-                }
             }
             else
             {
@@ -67,6 +63,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             }
 
             await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
+
+            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            {
+                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+            }
         }
 
         private async Task PublishApprovalRequestedMessage(Commitment commitment)

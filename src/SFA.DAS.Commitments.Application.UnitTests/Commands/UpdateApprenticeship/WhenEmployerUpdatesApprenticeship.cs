@@ -31,7 +31,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         private Mock<IHistoryRepository> _mockHistoryRepository;
         private Mock<IApprenticeshipUpdateRules> _mockApprenticeshipUpdateRules;
         private Mock<IMessagePublisher> _mockMessagePublisher;
-        private Commitment _testCommitment;
         private ProviderCohortApprovalUndoneByEmployerUpdate _emittedEvent;
 
         [SetUp]
