@@ -1,20 +1,16 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
+using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
+using SFA.DAS.Commitments.Application.Queries.GetCommitment;
+using SFA.DAS.Commitments.Domain;
+using SFA.DAS.Commitments.Support.SubSite.Mappers;
 using SFA.DAS.Commitments.Support.SubSite.Models;
+using SFA.DAS.HashingService;
 using SFA.DAS.NLog.Logger;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
-using SFA.DAS.Commitments.Support.SubSite.Extensions;
-using SFA.DAS.Commitments.Domain.Entities;
-using FluentValidation;
-using SFA.DAS.Commitments.Domain;
-using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
-using SFA.DAS.HashingService;
-using SFA.DAS.Commitments.Application.Queries.GetCommitment;
-using SFA.DAS.Commitments.Support.SubSite.Mappers;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -45,7 +41,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
         public async Task<ApprenticeshipViewModel> GetApprenticeship(string hashId, string accountHashedId)
         {
             _logger.Trace("Retrieving Apprenticeship Details");
-
 
             var apprenticeshipId = _hashingService.DecodeValue(hashId);
             var accountId = _hashingService.DecodeValue(accountHashedId);
@@ -131,7 +126,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                     ReponseMessages = { "Please enter a valid Cohort number" }
                 };
             }
-
 
             var response = await _mediator.SendAsync(new GetCommitmentRequest
             {

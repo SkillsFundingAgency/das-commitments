@@ -15,9 +15,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
         {
             return Ok(new ServiceStatusViewModel
             {
-                ServiceName = AddServiceName(),
+                ServiceName = "SFA DAS Commmitments Support Site",
                 ServiceVersion = AddServiceVersion(),
-                ServiceTime = AddServerTime(),
+                ServiceTime = DateTimeOffset.UtcNow,
                 Request = AddRequestContext()
             });
         }
@@ -46,21 +46,5 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             }
         }
 
-        private DateTimeOffset AddServerTime()
-        {
-            return DateTimeOffset.UtcNow;
-        }
-
-        private string AddServiceName()
-        {
-            try
-            {
-                return "SFA DAS Commmitments Support Site";
-            }
-            catch
-            {
-                return "Unknown";
-            }
-        }
     }
 }

@@ -20,7 +20,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using FluentValidation;
     using MediatR;
     using Microsoft.Azure;
-    using SFA.DAS.Commitments.Application.Queries;
     using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
     using SFA.DAS.Commitments.Application.Queries.GetCommitment;
     using SFA.DAS.Commitments.Domain.Data;
@@ -40,7 +39,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using SFA.DAS.Learners.Validators;
     using SFA.DAS.NLog.Logger;
     using StructureMap;
-    using StructureMap.Configuration.DSL;
     using StructureMap.Graph;
     using System.Web;
 

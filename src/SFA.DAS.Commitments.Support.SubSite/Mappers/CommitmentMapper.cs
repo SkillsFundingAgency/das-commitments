@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using SFA.DAS.Commitments.Application.Rules;
+﻿using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Support.SubSite.Models;
-using SFA.DAS.HashingService;
 using SFA.DAS.Commitments.Support.SubSite.Extentions;
+using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Services;
+using SFA.DAS.HashingService;
+using System.Linq;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
@@ -18,8 +15,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
         private readonly ICommitmentRules _commitmentRules;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
 
-        public CommitmentMapper(IHashingService hashingService, 
-                                ICommitmentStatusCalculator statusCalculator, 
+        public CommitmentMapper(IHashingService hashingService,
+                                ICommitmentStatusCalculator statusCalculator,
                                 ICommitmentRules commitmentRules,
                                 IApprenticeshipMapper apprenticeshipMapper)
         {
@@ -49,12 +46,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
         public CommitmentDetailViewModel MapToCommitmentDetailViewModel(Commitment commitment)
         {
-            return new  CommitmentDetailViewModel
+            return new CommitmentDetailViewModel
             {
                 CommitmentSummary = MapToCommitmentSummaryViewModel(commitment),
                 CommitmentApprenticeships = commitment.Apprenticeships.Select(o => _apprenticeshipMapper.MapToApprenticeshipSearchItemViewModel(o))
             };
         }
-
     }
 }

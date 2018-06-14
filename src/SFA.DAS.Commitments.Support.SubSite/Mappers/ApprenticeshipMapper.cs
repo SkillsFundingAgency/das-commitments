@@ -1,16 +1,12 @@
 ﻿using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
-using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Support.SubSite.Extensions;
+using SFA.DAS.Commitments.Support.SubSite.Extentions;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.HashingService;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Web;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 {
@@ -83,16 +79,22 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             {
                 case PaymentStatus.PendingApproval:
                     return "Approval needed";
+
                 case PaymentStatus.Active:
                     return isStartDateInFuture ? "Waiting to start" : "Live";
+
                 case PaymentStatus.Paused:
                     return pauseDate.HasValue ? $"Paused on {pauseDate.ToGdsFormatWithSpaceSeperator()}" : "Paused";
+
                 case PaymentStatus.Withdrawn:
-                    return stopDate.HasValue ?  $"Stopped on {stopDate.ToGdsFormatWithSpaceSeperator()}" : "Stopped" ;
+                    return stopDate.HasValue ? $"Stopped on {stopDate.ToGdsFormatWithSpaceSeperator()}" : "Stopped";
+
                 case PaymentStatus.Completed:
                     return "Finished";
+
                 case PaymentStatus.Deleted:
                     return "Deleted";
+
                 default:
                     return string.Empty;
             }
