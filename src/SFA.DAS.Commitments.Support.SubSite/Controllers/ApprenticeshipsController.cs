@@ -1,14 +1,8 @@
-﻿using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
-using System.Web.Mvc;
+﻿using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
-using SFA.DAS.Commitments.Support.SubSite.Extensions;
-using SFA.DAS.Support.Shared;
-using SFA.DAS.Commitments.Support.SubSite.Enums;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 using Mvc = System.Web.Mvc;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Controllers
@@ -20,6 +14,28 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
         public ApprenticeshipsController(IApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
             _orchestrator = apprenticeshipsOrchestrator;
+        }
+
+        [Mvc.Route("Apprenticeships/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
+        public async Task<ActionResult> CohortDetails(string hashedCohortId)
+        {
+            if (string.IsNullOrWhiteSpace(hashedCohortId))
+            {
+                return RedirectToAction(nameof(Search));
+            }
+            var model = await _orchestrator.GetCommitmentDetails(hashedCohortId);
+            return View(model);
+        }
+
+        [Mvc.Route("Apprenticeships/{hashedApprenticeshipId}/account/{hashedAccountId}", Name = "ApprenticeshipDetails")]
+        public async Task<ActionResult> Index(string hashedApprenticeshipId, string hashedAccountId)
+        {
+            if (string.IsNullOrWhiteSpace(hashedApprenticeshipId) || string.IsNullOrWhiteSpace(hashedAccountId))
+            {
+                return RedirectToAction(nameof(Search));
+            }
+            var model = await _orchestrator.GetApprenticeship(hashedApprenticeshipId, hashedAccountId);
+            return View(model);
         }
 
         public async Task<ActionResult> Search(ApprenticeshipSearchQuery searchQuery)
@@ -40,27 +56,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 
             return View(searchQuery);
         }
-
-        [Mvc.Route("Apprenticeships/{Id}/account/{accountId}", Name = "ApprenticeshipDetails")]
-        public async Task<ActionResult> Index(string Id, string accountId)
+        private async Task<ActionResult> CohortSearch(ApprenticeshipSearchQuery searchQuery)
         {
-            if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(accountId))
+            var cohortSearchResult = await _orchestrator.GetCommitmentSummary(searchQuery);
+            if (cohortSearchResult.HasError)
             {
-                return RedirectToAction(nameof(Search));
+                searchQuery.ReponseMessages = cohortSearchResult.ReponseMessages;
+                return View("Search", searchQuery);
             }
-            var model = await _orchestrator.GetApprenticeship(Id, accountId);
-            return View(model);
-        }
-
-        [Mvc.Route("Apprenticeships/Cohort/{cohortId}/", Name = "CohortDetails")]
-        public async Task<ActionResult> CohortDetails(string cohortId)
-        {
-            if (string.IsNullOrWhiteSpace(cohortId))
-            {
-                return RedirectToAction(nameof(Search));
-            }
-            var model = await _orchestrator.GetCommitmentDetails(cohortId);
-            return View(model);
+            return View("CohortSearchSummary", cohortSearchResult);
         }
 
         private async Task<ActionResult> UlnSearch(ApprenticeshipSearchQuery searchQuery)
@@ -73,17 +77,5 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             }
             return View("UlnSearchSummary", unlSearchResult);
         }
-
-        private async Task<ActionResult> CohortSearch(ApprenticeshipSearchQuery searchQuery)
-        {
-            var cohortSearchResult = await _orchestrator.GetCommitmentSummary(searchQuery);
-            if (cohortSearchResult.HasError)
-            {
-                searchQuery.ReponseMessages = cohortSearchResult.ReponseMessages;
-                return View("Search", searchQuery);
-            }
-            return View("CohortSearchSummary", cohortSearchResult);
-        }
-
     }
 }

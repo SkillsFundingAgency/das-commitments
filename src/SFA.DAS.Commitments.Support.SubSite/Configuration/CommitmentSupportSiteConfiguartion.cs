@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace SFA.DAS.Commitments.Support.SubSite.Configuration
+﻿namespace SFA.DAS.Commitments.Support.SubSite.Configuration
 {
     public class CommitmentSupportSiteConfiguartion
     {
