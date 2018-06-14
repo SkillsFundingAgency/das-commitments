@@ -266,9 +266,9 @@
     <Compile Include="DependencyResolution\StructureMapScopeModule.cs" />
     <Compile Include="Enums\ApprenticeshipSearchType.cs" />
     <Compile Include="Enums\CommitmentRequestStatus.cs" />
-    <Compile Include="Extentions\DateTimeExtensions.cs" />
-    <Compile Include="Extentions\DecimalFormatExtensions.cs" />
-    <Compile Include="Extentions\EnumExtensions.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DecimalFormatExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
