@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusContro
         public async Task ShouldReturnStatusModel()
         {
             var sut = new StatusController();
-            var result = await sut.Get() as OkNegotiatedContentResult<ServiceStatusViewModel>;
+            var result = sut.Get() as OkNegotiatedContentResult<ServiceStatusViewModel>;
 
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Content);

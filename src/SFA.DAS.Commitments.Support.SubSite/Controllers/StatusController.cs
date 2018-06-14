@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using SFA.DAS.Commitments.Support.SubSite.Models;
@@ -11,9 +10,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
     [RoutePrefix("api/status")]
     public class StatusController : ApiController
     {
-        // GET: Status
         [AllowAnonymous]
-        public async Task<IHttpActionResult> Get()
+        public IHttpActionResult Get()
         {
             return Ok(new ServiceStatusViewModel
             {
@@ -23,18 +21,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
                 Request = AddRequestContext()
             });
         }
-        
+
         private string AddServiceVersion()
         {
             try
             {
                 return Assembly.GetExecutingAssembly().Version();
             }
-            catch (Exception e)
+            catch
             {
                 return "Unknown";
             }
         }
+
         private string AddRequestContext()
         {
             try
