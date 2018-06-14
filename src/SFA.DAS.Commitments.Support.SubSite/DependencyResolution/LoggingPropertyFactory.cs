@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             {
                 properties.Add("Version", GetVersion());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }

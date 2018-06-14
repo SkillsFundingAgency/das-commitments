@@ -29,6 +29,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
     using SFA.DAS.Commitments.Infrastructure.Logging;
     using SFA.DAS.Commitments.Infrastructure.Services;
     using SFA.DAS.Commitments.Support.SubSite.Configuration;
+    using SFA.DAS.Commitments.Support.SubSite.GlobalConstants;
     using SFA.DAS.Commitments.Support.SubSite.Mappers;
     using SFA.DAS.Commitments.Support.SubSite.Models;
     using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
@@ -44,7 +45,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 
     public class DefaultRegistry : Registry
     {
-        private const string ServiceName = "SFA.DAS.Support.Commitments";
+      
         private const string Version = "1.0";
 
         public DefaultRegistry()
@@ -112,7 +113,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             var environment = CloudConfigurationManager.GetSetting("EnvironmentName") ?? "LOCAL";
             var storageConnectionString = CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString") ?? "UseDevelopmentStorage=true;";
             var configurationRepository = new AzureTableStorageConfigurationRepository(storageConnectionString);
-            var configurationOptions = new ConfigurationOptions(ServiceName, environment, Version);
+            var configurationOptions = new ConfigurationOptions(ApplicationConstants.ServiceName, environment, Version);
             var configurationService = new ConfigurationService(configurationRepository, configurationOptions);
             var webConfiguration = configurationService.Get<CommitmentSupportSiteConfiguartion>();
 
