@@ -29,14 +29,14 @@
 
                     @foreach (var apprenticeship in Model.CommitmentApprenticeships)
                     {
-                        <tr>
-                            <td data-label="Name">@apprenticeship.ApprenticeName</td>
-                            <td data-label0="UKPRN">@apprenticeship.ULN</td>
-                            <td data-label="Organisation">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
-                            <td data-label="Training dates">@apprenticeship.TrainingDates</td>
-                            <td data-label="Status">@apprenticeship.PaymentStatus</td>
-                            <td scope="col" class=""> <a href="@Url.RouteUrl("ApprenticeshipDetails", new { id = apprenticeship.ApprenticeshipHashId, accountId = apprenticeship.HashedAccountId})"> View</a>  </td>
-                        </tr>
+                    <tr>
+                        <td data-label="Name">@apprenticeship.ApprenticeName</td>
+                        <td data-label0="UKPRN">@apprenticeship.ULN</td>
+                        <td data-label="Organisation">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
+                        <td data-label="Training dates">@apprenticeship.TrainingDates</td>
+                        <td data-label="Status">@apprenticeship.PaymentStatus</td>
+                        <td scope="col" class=""> <a href="@Url.RouteUrl("ApprenticeshipDetails", new { hashedApprenticeshipId = apprenticeship.ApprenticeshipHashId, hashedAccountId = apprenticeship.HashedAccountId})"> View</a>  </td>
+                    </tr>
 
                     }
                 </tbody>
