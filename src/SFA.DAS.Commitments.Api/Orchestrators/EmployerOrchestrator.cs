@@ -240,11 +240,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            if(response.Data != null)
-                _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
-            else
+            if (response.Data == null)
+            {
                 _logger.Info($"Couldn't find apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId);
+                return null;
+            }
 
+            _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
+           
             return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
