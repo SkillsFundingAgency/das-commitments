@@ -27,7 +27,7 @@ FROM
 			INNER JOIN
 				ProviderPaymentPriority ppp
 			ON
-				ppp.ProviderId = c.ProviderId
+				ppp.ProviderId = c.ProviderId AND c.EmployerAccountId = ppp.EmployerAccountId
 			WHERE 
 				c.EmployerAccountId = @employerAccountId
 			AND 
