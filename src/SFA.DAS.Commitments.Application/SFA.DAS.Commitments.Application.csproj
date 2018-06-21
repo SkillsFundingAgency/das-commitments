@@ -179,6 +179,9 @@
     <Compile Include="Queries\GetStatistics\GetStatisticsQueryHandler.cs" />
     <Compile Include="Queries\GetStatistics\GetStatisticsRequest.cs" />
     <Compile Include="Queries\GetStatistics\GetStatisticsResponse.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\GetEmployerAccountIdsRequest.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\GetEmployerAccountIdsResponse.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\GetEmployerAccountIdsQueryHandler.cs" />
     <Compile Include="Queries\GetTransferRequest\GetTransferRequestQueryHandler.cs" />
     <Compile Include="Queries\GetTransferRequest\GetTransferRequestRequest.cs" />
     <Compile Include="Queries\GetTransferRequest\GetTransferRequestResponse.cs" />

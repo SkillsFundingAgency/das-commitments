@@ -40,5 +40,6 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_AgreedOn] ON [dbo].[Apprenticeship]
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_PaymentStatus] ON [dbo].[Apprenticeship] ([PaymentStatus], [ULN]) INCLUDE ([AgreedOn], [CommitmentId], [StartDate], [StopDate]) WITH (ONLINE = ON)
 GO
+--todo is this index covered by the previous one?
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_PaymentStatus] ON [dbo].[Apprenticeship] ([PaymentStatus])  WITH (ONLINE = ON)
 GO

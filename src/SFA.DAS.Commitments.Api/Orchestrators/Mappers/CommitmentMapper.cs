@@ -161,6 +161,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 CommitmentId = x.CommitmentId,
                 EmployerAccountId = x.EmployerAccountId,
                 ProviderId = x.ProviderId,
+                TransferSenderId = x.TransferSenderId,
                 Reference = x.Reference,
                 FirstName = x.FirstName,
                 LastName = x.LastName,
