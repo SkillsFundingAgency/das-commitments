@@ -23,13 +23,17 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         public EmployerController(IEmployerOrchestrator employerOrchestrator, IApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
-            if (employerOrchestrator == null)
-                throw new ArgumentNullException(nameof(employerOrchestrator));
-            if (apprenticeshipsOrchestrator == null)
-                throw new ArgumentNullException(nameof(apprenticeshipsOrchestrator));
-
             _employerOrchestrator = employerOrchestrator;
             _apprenticeshipsOrchestrator = apprenticeshipsOrchestrator;
+        }
+
+        [Route("ids", Name = "GetAllEmployerAccountIds")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetAllEmployerAccountIds()
+        {
+            var response = await _employerOrchestrator.GetEmployerAccountIds();
+
+            return Ok(response);
         }
 
         [Route("{accountId}")]
