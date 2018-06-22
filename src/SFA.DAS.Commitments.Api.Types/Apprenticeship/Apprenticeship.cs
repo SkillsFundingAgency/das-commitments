@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public long CommitmentId { get; set; }
         public long EmployerAccountId { get; set; }
         public long ProviderId { get; set; }
+        public long? TransferSenderId { get; set; }
         public string Reference { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
