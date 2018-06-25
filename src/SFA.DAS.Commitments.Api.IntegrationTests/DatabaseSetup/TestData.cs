@@ -1,6 +1,9 @@
 ﻿using System.Threading.Tasks;
 using SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup.Generators;
 using SFA.DAS.Commitments.Api.IntegrationTests.Helpers;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeship;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeships;
+using SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.ValidateOverlappingApprenticeships;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 
 namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
@@ -29,6 +32,9 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             if (!await databaseManagement.Exists())
             {
                 databaseManagement.Publish();
+                // we still need to set the schema version, to handle the cases where...
+                // someone has manually deleted the db or we're running in a new environment
+                await CommitmentsDatabase.SetJobProgress(schemaVersionColumnName, CommitmentsDatabase.SchemaVersion);
             }
             else // database already exists
             {
@@ -67,33 +73,45 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             // but if when deal with million+ rows and want to add another million might be handy to add more
             // could assert corner cases rather than trying to handle them?
             //todo: if adding, would probably be better to leave current test ids alone and just generate for volume
-            var firstNewApprenticeshipId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.ApprenticeshipTableName);
-            var firstNewCohortId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.CommitmentTableName);
+
+            var testIds = new TestIds();    //todo: injector could take ownership of testids
+            var testDataInjector = await TestDataInjector.Construct(CommitmentsDatabase, testIds);
+
+            GatherTestSpecificData(testDataInjector);
 
             var apprenticeshipsInTable = await CommitmentsDatabase.CountOfRows(CommitmentsDatabase.ApprenticeshipTableName);
 
             //todo: this is usually in generate method
             var apprenticeshipsToGenerate = TestDataVolume.MinNumberOfApprenticeships - apprenticeshipsInTable;
 
-            var testIds = new TestIds();
+            if (apprenticeshipsToGenerate <= 0)
+                return testIds; // do we load these instead?
 
-            if (apprenticeshipsToGenerate > 0)
-            {
-                (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
-                    testIds, apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewCohortId);
-                await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
+            (var testApprenticeships, long lastCohortId) = await new ApprenticeshipGenerator().Generate(
+                testIds, apprenticeshipsToGenerate, testDataInjector);
+            await CommitmentsDatabase.InsertApprenticeships(testApprenticeships);
 
-                await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, firstNewCohortId));
-            }
+            await CommitmentsDatabase.InsertCommitments(await new CommitmentGenerator().Generate(lastCohortId, testDataInjector));
 
-            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId));
+            await CommitmentsDatabase.InsertApprenticeshipUpdates(await new ApprenticeshipUpdateGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId));
 
             // the DataLockStatus table diverges from the other tables by having its own id column seperate from the identity 'Id' column
-            var firstNewDataLockEventId = await CommitmentsDatabase.FirstNewId(CommitmentsDatabase.DataLockStatusTableName, "DataLockEventId");
+            var firstNewDataLockEventId = await CommitmentsDatabase.NextId(CommitmentsDatabase.DataLockStatusTableName);
 
-            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, firstNewApprenticeshipId, firstNewDataLockEventId));
+            await CommitmentsDatabase.InsertDataLockStatuses(await new DataLockStatusGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId, firstNewDataLockEventId));
+
+            await CommitmentsDatabase.InsertPriceHistories(
+                await new PriceHistoryGenerator().Generate(apprenticeshipsToGenerate, testDataInjector.NextApprenticeshipId, testDataInjector));
 
             return testIds;
+        }
+
+        public void GatherTestSpecificData(TestDataInjector testDataInjector)
+        {
+            // *** add your call to inject the specific data your integration test needs here ***
+            WhenGettingEmployerApprenticeshipCost.InjectTestSpecificData(testDataInjector);
+            WhenGettingEmployerApprenticeships.InjectTestSpecificData(testDataInjector);
+            WhenValidatingOverlappingApprenticeships.InjectTestSpecificData(testDataInjector);
         }
     }
 }

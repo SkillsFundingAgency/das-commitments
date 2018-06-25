@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using FastMember;
@@ -28,6 +27,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
                     bcp.EnableStreaming = true;
                     bcp.BatchSize = 5000;
                     bcp.NotifyAfter = 1000;
+                    bcp.BulkCopyTimeout = 60;
                     bcp.SqlRowsCopied += async (sender, e) => await TestLog.Progress($"Copied {e.RowsCopied} rows into {tableName}.");
 
                     await bcp.WriteToServerAsync(reader);
@@ -35,23 +35,22 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
             }
         }
 
-        public async Task<long?> LastId(string tableName, string columnName = "Id")
+        public async Task<long> NextId(string tableName)
         {
             using (var connection = new SqlConnection(DatabaseConnectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand($"SELECT MAX({columnName}) FROM {tableName}", connection))
+                using (var command = new SqlCommand(
+$@"declare @i bigint
+set @i=(select IDENT_CURRENT('{tableName}'))
+if (@i = 1 AND not exists (select 1 from {tableName}))
+  set @i=0
+select @i", connection))
                 {
                     var result = await command.ExecuteScalarAsync();
-                    return result == DBNull.Value ? null : (long?)result;
+                    return (long)result + 1L;
                 }
             }
-        }
-
-        public async Task<long> FirstNewId(string tableName, string columnName = "Id")
-        {
-            var latestIdInDatabase = await LastId(tableName, columnName);
-            return (latestIdInDatabase ?? 0) + 1;
         }
 
         public async Task<int> CountOfRows(string tableName)

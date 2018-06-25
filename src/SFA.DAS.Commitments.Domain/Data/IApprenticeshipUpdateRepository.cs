@@ -11,11 +11,11 @@ namespace SFA.DAS.Commitments.Domain.Data
 
         Task CreateApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, Apprenticeship apprenticeship);
 
-        Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId, Apprenticeship apprenticeship, Caller caller);
+        Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, Apprenticeship apprenticeship, Caller caller);
 
-        Task RejectApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId);
+        Task RejectApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate);
 
-        Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId);
+        Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate);
 
         Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate);
 

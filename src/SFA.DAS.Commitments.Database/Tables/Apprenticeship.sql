@@ -22,16 +22,24 @@
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
     [PauseDate] DATE NULL, 
-	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0
+	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0,
+	-- PendingUpdateOriginator is a combination of ApprenticeshipUpdate Originator and Status
+	-- if not null, Status = Pending, contains PendingUpdateOriginator = Originator
+	-- if null, no ApprenticeshipUpdate or Status != Pending
+	-- (we could store Originator and Status instead)
+	[PendingUpdateOriginator] TINYINT NULL
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id])
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId] ON [dbo].[Apprenticeship] ([CommitmentId]) INCLUDE ([AgreedOn], [AgreementStatus], [Cost], [CreatedOn], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [LastName], [NINumber], [PaymentOrder], [PaymentStatus], [ProviderRef], [StartDate], [TrainingCode], [TrainingName], [TrainingType], [ULN], [StopDate], [PauseDate], [HasHadDataLockSuccess]) WITH (ONLINE = ON)
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId] ON [dbo].[Apprenticeship] ([CommitmentId]) INCLUDE ([AgreedOn], [AgreementStatus], [Cost], [CreatedOn], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [LastName], [NINumber], [PaymentOrder], [PaymentStatus], [ProviderRef], [StartDate], [TrainingCode], [TrainingName], [TrainingType], [ULN], [StopDate], [PauseDate], [HasHadDataLockSuccess], [PendingUpdateOriginator]) WITH (ONLINE = ON)
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_Statuses] ON [dbo].[Apprenticeship] ([ULN], [AgreementStatus], [PaymentStatus])
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_AgreedOn] ON [dbo].[Apprenticeship] ([AgreedOn]) INCLUDE ([CommitmentId], [PaymentStatus]) WITH (ONLINE = ON)
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_PaymentStatus] ON [dbo].[Apprenticeship] ([PaymentStatus], [ULN]) INCLUDE ([AgreedOn], [CommitmentId], [StartDate], [StopDate]) WITH (ONLINE = ON)
+GO
+--todo is this index covered by the previous one?
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_PaymentStatus] ON [dbo].[Apprenticeship] ([PaymentStatus])  WITH (ONLINE = ON)
 GO

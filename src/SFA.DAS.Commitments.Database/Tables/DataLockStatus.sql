@@ -30,3 +30,15 @@ GO
 CREATE UNIQUE INDEX [IX_DataLockStatus_ApprenticeshipId] ON [dbo].[DataLockStatus] ([ApprenticeshipId],[PriceEpisodeIdentifier])
 GO
 
+CREATE NONCLUSTERED INDEX [IX_DataLockStatus_IlrEffectiveFromDate_Id] ON [dbo].[DataLockStatus]
+(
+	[IlrEffectiveFromDate] ASC,
+	[Id] ASC
+)
+INCLUDE ([ErrorCode],
+	[TriageStatus],
+	[Status],
+	[IsResolved],
+	[EventStatus],
+	[IsExpired])
+GO

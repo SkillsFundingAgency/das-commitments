@@ -178,5 +178,11 @@ namespace SFA.DAS.Commitments.Api.Client
 
             return JsonConvert.DeserializeObject<TransferRequest>(content);
         }
+
+        public async Task<T> GetUrlResult<T>(string url)
+        {
+            var content = await GetAsync(url);
+            return JsonConvert.DeserializeObject<T>(content);
+        }
     }
 }

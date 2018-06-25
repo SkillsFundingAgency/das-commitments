@@ -42,5 +42,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<List<TransferRequestSummary>> GetTransferRequests(string hashedAccountId);
         Task<TransferRequest> GetTransferRequestForSender(long transferSenderId, long transferRequestId);
         Task<TransferRequest> GetTransferRequestForReceiver(long transferSenderId, long transferRequestId);
+        Task<IEnumerable<long>> GetAllEmployerAccountIds();
     }
 }

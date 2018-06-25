@@ -26,13 +26,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             IApprenticeshipUpdateTransactions apprenticeshipUpdateTransactions,
             IApprenticeshipTransactions apprenticeshipTransactions) : base(connectionString, logger.BaseLogger)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if(apprenticeshipUpdateTransactions==null)
-                throw new ArgumentNullException(nameof(apprenticeshipUpdateTransactions));
-            if (apprenticeshipTransactions == null)
-                throw new ArgumentNullException(nameof(apprenticeshipTransactions));
-
             _logger = logger;
             _apprenticeshipUpdateTransactions = apprenticeshipUpdateTransactions;
             _apprenticeshipTransactions = apprenticeshipTransactions;
@@ -60,21 +53,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             {
                 if (apprenticeshipUpdate != null)
                 {
-                    await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans,
-                        apprenticeshipUpdate);
+                    // this also sets PendingUpdateOriginator to null on apprenticeship
+                    await _apprenticeshipUpdateTransactions.CreateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate);
                 }
 
                 if (apprenticeship != null)
                 {
-                    await _apprenticeshipUpdateTransactions.UpdateApprenticeshipReferenceAndUln(connection, trans,
-                        apprenticeship);
+                    await _apprenticeshipUpdateTransactions.UpdateApprenticeshipReferenceAndUln(connection, trans, apprenticeship);
                 }
 
                 return 0;
             });
         }
 
-        public async Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId, Apprenticeship apprenticeship, Caller caller)
+        public async Task ApproveApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, Apprenticeship apprenticeship, Caller caller)
         {
             await WithTransaction(async (connection, trans) =>
             {
@@ -82,7 +74,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 await _apprenticeshipTransactions.UpdateCurrentPrice(connection, trans, apprenticeship);
 
-                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId, ApprenticeshipUpdateStatus.Approved);
+                // this also sets PendingUpdateOriginator to null in apprenticeship
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, ApprenticeshipUpdateStatus.Approved);
 
                 if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
                 {
@@ -93,11 +86,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task RejectApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId)
+        public async Task RejectApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate)
         {
             await WithTransaction(async (connection, trans) =>
                 {
-                    await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId,
+                    // this also sets PendingUpdateOriginator to null in apprenticeship
+                    await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id,
                         ApprenticeshipUpdateStatus.Rejected);
 
                     if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
@@ -109,11 +103,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 });
         }
 
-        public async Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate, string userId)
+        public async Task UndoApprenticeshipUpdate(ApprenticeshipUpdate apprenticeshipUpdate)
         {
             await WithTransaction(async (connection, trans) =>
             {
-                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id, userId,
+                // this also sets PendingUpdateOriginator to null in apprenticeship
+                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdate.Id,
                     ApprenticeshipUpdateStatus.Deleted);
 
                 if (apprenticeshipUpdate.UpdateOrigin == UpdateOrigin.DataLock)
@@ -125,18 +120,16 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        private async Task UpdateApprenticeshipUpdate(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId, string userId, ApprenticeshipUpdateStatus updateStatus)
+        private async Task UpdateApprenticeshipUpdate(IDbConnection connection, IDbTransaction trans, long apprenticeshipUpdateId, ApprenticeshipUpdateStatus updateStatus)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@id", apprenticeshipUpdateId, DbType.Int64);
             parameters.Add("@status", updateStatus, DbType.Int16);
 
             await connection.ExecuteAsync(
-                    sql:
-                    "UPDATE [dbo].[ApprenticeshipUpdate] SET Status = @status " +
-                    "WHERE Id = @id;",
+                    sql: "[UpdateApprenticeshipUpdateStatus]",
                     param: parameters,
-                    commandType: CommandType.Text,
+                    commandType: CommandType.StoredProcedure,
                     transaction: trans);
         }
 
@@ -170,7 +163,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<IEnumerable<ApprenticeshipUpdate>> GetExpiredApprenticeshipUpdates(DateTime currentAcademicYearStartDate)
         {
-            _logger.Info($"Getting all expired apprenticeship update");
+            _logger.Info("Getting all expired apprenticeship update");
 
             var parameters = new DynamicParameters();
             parameters.Add("@status", ApprenticeshipUpdateStatus.Pending, DbType.Int16);
@@ -189,10 +182,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             _logger.Info($"Updating apprenticeship update {apprenticeshipUpdateId} - to expired");
 
-            await WithTransaction(async (connection, trans) =>
+            await WithConnection(async connection =>
             {
-                await UpdateApprenticeshipUpdate(connection, trans, apprenticeshipUpdateId, string.Empty,
-                    ApprenticeshipUpdateStatus.Expired);
+                await UpdateApprenticeshipUpdate(connection, null, apprenticeshipUpdateId, ApprenticeshipUpdateStatus.Expired);
                 return 1L;
             });
         }

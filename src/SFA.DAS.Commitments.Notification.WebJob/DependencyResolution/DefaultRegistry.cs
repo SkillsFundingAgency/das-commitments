@@ -11,10 +11,9 @@ using SFA.DAS.Notifications.Api.Client.Configuration;
 using StructureMap;
 using System;
 using System.Net.Http;
-using System.Reflection;
-
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Services;
+using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
 using SFA.DAS.Commitments.Notification.WebJob.Services;
 using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.NLog.Logger.Web.MessageHandlers;
@@ -44,9 +43,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             For<ProviderUserApiConfiguration>().Use(config.ProviderUserApi);
             For<ICurrentDateTime>().Use(x => new CurrentDateTime());
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
 
-            For<IEmployerEmailTemplatesService>().Use<EmployerEmailTemplatesService>();
-            For<IProviderEmailTemplatesService>().Use<ProviderEmailTemplatesService>();
+            For<IEmployerAlertSummaryEmailService>().Use<EmployerAlertSummaryEmailService>();
+            For<IProviderAlertSummaryEmailService>().Use<ProviderAlertSummaryEmailService>();
+            For<ISendingEmployerTransferRequestEmailService>().Use<SendingEmployerTransferRequestEmailService>();
             For<INotificationJob>().Use<NotificationJob>();
 
             For<PAS.Account.Api.Client.IAccountApiClient>().Use<PAS.Account.Api.Client.AccountApiClient>()
