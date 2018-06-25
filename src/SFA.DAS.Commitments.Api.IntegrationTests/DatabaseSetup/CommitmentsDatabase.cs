@@ -13,7 +13,7 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.DatabaseSetup
         // need to update when the data needs to be regenerated,
         // either because the schema of the test data tables changes
         // or when have added a new integration test that injects data
-        public static readonly int? SchemaVersion = 2;
+        public static readonly int? SchemaVersion = 3;
 
         public const string ApprenticeshipTableName = "[dbo].[Apprenticeship]";
         public const string ApprenticeshipUpdateTableName = "[dbo].[ApprenticeshipUpdate]";

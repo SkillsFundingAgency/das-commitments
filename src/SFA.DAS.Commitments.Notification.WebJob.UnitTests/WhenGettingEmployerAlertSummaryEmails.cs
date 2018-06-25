@@ -10,13 +10,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Notification.WebJob.EmailServices;
 
 namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
 {
     [TestFixture]
-    public class WhenGettingEmailTemplate
+    public class WhenGettingEmployerAlertSummaryEmails
     {
-        private EmployerEmailTemplatesService _sut;
+        private EmployerAlertSummaryEmailService _sut;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepostory;
         private Mock<IAccountApiClient> _accountApiClient;
 
@@ -28,7 +29,7 @@ namespace SFA.DAS.Commitments.Notification.WebJob.UnitTests
             SetUpApprenticeshipRepostory(new List<AlertSummary>());
             SetUpAccountClient(5, "Account A", new List<TeamMemberViewModel>());
 
-            _sut = new EmployerEmailTemplatesService(
+            _sut = new EmployerAlertSummaryEmailService(
                 _apprenticeshipRepostory.Object,
                 _accountApiClient.Object,
                 Mock.Of<ILog>());

@@ -128,10 +128,12 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipsForUln.cs" />
+    <Compile Include="Orchestrators\Employer\WhenGettingEmployerAccountIds.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingATransferRequest.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingTransferRequests.cs" />
     <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
+    <Compile Include="Orchestrators\Mappers\WhenMappingAnApprenticeshipResult .cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequestSummary.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequest.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />

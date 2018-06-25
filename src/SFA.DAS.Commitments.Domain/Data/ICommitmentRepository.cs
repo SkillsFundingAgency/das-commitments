@@ -20,6 +20,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName);
         Task<TransferRequest> GetTransferRequest(long transferRequestId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);
+        Task<IList<TransferRequestSummary>> GetPendingTransferRequests();
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
         Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses);
         Task ResetEditStatusToEmployer(long commitmentId);

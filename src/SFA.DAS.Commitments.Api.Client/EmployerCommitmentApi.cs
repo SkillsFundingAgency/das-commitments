@@ -246,5 +246,11 @@ namespace SFA.DAS.Commitments.Api.Client
             var url = $"{_configuration.BaseUrl}api/employer/{transferSenderId}/receiver/transfers/{transferRequestId}";
             return _commitmentHelper.GetTransferRequest(url);
         }
+
+        public Task<IEnumerable<long>> GetAllEmployerAccountIds()
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/ids";
+            return _commitmentHelper.GetUrlResult<IEnumerable<long>>(url);
+        }
     }
 }
