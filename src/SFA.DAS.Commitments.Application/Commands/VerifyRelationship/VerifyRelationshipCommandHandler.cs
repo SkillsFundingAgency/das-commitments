@@ -3,6 +3,8 @@ using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
 {
@@ -11,12 +13,14 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly VerifyRelationshipValidator _validator;
         private readonly ICommitmentsLogger _logger;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public VerifyRelationshipCommandHandler(ICommitmentRepository commitmentRepository, VerifyRelationshipValidator validator, ICommitmentsLogger logger)
+        public VerifyRelationshipCommandHandler(ICommitmentRepository commitmentRepository, VerifyRelationshipValidator validator, ICommitmentsLogger logger, IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(VerifyRelationshipCommand message)
@@ -28,7 +32,14 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            await _commitmentRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId, message.LegalEntityId, message.Verified.Value);
+            await Task.WhenAll(_commitmentRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId,
+                message.LegalEntityId, message.Verified.Value),
+                PublishRelationshipVerifiedEvent(message.ProviderId, message.EmployerAccountId, message.LegalEntityId, message.Verified.Value));
+        }
+
+        private async Task PublishRelationshipVerifiedEvent(long providerId, long employerAccountId, string legalEntityId, bool? verified)
+        {
+            await _messagePublisher.PublishAsync(new RelationshipVerified(providerId, employerAccountId, legalEntityId, verified));
         }
     }
 }
