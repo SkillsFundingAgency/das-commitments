@@ -32,7 +32,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             var status = _statusCalculator.GetStatus(commitment.EditStatus,
                                                     commitment.Apprenticeships.Count,
                                                     commitment.LastAction,
-                                                    agremmentStatus);
+                                                    (Api.Types.AgreementStatus)agremmentStatus,
+                                                    commitment.TransferSenderId,
+                                                    (Api.Types.TransferApprovalStatus)commitment.TransferApprovalStatus);
 
             return new CommitmentSummaryViewModel
             {

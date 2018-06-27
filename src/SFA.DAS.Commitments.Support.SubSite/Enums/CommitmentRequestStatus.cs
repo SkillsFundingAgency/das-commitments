@@ -25,6 +25,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Enums
         ReadyForApproval,
 
         [Description("Approved")]
-        Approved
+        Approved,
+
+        //With sender for approval
+        [Description("Pending")]
+        WithSenderForApproval,
+
+        //Rejected by transfer
+        [Description("Rejected")]
+        RejectedBySender
     }
 }
