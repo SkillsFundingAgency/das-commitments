@@ -46,7 +46,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                 .Setup(x => x.GetStatus(It.IsAny<EditStatus>(),
                                                      It.IsAny<int>(),
                                                      It.IsAny<LastAction>(),
-                                                     It.IsAny<AgreementStatus?>()))
+                                                     It.IsAny<Api.Types.AgreementStatus?>(),
+                                                     It.IsAny<long?>(),
+                                                     It.IsAny< Api.Types.TransferApprovalStatus?>()))
                   .Returns(RequestStatus.Approved);
 
             _hashingService
@@ -68,9 +70,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             _commitmentRules.Verify(x => x.DetermineAgreementStatus(It.IsAny<List<Apprenticeship>>()), Times.AtLeastOnce);
 
             _statusCalculator.Verify(x => x.GetStatus(It.IsAny<EditStatus>(),
-                                                     It.IsAny<int>(),
+                                                      It.IsAny<int>(),
                                                      It.IsAny<LastAction>(),
-                                                     It.IsAny<AgreementStatus?>()), Times.AtLeastOnce);
+                                                     It.IsAny<Api.Types.AgreementStatus?>(),
+                                                     It.IsAny<long?>(),
+                                                     It.IsAny<Api.Types.TransferApprovalStatus?>()), Times.AtLeastOnce);
 
             _hashingService.Verify(o => o.HashValue(It.IsAny<long>()), Times.AtLeastOnce);
 
