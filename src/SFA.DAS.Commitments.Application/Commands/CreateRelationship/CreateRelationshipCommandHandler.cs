@@ -2,8 +2,11 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
 {
@@ -12,8 +15,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
         private readonly AbstractValidator<CreateRelationshipCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICommitmentsLogger _logger;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public CreateRelationshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateRelationshipCommand> validator, ICommitmentsLogger logger)
+        public CreateRelationshipCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<CreateRelationshipCommand> validator, ICommitmentsLogger logger, IMessagePublisher messagePublisher)
         {
             if (commitmentRepository == null)
                 throw new ArgumentNullException(nameof(commitmentRepository));
@@ -23,6 +27,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
             _commitmentRepository = commitmentRepository;
             _validator = validator;
             _logger = logger;
+            _messagePublisher = messagePublisher;
         }
 
         protected override async Task HandleCore(CreateRelationshipCommand message)
@@ -34,7 +39,29 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            await _commitmentRepository.CreateRelationship(message.Relationship);
+            await Task.WhenAll(_commitmentRepository.CreateRelationship(message.Relationship),
+                PublishRelationshipCreatedEvent(message.Relationship));
+        }
+
+        private async Task PublishRelationshipCreatedEvent(Domain.Entities.Relationship relationship)
+        {
+            await _messagePublisher.PublishAsync(new RelationshipCreated(Map(relationship)));
+        }
+
+        private static Relationship Map(Domain.Entities.Relationship entity)
+        {
+            return new Relationship
+            {
+                EmployerAccountId = entity.EmployerAccountId,
+                Id = entity.Id,
+                LegalEntityId = entity.LegalEntityId,
+                LegalEntityName = entity.LegalEntityName,
+                LegalEntityAddress = entity.LegalEntityAddress,
+                LegalEntityOrganisationType = entity.LegalEntityOrganisationType,
+                ProviderId = entity.ProviderId,
+                ProviderName = entity.ProviderName,
+                Verified = entity.Verified
+            };
         }
     }
 }
