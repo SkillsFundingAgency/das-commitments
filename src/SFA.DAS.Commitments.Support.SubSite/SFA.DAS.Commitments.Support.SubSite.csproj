@@ -266,9 +266,9 @@
     <Compile Include="DependencyResolution\StructureMapScopeModule.cs" />
     <Compile Include="Enums\ApprenticeshipSearchType.cs" />
     <Compile Include="Enums\CommitmentRequestStatus.cs" />
-    <Compile Include="Extentions\DateTimeExtensions.cs" />
-    <Compile Include="Extentions\DecimalFormatExtensions.cs" />
-    <Compile Include="Extentions\EnumExtensions.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DecimalFormatExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -430,6 +430,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{aa3b3870-f97a-443b-8429-663de064a8ad}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Application\SFA.DAS.Commitments.Application.csproj">
       <Project>{880CDAF6-D9EE-481B-B4D8-7DE9C215A770}</Project>
       <Name>SFA.DAS.Commitments.Application</Name>

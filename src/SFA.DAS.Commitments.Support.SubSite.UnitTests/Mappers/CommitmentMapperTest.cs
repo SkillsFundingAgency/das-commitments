@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
         private Mock<ICommitmentStatusCalculator> _statusCalculator;
         private Mock<ICommitmentRules> _commitmentRules;
         private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
-
+        private const string _hashedId = "HBCDE5";
 
 
         private Commitment _mockedCommitment;
@@ -46,12 +46,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                 .Setup(x => x.GetStatus(It.IsAny<EditStatus>(),
                                                      It.IsAny<int>(),
                                                      It.IsAny<LastAction>(),
-                                                     It.IsAny<AgreementStatus?>()))
+                                                     It.IsAny<Api.Types.AgreementStatus?>(),
+                                                     It.IsAny<long?>(),
+                                                     It.IsAny< Api.Types.TransferApprovalStatus?>()))
                   .Returns(RequestStatus.Approved);
 
             _hashingService
              .Setup(o => o.HashValue(It.IsAny<long>()))
-             .Returns("HBCDE5");
+             .Returns(_hashedId);
 
             _mapper = new CommitmentMapper(_hashingService.Object,
                 _statusCalculator.Object,
@@ -68,9 +70,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             _commitmentRules.Verify(x => x.DetermineAgreementStatus(It.IsAny<List<Apprenticeship>>()), Times.AtLeastOnce);
 
             _statusCalculator.Verify(x => x.GetStatus(It.IsAny<EditStatus>(),
-                                                     It.IsAny<int>(),
+                                                      It.IsAny<int>(),
                                                      It.IsAny<LastAction>(),
-                                                     It.IsAny<AgreementStatus?>()), Times.AtLeastOnce);
+                                                     It.IsAny<Api.Types.AgreementStatus?>(),
+                                                     It.IsAny<long?>(),
+                                                     It.IsAny<Api.Types.TransferApprovalStatus?>()), Times.AtLeastOnce);
 
             _hashingService.Verify(o => o.HashValue(It.IsAny<long>()), Times.AtLeastOnce);
 
@@ -84,6 +88,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
 
             result.Should().NotBeNull();
             result.Should().BeOfType<CommitmentSummaryViewModel>();
+            result.CohortReference.Should().BeSameAs(_hashedId);
         }
 
         [Test]
@@ -92,6 +97,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             var result = _mapper.MapToCommitmentDetailViewModel(_mockedCommitment);
             result.Should().NotBeNull();
             result.Should().BeOfType<CommitmentDetailViewModel>();
+            result.CommitmentApprenticeships.Should().NotBeNull();
+            result.CommitmentSummary.Should().NotBeNull();
         }
 
     }

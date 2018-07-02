@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             {
                 Uln = response.Apprenticeships.First().ULN,
                 ApprenticeshipsCount = response.TotalCount,
-                SearchResults = response.Apprenticeships?.Select(o => MapToApprenticeshipSearchItemViewModel(o)).OrderBy(a => a.ApprenticeName).ToList()
+                SearchResults = response.Apprenticeships.Select(o => MapToApprenticeshipSearchItemViewModel(o)).OrderBy(a => a.ApprenticeName).ToList()
             };
         }
 
