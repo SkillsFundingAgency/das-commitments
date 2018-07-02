@@ -52,6 +52,8 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task SetHasHadDataLockSuccess(long id);
         Task UpdateApprenticeshipStopDate(long commitmentId, long apprenticeshipId, DateTime stopDate);
 
+        Task<ApprenticeshipsResult> GetApprenticeshipsByUln(string uln);
+
         Task<IEnumerable<long>> GetEmployerAccountIds();
     }
 }

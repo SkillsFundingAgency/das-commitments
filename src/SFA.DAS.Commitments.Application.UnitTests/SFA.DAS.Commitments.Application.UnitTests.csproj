@@ -204,6 +204,7 @@
     <Compile Include="Queries\GetTransfeRequest\WhenGettingATransferRequest.cs" />
     <Compile Include="Queries\GetTransfeRequest\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\WhenGetApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetCustomProviderPaymentPriority\WhenGettingProviderPaymentPriority.cs" />
     <Compile Include="Queries\GetDataLocks\WhenGettingDataLocks.cs" />
     <Compile Include="Queries\GetDataLocks\WhenValidatingRequest.cs" />

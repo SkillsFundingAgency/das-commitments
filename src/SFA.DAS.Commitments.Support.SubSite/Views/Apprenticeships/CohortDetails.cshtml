@@ -1,0 +1,55 @@
+﻿@using SFA.DAS.Commitments.Support.SubSite.Models
+@using SFA.DAS.Commitments.Support.SubSite.Extensions
+
+@model CommitmentDetailViewModel
+@{
+    ViewBag.Title = "CommitmentDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@if (Model.CommitmentApprenticeships != null && Model.CommitmentApprenticeships.Any())
+{
+    <div class="grid-row">
+
+        <div class="column-full">
+
+            <table class="responsive">
+                <thead>
+                    <tr>
+                        <th scope="col" class="">Name</th>
+                        <th scope="col" class="">ULN</th>
+                        <th scope="col" class="">Date Of Birth</th>
+                        <th scope="col" class="">Training dates</th>
+                        <th scope="col" class="">Status</th>
+                        <th scope="col" class=""></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var apprenticeship in Model.CommitmentApprenticeships)
+                    {
+                    <tr>
+                        <td data-label="Name">@apprenticeship.ApprenticeName</td>
+                        <td data-label0="UKPRN">@apprenticeship.ULN</td>
+                        <td data-label="Organisation">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
+                        <td data-label="Training dates">@apprenticeship.TrainingDates</td>
+                        <td data-label="Status">@apprenticeship.PaymentStatus</td>
+                        <td scope="col" class=""> <a href="@Url.RouteUrl("ApprenticeshipDetails", new { hashedApprenticeshipId = apprenticeship.ApprenticeshipHashId, hashedAccountId = apprenticeship.HashedAccountId})"> View</a>  </td>
+                    </tr>
+
+                    }
+                </tbody>
+            </table>
+
+
+
+        </div>
+
+    </div>
+
+
+}
+
+
+

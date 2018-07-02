@@ -173,6 +173,9 @@
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Interfaces\IApprenticeshipInfoServiceWrapper.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnQueryHandler.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnRequest.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnResponse.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnQueryHandler.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnRequest.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnResponse.cs" />

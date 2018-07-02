@@ -120,7 +120,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {
             _logger.Debug($"Updating apprenticeship {apprenticeshipId} for commitment {commitmentId} payment status to {paymentStatus}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
@@ -403,6 +402,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     param: parameters,
                     commandType: CommandType.Text);
             });
+        }
+
+        public async Task<ApprenticeshipsResult> GetApprenticeshipsByUln(string uln)
+        {
+            return await WithConnection(async c =>
+             {
+                 var parameters = new DynamicParameters();
+                 parameters.Add("@ULN", uln, DbType.String);
+
+                 const string sql = "[GetApprenticeshipsByULN]";
+
+                 var apprenticeships = (await c.QueryAsync<Apprenticeship>(sql, parameters, commandType: CommandType.StoredProcedure))
+                     .ToList();
+
+                 return new ApprenticeshipsResult
+                 {
+                     Apprenticeships = apprenticeships,
+                     TotalCount = apprenticeships.Count
+                 };
+             });
         }
 
         private static async Task<IList<Apprenticeship>> UploadApprenticeshipsAndGetIds(long commitmentId, SqlConnection x, DataTable table)
