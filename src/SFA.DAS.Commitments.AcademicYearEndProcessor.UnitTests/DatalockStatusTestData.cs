@@ -9,7 +9,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         /// <summary>
         /// Provides 1 data item for Ac.yr 2015/16, 5 for Ac.Yr 2016/17 and 1 for Ac.Yr 207/18
         /// </summary>
-        /// <param name="s"></param>
+        /// <param name="year"></param>
         /// <returns></returns>
         public static List<DataLockStatus> GetData(int year)
         {
