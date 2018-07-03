@@ -78,7 +78,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipsOrchestrator>().Use<ApprenticeshipsOrchestrator>();
-            For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>();
+            For<IValidator<ApprenticeshipSearchQuery>>().Use<ApprenticeshipsSearchQueryValidator>().Singleton();
             For<ICurrentDateTime>().Use<CurrentDateTime>();
             For<IApprenticeshipTransactions>().Use<ApprenticeshipTransactions>();
             For<IApprenticeshipMapper>().Use<ApprenticeshipMapper>();

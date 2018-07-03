@@ -85,7 +85,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 Uln = searchQuery.SearchTerm
             });
 
-            if (response?.TotalCount == 0)
+            if ((response?.TotalCount ?? 0) == 0)
             {
                 return new UlnSummaryViewModel
                 {
