@@ -41,8 +41,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
 
             var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
             var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
-            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
+
             await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
+
+            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);            
 
             if (haveBothPartiesApproved)
             {
@@ -128,7 +130,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
 
         private static void CheckEditStatus(Commitment commitment)
         {
-            if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
+            if (commitment.EditStatus != EditStatus.ProviderOnly)
             {
                 throw new UnauthorizedException($"Employer not allowed to edit commitment: {commitment.Id}");
             }
