@@ -5,6 +5,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
 {
     public interface ICommitmentStatusCalculator
     {
-        RequestStatus GetStatus(EditStatus editStatus, int apprenticeshipCount, LastAction lastAction, Api.Types.AgreementStatus? overallAgreementStatus, long? transferSenderId, Api.Types.TransferApprovalStatus? transferApprovalStatus);
+        RequestStatus GetStatus(EditStatus editStatus, int apprenticeshipCount, LastAction lastAction, AgreementStatus? overallAgreementStatus, long? transferSenderId, TransferApprovalStatus? transferApprovalStatus);
     }
 }

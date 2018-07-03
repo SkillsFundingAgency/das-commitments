@@ -46,9 +46,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
                 .Setup(x => x.GetStatus(It.IsAny<EditStatus>(),
                                                      It.IsAny<int>(),
                                                      It.IsAny<LastAction>(),
-                                                     It.IsAny<Api.Types.AgreementStatus?>(),
+                                                     It.IsAny<AgreementStatus?>(),
                                                      It.IsAny<long?>(),
-                                                     It.IsAny< Api.Types.TransferApprovalStatus?>()))
+                                                     It.IsAny< TransferApprovalStatus?>()))
                   .Returns(RequestStatus.Approved);
 
             _hashingService
@@ -72,14 +72,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Mappers
             _statusCalculator.Verify(x => x.GetStatus(It.IsAny<EditStatus>(),
                                                       It.IsAny<int>(),
                                                      It.IsAny<LastAction>(),
-                                                     It.IsAny<Api.Types.AgreementStatus?>(),
+                                                     It.IsAny<AgreementStatus?>(),
                                                      It.IsAny<long?>(),
-                                                     It.IsAny<Api.Types.TransferApprovalStatus?>()), Times.AtLeastOnce);
+                                                     It.IsAny<TransferApprovalStatus?>()), Times.AtLeastOnce);
 
             _hashingService.Verify(o => o.HashValue(It.IsAny<long>()), Times.AtLeastOnce);
 
         }
-
 
         [Test]
         public void ShouldMapToVaLidCommitmentSummaryViewModel()

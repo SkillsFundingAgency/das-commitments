@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using FluentValidation;
+﻿using FluentValidation;
 using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Learners.Validators;
@@ -26,7 +22,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Validation
             {
                 RuleFor(x => x)
                                .Cascade(CascadeMode.StopOnFirstFailure)
-                               .Must(BeValidUlnNumber).WithMessage("Please enter a valid unique learner number")
+                               .Must((x) => (_ulnValidator.Validate(x.SearchTerm) != UlnValidationResult.IsInvalidUln)).WithMessage("Please enter a valid unique learner number")
                                .Must(BeValidTenDigitUlnNumber).WithMessage("Please enter a 10-digit unique learner number");
             });
 
@@ -34,38 +30,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Validation
             {
                 RuleFor(x => x)
                                .Cascade(CascadeMode.StopOnFirstFailure)
-                               .Must(BeValidCohortNumber).WithMessage("Please enter a 6-digit Cohort number");
+                               .Must((x) => x.SearchTerm.Length == 6).WithMessage("Please enter a 6-digit Cohort number");
             });
         }
         private bool BeValidTenDigitUlnNumber(ApprenticeshipSearchQuery query)
         {
             var result = _ulnValidator.Validate(query.SearchTerm);
-
-            if (result == UlnValidationResult.IsInValidTenDigitUlnNumber || result == UlnValidationResult.IsEmptyUlnNumber)
-            {
-                return false;
-            }
-
-            return true;
+            return !(result == UlnValidationResult.IsInValidTenDigitUlnNumber || result == UlnValidationResult.IsEmptyUlnNumber);
         }
-        private bool BeValidUlnNumber(ApprenticeshipSearchQuery query)
-        {
-            if (_ulnValidator.Validate(query.SearchTerm) == UlnValidationResult.IsInvalidUln)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool BeValidCohortNumber(ApprenticeshipSearchQuery query)
-        {
-            if(query.SearchTerm.Length != 6)
-            {
-                return false;
-            }
-
-            return true;
-        }
+     
     }
 }

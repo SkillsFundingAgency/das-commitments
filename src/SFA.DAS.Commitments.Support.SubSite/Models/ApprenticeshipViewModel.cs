@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public string ULN { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string CohortReference { get; set; }
-        public string EmployerReference { get; set; }
+        public string EmployerReference { get; set; } = string.Empty;
 
         public string LegalEntity { get; set; }
 

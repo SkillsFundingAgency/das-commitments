@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
 {
     public sealed class CommitmentStatusCalculator : ICommitmentStatusCalculator
     {
-        public RequestStatus GetStatus(EditStatus editStatus, int apprenticeshipCount, LastAction lastAction, Api.Types.AgreementStatus? overallAgreementStatus, long? transferSenderId, Api.Types.TransferApprovalStatus? transferApprovalStatus)
+        public RequestStatus GetStatus(EditStatus editStatus, int apprenticeshipCount, LastAction lastAction, AgreementStatus? overallAgreementStatus, long? transferSenderId, TransferApprovalStatus? transferApprovalStatus)
         {
             bool hasApprenticeships = apprenticeshipCount > 0;
 
@@ -42,13 +42,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
             return RequestStatus.None;
         }
 
-        private RequestStatus GetEmployerOnlyStatus(LastAction lastAction, bool hasApprenticeships, Api.Types.AgreementStatus? overallAgreementStatus)
+        private RequestStatus GetEmployerOnlyStatus(LastAction lastAction, bool hasApprenticeships, AgreementStatus? overallAgreementStatus)
         {
             if (!hasApprenticeships || lastAction == LastAction.None || lastAction == LastAction.AmendAfterRejected)
                 return RequestStatus.NewRequest;
 
             // LastAction.Approve > LastAction.Amend, but then AgreementStatus >= ProviderAgreed, so no need for > on LastAction??
-            if (lastAction >= LastAction.Amend && overallAgreementStatus == Api.Types.AgreementStatus.NotAgreed)
+            if (lastAction >= LastAction.Amend && overallAgreementStatus == AgreementStatus.NotAgreed)
                 return RequestStatus.ReadyForReview;
 
             if (lastAction == LastAction.Approve)
@@ -57,16 +57,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
             return RequestStatus.None;
         }
 
-        private RequestStatus GetTransferStatus(EditStatus edit, Api.Types.TransferApprovalStatus? transferApproval, LastAction lastAction, bool hasApprenticeships, Api.Types.AgreementStatus? overallAgreementStatus)
+        private RequestStatus GetTransferStatus(EditStatus edit, TransferApprovalStatus? transferApproval, LastAction lastAction, bool hasApprenticeships, AgreementStatus? overallAgreementStatus)
         {
             const string invalidStateExceptionMessagePrefix = "Transfer funder commitment in invalid state: ";
 
             if (edit >= EditStatus.Neither)
                 throw new Exception("Unexpected EditStatus");
 
-            switch (transferApproval ?? Api.Types.TransferApprovalStatus.Pending)
+            switch (transferApproval ?? TransferApprovalStatus.Pending)
             {
-                case Api.Types.TransferApprovalStatus.Pending:
+                case TransferApprovalStatus.Pending:
                     {
                         switch (edit)
                         {
@@ -82,12 +82,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Services
                         }
                     }
 
-                case Api.Types.TransferApprovalStatus.Approved:
+                case TransferApprovalStatus.TransferApproved:
                     if (edit != EditStatus.Both)
                         throw new Exception($"{invalidStateExceptionMessagePrefix}If approved by sender, must be approved by receiver and provider");
                     return RequestStatus.None;
 
-                case Api.Types.TransferApprovalStatus.Rejected:
+                case TransferApprovalStatus.TransferRejected:
                     if (edit != EditStatus.EmployerOnly)
                         throw new Exception($"{invalidStateExceptionMessagePrefix}If just rejected by sender, must be with receiver");
                     return RequestStatus.RejectedBySender;

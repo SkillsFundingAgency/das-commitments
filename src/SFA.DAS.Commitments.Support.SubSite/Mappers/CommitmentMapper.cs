@@ -28,13 +28,14 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
 
         public CommitmentSummaryViewModel MapToCommitmentSummaryViewModel(Commitment commitment)
         {
+
             var agremmentStatus = _commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships);
             var status = _statusCalculator.GetStatus(commitment.EditStatus,
                                                     commitment.Apprenticeships.Count,
                                                     commitment.LastAction,
-                                                    (Api.Types.AgreementStatus)agremmentStatus,
+                                                    agremmentStatus,
                                                     commitment.TransferSenderId,
-                                                    (Api.Types.TransferApprovalStatus)commitment.TransferApprovalStatus);
+                                                    commitment.TransferApprovalStatus);
 
             return new CommitmentSummaryViewModel
             {

@@ -37,21 +37,17 @@
 
                     @if (Model.Alerts != null && Model.Alerts.Any())
                     {
-                        for (int i = 0; i < Model.Alerts.Count(); i++)
+
+                        <tr>
+                            <td>Alerts</td>
+                            <td><a href="#"> @Model.Alerts.First()</a></td>
+                        </tr>
+
+                        foreach (var alert in Model.Alerts.Skip(1))
                         {
-                            if (i == 0)
-                            {
-                                <tr>
-                                    <td>Alerts</td>
-                                    <td><a href="#"> Model.Alerts[i]</a></td>
-
-                                </tr>
-                            }
-
                             <tr>
                                 <td></td>
-                                <td><a href="#"> Model.Alerts[i]</a></td>
-
+                                <td><a href="#">@alert</a></td>
                             </tr>
                         }
                     }
@@ -73,9 +69,8 @@
                     <tr>
                         <td>Name</td>
                         <td>@Model.Name</td>
-
                     </tr>
-                    <tr id="ULN">
+                    <tr >
                         <td>Unique learner number</td>
                         <td>@Model.ULN</td>
                     </tr>
@@ -83,112 +78,116 @@
                         <td>Date of birth</td>
                         <td>@Model.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
                     </tr>
-                    <tr id="referenceNumber">
+                    <tr >
                         <td>Cohort reference</td>
                         <td>@Model.CohortReference</td>
                     </tr>
 
-                    <tr id="referenceNumber">
-                        <td>Employer reference</td>
-                        <td>@Model.EmployerReference</td>
-                    </tr>
-
-                </tbody>
-            </table>
-
-
-            <table class="responsive twoColumn">
-                <thead>
-                    <tr>
-                        <th colspan="2"> <h2 class="heading-medium">Training</h2></th>
-                    </tr>
-                </thead>
-            </table>
-
-            <table class="responsive twoColumn">
-                <tbody>
-                    <tr id="employer">
-                        <td>Legal entity</td>
-                        <td>@Model.LegalEntity</td>
-                    </tr>
-                    <tr id="trainingProvider">
-                        <td>Training provider</td>
-                        <td>@Model.TrainingProvider</td>
-                    </tr>
-                    <tr id="trainingProvider">
-                        <td>UKPRN</td>
-                        <td>@Model.UKPRN</td>
-                    </tr>
-
-                    <tr>
-                        <td>Apprenticeship training course</td>
-                        <td>@Model.Trainingcourse</td>
-                    </tr>
-                    <tr>
-                        <td>Apprenticeship code</td>
-                        <td>@Model.ApprenticeshipCode</td>
-                    </tr>
-
-
-                </tbody>
-            </table>
-
-
-            <table class="responsive twoColumn">
-                <thead>
-                    <tr>
-                        <th colspan="2"> <h2 class="heading-medium">Dates</h2></th>
-                    </tr>
-                </thead>
-            </table>
-
-            <table class="responsive twoColumn">
-                <tbody>
-
-                    <tr>
-                        <td>AS training start date</td>
+                    <tr >
                         <td>
-                            @{
-                                var startDate = Model.DasTrainingStartDate.HasValue ? Model.DasTrainingStartDate.Value.ToGdsFormatWithoutDay() : "";
-                            }
-
-                            @startDate
+                            Employer reference
                         </td>
-                    </tr>
-                    <tr>
-                        <td>AS training end date</td>
                         <td>
-                            @{
-                                var endDate = Model.DasTrainingEndDate.HasValue ? Model.DasTrainingEndDate.Value.ToGdsFormatWithoutDay() : "";
-                            }
+                            @Model.EmployerReference
+                       </td>
+                </tr>
 
-                            @endDate
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            </tbody>
+        </table>
 
 
-            <table class="responsive twoColumn">
-                <thead>
-                    <tr>
-                        <th colspan="2"> <h2 class="heading-medium">Payment</h2></th>
-                    </tr>
-                </thead>
-            </table>
+        <table class="responsive twoColumn">
+            <thead>
+                <tr>
+                    <th colspan="2"> <h2 class="heading-medium">Training</h2></th>
+                </tr>
+            </thead>
+        </table>
 
-            <table class="responsive twoColumn">
-                <tbody>
-                    <tr>
-                        <td>Cost</td>
-                        <td>@Model.TrainingCost.ToGdsCurrencyFormat()</td>
-                    </tr>
+        <table class="responsive twoColumn">
+            <tbody>
+                <tr >
+                    <td>Legal entity</td>
+                    <td>@Model.LegalEntity</td>
+                </tr>
+                <tr >
+                    <td>Training provider</td>
+                    <td>@Model.TrainingProvider</td>
+                </tr>
+                <tr >
+                    <td>UKPRN</td>
+                    <td>@Model.UKPRN</td>
+                </tr>
 
-                </tbody>
-            </table>
+                <tr>
+                    <td>Apprenticeship training course</td>
+                    <td>@Model.Trainingcourse</td>
+                </tr>
+                <tr>
+                    <td>Apprenticeship code</td>
+                    <td>@Model.ApprenticeshipCode</td>
+                </tr>
 
-        </div>
+
+            </tbody>
+        </table>
+
+
+        <table class="responsive twoColumn">
+            <thead>
+                <tr>
+                    <th colspan="2"> <h2 class="heading-medium">Dates</h2></th>
+                </tr>
+            </thead>
+        </table>
+
+        <table class="responsive twoColumn">
+            <tbody>
+
+                <tr>
+                    <td>AS training start date</td>
+                    <td>
+                        @{
+                            var startDate = Model.DasTrainingStartDate?.ToGdsFormatWithoutDay() ?? "";
+                        }
+
+                        @startDate
+                    </td>
+                </tr>
+                <tr>
+                    <td>AS training end date</td>
+                    <td>
+                        @{
+                            var endDate = Model.DasTrainingEndDate?.ToGdsFormatWithoutDay() ?? "";
+                        }
+
+                        @endDate
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <table class="responsive twoColumn">
+            <thead>
+                <tr>
+                    <th colspan="2"> <h2 class="heading-medium">Payment</h2></th>
+                </tr>
+            </thead>
+        </table>
+
+        <table class="responsive twoColumn">
+            <tbody>
+                <tr>
+                    <td>Cost</td>
+                    <td>@Model.TrainingCost.ToGdsCurrencyFormat()</td>
+                </tr>
+
+            </tbody>
+        </table>
+
     </div>
+</div>
 
 
 </div>
