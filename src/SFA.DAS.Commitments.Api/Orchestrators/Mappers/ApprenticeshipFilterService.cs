@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Api.Types.Extensions;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -79,6 +80,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 result = result.Where(m => apprenticeshipQuery.TrainingProviderIds.Contains(m.ProviderId));
             }
 
+            if (apprenticeshipQuery.TransferFunded)
+            {
+                result = result.Where(m => m.IsTranferFunded());
+            }
+
             if (!string.IsNullOrWhiteSpace(apprenticeshipQuery.SearchKeyword))
             {
                 var isUln = Regex.Match(apprenticeshipQuery.SearchKeyword, "^[0-9]{10}$");
@@ -136,12 +142,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             TotalResults = totalResults;
         }
 
-        public IReadOnlyCollection<Apprenticeship> PageOfResults { get; private set; }
+        public IReadOnlyCollection<Apprenticeship> PageOfResults { get; }
 
-        public int PageNumber { get; private set; }
+        public int PageNumber { get; }
 
-        public int PageSize { get; private set; }
+        public int PageSize { get; }
 
-        public int TotalResults { get; private set; }
+        public int TotalResults { get; }
     }
 }
