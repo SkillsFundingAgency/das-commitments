@@ -22,8 +22,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
 
         public List<string> TrainingCourses { get; set; }
 
-        //todo: change to list? currently only 1, but might want to add more, and will fit in with existing better
-        public bool TransferFunded { get; set; }
+        public List<FundingStatus> FundingStatuses { get; set; }
 
         public int PageNumber { get; set; }
 

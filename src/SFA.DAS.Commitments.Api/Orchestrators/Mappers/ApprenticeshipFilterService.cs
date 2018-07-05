@@ -18,6 +18,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             _facetMapper = facetMapper;
         }
 
+        //todo: this method is too long and should be broken down!
         public virtual FilterResult Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var apps = new Apprenticeship[apprenticeships.Count];
@@ -80,8 +81,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 result = result.Where(m => apprenticeshipQuery.TrainingProviderIds.Contains(m.ProviderId));
             }
 
-            if (apprenticeshipQuery.TransferFunded)
+            if (apprenticeshipQuery.FundingStatuses?.Any() ?? false)
             {
+                // this assumes the only FundingStatus is TransferFunded (which is currently true)
+                // we do this as FundingStatus.TransferFunded is a pseudo status that isn't directly stored in Apprenticeship
                 result = result.Where(m => m.IsTranferFunded());
             }
 
@@ -91,11 +94,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 
                 if (isUln.Success)
                 {
-                    result =
-                        result.Where(
-                            m =>
-                                m.ULN.Equals(apprenticeshipQuery.SearchKeyword,
-                                    StringComparison.InvariantCultureIgnoreCase));
+                    result = result.Where(m => m.ULN.Equals(apprenticeshipQuery.SearchKeyword, StringComparison.InvariantCultureIgnoreCase));
                 }
                 else
                 {

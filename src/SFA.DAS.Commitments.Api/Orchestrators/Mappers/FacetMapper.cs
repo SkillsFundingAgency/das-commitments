@@ -189,7 +189,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 facets.Add(new FacetItem<FundingStatus>
                 {
                     Data = FundingStatus.TransferFunded,
-                    Selected = apprenticeshipQuery?.TransferFunded ?? false
+                    //Selected = apprenticeshipQuery?.FundingStatuses.Contains(FundingStatus.TransferFunded) ?? false
+
+                    // this assumes the only FundingStatus is TransferFunded (which is currently true)
+                    Selected = apprenticeshipQuery?.FundingStatuses.Any() ?? false
                 });
             }
 
