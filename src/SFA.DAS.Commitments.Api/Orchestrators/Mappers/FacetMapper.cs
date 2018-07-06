@@ -192,7 +192,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     //Selected = apprenticeshipQuery?.FundingStatuses.Contains(FundingStatus.TransferFunded) ?? false
 
                     // this assumes the only FundingStatus is TransferFunded (which is currently true)
-                    Selected = apprenticeshipQuery?.FundingStatuses.Any() ?? false
+                    Selected = apprenticeshipQuery?.FundingStatuses?.Any() ?? false
                 });
             }
 
