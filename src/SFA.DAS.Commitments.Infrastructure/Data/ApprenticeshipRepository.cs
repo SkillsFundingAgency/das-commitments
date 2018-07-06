@@ -210,6 +210,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task<IEnumerable<long>> GetEmployerAccountIds()
+        {
+            var results = await WithConnection(async c => await c.QueryAsync<long>(
+                sql: "SELECT DISTINCT EmployerAccountId FROM [dbo].[Commitment]",
+                commandType: CommandType.Text));
+
+            return results;
+        }
+
         public async Task UpdateApprenticeshipStatuses(List<Apprenticeship> apprenticeships)
         {
             await WithTransaction(async (connection, transaction) =>

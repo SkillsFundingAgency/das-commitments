@@ -207,6 +207,7 @@
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenGetActiveApprenticeshipsByUln.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetStatistics\WhenGettingStatistics.cs" />
+    <Compile Include="Queries\GetEmployerAccountIds\WhenGettingAllEmployerAccountIds.cs" />
     <Compile Include="Queries\GetTransfeRequest\WhenGettingATransferRequest.cs" />
     <Compile Include="Queries\GetTransfeRequest\WhenValidatingRequest.cs" />
     <Compile Include="Queries\GetCommitment\WhenGettingCommitmentForTransferSender.cs" />
@@ -252,6 +253,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
+      <Project>{AA3B3870-F97A-443B-8429-663DE064A8AD}</Project>
+      <Name>SFA.DAS.Commitments.Api.Types</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj">
       <Project>{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}</Project>
       <Name>SFA.DAS.Commitments.Api</Name>

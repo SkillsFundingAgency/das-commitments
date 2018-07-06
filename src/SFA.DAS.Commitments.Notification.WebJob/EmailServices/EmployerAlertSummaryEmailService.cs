@@ -12,27 +12,20 @@ using SFA.DAS.NLog.Logger;
 using SFA.DAS.Notifications.Api.Types;
 using Polly;
 
-namespace SFA.DAS.Commitments.Notification.WebJob
+namespace SFA.DAS.Commitments.Notification.WebJob.EmailServices
 {
-    public class EmployerEmailTemplatesService : IEmployerEmailTemplatesService
+    public class EmployerAlertSummaryEmailService : IEmployerAlertSummaryEmailService
     {
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IAccountApiClient _accountApi;
         private readonly ILog _logger;
         private readonly Policy _retryPolicy;
 
-        public EmployerEmailTemplatesService(
+        public EmployerAlertSummaryEmailService(
             IApprenticeshipRepository apprenticeshipRepository,
             IAccountApiClient accountApi,
             ILog logger)
         {
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException($"{nameof(apprenticeshipRepository)} is null");
-            if (accountApi == null)
-                throw new ArgumentNullException($"{nameof(accountApi)} is null");
-            if (logger == null)
-                throw new ArgumentNullException($"{nameof(logger)} is null");
-
             _apprenticeshipRepository = apprenticeshipRepository;
             _accountApi = accountApi;
             _logger = logger;

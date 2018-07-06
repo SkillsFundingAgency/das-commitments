@@ -19,6 +19,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 CommitmentId = source.CommitmentId,
                 EmployerAccountId = source.EmployerAccountId,
                 ProviderId = source.ProviderId,
+                TransferSenderId = source.TransferSenderId,
                 Reference = source.Reference,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
@@ -105,6 +106,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityName = sourceItem.LegalEntityName,
                 ProviderId = sourceItem.ProviderId,
                 ProviderName = sourceItem.ProviderName,
+                TransferSenderId = sourceItem.TransferSenderId,
                 CommitmentId = sourceItem.CommitmentId
             });
         }
