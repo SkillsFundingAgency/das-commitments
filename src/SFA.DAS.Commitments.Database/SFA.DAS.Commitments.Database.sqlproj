@@ -113,6 +113,7 @@
     <Build Include="Tables\JobProgress.sql" />
     <Build Include="StoredProcedures\SetTransferApproval.sql" />
     <Build Include="Tables\JobProgress.sql" />
+	<Build Include="Tables\AssessmentOrganisation.sql" />
     <Build Include="Tables\IntegrationTestIds.sql" />
     <Build Include="Tables\TransferRequest.sql" />
     <Build Include="StoredProcedures\StartATransferRequest.sql" />
