@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[AssessmentOrganisation]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[EPAOrgId] CHAR(7) NOT NULL,
+	[Name] NVARCHAR(128) NOT NULL,
+	CONSTRAINT AK_EPAOrgId UNIQUE([EPAOrgId])
+)

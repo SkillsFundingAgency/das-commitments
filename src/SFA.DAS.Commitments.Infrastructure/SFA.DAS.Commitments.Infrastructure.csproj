@@ -82,9 +82,11 @@
       <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Client.0.10.95\lib\net45\SFA.DAS.Apprenticeships.Api.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=0.10.95.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.10.95\lib\net45\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=0.10.122.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.10.122\lib\net45\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.AssessmentOrgs.Api.Client, Version=0.10.122.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.AssessmentOrgs.Api.Client.0.10.122\lib\net45\SFA.DAS.AssessmentOrgs.Api.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Configuration, Version=1.0.0.43116, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Configuration.1.0.0.43116\lib\net45\SFA.DAS.Configuration.dll</HintPath>
@@ -122,13 +124,11 @@
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.43242, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.43242\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Provider.Events.Api.Client, Version=2.0.0.34401, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.34401\lib\net45\SFA.DAS.Provider.Events.Api.Client.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.Provider.Events.Api.Client, Version=2.0.0.57315, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.57315\lib\net45\SFA.DAS.Provider.Events.Api.Client.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Provider.Events.Api.Types, Version=2.0.0.34401, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.34401\lib\net45\SFA.DAS.Provider.Events.Api.Types.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.Provider.Events.Api.Types, Version=2.0.0.57315, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Provider.Events.Api.Client.2.0.0.57315\lib\net45\SFA.DAS.Provider.Events.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.32930, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.32930\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
@@ -164,6 +164,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authorization\AuthorizeRemoteOnlyAttribute.cs" />
+    <Compile Include="AzureStorage\AzureBlobStorage.cs" />
+    <Compile Include="AzureStorage\IAzureBlobStorage.cs" />
     <Compile Include="Configuration\ApprenticeshipInfoServiceConfiguration.cs" />
     <Compile Include="Configuration\CommitmentsApiConfiguration.cs" />
     <Compile Include="Configuration\Configuration.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
+    <Compile Include="Data\AssessmentOrganisationRepository.cs" />
     <Compile Include="Data\BulkUploadRepository.cs" />
     <Compile Include="Data\DataLockRepository.cs" />
     <Compile Include="Data\IdamsEmailServiceWrapper.cs" />
@@ -196,11 +199,13 @@
     <Compile Include="Services\ApprenticeshipEventsList.cs" />
     <Compile Include="Services\ApprenticeshipEventsPublisher.cs" />
     <Compile Include="Services\ApprenticeshipInfoServiceWrapper.cs" />
+    <Compile Include="Services\AssessmentOrgsDocumentService.cs" />
+    <Compile Include="Services\AssessmentOrgsService.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
     <Compile Include="Services\HttpClientWrapper.cs" />
     <Compile Include="Services\IPaymentEventMapper.cs" />
     <Compile Include="Services\PaymentEventMapper.cs" />
-    <Compile Include="Services\PaymentEventsDocumentSerivce.cs" />
+    <Compile Include="Services\PaymentEventsDocumentService.cs" />
     <Compile Include="Services\PaymentEventsService.cs" />
   </ItemGroup>
   <ItemGroup>
