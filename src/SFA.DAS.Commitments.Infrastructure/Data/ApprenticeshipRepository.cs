@@ -97,9 +97,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        // note: commitmentId is not used
         public async Task PauseApprenticeship(long commitmentId, long apprenticeshipId, DateTime pauseDate)
         {
-            
             _logger.Debug($"Updating apprenticeship status to {PaymentStatus.Paused} for appreticeship {apprenticeshipId} for commitment {commitmentId}", commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
 
             await WithTransaction(async (conn, tran) =>
@@ -120,6 +120,26 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
+        public async Task UpdateApprenticeshipEpa(long apprenticeshipId, string epaOrgId)
+        {
+            _logger.Info($"Updating apprenticeship {apprenticeshipId} EPAOrgId to {epaOrgId ?? "NULL"}");
+
+            var rowsAffected = await WithConnection(async connection =>
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", apprenticeshipId, DbType.Int64);
+                parameters.Add("@EPAOrgId", epaOrgId, DbType.AnsiStringFixedLength);
+
+                return await connection.ExecuteAsync(
+                    "UPDATE [dbo].[Apprenticeship] SET EPAOrgId = @EPAOrgId "
+                    + "WHERE Id = @id;",
+                    param: parameters,
+                    commandType: CommandType.Text);
+            });
+
+            if (rowsAffected == 0) // best exception to throw? create new ApprenticeshipNotFound or something?
+                throw new ArgumentOutOfRangeException($"Apprenticeship with Id {apprenticeshipId} not found");
+        }
 
         public async Task UpdateApprenticeshipStatus(long commitmentId, long apprenticeshipId, PaymentStatus paymentStatus)
         {

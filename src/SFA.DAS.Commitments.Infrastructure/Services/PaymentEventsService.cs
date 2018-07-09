@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Provider.Events.Api.Client;
 using Polly;
+using SFA.DAS.Provider.Events.Api.Types;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
@@ -51,13 +50,16 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             long ukprn = 0,
             int page = 1)
         {
-            //todo: remove cast to int once package fixed
-
-            var result = await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetDataLockEvents((int)sinceEventId, sinceTime, employerAccountId, ukprn, page));
+            var result = await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetDataLockEvents(sinceEventId, sinceTime, employerAccountId, ukprn, page));
 
             return 
                 result?.Items.Select(_mapper.Map) 
                 ?? new DataLockStatus[0];
+        }
+
+        public async Task<PageOfResults<SubmissionEvent>> GetSubmissionEvents(long sinceEventId = 0, DateTime? sinceTime = null, long ukprn = 0, int page = 1)
+        {
+            return await _retryPolicy.ExecuteAsync(() => _paymentsEventsApi.GetSubmissionEvents(sinceEventId, sinceTime, ukprn, page));
         }
     }
 }

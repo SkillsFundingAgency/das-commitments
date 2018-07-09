@@ -57,5 +57,32 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.PaymentEventsSer
             await _sut.GetDataLockEvents(2);
             _paymentEventsApi.Verify(m => m.GetDataLockEvents(2, null, null, 0L, 1), Times.Once);
         }
+
+        [Test]
+        public void WhenGettingExceptionsFromApiFetchingSubmissionEvents()
+        {
+            _paymentEventsApi.Setup(m => m.GetSubmissionEvents(0, null, 0L, 1)).Throws<Exception>();
+
+            Func<Task<PageOfResults<SubmissionEvent>>> act = async () => await _sut.GetSubmissionEvents();
+
+            act.ShouldThrow<Exception>();
+
+            _paymentEventsApi.Verify(m => m.GetSubmissionEvents(0, null, 0L, 1), Times.Exactly(4));
+        }
+
+        [Test]
+        public async Task WhenCallingPaymentServiceToFetchSubmissionEvents()
+        {
+            _paymentEventsApi.Setup(m => m.GetSubmissionEvents(0, null, 0L, 1))
+                .ReturnsAsync(new PageOfResults<SubmissionEvent>
+                {
+                    PageNumber = 1,
+                    TotalNumberOfPages = 1,
+                    Items = new SubmissionEvent[0]
+                });
+
+            await _sut.GetSubmissionEvents(2);
+            _paymentEventsApi.Verify(m => m.GetSubmissionEvents(2, null, 0L, 1), Times.Once);
+        }
     }
 }

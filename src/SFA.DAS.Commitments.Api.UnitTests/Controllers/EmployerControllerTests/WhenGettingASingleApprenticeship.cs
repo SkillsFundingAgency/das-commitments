@@ -63,6 +63,25 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
                 x => x.MapFrom(It.IsAny<Domain.Entities.Apprenticeship>(), It.IsAny<CallerType>()), Times.Once);
         }
 
+        [Test, AutoData]
+        public async Task ThenEndpointAssessorNameIsMapped(GetApprenticeshipResponse mediatorResponse)
+        {
+            const string endpointAssessorName = "Anita Bush Assessment Ltd";
+            mediatorResponse.Data.EndpointAssessorName = endpointAssessorName;
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
+
+            // for this unit test we want a controller where the employerOrchestrator contains a real ApprenticeshipMapper
+            _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(Mock.Of<ICurrentDateTime>()), new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
+                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
+
+            _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
+
+            var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship.Apprenticeship>;
+
+            result.Content.Should().NotBeNull();
+            Assert.AreEqual(endpointAssessorName, result.Content.EndpointAssessorName);
+        }
+
         [Test]
         public async Task ThenTheMediatorIsCalledWithTheCommitmentIdApprenticeshipIdProviderId()
         {
