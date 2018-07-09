@@ -109,7 +109,6 @@
     <Build Include="StoredProcedures\GetDataLockStatusExpiryCandidates.sql" />
     <Build Include="StoredProcedures\UpdateDatalockStatusIsExpired.sql" />
     <Build Include="StoredProcedures\GetApprenticeshipUpdatesByDateAndStatus.sql" />
-    <Build Include="StoredProcedures\SetTransferApproval.sql" />
     <Build Include="Tables\JobProgress.sql" />
     <Build Include="Tables\IntegrationTestIds.sql" />
     <Build Include="Tables\TransferRequest.sql" />
