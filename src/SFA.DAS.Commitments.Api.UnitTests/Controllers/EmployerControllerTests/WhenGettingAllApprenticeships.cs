@@ -15,7 +15,6 @@ using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
-using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.HashingService;
 
@@ -60,8 +59,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
         [Test]
         public async Task ShouldHandleEmptyResponse()
         {
-            var restult = await _controller.GetApprenticeships(1L, new ApprenticeshipSearchQuery()) as OkNegotiatedContentResult<ApprenticeshipSearchResponse>;
-            restult.Content.Apprenticeships.Count().Should().Be(0);
+            var result = await _controller.GetApprenticeships(1L, new ApprenticeshipSearchQuery()) as OkNegotiatedContentResult<ApprenticeshipSearchResponse>;
+            result.Content.Apprenticeships.Count().Should().Be(0);
         }
 
         [Test]

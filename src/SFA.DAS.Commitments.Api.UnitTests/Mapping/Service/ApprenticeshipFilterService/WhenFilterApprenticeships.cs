@@ -36,7 +36,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
                                                FirstName = "Live",
                                                PaymentStatus = PaymentStatus.Active,
                                                StartDate = _currentDateTime.Object.Now.AddMonths(-2),
-                                               ULN = "6666666666"
+                                               ULN = "6666666666",
+                                               TransferSenderId = 123
                                            },
                                        new Apprenticeship
                                            {
@@ -49,6 +50,33 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
                                            }
                                    };
             _sut = new Api.Orchestrators.Mappers.ApprenticeshipFilterService(new FacetMapper(_currentDateTime.Object));
+        }
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
+        public void ShouldFilterFundingStatusSelected(Originator caller)
+        {
+            var query = new ApprenticeshipSearchQuery
+            {
+                FundingStatuses =
+                    new List<FundingStatus>(
+                        new[] { FundingStatus.TransferFunded })
+            };
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.PageOfResults.Count.Should().Be(1);
+            result.PageOfResults.Single().FirstName.Should().Be("Live");
+        }
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
+        public void ShouldNotFilterIfNoFundingStatusSelected(Originator caller)
+        {
+            var query = new ApprenticeshipSearchQuery { FundingStatuses = new List<FundingStatus>() };
+
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.PageOfResults.Count.Should().Be(2);
         }
 
         [TestCase(Originator.Provider)]

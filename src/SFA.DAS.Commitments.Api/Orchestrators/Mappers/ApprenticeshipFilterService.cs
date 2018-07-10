@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Api.Types.Extensions;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -17,6 +18,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             _facetMapper = facetMapper;
         }
 
+        //todo: this method is too long and should be broken down!
         public virtual FilterResult Filter(IList<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery, Originator caller)
         {
             var apps = new Apprenticeship[apprenticeships.Count];
@@ -79,17 +81,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 result = result.Where(m => apprenticeshipQuery.TrainingProviderIds.Contains(m.ProviderId));
             }
 
+            if (apprenticeshipQuery.FundingStatuses?.Any() ?? false)
+            {
+                // this assumes the only FundingStatus is TransferFunded (which is currently true)
+                // we do this as FundingStatus.TransferFunded is a pseudo status that isn't directly stored in Apprenticeship
+                result = result.Where(m => m.IsTranferFunded());
+            }
+
             if (!string.IsNullOrWhiteSpace(apprenticeshipQuery.SearchKeyword))
             {
                 var isUln = Regex.Match(apprenticeshipQuery.SearchKeyword, "^[0-9]{10}$");
 
                 if (isUln.Success)
                 {
-                    result =
-                        result.Where(
-                            m =>
-                                m.ULN.Equals(apprenticeshipQuery.SearchKeyword,
-                                    StringComparison.InvariantCultureIgnoreCase));
+                    result = result.Where(m => m.ULN.Equals(apprenticeshipQuery.SearchKeyword, StringComparison.InvariantCultureIgnoreCase));
                 }
                 else
                 {
@@ -136,12 +141,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             TotalResults = totalResults;
         }
 
-        public IReadOnlyCollection<Apprenticeship> PageOfResults { get; private set; }
+        public IReadOnlyCollection<Apprenticeship> PageOfResults { get; }
 
-        public int PageNumber { get; private set; }
+        public int PageNumber { get; }
 
-        public int PageSize { get; private set; }
+        public int PageSize { get; }
 
-        public int TotalResults { get; private set; }
+        public int TotalResults { get; }
     }
 }
