@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.CommitmentPayments.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.AzureStorage;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Configuration;
@@ -52,7 +53,9 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
         {
             if (config.UseDocumentRepository)
             {
-                For<IPaymentEvents>().Use<PaymentEventsDocumentSerivce>()
+                For<IPaymentEvents>().Use<PaymentEventsDocumentService>();
+
+                For<IAzureBlobStorage>().Use<AzureBlobStorage>()
                     .Ctor<string>().Is(config.StorageConnectionString ?? "UseDevelopmentStorage=true");
             }
             else
