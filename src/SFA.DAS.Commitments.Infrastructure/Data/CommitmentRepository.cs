@@ -168,43 +168,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        [Obsolete]
-        public async Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
-        {
-            _logger.Debug($"Setting Transfer Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
-            try
-            {
-                await WithConnection(async connection =>
-                {
-                    using (var tran = connection.BeginTransaction())
-                    {
-                        var count = await connection.ExecuteAsync(
-                            sql: "[dbo].[SetTransferApproval]",
-                            transaction: tran,
-                            commandType: CommandType.StoredProcedure,
-                            param: new
-                            {
-                                @Id = commitmentId,
-                                @transferApprovalStatus = transferApprovalStatus,
-                                @transferStatusSetByEmployerName = userName,
-                                @transferStatusSetByEmployerEmail = userEmail
-                            }
-                        );
-                        tran.Commit();
-                        return count;
-                    }
-                });
-            }
-            catch(Exception e)
-            {
-                if (e.InnerException is SqlException)
-                {
-                    throw new BadRequestException(e.InnerException.Message, e);
-                }
-                throw;
-            }
-        }
-
         public async Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
         {
             _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
