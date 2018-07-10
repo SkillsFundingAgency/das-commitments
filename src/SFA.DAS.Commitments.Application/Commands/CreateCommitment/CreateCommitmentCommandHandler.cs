@@ -1,7 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-
+using Polly;
+using Polly.Retry;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -13,9 +19,178 @@ using Commitment = SFA.DAS.Commitments.Domain.Entities.Commitment;
 using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 using SFA.DAS.HashingService;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
+    public interface IUnitOfWork
+    {
+        Task<Connection> CreateConnection(bool createTransaction = false,
+            IsolationLevel isolationLevel = IsolationLevel.Snapshot);
+    }
+
+    ////not an uof, just another repo?
+    public class UnitOfWork : IUnitOfWork
+    {
+        public string CommonConnectionString { get; }
+
+        private readonly ILog _logger;
+
+        // retry per unit, or per repository call?
+        // instead of call-back, would be better to create, and disposable with using? Transaction
+        public UnitOfWork(string commonConnectionString, ILog logger)
+        {
+            CommonConnectionString = commonConnectionString;
+            _logger = logger;
+        }
+
+        public async Task<Connection> CreateConnection(bool createTransaction = false, IsolationLevel isolationLevel = IsolationLevel.Snapshot)
+        {
+            return await Connection.Create(CommonConnectionString, _logger, createTransaction, isolationLevel);
+        }
+    }
+
+    //rename
+    public class Connection : IDisposable
+    {
+        // version that accepts transaction for distributed transactions?
+        // version without isolationlevel, or make nullable
+
+        //enum instead of bool?
+        public static async Task<Connection> Create(string connectionString, ILog logger, bool createTransaction = false,
+            IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
+        {
+            var newConnection = new Connection(isolationLevel, logger)
+                //new Connection(connectionString, createTransaction, isolationLevel)
+            {
+                _sqlConnection = new SqlConnection(connectionString)
+            };
+
+            await newConnection._sqlConnection.OpenAsync();
+
+            //if (createTransaction)
+            //{
+            //    if (isolationLevel.HasValue)
+            //        newConnection._sqlTransaction = newConnection._sqlConnection.BeginTransaction(isolationLevel.Value);
+            //    else
+            //        newConnection._sqlTransaction = newConnection._sqlConnection.BeginTransaction();
+            //}
+            if (createTransaction)
+            {
+                newConnection._sqlTransaction = newConnection.CreateTransaction(isolationLevel);
+            }
+
+            return newConnection;
+        }
+
+        // TransactionScope(... , TransactionScopeAsyncFlowOption.Enabled) instead?
+        private SqlTransaction CreateTransaction(IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
+        {
+            if (isolationLevel.HasValue)
+                return _sqlConnection.BeginTransaction(isolationLevel.Value);
+
+            return _sqlConnection.BeginTransaction();
+        }
+
+        //public void Commit()
+        //{
+        //    _sqlTransaction?.Commit();
+        //}
+
+        private readonly ILog _logger;
+        private readonly Policy _retryPolicy;
+        private static readonly HashSet<int> TransientErrorNumbers = new HashSet<int>
+        {
+            // https://docs.microsoft.com/en-us/azure/sql-database/sql-database-develop-error-messages
+            // https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connectivity-issues
+            4060, 40197, 40501, 40613, 49918, 49919, 49920, 11001,
+            -2, 20, 64, 233, 10053, 10054, 10060, 40143
+        };
+
+        // retry is per unit of work, need to rollback on fail
+        protected async Task WithRetry(Func<Task> command)
+        {
+            try
+            {
+                await _retryPolicy.ExecuteAsync(async () =>
+                {
+                    await command();
+                });
+            }
+            catch (TimeoutException ex)
+            {
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL timeout", ex);
+            }
+            catch (SqlException ex) when (TransientErrorNumbers.Contains(ex.Number))
+            {
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a transient SQL Exception. ErrorNumber {ex.Number}", ex);
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a non-transient SQL exception (error code {ex.Number})", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"{GetType().FullName}.WithConnection() experienced an exception (not a SQL Exception)", ex);
+            }
+        }
+
+        private RetryPolicy GetRetryPolicy()
+        {
+            return Policy
+                .Handle<SqlException>(ex => TransientErrorNumbers.Contains(ex.Number))
+                .Or<TimeoutException>()
+                .WaitAndRetryAsync(3, retryAttempt =>
+                        TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (exception, timespan, retryCount, context) => OnRetry(exception, retryCount));
+        }
+
+        private void OnRetry(Exception exception, int retryCount)
+        {
+            //context.CorrelationId ??
+
+            _logger.Warn($"Retrying...attempt {retryCount}. Exception: {exception}");
+
+            //ordering / interaction
+
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            if (_sqlTransaction != null)
+            {
+                _sqlTransaction.Rollback();
+                _sqlTransaction = CreateTransaction(_isolationLevel);
+            }
+        }
+
+        public void Dispose()
+        {
+            _sqlTransaction?.Dispose();
+            _sqlConnection?.Dispose();
+        }
+
+        private SqlConnection _sqlConnection;
+        private SqlTransaction _sqlTransaction;
+        //private CancellationToken _cancellationToken;
+        private CancellationTokenSource _cancellationTokenSource;
+        private readonly IsolationLevel? _isolationLevel;
+
+        //private Connection(string connectionString, bool createTransaction,
+        //    IsolationLevel isolationLevel = IsolationLevel.Snapshot)
+        //{
+        //}
+
+        private Connection(IsolationLevel? isolationLevel, ILog logger)
+        {
+            _isolationLevel = isolationLevel;
+            _logger = logger;
+            _cancellationTokenSource = new CancellationTokenSource();
+            //_cancellationToken = _cancellationTokenSource.Token;
+            _retryPolicy = GetRetryPolicy();
+        }
+    }
+
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
@@ -24,8 +199,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher,
+            IUnitOfWork unitOfWork)
         {
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
@@ -33,6 +210,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _logger = logger;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
@@ -46,15 +224,18 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var newCommitment = await CreateCommitment(message);
+            using (_unitOfWork.CreateConnection(true))
+            {
+                var newCommitment = await CreateCommitment(message);
 
-            await Task.WhenAll(
-                CreateMessageIfNeeded(newCommitment.Id, message),
-                CreateHistory(newCommitment, message.Caller.CallerType, message.UserId,
-                message.Commitment.LastUpdatedByEmployerName), PublishCohortCreatedEvent(newCommitment)
-            );
-            
-            return newCommitment.Id;
+                await Task.WhenAll(
+                    CreateMessageIfNeeded(newCommitment.Id, message),
+                    CreateHistory(newCommitment, message.Caller.CallerType, message.UserId,
+                        message.Commitment.LastUpdatedByEmployerName), PublishCohortCreatedEvent(newCommitment)
+                );
+
+                return newCommitment.Id;
+            }
         }
 
         private async Task PublishCohortCreatedEvent(Commitment newCommitment)

@@ -32,8 +32,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return await WithConnection(async connection =>
             {
-                long commitmentId;
-
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
                 parameters.Add("@transferSenderId", commitment.TransferSenderId, DbType.Int64);
@@ -55,14 +53,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 using (var trans = connection.BeginTransaction())
                 {
-                    commitmentId = (await connection.QueryAsync<long>(
+                    var commitmentId = (await connection.QueryAsync<long>(
                         sql:
                         "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, " +
-                            "EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, " +
-                            "LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName) " +
+                        "EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, " +
+                        "LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName) " +
                         "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, " +
-                            "@accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, " +
-                            "@lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName); " +
+                        "@accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, " +
+                        "@lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName); " +
                         "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
@@ -434,7 +432,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@CreatedDateTime", _currentDateTime.Now, DbType.DateTime);
 
                 return await connection.ExecuteAsync(
-                    sql: $"[dbo].[CreateMessage]",
+                    sql: "[dbo].[CreateMessage]",
                     param: parameters,
                     commandType: CommandType.StoredProcedure);
             });
