@@ -25,8 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 {
     public interface IUnitOfWork
     {
-        Task<Connection> CreateConnection(bool createTransaction = false,
-            IsolationLevel isolationLevel = IsolationLevel.Snapshot);
+        Task<Connection> CreateConnection(IsolationLevel isolationLevel = IsolationLevel.Snapshot);
     }
 
     ////not an uof, just another repo?
@@ -44,9 +43,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _logger = logger;
         }
 
-        public async Task<Connection> CreateConnection(bool createTransaction = false, IsolationLevel isolationLevel = IsolationLevel.Snapshot)
+        public async Task<Connection> CreateConnection(IsolationLevel isolationLevel = IsolationLevel.Snapshot)
         {
-            return await Connection.Create(CommonConnectionString, _logger, createTransaction, isolationLevel);
+            return await Connection.Create(CommonConnectionString, _logger, isolationLevel);
         }
     }
 
@@ -57,30 +56,26 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         // version without isolationlevel, or make nullable
 
         //enum instead of bool?
-        public static async Task<Connection> Create(string connectionString, ILog logger, bool createTransaction = false,
-            IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
+        public static async Task<Connection> Create(string connectionString, ILog logger, IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
         {
-            var newConnection = new Connection(isolationLevel, logger)
-                //new Connection(connectionString, createTransaction, isolationLevel)
-            {
-                _sqlConnection = new SqlConnection(connectionString)
-            };
+            var newConnection = new Connection(isolationLevel, logger);
 
-            await newConnection._sqlConnection.OpenAsync();
-
-            //if (createTransaction)
-            //{
-            //    if (isolationLevel.HasValue)
-            //        newConnection._sqlTransaction = newConnection._sqlConnection.BeginTransaction(isolationLevel.Value);
-            //    else
-            //        newConnection._sqlTransaction = newConnection._sqlConnection.BeginTransaction();
-            //}
-            if (createTransaction)
+            try
             {
+                newConnection._sqlConnection = new SqlConnection(connectionString);
+
+                await newConnection._sqlConnection.OpenAsync();
+
                 newConnection._sqlTransaction = newConnection.CreateTransaction(isolationLevel);
-            }
 
-            return newConnection;
+                return newConnection;
+            }
+            catch (Exception e)
+            {
+                logger.Error(e, $"Unable to create connection: {e}");
+                newConnection.Dispose();
+                throw;
+            }
         }
 
         // TransactionScope(... , TransactionScopeAsyncFlowOption.Enabled) instead?
@@ -224,7 +219,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 throw new ValidationException(validationResult.Errors);
             }
 
-            using (_unitOfWork.CreateConnection(true))
+            using (_unitOfWork.CreateConnection())
             {
                 var newCommitment = await CreateCommitment(message);
 
