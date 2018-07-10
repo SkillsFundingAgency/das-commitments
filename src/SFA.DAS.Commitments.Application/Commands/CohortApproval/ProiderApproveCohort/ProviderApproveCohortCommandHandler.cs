@@ -132,7 +132,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
         {
             if (commitment.EditStatus != EditStatus.ProviderOnly)
             {
-                throw new UnauthorizedException($"Employer not allowed to edit commitment: {commitment.Id}");
+                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be approved by provider because EditStatus is {commitment.EditStatus}");
             }
         }
 
