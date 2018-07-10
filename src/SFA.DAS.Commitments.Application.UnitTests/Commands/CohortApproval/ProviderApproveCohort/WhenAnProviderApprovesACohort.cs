@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         {
             Commitment.EditStatus = EditStatus.EmployerOnly;
 
-            Assert.ThrowsAsync<UnauthorizedException>(() => Target.Handle(Command));
+            Assert.ThrowsAsync<InvalidOperationException>(() => Target.Handle(Command));
         }
 
         [Test]
