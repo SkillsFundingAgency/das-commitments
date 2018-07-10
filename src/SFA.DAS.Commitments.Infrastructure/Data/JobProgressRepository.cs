@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<long?> Get_AddEpaToApprenticeships_LastSubmissionEventId()
         {
-            _logger.Debug("Getting last (processed by AddEpaToApprenticeships) SubmissionEvents Id");
+            _logger.Debug("Getting last processed (by AddEpaToApprenticeships) SubmissionEventId");
 
             return await WithConnection(async connection => await connection.ExecuteScalarAsync<long?>(
                 "SELECT [AddEpa_LastSubmissionEventId] FROM [dbo].[JobProgress]",
@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task Set_AddEpaToApprenticeships_LastSubmissionEventId(long lastSubmissionEventId)
         {
-            _logger.Debug($"Setting last (processed by AddEpaToApprenticeships) SubmissionEvent Id to {lastSubmissionEventId}");
+            _logger.Debug($"Setting last processed (by AddEpaToApprenticeships) SubmissionEventId to {lastSubmissionEventId}");
 
             await WithConnection(async connection =>
             {
