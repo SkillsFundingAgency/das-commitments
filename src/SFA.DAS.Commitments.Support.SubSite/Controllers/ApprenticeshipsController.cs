@@ -7,6 +7,7 @@ using Mvc = System.Web.Mvc;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 {
+    [Authorize]
     public class ApprenticeshipsController : Controller
     {
         private readonly IApprenticeshipsOrchestrator _orchestrator;
