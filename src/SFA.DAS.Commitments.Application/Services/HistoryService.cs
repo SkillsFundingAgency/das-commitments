@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -35,6 +36,11 @@ namespace SFA.DAS.Commitments.Application.Services
         public async Task Save()
         {
             await _repository.InsertHistory(_historyItems);
+        }
+
+        public async Task Save(IDbConnection connection, IDbTransaction transaction)
+        {
+            await _repository.InsertHistory(connection, transaction, _historyItems);
         }
 
         private void AddHistoryItem(HistoryChangeType historyChangeType, object trackedObject, string changeType, long? commitmentId, long? apprenticeshipId, CallerType updatedByRole, string userId, long? providerId, long employerAccountId, string updatedByName)

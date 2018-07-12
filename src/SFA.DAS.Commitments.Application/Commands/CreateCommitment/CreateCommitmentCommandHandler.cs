@@ -62,11 +62,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             try
             {
-                newConnection._sqlConnection = new SqlConnection(connectionString);
+                newConnection.SqlConnection = new SqlConnection(connectionString);
 
-                await newConnection._sqlConnection.OpenAsync();
+                await newConnection.SqlConnection.OpenAsync();
 
-                newConnection._sqlTransaction = newConnection.CreateTransaction(isolationLevel);
+                newConnection.SqlTransaction = newConnection.CreateTransaction(isolationLevel);
 
                 return newConnection;
             }
@@ -82,9 +82,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private SqlTransaction CreateTransaction(IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
         {
             if (isolationLevel.HasValue)
-                return _sqlConnection.BeginTransaction(isolationLevel.Value);
+                return SqlConnection.BeginTransaction(isolationLevel.Value);
 
-            return _sqlConnection.BeginTransaction();
+            return SqlConnection.BeginTransaction();
         }
 
         //public void Commit()
@@ -152,21 +152,21 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
 
-            if (_sqlTransaction != null)
+            if (SqlTransaction != null)
             {
-                _sqlTransaction.Rollback();
-                _sqlTransaction = CreateTransaction(_isolationLevel);
+                SqlTransaction.Rollback();
+                SqlTransaction = CreateTransaction(_isolationLevel);
             }
         }
 
         public void Dispose()
         {
-            _sqlTransaction?.Dispose();
-            _sqlConnection?.Dispose();
+            SqlTransaction?.Dispose();
+            SqlConnection?.Dispose();
         }
 
-        private SqlConnection _sqlConnection;
-        private SqlTransaction _sqlTransaction;
+        public SqlConnection SqlConnection { get; private set; }
+        public SqlTransaction SqlTransaction { get; private set; }
         //private CancellationToken _cancellationToken;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly IsolationLevel? _isolationLevel;
@@ -185,6 +185,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _retryPolicy = GetRetryPolicy();
         }
     }
+
+    //todo: make idempotent?
+    //todo: integration tests (with fault injection using triggers?)
+    //todo: unit tests with fault injection
 
     public sealed class CreateCommitmentCommandHandler : IAsyncRequestHandler<CreateCommitmentCommand, long>
     {
@@ -215,22 +219,23 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             var validationResult = _validator.Validate(message);
 
             if (!validationResult.IsValid)
-            {
                 throw new ValidationException(validationResult.Errors);
-            }
 
-            using (_unitOfWork.CreateConnection())
+            Commitment newCommitment;
+            using (var connection = await _unitOfWork.CreateConnection())
             {
-                var newCommitment = await CreateCommitment(message);
+                newCommitment = await CreateCommitment(connection, message);
 
                 await Task.WhenAll(
-                    CreateMessageIfNeeded(newCommitment.Id, message),
-                    CreateHistory(newCommitment, message.Caller.CallerType, message.UserId,
-                        message.Commitment.LastUpdatedByEmployerName), PublishCohortCreatedEvent(newCommitment)
+                    CreateMessageIfNeeded(connection, newCommitment.Id, message),
+                    CreateHistory(connection, newCommitment, message.Caller.CallerType, message.UserId, message.Commitment.LastUpdatedByEmployerName)
                 );
-
-                return newCommitment.Id;
             }
+
+            //todo: ideally publish event within transaction above
+            await PublishCohortCreatedEvent(newCommitment);
+
+            return newCommitment.Id;
         }
 
         private async Task PublishCohortCreatedEvent(Commitment newCommitment)
@@ -239,26 +244,30 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 newCommitment.Id));
         }
 
-        private async Task<Commitment> CreateCommitment(CreateCommitmentCommand message)
+        // we could split preparatory work from the actual call to the db and only 'pull the trigger' during the transaction
+        // but that would introduce perhaps unnecessary complexity (a premature optimisation)
+        // the option is there if required though
+
+        private async Task<Commitment> CreateCommitment(Connection connection, CreateCommitmentCommand message)
         {
             var newCommitment = message.Commitment;
             newCommitment.LastAction = LastAction.None;
 
-            newCommitment.Id = await _commitmentRepository.Create(newCommitment);
+            newCommitment.Id = await _commitmentRepository.Create(connection.SqlConnection, connection.SqlTransaction, newCommitment);
 
             await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id,
                 _hashingService.HashValue(newCommitment.Id));
             return newCommitment;
         }
 
-        private async Task CreateHistory(Commitment newCommitment, CallerType callerType, string userId, string userName)
+        private async Task CreateHistory(Connection connection, Commitment newCommitment, CallerType callerType, string userId, string userName)
         {
             var historyService = new HistoryService(_historyRepository);
             historyService.TrackInsert(newCommitment, CommitmentChangeType.Created.ToString(), newCommitment.Id, null, callerType, userId, newCommitment.ProviderId, newCommitment.EmployerAccountId, userName);
-            await historyService.Save();
+            await historyService.Save(connection.SqlConnection, connection.SqlTransaction);
         }
 
-        private async Task CreateMessageIfNeeded(long commitmentId, CreateCommitmentCommand command)
+        private async Task CreateMessageIfNeeded(Connection connection, long commitmentId, CreateCommitmentCommand command)
         {
             if (string.IsNullOrEmpty(command.Message))
                 return;
@@ -270,7 +279,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 CreatedBy = command.Caller.CallerType
             };
 
-            await _commitmentRepository.SaveMessage(commitmentId, message);
+            await _commitmentRepository.SaveMessage(connection.SqlConnection, connection.SqlTransaction, commitmentId, message);
         }
     }
 }

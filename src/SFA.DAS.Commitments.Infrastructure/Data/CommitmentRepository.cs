@@ -26,12 +26,16 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _currentDateTime = currentDateTime;
         }
 
-        public async Task<long> Create(Commitment commitment)
+        //this is probably preferable, but would require Connection to be available for the interface in SFA.DAS.Commitments.Domain
+        //which would be fine if the Connection was in the shared component, but we might keep it in commitments only
+        //public async Task<long> Create(Connection connection, Commitment commitment)
+        //so (at least for now) we do this instead...
+        public async Task<long> Create(IDbConnection connection, IDbTransaction transaction, Commitment commitment)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
-            return await WithConnection(async connection =>
-            {
+            //return await WithConnection(async connection =>
+            //{
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
                 parameters.Add("@transferSenderId", commitment.TransferSenderId, DbType.Int64);
@@ -51,8 +55,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
 
-                using (var trans = connection.BeginTransaction())
-                {
+                //using (var trans = connection.BeginTransaction())
+                //{
                     var commitmentId = (await connection.QueryAsync<long>(
                         sql:
                         "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, " +
@@ -64,17 +68,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         "SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
-                        transaction: trans)).Single();
+                        transaction: transaction)).Single();
 
-                    trans.Commit();
+                    //trans.Commit();
                     return commitmentId;
-                }
-            });
+            //    }
+            //});
         }
 
         public async Task<Commitment> GetCommitmentById(long id)
         {
-            return await WithConnection(c => { return GetCommitment(id, c); });
+            return await WithConnection(c => GetCommitment(id, c));
         }
 
         public async Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId)
@@ -422,20 +426,23 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task SaveMessage(long commitmentId, Message message)
         {
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@CommitmentId", commitmentId);
-                parameters.Add("@Author", message.Author);
-                parameters.Add("@Text", message.Text);
-                parameters.Add("@CreatedBy", message.CreatedBy);
-                parameters.Add("@CreatedDateTime", _currentDateTime.Now, DbType.DateTime);
+            await WithConnection(async connection => await SaveMessage(connection, null, commitmentId, message));
+        }
 
-                return await connection.ExecuteAsync(
-                    sql: "[dbo].[CreateMessage]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-            });
+        public async Task<int> SaveMessage(IDbConnection connection, IDbTransaction transaction, long commitmentId, Message message)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@CommitmentId", commitmentId);
+            parameters.Add("@Author", message.Author);
+            parameters.Add("@Text", message.Text);
+            parameters.Add("@CreatedBy", message.CreatedBy);
+            parameters.Add("@CreatedDateTime", _currentDateTime.Now, DbType.DateTime);
+
+            return await connection.ExecuteAsync(
+                sql: "[dbo].[CreateMessage]",
+                param: parameters,
+                transaction: transaction,
+                commandType: CommandType.StoredProcedure);
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)

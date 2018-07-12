@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -7,7 +8,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface ICommitmentRepository
     {
-        Task<long> Create(Commitment commitment);
+        Task<long> Create(IDbConnection connection, IDbTransaction transaction, Commitment commitment);
         Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
         Task<Commitment> GetCommitmentById(long id);
@@ -28,5 +29,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode);
         Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified);
         Task SaveMessage(long commitmentId, Message message);
+        Task<int> SaveMessage(IDbConnection connection, IDbTransaction transaction, long commitmentId, Message message);
     }
 }
