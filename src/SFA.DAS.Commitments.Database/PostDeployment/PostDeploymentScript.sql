@@ -10,7 +10,7 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-declare @maxId bigint = 5
+declare @maxId bigint = 1283055
 
 MERGE [dbo].[JobProgress] WITH(HOLDLOCK) as target
 using (values(@maxId)) as source (sourceColumn)
