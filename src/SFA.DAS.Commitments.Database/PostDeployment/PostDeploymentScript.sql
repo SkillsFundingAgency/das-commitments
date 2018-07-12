@@ -9,13 +9,3 @@ Post-Deployment Script Template
                SELECT * FROM [$(TableName)]					
 --------------------------------------------------------------------------------------
 */
-
-declare @maxId bigint = 5
-
-MERGE [dbo].[JobProgress] WITH(HOLDLOCK) as target
-using (values(@maxId)) as source (sourceColumn)
-on target.Lock = 'X'
-when matched then
-update set AddEpa_LastSubmissionEventId = source.sourceColumn
-when not matched then
-insert(AddEpa_LastSubmissionEventId) values(source.sourceColumn);
