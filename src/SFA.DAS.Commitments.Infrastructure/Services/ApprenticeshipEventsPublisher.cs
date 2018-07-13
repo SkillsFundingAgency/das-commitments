@@ -41,8 +41,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             {
                 _logger.Info($"Calling events api to bulk create {batch.Count} events");
                 await _eventsApi.BulkCreateApprenticeshipEvent(batch.ToList());
-                events.Clear();
             }
+
+            events.Clear();
         }
 
         private static Events.Api.Types.ApprenticeshipEvent CreateEvent(Commitment commitment, Apprenticeship apprenticeship, string @event, DateTime? effectiveFrom, DateTime? effectiveTo, IEnumerable<Domain.Entities.PriceHistory> priceHistory)
