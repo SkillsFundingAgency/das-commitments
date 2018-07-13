@@ -24,6 +24,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly ICommitmentsLogger _logger;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -33,7 +34,8 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
             IMessagePublisher messagePublisher,
-            IHistoryRepository historyRepository)
+            IHistoryRepository historyRepository,
+            ICommitmentsLogger logger)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -41,10 +43,11 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _messagePublisher = messagePublisher;
+            _logger = logger;
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
+                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger);
         }
 
         protected override async Task HandleCore(RejectTransferRequestCommand command)
