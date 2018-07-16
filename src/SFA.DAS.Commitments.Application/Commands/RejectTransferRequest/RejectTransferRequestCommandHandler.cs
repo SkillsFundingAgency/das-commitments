@@ -62,17 +62,8 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderRejection.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
-            if (command.TransferRequestId > 0)
-            {
-                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
-                    TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
-            }
-            else
-            {
-                // TODO Remove This route when old Approval route decomes obslete 
-                await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
-                    command.UserEmail, command.UserName);
-            }
+            await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
 
             await _commitmentRepository.ResetEditStatusToEmployer(command.CommitmentId);
 
@@ -114,7 +105,6 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
         private static void CheckCommitmentStatus(Commitment commitment, RejectTransferRequestCommand command)
         {
-
             if (commitment.EmployerAccountId != command.TransferReceiverId)
                 throw new InvalidOperationException($"Commitment {commitment.Id} has employer account Id {commitment.EmployerAccountId} which doesn't match command receiver Id {command.TransferReceiverId}");
 

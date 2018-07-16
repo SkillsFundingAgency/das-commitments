@@ -31,20 +31,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.TransferContollerTests
                 TransferApprovalStatus = TransferApprovalStatus.Approved
             };
 
-            await _sut.PatchTransferApprovalStatus(111, 3, request);
-
-            _mockEmployerOrchestrator.Verify(x => x.SetTransferApprovalStatus(111, 3, 0, request));
-        }
-
-        [Test]
-        public async Task ThenCallsOrchestratorWithTheCorrectParametersWhenTransferRequestIdIsAdded()
-        {
-            var request = new TransferApprovalRequest
-            {
-                TransferReceiverId = 112,
-                TransferApprovalStatus = TransferApprovalStatus.Approved
-            };
-
             await _sut.PatchTransferApprovalStatus(111, 3, 12, request);
 
             _mockEmployerOrchestrator.Verify(x => x.SetTransferApprovalStatus(111, 3, 12, request));

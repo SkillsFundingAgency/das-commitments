@@ -121,6 +121,7 @@
     <Compile Include="Controllers\TransferContollerTests\WhenGettingTransferRequestForSender.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Controllers\TransferContollerTests\WhenGettingASingleCommitment.cs" />
+    <Compile Include="Mapping\Service\Facets\WhenExtractingFundingStatuses.cs" />
     <Compile Include="Orchestrators\Apprenticeship\ApprenticeshipOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenGettingDataLocks.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenGettingDataLockSummary.cs" />
