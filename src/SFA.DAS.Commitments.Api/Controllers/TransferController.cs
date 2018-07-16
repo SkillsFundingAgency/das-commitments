@@ -70,18 +70,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
-
-        [Obsolete]
-        [HttpPatch]
-        [Route("{transferSenderId}/transfers/{commitmentId}/approval", Name = "PatchTransferApprovalStatus")]
-        [Authorize(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request)
-        {
-            await _employerOrchestrator.SetTransferApprovalStatus(transferSenderId, commitmentId, 0, request);
-
-            return Ok();
-        }
-
         [HttpPatch]
         [Route("{transferSenderId}/transfers/{transferRequestId}/approval/{commitmentId}", Name = "PatchTransferRequestStatus")]
         [Authorize(Roles = "Role1")]
