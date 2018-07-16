@@ -301,6 +301,7 @@
       <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Http, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.6\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
@@ -333,17 +334,20 @@
     <Compile Include="DatabaseSetup\Generators\Generator.cs" />
     <Compile Include="DatabaseSetup\Generators\PriceHistoryGenerator.cs" />
     <Compile Include="DatabaseSetup\TestDataInjector.cs" />
+    <Compile Include="Helpers\HttpClientExtensions.cs" />
     <Compile Include="Helpers\Probability\BoundaryValue.cs" />
     <Compile Include="Helpers\Probability\ProbabilityDistribution.cs" />
     <Compile Include="DatabaseSetup\TestData.cs" />
     <Compile Include="DatabaseSetup\TestDataVolume.cs" />
     <Compile Include="Helpers\CallDetails.cs" />
     <Compile Include="Helpers\CommitmentsApi.cs" />
+    <Compile Include="Helpers\TestDbSetupEntities.cs" />
     <Compile Include="Helpers\TestEntities.cs" />
     <Compile Include="Helpers\TestLog.cs" />
     <Compile Include="Helpers\TestSetup.cs" />
     <Compile Include="Helpers\TestIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\API\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Tests\API\GetApprenticeship\WhenGettingEmployerApprenticeshipCost.cs" />
     <Compile Include="Tests\API\GetApprenticeships\WhenGettingEmployerApprenticeships.cs" />
     <Compile Include="Tests\API\GetCommitments\GetCommitments.cs" />

@@ -26,8 +26,8 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.ValidateOverlapping
 
         public static void InjectTestSpecificData(TestDataInjector injector)
         {
-            var apprenticeship = TestEntities.GetDbSetupApprenticeship(
-                injector.AddCommitment(TestEntities.GetDbSetupCommitment()), FirstName, LastName);
+            var apprenticeship = TestDbSetupEntities.GetDbSetupApprenticeship(
+                injector.AddCommitment(TestDbSetupEntities.GetDbSetupCommitment()), FirstName, LastName);
 
             apprenticeship.ULN = Uln;
             apprenticeship.AgreementStatus = AgreementStatus.BothAgreed;

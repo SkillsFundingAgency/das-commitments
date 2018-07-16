@@ -34,6 +34,7 @@ using StructureMap.Graph;
 using SFA.DAS.Learners.Validators;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.HashingService;
+using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -68,6 +69,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<IUlnValidator>().Use<UlnValidator>();
             For<IAcademicYearValidator>().Use<AcademicYearValidator>();
 
+            For<IUnitOfWork>().Use<UnitOfWork>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipUpdateRepository>().Use<ApprenticeshipUpdateRepository>().Ctor<string>().Is(config.DatabaseConnectionString);

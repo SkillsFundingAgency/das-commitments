@@ -4,7 +4,6 @@ using Microsoft.Azure;
 
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.CommitmentPayments.WebJob.Updater;
-using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data;
@@ -41,7 +40,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.DependencyResolution
             For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipUpdateRepository>().Use<ApprenticeshipUpdateRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
-            For<IUnitOfWork>().Use<UnitOfWork>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IFilterOutAcademicYearRollOverDataLocks>().Use<FilterOutAcademicYearRollOverDataLocks>();
 
             For<IDataLockUpdater>().Use<DataLockUpdater>();

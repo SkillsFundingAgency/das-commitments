@@ -114,23 +114,25 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task UpdateCommitmentReference(long commitmentId, string hashValue)
+        public async Task UpdateCommitmentReference(IDbConnection connection, IDbTransaction transaction, long commitmentId, string hashValue)
         {
             _logger.Debug($"Updating Commitment Reference {hashValue} for commitment {commitmentId}", commitmentId: commitmentId);
 
-            await WithConnection(async connection =>
-            {
+            //await WithConnection(async connection =>
+            //{
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", commitmentId, DbType.Int64);
                 parameters.Add("@reference", hashValue, DbType.String);
 
-                var returnCode = await connection.ExecuteAsync(
+                //var returnCode = 
+                    await connection.ExecuteAsync(
                     sql: "UPDATE [dbo].[Commitment] SET Reference = @reference WHERE Id = @id;",
                     param: parameters,
+                    transaction: transaction,
                     commandType: CommandType.Text);
 
-                return returnCode;
-            });
+                //return returnCode;
+            //});
         }
 
         public async Task SetPaymentOrder(long accountId)

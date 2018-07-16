@@ -28,10 +28,10 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeship
         {
             //todo: clone, to avoid mutations
             var commitmentId = injector.AddCommitment(
-                TestEntities.GetDbSetupCommitment(),
+                TestDbSetupEntities.GetDbSetupCommitment(),
                 GetEmployerApprenticeshipEmployerId);
 
-            var apprenticeship = TestEntities.GetDbSetupApprenticeship(commitmentId, FirstName, LastName);
+            var apprenticeship = TestDbSetupEntities.GetDbSetupApprenticeship(commitmentId, FirstName, LastName);
 
             // this is the cost that we *don't* want returned
             apprenticeship.Cost = ApprenticeshipCost;

@@ -22,16 +22,16 @@ namespace SFA.DAS.Commitments.Api.IntegrationTests.Tests.API.GetApprenticeships
         {
             //todo: clone, to avoid mutations
             var commitmentId = injector.AddCommitment(
-                TestEntities.GetDbSetupCommitment(),
+                TestDbSetupEntities.GetDbSetupCommitment(),
                 GetEmployerApprenticeshipsEmployerId);
 
-            var apprenticeship = TestEntities.GetDbSetupApprenticeship(commitmentId, "A", nameof(WhenGettingEmployerApprenticeships));
+            var apprenticeship = TestDbSetupEntities.GetDbSetupApprenticeship(commitmentId, "A", nameof(WhenGettingEmployerApprenticeships));
 
             // must not be PendingApproval or Deleted to be returned
             apprenticeship.PaymentStatus = PaymentStatus.Active;
             injector.AddApprenticeship(apprenticeship);
 
-            apprenticeship = TestEntities.GetDbSetupApprenticeship(commitmentId, "B", nameof(WhenGettingEmployerApprenticeships));
+            apprenticeship = TestDbSetupEntities.GetDbSetupApprenticeship(commitmentId, "B", nameof(WhenGettingEmployerApprenticeships));
 
             // must not be PendingApproval or Deleted to be returned
             apprenticeship.PaymentStatus = PaymentStatus.Active;

@@ -33,11 +33,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
     {
         public string CommonConnectionString { get; }
 
-        private readonly ILog _logger;
+        //private readonly ILog _logger;
+        private readonly ICommitmentsLogger _logger;
 
         // retry per unit, or per repository call?
         // instead of call-back, would be better to create, and disposable with using? Transaction
-        public UnitOfWork(string commonConnectionString, ILog logger)
+        public UnitOfWork(string commonConnectionString, ICommitmentsLogger logger) //ILog logger)
         {
             CommonConnectionString = commonConnectionString;
             _logger = logger;
@@ -55,8 +56,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         // version that accepts transaction for distributed transactions?
         // version without isolationlevel, or make nullable
 
-        //enum instead of bool?
-        public static async Task<Connection> Create(string connectionString, ILog logger, IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
+        //public static async Task<Connection> Create(string connectionString, ILog logger, IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
+        public static async Task<Connection> Create(string connectionString, ICommitmentsLogger logger, IsolationLevel? isolationLevel = IsolationLevel.Snapshot)
         {
             var newConnection = new Connection(isolationLevel, logger);
 
@@ -92,7 +93,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         //    _sqlTransaction?.Commit();
         //}
 
-        private readonly ILog _logger;
+        private readonly ICommitmentsLogger _logger;
         private readonly Policy _retryPolicy;
         private static readonly HashSet<int> TransientErrorNumbers = new HashSet<int>
         {
@@ -176,7 +177,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         //{
         //}
 
-        private Connection(IsolationLevel? isolationLevel, ILog logger)
+        //private Connection(IsolationLevel? isolationLevel, ILog logger)
+        private Connection(IsolationLevel? isolationLevel, ICommitmentsLogger logger)
         {
             _isolationLevel = isolationLevel;
             _logger = logger;
@@ -255,7 +257,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             newCommitment.Id = await _commitmentRepository.Create(connection.SqlConnection, connection.SqlTransaction, newCommitment);
 
-            await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id,
+            await _commitmentRepository.UpdateCommitmentReference(connection.SqlConnection, connection.SqlTransaction, newCommitment.Id,
                 _hashingService.HashValue(newCommitment.Id));
             return newCommitment;
         }
