@@ -70,15 +70,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         }
 
         [Test]
-        public async Task ThenIfTheTransferSenderRejectsCohortEnsureOldRespositoryFunctionIsCalledWhenNoTransferRequestIdIsSet()
-        {
-            _command.TransferRequestId = 0;
-            await _sut.Handle(_command);
-
-            _commitmentRepository.Verify(x=>x.SetTransferApproval(_command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName));
-        }
-
-        [Test]
         public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus()
         {
             _command.TransferRequestId = 6467;

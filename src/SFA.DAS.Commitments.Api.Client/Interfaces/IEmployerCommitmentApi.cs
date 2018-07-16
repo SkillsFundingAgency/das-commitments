@@ -37,7 +37,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task PatchDataLocks(long employerAccountId, long apprenticeshipId, DataLocksTriageResolutionSubmission submission);
         Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipStopDate stopDate);
         Task ApproveCohort(long employerAccountId, long commitmentId, CommitmentSubmission submission);
-        Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, TransferApprovalRequest request);
         Task PatchTransferApprovalStatus(long transferSenderId, long commitmentId, long transferRequestId, TransferApprovalRequest request);
         Task<List<TransferRequestSummary>> GetTransferRequests(string hashedAccountId);
         Task<TransferRequest> GetTransferRequestForSender(long transferSenderId, long transferRequestId);
