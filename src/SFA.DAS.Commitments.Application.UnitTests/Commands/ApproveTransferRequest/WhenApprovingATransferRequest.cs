@@ -66,7 +66,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object,
-                _messagePublisher.Object, _historyRepository.Object);
+                _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>());
         }
 
         [Test]

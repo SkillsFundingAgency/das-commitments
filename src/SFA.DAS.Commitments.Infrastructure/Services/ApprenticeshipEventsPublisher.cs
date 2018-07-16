@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
     {
         private readonly IEventsApi _eventsApi;
         private readonly ICommitmentsLogger _logger;
+        private readonly int _maxBatchSize = 1000;
 
         public ApprenticeshipEventsPublisher(IEventsApi eventsApi, ICommitmentsLogger logger)
         {
@@ -26,8 +27,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
 
         public async Task Publish(IApprenticeshipEventsList events)
         {
+            _logger.Info($"Publishing {events.Events.Count} events");
             var apiEvents = events.Events.Select(x => CreateEvent(x.Commitment, x.Apprenticeship, x.Event, x.EffectiveFrom, x.EffectiveTo, x.PriceHistory));
-            await _eventsApi.BulkCreateApprenticeshipEvent(apiEvents.ToList());
+
+            var batches = SplitList(apiEvents.ToList(), _maxBatchSize).ToList();
+
+            if (batches.Count() > 1)
+            {
+                _logger.Info($"Splitting events into {batches.Count} batches of up to {_maxBatchSize}");
+            }
+
+            foreach (var batch in batches)
+            {
+                _logger.Info($"Calling events api to bulk create {batch.Count} events");
+                await _eventsApi.BulkCreateApprenticeshipEvent(batch.ToList());
+            }
+
             events.Clear();
         }
 
@@ -68,6 +83,15 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             {
                 TotalCost = x.Cost, EffectiveFrom = x.FromDate, EffectiveTo = x.ToDate
             });
+        }
+
+
+        private static IEnumerable<List<T>> SplitList<T>(List<T> items, int chunkSize)
+        {
+            for (var i = 0; i < items.Count; i += chunkSize)
+            {
+                yield return items.GetRange(i, Math.Min(chunkSize, items.Count - i));
+            }
         }
     }
 }
