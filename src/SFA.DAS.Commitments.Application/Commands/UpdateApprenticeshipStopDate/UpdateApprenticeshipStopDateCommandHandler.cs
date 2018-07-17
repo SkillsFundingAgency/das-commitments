@@ -73,13 +73,13 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
 
             if (command.StopDate == apprenticeship.StartDate)
             {
-                await ClearDataLocksForApprenticeship(apprenticeship.Id);
+                await ResolveDataLocksForApprenticeship(apprenticeship.Id);
             }
 
             await PublishEvent(command, commitment, apprenticeship);
         }
 
-        private async Task ClearDataLocksForApprenticeship(long apprenticeshipId)
+        private async Task ResolveDataLocksForApprenticeship(long apprenticeshipId)
         {
             var apprenticeshipDataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId)).Select(x=>x.DataLockEventId);
             await _dataLockRepository.ResolveDataLock(apprenticeshipDataLocks);
