@@ -22,7 +22,8 @@
 	[TransferApprovalStatus] TINYINT SPARSE,
 	[TransferApprovalActionedByEmployerName] NVARCHAR(255),
 	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
-	[TransferApprovalActionedOn] DATETIME2
+	[TransferApprovalActionedOn] DATETIME2,
+	[AccountLegalEntityPublicHashedId] CHAR(6)
 )
 GO
 
