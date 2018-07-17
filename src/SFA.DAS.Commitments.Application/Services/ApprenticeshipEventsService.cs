@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Services
 {
@@ -13,12 +14,14 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private ICommitmentsLogger _logger;
 
-        internal ApprenticeshipEventsService(IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IApprenticeshipRepository apprenticeshipRepository)
+        internal ApprenticeshipEventsService(IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IApprenticeshipRepository apprenticeshipRepository, ICommitmentsLogger logger)
         {
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _apprenticeshipRepository = apprenticeshipRepository;
+            _logger = logger;
         }
 
         internal async Task PublishApprenticeshipAgreementUpdatedEvents(Commitment commitment)
@@ -32,6 +35,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         internal async Task PublishApprenticeshipFinalApprovalEvents(Commitment commitment)
         {
+            _logger.Info("Getting active apprenticeships for learners");
             var existingApprenticeships = await GetActiveApprenticeshipsForLearners(commitment.Apprenticeships);
 
             Parallel.ForEach(commitment.Apprenticeships, apprenticeship =>
@@ -39,6 +43,8 @@ namespace SFA.DAS.Commitments.Application.Services
                 var effectiveFromDate = DetermineApprovalEventEffectiveFromDate(apprenticeship.AgreementStatus, existingApprenticeships, apprenticeship.StartDate);
                 _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-AGREEMENT-UPDATED", effectiveFromDate);
             });
+
+            _logger.Info($"Publishing {existingApprenticeships.Count()} apprenticeship agreement updates");
             await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
         }
 

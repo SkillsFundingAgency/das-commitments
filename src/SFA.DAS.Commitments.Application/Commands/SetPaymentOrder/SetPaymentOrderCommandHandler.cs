@@ -28,19 +28,6 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             ICommitmentsLogger logger,
             ICurrentDateTime currentDateTime)
         {
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(commitmentRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(apprenticeshipRepository));
-            if (apprenticeshipEventsList == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEventsList));
-            if (apprenticeshipEventsPublisher == null)
-                throw new ArgumentNullException(nameof(apprenticeshipEventsPublisher));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (currentDateTime == null)
-                throw new ArgumentNullException(nameof(currentDateTime));
-
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
             _apprenticeshipEventsList = apprenticeshipEventsList;
@@ -51,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
 
         protected override async Task HandleCore(SetPaymentOrderCommand command)
         {
-            _logger.Info($"Called SetPaymentOrderCommand for employer account {command.AccountId}", accountId: command.AccountId);
+            _logger.Info($"Setting PaymentOrder for employer account {command.AccountId}", accountId: command.AccountId);
 
             var existingApprenticeships = await _apprenticeshipRepository.GetApprenticeshipsByEmployer(command.AccountId);
             
@@ -67,8 +54,13 @@ namespace SFA.DAS.Commitments.Application.Commands.SetPaymentOrder
             var sw = Stopwatch.StartNew();
             var changedApprenticeships = updatedApprenticeships.Except(existingApprenticeships, new ComparerPaymentOrder()).ToList();
 
+            if (!changedApprenticeships.Any())
+            {
+                _logger.Info("No changed apprenticeships; no events to publish");
+                return;
+            }
+
             _logger.Info($"Publishing {changedApprenticeships.Count} payment order events for employer account {employerAccountId}", accountId: employerAccountId);
-            
             await PublishEventsForChangesApprenticeships(changedApprenticeships);
         }
 

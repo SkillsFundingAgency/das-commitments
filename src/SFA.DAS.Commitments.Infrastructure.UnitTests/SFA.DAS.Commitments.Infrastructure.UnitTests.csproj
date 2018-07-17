@@ -115,6 +115,7 @@
     <Compile Include="Services\ApprenticeshipEventsListTest\WhenClearingEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsListTest\WhenIAddAnEvent.cs" />
     <Compile Include="Services\ApprenticeshipEventsPublisherTests\WhenIPublishEvents.cs" />
+    <Compile Include="Services\ApprenticeshipEventsPublisherTests\WhenIPublishLargeNumbersOfEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\ApprenticeshipEventsTestsBase.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\WhenIBulkPublishDeletionEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsTests\WhenIPublishADeletionEvent.cs" />
