@@ -73,5 +73,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.SetPaymentOrder
             _apprenticeshipEventsList.Verify(x => x.Add(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", CurrentDateTime.Date, null), Times.Once);
             _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Once);
         }
+
+        [Test]
+        public async Task ThenIfAnApprenticeshipIsNotUpdatedAnEventIsNotPublished()
+        {
+            var command = new SetPaymentOrderCommand { AccountId = 123 };
+
+            var existingApprenticeship = new Apprenticeship { Id = 123, PaymentOrder = 2, CommitmentId = 3245 };
+            var updatedApprenticeship = new Apprenticeship { Id = 123, PaymentOrder = 2, CommitmentId = 3245 };
+            _apprenticeshipRepository.SetupSequence(x => x.GetApprenticeshipsByEmployer(command.AccountId, ""))
+                .ReturnsAsync(new ApprenticeshipsResult { Apprenticeships = new List<Apprenticeship> { existingApprenticeship } })
+                .ReturnsAsync(new ApprenticeshipsResult { Apprenticeships = new List<Apprenticeship> { updatedApprenticeship } });
+
+            var commitment = new Commitment { Id = 3245 };
+            _commitmentRepository.Setup(x => x.GetCommitmentById(updatedApprenticeship.CommitmentId)).ReturnsAsync(commitment);
+
+            await _handler.Handle(command);
+
+            _apprenticeshipEventsList.Verify(x => x.Add(It.IsAny<Commitment>(),
+                    It.IsAny<Apprenticeship>(),
+                    It.IsAny<string>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<DateTime?>()),
+                Times.Never);
+
+            _apprenticeshipEventsPublisher.Verify(x => x.Publish(_apprenticeshipEventsList.Object), Times.Never);
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
+﻿using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
 
 namespace SFA.DAS.Commitments.Domain.Entities

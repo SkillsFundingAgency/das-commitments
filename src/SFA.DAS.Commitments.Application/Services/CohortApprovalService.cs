@@ -26,15 +26,27 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly IMediator _mediator;
         private readonly OverlappingApprenticeshipService _overlappingApprenticeshipService;
         private readonly ApprenticeshipEventsService _apprenticeshipEventsService;
+        private readonly ICommitmentsLogger _logger;
 
-        internal CohortApprovalService(IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, ICommitmentRepository commitmentRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator)
+        internal CohortApprovalService(IApprenticeshipRepository apprenticeshipRepository,
+            IApprenticeshipOverlapRules overlapRules,
+            ICurrentDateTime currentDateTime,
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipEventsList apprenticeshipEventsList,
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
+            IMediator mediator,
+            ICommitmentsLogger logger)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _currentDateTime = currentDateTime;
             _commitmentRepository = commitmentRepository;
             _mediator = mediator;
+            _logger = logger;
             _overlappingApprenticeshipService = new OverlappingApprenticeshipService(apprenticeshipRepository, overlapRules);
-            _apprenticeshipEventsService = new ApprenticeshipEventsService(apprenticeshipEventsList, apprenticeshipEventsPublisher, apprenticeshipRepository);
+            _apprenticeshipEventsService = new ApprenticeshipEventsService(apprenticeshipEventsList,
+                apprenticeshipEventsPublisher,
+                apprenticeshipRepository,
+                logger);
         }
 
         internal void CheckCommitmentStatus(Commitment commitment)

@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
             _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object,
-                _messagePublisher.Object, _historyRepository.Object);
+                _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>());
         }
 
         [Test]
@@ -80,16 +80,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
             await _sut.Handle(_command);
 
             _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferRejected, _command.UserEmail, _command.UserName));
-        }
-
-
-        [Test]
-        public async Task ThenOldRespositoryIsCalledWhenThereIsNoTransferRequestId()
-        {
-            _command.TransferRequestId = 0;
-            await _sut.Handle(_command);
-
-            _commitmentRepository.Verify(x => x.SetTransferApproval(_command.CommitmentId, TransferApprovalStatus.TransferRejected, _command.UserEmail, _command.UserName));
         }
 
         [Test]

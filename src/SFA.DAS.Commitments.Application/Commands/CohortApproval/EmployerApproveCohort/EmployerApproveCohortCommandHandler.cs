@@ -22,17 +22,36 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         private readonly AbstractValidator<EmployerApproveCohortCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly ICommitmentsLogger _logger;
         private readonly HistoryService _historyService;
         private readonly CohortApprovalService _cohortApprovalService;
 
-        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator, IMessagePublisher messagePublisher)
+        public EmployerApproveCohortCommandHandler(AbstractValidator<EmployerApproveCohortCommand> validator,
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
+            IApprenticeshipOverlapRules overlapRules,
+            ICurrentDateTime currentDateTime,
+            IHistoryRepository historyRepository,
+            IApprenticeshipEventsList apprenticeshipEventsList,
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
+            IMediator mediator,
+            IMessagePublisher messagePublisher,
+            ICommitmentsLogger logger)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
+            _logger = logger;
             _historyService = new HistoryService(historyRepository);
             
-            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
+            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository,
+                overlapRules,
+                currentDateTime,
+                commitmentRepository,
+                apprenticeshipEventsList,
+                apprenticeshipEventsPublisher,
+                mediator,
+                _logger);
         }
 
         protected override async Task HandleCore(EmployerApproveCohortCommand message)
