@@ -21,6 +21,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
         private readonly AbstractValidator<ApproveTransferRequestCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly ICommitmentsLogger _logger;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -30,15 +31,17 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
             IMessagePublisher messagePublisher,
-            IHistoryRepository historyRepository)
+            IHistoryRepository historyRepository,
+            ICommitmentsLogger logger)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
+            _logger = logger;
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
+                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger);
 
         }
 
@@ -57,17 +60,8 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
 
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
-            if (command.TransferRequestId > 0)
-            {
-                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
-                    TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName);
-            }
-            else
-            {
-                // TODO Remove This route when old Approval route decomes obslete 
-                await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferApproved,
-                    command.UserEmail, command.UserName);
-            }
+            await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName);
 
             await UpdateCommitmentObjectWithNewValues(commitment);
 

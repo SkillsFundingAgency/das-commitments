@@ -24,6 +24,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly ICommitmentsLogger _logger;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -33,7 +34,8 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
             IMessagePublisher messagePublisher,
-            IHistoryRepository historyRepository)
+            IHistoryRepository historyRepository,
+            ICommitmentsLogger logger)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -41,10 +43,11 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _messagePublisher = messagePublisher;
+            _logger = logger;
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator);
+                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger);
         }
 
         protected override async Task HandleCore(RejectTransferRequestCommand command)
@@ -62,17 +65,8 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderRejection.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
-            if (command.TransferRequestId > 0)
-            {
-                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
-                    TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
-            }
-            else
-            {
-                // TODO Remove This route when old Approval route decomes obslete 
-                await _commitmentRepository.SetTransferApproval(command.CommitmentId, TransferApprovalStatus.TransferRejected,
-                    command.UserEmail, command.UserName);
-            }
+            await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                TransferApprovalStatus.TransferRejected, command.UserEmail, command.UserName);
 
             await _commitmentRepository.ResetEditStatusToEmployer(command.CommitmentId);
 
@@ -114,7 +108,6 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
 
         private static void CheckCommitmentStatus(Commitment commitment, RejectTransferRequestCommand command)
         {
-
             if (commitment.EmployerAccountId != command.TransferReceiverId)
                 throw new InvalidOperationException($"Commitment {commitment.Id} has employer account Id {commitment.EmployerAccountId} which doesn't match command receiver Id {command.TransferReceiverId}");
 

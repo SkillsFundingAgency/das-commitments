@@ -4,6 +4,7 @@ using System.Linq;
 
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship.Types;
+using SFA.DAS.Commitments.Api.Types.Extensions;
 using SFA.DAS.Commitments.Domain.Extensions;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -26,7 +27,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                                  RecordStatuses = ExtractRecordStatus(apprenticeships, caller, apprenticeshipQuery),
                                  TrainingProviders = ExtractProviders(apprenticeships, apprenticeshipQuery),
                                  EmployerOrganisations = ExtractEmployers(apprenticeships, apprenticeshipQuery),
-                                 TrainingCourses = ExtractTrainingCourses(apprenticeships, apprenticeshipQuery)
+                                 TrainingCourses = ExtractTrainingCourses(apprenticeships, apprenticeshipQuery),
+                                 FundingStatuses = ExtractFundingStatuses(apprenticeships, apprenticeshipQuery)
                              };
 
             return facets;
@@ -176,6 +178,25 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             er.ForEach(m => m.Selected = apprenticeshipQuery?.ApprenticeshipStatuses?.Contains(m.Data) ?? false);
 
             return er;
+        }
+
+        private List<FacetItem<FundingStatus>> ExtractFundingStatuses(IEnumerable<Apprenticeship> apprenticeships, ApprenticeshipSearchQuery apprenticeshipQuery)
+        {
+            var facets = new List<FacetItem<FundingStatus>>();
+
+            if (apprenticeships.Any(a => a.IsTranferFunded()))
+            {
+                facets.Add(new FacetItem<FundingStatus>
+                {
+                    Data = FundingStatus.TransferFunded,
+                    //Selected = apprenticeshipQuery?.FundingStatuses.Contains(FundingStatus.TransferFunded) ?? false
+
+                    // this assumes the only FundingStatus is TransferFunded (which is currently true)
+                    Selected = apprenticeshipQuery?.FundingStatuses?.Any() ?? false
+                });
+            }
+
+            return facets;
         }
     }
 }

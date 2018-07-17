@@ -15,8 +15,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateCommitment(Commitment commitment);
         Task UpdateCommitmentReference(long commitmentId, string hashValue);
         Task SetPaymentOrder(long accountId);
-        [Obsolete]
-        Task SetTransferApproval(long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName);
         Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName);
         Task<TransferRequest> GetTransferRequest(long transferRequestId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);

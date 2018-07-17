@@ -22,6 +22,8 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
 
         public List<string> TrainingCourses { get; set; }
 
+        public List<FundingStatus> FundingStatuses { get; set; }
+
         public int PageNumber { get; set; }
 
         /// <summary>
