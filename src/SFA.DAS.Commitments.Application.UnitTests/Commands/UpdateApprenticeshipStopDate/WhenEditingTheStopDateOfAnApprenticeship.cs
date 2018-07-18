@@ -217,7 +217,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await Handler.Handle(ExampleValidRequest);
 
             MockDataLockRepository.Verify(x => x.GetDataLocks(TestApprenticeship.Id, false));
-            MockDataLockRepository.Verify(x => x.ResolveDataLock(It.Is<IEnumerable<long>>(p => p.Count() == 2 && p.First() == 1 && p.Last() == 2)));
+            MockDataLockRepository.Verify(x => x.ResolveDataLock(It.Is<IEnumerable<long>>(p => p.SequenceEqual(new [] {1L, 2L}))));
         }
     }
 }

@@ -125,15 +125,12 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
         private async Task AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(DataLockStatus datalock)
         {
-            var apprenticeship = await
-                _apprenticeshipRepository.GetApprenticeship(datalock.ApprenticeshipId);
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(datalock.ApprenticeshipId);
 
             if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn &&
                 apprenticeship.StopDate == apprenticeship.StartDate)
             {
-
-                _logger.Info($"Auto-resolving datalock for Apprenticeship withdrawn effective at start date {datalock.ApprenticeshipId} " +
-                             $"Event Id {datalock.DataLockEventId}");
+                _logger.Info($"Auto-resolving datalock for Apprenticeship #{datalock.ApprenticeshipId} withdrawn effective at start date. Event Id {datalock.DataLockEventId}");
 
                 datalock.IsResolved = true;
             }

@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .ReturnsAsync(new List<DataLockStatus>());
 
             MockDataLockRepository.Setup(x => x.ResolveDataLock(It.IsAny<IEnumerable<long>>()))
-                .ReturnsAsync(1);
+                .Returns(Task.CompletedTask);
 
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(
                     It.Is<long>(c => c == TestApprenticeship.CommitmentId)))
@@ -70,7 +70,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     EmployerAccountId = ExampleValidRequest.AccountId
                 });
         }
-
 
         [TestCase(PaymentStatus.Active)]
         [TestCase(PaymentStatus.Paused)]
