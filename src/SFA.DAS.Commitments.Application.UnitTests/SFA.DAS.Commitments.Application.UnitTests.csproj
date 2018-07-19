@@ -243,6 +243,7 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineWhetherChangeRequireAgreement.cs" />
     <Compile Include="Rules\CommitmentRules\WhenDetermineAgreementStatus.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
+    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

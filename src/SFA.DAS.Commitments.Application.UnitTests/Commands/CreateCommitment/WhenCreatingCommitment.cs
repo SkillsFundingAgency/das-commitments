@@ -92,7 +92,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                 .Callback<Commitment>(
                     commitment => argument = commitment);
 
-            await _handler.Handle(_exampleValidRequest);
+            // we use _exampleValidRequest to assert the mapping, so pass a fresh clone in case the handler happens to stomp all over it
+            await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
 
             argument.Should().NotBeNull();
             AssertMappingIsCorrect(argument);
@@ -101,12 +102,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [Test]
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
-            const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>())).ReturnsAsync(ExpectedCommitmentId);
+            const long expectedCommitmentId = 45;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>())).ReturnsAsync(expectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 
-            commitmentId.Should().Be(ExpectedCommitmentId);
+            commitmentId.Should().Be(expectedCommitmentId);
         }
 
         [Test]
@@ -191,13 +192,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                             m => m.AccountId == _exampleValidRequest.Commitment.EmployerAccountId && m.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value && m.CommitmentId == expectedCommitmentId)), Times.Once);
         }
 
-        private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
+        private void AssertMappingIsCorrect(Commitment argument)
         {
             argument.Reference.Should().Be(_exampleValidRequest.Commitment.Reference);
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
             argument.LegalEntityAddress.Should().Be(_exampleValidRequest.Commitment.LegalEntityAddress);
             argument.LegalEntityOrganisationType.Should().Be(_exampleValidRequest.Commitment.LegalEntityOrganisationType);
+            argument.AccountLegalEntityPublicHashedId.Should().Be(_exampleValidRequest.Commitment.AccountLegalEntityPublicHashedId);
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);
