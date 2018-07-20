@@ -39,7 +39,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                 EmployerAccountId = 987,
                 LegalEntityId = "LE ID",
                 LegalEntityName = "LE Name",
-                LegalEntityOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType.CompaniesHouse
+                LegalEntityOrganisationType = Common.Domain.Types.OrganisationType.CompaniesHouse,
+                AccountLegalEntityPublicHashedId = "123456"
             };
 
             _apprenticeship = new Apprenticeship
@@ -159,6 +160,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.TransferApprovalStatus ==(Events.Api.Types.TransferApprovalStatus?) _commitment.TransferApprovalStatus &&
                    apprenticeshipEvent.LegalEntityName == _commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == _commitment.LegalEntityOrganisationType.ToString() &&
+                   apprenticeshipEvent.AccountLegalEntityPublicHashedId == _commitment.AccountLegalEntityPublicHashedId &&
                    apprenticeshipEvent.DateOfBirth == _apprenticeship.DateOfBirth &&
                    apprenticeshipEvent.EffectiveFrom == effectiveFrom &&
                    apprenticeshipEvent.EffectiveTo == effectiveTo;

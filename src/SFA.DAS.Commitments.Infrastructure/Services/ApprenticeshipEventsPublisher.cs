@@ -66,6 +66,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
+                AccountLegalEntityPublicHashedId = commitment.AccountLegalEntityPublicHashedId,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 EffectiveFrom = effectiveFrom,
                 EffectiveTo = effectiveTo,
@@ -84,7 +85,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TotalCost = x.Cost, EffectiveFrom = x.FromDate, EffectiveTo = x.ToDate
             });
         }
-
 
         private static IEnumerable<List<T>> SplitList<T>(List<T> items, int chunkSize)
         {
