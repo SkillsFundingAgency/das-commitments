@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
@@ -63,9 +61,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
 
             var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
             var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
-            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
+
             await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName,
                 message.LastUpdatedByEmail, message.Message);
+
+            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);
 
             if (haveBothPartiesApproved)
             {
@@ -150,11 +150,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             return commitment;
         }
 
-        private static void CheckEditStatus(Commitment commitment)
+        private void CheckEditStatus(Commitment commitment)
         {
-            if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
+            if (commitment.EditStatus != EditStatus.EmployerOnly)
             {
-                throw new UnauthorizedException($"Employer not allowed to edit commitment: {commitment.Id}");
+                throw new InvalidOperationException($"Commitment {commitment.Id} cannot be approved by employer because EditStatus is {commitment.EditStatus}");
             }
         }
 
