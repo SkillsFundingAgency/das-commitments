@@ -9,14 +9,22 @@
 	@lastUpdatedByProviderName NVARCHAR(255),
 	@lastUpdatedByProviderEmail NVARCHAR(255)
 AS
+BEGIN
 
-UPDATE [dbo].[Commitment] 
-	SET CommitmentStatus = @commitmentStatus, 
-		EditStatus = @editStatus,
-		LastAction = @lastAction,
-		TransferApprovalStatus = @transferApprovalStatus,
-		LastUpdatedByEmployerName = @lastUpdatedByEmployerName, 
-		LastUpdatedByEmployerEmail = @lastUpdatedByEmployerEmail,
-		LastUpdatedByProviderName = @lastUpdatedByProviderName,
-		LastUpdatedByProviderEmail = @lastUpdatedByProviderEmail
-WHERE Id = @id;
+	UPDATE [dbo].[Commitment] 
+		SET CommitmentStatus = @commitmentStatus, 
+			EditStatus = @editStatus,
+			LastAction = @lastAction,
+			TransferApprovalStatus = @transferApprovalStatus,
+			LastUpdatedByEmployerName = @lastUpdatedByEmployerName, 
+			LastUpdatedByEmployerEmail = @lastUpdatedByEmployerEmail,
+			LastUpdatedByProviderName = @lastUpdatedByProviderName,
+			LastUpdatedByProviderEmail = @lastUpdatedByProviderEmail
+	WHERE Id = @id
+	AND EditStatus <> 0;
+
+
+	IF @@ROWCOUNT != 1 
+		THROW 50003, 'Incorrect Number of records were updated in Commitment', 1;
+
+END
