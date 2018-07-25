@@ -43,6 +43,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string ProviderName { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
+        public string AccountLegalEntityPublicHashedId { get; set; }
         public bool DataLockPrice { get; set; }
         public bool DataLockPriceTriaged { get; set; }
         public bool DataLockCourse { get; set; }
