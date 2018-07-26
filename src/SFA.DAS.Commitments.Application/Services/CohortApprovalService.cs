@@ -74,15 +74,12 @@ namespace SFA.DAS.Commitments.Application.Services
 
         internal async Task UpdateApprenticeships(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
         {
-            SetApprenticeshipsPaymentAndAgreementStatuses(commitment, haveBothPartiesApproved, newAgreementStatus);
-            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Apprenticeships);
-            if (haveBothPartiesApproved)
-            {
-                if (!commitment.HasTransferSenderAssigned)
-                {
-                    await CreatePriceHistory(commitment);
-                }
-            }
+            var newPaymentStatus = DetermineNewPaymentStatus(commitment, haveBothPartiesApproved);
+            var agreedOn = DetermineAgreedOnDate(haveBothPartiesApproved);
+
+            await SetApprenticeshipsPaymentAndAgreementStatuses(commitment, newPaymentStatus, newAgreementStatus, agreedOn);
+
+            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned) await CreatePriceHistory(commitment);
         }
 
         internal async Task UpdateApprenticeshipsPaymentStatusToPaid(Commitment commitment)
@@ -177,14 +174,15 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
-        private void SetApprenticeshipsPaymentAndAgreementStatuses(Commitment commitment, bool haveBothPartiesApproved, AgreementStatus newAgreementStatus)
+        private async Task SetApprenticeshipsPaymentAndAgreementStatuses(Commitment commitment, PaymentStatus paymentStatus, AgreementStatus newAgreementStatus, DateTime? agreedOn)
         {
-            var newPaymentStatus = DetermineNewPaymentStatus(commitment, haveBothPartiesApproved);
+            await _apprenticeshipRepository.UpdateApprenticeshipStatuses(commitment.Id, paymentStatus, newAgreementStatus, agreedOn);
+
             commitment.Apprenticeships.ForEach(x =>
             {
                 x.AgreementStatus = newAgreementStatus;
-                x.PaymentStatus = newPaymentStatus;
-                x.AgreedOn = DetermineAgreedOnDate(haveBothPartiesApproved);
+                x.PaymentStatus = paymentStatus;
+                x.AgreedOn = agreedOn;
             });
         }
 
