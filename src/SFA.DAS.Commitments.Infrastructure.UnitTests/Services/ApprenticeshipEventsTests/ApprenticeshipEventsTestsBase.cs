@@ -42,6 +42,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             {
                 EndDate = DateTime.Now.AddYears(3),
                 StartDate = DateTime.Now.AddDays(1),
+                PauseDate = DateTime.Now.AddMonths(1),
+                StopDate = DateTime.Now.AddMonths(2),
                 Cost = 123.45m,
                 TrainingCode = "TRCODE",
                 AgreementStatus = Domain.Entities.AgreementStatus.BothAgreed,
