@@ -11,8 +11,6 @@ using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    //todo: remove this obsolete class
-    [Obsolete("Use ApprenticeshipEventsPublisher and ApprenticeshipEventsList.")]
     public class ApprenticeshipEvents : IApprenticeshipEvents
     {
         private readonly IEventsApi _eventsApi;
