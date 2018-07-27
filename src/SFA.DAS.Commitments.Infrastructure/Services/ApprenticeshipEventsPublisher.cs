@@ -87,7 +87,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             });
         }
 
-
         private static IEnumerable<List<T>> SplitList<T>(List<T> items, int chunkSize)
         {
             for (var i = 0; i < items.Count; i += chunkSize)

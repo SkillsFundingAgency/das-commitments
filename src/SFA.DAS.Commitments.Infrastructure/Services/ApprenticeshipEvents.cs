@@ -108,8 +108,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TransferSenderName = commitment.TransferSenderName,
                 TransferApprovalStatus = (Events.Api.Types.TransferApprovalStatus?) commitment.TransferApprovalStatus,
                 TransferApprovalActionedOn = commitment.TransferApprovalActionedOn,
-                StoppedOnDate = apprenticeship.StopDate,
-                PausedOnDate = apprenticeship.PauseDate
+                StoppedOnDate = paymentStatus == PaymentStatus.Withdrawn ? effectiveFrom : apprenticeship.StopDate,
+                PausedOnDate = paymentStatus == PaymentStatus.Paused ? effectiveFrom : apprenticeship.PauseDate
             };
         }
 
