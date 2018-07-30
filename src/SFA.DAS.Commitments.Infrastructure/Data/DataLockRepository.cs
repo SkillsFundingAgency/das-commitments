@@ -122,41 +122,33 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus)
+        public async Task UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus)
         {
-            return await WithTransaction(async (connection, trans) =>
+            await WithTransaction(async (connection, trans) =>
             {
-                await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
-                    dataLockEventId, triageStatus);
-                
-                return 0;
+                await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans, dataLockEventId, triageStatus);
             });
         }
 
-        public async Task<long> UpdateDataLockTriageStatus(IEnumerable<long> dataLockEventIds, TriageStatus triageStatus)
+        public async Task UpdateDataLockTriageStatus(IEnumerable<long> dataLockEventIds, TriageStatus triageStatus)
         {
-            return await WithTransaction(async (connection, trans) =>
+            await WithTransaction(async (connection, trans) =>
             {
                 foreach (var id in dataLockEventIds)
                 {    
-                    await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans,
-                        id, triageStatus);
+                    await _dataLockTransactions.UpdateDataLockTriageStatus(connection, trans, id, triageStatus);
                 }
-
-                return 0;
             });
         }
 
-        public async Task<long> ResolveDataLock(IEnumerable<long> dataLockEventIds)
+        public async Task ResolveDataLock(IEnumerable<long> dataLockEventIds)
         {
-            return await WithTransaction(async (connection, trans) =>
+            await WithTransaction(async (connection, trans) =>
             {
                 foreach (var id in dataLockEventIds)
                 {
                     await _dataLockTransactions.ResolveDataLock(connection, trans, id);
                 }
-
-                return 0;
             });
         }
 
@@ -187,8 +179,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     commandType: CommandType.StoredProcedure);
                 return results.ToList();
             });
-
-
         }
 
         public async Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier, DateTime expiredDateTime)

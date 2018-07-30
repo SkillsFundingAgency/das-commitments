@@ -129,7 +129,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectDataLockTriag
                 m => m.UpdateDataLockTriageStatus(It.IsAny<IEnumerable<long>>(), It.IsAny<TriageStatus>()))
                 .Callback<IEnumerable<long>, TriageStatus>(
                     (ids, triageStatus) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship { HasHadDataLockSuccess = hasHadDatalockSuccess });
