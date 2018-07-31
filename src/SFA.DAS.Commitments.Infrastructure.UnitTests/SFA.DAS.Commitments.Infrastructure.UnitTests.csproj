@@ -82,8 +82,8 @@
     <Reference Include="SFA.DAS.Events.Api.Types, Version=2.1.24.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Events.Api.Types.2.1.24\lib\net45\SFA.DAS.Events.Api.Types.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Http, Version=1.0.0.39136, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Http.1.0.0.39136\lib\net45\SFA.DAS.Http.dll</HintPath>
+    <Reference Include="SFA.DAS.Http, Version=1.2.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Http.1.2.4\lib\net45\SFA.DAS.Http.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.Learners, Version=1.0.0.39408, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Learners.1.0.0.39408\lib\net45\SFA.DAS.Learners.dll</HintPath>

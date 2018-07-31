@@ -71,8 +71,8 @@
     <Reference Include="SFA.DAS.Common.Domain, Version=1.4.43.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Common.Domain.1.4.43\lib\net462\SFA.DAS.Common.Domain.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Http, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Http.1.2.1\lib\net45\SFA.DAS.Http.dll</HintPath>
+    <Reference Include="SFA.DAS.Http, Version=1.2.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Http.1.2.4\lib\net45\SFA.DAS.Http.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
