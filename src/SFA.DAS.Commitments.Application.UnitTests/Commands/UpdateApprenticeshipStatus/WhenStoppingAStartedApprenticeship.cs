@@ -36,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             TestApprenticeship = new Apprenticeship
             {
+                Id = 444L,
                 CommitmentId = 123L,
                 PaymentStatus = PaymentStatus.Active,
                 StartDate = DateTime.UtcNow.Date.AddMonths(-1)
@@ -136,6 +137,47 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             MockDataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(a => a.IsResolved)),
                 Times.Once);
+        }
+
+
+        [Test]
+        public async Task ThenIfStopBackdatedToStartThenAllOutstandingDataLocksAreResolved()
+        {
+            ExampleValidRequest.DateOfChange = TestApprenticeship.StartDate.Value;
+
+            var dataLocks = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    DataLockEventId = 1,
+                    TriageStatus = TriageStatus.Restart,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock04
+                },
+                new DataLockStatus
+                {
+                    DataLockEventId = 2,
+                    TriageStatus = TriageStatus.Unknown,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock03
+                },
+                new DataLockStatus
+                {
+                    DataLockEventId = 3,
+                    TriageStatus = TriageStatus.Change,
+                    IsResolved = false,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                }
+            };
+
+            MockDataLockRepository.Setup(x => x.GetDataLocks(444, false)).ReturnsAsync(dataLocks);
+
+            await Handler.Handle(ExampleValidRequest);
+
+            MockDataLockRepository.Verify(x => x.GetDataLocks(TestApprenticeship.Id, false));
+
+            MockDataLockRepository.Verify(x =>
+                x.ResolveDataLock(It.Is<IEnumerable<long>>(p => p.SequenceEqual(new List<long> { 1, 2, 3 }))));
         }
 
         [Test]

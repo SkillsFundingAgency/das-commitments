@@ -50,7 +50,10 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Apprenticeship());
+                .ReturnsAsync(new Apprenticeship
+                {
+                    PaymentStatus = PaymentStatus.Active
+                });
 
 
             _dataLockUpdater = new DataLockUpdater(
@@ -144,7 +147,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             await _dataLockUpdater.RunUpdate();
 
             //Assert
-            _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>()), Times.Exactly(3));
+            _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(d => !d.IsResolved)), Times.Exactly(3));
         }
 
         [Test]
@@ -195,39 +198,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             //Assert
             _apprenticeshipRepository.Verify(x => x.SetHasHadDataLockSuccess(hasNotHadDataLockSuccessApprenticeshipId), Times.Once);
             _apprenticeshipRepository.Verify(x => x.SetHasHadDataLockSuccess(hasHadDataLockSuccessApprenticeshipId), Times.Once);
-            _apprenticeshipRepository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Never);
-        }
-
-        [Test]
-        public async Task ThenGetApprentishipIsNotCalledUnnecessarily()
-        {
-            var page1 = new List<DataLockStatus>
-            {
-                new DataLockStatus
-                {
-                    DataLockEventId = 2,
-                    ErrorCode = DataLockErrorCode.Dlock07
-                },
-                new DataLockStatus
-                {
-                    DataLockEventId = 3,
-                    ErrorCode = DataLockErrorCode.Dlock07
-                },
-                new DataLockStatus
-                {
-                    DataLockEventId = 4,
-                    ErrorCode = DataLockErrorCode.Dlock07
-                }
-            };
-
-            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
-            _paymentEvents.Setup(x => x.GetDataLockEvents(4, null, null, 0L, 1)).ReturnsAsync(new List<DataLockStatus>());
-
-            //Act
-            await _dataLockUpdater.RunUpdate();
-
-            //Assert
-            _apprenticeshipRepository.Verify(x => x.GetApprenticeship(It.IsAny<long>()), Times.Never);
         }
 
         [TestCase(DataLockErrorCode.None, true)]
@@ -413,6 +383,35 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
             //Assert
             _apprenticeshipUpdateRepository.Verify(
                 x => x.ExpireApprenticeshipUpdate(It.IsAny<long>()), Times.Never());
+        }
+
+
+        [Test]
+        public async Task ThenDatalocksForStoppedAndBackdatedApprenticeshipsAreAutoResolved()
+        {
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 1,
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.Dlock07
+                }
+            };
+
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    PaymentStatus = PaymentStatus.Withdrawn,
+                    StartDate = DateTime.Today.AddMonths(-1),
+                    StopDate = DateTime.Today.AddMonths(-1)
+                });
+
+            await _dataLockUpdater.RunUpdate();
+
+            _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(d => d.IsResolved)), Times.Once);
         }
     }
 }

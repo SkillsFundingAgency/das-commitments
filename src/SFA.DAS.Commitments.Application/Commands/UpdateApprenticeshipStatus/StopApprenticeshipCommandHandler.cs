@@ -91,9 +91,22 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
            
             await _apprenticeshipRepository.StopApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
 
-            await ResolveAnyTriagedCourseDataLocks(command.ApprenticeshipId);
-
+            if (command.DateOfChange == apprenticeship.StartDate)
+            {
+                await ResolveDataLocksForApprenticeship(apprenticeship.Id);
+            }
+            else
+            {
+                await ResolveAnyTriagedCourseDataLocks(command.ApprenticeshipId);
+            }
+           
             await historyService.Save();
+        }
+
+        private async Task ResolveDataLocksForApprenticeship(long apprenticeshipId)
+        {
+            var apprenticeshipDataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId)).Select(x => x.DataLockEventId);
+            await _dataLockRepository.ResolveDataLock(apprenticeshipDataLocks);
         }
 
         private async Task ResolveAnyTriagedCourseDataLocks(long apprenticeshipId)
