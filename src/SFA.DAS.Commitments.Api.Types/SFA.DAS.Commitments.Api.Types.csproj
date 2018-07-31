@@ -14,6 +14,8 @@
     <RepositoryUrl>https://github.com/SkillsFundingAgency/das-commitments</RepositoryUrl>
     <PackageTags>Esfa;Das;</PackageTags>
     <PackageReleaseNotes>Added support for .NetStandard2.0</PackageReleaseNotes>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>
