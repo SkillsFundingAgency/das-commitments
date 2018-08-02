@@ -137,7 +137,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             long[] idsToBeUpdated = null;
             _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>( (ids) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             IEnumerable<PriceHistory> prices = null;
             _apprenticeshipRepository.Setup(
@@ -187,7 +187,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                 m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()))
                 .Callback<IEnumerable<long>>(
                     (ids) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship { HasHadDataLockSuccess = hasHadDatalockSuccess });
@@ -223,7 +223,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             long[] idsToBeUpdated = null;
             _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>( (ids) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             await _sut.Handle(_command);
 

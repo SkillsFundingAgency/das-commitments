@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 
@@ -24,6 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipEventsPublisher _eventsPublisher;
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
+        private readonly IDataLockRepository _dataLockRepository;
         private readonly IAcademicYearValidator _academicYearValidator;
 
         public UpdateApprenticeshipStopDateCommandHandler(
@@ -35,7 +37,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             IHistoryRepository historyRepository,
             IAcademicYearValidator academicYearValidator,
             IApprenticeshipEventsPublisher eventsPublisher,
-            IApprenticeshipEventsList apprenticeshipEventsList)
+            IApprenticeshipEventsList apprenticeshipEventsList,
+            IDataLockRepository dataLockRepository)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -46,6 +49,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             _academicYearValidator = academicYearValidator;
             _eventsPublisher = eventsPublisher;
             _apprenticeshipEventsList = apprenticeshipEventsList;
+            _dataLockRepository = dataLockRepository;
         }
 
         protected override async Task HandleCore(UpdateApprenticeshipStopDateCommand command)
@@ -66,7 +70,19 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate
             ValidateChangeDateForStop(command.StopDate, apprenticeship);
 
             await SaveChange(command, commitment, apprenticeship);
+
+            if (command.StopDate == apprenticeship.StartDate)
+            {
+                await ResolveDataLocksForApprenticeship(apprenticeship.Id);
+            }
+
             await PublishEvent(command, commitment, apprenticeship);
+        }
+
+        private async Task ResolveDataLocksForApprenticeship(long apprenticeshipId)
+        {
+            var apprenticeshipDataLocks = (await _dataLockRepository.GetDataLocks(apprenticeshipId)).Select(x=>x.DataLockEventId);
+            await _dataLockRepository.ResolveDataLock(apprenticeshipDataLocks);
         }
 
         private async Task SaveChange(UpdateApprenticeshipStopDateCommand command, Commitment commitment, Apprenticeship apprenticeship)

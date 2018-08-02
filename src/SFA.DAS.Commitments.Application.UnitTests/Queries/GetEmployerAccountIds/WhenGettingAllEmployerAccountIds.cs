@@ -34,6 +34,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerAccountId
 
             response.Data.Should().BeSameAs(_fakeEmployerAccountIds);
         }
-
     }
 }
