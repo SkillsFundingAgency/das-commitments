@@ -68,14 +68,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         }
 
         [Test]
-        public async Task ThenIfTheEmployerHasNotYetApprovedTheApprenticeshipsAgreementsStatusesEmployerAgreedAndAreNotActive()
+        public async Task ThenIfTheEmployerHasNotYetApprovedTheApprenticeshipsAgreementsStatusesProviderAgreedAndAreNotActive()
         {
             await Target.Handle(Command);
 
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.ProviderAgreed));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.PendingApproval));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreedOn == null));
-            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Apprenticeships), Times.Once());
+            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Id, PaymentStatus.PendingApproval, AgreementStatus.ProviderAgreed, null), Times.Once());
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.BothAgreed));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.Active));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreedOn == expectedAgreedOnDate));
-            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Apprenticeships), Times.Once());
+            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Id, PaymentStatus.Active, AgreementStatus.BothAgreed, expectedAgreedOnDate), Times.Once());
         }
 
         [Test]

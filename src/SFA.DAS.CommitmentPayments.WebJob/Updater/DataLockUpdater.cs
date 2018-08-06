@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentPayments.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
@@ -33,19 +34,6 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             IFilterOutAcademicYearRollOverDataLocks filter,
             IApprenticeshipRepository apprenticeshipRepository)
         {
-            if(logger==null)
-                throw new ArgumentNullException(nameof(ILog));
-            if (paymentEventsService== null)
-                throw new ArgumentNullException(nameof(IPaymentEvents));
-            if(dataLockRepository==null)
-                throw new ArgumentNullException(nameof(IDataLockRepository));
-            if(apprenticeshipUpdateRepository == null)
-                throw new ArgumentNullException(nameof(IApprenticeshipUpdateRepository));
-            if(config == null)
-                throw new ArgumentNullException(nameof(CommitmentPaymentsConfiguration));
-            if (filter == null)
-                throw new ArgumentNullException(nameof(IFilterOutAcademicYearRollOverDataLocks));
-
             _logger = logger;
             _paymentEventsSerivce = paymentEventsService;
             _dataLockRepository = dataLockRepository;
@@ -102,6 +90,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
                              $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
+                        await AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(dataLockStatus);
+
                         try
                         {
                             await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
@@ -133,6 +123,18 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             }
         }
 
+        private async Task AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(DataLockStatus datalock)
+        {
+            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(datalock.ApprenticeshipId);
+
+            if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn &&
+                apprenticeship.StopDate == apprenticeship.StartDate)
+            {
+                _logger.Info($"Auto-resolving datalock for Apprenticeship #{datalock.ApprenticeshipId} withdrawn effective at start date. Event Id {datalock.DataLockEventId}");
+
+                datalock.IsResolved = true;
+            }
+        }
 
         private void ApplyErrorCodeWhiteList(DataLockStatus dataLockStatus)
         {

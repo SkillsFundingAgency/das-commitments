@@ -35,7 +35,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                 EmployerAccountId = 987,
                 LegalEntityId = "LE ID",
                 LegalEntityName = "LE Name",
-                LegalEntityOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType.CompaniesHouse
+                LegalEntityOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType.CompaniesHouse,
+                AccountLegalEntityPublicHashedId = "ALEPHI"
             };
 
             Apprenticeship = new Apprenticeship
@@ -73,6 +74,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.LegalEntityId == Commitment.LegalEntityId &&
                    apprenticeshipEvent.LegalEntityName == Commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == Commitment.LegalEntityOrganisationType.ToString() &&
+                   apprenticeshipEvent.AccountLegalEntityPublicHashedId == Commitment.AccountLegalEntityPublicHashedId &&
                    apprenticeshipEvent.DateOfBirth == Apprenticeship.DateOfBirth &&
                    PriceHistoryIsValid(apprenticeshipEvent.PriceHistory);
         }

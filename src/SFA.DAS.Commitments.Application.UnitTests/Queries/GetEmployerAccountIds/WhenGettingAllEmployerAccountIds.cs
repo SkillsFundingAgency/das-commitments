@@ -9,13 +9,11 @@ using SFA.DAS.Commitments.Domain.Data;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerAccountIds
 {
-
     [TestFixture]
     public class WhenGettingAllEmployerAccountIds
     {
         private Mock<IApprenticeshipRepository> _mockRepository;
         private GetEmployerAccountIdsQueryHandler _handler;
-        private GetEmployerAccountIdsRequest _request;
         private List<long> _fakeEmployerAccountIds;
 
         [SetUp]
@@ -32,11 +30,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetEmployerAccountId
         [Test]
         public async Task ThenTheEmployerIdsReturnedShouldMatchTheExpectedList()
         {
-
             var response = await _handler.Handle(new GetEmployerAccountIdsRequest());
 
             response.Data.Should().BeSameAs(_fakeEmployerAccountIds);
         }
-
     }
 }
