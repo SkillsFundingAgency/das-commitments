@@ -48,7 +48,6 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
             };
         }
 
-
         private static void CheckAuthorization(GetCommitmentRequest message, Domain.Entities.Commitment commitment)
         {
             switch (message.Caller.CallerType)

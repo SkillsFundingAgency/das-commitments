@@ -42,6 +42,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             {
                 EndDate = DateTime.Now.AddYears(3),
                 StartDate = DateTime.Now.AddDays(1),
+                PauseDate = DateTime.Now.AddMonths(1),
+                StopDate = DateTime.Now.AddMonths(2),
                 Cost = 123.45m,
                 TrainingCode = "TRCODE",
                 AgreementStatus = Domain.Entities.AgreementStatus.BothAgreed,
@@ -74,6 +76,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.LegalEntityName == Commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == Commitment.LegalEntityOrganisationType.ToString() &&
                    apprenticeshipEvent.DateOfBirth == Apprenticeship.DateOfBirth &&
+                   apprenticeshipEvent.StoppedOnDate == Apprenticeship.StopDate &&
+                   apprenticeshipEvent.PausedOnDate == Apprenticeship.PauseDate &&
                    PriceHistoryIsValid(apprenticeshipEvent.PriceHistory);
         }
 

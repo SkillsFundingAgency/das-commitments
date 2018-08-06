@@ -73,7 +73,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TransferSenderId = commitment.TransferSenderId,
                 TransferSenderName = commitment.TransferSenderName,
                 TransferApprovalStatus = (Events.Api.Types.TransferApprovalStatus?) commitment.TransferApprovalStatus,
-                TransferApprovalActionedOn = commitment.TransferApprovalActionedOn
+                TransferApprovalActionedOn = commitment.TransferApprovalActionedOn,
+                StoppedOnDate = apprenticeship.StopDate,
+                PausedOnDate = apprenticeship.PauseDate
             };
         }
 
@@ -84,7 +86,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TotalCost = x.Cost, EffectiveFrom = x.FromDate, EffectiveTo = x.ToDate
             });
         }
-
 
         private static IEnumerable<List<T>> SplitList<T>(List<T> items, int chunkSize)
         {

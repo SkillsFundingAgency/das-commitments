@@ -137,9 +137,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
         private bool EventMatchesParameters(IList<ApprenticeshipEvent> apprenticeshipEvents, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
             if (apprenticeshipEvents.Count != 1)
-            {
                 return false;
-            }
 
             var apprenticeshipEvent = apprenticeshipEvents.First();
             return apprenticeshipEvent.AgreementStatus == (Events.Api.Types.AgreementStatus)_apprenticeship.AgreementStatus &&
@@ -161,7 +159,9 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.LegalEntityOrganisationType == _commitment.LegalEntityOrganisationType.ToString() &&
                    apprenticeshipEvent.DateOfBirth == _apprenticeship.DateOfBirth &&
                    apprenticeshipEvent.EffectiveFrom == effectiveFrom &&
-                   apprenticeshipEvent.EffectiveTo == effectiveTo;
+                   apprenticeshipEvent.EffectiveTo == effectiveTo &&
+                   apprenticeshipEvent.StoppedOnDate == _apprenticeship.StopDate &&
+                   apprenticeshipEvent.PausedOnDate == _apprenticeship.PauseDate;
         } 
     }
 }
