@@ -12,9 +12,9 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> UpdateDataLockStatus(DataLockStatus dataLockStatus);
         Task<List<DataLockStatus>> GetDataLocks(long apprenticeshipId, bool includeRemoved=false);
         Task<DataLockStatus> GetDataLock(long dataLockEventId);
-        Task<long> UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus);
-        Task<long> UpdateDataLockTriageStatus(IEnumerable<long> dataLockEventIds, TriageStatus triageStatus);
-        Task<long> ResolveDataLock(IEnumerable<long> dataLockEventIds);
+        Task UpdateDataLockTriageStatus(long dataLockEventId, TriageStatus triageStatus);
+        Task UpdateDataLockTriageStatus(IEnumerable<long> dataLockEventIds, TriageStatus triageStatus);
+        Task ResolveDataLock(IEnumerable<long> dataLockEventIds);
         Task Delete(long dataLockEventId);
         Task<List<DataLockStatus>> GetExpirableDataLocks(DateTime beforeDate);
         Task<bool> UpdateExpirableDataLocks(long apprenticeshipId, string priceEpisodeIdentifier, DateTime expiredDateTime);
