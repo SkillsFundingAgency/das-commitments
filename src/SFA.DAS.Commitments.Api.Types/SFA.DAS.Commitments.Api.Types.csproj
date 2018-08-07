@@ -72,6 +72,7 @@
     <Compile Include="Apprenticeship\TrainingProvider.cs" />
     <Compile Include="BulkApprenticeshipRequest.cs" />
     <Compile Include="BulkUploadFileRequest.cs" />
+    <Compile Include="Commitment\CommitmentAgreement.cs" />
     <Compile Include="Commitment\TransferApprovalRequest.cs" />
     <Compile Include="Commitment\CommitmentView.cs" />
     <Compile Include="Commitment\CommitmentRequest.cs" />

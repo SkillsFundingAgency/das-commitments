@@ -184,6 +184,9 @@
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />
+    <Compile Include="Queries\GetCommitmentAgreements\GetCommitmentAgreementsQueryHandler.cs" />
+    <Compile Include="Queries\GetCommitmentAgreements\GetCommitmentAgreementsRequest.cs" />
+    <Compile Include="Queries\GetCommitmentAgreements\GetCommitmentAgreementsResponse.cs" />
     <Compile Include="Queries\GetStatistics\GetStatisticsQueryHandler.cs" />
     <Compile Include="Queries\GetStatistics\GetStatisticsRequest.cs" />
     <Compile Include="Queries\GetStatistics\GetStatisticsResponse.cs" />

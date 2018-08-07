@@ -52,6 +52,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
 
+                //todo: await WithTransaction(async (connection, transaction) => ??
                 using (var trans = connection.BeginTransaction())
                 {
                     var commitmentId = (await connection.QueryAsync<long>(
@@ -74,7 +75,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
         public async Task<Commitment> GetCommitmentById(long id)
         {
-            return await WithConnection(c => { return GetCommitment(id, c); });
+            return await WithConnection(c => GetCommitment(id, c));
         }
 
         public async Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId)
@@ -85,6 +86,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         public async Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId)
         {
             return await GetCommitmentsByIdentifier("EmployerAccountId", accountId);
+        }
+
+        public Task<IList<CommitmentAgreement>> GetCommitmentAgreementsForProvider(long providerId)
+        {
+            return WithConnection<IList<CommitmentAgreement>>(async c =>
+            {
+                //var parameters = new DynamicParameters();
+                //parameters.Add("@providerId", providerId);
+
+                var results = await c.QueryAsync<CommitmentAgreement>(
+                    $"SELECT Reference, LegalEntityName, AccountLegalEntityPublicHashedId FROM [dbo].[Commitment] WHERE ProviderId = @id AND CommitmentStatus <> {(int) CommitmentStatus.Deleted};",
+                    //param: parameters);
+                    param: new {providerId});
+
+                return results.ToList();
+            });
         }
 
         public async Task UpdateCommitment(Commitment commitment)
@@ -149,6 +166,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             _logger.Debug($"Deleting commitment {commitmentId}", commitmentId: commitmentId);
 
+            //todo: await WithTransaction(async (connection, transaction) => ??
             await WithConnection(async connection =>
             {
                 using (var tran = connection.BeginTransaction())
@@ -171,6 +189,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
             try
             {
+                //todo: await WithTransaction(async (connection, transaction) => ??
                 await WithConnection(async connection =>
                 {
                     using (var tran = connection.BeginTransaction())
@@ -215,6 +234,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@trainingCourses", JsonConvert.SerializeObject(trainingCourses), DbType.String);
                 parameters.Add("@transferRequestId", transferRequestId, DbType.Int64, ParameterDirection.Output);
 
+                //todo: await WithTransaction(async (connection, transaction) => ??
                 return await WithConnection(async connection =>
                 {
                     using (var tran = connection.BeginTransaction())

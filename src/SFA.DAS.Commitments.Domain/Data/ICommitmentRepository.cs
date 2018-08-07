@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> Create(Commitment commitment);
         Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
+        Task<IList<CommitmentAgreement>> GetCommitmentAgreementsForProvider(long providerId);
         Task<Commitment> GetCommitmentById(long id);
         Task DeleteCommitment(long commitmentId);
         Task UpdateCommitment(Commitment commitment);
