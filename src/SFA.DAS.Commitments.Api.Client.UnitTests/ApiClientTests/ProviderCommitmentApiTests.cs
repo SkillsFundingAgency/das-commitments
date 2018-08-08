@@ -172,6 +172,17 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
+        public async Task GetCommitmentAgreements()
+        {
+            var providerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider/{ProviderId}/commitmentagreements"), string.Empty);
+            _fakeHandler.AddFakeResponse(providerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
+
+            await _apiclient.GetCommitmentAgreements(ProviderId);
+
+            Assert.Pass();
+        }
+
+        [Test]
         public async Task GetProviderCommitment()
         {
             var providerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider/{ProviderId}/commitments/{CommitmentId}"), string.Empty);
