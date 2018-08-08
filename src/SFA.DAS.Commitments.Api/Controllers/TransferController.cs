@@ -27,7 +27,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
-        [Obsolete]
         [Route("{transferSenderId}/transfers/{commitmentId}", Name = "GetCommitmentForTransferSender")]
         [Authorize(Roles = "Role1")]
         public async Task<IHttpActionResult> GetCommitment(long transferSenderId, long commitmentId)
