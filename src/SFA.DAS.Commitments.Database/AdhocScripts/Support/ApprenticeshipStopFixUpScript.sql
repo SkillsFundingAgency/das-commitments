@@ -124,7 +124,7 @@ BEGIN TRAN
     + ''',NULL,'''
     + DateOfBirth + ''','
 	+ CASE WHEN TransferSenderId is null then 'NULL' else '''' + TransferSenderId + '''' END + ','
-	+ '''' + TransferSenderName + ''','
+	+ CASE WHEN TransferSenderName is null then 'NULL' else '''' + TransferSenderName + '''' END + ','
 	+ CASE WHEN TransferApprovalStatus is null then 'NULL' else '''' + TransferApprovalStatus + '''' END + ','
 	+ CASE WHEN TransferApprovalActionedOn is null then 'NULL' else '''' + TransferApprovalActionedOn + '''' END + ','
 	+ CASE WHEN StopDate is null then 'NULL' else '''' + StopDate + '''' END + ','
