@@ -65,6 +65,8 @@
     <Folder Include="StoredProcedures" />
     <Folder Include="UserDefinedTypes" />
     <Folder Include="PostDeployment" />
+    <Folder Include="AdhocScripts" />
+    <Folder Include="AdhocScripts\Support" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -133,6 +135,7 @@
   <ItemGroup>
     <None Include="Database.publish.xml" />
     <Build Include="Tables\BulkUpload.sql" />
+    <None Include="AdhocScripts\Support\ApprenticeshipStopFixUpScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
