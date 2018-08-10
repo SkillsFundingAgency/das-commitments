@@ -86,7 +86,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     PathwayCode = x.PathwayCode,
                     PathwayName = x.PathwayName,
                     Duration = x.Duration,
-                    MaxFunding = x.MaxFunding
+                    MaxFunding = x.CurrentFundingCap
                 }).ToList()
             };
         }
@@ -104,7 +104,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                     Title = GetTitle(x.Title, x.Level) + " (Standard)",
                     CourseName = x.Title,
                     Duration = x.Duration,
-                    MaxFunding = x.MaxFunding
+                    MaxFunding = x.CurrentFundingCap
                 }).ToList()
             };
         }
