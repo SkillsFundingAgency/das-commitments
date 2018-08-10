@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _eventsApi;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IApprenticeshipInfoServiceWrapper _apprenticeshipTrainingService;
+        private readonly IApprenticeshipInfoService _apprenticeshipTrainingService;
 
         private readonly ICommitmentsLogger _logger;
 
@@ -36,7 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             IApprenticeshipEventsList apprenticeshipEventsList,
             ICommitmentRepository commitmentRepository, 
             ICurrentDateTime currentDateTime,
-            IApprenticeshipInfoServiceWrapper apprenticeshipTrainingService,
+            IApprenticeshipInfoService apprenticeshipTrainingService,
             ICommitmentsLogger logger)
         {
             if (validator == null)

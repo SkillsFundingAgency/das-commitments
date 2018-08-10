@@ -15,6 +15,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
             throw new NotImplementedException();
         }
 
+        public Task<StatisticsViewModel> GetStatistics()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<TransactionsViewModel> GetTransactions(string accountId, int year, int month)
         {
             throw new NotImplementedException();
@@ -31,6 +36,11 @@ namespace SFA.DAS.Commitments.Notification.WebJob.DependencyResolution
         }
 
         public Task<ICollection<LevyDeclarationViewModel>> GetLevyDeclarations(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedApiResponseViewModel<AccountLegalEntityViewModel>> GetPageOfAccountLegalEntities(int pageNumber = 1, int pageSize = 1000)
         {
             throw new NotImplementedException();
         }
