@@ -47,8 +47,8 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=0.10.122.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.10.122\lib\net45\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.11.75\lib\net462\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.AssessmentOrgs.Api.Client, Version=0.10.122.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.AssessmentOrgs.Api.Client.0.10.122\lib\net45\SFA.DAS.AssessmentOrgs.Api.Client.dll</HintPath>
@@ -108,6 +108,7 @@
     <Compile Include="Entities\AssessmentOrganisation.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
     <Compile Include="Entities\Statistics.cs" />
+    <Compile Include="Entities\TrainingProgramme\FundingPeriod.cs" />
     <Compile Include="Entities\TransferRequest.cs" />
     <Compile Include="Entities\TransferRequestSummary.cs" />
     <Compile Include="Entities\TrainingCourseSummary.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
     <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Interfaces\IApprenticeshipInfoServiceMapper.cs" />
     <Compile Include="Interfaces\IAssessmentOrgs.cs" />
     <Compile Include="Interfaces\ICache.cs" />
     <Compile Include="Interfaces\IAcademicYearDateProvider.cs" />
