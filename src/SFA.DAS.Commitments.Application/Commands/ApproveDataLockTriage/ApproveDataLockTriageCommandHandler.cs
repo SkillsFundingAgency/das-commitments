@@ -39,15 +39,6 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             IApprenticeshipInfoService apprenticeshipTrainingService,
             ICommitmentsLogger logger)
         {
-            if (validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<ApproveDataLockTriageCommand>));
-            if (dataLockRepository == null)
-                throw new ArgumentNullException(nameof(IDataLockRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(IApprenticeshipRepository));
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(ICommitmentRepository));
-
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
