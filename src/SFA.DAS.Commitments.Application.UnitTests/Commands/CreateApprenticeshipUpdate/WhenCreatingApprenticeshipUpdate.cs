@@ -569,5 +569,4 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _apprenticeshipEventsPublisher.Verify(x=>x.Publish(_apprenticeshipEventsList.Object));
         }
     }
-
 }

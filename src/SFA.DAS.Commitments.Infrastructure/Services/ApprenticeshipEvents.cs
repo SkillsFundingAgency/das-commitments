@@ -11,7 +11,6 @@ using PaymentStatus = SFA.DAS.Events.Api.Types.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    [Obsolete("Use ApprenticeshipEventsPublisher and ApprenticeshipEventsList.")]
     public class ApprenticeshipEvents : IApprenticeshipEvents
     {
         private readonly IEventsApi _eventsApi;
@@ -104,7 +103,9 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 TransferSenderId = commitment.TransferSenderId,
                 TransferSenderName = commitment.TransferSenderName,
                 TransferApprovalStatus = (Events.Api.Types.TransferApprovalStatus?) commitment.TransferApprovalStatus,
-                TransferApprovalActionedOn = commitment.TransferApprovalActionedOn
+                TransferApprovalActionedOn = commitment.TransferApprovalActionedOn,
+                StoppedOnDate = paymentStatus == PaymentStatus.Withdrawn ? effectiveFrom : apprenticeship.StopDate,
+                PausedOnDate = paymentStatus == PaymentStatus.Paused ? effectiveFrom : apprenticeship.PauseDate
             };
         }
 
