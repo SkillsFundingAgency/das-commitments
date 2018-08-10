@@ -9,3 +9,5 @@ Post-Deployment Script Template
                SELECT * FROM [$(TableName)]					
 --------------------------------------------------------------------------------------
 */
+
+EXEC sp_refreshview [dbo.CommitmentSummaryWithMessages]

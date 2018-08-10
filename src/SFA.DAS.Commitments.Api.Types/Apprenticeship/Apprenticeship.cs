@@ -34,6 +34,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
         public string ProviderName { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
+        public string AccountLegalEntityPublicHashedId { get; set; }
 
         public bool DataLockPrice { get; set; }
         public bool DataLockPriceTriaged { get; set; }
