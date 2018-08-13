@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
@@ -6,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreements
 {
@@ -22,7 +25,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
             _mockValidator = new Mock<AbstractValidator<GetCommitmentAgreementsRequest>>();
-            _handler = new GetCommitmentAgreementsQueryHandler(_mockCommitmentRespository.Object, _mockValidator.Object);
+            _handler = new GetCommitmentAgreementsQueryHandler(_mockCommitmentRespository.Object,
+                _mockValidator.Object);
+
+            _mockValidator.Setup(v => v.Validate(It.IsAny<GetCommitmentAgreementsRequest>()))
+                .Returns(new ValidationResult(Enumerable.Empty<ValidationFailure>()));
 
             _exampleValidRequest = new GetCommitmentAgreementsRequest
             {
@@ -43,9 +50,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
             const string errorPropertyName = "propertyName", errorError = "error";
 
             _mockValidator.Setup(v => v.Validate(It.IsAny<GetCommitmentAgreementsRequest>()))
-                .Returns(new ValidationResult(new [] {new ValidationFailure(errorPropertyName, errorError) }));
+                .Returns(new ValidationResult(new[] {new ValidationFailure(errorPropertyName, errorError)}));
 
-            var validationException = Assert.ThrowsAsync<ValidationException>(async () =>  await _handler.Handle(_exampleValidRequest));
+            var validationException =
+                Assert.ThrowsAsync<ValidationException>(async () => await _handler.Handle(_exampleValidRequest));
             Assert.AreEqual(1, validationException.Errors.Count());
             Assert.AreEqual(errorPropertyName, validationException.Errors.First().PropertyName);
             Assert.AreEqual(errorError, validationException.Errors.First().ErrorMessage);
@@ -54,10 +62,40 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
         [Test]
         public void ThenValidRequestShouldNotThrowValidationExceptionWithValidationErrors()
         {
-            _mockValidator.Setup(v => v.Validate(It.IsAny<GetCommitmentAgreementsRequest>()))
-                .Returns(new ValidationResult(Enumerable.Empty<ValidationFailure>()));
-
             Assert.That(async () => await _handler.Handle(_exampleValidRequest), Throws.Nothing);
+        }
+
+        //public class CommitmentAgreementComparer : IComparer<CommitmentAgreement>
+        //{
+        //    public int Compare(CommitmentAgreement x, CommitmentAgreement y)
+        //    {
+        //        new CompareLogic()
+        //    }
+        //}
+
+        [Test]
+        public async Task ThenCommitmentAgreementsReturnedByRepositoryShouldBeReturned()
+        {
+            const string commitmentReference = "ComRef", aleHash = "Lagunitas", legalEntityName = "legalEntity";
+
+            var commitmentAgreements = new List<CommitmentAgreement>
+            {
+                new CommitmentAgreement
+                {
+                    Reference = commitmentReference,
+                    AccountLegalEntityPublicHashedId = aleHash,
+                    LegalEntityName = legalEntityName
+                }
+            };
+
+            _mockCommitmentRespository.Setup(r => r.GetCommitmentAgreementsForProvider(1))
+                .ReturnsAsync(TestHelper.Clone(commitmentAgreements));
+
+            var response = await _handler.Handle(_exampleValidRequest);
+
+            Assert.IsNotNull(response.Data);
+            //todo: this
+            //CollectionAssert.AreEqual(commitmentAgreements, response.Data);
         }
     }
 }
