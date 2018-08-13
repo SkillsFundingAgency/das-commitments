@@ -124,6 +124,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityAddress = commitment.LegalEntityAddress,
                 LegalEntityOrganisationType = (SFA.DAS.Common.Domain.Types.OrganisationType)commitment.LegalEntityOrganisationType,
+                AccountLegalEntityPublicHashedId = commitment.AccountLegalEntityPublicHashedId,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
                 CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
@@ -134,8 +135,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             };
 
             return domainCommitment;
-
         }
+
         private static bool CommitmentCanBeApproved(CallerType callerType, Commitment commitment)
         {
             switch (callerType)

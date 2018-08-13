@@ -90,5 +90,26 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
 
             result.Should().BeOfType<NotFoundResult>();
         }
+
+        [Test, AutoData]
+        public async Task ThenAccountLegalEntityPublicHashedIdIsMapped(GetApprenticeshipResponse mediatorResponse)
+        {
+            const string accountLegalEntityPublicHashedId = "XXX999";
+            mediatorResponse.Data.AccountLegalEntityPublicHashedId = accountLegalEntityPublicHashedId;
+            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetApprenticeshipRequest>())).ReturnsAsync(mediatorResponse);
+
+            // for this unit test we want a controller where the employerOrchestrator contains a real ApprenticeshipMapper
+            _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(),
+                new FacetMapper(Mock.Of<ICurrentDateTime>()),
+                new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
+                new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>());
+
+            _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
+
+            var result = await _controller.GetApprenticeship(TestProviderId, TestApprenticeshipId) as OkNegotiatedContentResult<Apprenticeship>;
+
+            result.Content.Should().NotBeNull();
+            Assert.AreEqual(accountLegalEntityPublicHashedId, result.Content.AccountLegalEntityPublicHashedId);
+        }
     }
 }
