@@ -7,20 +7,16 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements
     {
         public GetCommitmentAgreementsValidator()
         {
-            //todo: do we want to validade that the callertype is provider?
             Custom(request =>
             {
                 switch (request.Caller.CallerType)
                 {
                     case CallerType.Provider:
                         if (request.Caller.Id <= 0)
-                            return new FluentValidation.Results.ValidationFailure("ProviderId", "ProviderId must be greater than zero.");
+                            return new FluentValidation.Results.ValidationFailure("Id", "Id must be greater than zero.");
                         break;
-                    //case CallerType.Employer:
-                    ////default:
-                    //    if (request.Caller.Id <= 0)
-                    //        return new FluentValidation.Results.ValidationFailure("AccountId", "AccountId must be greater than zero.");
-                    //    break;
+                    default:
+                        return new FluentValidation.Results.ValidationFailure("CallerType", "CallerType must be Provider.");
                 }
 
                 return null;
