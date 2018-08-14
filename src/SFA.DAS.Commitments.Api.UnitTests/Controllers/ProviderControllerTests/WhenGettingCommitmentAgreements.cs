@@ -42,7 +42,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
             var contentResult = result as OkNegotiatedContentResult<IEnumerable<CommitmentAgreement>>;
             Assert.IsNotNull(contentResult);
 
-            //todo: story gives sort order, need to implement/test
             Assert.IsTrue(TestHelper.EnumerablesAreEqual(commitmentAgreements, contentResult.Content));
         }
     }
