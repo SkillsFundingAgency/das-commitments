@@ -23,8 +23,8 @@ BEGIN TRAN
     declare @originalStartDate DATETIME
     declare @originalStopDate DATETIME
     declare @originalHistoryId BIGINT
-	declare @originalHistoryJson VARCHAR(MAX)
-	declare @historyJson VARCHAR(MAX)
+	declare @originalHistoryJson NVARCHAR(MAX)
+	declare @historyJson NVARCHAR(MAX)
    
     /* Read some data */
    
