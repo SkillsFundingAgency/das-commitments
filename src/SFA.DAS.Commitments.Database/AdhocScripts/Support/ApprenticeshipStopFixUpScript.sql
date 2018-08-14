@@ -22,17 +22,17 @@ BEGIN TRAN
     declare @originalPaymentStatus BIGINT
     declare @originalStartDate DATETIME
     declare @originalStopDate DATETIME
-    declare @historyJson VARCHAR(MAX)
+    declare @originalHistoryId BIGINT
+	declare @originalHistoryJson VARCHAR(MAX)
+	declare @historyJson VARCHAR(MAX)
    
     /* Read some data */
    
     select @originalApprenticeId = Id, @originalUln = Uln, @originalPaymentStatus = PaymentStatus, @originalStopDate = StopDate, @originalStartDate = StartDate
 	from Apprenticeship where Id = @ApprenticeshipId 
-   
-    --select @originalChangeStateHistoryId = Id from History where EntityType = 'Apprenticeship' and EntityId = @originalApprenticeId and ChangeType = 'ChangeOfStatus'
-       
-    --select @historyJson = UpdatedState from History where Id = @originalChangeStateHistoryId
-   
+           
+    select top 1 @originalHistoryId = Id, @originalHistoryJson = UpdatedState from History where ApprenticeshipId = @originalApprenticeId order by Id desc
+  
     /* End data read */
    
     /* Validation checks - */
@@ -50,13 +50,25 @@ BEGIN TRAN
     update Apprenticeship set PaymentStatus=3, StopDate = @StopDate where Id = @originalApprenticeId
        
     if(@@ERROR != 0) BEGIN SET @error = @@ERROR GOTO batch_abort END
-    print 'Back-dated apprenticeship stop date:' + convert(varchar, @StopDate, 126)
+    print 'New apprenticeship stop date:' + convert(varchar, @StopDate, 126)
     print ''
    
     /* History */
-   
-    --History does not need to be written as StopDate is not written to history anyway!
-    --set @historyJson = JSON_MODIFY(@historyJson,'$.StopDate',CONVERT(varchar(50),@originalStartDate,126))
+
+	if(@originalHistoryId is null) begin
+		print 'No History record found - history will not be written'
+	end else begin
+
+		set @historyJson = JSON_MODIFY(@originalHistoryJson,'$.PaymentStatus', 3)	
+		set @historyJson = JSON_MODIFY(@historyJson,'$.StopDate',CONVERT(varchar(50),@stopDate,126))
+
+		insert into History (ApprenticeshipId, UserId, UpdatedByRole, ChangeType, CreatedOn, ProviderId, EmployerAccountId, UpdatedByName, OriginalState, UpdatedState)
+		select
+		ApprenticeshipId, 'DataFix', 'Employer', 'Updated', GETDATE(), ProviderId, EmployerAccountId, 'DataFix', @originalHistoryJson, @historyJson
+		from History
+		where Id = @originalHistoryId
+
+	end   
    
     /* End History */
    
@@ -133,11 +145,8 @@ BEGIN TRAN
     FROM TargetApprenticeship
   
   
-    declare @eventsPriceHistoryInsertSql nvarchar(max)
-      
-  
+    declare @eventsPriceHistoryInsertSql nvarchar(max) 
     set @eventsPriceHistoryInsertSql = 'declare @eventId bigint = SCOPE_IDENTITY();' + CHAR(13) + CHAR(13)
-      
   
     select
     @eventsPriceHistoryInsertSql +=
@@ -165,5 +174,11 @@ BEGIN TRAN
             print 'Rollback performed'
             RAISERROR ('Error(s) occurred', 11, 1);
         END
-    
-COMMIT
+		ELSE
+		BEGIN
+
+			print 'Committing transaction'
+			COMMIT
+			print 'Completed'
+
+		END
