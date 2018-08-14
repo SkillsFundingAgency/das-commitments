@@ -51,6 +51,4 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                .Returns<IList<Types.Apprenticeship.Apprenticeship>, ApprenticeshipSearchQuery, Originator>((aps, q, o) => new FilterResult(100, aps.ToList(), 1, 25));
         }
     }
-
-
 }

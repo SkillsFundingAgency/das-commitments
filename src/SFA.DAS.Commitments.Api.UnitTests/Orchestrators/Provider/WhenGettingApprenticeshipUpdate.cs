@@ -15,8 +15,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         public async Task ThereIsNoUpdate()
         {
             var result = await Orchestrator.GetPendingApprenticeshipUpdate(666, 999);
-            MockMediator.Setup(m => m.SendAsync(It.IsAny<GetPendingApprenticeshipUpdateRequest>()))
-                .ReturnsAsync((GetPendingApprenticeshipUpdateResponse)null);
             result.Should().BeNull();
         }
 
