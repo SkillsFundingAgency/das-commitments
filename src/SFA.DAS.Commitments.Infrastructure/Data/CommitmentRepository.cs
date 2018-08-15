@@ -92,12 +92,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return WithConnection<IList<CommitmentAgreement>>(async c =>
             {
-                //var parameters = new DynamicParameters();
-                //parameters.Add("@providerId", providerId);
-
                 var results = await c.QueryAsync<CommitmentAgreement>(
                     $"SELECT Reference, LegalEntityName, AccountLegalEntityPublicHashedId FROM [dbo].[Commitment] WHERE ProviderId = @id AND CommitmentStatus <> {(int) CommitmentStatus.Deleted};",
-                    //param: parameters);
                     param: new {@id = providerId});
 
                 return results.ToList();
