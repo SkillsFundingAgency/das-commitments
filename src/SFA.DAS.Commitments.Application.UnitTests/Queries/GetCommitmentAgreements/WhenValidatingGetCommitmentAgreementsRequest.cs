@@ -19,7 +19,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
 
         [TestCase(0)]
         [TestCase(-1)]
-        public void ThenIfTheIdIsZeroOrLessIsNotValid(long providerId)
+        public void AndTheIdIsZeroOrLessThenIsNotValid(long providerId)
         {
             var result = _validator.Validate(new GetCommitmentAgreementsRequest
             {
@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
 
         [TestCase(1)]
         [TestCase(99999)]
-        public void ThenIfTheIdGreaterThanZeroIsValid(long providerId)
+        public void AndTheIdGreaterThanZeroThenIsValid(long providerId)
         {
             var result = _validator.Validate(new GetCommitmentAgreementsRequest
             {
@@ -57,7 +57,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
         [TestCase(CallerType.Employer)]
         [TestCase(CallerType.TransferReceiver)]
         [TestCase(CallerType.TransferSender)]
-        public void ThenIfTheCallerIsntProviderThenNotValid(CallerType callerType)
+        public void AndTheCallerIsntProvidedThenNotValid(CallerType callerType)
         {
             var result = _validator.Validate(new GetCommitmentAgreementsRequest
             {
@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
         [TestCase(CallerType.Employer)]
         [TestCase(CallerType.TransferReceiver)]
         [TestCase(CallerType.TransferSender)]
-        public void ThenIfTheCallerIsntProviderAndIdIsZeroThenNotValid(CallerType callerType)
+        public void AndTheCallerIsntProvidedAndIdIsZeroThenThenNotValid(CallerType callerType)
         {
             var result = _validator.Validate(new GetCommitmentAgreementsRequest
             {
