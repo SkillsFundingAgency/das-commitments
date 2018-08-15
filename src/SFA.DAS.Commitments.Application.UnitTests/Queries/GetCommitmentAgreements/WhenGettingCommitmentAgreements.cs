@@ -65,14 +65,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
             Assert.That(async () => await _handler.Handle(_exampleValidRequest), Throws.Nothing);
         }
 
-        //public class CommitmentAgreementComparer : IComparer<CommitmentAgreement>
-        //{
-        //    public int Compare(CommitmentAgreement x, CommitmentAgreement y)
-        //    {
-        //        new CompareLogic()
-        //    }
-        //}
-
         [Test]
         public async Task ThenCommitmentAgreementsReturnedByRepositoryShouldBeReturned()
         {
@@ -94,8 +86,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitmentAgreeme
             var response = await _handler.Handle(_exampleValidRequest);
 
             Assert.IsNotNull(response.Data);
-            //todo: this
-            //CollectionAssert.AreEqual(commitmentAgreements, response.Data);
+            Assert.IsTrue(TestHelper.EnumerablesAreEqual(commitmentAgreements, response.Data));
         }
     }
 }
