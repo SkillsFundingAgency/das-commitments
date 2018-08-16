@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment.Types
     /// </summary>
     public enum EditStatus
     {
-        [Description("Indicates approval by both employer (receiving employer if transfer) and provider")] // note: badly named, not editable by either!
+        [Description("Indicates approval by both employer (receiving employer if transfer) and provider")]
         Both = 0,
         [Description("Editable by employer")]
         EmployerOnly = 1,

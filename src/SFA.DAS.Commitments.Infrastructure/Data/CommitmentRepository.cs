@@ -92,8 +92,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return WithConnection<IList<CommitmentAgreement>>(async c =>
             {
+                // we only want to get commitments that are approved
                 var results = await c.QueryAsync<CommitmentAgreement>(
-                    $"SELECT Reference, LegalEntityName, AccountLegalEntityPublicHashedId FROM [dbo].[Commitment] WHERE ProviderId = @id AND CommitmentStatus <> {(int) CommitmentStatus.Deleted};",
+$@"SELECT Reference, LegalEntityName, AccountLegalEntityPublicHashedId
+FROM [dbo].[Commitment]
+WHERE ProviderId = @id
+AND CommitmentStatus <> {(int) CommitmentStatus.Deleted}
+AND EditStatus = {(int) EditStatus.Both}
+AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferApprovalStatus.TransferApproved});",
                     param: new {@id = providerId});
 
                 return results.ToList();

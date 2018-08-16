@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace SFA.DAS.Commitments.Domain.Entities
 {
     public enum CommitmentStatus : short
