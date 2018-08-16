@@ -66,6 +66,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 LegalEntityId = commitment.LegalEntityId,
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityOrganisationType = commitment.LegalEntityOrganisationType.ToString(),
+                AccountLegalEntityPublicHashedId = commitment.AccountLegalEntityPublicHashedId,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 EffectiveFrom = effectiveFrom,
                 EffectiveTo = effectiveTo,

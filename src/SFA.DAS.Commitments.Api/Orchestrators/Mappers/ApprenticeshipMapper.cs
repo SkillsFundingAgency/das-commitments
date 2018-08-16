@@ -45,6 +45,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 ProviderName = source.ProviderName,
                 LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
+                AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
                 DataLockCourse = source.DataLockCourse,
                 DataLockPrice = source.DataLockPrice,
                 DataLockCourseTriaged = source.DataLockCourseTriaged,

@@ -32,8 +32,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
             return await WithConnection(async connection =>
             {
-                long commitmentId;
-
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
                 parameters.Add("@transferSenderId", commitment.TransferSenderId, DbType.Int64);
@@ -42,6 +40,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@legalEntityName", commitment.LegalEntityName, DbType.String);
                 parameters.Add("@LegalEntityAddress", commitment.LegalEntityAddress, DbType.String);
                 parameters.Add("@legalEntityOrganisationType", commitment.LegalEntityOrganisationType, DbType.Int16);
+                parameters.Add("@accountLegalEntityPublicHashedId", commitment.AccountLegalEntityPublicHashedId, DbType.String);
                 parameters.Add("@accountId", commitment.EmployerAccountId, DbType.Int64);
                 parameters.Add("@providerId", commitment.ProviderId, DbType.Int64);
                 parameters.Add("@providerName", commitment.ProviderName, DbType.String);
@@ -55,15 +54,14 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 using (var trans = connection.BeginTransaction())
                 {
-                    commitmentId = (await connection.QueryAsync<long>(
-                        sql:
-                        "INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, " +
-                            "EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName, " +
-                            "LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName) " +
-                        "VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, " +
-                            "@accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName, " +
-                            "@lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName); " +
-                        "SELECT CAST(SCOPE_IDENTITY() as int);",
+                    var commitmentId = (await connection.QueryAsync<long>(
+                        @"INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, AccountLegalEntityPublicHashedId,
+                        EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName,
+                        LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName)
+                        VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountLegalEntityPublicHashedId,
+                        @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName,
+                        @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName);
+                        SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
