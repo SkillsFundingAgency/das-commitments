@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
+using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
@@ -60,19 +61,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             IApprenticeshipMapper apprenticeshipMapper,
             ICommitmentMapper commitmentMapper)
         {
-            if (mediator == null)
-                throw new ArgumentNullException(nameof(mediator));
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-            if (facetMapper == null)
-                throw new ArgumentNullException(nameof(facetMapper));
-            if (apprenticeshipFilterService == null)
-                throw new ArgumentNullException(nameof(apprenticeshipFilterService));
-            if(apprenticeshipMapper == null)
-                throw new ArgumentNullException(nameof(apprenticeshipMapper));
-            if(commitmentMapper == null)
-                throw new ArgumentNullException(nameof(commitmentMapper));
-
             _mediator = mediator;
             _logger = logger;
             _facetMapper = facetMapper;
@@ -97,7 +85,24 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved commitments for provider {providerId}. {response.Data?.Count} commitments found", providerId: providerId, recordCount: response.Data?.Count);
 
             return _commitmentMapper.MapFrom(response.Data, CallerType.Provider);
+        }
 
+        public async Task<IEnumerable<Types.Commitment.CommitmentAgreement>> GetCommitmentAgreements(long providerId)
+        {
+            _logger.Trace($"Getting agreement commitments for provider {providerId}", providerId: providerId);
+
+            var response = await _mediator.SendAsync(new GetCommitmentAgreementsRequest
+            {
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Provider,
+                    Id = providerId
+                }
+            });
+
+            _logger.Info($"Retrieved agreement commitments for provider {providerId}. {response.Data?.Count} commitments found", providerId: providerId, recordCount: response.Data?.Count);
+
+            return response.Data.Select(_commitmentMapper.Map);
         }
 
         public async Task<CommitmentView> GetCommitment(long providerId, long commitmentId)

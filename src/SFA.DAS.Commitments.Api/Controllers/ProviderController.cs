@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,16 +17,10 @@ namespace SFA.DAS.Commitments.Api.Controllers
     public class ProviderController : ApiController
     {
         private readonly IProviderOrchestrator _providerOrchestrator;
-
         private readonly IApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
         public ProviderController(IProviderOrchestrator providerOrchestrator, IApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
-            if (providerOrchestrator == null)
-                throw new ArgumentNullException(nameof(providerOrchestrator));
-            if (apprenticeshipsOrchestrator == null)
-                throw new ArgumentNullException(nameof(apprenticeshipsOrchestrator));
-
             _providerOrchestrator = providerOrchestrator;
             _apprenticeshipsOrchestrator = apprenticeshipsOrchestrator;
         }
@@ -39,6 +32,13 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var response = await _providerOrchestrator.GetCommitments(providerId);
 
             return Ok(response);
+        }
+
+        [Route("{providerId}/commitmentagreements")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetCommitmentAgreements(long providerId)
+        {
+            return Ok(await _providerOrchestrator.GetCommitmentAgreements(providerId));
         }
 
         [Route("{providerId}/commitments/{commitmentId}", Name = "GetCommitmentForProvider")]

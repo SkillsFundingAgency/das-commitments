@@ -9,6 +9,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
     public interface IProviderOrchestrator
     {
         Task<IEnumerable<CommitmentListItem>> GetCommitments(long providerId);
+        Task<IEnumerable<CommitmentAgreement>> GetCommitmentAgreements(long providerId);
         Task<CommitmentView> GetCommitment(long providerId, long commitmentId);
         Task<IEnumerable<Apprenticeship>> GetApprenticeships(long providerId);
         Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query);

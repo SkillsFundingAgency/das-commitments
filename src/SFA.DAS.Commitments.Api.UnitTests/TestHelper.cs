@@ -2,7 +2,7 @@
 using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
 
-namespace SFA.DAS.Commitments.Application.UnitTests
+namespace SFA.DAS.Commitments.Api.UnitTests
 {
     public static class TestHelper
     {

@@ -3,7 +3,6 @@ using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,12 +33,6 @@ namespace SFA.DAS.Commitments.Api.Client
             await PatchAsync(url, data);
         }
 
-        public async Task PutCommitment(string url, CommitmentStatus commitmentStatus)
-        {
-            var data = JsonConvert.SerializeObject(commitmentStatus);
-            await PutAsync(url, data);
-        }
-
         public async Task PatchApprenticeship(string url, ApprenticeshipSubmission apprenticeshipSubmission)
         {
             var data = JsonConvert.SerializeObject(apprenticeshipSubmission);
@@ -51,6 +44,13 @@ namespace SFA.DAS.Commitments.Api.Client
             var content = await GetAsync(url);
 
             return JsonConvert.DeserializeObject<List<CommitmentListItem>>(content);
+        }
+
+        public async Task<List<CommitmentAgreement>> GetCommitmentAgreements(string url)
+        {
+            var content = await GetAsync(url);
+
+            return JsonConvert.DeserializeObject<List<CommitmentAgreement>>(content);
         }
 
         public async Task<CommitmentView> GetCommitment(string url)

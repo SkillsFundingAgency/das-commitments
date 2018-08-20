@@ -11,6 +11,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
     public interface IProviderCommitmentsApi
     {
         Task<List<CommitmentListItem>> GetProviderCommitments(long providerId);
+        Task<List<CommitmentAgreement>> GetCommitmentAgreements(long providerId);
         Task<CommitmentView> GetProviderCommitment(long providerId, long commitmentId);
         Task<List<Apprenticeship>> GetProviderApprenticeships(long providerId);
         Task<ApprenticeshipSearchResponse> GetProviderApprenticeships(long providerId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);
