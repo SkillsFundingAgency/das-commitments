@@ -108,6 +108,7 @@
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
     <Compile Include="Entities\CommitmentAgreement.cs" />
     <Compile Include="Entities\Statistics.cs" />
+    <Compile Include="Entities\TrainingProgramme\FundingPeriod.cs" />
     <Compile Include="Entities\TransferRequest.cs" />
     <Compile Include="Entities\TransferRequestSummary.cs" />
     <Compile Include="Entities\TrainingCourseSummary.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="Extensions\ApprenticeshipExtensions.cs" />
     <Compile Include="Extensions\DataLockExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Interfaces\IApprenticeshipInfoServiceMapper.cs" />
     <Compile Include="Interfaces\IAssessmentOrgs.cs" />
     <Compile Include="Interfaces\ICache.cs" />
     <Compile Include="Interfaces\IAcademicYearDateProvider.cs" />
