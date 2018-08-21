@@ -39,7 +39,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
-using OrganisationType = SFA.DAS.Commitments.Api.Types.OrganisationType;
 using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
