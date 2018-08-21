@@ -78,7 +78,8 @@ BEGIN TRAN
     WITH TargetApprenticeship (
      ApprenticeshipId, ULN, ProviderId, EmployerAccountId, LegalEntityId, LegalEntityName, LegalEntityOrganisationType,
      NewPaymentOrder, PaymentStatus, AgreementStatus, TrainingType, TrainingCode, StartDate, EndDate, Cost, DateOfBirth,
-	 TransferSenderId, TransferSenderName, TransferApprovalStatus, TransferApprovalActionedOn, StopDate, PauseDate
+	 TransferSenderId, TransferSenderName, TransferApprovalStatus, TransferApprovalActionedOn, StopDate, PauseDate,
+	 AccountLegalEntityPublicHashedId
     )
     AS (
         SELECT
@@ -108,14 +109,15 @@ BEGIN TRAN
 			CAST(TransferApprovalStatus as varchar(10)) as TransferApprovalStatus,
 			CONVERT(varchar(50),TransferApprovalActionedOn,126) as TransferApprovalActionedOn,
 			CONVERT(varchar(50),StopDate,126) as StopDate,
-			CONVERT(varchar(50),PauseDate,126) as PauseDate
+			CONVERT(varchar(50),PauseDate,126) as PauseDate,
+			AccountLegalEntityPublicHashedId
         FROM Commitment c
         INNER JOIN Apprenticeship a
         on c.Id = a.CommitmentId
         WHERE a.Id = @originalApprenticeId
     )
     SELECT @eventsInsertSql =
-    'INSERT INTO [dbo].[ApprenticeshipEvents] ([Event],[CreatedOn],[ApprenticeshipId],[PaymentOrder],[PaymentStatus],[AgreementStatus],[ProviderId],[LearnerId],[EmployerAccountId],[TrainingType],[TrainingId],[TrainingStartDate],[TrainingEndDate],[TrainingTotalCost],[LegalEntityId],[LegalEntityName],[LegalEntityOrganisationType],[EffectiveFrom],[EffectiveTo],[DateOfBirth],TransferSenderId, TransferSenderName, TransferApprovalStatus,TransferApprovalActionedOn,StoppedOnDate,PausedOnDate)
+    'INSERT INTO [dbo].[ApprenticeshipEvents] ([Event],[CreatedOn],[ApprenticeshipId],[PaymentOrder],[PaymentStatus],[AgreementStatus],[ProviderId],[LearnerId],[EmployerAccountId],[TrainingType],[TrainingId],[TrainingStartDate],[TrainingEndDate],[TrainingTotalCost],[LegalEntityId],[LegalEntityName],[LegalEntityOrganisationType],[EffectiveFrom],[EffectiveTo],[DateOfBirth],TransferSenderId, TransferSenderName, TransferApprovalStatus,TransferApprovalActionedOn,StoppedOnDate,PausedOnDate,AccountLegalEntityPublicHashedId)
     VALUES (''APPRENTICESHIP-UPDATED'',''' + convert(varchar(50),getdate(),126) + ''','
     + ApprenticeshipId + ','
     + NewPaymentOrder + ','
@@ -140,7 +142,8 @@ BEGIN TRAN
 	+ CASE WHEN TransferApprovalStatus is null then 'NULL' else '''' + TransferApprovalStatus + '''' END + ','
 	+ CASE WHEN TransferApprovalActionedOn is null then 'NULL' else '''' + TransferApprovalActionedOn + '''' END + ','
 	+ CASE WHEN StopDate is null then 'NULL' else '''' + StopDate + '''' END + ','
-	+ CASE WHEN PauseDate is null then 'NULL' else '''' + PauseDate + '''' END
+	+ CASE WHEN PauseDate is null then 'NULL' else '''' + PauseDate + '''' END + ','
+	+ CASE WHEN AccountLegalEntityPublicHashedId is null then 'NULL' else '''' + AccountLegalEntityPublicHashedId + '''' END
 	+ ')'
     FROM TargetApprenticeship
   
