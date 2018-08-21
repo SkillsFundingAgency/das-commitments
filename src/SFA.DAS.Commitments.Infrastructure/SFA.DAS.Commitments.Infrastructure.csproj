@@ -220,7 +220,7 @@
     <Compile Include="Services\ApprenticeshipEvents.cs" />
     <Compile Include="Services\ApprenticeshipEventsList.cs" />
     <Compile Include="Services\ApprenticeshipEventsPublisher.cs" />
-    <Compile Include="Services\ApprenticeshipInfoServiceWrapper.cs" />
+    <Compile Include="Services\ApprenticeshipInfoService.cs" />
     <Compile Include="Services\AssessmentOrgsDocumentService.cs" />
     <Compile Include="Services\AssessmentOrgsService.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />

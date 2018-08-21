@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
-        private Mock<IApprenticeshipInfoServiceWrapper> _apprenticeshipTrainingService;
+        private Mock<IApprenticeshipInfoService> _apprenticeshipTrainingService;
 
         private ApproveDataLockTriageCommand _command;
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _validator = new Mock<AbstractValidator<ApproveDataLockTriageCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _apprenticeshipTrainingService = new Mock<IApprenticeshipInfoServiceWrapper>();
+            _apprenticeshipTrainingService = new Mock<IApprenticeshipInfoService>();
 
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship());

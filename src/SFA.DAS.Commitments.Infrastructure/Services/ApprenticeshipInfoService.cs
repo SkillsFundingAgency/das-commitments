@@ -14,7 +14,7 @@ using Standard = SFA.DAS.Commitments.Domain.Entities.TrainingProgramme.Standard;
 
 namespace SFA.DAS.Commitments.Infrastructure.Services
 {
-    public class ApprenticeshipInfoServiceWrapper : IApprenticeshipInfoServiceWrapper
+    public class ApprenticeshipInfoService : IApprenticeshipInfoService
     {
         private const string StandardsKey = "Standards";
         private const string FrameworksKey = "Frameworks";
@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
         private readonly ICache _cache;
         private readonly IApprenticeshipInfoServiceConfiguration _config;
 
-        public ApprenticeshipInfoServiceWrapper(ICache cache, IApprenticeshipInfoServiceConfiguration config)
+        public ApprenticeshipInfoService(ICache cache, IApprenticeshipInfoServiceConfiguration config)
         {
             _cache = cache;
             _config = config;
@@ -70,7 +70,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return programmes.FirstOrDefault(m => m.Id == id);
         }
 
-   // temporarily disable warning whilst we determine what breaks the deployment
+   // temporarily disable warning
 #pragma warning disable CS0618
         private static FrameworksView MapFrom(List<FrameworkSummary> frameworks)
         {
