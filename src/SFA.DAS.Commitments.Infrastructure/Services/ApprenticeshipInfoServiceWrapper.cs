@@ -70,6 +70,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return programmes.FirstOrDefault(m => m.Id == id);
         }
 
+   // temporarily disable warning whilst we determine what breaks the deployment
+#pragma warning disable CS0618
         private static FrameworksView MapFrom(List<FrameworkSummary> frameworks)
         {
             return new FrameworksView
@@ -108,6 +110,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
                 }).ToList()
             };
         }
+#pragma warning restore CS0618
 
         private static string GetTitle(string title, int level)
         {
