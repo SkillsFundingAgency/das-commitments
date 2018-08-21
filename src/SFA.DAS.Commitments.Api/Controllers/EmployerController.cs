@@ -15,6 +15,12 @@ using SFA.DAS.Commitments.Infrastructure.Authorization;
 
 namespace SFA.DAS.Commitments.Api.Controllers
 {
+    // apparantly .net 4.7.1 *always* uses the framework system.net.http and ignores any package system.net.http
+    // https://github.com/dotnet/corefx/issues/25050
+    // but cloud services doesn't support any version > 4.6.2 out of the box, so we'd have to install 4.7.1 on each server
+    // https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-dotnet-install-dotnet
+    // what a palaver!
+
     [RoutePrefix("api/employer")]
     public class EmployerController : ApiController
     {
