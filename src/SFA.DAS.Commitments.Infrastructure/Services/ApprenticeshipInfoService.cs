@@ -26,7 +26,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _mapper = mapper;
         }
 
-        //todo: private helper for common code?
         public async Task<StandardsView> GetStandardsAsync(bool refreshCache = false)
         {
             if (!await _cache.ExistsAsync(StandardsKey) || refreshCache)
