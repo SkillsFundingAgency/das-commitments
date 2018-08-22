@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using KellermanSoftware.CompareNetObjects;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.Commitments.Infrastructure.Services;
@@ -41,7 +40,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenTitleIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { CopyOf(_framework) });
+            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
 
             //Assert
             var expectedTitle = $"{_framework.Title}, Level: {_framework.Level}";
@@ -52,7 +51,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveFromIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { CopyOf(_framework) });
+            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.AreEqual(_framework.EffectiveFrom, result.Frameworks[0].EffectiveFrom);
@@ -62,7 +61,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveToIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { CopyOf(_framework) });
+            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.AreEqual(_framework.EffectiveFrom, result.Frameworks[0].EffectiveFrom);
@@ -73,7 +72,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenFundingPeriodsAreMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { CopyOf(_framework) });
+            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
 
             //Assert
             var comparer = new CompareLogic(new ComparisonConfig
@@ -91,17 +90,11 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
             _framework.FundingPeriods = null;
 
             //Act
-            var result = _mapper.MapFrom(new List<FrameworkSummary> { CopyOf(_framework) });
+            var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
 
             //Assert
             Assert.IsNotNull(result.Frameworks[0].FundingPeriods);
             Assert.IsEmpty(result.Frameworks[0].FundingPeriods);
-        }
-
-        private static FrameworkSummary CopyOf(FrameworkSummary source)
-        {
-            //copy the payload to guard against handler modifications
-            return JsonConvert.DeserializeObject<FrameworkSummary>(JsonConvert.SerializeObject(source));
         }
     }
 }

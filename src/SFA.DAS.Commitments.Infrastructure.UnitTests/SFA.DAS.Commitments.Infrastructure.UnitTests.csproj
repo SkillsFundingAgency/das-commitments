@@ -128,6 +128,7 @@
     <Compile Include="Services\AssessmentOrgsService\WhenCallingAssessmentOrgsService.cs" />
     <Compile Include="Services\PaymentEventMapper\WhenMappingPaymentEvent.cs" />
     <Compile Include="Services\PaymentEventsSerivce\WhenCallingPaymentEventsApi.cs" />
+    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

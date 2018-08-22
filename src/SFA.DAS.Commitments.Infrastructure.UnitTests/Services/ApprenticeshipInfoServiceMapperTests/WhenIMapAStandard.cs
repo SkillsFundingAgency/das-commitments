@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using KellermanSoftware.CompareNetObjects;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.Commitments.Infrastructure.Services;
@@ -39,7 +38,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenTitleIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { CopyOf(_standard) });
+            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
 
             //Assert
             var expectedTitle = $"{_standard.Title}, Level: {_standard.Level} (Standard)";
@@ -50,7 +49,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveFromIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { CopyOf(_standard) });
+            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
 
             //Assert
             Assert.AreEqual(_standard.EffectiveFrom, result.Standards[0].EffectiveFrom);
@@ -60,7 +59,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenEffectiveToIsMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { CopyOf(_standard) });
+            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
 
             //Assert
             Assert.AreEqual(_standard.LastDateForNewStarts, result.Standards[0].EffectiveTo);
@@ -70,7 +69,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
         public void ThenFundingPeriodsAreMappedCorrectly()
         {
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { CopyOf(_standard) });
+            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
 
             var comparer = new CompareLogic(new ComparisonConfig
             {
@@ -87,17 +86,11 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
             _standard.FundingPeriods = null;
 
             //Act
-            var result = _mapper.MapFrom(new List<StandardSummary> { CopyOf(_standard) });
+            var result = _mapper.MapFrom(new List<StandardSummary> { TestHelper.Clone(_standard) });
 
             //Assert
             Assert.IsNotNull(result.Standards[0].FundingPeriods);
             Assert.IsEmpty(result.Standards[0].FundingPeriods);
-        }
-
-        private static StandardSummary CopyOf(StandardSummary source)
-        {
-            //copy the payload to guard against handler modifications
-            return JsonConvert.DeserializeObject<StandardSummary>(JsonConvert.SerializeObject(source));
         }
     }
 }
