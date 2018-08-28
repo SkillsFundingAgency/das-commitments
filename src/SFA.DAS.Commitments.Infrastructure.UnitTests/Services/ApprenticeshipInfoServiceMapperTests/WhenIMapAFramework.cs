@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using KellermanSoftware.CompareNetObjects;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.Commitments.Infrastructure.Services;
@@ -75,12 +74,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipIn
             var result = _mapper.MapFrom(new List<FrameworkSummary> { TestHelper.Clone(_framework) });
 
             //Assert
-            var comparer = new CompareLogic(new ComparisonConfig
-            {
-                IgnoreObjectTypes = true
-            });
-
-            Assert.IsTrue(comparer.Compare(result.Frameworks[0].FundingPeriods, _framework.FundingPeriods).AreEqual);
+            Assert.IsTrue(TestHelper.EnumerablesAreEqual<object>(_framework.FundingPeriods, result.Frameworks[0].FundingPeriods));
         }
 
         [Test]
