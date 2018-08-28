@@ -83,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
                 if (dataLockWithUpdatedTraining != null)
                 {
                     var training = await
-                        _apprenticeshipTrainingService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                        _apprenticeshipTrainingService.GetTrainingProgram(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
 
                     _logger.Info($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.TrainingCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
 

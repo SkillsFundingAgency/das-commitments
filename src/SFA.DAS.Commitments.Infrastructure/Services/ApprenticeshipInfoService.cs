@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-
 using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
@@ -26,7 +25,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<StandardsView> GetStandardsAsync(bool refreshCache = false)
+        public async Task<StandardsView> GetStandards(bool refreshCache = false)
         {
             if (!await _cache.ExistsAsync(StandardsKey) || refreshCache)
             {
@@ -40,7 +39,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return await _cache.GetCustomValueAsync<StandardsView>(StandardsKey);
         }
 
-        public async Task<FrameworksView> GetFrameworksAsync(bool refreshCache = false)
+        public async Task<FrameworksView> GetFrameworks(bool refreshCache = false)
         {
             if (!await _cache.ExistsAsync(FrameworksKey) || refreshCache)
             {
@@ -54,18 +53,16 @@ namespace SFA.DAS.Commitments.Infrastructure.Services
             return await _cache.GetCustomValueAsync<FrameworksView>(FrameworksKey);
         }
 
-        public async Task<ITrainingProgramme> GetTrainingProgramAsync(string id, bool refreshCache = false)
+        public async Task<ITrainingProgramme> GetTrainingProgram(string id)
         {
-            var standardsTask = GetStandardsAsync();
-            var frameworksTask = GetFrameworksAsync();
+            var standardsTask = GetStandards();
+            var frameworksTask = GetFrameworks();
 
-            await Task.WhenAll(standardsTask, frameworksTask);
+            var program = (await standardsTask).Standards.FirstOrDefault(m => m.Id == id);
+            if (program != null)
+                return program;
 
-            var programmes = standardsTask.Result.Standards.Union(frameworksTask.Result.Frameworks.Cast<ITrainingProgramme>())
-                .OrderBy(m => m.Title)
-                .ToList();
-
-            return programmes.FirstOrDefault(m => m.Id == id);
+            return (await frameworksTask).Frameworks.FirstOrDefault(m => m.Id == id);
         }
     }
 }
