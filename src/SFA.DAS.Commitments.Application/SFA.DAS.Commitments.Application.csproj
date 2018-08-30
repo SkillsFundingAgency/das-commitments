@@ -85,7 +85,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -176,7 +175,7 @@
     <Compile Include="Exceptions\InvalidRequestException.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
-    <Compile Include="Interfaces\IApprenticeshipInfoServiceWrapper.cs" />
+    <Compile Include="Interfaces\IApprenticeshipInfoService.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnQueryHandler.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnRequest.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnResponse.cs" />

@@ -60,11 +60,11 @@
     <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=0.10.122.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.10.122\lib\net45\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Types, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Apprenticeships.Api.Types.0.11.82\lib\net462\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.AssessmentOrgs.Api.Client, Version=0.10.122.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.AssessmentOrgs.Api.Client.0.10.122\lib\net45\SFA.DAS.AssessmentOrgs.Api.Client.dll</HintPath>
+    <Reference Include="SFA.DAS.AssessmentOrgs.Api.Client, Version=0.11.75.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.AssessmentOrgs.Api.Client.0.11.75\lib\net45\SFA.DAS.AssessmentOrgs.Api.Client.dll</HintPath>
     </Reference>
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.43242, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.43242\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
@@ -80,7 +80,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.6\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>

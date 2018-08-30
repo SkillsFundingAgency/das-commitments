@@ -1,4 +1,7 @@
-﻿namespace SFA.DAS.Commitments.Domain.Entities.TrainingProgramme
+﻿using System;
+using System.Collections.Generic;
+
+namespace SFA.DAS.Commitments.Domain.Entities.TrainingProgramme
 {
     public class Standard : ITrainingProgramme
     {
@@ -9,5 +12,8 @@
         public int Level { get; set; }
         public int Duration { get; set; }
         public int MaxFunding { get; set; }
+        public DateTime? EffectiveFrom { get; set; }
+        public DateTime? EffectiveTo { get; set; }
+        public IEnumerable<FundingPeriod> FundingPeriods { get; set; }
     }
 }
