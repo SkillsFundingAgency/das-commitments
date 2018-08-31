@@ -76,6 +76,8 @@ BEGIN
 
 		--DECLARE @debugview_apprenticeshipids XML = (SELECT * FROM @apprenticeshipIds FOR XML AUTO)
 
+		print convert(varchar,SYSDATETIME()) + ' Found ' + convert(varchar,@Rows) + ' Apprenticeships'
+
 		DECLARE ApprenticeshipsId_Cursor CURSOR FAST_FORWARD FOR
 			select ApprenticeshipId from @apprenticeshipIds;
 		
@@ -100,11 +102,11 @@ BEGIN
 
 			if @OriginalEventAccountLegalEntityPublicHashedId is not null
 			BEGIN
-				print convert(varchar,SYSDATETIME()) + ' No need to re-emit latest event as it already has AccountLegalEntityPublicHashedId: ' + @OriginalEventAccountLegalEntityPublicHashedId
+				print convert(varchar,SYSDATETIME()) + ' No need to re-emit latest event ' + convert(varchar,@OriginalEventId) + ' as it already has AccountLegalEntityPublicHashedId: ' + @OriginalEventAccountLegalEntityPublicHashedId
 			END
 			ELSE
 			BEGIN
-				print convert(varchar,SYSDATETIME()) + ' Re-emitting event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
+				print convert(varchar,SYSDATETIME()) + ' Re-emitting event ' + convert(varchar,@OriginalEventId) + ' for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
 
 				-- Insert the duplicate event
 				INSERT INTO ApprenticeshipEvents
