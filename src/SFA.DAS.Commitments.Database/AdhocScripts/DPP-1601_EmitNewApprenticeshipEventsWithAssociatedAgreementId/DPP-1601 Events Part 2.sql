@@ -31,6 +31,7 @@ declare @LegalEntityId nvarchar(50)
 declare @AccountLegalEntityPublicHashedId char(6)
 declare @ApprenticeshipId BIGINT
 declare @OriginalEventId BIGINT
+declare @OriginalEventAccountLegalEntityPublicHashedId char(6)
 declare @NewEventId BIGINT
 
 DECLARE Source_Cursor CURSOR FOR
@@ -64,90 +65,103 @@ BEGIN
 	WHILE @@FETCH_STATUS = 0  
 	BEGIN
 	
-		print 'Emitting event(s) for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
+		print 'Checking latest event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId)
 
 		--Re-emit event:
 
 		-- we only re-emit the last event for each apprenticeship id (which is enough for the payments commitment reference data job)
-		select @OriginalEventId = MAX(Id) from ApprenticeshipEvents
-		where ApprenticeshipId = @ApprenticeshipId
-
-		-- Insert the duplicate event
-		INSERT INTO ApprenticeshipEvents
-		(   [Event]
-			,[CreatedOn]
-			,[ApprenticeshipId]
-			,[PaymentOrder]
-			,[PaymentStatus]
-			,[AgreementStatus]
-			,[ProviderId]
-			,[LearnerId]
-			,[EmployerAccountId]
-			,[TrainingType]
-			,[TrainingId]
-			,[TrainingStartDate]
-			,[TrainingEndDate]
-			,[TrainingTotalCost]
-			,[LegalEntityId]
-			,[LegalEntityName]
-			,[LegalEntityOrganisationType]
-			,[EffectiveFrom]
-			,[EffectiveTo]
-			,[DateOfBirth]
-			,[TransferSenderId]
-			,[TransferSenderName]
-			,[TransferApprovalStatus]
-			,[TransferApprovalActionedOn]
-			,[AccountLegalEntityPublicHashedId]
-		)
-		SELECT 
-			[Event]
-			,GETDATE()
-			,[ApprenticeshipId]
-			,[PaymentOrder]
-			,[PaymentStatus]
-			,[AgreementStatus]
-			,[ProviderId]
-			,[LearnerId]
-			,[EmployerAccountId]
-			,[TrainingType]
-			,[TrainingId]
-			,[TrainingStartDate]
-			,[TrainingEndDate]
-			,[TrainingTotalCost]
-			,[LegalEntityId]
-			,[LegalEntityName]
-			,[LegalEntityOrganisationType]
-			,[EffectiveFrom]
-			,[EffectiveTo]
-			,[DateOfBirth]
-			,[TransferSenderId]
-			,[TransferSenderName]
-			,[TransferApprovalStatus]
-			,[TransferApprovalActionedOn]
-			,@AccountLegalEntityPublicHashedId
-		FROM ApprenticeshipEvents
-		WHERE Id = @OriginalEventId
-		--ORDER BY Id asc
-
-		-- Get the id of the event insert
-		SELECT @NewEventId = SCOPE_IDENTITY()
-
-		-- Add for the new event
-		INSERT INTO PriceHistory
-		(
-			[ApprenticeshipEventsId]
-			,[TotalCost]
-			,[EffectiveFrom]
-			,[EffectiveTo]
-		)
 		SELECT
-		@NewEventId,
-		h.TotalCost,
-		h.EffectiveFrom,
-		h.EffectiveTo
-		FROM PriceHistory h
-		where h.ApprenticeshipEventsId = @OriginalEventId
+			@OriginalEventId = ae.Id,
+			@OriginalEventAccountLegalEntityPublicHashedId = ae.AccountLegalEntityPublicHashedId
+		FROM ApprenticeshipEvents ae
+		   JOIN (SELECT MAX(Id) as Id FROM ApprenticeshipEvents where apprenticeshipid = @ApprenticeshipId) as max
+			  ON ae.Id = max.Id
+
+		if @OriginalEventAccountLegalEntityPublicHashedId is not null
+		BEGIN
+			print 'No need to re-emit latest event as it already has AccountLegalEntityPublicHashedId: ' + @OriginalEventAccountLegalEntityPublicHashedId
+		END
+		ELSE
+		BEGIN
+			print 'Re-emitting event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
+
+			-- Insert the duplicate event
+			INSERT INTO ApprenticeshipEvents
+			(   [Event]
+				,[CreatedOn]
+				,[ApprenticeshipId]
+				,[PaymentOrder]
+				,[PaymentStatus]
+				,[AgreementStatus]
+				,[ProviderId]
+				,[LearnerId]
+				,[EmployerAccountId]
+				,[TrainingType]
+				,[TrainingId]
+				,[TrainingStartDate]
+				,[TrainingEndDate]
+				,[TrainingTotalCost]
+				,[LegalEntityId]
+				,[LegalEntityName]
+				,[LegalEntityOrganisationType]
+				,[EffectiveFrom]
+				,[EffectiveTo]
+				,[DateOfBirth]
+				,[TransferSenderId]
+				,[TransferSenderName]
+				,[TransferApprovalStatus]
+				,[TransferApprovalActionedOn]
+				,[AccountLegalEntityPublicHashedId]
+			)
+			SELECT 
+				[Event]
+				,GETDATE()
+				,[ApprenticeshipId]
+				,[PaymentOrder]
+				,[PaymentStatus]
+				,[AgreementStatus]
+				,[ProviderId]
+				,[LearnerId]
+				,[EmployerAccountId]
+				,[TrainingType]
+				,[TrainingId]
+				,[TrainingStartDate]
+				,[TrainingEndDate]
+				,[TrainingTotalCost]
+				,[LegalEntityId]
+				,[LegalEntityName]
+				,[LegalEntityOrganisationType]
+				,[EffectiveFrom]
+				,[EffectiveTo]
+				,[DateOfBirth]
+				,[TransferSenderId]
+				,[TransferSenderName]
+				,[TransferApprovalStatus]
+				,[TransferApprovalActionedOn]
+				,@AccountLegalEntityPublicHashedId
+			FROM ApprenticeshipEvents
+			WHERE Id = @OriginalEventId
+			--ORDER BY Id asc
+
+			-- Get the id of the event insert
+			SELECT @NewEventId = SCOPE_IDENTITY()
+
+			-- Add for the new event
+			INSERT INTO PriceHistory
+			(
+				[ApprenticeshipEventsId]
+				,[TotalCost]
+				,[EffectiveFrom]
+				,[EffectiveTo]
+			)
+			SELECT
+			@NewEventId,
+			h.TotalCost,
+			h.EffectiveFrom,
+			h.EffectiveTo
+			FROM PriceHistory h
+			where h.ApprenticeshipEventsId = @OriginalEventId
+		END
 
 		FETCH NEXT FROM ApprenticeshipsId_Cursor INTO @ApprenticeshipId
 		
