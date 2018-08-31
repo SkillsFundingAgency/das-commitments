@@ -14,13 +14,21 @@ _| """ |_|"""""|_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_| """ 
 */
 
 declare @sourcedata as table (EmployerAccountId bigint, LegalEntityId nvarchar(50), AccountLegalEntityPublicHashedId char(6));
+declare @countsourcedata as int
 declare @apprenticeshipIds as table (ApprenticeshipId bigint);
+declare @currentsourcedatarownumber as int
+
+print convert(varchar,SYSDATETIME()) + ' Inserting sourcedata'
 
 /* vvv INSERT OUTPUT FROM COMMITMENTS PART OF SCRIPT HERE vvv */
 
 ---> overwrite me please <---
 
 /* ^^^ END INSERT OUTPUT HERE ^^^ */
+
+select @countsourcedata = count(1) from @sourcedata
+
+print convert(varchar,SYSDATETIME()) + ' Inserted ' + convert(varchar, @countsourcedata) + ' rows into sourcedata'
 
 --DECLARE @debugview_sourcedata XML = (SELECT * FROM @sourcedata FOR XML AUTO)
 
@@ -41,10 +49,13 @@ OPEN Source_Cursor;
 
 FETCH NEXT FROM Source_Cursor INTO @EmployerAccountId, @LegalEntityId, @AccountLegalEntityPublicHashedId
 	
+set @currentsourcedatarownumber = 1
+
 WHILE @@FETCH_STATUS = 0  
 BEGIN
 
-	print 'Fetching all apprenticeship id(s) for EmployerAccountId ' + convert(varchar, @EmployerAccountId) + ', LegalEntityId ' + convert(varchar, @LegalEntityId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
+	print convert(varchar,SYSDATETIME()) + ' Source Row #' + @currentsourcedatarownumber + ' Fetching all apprenticeship id(s) for EmployerAccountId ' + convert(varchar, @EmployerAccountId) + ', LegalEntityId ' + convert(varchar, @LegalEntityId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
+	set @currentsourcedatarownumber = @currentsourcedatarownumber + 1
 
 	delete @apprenticeshipIds
 
@@ -65,7 +76,7 @@ BEGIN
 	WHILE @@FETCH_STATUS = 0  
 	BEGIN
 	
-		print 'Checking latest event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId)
+		print convert(varchar,SYSDATETIME()) + ' Checking latest event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId)
 
 		--Re-emit event:
 
@@ -79,11 +90,11 @@ BEGIN
 
 		if @OriginalEventAccountLegalEntityPublicHashedId is not null
 		BEGIN
-			print 'No need to re-emit latest event as it already has AccountLegalEntityPublicHashedId: ' + @OriginalEventAccountLegalEntityPublicHashedId
+			print convert(varchar,SYSDATETIME()) + ' No need to re-emit latest event as it already has AccountLegalEntityPublicHashedId: ' + @OriginalEventAccountLegalEntityPublicHashedId
 		END
 		ELSE
 		BEGIN
-			print 'Re-emitting event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
+			print convert(varchar,SYSDATETIME()) + ' Re-emitting event for ApprenticeshipId ' + convert(varchar, @ApprenticeshipId) + ' - AccountLegalEntityPublicHashedId: ' + @AccountLegalEntityPublicHashedId
 
 			-- Insert the duplicate event
 			INSERT INTO ApprenticeshipEvents
@@ -177,4 +188,4 @@ END;
 CLOSE Source_Cursor
 DEALLOCATE Source_Cursor
 
-print 'That''s all folks!'
+print convert(varchar,SYSDATETIME()) + ' That''s all folks!'
