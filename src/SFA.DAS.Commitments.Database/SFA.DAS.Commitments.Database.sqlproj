@@ -129,8 +129,8 @@
     <Build Include="StoredProcedures\GetStatistics.sql" />
     <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipStatusesForCommitment.sql" />
-    <Build Include="AdhocScripts\DPP-1601_EmitNewApprenticeshipEventsWithAssociatedAgreementId\DPP-1601 Events Part 1.sql" />
-    <Build Include="AdhocScripts\DPP-1601_EmitNewApprenticeshipEventsWithAssociatedAgreementId\DPP-1601 Events Part 2.sql" />
+    <None Include="AdhocScripts\DPP-1601_EmitNewApprenticeshipEventsWithAssociatedAgreementId\DPP-1601 Events Part 1.sql" />
+    <None Include="AdhocScripts\DPP-1601_EmitNewApprenticeshipEventsWithAssociatedAgreementId\DPP-1601 Events Part 2.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
