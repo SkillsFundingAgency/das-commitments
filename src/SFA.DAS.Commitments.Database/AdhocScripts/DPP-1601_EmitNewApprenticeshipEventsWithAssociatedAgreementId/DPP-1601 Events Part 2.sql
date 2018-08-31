@@ -43,7 +43,7 @@ declare @OriginalEventId BIGINT
 declare @OriginalEventAccountLegalEntityPublicHashedId char(6)
 declare @NewEventId BIGINT
 
-DECLARE Source_Cursor CURSOR FOR
+DECLARE Source_Cursor CURSOR FAST_FORWARD FOR
 	select EmployerAccountId, LegalEntityId, AccountLegalEntityPublicHashedId from @sourcedata
 	
 OPEN Source_Cursor;
@@ -76,7 +76,7 @@ BEGIN
 
 		--DECLARE @debugview_apprenticeshipids XML = (SELECT * FROM @apprenticeshipIds FOR XML AUTO)
 
-		DECLARE ApprenticeshipsId_Cursor CURSOR FOR
+		DECLARE ApprenticeshipsId_Cursor CURSOR FAST_FORWARD FOR
 			select ApprenticeshipId from @apprenticeshipIds;
 		
 		OPEN ApprenticeshipsId_Cursor;
