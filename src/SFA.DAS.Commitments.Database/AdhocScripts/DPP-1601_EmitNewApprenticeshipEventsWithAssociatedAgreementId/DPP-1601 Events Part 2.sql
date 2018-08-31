@@ -134,6 +134,8 @@ BEGIN
 					,[TransferSenderName]
 					,[TransferApprovalStatus]
 					,[TransferApprovalActionedOn]
+					,[StoppedOnDate]
+					,[PausedOnDate]
 					,[AccountLegalEntityPublicHashedId]
 				)
 				SELECT 
@@ -161,6 +163,8 @@ BEGIN
 					,[TransferSenderName]
 					,[TransferApprovalStatus]
 					,[TransferApprovalActionedOn]
+					,[StoppedOnDate]
+					,[PausedOnDate]
 					,@AccountLegalEntityPublicHashedId
 				FROM ApprenticeshipEvents
 				WHERE Id = @OriginalEventId
