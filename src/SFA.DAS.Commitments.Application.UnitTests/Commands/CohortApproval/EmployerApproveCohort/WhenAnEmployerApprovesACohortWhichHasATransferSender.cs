@@ -102,15 +102,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
         [Test]
         public async Task ThenEnsureTheStartATransferRequestInRepositoryIsCalled()
         {
-            var expectedTotal = (decimal)Commitment.Apprenticeships.Sum(i => i.Cost);
-
             await Target.Handle(Command);
 
             CommitmentRepository.Verify(x => x.StartTransferRequestApproval(Commitment.Id,
-                expectedTotal, It.IsAny<int>(), It.Is<List<TrainingCourseSummary>>(p =>
+                It.IsAny<decimal>(), It.IsAny<int>(), It.Is<List<TrainingCourseSummary>>(p =>
                     p.Count == 1 && p[0].ApprenticeshipCount == 2 &&
                     p[0].CourseTitle == Commitment.Apprenticeships[0].TrainingName)));
-
         }
 
         [Test]

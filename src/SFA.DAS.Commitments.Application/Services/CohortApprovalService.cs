@@ -141,43 +141,24 @@ namespace SFA.DAS.Commitments.Application.Services
         //not sure why we can't dependency inject the message publisher
         internal async Task CreateTransferRequest(Commitment commitment, IMessagePublisher messagePublisher)
         {
-            var cost = await CurrentCostOfCohort(commitment);
-            var fundingCap = await CalculateFundingCap(commitment);
+            decimal totalCost = 0;
+            var totalFundingCap = 0;
+
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                var course = await _apprenticeshipInfoService.GetTrainingProgram(apprenticeship.TrainingCode);
+                var cap = course.FundingCapOn(apprenticeship.StartDate.Value);
+                totalFundingCap += cap;
+                totalCost += apprenticeship.Cost.Value < cap ? apprenticeship.Cost.Value : cap;
+            }
+
             var trainingCourseSummaries = TrainingCourseSummaries(commitment);
 
-            var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id, cost, fundingCap, trainingCourseSummaries);
+            var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id, totalCost, totalFundingCap, trainingCourseSummaries);
 
-            await PublishCommitmentRequiresApprovalByTransferSenderEventMessage(messagePublisher, commitment, transferRequestId);
+            await PublishCommitmentRequiresApprovalByTransferSenderEventMessage(messagePublisher, commitment, transferRequestId, totalCost);
 
             commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
-        }
-
-        private async Task<decimal> CurrentCostOfCohort(Commitment commitment)
-        {
-            decimal result = 0;
-
-            foreach (var apprenticeship in commitment.Apprenticeships)
-            {
-                var course = await _apprenticeshipInfoService.GetTrainingProgram(apprenticeship.TrainingCode);
-                var cap = course.FundingCapOn(apprenticeship.StartDate.Value);
-                result += apprenticeship.Cost.Value < cap ? apprenticeship.Cost.Value : cap;
-            }
-
-            return result;
-        }
-
-        private async Task<int> CalculateFundingCap(Commitment commitment)
-        {
-            var result = 0;
-
-            foreach (var apprenticeship in commitment.Apprenticeships)
-            {
-                var course = await _apprenticeshipInfoService.GetTrainingProgram(apprenticeship.TrainingCode);
-                var cap = course.FundingCapOn(apprenticeship.StartDate.Value);
-                result += cap;
-            }
-
-            return result;
         }
 
         private List<TrainingCourseSummary> TrainingCourseSummaries(Commitment commitment)
@@ -194,10 +175,8 @@ namespace SFA.DAS.Commitments.Application.Services
             return grouped.ToList();
         }
 
-        private async Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment, long transferRequestId)
+        private async Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment, long transferRequestId, decimal totalCost)
         {
-            var totalCost = await CurrentCostOfCohort(commitment);
-
             var senderMessage = new CohortApprovalByTransferSenderRequested(transferRequestId, commitment.EmployerAccountId,
                 commitment.Id, commitment.TransferSenderId.Value, totalCost);
             await messagePublisher.PublishAsync(senderMessage);
