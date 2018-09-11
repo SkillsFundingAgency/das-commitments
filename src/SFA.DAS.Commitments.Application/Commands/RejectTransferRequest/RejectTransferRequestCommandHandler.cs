@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
@@ -35,7 +36,8 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator,
             IMessagePublisher messagePublisher,
             IHistoryRepository historyRepository,
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IApprenticeshipInfoService apprenticeshipInfoService)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -47,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger);
+                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService);
         }
 
         protected override async Task HandleCore(RejectTransferRequestCommand command)

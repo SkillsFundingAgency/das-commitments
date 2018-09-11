@@ -6,6 +6,7 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -30,6 +31,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<IApprenticeshipEventsPublisher> ApprenticeshipEventsPublisher;
         protected Mock<IMediator> Mediator;
         protected Mock<IMessagePublisher> MessagePublisher;
+        protected Mock<IApprenticeshipInfoService> ApprenticeshipInfoService;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
         protected Commitment Commitment;

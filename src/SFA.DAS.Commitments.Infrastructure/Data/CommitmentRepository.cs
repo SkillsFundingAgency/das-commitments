@@ -224,7 +224,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
             }
         }
 
-        public async Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses)
+        public async Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, int fundingCap, List<TrainingCourseSummary> trainingCourses)
         {
             _logger.Debug($"Starting a Transfer Request Approval", commitmentId: commitmentId);
             try
@@ -234,6 +234,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
                 parameters.Add("@commitmentId", commitmentId, DbType.Int64);
                 parameters.Add("@cost", cost, DbType.Decimal);
                 parameters.Add("@trainingCourses", JsonConvert.SerializeObject(trainingCourses), DbType.String);
+                parameters.Add("@fundingCap", fundingCap, DbType.Decimal);
                 parameters.Add("@transferRequestId", transferRequestId, DbType.Int64, ParameterDirection.Output);
 
                 //todo: await WithTransaction(async (connection, transaction) => ??

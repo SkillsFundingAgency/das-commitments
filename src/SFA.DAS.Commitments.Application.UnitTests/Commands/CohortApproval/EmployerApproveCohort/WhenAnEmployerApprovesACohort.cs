@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
@@ -29,7 +30,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
 
-            Target = new EmployerApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object, Mock.Of<ICommitmentsLogger>());
+            Target = new EmployerApproveCohortCommandHandler(Validator,
+                CommitmentRepository.Object,
+                ApprenticeshipRepository.Object,
+                OverlapRules.Object,
+                CurrentDateTime.Object,
+                HistoryRepository.Object,
+                ApprenticeshipEventsList.Object,
+                ApprenticeshipEventsPublisher.Object,
+                Mediator.Object,
+                MessagePublisher.Object,
+                Mock.Of<ICommitmentsLogger>(),
+                Mock.Of<IApprenticeshipInfoService>());
         }
 
         [Test]

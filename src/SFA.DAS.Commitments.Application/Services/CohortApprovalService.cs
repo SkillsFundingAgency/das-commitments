@@ -6,6 +6,8 @@ using FluentValidation;
 using MediatR;
 using Newtonsoft.Json;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
+using SFA.DAS.Commitments.Application.Extensions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain;
@@ -26,22 +28,25 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly IMediator _mediator;
         private readonly OverlappingApprenticeshipService _overlappingApprenticeshipService;
         private readonly ApprenticeshipEventsService _apprenticeshipEventsService;
+        private readonly IApprenticeshipInfoService _apprenticeshipInfoService;
         private readonly ICommitmentsLogger _logger;
 
-        internal CohortApprovalService(IApprenticeshipRepository apprenticeshipRepository,
+        public CohortApprovalService(IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipOverlapRules overlapRules,
             ICurrentDateTime currentDateTime,
             ICommitmentRepository commitmentRepository,
             IApprenticeshipEventsList apprenticeshipEventsList,
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
             IMediator mediator,
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IApprenticeshipInfoService apprenticeshipInfoService)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _currentDateTime = currentDateTime;
             _commitmentRepository = commitmentRepository;
             _mediator = mediator;
             _logger = logger;
+            _apprenticeshipInfoService = apprenticeshipInfoService;
             _overlappingApprenticeshipService = new OverlappingApprenticeshipService(apprenticeshipRepository, overlapRules);
             _apprenticeshipEventsService = new ApprenticeshipEventsService(apprenticeshipEventsList,
                 apprenticeshipEventsPublisher,
@@ -133,12 +138,49 @@ namespace SFA.DAS.Commitments.Application.Services
             await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = employerAccountId });
         }
 
-        internal decimal CurrentCostOfCohort(Commitment commitment)
+        //not sure why we can't dependency inject the message publisher
+        internal async Task CreateTransferRequest(Commitment commitment, IMessagePublisher messagePublisher)
         {
-            return commitment.Apprenticeships.Sum(x => x.Cost ?? 0);
+            var cost = await CurrentCostOfCohort(commitment);
+            var fundingCap = await CalculateFundingCap(commitment);
+            var trainingCourseSummaries = TrainingCourseSummaries(commitment);
+
+            var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id, cost, fundingCap, trainingCourseSummaries);
+
+            await PublishCommitmentRequiresApprovalByTransferSenderEventMessage(messagePublisher, commitment, transferRequestId);
+
+            commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
         }
 
-        internal List<TrainingCourseSummary> TrainingCourseSummaries(Commitment commitment)
+        private async Task<decimal> CurrentCostOfCohort(Commitment commitment)
+        {
+            decimal result = 0;
+
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                var course = await _apprenticeshipInfoService.GetTrainingProgram(apprenticeship.TrainingCode);
+                var cap = course.FundingCapOn(apprenticeship.StartDate.Value);
+                result += apprenticeship.Cost.Value < cap ? apprenticeship.Cost.Value : cap;
+            }
+
+            return result;
+        }
+
+        private async Task<int> CalculateFundingCap(Commitment commitment)
+        {
+            var result = 0;
+
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                var course = await _apprenticeshipInfoService.GetTrainingProgram(apprenticeship.TrainingCode);
+                var cap = course.FundingCapOn(apprenticeship.StartDate.Value);
+                result += cap;
+            }
+
+            return result;
+        }
+
+        private List<TrainingCourseSummary> TrainingCourseSummaries(Commitment commitment)
         {
             var apprenticeships = commitment.Apprenticeships ?? new List<Apprenticeship>();
 
@@ -152,13 +194,13 @@ namespace SFA.DAS.Commitments.Application.Services
             return grouped.ToList();
         }
 
-        internal Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment, long transferRequestId)
+        private async Task PublishCommitmentRequiresApprovalByTransferSenderEventMessage(IMessagePublisher messagePublisher, Commitment commitment, long transferRequestId)
         {
-            decimal totalCost = CurrentCostOfCohort(commitment);
+            var totalCost = await CurrentCostOfCohort(commitment);
 
             var senderMessage = new CohortApprovalByTransferSenderRequested(transferRequestId, commitment.EmployerAccountId,
                 commitment.Id, commitment.TransferSenderId.Value, totalCost);
-            return messagePublisher.PublishAsync(senderMessage);
+            await messagePublisher.PublishAsync(senderMessage);
         }
 
         internal async Task CreatePriceHistory(Commitment commitment)

@@ -5,8 +5,10 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
@@ -27,7 +29,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             SetUpCommonMocks();
             Commitment = CreateCommitment(Command.CommitmentId, Command.Caller.Id, 234587, 1000, "Nice Company");
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
-            CommitmentRepository.Setup(x => x.StartTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(),
+            CommitmentRepository.Setup(x => x.StartTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<int>(),
                 It.IsAny<List<TrainingCourseSummary>>())).ReturnsAsync(_transferRequestId);
 
             Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
@@ -36,7 +38,28 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             
             _messagePublisher = new Mock<IMessagePublisher>();
 
-            Target = new EmployerApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, _messagePublisher.Object, Mock.Of<ICommitmentsLogger>());
+            ApprenticeshipInfoService = new Mock<IApprenticeshipInfoService>();
+            ApprenticeshipInfoService.Setup(x => x.GetTrainingProgram(It.IsAny<string>()))
+                .ReturnsAsync(new Standard
+                {
+                    FundingPeriods = new List<FundingPeriod>
+                    {
+                        new FundingPeriod {FundingCap = 1000}
+                    }
+                });
+
+            Target = new EmployerApproveCohortCommandHandler(Validator,
+                CommitmentRepository.Object,
+                ApprenticeshipRepository.Object,
+                OverlapRules.Object,
+                CurrentDateTime.Object,
+                HistoryRepository.Object,
+                ApprenticeshipEventsList.Object,
+                ApprenticeshipEventsPublisher.Object,
+                Mediator.Object,
+                _messagePublisher.Object,
+                Mock.Of<ICommitmentsLogger>(),
+                ApprenticeshipInfoService.Object);
         }
 
         [Test]
@@ -47,8 +70,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             _messagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalByTransferSenderRequested>(y =>
                 y.TransferRequestId == _transferRequestId &&
                 y.ReceivingEmployerAccountId == Commitment.EmployerAccountId &&
-                y.CommitmentId == Commitment.Id && y.SendingEmployerAccountId == Commitment.TransferSenderId &&
-                y.TransferCost == Commitment.Apprenticeships.Sum(a => a.Cost ?? 0))), Times.Once);
+                y.CommitmentId == Commitment.Id && y.SendingEmployerAccountId == Commitment.TransferSenderId)), Times.Once);
         }
 
         [Test]
@@ -85,7 +107,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             await Target.Handle(Command);
 
             CommitmentRepository.Verify(x => x.StartTransferRequestApproval(Commitment.Id,
-                expectedTotal, It.Is<List<TrainingCourseSummary>>(p =>
+                expectedTotal, It.IsAny<int>(), It.Is<List<TrainingCourseSummary>>(p =>
                     p.Count == 1 && p[0].ApprenticeshipCount == 2 &&
                     p[0].CourseTitle == Commitment.Apprenticeships[0].TrainingName)));
 
@@ -104,6 +126,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
                 null
             ), Times.Exactly(Commitment.Apprenticeships.Count));
         }
-
     }
 }
