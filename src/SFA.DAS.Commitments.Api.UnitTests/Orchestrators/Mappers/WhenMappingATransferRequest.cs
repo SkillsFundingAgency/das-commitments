@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             result.TrainingList.Count.Should().Be(_courses.Count);
             result.TrainingList[0].ApprenticeshipCount.Should().Be(_courses[0].ApprenticeshipCount);
             result.TrainingList[0].CourseTitle.Should().Be(_courses[0].CourseTitle);
-
+            result.FundingCap.Should().Be(_source.FundingCap);
         }
 
         [Test]

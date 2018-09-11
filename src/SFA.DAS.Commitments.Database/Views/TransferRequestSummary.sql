@@ -9,6 +9,7 @@ SELECT
 	,TR.[CommitmentId]
 	,C.TransferSenderId AS SendingEmployerAccountId
     ,TR.[Cost] AS TransferCost
+	,TR.FundingCap as FundingCap
     ,TR.[Status]
     ,TR.TransferApprovalActionedByEmployerName AS ApprovedOrRejectedByUserName
     ,TR.TransferApprovalActionedByEmployerEmail AS ApprovedOrRejectedByUserEmail

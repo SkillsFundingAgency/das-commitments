@@ -15,5 +15,6 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public DateTime? ApprovedOrRejectedOn { get; set; }
         public TransferType TransferType { get; set; }
         public DateTime CreatedOn { get; set; }
+        public int FundingCap { get; set; }
     }
 }

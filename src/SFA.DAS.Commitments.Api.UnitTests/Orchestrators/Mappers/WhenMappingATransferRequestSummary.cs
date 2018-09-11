@@ -63,6 +63,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             result.ApprovedOrRejectedByUserEmail.Should().Be(_source[0].ApprovedOrRejectedByUserEmail);
             result.ApprovedOrRejectedOn.Should().Be(_source[0].ApprovedOrRejectedOn);
             result.CreatedOn.Should().Be(_source[0].CreatedOn);
+            result.FundingCap.Should().Be(_source[0].FundingCap);
         }
     }
 }
