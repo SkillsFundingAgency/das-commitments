@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
@@ -24,14 +25,25 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
-        public ProviderApproveCohortCommandHandler(AbstractValidator<ProviderApproveCohortCommand> validator, ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipOverlapRules overlapRules, ICurrentDateTime currentDateTime, IHistoryRepository historyRepository, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IMediator mediator, IMessagePublisher messagePublisher, ICommitmentsLogger logger)
+        public ProviderApproveCohortCommandHandler(AbstractValidator<ProviderApproveCohortCommand> validator,
+            ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository,
+            IApprenticeshipOverlapRules overlapRules,
+            ICurrentDateTime currentDateTime,
+            IHistoryRepository historyRepository,
+            IApprenticeshipEventsList apprenticeshipEventsList,
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
+            IMediator mediator,
+            IMessagePublisher messagePublisher,
+            ICommitmentsLogger logger,
+            IApprenticeshipInfoService apprenticeshipInfoService)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
             _logger = logger;
             _historyService = new HistoryService(historyRepository);
-            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger);
+            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService);
         }
 
         protected override async Task HandleCore(ProviderApproveCohortCommand message)
@@ -52,13 +64,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             {
                 if (commitment.HasTransferSenderAssigned)
                 {
-                    var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id,
-                        _cohortApprovalService.CurrentCostOfCohort(commitment),
-                        _cohortApprovalService.TrainingCourseSummaries(commitment));
-
-                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(_messagePublisher, commitment, transferRequestId);
-
-                    commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
+                    await _cohortApprovalService.CreateTransferRequest(commitment, _messagePublisher);
                 }
             }
             else

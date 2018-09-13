@@ -10,6 +10,7 @@ SELECT
 	,CommitmentId
 	,SendingEmployerAccountId
     ,TransferCost
+	,FundingCap
     ,[Status]
     ,ApprovedOrRejectedByUserName
     ,ApprovedOrRejectedByUserEmail

@@ -12,6 +12,7 @@ SELECT
 	,C.TransferSenderName
 	,C.LegalEntityName
     ,TR.[Cost] AS TransferCost
+	,TR.FundingCap as FundingCap
 	,TR.TrainingCourses
     ,TR.[Status]
     ,TR.TransferApprovalActionedByEmployerName AS ApprovedOrRejectedByUserName

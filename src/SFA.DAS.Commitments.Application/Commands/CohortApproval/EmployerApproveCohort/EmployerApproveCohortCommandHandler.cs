@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
@@ -34,7 +35,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
             IMediator mediator,
             IMessagePublisher messagePublisher,
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IApprenticeshipInfoService apprenticeshipInfoService)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -49,7 +51,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
                 apprenticeshipEventsList,
                 apprenticeshipEventsPublisher,
                 mediator,
-                _logger);
+                _logger,
+                apprenticeshipInfoService);
         }
 
         protected override async Task HandleCore(EmployerApproveCohortCommand message)
@@ -71,14 +74,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             {
                 if (commitment.HasTransferSenderAssigned)
                 {
-                    var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id,
-                        _cohortApprovalService.CurrentCostOfCohort(commitment),
-                        _cohortApprovalService.TrainingCourseSummaries(commitment));
-
-                    await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(
-                        _messagePublisher, commitment, transferRequestId);
-
-                    commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
+                    await _cohortApprovalService.CreateTransferRequest(commitment, _messagePublisher);
                 }
 
                 await PublishApprovedMessage(commitment);

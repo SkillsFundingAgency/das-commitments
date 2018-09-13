@@ -11,6 +11,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public long CommitmentId { get; set; }
         public long SendingEmployerAccountId { get; set; }
         public decimal TransferCost { get; set; }
+        public int FundingCap { get; set; }
         public TransferApprovalStatus Status { get; set; }
         public string ApprovedOrRejectedByUserName { get; set; }
         public string ApprovedOrRejectedByUserEmail { get; set; }

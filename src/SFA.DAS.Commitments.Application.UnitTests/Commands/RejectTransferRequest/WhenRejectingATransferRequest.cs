@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Domain.Data;
@@ -71,7 +72,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
             _sut = new RejectTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object,
-                _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>());
+                _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>(),
+                Mock.Of<IApprenticeshipInfoService>());
         }
 
         [Test]

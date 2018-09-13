@@ -11,6 +11,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public string TransferSenderName { get; set; }
         public string LegalEntityName { get; set; }
         public decimal TransferCost { get; set; }
+        public int FundingCap { get; set; }
         public string TrainingCourses { get; set; }
         public TransferApprovalStatus Status { get; set; }
         public string ApprovedOrRejectedByUserName { get; set; }
