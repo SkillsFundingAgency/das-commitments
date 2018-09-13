@@ -31,7 +31,7 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly IApprenticeshipInfoService _apprenticeshipInfoService;
         private readonly ICommitmentsLogger _logger;
 
-        public CohortApprovalService(IApprenticeshipRepository apprenticeshipRepository,
+        internal CohortApprovalService(IApprenticeshipRepository apprenticeshipRepository,
             IApprenticeshipOverlapRules overlapRules,
             ICurrentDateTime currentDateTime,
             ICommitmentRepository commitmentRepository,

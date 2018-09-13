@@ -75,15 +75,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
                 if (commitment.HasTransferSenderAssigned)
                 {
                     await _cohortApprovalService.CreateTransferRequest(commitment, _messagePublisher);
-
-                    //var transferRequestId = await _commitmentRepository.StartTransferRequestApproval(commitment.Id,
-                    //    _cohortApprovalService.CurrentCostOfCohort(commitment),
-                    //    _cohortApprovalService.TrainingCourseSummaries(commitment));
-
-                    //await _cohortApprovalService.PublishCommitmentRequiresApprovalByTransferSenderEventMessage(
-                    //    _messagePublisher, commitment, transferRequestId);
-
-                    //commitment.TransferApprovalStatus = TransferApprovalStatus.Pending;
                 }
 
                 await PublishApprovedMessage(commitment);
