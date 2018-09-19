@@ -1,19 +1,17 @@
 ﻿/*
 This script merges two Providers. It does so by stopping and backdating any apprenticeships that are active (or paused)
 after the end of the academic year and creating an exact clone of the original except that it will be for the new provider.
-
 Apprenticeships that are part of a Transfer are NOT currently covered by this script and will be ignored.
 
+See parameters block below.
 */
 
---select * from ApprenticeshipSummary
-select * from Commitment
+SET XACT_ABORT ON;
+GO
+ALTER TABLE Apprenticeship add CloneOf BIGINT NULL;
+GO
 
---alter table Apprenticeship add CloneOf BIGINT NULL
---GO
-
-
---Parameters:
+/* ############################ Parameters ############################ */
 
 declare @oldProviderId bigint = 10005124; -- UKPRN of the discontinued provider
 declare @newProviderId bigint = 10005124; -- UKPRN of the continuing provider 
@@ -24,9 +22,9 @@ declare @academicYearStartDate datetime = '2018-08-01'; --The date of the new ac
 ############################ DON'T GO CHANGING THINGS BELOW THIS LINE! ############################
 */
 
-SET NOCOUNT ON
+SET NOCOUNT ON;
 
-begin tran
+BEGIN TRAN
 
 --0. Get provider name
 --1. Get the target apprenticeships
@@ -46,12 +44,11 @@ declare @apprenticeshipTargets as table (ApprenticeshipId bigint)
 
 insert into @apprenticeshipTargets
 select Id as ApprenticeshipId
-from
-ApprenticeshipSummary
-where ProviderId = @oldProviderId
-and EndDate >= @academicYearStartDate
-and (StopDate is null OR StopDate >= @academicYearStartDate)
-
+from ApprenticeshipSummary
+where ProviderId = @oldProviderId --target the discontinued provider only!
+and EndDate >= @academicYearStartDate -- ignore those that ended prior to academic year
+and (StopDate is null OR StopDate >= @academicYearStartDate) --ignore those stopped prior to academic year
+And (StopDate is null OR StopDate != StartDate) --ignore stopped and backdated
 
 
 --2. Create a single commitment per employer account / legal entity combination
@@ -95,8 +92,6 @@ where c.TransferSenderId is null --CANNOT HANDLE TRANSFERS
 print 'Created ' + convert(varchar,@@ROWCOUNT) + ' cohorts'
 
 
-
-
 --3. Insert a new apprenticeship for each target, for the new UKPRN
 
 insert into Apprenticeship
@@ -126,7 +121,7 @@ insert into Apprenticeship
            ,[EPAOrgId]
 		   ,[CloneOf])
 select
-(select max(id) from Commitment nc where nc.ProviderId = c.ProviderId and nc.EmployerAccountId = c.EmployerAccountId and  nc.LegalEntityId = c.LegalEntityId) CommitmentId,
+(select max(id) from Commitment nc where nc.ProviderId = @newProviderId and nc.EmployerAccountId = c.EmployerAccountId and  nc.LegalEntityId = c.LegalEntityId) CommitmentId,
 a.[FirstName]
            ,a.[LastName]
            ,a.[ULN]
@@ -156,6 +151,8 @@ from
 join Apprenticeship a on a.Id = t.ApprenticeshipId
 join Commitment c on c.Id = a.CommitmentId --Original commitment
 
+print 'Created ' + convert(varchar,@@ROWCOUNT) + ' apprenticeships'
+
 --Add price history
 insert into PriceHistory (ApprenticeshipId, Cost, FromDate, ToDate)
 select
@@ -165,13 +162,20 @@ join Apprenticeship a on na.CloneOf = a.Id
 join PriceHistory ph on ph.ApprenticeshipId = a.Id
 where a.Id in (select ApprenticeshipId from @apprenticeshipTargets)
 
+print 'Created ' + convert(varchar,@@ROWCOUNT) + ' price history records'
 
 --4. Stop and back-date the target apprenticeships
 update Apprenticeship
 set StopDate = StartDate, PaymentStatus = 3
 where Id in (select ApprenticeshipId from @apprenticeshipTargets)
 
+print 'Stopped and backdated ' + convert(varchar,@@ROWCOUNT) + ' apprenticeships'
+
 --5. Emit an event for the old and new apprenticeship
+
+print ''
+print 'Script for execution on Events Db:'
+print ''
 
 --Get the old ones
 declare @emitEventApprenticeshipId BIGINT
@@ -180,8 +184,7 @@ DECLARE apprenticeshipTargetsCursor CURSOR FOR
 	union all
 	select na.Id from Apprenticeship na join Apprenticeship a on na.CloneOf = a.Id where a.Id in (select ApprenticeshipId from @apprenticeshipTargets)
 
-
-declare @outputScript as nvarchar(max) = 'declare @apprenticeshipEventsId BIGINT;'
+	print 'declare @apprenticeshipEventsId bigint;'
 
 OPEN apprenticeshipTargetsCursor
 
@@ -191,10 +194,14 @@ BEGIN
 
 
 	/* BEGIN LIFT 'N' SHIFT EMIT EVENT SCRIPT */
+	-- after pasting, move @apprenticeshipEventsId declaration up outside of cursor
 
+		declare @outputScript as nvarchar(max) = ''
 
-select top 1
-@outputScript = @outputScript + 'INSERT INTO [dbo].[ApprenticeshipEvents]
+		set @outputScript = '';
+
+		select top 1
+		@outputScript = 'INSERT INTO [dbo].[ApprenticeshipEvents]
            (
 		    [Event]
            ,[CreatedOn]
@@ -261,7 +268,7 @@ select top 1
 
 		   set @outputScript = @outputScript + 'set @apprenticeshipEventsId = SCOPE_IDENTITY();'	   
 		   
-		   --todo: price history
+		   --Price History
 
 		   select
 		   @outputScript = @outputScript +
@@ -281,6 +288,8 @@ select top 1
 		   where ph.ApprenticeshipId = @emitEventApprenticeshipId
 
 
+		   print @outputScript
+
 	/* END LIFT 'N' SHIFT EMIT EVENT SCRIPT*/
 
 
@@ -290,8 +299,10 @@ select top 1
 	DEALLOCATE apprenticeshipTargetsCursor
 
 
-	print @outputScript
+COMMIT
+GO
 
+ALTER TABLE Apprenticeship drop column CloneOf;
+GO
 
-commit
 

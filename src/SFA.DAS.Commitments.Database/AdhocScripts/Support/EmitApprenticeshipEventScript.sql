@@ -10,11 +10,14 @@ declare @emitEventApprenticeshipId BIGINT = 1; --the id of the apprenticeship fo
 /* =================== DO NOT MODIFY BELOW THIS LINE ======================== */
 /* ========================================================================== */
 
+print 'declare @apprenticeshipEventsId bigint;'
 
-declare @outputScript as nvarchar(max) = 'declare @apprenticeshipEventsId bigint;'
+declare @outputScript as nvarchar(max) = ''
+
+set @outputScript = '';
 
 select top 1
-@outputScript = @outputScript + 'INSERT INTO [dbo].[ApprenticeshipEvents]
+@outputScript = 'INSERT INTO [dbo].[ApprenticeshipEvents]
            (
 		    [Event]
            ,[CreatedOn]
