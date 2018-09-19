@@ -49,7 +49,7 @@ where ProviderId = @oldProviderId --target the discontinued provider only!
 and EndDate >= @academicYearStartDate -- ignore those that ended prior to academic year
 and (StopDate is null OR StopDate >= @academicYearStartDate) --ignore those stopped prior to academic year
 And (StopDate is null OR StopDate != StartDate) --ignore stopped and backdated
-
+And TransferSenderId is null
 
 --2. Create a single commitment per employer account / legal entity combination
 
