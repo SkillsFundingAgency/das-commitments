@@ -13,8 +13,8 @@ GO
 
 /* ############################ Parameters ############################ */
 
-declare @oldProviderId bigint = 10005124; -- UKPRN of the discontinued provider
-declare @newProviderId bigint = 10005124; -- UKPRN of the continuing provider 
+declare @oldProviderId bigint = xxxxx; -- UKPRN of the discontinued provider
+declare @newProviderId bigint = xxxxx; -- UKPRN of the continuing provider 
 declare @newProviderName nvarchar(100) = null; --The new name of the continuing provider, if applicable, or NULL if no change
 declare @academicYearStartDate datetime = '2018-08-01'; --The date of the new academic year - apprenticeships before this date will not be affected
 

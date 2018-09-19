@@ -4,7 +4,7 @@ It must be dealt with in two parts. First, this script must be run against the c
 It generates a script that must then be executed against the events db.
 */
 
-declare @emitEventApprenticeshipId BIGINT = 1; --the id of the apprenticeship for which to generate an event
+declare @emitEventApprenticeshipId BIGINT = x; --the id of the apprenticeship for which to generate an event
 
 /* ========================================================================== */
 /* =================== DO NOT MODIFY BELOW THIS LINE ======================== */
