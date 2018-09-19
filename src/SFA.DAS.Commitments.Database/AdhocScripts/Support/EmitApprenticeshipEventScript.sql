@@ -64,7 +64,7 @@ select top 1
 		   ,' + CASE WHEN a.EndDate is null then 'null' else + '''' + convert(varchar(10),a.EndDate,120) + '''' end + '
 		   ,' + CASE WHEN a.Cost is null then 'null' else convert(varchar,a.Cost) end + '		   
 		   ,' + '''' + convert(varchar,c.LegalEntityId,120) + '''' + '
-           ,' + '''' + c.[LegalEntityName] + '''' + '	   
+           ,' + '''' + replace(c.[LegalEntityName],'''','''''') + '''' + '	   
 		   ,' + '''' + CASE WHEN c.LegalEntityOrganisationType = 1 THEN 'CompaniesHouse' WHEN c.LegalEntityOrganisationType=2 THEN 'Charities' WHEN c.LegalEntityOrganisationType=3 THEN 'PublicBodies' ELSE 'Other' END + '''' + '
 		   ,' + CASE WHEN a.StartDate is null then 'null' else + '''' + convert(varchar(10),a.StartDate,120) + '''' end + '
 		   ,null
