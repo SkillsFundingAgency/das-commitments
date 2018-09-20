@@ -46,6 +46,7 @@ insert into @apprenticeshipTargets
 select Id as ApprenticeshipId
 from ApprenticeshipSummary
 where ProviderId = @oldProviderId --target the discontinued provider only!
+and PaymentStatus<>0 -- ignore unapproved apprenticeships
 and EndDate >= @academicYearStartDate -- ignore those that ended prior to academic year
 and (StopDate is null OR StopDate >= @academicYearStartDate) --ignore those stopped prior to academic year
 And (StopDate is null OR StopDate != StartDate) --ignore stopped and backdated
@@ -243,7 +244,7 @@ BEGIN
            ,' + CASE WHEN a.[ULN] is null then 'null' else + '''' + convert(varchar,a.[ULN]) + '''' end + '		   
            ,' + convert(varchar,c.[EmployerAccountId]) + '
            ,' + CASE WHEN a.[TrainingType] is null then 'null' WHEN a.TrainingType=0 THEN '1' ELSE '0' END + '		   
-		   ,' + CASE WHEN a.[TrainingCode] is null then 'null' else convert(varchar,a.[TrainingCode]) end + '		   
+		   ,' + CASE WHEN a.[TrainingCode] is null then 'null' else '''' + convert(varchar,a.[TrainingCode]) + '''' end + '		   
 		   ,' + CASE WHEN a.StartDate is null then 'null' else + '''' + convert(varchar(10),a.StartDate,120) + '''' end + '
 		   ,' + CASE WHEN a.EndDate is null then 'null' else + '''' + convert(varchar(10),a.EndDate,120) + '''' end + '
 		   ,' + CASE WHEN a.Cost is null then 'null' else convert(varchar,a.Cost) end + '		   
@@ -254,7 +255,7 @@ BEGIN
 		   ,null
            ,' + CASE WHEN a.DateOfBirth is null then 'null' else + '''' + convert(varchar(10),a.DateOfBirth,120) + '''' end + '
 		   ,' + CASE WHEN c.TransferSenderId is null then 'null' else + '''' + convert(varchar,c.TransferSenderId) + '''' end + '
-		   ,' + CASE WHEN c.TransferSenderName is null then 'null' else + '''' + c.TransferSenderName + '''' end + '
+		   ,' + CASE WHEN c.TransferSenderName is null then 'null' else + '''' + replace(c.TransferSenderName,'''','''''') + '''' end + '
 		   ,' + CASE WHEN c.TransferApprovalStatus is null then 'null' else + '''' + convert(varchar,c.TransferApprovalStatus) + '''' end + '
 		   ,' + CASE WHEN c.TransferApprovalActionedOn is null then 'null' else + '''' + convert(varchar(10),c.TransferApprovalActionedOn,120) + '''' end + '
 		   ,' + CASE WHEN a.StopDate is null then 'null' else + '''' + convert(varchar(10),a.StopDate,120) + '''' end + '
