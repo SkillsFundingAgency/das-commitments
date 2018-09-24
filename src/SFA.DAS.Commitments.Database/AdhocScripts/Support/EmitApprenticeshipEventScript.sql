@@ -97,7 +97,7 @@ select top 1
            (
 		   @apprenticeshipEventsId
 		   ,' + convert(varchar,ph.Cost,120) + '
-           ,' + convert(varchar(10),ph.FromDate,120) + '
+           ,' + '''' + convert(varchar(10),ph.FromDate,120) + '''' + '
 		   ,' + CASE WHEN ph.ToDate is null then 'null' else + '''' + convert(varchar(10),ph.ToDate,120) + '''' end + '
 		   )'
 		   from PriceHistory ph
