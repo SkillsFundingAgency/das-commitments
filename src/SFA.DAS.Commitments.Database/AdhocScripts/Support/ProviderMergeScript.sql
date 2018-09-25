@@ -8,8 +8,6 @@ See parameters block below.
 
 SET XACT_ABORT ON;
 GO
-ALTER TABLE Apprenticeship add CloneOf BIGINT NULL;
-GO
 
 /* ############################ Parameters ############################ */
 
@@ -302,8 +300,4 @@ BEGIN
 
 COMMIT
 GO
-
-ALTER TABLE Apprenticeship drop column CloneOf;
-GO
-
 
