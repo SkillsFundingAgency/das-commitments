@@ -3,7 +3,8 @@ using System.Linq;
 
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
-
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Domain.Extensions;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 using PriceHistory = SFA.DAS.Commitments.Api.Types.Apprenticeship.PriceHistory;
 
@@ -13,6 +14,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
     {
         public Apprenticeship MapFrom(Domain.Entities.Apprenticeship source, CallerType callerType)
         {
+            var activeDataLocks = source.DataLocks.FindAll(x =>
+                !x.IsResolved &&
+                !x.IsExpired &&
+                x.EventStatus != EventStatus.Removed);
+
             return new Apprenticeship
             {
                 Id = source.Id,
@@ -46,11 +52,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
                 AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
-                DataLockCourse = source.DataLockCourse,
-                DataLockPrice = source.DataLockPrice,
-                DataLockCourseTriaged = source.DataLockCourseTriaged,
-                DataLockCourseChangeTriaged = source.DataLockCourseChangeTriaged,
-                DataLockPriceTriaged = source.DataLockPriceTriaged,
+                DataLockCourse = activeDataLocks.Any(x=> x.WithCourseError() && x.TriageStatus == TriageStatus.Unknown),
+                DataLockPrice = activeDataLocks.Any(x=> x.IsPriceOnly() && x.TriageStatus == TriageStatus.Unknown),
+                DataLockCourseTriaged = activeDataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Restart),
+                DataLockCourseChangeTriaged = activeDataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Change),
+                DataLockPriceTriaged = activeDataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Change),
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 EndpointAssessorName = source.EndpointAssessorName
             };

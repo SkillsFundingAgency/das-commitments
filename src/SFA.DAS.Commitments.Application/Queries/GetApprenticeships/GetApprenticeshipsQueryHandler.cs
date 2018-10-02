@@ -32,9 +32,9 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeships
             switch (caller.CallerType)
             {
                 case CallerType.Employer:
-                    return await _apprenticeshipRepository.GetActiveApprenticeshipsByEmployer(caller.Id);
+                    return await _apprenticeshipRepository.GetApprovedApprenticeshipsByEmployer(caller.Id);
                 case CallerType.Provider:
-                    return await _apprenticeshipRepository.GetActiveApprenticeshipsByProvider(caller.Id);
+                    return await _apprenticeshipRepository.GetApprovedApprenticeshipsByProvider(caller.Id);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

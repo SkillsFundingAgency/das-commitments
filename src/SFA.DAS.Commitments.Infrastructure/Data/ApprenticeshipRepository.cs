@@ -8,6 +8,7 @@ using Dapper;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Sql.Client;
@@ -630,30 +631,50 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByProvider(long providerId)
+        public async Task<ApprenticeshipsResult> GetApprovedApprenticeshipsByEmployer(long accountId)
         {
-            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForProvider]", providerId);
+            return await GetApprovedApprenticeships("GetApprovedApprenticeshipsForEmployer", accountId);
         }
 
-        public async Task<ApprenticeshipsResult> GetActiveApprenticeshipsByEmployer(long accountId)
+        public async Task<ApprenticeshipsResult> GetApprovedApprenticeshipsByProvider(long accountId)
         {
-            return await GetActiveApprenticeships("[GetActiveApprenticeshipsForEmployer]", accountId);
+            return await GetApprovedApprenticeships("GetApprovedApprenticeshipsForProvider", accountId);
         }
 
-        private Task<ApprenticeshipsResult> GetActiveApprenticeships(string sprocName, long id)
+        private Task<ApprenticeshipsResult> GetApprovedApprenticeships(string sprocName, long id)
         {
             return WithConnection(async c =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@id", id, DbType.Int64);
 
-                var apprenticeships = (await c.QueryAsync<Apprenticeship>(sprocName, parameters, commandType: CommandType.StoredProcedure))
-                    .ToList();
-                
+                var apprenticeships = new Dictionary<long, Apprenticeship>();
+
+                using (var multi = await c.QueryMultipleAsync(sprocName, parameters, commandType: CommandType.StoredProcedure))
+                {
+                    multi.Read<Apprenticeship, DataLockStatus, Apprenticeship>(
+                        (apprenticeship, datalock) =>
+                        {
+                            if (!apprenticeships.TryGetValue(apprenticeship.Id, out var existing))
+                            {
+                                apprenticeships.Add(apprenticeship.Id, apprenticeship);
+                                existing = apprenticeship;
+                            }
+
+                            if (datalock!=null)
+                            {
+                                existing.DataLocks.Add(datalock);
+                            }
+
+                            return existing;
+                        },
+                        splitOn: "DataLockEventId");
+                }
+
                 return new ApprenticeshipsResult
                 {
-                    Apprenticeships = apprenticeships,
-                    TotalCount = apprenticeships.Count
+                    Apprenticeships = apprenticeships.Values.ToList(),
+                    TotalCount = apprenticeships.Values.Count()
                 };
             });
         }

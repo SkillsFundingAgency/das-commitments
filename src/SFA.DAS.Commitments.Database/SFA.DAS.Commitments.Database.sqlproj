@@ -122,12 +122,12 @@
     <Build Include="StoredProcedures\GetTransferRequestsForReceiver.sql" />
     <Build Include="Views\TransferRequestSummary.sql" />
     <Build Include="StoredProcedures\GetTransferRequest.sql" />
-    <Build Include="StoredProcedures\GetActiveApprenticeshipsForEmployer.sql" />
-    <Build Include="StoredProcedures\GetActiveApprenticeshipsForProvider.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipUpdateStatus.sql" />
     <Build Include="StoredProcedures\GetStatistics.sql" />
     <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipStatusesForCommitment.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeshipsForProvider.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
