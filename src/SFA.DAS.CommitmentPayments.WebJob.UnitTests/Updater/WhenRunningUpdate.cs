@@ -413,5 +413,34 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
 
             _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.Is<DataLockStatus>(d => d.IsResolved)), Times.Once);
         }
+
+        [Test]
+        public async Task ThenPriceDatalocksInCombinationWithDlock09AreIgnored()
+        {
+            var page1 = new List<DataLockStatus>
+            {
+                new DataLockStatus
+                {
+                    ApprenticeshipId = 1,
+                    DataLockEventId = 2,
+                    ErrorCode = DataLockErrorCode.Dlock07,
+                    IlrEffectiveFromDate = DateTime.Today.AddMonths(-2)
+                }
+            };
+
+            _paymentEvents.Setup(x => x.GetDataLockEvents(1, null, null, 0L, 1)).ReturnsAsync(page1);
+
+            _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(new Apprenticeship
+                {
+                    PaymentStatus = PaymentStatus.Withdrawn,
+                    StartDate = DateTime.Today.AddMonths(-1),
+                    StopDate = DateTime.Today.AddMonths(-1)
+                });
+
+            await _dataLockUpdater.RunUpdate();
+
+            _dataLockRepository.Verify(x => x.UpdateDataLockStatus(It.IsAny<DataLockStatus>()), Times.Never);
+        }
     }
 }
