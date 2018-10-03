@@ -139,6 +139,7 @@
     <Compile Include="Orchestrators\Employer\WhenSettingTransferApprovalStatus.cs" />
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingAnApprenticeshipResult .cs" />
+    <Compile Include="Orchestrators\Mappers\WhenMappingApprenticeshipDataLockProperties.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequestSummary.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequest.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
