@@ -14,11 +14,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
     {
         public Apprenticeship MapFrom(Domain.Entities.Apprenticeship source, CallerType callerType)
         {
-            var activeDataLocks = source.DataLocks.FindAll(x =>
-                !x.IsResolved &&
-                !x.IsExpired &&
-                x.EventStatus != EventStatus.Removed);
-
             return new Apprenticeship
             {
                 Id = source.Id,
@@ -52,11 +47,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
                 AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
-                DataLockCourse = activeDataLocks.Any(x=> x.WithCourseError() && x.TriageStatus == TriageStatus.Unknown),
-                DataLockPrice = activeDataLocks.Any(x=> x.IsPriceOnly() && x.TriageStatus == TriageStatus.Unknown),
-                DataLockCourseTriaged = activeDataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Restart),
-                DataLockCourseChangeTriaged = activeDataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Change),
-                DataLockPriceTriaged = activeDataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Change),
+                DataLockCourse = source.DataLocks.Any(x=> x.WithCourseError() && x.TriageStatus == TriageStatus.Unknown),
+                DataLockPrice = source.DataLocks.Any(x=> x.IsPriceOnly() && x.TriageStatus == TriageStatus.Unknown),
+                DataLockCourseTriaged = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Restart),
+                DataLockCourseChangeTriaged = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Change),
+                DataLockPriceTriaged = source.DataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Change),
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
                 EndpointAssessorName = source.EndpointAssessorName
             };

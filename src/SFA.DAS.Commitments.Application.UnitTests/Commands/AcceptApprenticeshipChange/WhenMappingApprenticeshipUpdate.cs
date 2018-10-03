@@ -55,9 +55,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     UpdateOriginator = Originator.Provider,
                     ProviderName = "Provider name",
                     LegalEntityName = "Legal entity name",
-                    DataLocks = new List<DataLockStatus>
+                    DataLocks = new List<DataLockStatusSummary>
                     {
-                        new DataLockStatus{ ErrorCode = DataLockErrorCode.Dlock04 }
+                        new DataLockStatusSummary{ ErrorCode = DataLockErrorCode.Dlock04 }
                     },
                     PriceHistory = new List<PriceHistory>
                     {

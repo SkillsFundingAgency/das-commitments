@@ -652,7 +652,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
 
                 using (var multi = await c.QueryMultipleAsync(sprocName, parameters, commandType: CommandType.StoredProcedure))
                 {
-                    multi.Read<Apprenticeship, DataLockStatus, Apprenticeship>(
+                    multi.Read<Apprenticeship, DataLockStatusSummary, Apprenticeship>(
                         (apprenticeship, datalock) =>
                         {
                             if (!apprenticeships.TryGetValue(apprenticeship.Id, out var existing))

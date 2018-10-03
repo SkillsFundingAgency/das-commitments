@@ -10,7 +10,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public Apprenticeship()
         {
             PriceHistory = new List<PriceHistory>();
-            DataLocks = new List<DataLockStatus>();
+            DataLocks = new List<DataLockStatusSummary>();
         }
 
         public long Id { get; set; }
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public List<PriceHistory> PriceHistory { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public string EndpointAssessorName { get; set; }
-        public List<DataLockStatus> DataLocks { get; set; }
+        public List<DataLockStatusSummary> DataLocks { get; set; }
 
         public Apprenticeship Clone()
         {
