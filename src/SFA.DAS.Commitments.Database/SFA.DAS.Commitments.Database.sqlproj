@@ -67,6 +67,7 @@
     <Folder Include="PostDeployment" />
     <Folder Include="AdhocScripts" />
     <Folder Include="AdhocScripts\Support" />
+    <Folder Include="AdhocScripts\Support\DPP-1661" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -136,6 +137,7 @@
     <None Include="Database.publish.xml" />
     <Build Include="Tables\BulkUpload.sql" />
     <None Include="AdhocScripts\Support\ApprenticeshipStopFixUpScript.sql" />
+    <None Include="AdhocScripts\Support\DPP-1661\DPP-1661_Remove_DataLock_7_if_also_Datalock_9.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
