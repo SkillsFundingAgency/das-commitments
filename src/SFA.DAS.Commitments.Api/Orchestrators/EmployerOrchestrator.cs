@@ -136,42 +136,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 UserId = commitmentRequest.UserId,
                 Message = commitmentRequest.Message
             });
-            await CreateRelationshipIfDoesNotAlreadyExist(commitment);
 
             _logger.Info($"Created commitment {id} for employer account {accountId}", accountId: accountId);
 
             return id;
-        }
-
-        private  async Task CreateRelationshipIfDoesNotAlreadyExist(Domain.Entities.Commitment commitment)
-        {
-            var relationship = await _mediator.SendAsync(new GetRelationshipRequest
-            {
-                EmployerAccountId = commitment.EmployerAccountId,
-                ProviderId = commitment.ProviderId.Value,
-                LegalEntityId = commitment.LegalEntityId
-            });
-
-            if (relationship.Data == null)
-            {
-                _logger.Info($"Creating relationship between employer account {commitment.EmployerAccountId}," +
-                             $" legal entity {commitment.LegalEntityId}," +
-                             $" and provider {commitment.ProviderId}");
-
-                await _mediator.SendAsync(new CreateRelationshipCommand
-                {
-                    Relationship = new Relationship
-                    {
-                        EmployerAccountId = commitment.EmployerAccountId,
-                        LegalEntityId = commitment.LegalEntityId,
-                        LegalEntityName = commitment.LegalEntityName,
-                        LegalEntityAddress = commitment.LegalEntityAddress,
-                        LegalEntityOrganisationType = commitment.LegalEntityOrganisationType,
-                        ProviderId = commitment.ProviderId.Value,
-                        ProviderName = commitment.ProviderName
-                    }
-                });
-            }
         }
 
         public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)
