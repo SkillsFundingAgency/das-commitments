@@ -203,10 +203,12 @@
     <Compile Include="Data\JobProgressRepository.cs" />
     <Compile Include="Data\ProviderPaymentRepository.cs" />
     <Compile Include="Data\StatisticsRepository.cs" />
+    <Compile Include="Data\Transactions\CommitmentTransactions.cs" />
     <Compile Include="Data\Transactions\DataLockTransactions.cs" />
     <Compile Include="Data\HistoryRepository.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipUpdateTransactions.cs" />
     <Compile Include="Data\Transactions\IApprenticeshipUpdateTransactions.cs" />
+    <Compile Include="Data\Transactions\ICommitmentTransactions.cs" />
     <Compile Include="Data\Transactions\IDataLockTransactions.cs" />
     <Compile Include="Data\Transactions\ApprenticeshipTransactions.cs" />
     <Compile Include="Data\CommitmentRepository.cs" />

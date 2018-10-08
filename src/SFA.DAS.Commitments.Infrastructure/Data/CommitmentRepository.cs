@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
@@ -19,14 +20,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly ICommitmentTransactions _commitmentTransactions;
 
-        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger, ICurrentDateTime currentDateTime) : base(databaseConnectionString, logger.BaseLogger)
+        public CommitmentRepository(string databaseConnectionString,
+            ICommitmentsLogger logger,
+            ICurrentDateTime currentDateTime,
+            ICommitmentTransactions commitmentTransactions) : base(databaseConnectionString,
+            logger.BaseLogger)
         {
             _logger = logger;
             _currentDateTime = currentDateTime;
+            _commitmentTransactions = commitmentTransactions;
         }
 
-        public async Task<long> Create(Commitment commitment)
+        public async Task<long> Create(Commitment commitment, Relationship relationship = null)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
@@ -66,6 +73,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
+
+                    if (relationship != null)
+                    {
+                        await _commitmentTransactions.CreateRelationship(connection, trans, relationship);
+                    }                   
 
                     trans.Commit();
                     return commitmentId;
