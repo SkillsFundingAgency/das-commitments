@@ -136,6 +136,7 @@
     <None Include="Database.publish.xml" />
     <Build Include="Tables\BulkUpload.sql" />
     <None Include="AdhocScripts\Support\ApprenticeshipStopFixUpScript.sql" />
+    <None Include="AdhocScripts\Support\RelationshipCreationScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
