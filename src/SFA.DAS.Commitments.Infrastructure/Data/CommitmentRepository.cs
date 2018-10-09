@@ -357,42 +357,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
                 return returnCode;
             });
         }
-
-        public async Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode)
-        {
-            return await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@EmployerAccountId", employerAccountId);
-                parameters.Add("@ProviderId", providerId);
-                parameters.Add("@LegalEntityId", legalEntityCode);
-
-                var results = await connection.QueryAsync<Relationship>(
-                    sql: $"[dbo].[GetRelationship]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-
-                return results.FirstOrDefault();
-            });
-        }
-
-        public async Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified)
-        {
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@EmployerAccountId", employerAccountId);
-                parameters.Add("@ProviderId", providerId);
-                parameters.Add("@LegalEntityId", legalEntityCode);
-                parameters.Add("@Verified", verified);
-
-                return await connection.ExecuteAsync(
-                    sql: $"[dbo].[VerifyRelationship]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-            });
-        }
-
+        
         public async Task SaveMessage(long commitmentId, Message message)
         {
             await WithConnection(async connection =>

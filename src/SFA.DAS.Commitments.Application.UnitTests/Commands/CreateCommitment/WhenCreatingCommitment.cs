@@ -26,6 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
     public sealed class WhenCreatingCommitment
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IRelationshipRepository> _mockRelationshipRepository;
         private CreateCommitmentCommandHandler _handler;
         private CreateCommitmentCommand _exampleValidRequest;
         private Mock<IHashingService> _mockHashingService;
@@ -38,20 +39,22 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            _mockRelationshipRepository = new Mock<IRelationshipRepository>();
             _mockHashingService = new Mock<IHashingService>();
 			var commandValidator = new CreateCommitmentValidator();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _messagePublisher = new Mock<IMessagePublisher>();
 
-            _mockCommitmentRespository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+            _mockRelationshipRepository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .ReturnsAsync(new Relationship());
 
-           _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, 
+           _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object,
                 _mockHashingService.Object,
                 commandValidator,
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
-                _messagePublisher.Object);
+                _messagePublisher.Object,
+               _mockRelationshipRepository.Object);
 
             var fixture = new Fixture();
             fixture.Customize<Apprenticeship>(ob => ob
@@ -201,7 +204,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenIfRelationshipDoesNotExistThenItIsCreated()
         {
             //Arrange
-            _mockCommitmentRespository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+            _mockRelationshipRepository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .ReturnsAsync(null as Relationship);
 
             //Act
@@ -228,7 +231,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenIfRelationshipIsCreatedThenRelationshipCreatedEventIsEmitted()
         {
             //Arrange
-            _mockCommitmentRespository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
+            _mockRelationshipRepository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .ReturnsAsync(null as Relationship);
 
             //Act

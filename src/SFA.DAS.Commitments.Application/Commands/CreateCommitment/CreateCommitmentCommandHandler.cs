@@ -20,12 +20,19 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
     {
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IRelationshipRepository _relationshipRepository;
         private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
         private readonly IMessagePublisher _messagePublisher;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository,
+            IHashingService hashingService,
+            AbstractValidator<CreateCommitmentCommand> validator,
+            ICommitmentsLogger logger,
+            IHistoryRepository historyRepository,
+            IMessagePublisher messagePublisher,
+            IRelationshipRepository relationshipRepository)
         {
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
@@ -33,6 +40,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _logger = logger;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _relationshipRepository = relationshipRepository;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
@@ -47,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             }
 
             Relationship relationship = null;
-            if (await _commitmentRepository.GetRelationship(message.Commitment.EmployerAccountId, message.Commitment.ProviderId.Value, message.Commitment.LegalEntityId) == null)
+            if (await _relationshipRepository.GetRelationship(message.Commitment.EmployerAccountId, message.Commitment.ProviderId.Value, message.Commitment.LegalEntityId) == null)
             {
                 relationship = CreateRelationshipFromCommitment(message.Commitment);
             }
