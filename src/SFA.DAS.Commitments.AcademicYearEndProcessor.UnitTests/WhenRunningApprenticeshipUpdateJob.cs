@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
@@ -40,7 +41,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 _academicYearProvider.Object, 
                 _dataLockRepository.Object, 
                 _apprenticeshipUpdateRepository.Object,
-                _currentDateTime.Object);
+                _currentDateTime.Object,
+                Mock.Of<IMessagePublisher>());
 
         }
 

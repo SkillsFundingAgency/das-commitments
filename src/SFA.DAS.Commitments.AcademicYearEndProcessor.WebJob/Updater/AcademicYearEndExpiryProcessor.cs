@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
@@ -20,16 +21,9 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             IAcademicYearDateProvider academicYearProvider, 
             IDataLockRepository dataLockRepository,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
-            ICurrentDateTime currentDateTime)
+            ICurrentDateTime currentDateTime,
+            IMessagePublisher messagePublisher)
         {
-
-            if (logger == null) throw new ArgumentException(nameof(logger));
-            if (dataLockRepository == null) throw new ArgumentException(nameof(dataLockRepository));
-            if (currentDateTime == null) throw new ArgumentException(nameof(currentDateTime));
-            if (academicYearProvider == null) throw new ArgumentException(nameof(academicYearProvider));
-            if (apprenticeshipUpdateRepository== null) throw new ArgumentException(nameof(apprenticeshipUpdateRepository));
-
-
             _logger = logger;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -70,6 +64,9 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             {
                 _logger.Info($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}, JobId: {jobId}");
                 await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
+                //todo send msg to task q
+                // task is to raise new ApprenticeshipUpdateCancelled event and put onto new task bus
+                // does task bus have api? client nuget?
             }
 
             var expiredApprenticeshipUpdatesAfterJob =

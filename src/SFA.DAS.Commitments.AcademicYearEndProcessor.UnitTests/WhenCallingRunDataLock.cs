@@ -5,12 +5,13 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
 {
     [TestFixture]
-    public class WhenRunningUpdate
+    public class WhenCallingRunDataLock
     {
         private Mock<ILog> _logger;
         private Mock<IAcademicYearDateProvider> _academicYearProvider;
@@ -60,7 +61,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 _academicYearProvider.Object, 
                 _dataLockRepository.Object,
                 _apprenticeshipUpdateRepository.Object,
-                currentDatetime);
+                currentDatetime,
+                Mock.Of<IMessagePublisher>());
 
             _dataLockRepository.Setup(r => r.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate)).ReturnsAsync(testDatalockStatusItems);
 
