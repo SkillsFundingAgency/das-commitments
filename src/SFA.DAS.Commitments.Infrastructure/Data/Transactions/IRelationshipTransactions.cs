@@ -4,7 +4,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
-    public interface ICommitmentTransactions
+    public interface IRelationshipTransactions
     {
         Task<long> CreateRelationship(IDbConnection connection, IDbTransaction trans, Relationship relationship);
     }

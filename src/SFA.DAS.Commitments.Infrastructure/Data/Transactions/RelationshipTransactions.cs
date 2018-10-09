@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
+﻿using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -10,12 +6,12 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data.Transactions
 {
-    public class CommitmentTransactions : ICommitmentTransactions
+    public class RelationshipTransactions : IRelationshipTransactions
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
 
-        public CommitmentTransactions(ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
+        public RelationshipTransactions(ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
         {
             _logger = logger;
             _currentDateTime = currentDateTime;

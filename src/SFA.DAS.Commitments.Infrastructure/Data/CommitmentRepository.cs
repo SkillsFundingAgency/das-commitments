@@ -20,24 +20,24 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly ICommitmentTransactions _commitmentTransactions;
+        private readonly IRelationshipTransactions _relationshipTransactions;
 
         public CommitmentRepository(string databaseConnectionString,
             ICommitmentsLogger logger,
             ICurrentDateTime currentDateTime,
-            ICommitmentTransactions commitmentTransactions) : base(databaseConnectionString,
+            IRelationshipTransactions relationshipTransactions) : base(databaseConnectionString,
             logger.BaseLogger)
         {
             _logger = logger;
             _currentDateTime = currentDateTime;
-            _commitmentTransactions = commitmentTransactions;
+            _relationshipTransactions = relationshipTransactions;
         }
 
         public async Task<long> Create(Commitment commitment, Relationship relationship = null)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
-            return await WithConnection(async connection =>
+            var result = await WithTransaction(async (connection, transaction) =>
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@reference", commitment.Reference, DbType.String);
@@ -59,30 +59,29 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
 
-                //todo: await WithTransaction(async (connection, transaction) => ??
-                using (var trans = connection.BeginTransaction())
+                var commitmentId = (await connection.QueryAsync<long>(
+                    @"INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, AccountLegalEntityPublicHashedId,
+                    EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName,
+                    LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName)
+                    VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountLegalEntityPublicHashedId,
+                    @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName,
+                    @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName);
+                    SELECT CAST(SCOPE_IDENTITY() as int);",
+                    param: parameters,
+                    commandType: CommandType.Text,
+                    transaction: transaction)).Single();
+
+                if (relationship != null)
                 {
-                    var commitmentId = (await connection.QueryAsync<long>(
-                        @"INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, AccountLegalEntityPublicHashedId,
-                        EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName,
-                        LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName)
-                        VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountLegalEntityPublicHashedId,
-                        @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName,
-                        @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName);
-                        SELECT CAST(SCOPE_IDENTITY() as int);",
-                        param: parameters,
-                        commandType: CommandType.Text,
-                        transaction: trans)).Single();
-
-                    if (relationship != null)
-                    {
-                        await _commitmentTransactions.CreateRelationship(connection, trans, relationship);
-                    }                   
-
-                    trans.Commit();
-                    return commitmentId;
+                    await _relationshipTransactions.CreateRelationship(connection, transaction, relationship);
                 }
+
+                transaction.Commit();
+
+                return commitmentId;
             });
+
+            return result;
         }
 
         public async Task<Commitment> GetCommitmentById(long id)
