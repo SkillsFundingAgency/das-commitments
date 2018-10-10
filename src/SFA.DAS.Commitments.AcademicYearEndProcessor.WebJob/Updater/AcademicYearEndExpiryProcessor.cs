@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -15,6 +16,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IMessagePublisher _messagePublisher;
 
         public AcademicYearEndExpiryProcessor(
             ILog logger, 
@@ -28,6 +30,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _currentDateTime = currentDateTime;
+            _messagePublisher = messagePublisher;
             _academicYearProvider = academicYearProvider;
         }
 
@@ -64,6 +67,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             {
                 _logger.Info($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}, JobId: {jobId}");
                 await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
+
+                await _messagePublisher.PublishAsync(
+                    new ApprenticeshipUpdateCancelled(1, 1,
+                        1)); //update.EmployerRef, update.ProviderRef, update.ApprenticeshipId));
                 //todo send msg to task q
                 // task is to raise new ApprenticeshipUpdateCancelled event and put onto new task bus
                 // does task bus have api? client nuget?

@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
@@ -23,6 +24,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
         private Mock<ICurrentDateTime> _currentDateTime;
+        private Mock<IMessagePublisher> _mockMessageBuilder;
 
         private AcademicYearEndExpiryProcessor _sut;
 
@@ -35,6 +37,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
             _currentDateTime = new Mock<ICurrentDateTime>();
+            _mockMessageBuilder = new Mock<IMessagePublisher>();
 
             _sut = new AcademicYearEndExpiryProcessor(
                 _logger.Object, 
@@ -42,7 +45,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 _dataLockRepository.Object, 
                 _apprenticeshipUpdateRepository.Object,
                 _currentDateTime.Object,
-                Mock.Of<IMessagePublisher>());
+                _mockMessageBuilder.Object);
 
         }
 
@@ -62,10 +65,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         [Test]
         public async Task WhenApprenticeshpUpdatesFound()
         {
-            var records = 4;
+            var recordCount = 4;
             var apprenticeshipUpdates = new List<ApprenticeshipUpdate>();
             var fixture = new Fixture();
-            fixture.AddManyTo(apprenticeshipUpdates, records);
+            fixture.AddManyTo(apprenticeshipUpdates, recordCount);
             
             _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.Now))
                 .ReturnsAsync(apprenticeshipUpdates);
@@ -87,7 +90,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 .Verify(m => m.GetExpiredApprenticeshipUpdates(It.IsAny<DateTime>()), Times.Exactly(2), 
                 "Should call one time to get all updates and one to verify that all have been updated");
             _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()), 
-                Times.Exactly(records), 
+                Times.Exactly(recordCount), 
+                "Should be called once for each update record");
+            _mockMessageBuilder.Verify(m => m.PublishAsync(It.IsAny<ApprenticeshipUpdateCancelled>()),
+                Times.Exactly(recordCount),
                 "Should be called once for each update record");
         }
 
