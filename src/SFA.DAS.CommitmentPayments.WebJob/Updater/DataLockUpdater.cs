@@ -87,34 +87,45 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 
                     if (datalockSuccess || dataLockStatus.ErrorCode != DataLockErrorCode.None)
                     {
-                        _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
-                             $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
+                        var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(dataLockStatus.ApprenticeshipId);
 
-                        await AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(dataLockStatus);
-
-                        try
+                        //temporarily ignore dlock7 & 9 combos until payments R14 fixes properly
+                        if (dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07) && dataLockStatus.IlrEffectiveFromDate < apprenticeship.StartDate)
                         {
-                            await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
-
-                            await _filterAcademicYearRolloverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
+                            _logger.Info($"Ignoring datalock for Apprenticeship #{dataLockStatus.ApprenticeshipId} Dlock07 with Effective Date before Start Date. Event Id {dataLockStatus.DataLockEventId}");                           
                         }
-                        catch(RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
+                        else
                         {
-                            _logger.Warn(ex, $"Exception in DataLock updater");
-                        }
+                            _logger.Info($"Updating Apprenticeship {dataLockStatus.ApprenticeshipId} " +
+                                         $"Event Id {dataLockStatus.DataLockEventId} Status {dataLockStatus.ErrorCode}");
 
-                        if (datalockSuccess)
-                        {
-                            await _apprenticeshipRepository.SetHasHadDataLockSuccess(dataLockStatus.ApprenticeshipId);
+                            AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(apprenticeship, dataLockStatus);
 
-                            var pendingUpdate = await
-                             _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
-
-                            if (pendingUpdate != null && (pendingUpdate.Cost != null || pendingUpdate.TrainingCode != null))
+                            try
                             {
-                                await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(pendingUpdate.Id);
-                                _logger.Info($"Pending ApprenticeshipUpdate {pendingUpdate.Id} expired due to successful data lock event {dataLockStatus.DataLockEventId}");
+                                await _dataLockRepository.UpdateDataLockStatus(dataLockStatus);
+
+                                await _filterAcademicYearRolloverDataLocks.Filter(dataLockStatus.ApprenticeshipId);
                             }
+                            catch (RepositoryConstraintException ex) when (_config.IgnoreDataLockStatusConstraintErrors)
+                            {
+                                _logger.Warn(ex, $"Exception in DataLock updater");
+                            }
+
+                            if (datalockSuccess)
+                            {
+                                await _apprenticeshipRepository.SetHasHadDataLockSuccess(dataLockStatus.ApprenticeshipId);
+
+                                var pendingUpdate = await
+                                    _apprenticeshipUpdateRepository.GetPendingApprenticeshipUpdate(dataLockStatus.ApprenticeshipId);
+
+                                if (pendingUpdate != null && (pendingUpdate.Cost != null || pendingUpdate.TrainingCode != null))
+                                {
+                                    await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(pendingUpdate.Id);
+                                    _logger.Info($"Pending ApprenticeshipUpdate {pendingUpdate.Id} expired due to successful data lock event {dataLockStatus.DataLockEventId}");
+                                }
+                            }
+
                         }
                     }
 
@@ -123,10 +134,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
             }
         }
 
-        private async Task AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(DataLockStatus datalock)
+        private void AutoResolveDataLockIfApprenticeshipStoppedAndBackdated(Apprenticeship apprenticeship, DataLockStatus datalock)
         {
-            var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(datalock.ApprenticeshipId);
-
             if (apprenticeship.PaymentStatus == PaymentStatus.Withdrawn &&
                 apprenticeship.StopDate == apprenticeship.StartDate)
             {
