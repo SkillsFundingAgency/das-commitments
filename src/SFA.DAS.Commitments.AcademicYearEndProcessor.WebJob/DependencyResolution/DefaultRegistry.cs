@@ -39,11 +39,15 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 
             For<ICurrentDateTime>().Use(x => new CurrentDateTime(currentDatetime));
 
-            For<IDataLockRepository>().Use<DataLockRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
+            For<IDataLockRepository>()
+                .Use<DataLockRepository>()
+                .Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipUpdateRepository>()
                 .Use<ApprenticeshipUpdateRepository>()
                 .Ctor<string>().Is(config.DatabaseConnectionString);
-
+            For<IApprenticeshipRepository>()
+                .Use<ApprenticeshipRepository>()
+                .Ctor<string>().Is(config.DatabaseConnectionString);
         }
 
         private CommitmentsAcademicYearEndProcessorConfiguration GetConfiguration(string serviceName)
