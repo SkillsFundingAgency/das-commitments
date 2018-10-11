@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
+using AutoFixture.NUnit3;
 using Moq;
 
 using NUnit.Framework;
@@ -25,6 +27,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         private Mock<IApprenticeshipUpdateRepository> _apprenticeshipUpdateRepository;
         private Mock<ICurrentDateTime> _currentDateTime;
         private Mock<IMessagePublisher> _mockMessageBuilder;
+        private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
+
 
         private AcademicYearEndExpiryProcessor _sut;
 
@@ -38,6 +42,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             _apprenticeshipUpdateRepository = new Mock<IApprenticeshipUpdateRepository>();
             _currentDateTime = new Mock<ICurrentDateTime>();
             _mockMessageBuilder = new Mock<IMessagePublisher>();
+            _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
 
             _sut = new AcademicYearEndExpiryProcessor(
                 _logger.Object, 
@@ -45,7 +50,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 _dataLockRepository.Object, 
                 _apprenticeshipUpdateRepository.Object,
                 _currentDateTime.Object,
-                _mockMessageBuilder.Object);
+                _mockMessageBuilder.Object,
+                _mockApprenticeshipRepository.Object);
 
         }
 
@@ -67,13 +73,21 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
         {
             var recordCount = 4;
             var apprenticeshipUpdates = new List<ApprenticeshipUpdate>();
+            var apprenticeships = new List<Apprenticeship>();
             var fixture = new Fixture();
             fixture.AddManyTo(apprenticeshipUpdates, recordCount);
+            apprenticeshipUpdates.ForEach(update =>
+                apprenticeships.Add(
+                    fixture.Build<Apprenticeship>()
+                        .With(a => a.Id, update.ApprenticeshipId)
+                        .Create()));
             
-            _apprenticeshipUpdateRepository.Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.Now))
+            _apprenticeshipUpdateRepository
+                .Setup(m => m.GetExpiredApprenticeshipUpdates(_currentDateTime.Object.Now))
                 .ReturnsAsync(apprenticeshipUpdates);
 
-            _apprenticeshipUpdateRepository.Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()))
+            _apprenticeshipUpdateRepository
+                .Setup(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()))
                 .Callback(
                     () =>
                         {
@@ -84,6 +98,13 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                         })
                 .Returns(Task.FromResult(0));
 
+            _mockApprenticeshipRepository
+                .Setup(repository =>
+                    repository.GetApprenticeship(
+                        It.IsIn(apprenticeshipUpdates.Select(update => update.ApprenticeshipId))))
+                .ReturnsAsync((long apprenticeshipId) =>
+                    apprenticeships.Single(apprenticeship => apprenticeship.Id == apprenticeshipId));
+            
             await _sut.RunApprenticeshipUpdateJob("jobId");
 
             _apprenticeshipUpdateRepository
@@ -92,13 +113,21 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
             _apprenticeshipUpdateRepository.Verify(m => m.ExpireApprenticeshipUpdate(It.IsAny<long>()), 
                 Times.Exactly(recordCount), 
                 "Should be called once for each update record");
-            _mockMessageBuilder.Verify(m => m.PublishAsync(It.IsAny<ApprenticeshipUpdateCancelled>()),
-                Times.Exactly(recordCount),
-                "Should be called once for each update record");
+            apprenticeshipUpdates.ForEach(update =>
+            {
+                var apprenticeship = apprenticeships.Single(a => a.Id == update.ApprenticeshipId);
+                _mockMessageBuilder.Verify(m =>
+                    m.PublishAsync(It.Is<ApprenticeshipUpdateCancelled>(cancelled =>
+                        cancelled.ApprenticeshipId == apprenticeship.Id &&
+                        cancelled.AccountId == apprenticeship.EmployerAccountId &&
+                        cancelled.ProviderId == apprenticeship.ProviderId)),
+                    "Should be called once for each update record, with correct params");
+            });
         }
 
-        [Test]
-        public async Task ShouldOnlyUpdateRecordsWithCostOrTrainingChanges()
+        [Test, AutoData]
+        public async Task ShouldOnlyUpdateRecordsWithCostOrTrainingChanges(
+            Apprenticeship apprenticeship)
         {
             var apprenticeshipUpdates = new List<ApprenticeshipUpdate>
                                             {
@@ -124,6 +153,10 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                             .ReturnsAsync(new List<ApprenticeshipUpdate>());
                     })
                 .Returns(Task.FromResult(0));
+
+            _mockApprenticeshipRepository
+                .Setup(repository => repository.GetApprenticeship(It.IsAny<long>()))
+                .ReturnsAsync(apprenticeship);
 
             await _sut.RunApprenticeshipUpdateJob("jobId");
 

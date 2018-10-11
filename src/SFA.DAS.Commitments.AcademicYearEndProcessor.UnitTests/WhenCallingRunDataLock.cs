@@ -62,7 +62,8 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.UnitTests
                 _dataLockRepository.Object,
                 _apprenticeshipUpdateRepository.Object,
                 currentDatetime,
-                Mock.Of<IMessagePublisher>());
+                Mock.Of<IMessagePublisher>(), 
+                Mock.Of<IApprenticeshipRepository>());
 
             _dataLockRepository.Setup(r => r.GetExpirableDataLocks(_academicYearProvider.Object.CurrentAcademicYearStartDate)).ReturnsAsync(testDatalockStatusItems);
 
