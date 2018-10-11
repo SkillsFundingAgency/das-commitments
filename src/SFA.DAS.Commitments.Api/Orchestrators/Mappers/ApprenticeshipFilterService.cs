@@ -103,7 +103,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 }
             }
 
-            var filteredResults = result.ToList();
+            var filteredResults = result.OrderBy(x => x.FirstName).ThenBy(x => x.LastName).ToList();
             var totalResults = filteredResults.Count;
 
             var pageSize = apprenticeshipQuery.PageSize <= 0 ? 25 : apprenticeshipQuery.PageSize;

@@ -485,5 +485,26 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Mapping.Service.ApprenticeshipFilter
             result.PageOfResults.Count.Should().Be(1);
             result.PageOfResults.Single().Id.Should().Be(009);
         }
+
+        [TestCase(Originator.Provider)]
+        [TestCase(Originator.Employer)]
+        public void ThenResultsAreInAlphabeticalOrder(Originator caller)
+        {
+            _apprenticeships.Clear();
+            _apprenticeships.Add(new Apprenticeship { FirstName = "D" });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "E" });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "C" });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "A" });
+            _apprenticeships.Add(new Apprenticeship { FirstName = "B" });
+
+            var query = new ApprenticeshipSearchQuery { PageSize = 5 };
+            var result = _sut.Filter(_apprenticeships, query, caller);
+
+            result.PageOfResults.ToArray()[0].FirstName.Should().Be("A");
+            result.PageOfResults.ToArray()[1].FirstName.Should().Be("B");
+            result.PageOfResults.ToArray()[2].FirstName.Should().Be("C");
+            result.PageOfResults.ToArray()[3].FirstName.Should().Be("D");
+            result.PageOfResults.ToArray()[4].FirstName.Should().Be("E");
+        }
     }
 }
