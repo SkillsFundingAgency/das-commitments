@@ -134,7 +134,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
                 Commitment = commitment,
                 UserId = commitmentRequest.UserId,
-                Message = commitmentRequest.Message
+                Message = commitmentRequest.Message,
+                LastAction = (LastAction) commitmentRequest.LastAction
             });
             await CreateRelationshipIfDoesNotAlreadyExist(commitment);
 
