@@ -439,7 +439,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.UnitTests.Updater
                     ApprenticeshipId = 1,
                     DataLockEventId = 2,
                     ErrorCode = DataLockErrorCode.Dlock07,
-                    IlrEffectiveFromDate = DateTime.Today.AddMonths(-2)
+                    IlrEffectiveFromDate = DateTime.Today.AddMonths(-2),
+                    PriceEpisodeIdentifier = "TEST-15/08/2018"
                 }
             };
 
