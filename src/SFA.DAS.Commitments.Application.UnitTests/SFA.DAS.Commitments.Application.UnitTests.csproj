@@ -151,8 +151,6 @@
     <Compile Include="Commands\CreateBulkUpload\WhenValidatngCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
     <Compile Include="Commands\CreateCommitment\WhenValidatingCommitment.cs" />
-    <Compile Include="Commands\CreateRelationship\WhenCreatingRelationship.cs" />
-    <Compile Include="Commands\CreateRelationship\WhenValidatingRequest.cs" />
     <Compile Include="Commands\DeleteApprenticeship\WhenDeletingApprenticeship.cs" />
     <Compile Include="Commands\DeleteApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\DeleteCommitment\WhenDeletingCommitment.cs" />

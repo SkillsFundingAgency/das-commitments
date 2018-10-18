@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
@@ -19,14 +20,20 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IRelationshipTransactions _relationshipTransactions;
 
-        public CommitmentRepository(string databaseConnectionString, ICommitmentsLogger logger, ICurrentDateTime currentDateTime) : base(databaseConnectionString, logger.BaseLogger)
+        public CommitmentRepository(string databaseConnectionString,
+            ICommitmentsLogger logger,
+            ICurrentDateTime currentDateTime,
+            IRelationshipTransactions relationshipTransactions) : base(databaseConnectionString,
+            logger.BaseLogger)
         {
             _logger = logger;
             _currentDateTime = currentDateTime;
+            _relationshipTransactions = relationshipTransactions;
         }
 
-        public async Task<long> Create(Commitment commitment)
+        public async Task<long> Create(Commitment commitment, Relationship relationship = null)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
@@ -52,7 +59,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
 
-                //todo: await WithTransaction(async (connection, transaction) => ??
                 using (var trans = connection.BeginTransaction())
                 {
                     var commitmentId = (await connection.QueryAsync<long>(
@@ -66,6 +72,11 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
+
+                    if (relationship != null)
+                    {
+                        await _relationshipTransactions.CreateRelationship(connection, trans, relationship);
+                    }
 
                     trans.Commit();
                     return commitmentId;
@@ -345,67 +356,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
                 return returnCode;
             });
         }
-
-        public async Task<long> CreateRelationship(Relationship relationship)
-        {
-            _logger.Debug(
-                $"Creating relationship between Provider {relationship.ProviderId}, Employer {relationship.EmployerAccountId}, Legal Entity: {relationship.LegalEntityId}");
-
-            return await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@ProviderId", relationship.ProviderId, DbType.Int64);
-                parameters.Add("@ProviderName", relationship.ProviderName, DbType.String);
-                parameters.Add("@LegalEntityId", relationship.LegalEntityId, DbType.String);
-                parameters.Add("@LegalEntityName", relationship.LegalEntityName, DbType.String);
-                parameters.Add("@LegalEntityAddress", relationship.LegalEntityAddress, DbType.String);
-                parameters.Add("@LegalEntityOrganisationType", relationship.LegalEntityOrganisationType, DbType.Int16);
-                parameters.Add("@EmployerAccountId", relationship.EmployerAccountId, DbType.String);
-                parameters.Add("@Verified", relationship.Verified, DbType.Boolean);
-                parameters.Add("@CreatedOn", _currentDateTime.Now, DbType.DateTime);
-
-                return await connection.ExecuteAsync(
-                    sql: "[dbo].[CreateRelationship]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-            });
-        }
-
-        public async Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode)
-        {
-            return await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@EmployerAccountId", employerAccountId);
-                parameters.Add("@ProviderId", providerId);
-                parameters.Add("@LegalEntityId", legalEntityCode);
-
-                var results = await connection.QueryAsync<Relationship>(
-                    sql: $"[dbo].[GetRelationship]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-
-                return results.FirstOrDefault();
-            });
-        }
-
-        public async Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified)
-        {
-            await WithConnection(async connection =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@EmployerAccountId", employerAccountId);
-                parameters.Add("@ProviderId", providerId);
-                parameters.Add("@LegalEntityId", legalEntityCode);
-                parameters.Add("@Verified", verified);
-
-                return await connection.ExecuteAsync(
-                    sql: $"[dbo].[VerifyRelationship]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-            });
-        }
-
+        
         public async Task SaveMessage(long commitmentId, Message message)
         {
             await WithConnection(async connection =>
