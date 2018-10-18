@@ -10,14 +10,14 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
 {
     public sealed class VerifyRelationshipCommandHandler: AsyncRequestHandler<VerifyRelationshipCommand>
     {
-        private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IRelationshipRepository _relationshipRepository;
         private readonly VerifyRelationshipValidator _validator;
         private readonly ICommitmentsLogger _logger;
         private readonly IMessagePublisher _messagePublisher;
 
-        public VerifyRelationshipCommandHandler(ICommitmentRepository commitmentRepository, VerifyRelationshipValidator validator, ICommitmentsLogger logger, IMessagePublisher messagePublisher)
+        public VerifyRelationshipCommandHandler(IRelationshipRepository relationshipRepository, VerifyRelationshipValidator validator, ICommitmentsLogger logger, IMessagePublisher messagePublisher)
         {
-            _commitmentRepository = commitmentRepository;
+            _relationshipRepository = relationshipRepository;
             _validator = validator;
             _logger = logger;
             _messagePublisher = messagePublisher;
@@ -32,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.Commands.VerifyRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            await Task.WhenAll(_commitmentRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId,
+            await Task.WhenAll(_relationshipRepository.VerifyRelationship(message.EmployerAccountId, message.ProviderId,
                 message.LegalEntityId, message.Verified.Value),
                 PublishRelationshipVerifiedEvent(message.ProviderId, message.EmployerAccountId, message.LegalEntityId, message.Verified.Value));
         }

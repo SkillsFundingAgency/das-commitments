@@ -12,7 +12,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
     [TestFixture]
     public class WhenGettingRelationship
     {
-        private Mock<ICommitmentRepository> _mockCommitmentRespository;
+        private Mock<IRelationshipRepository> _mockRelationshipRepository;
         private Mock<AbstractValidator<GetRelationshipRequest>> _validator;
         private Relationship _repositoryRecord;
         private GetRelationshipQueryHandler _handler;
@@ -20,7 +20,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
         [SetUp]
         public void Arrange()
         {
-            _mockCommitmentRespository = new Mock<ICommitmentRepository>();
+            _mockRelationshipRepository = new Mock<IRelationshipRepository>();
 
             _repositoryRecord = new Relationship
             {
@@ -33,14 +33,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
                 Verified = false
             };
 
-            _mockCommitmentRespository.Setup(
+            _mockRelationshipRepository.Setup(
                 x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .ReturnsAsync(_repositoryRecord);
 
             _validator = new Mock<AbstractValidator<GetRelationshipRequest>>();
             _validator.Setup(x => x.Validate(It.IsAny<GetRelationshipRequest>())).Returns(() => new ValidationResult());
 
-            _handler = new GetRelationshipQueryHandler(_mockCommitmentRespository.Object, _validator.Object);
+            _handler = new GetRelationshipQueryHandler(_mockRelationshipRepository.Object, _validator.Object);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
             });
 
             //Assert
-            _mockCommitmentRespository.Verify(x=> x.GetRelationship(
+            _mockRelationshipRepository.Verify(x=> x.GetRelationship(
                 It.Is<long>(accountId => accountId == 1),
                 It.Is<long>(providerId => providerId == 2),
                 It.Is<string>(legalEntityId => legalEntityId == "L3")));
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetRelationship
         public async Task ThenIfTheRelationshipIsNotFoundThenTheModelWillBeNull()
         {
             //Arrange
-            _mockCommitmentRespository.Setup(
+            _mockRelationshipRepository.Setup(
                 x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
                 .ReturnsAsync((Relationship)null);
 

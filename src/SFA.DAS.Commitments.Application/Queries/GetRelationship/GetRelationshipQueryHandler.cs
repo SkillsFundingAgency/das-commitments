@@ -7,12 +7,12 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
 {
     public sealed class GetRelationshipQueryHandler : IAsyncRequestHandler<GetRelationshipRequest, GetRelationshipResponse>
     {
-        private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IRelationshipRepository _relationshipRepository;
         private readonly AbstractValidator<GetRelationshipRequest> _validator;
 
-        public GetRelationshipQueryHandler(ICommitmentRepository commitmentRepository, AbstractValidator<GetRelationshipRequest> validator)
+        public GetRelationshipQueryHandler(IRelationshipRepository relationshipRepository, AbstractValidator<GetRelationshipRequest> validator)
         {
-            _commitmentRepository = commitmentRepository;
+            _relationshipRepository = relationshipRepository;
             _validator = validator;
         }
 
@@ -23,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationship
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var entity = await _commitmentRepository.GetRelationship(message.EmployerAccountId, message.ProviderId,
+            var entity = await _relationshipRepository.GetRelationship(message.EmployerAccountId, message.ProviderId,
                 message.LegalEntityId);
 
             if (entity == null)
