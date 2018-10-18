@@ -1,4 +1,6 @@
-﻿using SFA.DAS.Commitments.Domain.Entities.DataLock;
+﻿using System;
+using System.Globalization;
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Domain.Extensions
 {
@@ -38,6 +40,13 @@ namespace SFA.DAS.Commitments.Domain.Extensions
                    || dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock06);
 
             return hasCourse && dataLockStatus.ErrorCode.HasFlag(DataLockErrorCode.Dlock07);
+        }
+
+        public static DateTime GetDateFromPriceEpisodeIdentifier(this DataLockStatus dataLockStatus)
+        {
+            return
+            DateTime.ParseExact(dataLockStatus.PriceEpisodeIdentifier.Substring(dataLockStatus.PriceEpisodeIdentifier.Length - 10), "dd/MM/yyyy",
+                new CultureInfo("en-GB"));           
         }
     }
 }

@@ -204,6 +204,7 @@
     <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenValidatingCommand.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenVerifyingRelationship.cs" />
     <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
+    <Compile Include="Extensions\DataLockStatusExtensions\WhenGettingPriceEpisodeIdentifierDate.cs" />
     <Compile Include="Extensions\DateTimeExtensions\WhenGettingFirstOfMonth.cs" />
     <Compile Include="Extensions\ITrainingProgrammeExtensions\WhenDeterminingFundingCap.cs" />
     <Compile Include="Extensions\ITrainingProgrammeExtensions\WhenDeterminingTheStatusOfACourseOnSpecificDate.cs" />
