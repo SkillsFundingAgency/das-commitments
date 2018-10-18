@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
-using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
@@ -36,7 +35,6 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountIds;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
-using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequest;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForReceiver;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
@@ -137,42 +135,10 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Message = commitmentRequest.Message,
                 LastAction = (LastAction) commitmentRequest.LastAction
             });
-            await CreateRelationshipIfDoesNotAlreadyExist(commitment);
 
             _logger.Info($"Created commitment {id} for employer account {accountId}", accountId: accountId);
 
             return id;
-        }
-
-        private  async Task CreateRelationshipIfDoesNotAlreadyExist(Domain.Entities.Commitment commitment)
-        {
-            var relationship = await _mediator.SendAsync(new GetRelationshipRequest
-            {
-                EmployerAccountId = commitment.EmployerAccountId,
-                ProviderId = commitment.ProviderId.Value,
-                LegalEntityId = commitment.LegalEntityId
-            });
-
-            if (relationship.Data == null)
-            {
-                _logger.Info($"Creating relationship between employer account {commitment.EmployerAccountId}," +
-                             $" legal entity {commitment.LegalEntityId}," +
-                             $" and provider {commitment.ProviderId}");
-
-                await _mediator.SendAsync(new CreateRelationshipCommand
-                {
-                    Relationship = new Relationship
-                    {
-                        EmployerAccountId = commitment.EmployerAccountId,
-                        LegalEntityId = commitment.LegalEntityId,
-                        LegalEntityName = commitment.LegalEntityName,
-                        LegalEntityAddress = commitment.LegalEntityAddress,
-                        LegalEntityOrganisationType = commitment.LegalEntityOrganisationType,
-                        ProviderId = commitment.ProviderId.Value,
-                        ProviderName = commitment.ProviderName
-                    }
-                });
-            }
         }
 
         public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)

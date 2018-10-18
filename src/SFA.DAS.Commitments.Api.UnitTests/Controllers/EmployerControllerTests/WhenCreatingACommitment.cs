@@ -12,9 +12,7 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetRelationship;
-using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.HashingService;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment.Commitment;
@@ -67,60 +65,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             var result = await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment()});
 
             result.Should().BeOfType<CreatedAtRouteNegotiatedContentResult<CommitmentView>>();
-        }
-
-
-        [Test]
-        public async Task ThenIfProviderLegalEntityRelationshipDoesNotExistThenShouldCreateIt()
-        {
-            //Arrange
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
-               .ReturnsAsync(new GetRelationshipResponse
-               {
-                   Data = null
-               });
-
-            //Act
-            await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment() });
-
-            //Assert
-
-            _mockMediator.Verify(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()), Times.Once);
-
-            _mockMediator.Verify(x => x.SendAsync(It.IsAny<CreateRelationshipCommand>()), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfProviderLegalEntityRelationshipExistsThenShouldNotCreateAnother()
-        {
-            //Arrange
-            _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()))
-               .ReturnsAsync(new GetRelationshipResponse
-               {
-                   Data = new Relationship()
-               });
-
-            //Act
-            await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment() });
-
-            //Assert
-
-            _mockMediator.Verify(x => x.SendAsync(It.IsAny<GetRelationshipRequest>()), Times.Once);
-
-            _mockMediator.Verify(x => x.SendAsync(It.IsAny<CreateRelationshipCommand>()), Times.Never); 
-        }
-
-        [Test]
-        public async Task ThenShouldGetProviderLegalEntityRelationship()
-        {
-            await _controller.CreateCommitment(123L, new CommitmentRequest { Commitment = new Commitment() });
-
-            //Assert
-            _mockMediator.Verify(x => x.SendAsync(It.Is<GetRelationshipRequest>
-                (r => r.EmployerAccountId == _mappedCommitment.EmployerAccountId
-                && r.ProviderId == _mappedCommitment.ProviderId.Value
-                && r.LegalEntityId == _mappedCommitment.LegalEntityId
-                )));
         }
 
         [Test]

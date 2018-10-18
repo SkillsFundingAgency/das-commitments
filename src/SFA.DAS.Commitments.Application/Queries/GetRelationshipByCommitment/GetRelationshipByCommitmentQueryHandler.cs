@@ -11,13 +11,16 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment
         IAsyncRequestHandler<GetRelationshipByCommitmentRequest, GetRelationshipByCommitmentResponse>
     {
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IRelationshipRepository _relationshipRepository;
         private readonly AbstractValidator<GetRelationshipByCommitmentRequest> _validator;
 
         public GetRelationshipByCommitmentQueryHandler(ICommitmentRepository commitmentRepository,
-            AbstractValidator<GetRelationshipByCommitmentRequest> validator)
+            AbstractValidator<GetRelationshipByCommitmentRequest> validator,
+            IRelationshipRepository relationshipRepository)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
+            _relationshipRepository = relationshipRepository;
         }
 
         public async Task<GetRelationshipByCommitmentResponse> Handle(GetRelationshipByCommitmentRequest message)
@@ -31,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment
 
             CheckAuthorisation(message.Caller.Id, commitment);
 
-            var entity = await _commitmentRepository.GetRelationship(commitment.EmployerAccountId,
+            var entity = await _relationshipRepository.GetRelationship(commitment.EmployerAccountId,
                 commitment.ProviderId.Value, commitment.LegalEntityId);
 
             if (entity == null)
