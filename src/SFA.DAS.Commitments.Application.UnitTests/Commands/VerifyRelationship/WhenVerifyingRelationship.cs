@@ -18,7 +18,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
         private VerifyRelationshipCommandHandler _handler;
 
         private Mock<VerifyRelationshipValidator> _validator;
-        private Mock<ICommitmentRepository> _repository;
+        private Mock<IRelationshipRepository> _relationshipRepository;
         private Mock<IMessagePublisher> _messagePublisher;
 
         [SetUp]
@@ -26,12 +26,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
         {
             _validator = new Mock<VerifyRelationshipValidator>();
 
-            _repository = new Mock<ICommitmentRepository>();
+            _relationshipRepository = new Mock<IRelationshipRepository>();
             _messagePublisher = new Mock<IMessagePublisher>();
-            _repository.Setup(x => x.VerifyRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<bool>()))
+            _relationshipRepository.Setup(x => x.VerifyRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(()=> Task.FromResult(new Unit()));
 
-            _handler = new VerifyRelationshipCommandHandler(_repository.Object, _validator.Object, Mock.Of<ICommitmentsLogger>(), _messagePublisher.Object);            
+            _handler = new VerifyRelationshipCommandHandler(_relationshipRepository.Object, _validator.Object, Mock.Of<ICommitmentsLogger>(), _messagePublisher.Object);            
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
             await _handler.Handle(request);
 
             //Assert
-            _repository.Verify(x => x.VerifyRelationship(
+            _relationshipRepository.Verify(x => x.VerifyRelationship(
                 It.Is<long>(y=> y == 1),
                 It.Is<long>(y => y == 2),
                 It.Is<string>(y => y == "L3"),
@@ -75,8 +75,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.VerifyRelationship
             Assert.ThrowsAsync<ValidationException>(() =>
                 _handler.Handle(request)
             );
-            
-            _repository.Verify(x => x.VerifyRelationship(
+
+            _relationshipRepository.Verify(x => x.VerifyRelationship(
                 It.IsAny<long>(),
                 It.IsAny<long>(),
                 It.IsAny<string>(),
