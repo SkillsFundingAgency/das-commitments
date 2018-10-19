@@ -13,11 +13,18 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 
         public static IContainer Initialize()
         {
-            return new Container(c =>
+            var container = new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
                 c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsAcademicYearEndProcessorConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
             });
+
+            var logger = container.GetInstance<ILog>();
+            var msgBus = container.GetInstance<CommitmentsAcademicYearEndProcessorConfiguration>()
+                .MessageServiceBusConnectionString;
+            logger.Debug($"MessageServiceBusConnectionString IsNullOrWhiteSpace:[{string.IsNullOrWhiteSpace(msgBus)}] length:[{msgBus?.Length}]");
+            
+            return container;
         }
     }
 }
