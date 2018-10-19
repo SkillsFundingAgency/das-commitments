@@ -3,7 +3,7 @@
 AS
 
 SELECT 
-	c.LegalEntityId, a.PaymentStatus, COUNT(*) AS 'Count'
+	c.LegalEntityId, c.LegalEntityOrganisationType, a.PaymentStatus, COUNT(*) AS 'Count'
 FROM 
 	Apprenticeship a
 INNER JOIN 
