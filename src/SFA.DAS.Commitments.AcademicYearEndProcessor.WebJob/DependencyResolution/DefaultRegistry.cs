@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Microsoft.Azure;
 using SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Configuration;
 using SFA.DAS.Commitments.Domain.Data;
@@ -10,7 +9,6 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.NLog.Logger;
 using StructureMap;
-using IConfiguration = SFA.DAS.Commitments.Domain.Interfaces.IConfiguration;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResolution
 {
@@ -27,8 +25,6 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 
 
             var config = GetConfiguration("SFA.DAS.CommitmentsAcademicYearEndProcessor");
-            For<IConfiguration>().Use(config);
-            For<CommitmentsAcademicYearEndProcessorConfiguration>().Use(config);
             For<ILog>().Use(x => new NLogLogger(x.ParentType, new ConsoleLoggingContext(), null)).AlwaysUnique();
 
             DateTime? currentDatetime = null;
@@ -52,18 +48,13 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 
         private CommitmentsAcademicYearEndProcessorConfiguration GetConfiguration(string serviceName)
         {
-            var environment = Environment.GetEnvironmentVariable("DASENV");
-            if (string.IsNullOrEmpty(environment))
-            {
-                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-            }
-
+            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            
             var configurationRepository = GetConfigurationRepository();
             var configurationService = new ConfigurationService(configurationRepository,
                 new ConfigurationOptions(serviceName, environment, "1.0"));
 
             var result = configurationService.Get<CommitmentsAcademicYearEndProcessorConfiguration>();
-
             return result;
         }
 
