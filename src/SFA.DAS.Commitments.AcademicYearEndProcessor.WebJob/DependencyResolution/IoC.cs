@@ -8,7 +8,7 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.DependencyResoluti
 {
     public static class IoC
     {
-        private const string ServiceName = "SFA.DAS.Commitments";
+        private const string ServiceName = "SFA.DAS.CommitmentsAcademicYearEndProcessor";
         private const string ServiceVersion = "1.0";
 
         public static IContainer Initialize()
