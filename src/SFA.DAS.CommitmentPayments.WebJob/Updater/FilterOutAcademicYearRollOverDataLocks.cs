@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using SFA.DAS.NLog.Logger;
 using System;
 using System.Globalization;
+using SFA.DAS.Commitments.Domain.Extensions;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 {
@@ -45,7 +46,7 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         {
                             DataLockEventId = x.DataLockEventId,
                             PriceEpisodeIdentifier = x.PriceEpisodeIdentifier,
-                            PriceEpisodeIdDateTime = DateTime.ParseExact(x.PriceEpisodeIdentifier.Substring(x.PriceEpisodeIdentifier.Length - 10), "dd/MM/yyyy", new CultureInfo("en-GB")),
+                            PriceEpisodeIdDateTime = x.GetDateFromPriceEpisodeIdentifier(),
                             IsAugustPriceEpisode = _augustPricePeriodFormat.IsMatch(x.PriceEpisodeIdentifier)
                     })
                     .OrderByDescending(x => x.PriceEpisodeIdDateTime).First();
