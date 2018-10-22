@@ -13,4 +13,4 @@ ON
 WHERE 
 	c.EmployerAccountId = @employerAccountId
 GROUP BY 
-	c.LegalEntityId, a.PaymentStatus
+	c.LegalEntityId, c.LegalEntityOrganisationType, a.PaymentStatus
