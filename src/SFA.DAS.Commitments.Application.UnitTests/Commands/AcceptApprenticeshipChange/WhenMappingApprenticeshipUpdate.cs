@@ -5,9 +5,9 @@ using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Domain.Entities;
 using System.Linq;
 using System.Collections.Generic;
-
+using Castle.Components.DictionaryAdapter;
 using Moq;
-
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshipChange
@@ -55,8 +55,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     UpdateOriginator = Originator.Provider,
                     ProviderName = "Provider name",
                     LegalEntityName = "Legal entity name",
-                    DataLockCourse = true,
-
+                    DataLocks = new List<DataLockStatusSummary>
+                    {
+                        new DataLockStatusSummary{ ErrorCode = DataLockErrorCode.Dlock04 }
+                    },
                     PriceHistory = new List<PriceHistory>
                     {
                         new PriceHistory { FromDate = new DateTime(2020, 12, 01), Cost = 1234, ApprenticeshipId = 55 }
@@ -83,7 +85,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             _apprenticeship.ProviderName.Should().Be("Provider name");
             _apprenticeship.LegalEntityName.Should().Be("Legal entity name");
             _apprenticeship.TrainingType.Should().Be(TrainingType.Framework);
-            _apprenticeship.DataLockCourse.Should().Be(true);
+            _apprenticeship.DataLocks.Should().Contain(x => x.ErrorCode == DataLockErrorCode.Dlock04);
         }
 
         [Test]
