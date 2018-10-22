@@ -101,9 +101,6 @@
     <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadHandler.cs" />
     <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadCommand.cs" />
     <Compile Include="Commands\CreateBulkUpload\CreateBulkUploadValidator.cs" />
-    <Compile Include="Commands\CreateRelationship\CreateRelationshipCommand.cs" />
-    <Compile Include="Commands\CreateRelationship\CreateRelationshipCommandHandler.cs" />
-    <Compile Include="Commands\CreateRelationship\CreateRelationshipValidator.cs" />
     <Compile Include="Commands\DeleteApprenticeship\DeleteApprenticeshipCommandHandler.cs" />
     <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestCommand.cs" />
     <Compile Include="Commands\ApproveTransferRequest\ApproveTransferRequestCommandHandler.cs" />

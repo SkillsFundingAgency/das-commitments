@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Commitments.Domain.Exceptions;
+using SFA.DAS.Commitments.Domain.Extensions;
 
 namespace SFA.DAS.CommitmentPayments.WebJob.Updater
 {
@@ -25,6 +26,8 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
         private readonly IList<DataLockErrorCode> _whiteList;
+
+        private readonly DateTime _1718AcademicYearStartDate = new DateTime(2017,08,01);
 
         public DataLockUpdater(ILog logger,
             IPaymentEvents paymentEventsService,
@@ -85,7 +88,13 @@ namespace SFA.DAS.CommitmentPayments.WebJob.Updater
                         ApplyErrorCodeWhiteList(dataLockStatus);
                     }
 
-                    if (datalockSuccess || dataLockStatus.ErrorCode != DataLockErrorCode.None)
+                    var is1617 = dataLockStatus.GetDateFromPriceEpisodeIdentifier() < _1718AcademicYearStartDate;
+                    if (is1617)
+                    {
+                        _logger.Info($"Data lock Event Id {dataLockStatus.DataLockEventId} pertains to 16/17 academic year and will be ignored");
+                    }
+
+                    if ((datalockSuccess || dataLockStatus.ErrorCode != DataLockErrorCode.None) && !is1617)
                     {
                         var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(dataLockStatus.ApprenticeshipId);
 

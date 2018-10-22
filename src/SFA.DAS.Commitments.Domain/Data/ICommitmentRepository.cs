@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface ICommitmentRepository
     {
-        Task<long> Create(Commitment commitment);
+        Task<long> Create(Commitment commitment, Relationship relationship =  null);
         Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
         Task<IList<CommitmentAgreement>> GetCommitmentAgreementsForProvider(long providerId);
@@ -23,9 +23,6 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
         Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, int fundingCap, List<TrainingCourseSummary> trainingCourses);
         Task ResetEditStatusToEmployer(long commitmentId);
-        Task<long> CreateRelationship(Relationship relationship);
-        Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode);
-        Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified);
         Task SaveMessage(long commitmentId, Message message);
     }
 }

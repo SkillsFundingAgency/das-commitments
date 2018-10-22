@@ -93,6 +93,7 @@
     <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
+    <Compile Include="Data\IRelationshipRepository.cs" />
     <Compile Include="Data\IStatisticsRepository.cs" />
     <Compile Include="Entities\AcademicYear\AcademicYearValidationResult.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
