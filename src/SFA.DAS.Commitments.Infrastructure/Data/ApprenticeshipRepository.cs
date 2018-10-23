@@ -12,6 +12,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
+using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -665,12 +666,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             foreach (var result in results.ToList())
             {
                 var legalEntityId = (string) result.LegalEntityId;
+                var organisationType = (SFA.DAS.Common.Domain.Types.OrganisationType) result.LegalEntityOrganisationType;
                 var paymentStatus = (PaymentStatus) result.PaymentStatus;
                 var count = (int) result.Count;
 
                 if (!apprenticeshipsStatusSummaries.ContainsKey(legalEntityId))
                 {
-                    apprenticeshipsStatusSummaries.Add(legalEntityId, new ApprenticeshipStatusSummary {LegalEntityIdentifier = legalEntityId});
+                    apprenticeshipsStatusSummaries.Add(legalEntityId, new ApprenticeshipStatusSummary
+                    {
+                        LegalEntityIdentifier = legalEntityId,
+                        LegalEntityOrganisationType = organisationType
+                    });
                 }
 
                 var apprenticeshipStatusSummary = apprenticeshipsStatusSummaries[legalEntityId];
