@@ -105,6 +105,7 @@
     <Compile Include="Entities\ApprenticeshipStatusSummary.cs" />
     <Compile Include="Entities\ApprenticeshipUpdate.cs" />
     <Compile Include="Entities\ApprenticeshipUpdateStatus.cs" />
+    <Compile Include="Entities\ApprovedApprenticeship\ApprovedApprenticeship.cs" />
     <Compile Include="Entities\AssessmentOrganisation.cs" />
     <Compile Include="Entities\BulkUpload\BulkUploadResult.cs" />
     <Compile Include="Entities\CommitmentAgreement.cs" />

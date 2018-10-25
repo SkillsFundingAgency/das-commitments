@@ -29,5 +29,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task PatchApprenticeshipUpdate(long providerId, long apprenticeshipId, ApprenticeshipUpdateSubmission submission);
         Task<long> PostBulkUploadFile(long providerId, BulkUploadFileRequest bulkUploadFile);
         Task<string> GetBulkUploadFile(long providerId, long bulkUploadFileId);
+        Task<Types.ApprovedApprenticeship.ApprovedApprenticeship> GetApprovedApprenticeship(long providerId, long apprenticeshipId);
     }
 }

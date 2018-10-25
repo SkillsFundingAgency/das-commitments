@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.ApprovedApprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 
@@ -16,6 +17,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<List<Apprenticeship>> GetProviderApprenticeships(long providerId);
         Task<ApprenticeshipSearchResponse> GetProviderApprenticeships(long providerId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);
         Task<Apprenticeship> GetProviderApprenticeship(long providerId, long apprenticeshipId);
+        Task<ApprovedApprenticeship> GetApprovedApprenticeship(long providerId, long apprenticeshipId);
 
         Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentSubmission submission);
         Task DeleteProviderCommitment(long providerId, long commitmentId, DeleteRequest deleteRequest);

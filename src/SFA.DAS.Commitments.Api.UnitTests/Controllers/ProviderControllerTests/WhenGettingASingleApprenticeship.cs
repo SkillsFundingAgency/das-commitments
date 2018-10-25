@@ -42,7 +42,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
                 new FacetMapper(Mock.Of<ICurrentDateTime>()),
                 new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
                 _mockApprenticeshipMapper.Object,
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(), Mock.Of<IApprovedApprenticeshipMapper>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<IDataLockMapper>(), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
@@ -102,7 +102,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
             _providerOrchestrator = new ProviderOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(),
                 new FacetMapper(Mock.Of<ICurrentDateTime>()),
                 new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
-                new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>());
+                new ApprenticeshipMapper(), Mock.Of<ICommitmentMapper>(), Mock.Of<IApprovedApprenticeshipMapper>());
 
             _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);
 

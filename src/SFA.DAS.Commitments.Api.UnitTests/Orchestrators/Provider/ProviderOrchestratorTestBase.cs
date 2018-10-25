@@ -20,20 +20,24 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
         protected ProviderOrchestrator Orchestrator;
         protected Mock<FacetMapper> MockFacetMapper;
         protected Mock<ApprenticeshipFilterService> MockApprenticeshipFilter;
+        protected Mock<IApprovedApprenticeshipMapper> MockApprovedApprenticeshipMapper;
 
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             MockMediator = new Mock<IMediator>();
             MockFacetMapper = new Mock<FacetMapper>(Mock.Of<ICurrentDateTime>());
             MockApprenticeshipFilter = new Mock<ApprenticeshipFilterService>(MockFacetMapper.Object);
+            MockApprovedApprenticeshipMapper = new Mock<IApprovedApprenticeshipMapper>();
+
             Orchestrator = new ProviderOrchestrator(
                 MockMediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 MockFacetMapper.Object,
                 MockApprenticeshipFilter.Object,
                 new ApprenticeshipMapper(),
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(),
+                MockApprovedApprenticeshipMapper.Object);
 
             MockMediator.Setup(m => m.SendAsync(It.IsAny<GetApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetApprenticeshipsResponse

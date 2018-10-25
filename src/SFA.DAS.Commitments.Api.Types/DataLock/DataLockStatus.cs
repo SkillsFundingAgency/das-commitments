@@ -6,6 +6,7 @@ namespace SFA.DAS.Commitments.Api.Types.DataLock
 {
     public class DataLockStatus
     {
+        public long Id { get; set; }
         public long DataLockEventId { get; set; }
         public DateTime DataLockEventDatetime { get; set; }
         public string PriceEpisodeIdentifier { get; set; }

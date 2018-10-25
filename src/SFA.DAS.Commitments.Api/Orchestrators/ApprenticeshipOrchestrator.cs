@@ -16,6 +16,7 @@ using SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage;
 using SFA.DAS.Commitments.Application.Commands.RejectDataLockTriage;
 using SFA.DAS.Commitments.Application.Commands.TriageDataLock;
 using SFA.DAS.Commitments.Application.Commands.TriageDataLocks;
+using SFA.DAS.Commitments.Application.Queries.GetApprovedApprenticeship;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -26,6 +27,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IDataLockMapper _dataLockMapper;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
         private readonly ICommitmentsLogger _logger;
+        
 
         public ApprenticeshipsOrchestrator(
             IMediator mediator, 

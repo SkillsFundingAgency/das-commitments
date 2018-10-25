@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
-
+using SFA.DAS.Commitments.Api.Types.ApprovedApprenticeship;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Http;
 
@@ -88,6 +88,12 @@ namespace SFA.DAS.Commitments.Api.Client
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/apprenticeships/{apprenticeshipId}";
 
             return await _commitmentHelper.GetApprenticeship(url);
+        }
+
+        public async Task<ApprovedApprenticeship> GetApprovedApprenticeship(long employerAccountId, long apprenticeshipId)
+        {
+            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/approved-apprenticeships/{apprenticeshipId}";
+            return await _commitmentHelper.Get<ApprovedApprenticeship>(url);
         }
 
         public async Task PatchEmployerCommitment(long employerAccountId, long commitmentId, CommitmentSubmission submission)

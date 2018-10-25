@@ -18,15 +18,18 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
         protected Mock<ApprenticeshipFilterService> MockApprenticeshipFilter;
         protected Mock<ITransferRequestMapper> MockTransferRequestMapper;
         protected Mock<IHashingService> MockHashingService;
+        protected Mock<IApprovedApprenticeshipMapper> MockApprovedApprenticeshipMapper;
 
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             MockMediator = new Mock<IMediator>();
             MockFacetMapper = new Mock<FacetMapper>(Mock.Of<ICurrentDateTime>());
             MockApprenticeshipFilter = new Mock<ApprenticeshipFilterService>(MockFacetMapper.Object);
             MockTransferRequestMapper = new Mock<ITransferRequestMapper>();
             MockHashingService = new Mock<IHashingService>();
+            MockApprovedApprenticeshipMapper = new Mock<IApprovedApprenticeshipMapper>();
+
             Orchestrator = new EmployerOrchestrator(
                 MockMediator.Object,
                 Mock.Of<ICommitmentsLogger>(),
@@ -35,7 +38,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Employer
                 new ApprenticeshipMapper(),
                 Mock.Of<ICommitmentMapper>(),
                 MockTransferRequestMapper.Object,
-                MockHashingService.Object);
+                MockHashingService.Object,
+                MockApprovedApprenticeshipMapper.Object);
         }
     }
 }

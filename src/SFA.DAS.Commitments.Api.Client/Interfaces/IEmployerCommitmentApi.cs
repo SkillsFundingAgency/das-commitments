@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.ApprovedApprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
@@ -18,6 +19,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<IList<Apprenticeship>> GetActiveApprenticeshipsForUln(long employerAccountId, string uln);
         Task<ApprenticeshipSearchResponse> GetEmployerApprenticeships(long employerAccountId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);
         Task<Apprenticeship> GetEmployerApprenticeship(long employerAccountId, long apprenticeshipId);
+        Task<ApprovedApprenticeship> GetApprovedApprenticeship(long employerAccountId, long apprenticeshipId);
         Task<List<ApprenticeshipStatusSummary>> GetEmployerAccountSummary(long employerAccountId);
         Task<CommitmentView> CreateEmployerCommitment(long employerAccountId, CommitmentRequest commitment);
         Task PatchEmployerCommitment(long employerAccountId, long commitmentId, CommitmentSubmission submission);

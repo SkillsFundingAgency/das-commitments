@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
+using SFA.DAS.Commitments.Application.Queries.GetApprovedApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Domain.Entities;
 
@@ -48,6 +49,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
+        private readonly IApprovedApprenticeshipMapper _approvedApprenticeshipMapper;
         private readonly ICommitmentMapper _commitmentMapper;
         private readonly FacetMapper _facetMapper;
         private readonly ApprenticeshipFilterService _apprenticeshipFilterService;
@@ -58,7 +60,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             FacetMapper facetMapper,
             ApprenticeshipFilterService apprenticeshipFilterService,
             IApprenticeshipMapper apprenticeshipMapper,
-            ICommitmentMapper commitmentMapper)
+            ICommitmentMapper commitmentMapper, IApprovedApprenticeshipMapper approvedApprenticeshipMapper)
         {
             _mediator = mediator;
             _logger = logger;
@@ -66,6 +68,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _apprenticeshipFilterService = apprenticeshipFilterService;
             _apprenticeshipMapper = apprenticeshipMapper;
             _commitmentMapper = commitmentMapper;
+            _approvedApprenticeshipMapper = approvedApprenticeshipMapper;
         }
 
         public async Task<IEnumerable<CommitmentListItem>> GetCommitments(long providerId)
@@ -515,6 +518,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
+        }
+
+        public async Task<Types.ApprovedApprenticeship.ApprovedApprenticeship> GetApprovedApprenticeship(long providerId, long apprenticeshipId)
+        {
+            var caller = new Caller(providerId, CallerType.Provider);
+
+            _logger.Trace($"Getting approved apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
+
+            var response = await _mediator.SendAsync(new GetApprovedApprenticeshipRequest
+            {
+                Caller = caller,
+                ApprenticeshipId = apprenticeshipId
+            });
+
+            _logger.Info($"Retrieved approved apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
+
+            return _approvedApprenticeshipMapper.Map(response.Data);
         }
 
         private Types.Relationship Map(Relationship entity)

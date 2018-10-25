@@ -41,5 +41,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IList<TransferRequestSummary>> GetTransferRequests(string hashedAccountId);
         Task<Types.Commitment.TransferRequest> GetTransferRequest(long transferRequestId, long accountId, CallerType callerType);
         Task<IEnumerable<long>> GetEmployerAccountIds();
+        Task<Types.ApprovedApprenticeship.ApprovedApprenticeship> GetApprovedApprenticeship(long accountId, long apprenticeshipId);
     }
 }

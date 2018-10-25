@@ -42,7 +42,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.ProviderControllerTests
                 MockFacetMapper.Object,
                 new ApprenticeshipFilterService(MockFacetMapper.Object),
                 _apprenticeshipMapper.Object,
-                Mock.Of<ICommitmentMapper>());
+                Mock.Of<ICommitmentMapper>(),
+                Mock.Of<IApprovedApprenticeshipMapper>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(_mockMediator.Object, Mock.Of<IDataLockMapper>(), Mock.Of<IApprenticeshipMapper>(), Mock.Of<ICommitmentsLogger>());
             _controller = new ProviderController(_providerOrchestrator, _apprenticeshipsOrchestrator);

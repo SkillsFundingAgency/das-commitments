@@ -33,6 +33,7 @@ using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.UndoApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
+using SFA.DAS.Commitments.Application.Queries.GetApprovedApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountIds;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequest;
@@ -54,6 +55,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         private readonly IMediator _mediator;
         private readonly ICommitmentsLogger _logger;
         private readonly IApprenticeshipMapper _apprenticeshipMapper;
+        private readonly IApprovedApprenticeshipMapper _approvedApprenticeshipMapper;
         private readonly ICommitmentMapper _commitmentMapper;
         private readonly ITransferRequestMapper _transferRequestMapper;
         private readonly IHashingService _hashingService;
@@ -68,7 +70,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             IApprenticeshipMapper apprenticeshipMapper,
             ICommitmentMapper commitmentMapper,
             ITransferRequestMapper transferRequestMapper,
-            IHashingService hashingService)
+            IHashingService hashingService,
+            IApprovedApprenticeshipMapper approvedApprenticeshipMapper)
         {
             _mediator = mediator;
             _logger = logger;
@@ -78,6 +81,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _commitmentMapper = commitmentMapper;
             _transferRequestMapper = transferRequestMapper;
             _hashingService = hashingService;
+            _approvedApprenticeshipMapper = approvedApprenticeshipMapper;
         }
 
         public async Task<IEnumerable<Commitment.CommitmentListItem>> GetCommitments(long accountId)
@@ -670,6 +674,23 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved {response.Data.Count()} account Ids");
 
             return response.Data;
+        }
+
+        public async Task<Types.ApprovedApprenticeship.ApprovedApprenticeship> GetApprovedApprenticeship(long accountId, long apprenticeshipId)
+        {
+            var caller = new Caller(accountId, CallerType.Employer);
+
+            _logger.Trace($"Getting approved apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
+
+            var response = await _mediator.SendAsync(new GetApprovedApprenticeshipRequest
+            {
+                Caller = caller,
+                ApprenticeshipId = apprenticeshipId
+            });
+
+            _logger.Info($"Retrieved approved apprenticeship: {apprenticeshipId}", apprenticeshipId: apprenticeshipId, caller: caller);
+
+            return _approvedApprenticeshipMapper.Map(response.Data);
         }
 
         private IEnumerable<Types.ApprenticeshipStatusSummary> Map(IEnumerable<ApprenticeshipStatusSummary> data)

@@ -26,7 +26,7 @@ AS
 	a.AgreementStatus, -- this should always been bothagreed (this is not a valid property of an approved apprenticeship)
 	a.EmployerRef,
 	a.ProviderRef,
-	a.PendingUpdateOriginator,
+	a.PendingUpdateOriginator as 'UpdateOriginator',
 	c.ProviderName,
 	c.LegalEntityId,
 	c.LegalEntityName,

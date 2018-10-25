@@ -4,6 +4,7 @@ namespace SFA.DAS.Commitments.Domain.Entities.DataLock
 {
     public class DataLockStatus
     {
+        public long Id { get; set; }
         public long DataLockEventId { get; set; }
         public DateTime DataLockEventDatetime { get; set; }
         public string PriceEpisodeIdentifier { get; set; }

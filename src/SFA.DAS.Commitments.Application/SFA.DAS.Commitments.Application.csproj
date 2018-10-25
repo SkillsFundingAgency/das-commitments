@@ -179,6 +179,10 @@
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnRequest.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnResponse.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnValidator.cs" />
+    <Compile Include="Queries\GetApprovedApprenticeship\GetApprovedApprenticeshipQueryHandler.cs" />
+    <Compile Include="Queries\GetApprovedApprenticeship\GetApprovedApprenticeshipRequest.cs" />
+    <Compile Include="Queries\GetApprovedApprenticeship\GetApprovedApprenticeshipRequestValidator.cs" />
+    <Compile Include="Queries\GetApprovedApprenticeship\GetApprovedApprenticeshipResponse.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileHandler.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileQuery.cs" />
     <Compile Include="Queries\GetBulkUploadFile\GetBulkUploadFileResponse.cs" />

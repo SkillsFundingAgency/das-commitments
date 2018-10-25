@@ -131,6 +131,7 @@
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsForEmployer.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsForProvider.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeship.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />

@@ -4,6 +4,7 @@ namespace SFA.DAS.Commitments.Api.Types.Apprenticeship
 {
     public class PriceHistory
     {
+        public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
 
         public decimal Cost { get; set; }

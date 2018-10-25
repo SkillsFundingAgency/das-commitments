@@ -9,6 +9,7 @@ using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.ApprovedApprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Http;
@@ -59,6 +60,12 @@ namespace SFA.DAS.Commitments.Api.Client
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/apprenticeships/{apprenticeshipId}";
 
             return await _commitmentHelper.GetApprenticeship(url);
+        }
+
+        public async Task<ApprovedApprenticeship> GetApprovedApprenticeship(long providerId, long apprenticeshipId)
+        {
+            var url = $"{_configuration.BaseUrl}api/provider/{providerId}/approved-apprenticeships/{apprenticeshipId}";
+            return await _commitmentHelper.Get<ApprovedApprenticeship>(url);
         }
 
         public async Task CreateProviderApprenticeship(long providerId, long commitmentId, ApprenticeshipRequest apprenticeship)

@@ -284,5 +284,19 @@ namespace SFA.DAS.Commitments.Api.Controllers
             await _apprenticeshipsOrchestrator.ResolveDataLock(apprenticeshipId, triageSubmission, new Caller(accountId, CallerType.Employer));
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{accountId}/approved-apprenticeships/{apprenticeshipId}")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetApprovedApprenticeship(long accountId, long apprenticeshipId)
+        {
+            var response = await _employerOrchestrator.GetApprovedApprenticeship(accountId, apprenticeshipId);
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
+        }
     }
 }

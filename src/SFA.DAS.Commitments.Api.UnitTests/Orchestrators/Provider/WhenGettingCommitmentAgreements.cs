@@ -50,7 +50,8 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Provider
                 MockFacetMapper.Object,
                 MockApprenticeshipFilter.Object,
                 new ApprenticeshipMapper(),
-                mockCommitmentMapper.Object);
+                mockCommitmentMapper.Object,
+                Mock.Of<IApprovedApprenticeshipMapper>());
 
             var result = await Orchestrator.GetCommitmentAgreements(providerId);
 

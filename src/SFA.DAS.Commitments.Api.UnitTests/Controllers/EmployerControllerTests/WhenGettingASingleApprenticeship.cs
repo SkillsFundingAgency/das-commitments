@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(),
                 new FacetMapper(Mock.Of<ICurrentDateTime>()),
                 new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
-                _apprenticeshipMapper.Object, _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
+                _apprenticeshipMapper.Object, _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>(), Mock.Of<IApprovedApprenticeshipMapper>());
 
             _apprenticeshipsOrchestrator = new ApprenticeshipsOrchestrator(
                 _mockMediator.Object,
@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 
             // for this unit test we want a controller where the employerOrchestrator contains a real ApprenticeshipMapper
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(Mock.Of<ICurrentDateTime>()), new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
-                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
+                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>(), Mock.Of<IApprovedApprenticeshipMapper>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
 
@@ -91,7 +91,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
 
             // for this unit test we want a controller where the employerOrchestrator contains a real ApprenticeshipMapper
             _employerOrchestrator = new EmployerOrchestrator(_mockMediator.Object, Mock.Of<ICommitmentsLogger>(), new FacetMapper(Mock.Of<ICurrentDateTime>()), new ApprenticeshipFilterService(new FacetMapper(Mock.Of<ICurrentDateTime>())),
-                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>());
+                new ApprenticeshipMapper(), _commitmentMapper.Object, Mock.Of<ITransferRequestMapper>(), Mock.Of<IHashingService>(), Mock.Of<IApprovedApprenticeshipMapper>());
 
             _controller = new EmployerController(_employerOrchestrator, _apprenticeshipsOrchestrator);
 

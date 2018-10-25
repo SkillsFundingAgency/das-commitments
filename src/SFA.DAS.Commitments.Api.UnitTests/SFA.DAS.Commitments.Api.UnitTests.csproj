@@ -132,6 +132,7 @@
     <Compile Include="Orchestrators\Apprenticeship\WhenResolveDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLock.cs" />
     <Compile Include="Orchestrators\Apprenticeship\WhenTriageDataLocks.cs" />
+    <Compile Include="Orchestrators\Employer\WhenGettingAnApprovedApprenticeship.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingApprenticeshipsForUln.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingEmployerAccountIds.cs" />
     <Compile Include="Orchestrators\Employer\WhenGettingATransferRequest.cs" />
@@ -140,12 +141,14 @@
     <Compile Include="Orchestrators\Employer\WhenPuttingApprenticeshipStopDate.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingAnApprenticeshipResult .cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingApprenticeshipDataLockProperties.cs" />
+    <Compile Include="Orchestrators\Mappers\WhenMappingAnApprovedApprenticeship.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequestSummary.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingATransferRequest.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitment.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentListItem.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentView.cs" />
     <Compile Include="Orchestrators\Mappers\WhenMappingACommitmentAgreement.cs" />
+    <Compile Include="Orchestrators\Provider\WhenGettingAnApprovedApprenticeship.cs" />
     <Compile Include="Orchestrators\Provider\WhenGettingCommitmentAgreements.cs" />
     <Compile Include="Orchestrators\Statistics\StatisticsOrchestratorTestBase.cs" />
     <Compile Include="Orchestrators\Statistics\WhenGettingStatistics.cs" />

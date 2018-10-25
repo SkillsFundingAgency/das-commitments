@@ -334,6 +334,8 @@
     <Compile Include="Orchestrators\IStatisticsOrchestrator.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipFilterService.cs" />
     <Compile Include="Orchestrators\Mappers\ApprenticeshipMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\ApprovedApprenticeshipMapper.cs" />
+    <Compile Include="Orchestrators\Mappers\IApprovedApprenticeshipMapper.cs" />
     <Compile Include="Orchestrators\Mappers\IStatisticsMapper.cs" />
     <Compile Include="Orchestrators\Mappers\ITransferRequestMapper.cs" />
     <Compile Include="Orchestrators\Mappers\StatisticsMapper.cs" />

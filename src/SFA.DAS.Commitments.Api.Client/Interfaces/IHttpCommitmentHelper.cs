@@ -57,6 +57,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
 
         Task<TransferRequest> GetTransferRequest(string url);
         Task<T> GetUrlResult<T>(string url);
+        Task<T> Get<T>(string url);
 
     }
 }
