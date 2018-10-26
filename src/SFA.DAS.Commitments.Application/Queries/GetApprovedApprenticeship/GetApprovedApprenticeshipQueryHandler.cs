@@ -10,14 +10,14 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprovedApprenticeship
 {
     public class GetApprovedApprenticeshipQueryHandler : IAsyncRequestHandler<GetApprovedApprenticeshipRequest, GetApprovedApprenticeshipResponse>
     {
-        private readonly IApprenticeshipRepository _apprenticeshipRepository;
+        private readonly IApprovedApprenticeshipRepository _approvedApprenticeshipRepository;
         private readonly AbstractValidator<GetApprovedApprenticeshipRequest> _validator;
 
-        public GetApprovedApprenticeshipQueryHandler(IApprenticeshipRepository apprenticeshipRepository,
+        public GetApprovedApprenticeshipQueryHandler(IApprovedApprenticeshipRepository approvedApprenticeshipRepository,
             AbstractValidator<GetApprovedApprenticeshipRequest> validator)
         {
             _validator = validator;
-            _apprenticeshipRepository = apprenticeshipRepository;
+            _approvedApprenticeshipRepository = approvedApprenticeshipRepository;
         }
 
         public async Task<GetApprovedApprenticeshipResponse> Handle(GetApprovedApprenticeshipRequest request)
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprovedApprenticeship
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var result = await _apprenticeshipRepository.GetApprovedApprenticeship(request.ApprenticeshipId);
+            var result = await _approvedApprenticeshipRepository.Get(request.ApprenticeshipId);
 
             CheckAuthorisation(request.Caller, result);
 

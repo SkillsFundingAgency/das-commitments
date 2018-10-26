@@ -59,7 +59,5 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateApprenticeshipStopDate(long commitmentId, long apprenticeshipId, DateTime stopDate);
 
         Task<IEnumerable<long>> GetEmployerAccountIds();
-
-        Task<ApprovedApprenticeship> GetApprovedApprenticeship(long id);
-    }
+   }
 }

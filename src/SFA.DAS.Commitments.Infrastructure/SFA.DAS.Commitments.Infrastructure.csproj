@@ -195,6 +195,7 @@
     <Compile Include="Configuration\ProviderUserApiConfiguration.cs" />
     <Compile Include="Data\ApprenticeshipRepository.cs" />
     <Compile Include="Data\ApprenticeshipUpdateRepository.cs" />
+    <Compile Include="Data\ApprovedApprenticeshipRepository.cs" />
     <Compile Include="Data\AssessmentOrganisationRepository.cs" />
     <Compile Include="Data\BulkUploadRepository.cs" />
     <Compile Include="Data\DataLockRepository.cs" />

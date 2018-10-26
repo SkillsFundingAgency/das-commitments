@@ -18,11 +18,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprovedApprentic
     public class WhenGettingApprovedApprenticeship
     {
         private GetApprovedApprenticeshipQueryHandler _handler;
-        private Mock<IApprenticeshipRepository> _repository;
+        private Mock<IApprovedApprenticeshipRepository> _repository;
         private ApprovedApprenticeship _apprenticeship;
         private Mock<AbstractValidator<GetApprovedApprenticeshipRequest>> _validator;
         private GetApprovedApprenticeshipRequest _validRequest;
-
 
         [SetUp]
         public void Arrange()
@@ -38,8 +37,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprovedApprentic
                 ProviderId = 3
             };
 
-            _repository = new Mock<IApprenticeshipRepository>();
-            _repository.Setup(x => x.GetApprovedApprenticeship(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
+            _repository = new Mock<IApprovedApprenticeshipRepository>();
+            _repository.Setup(x => x.Get(It.IsAny<long>())).ReturnsAsync(_apprenticeship);
 
             _validRequest = new GetApprovedApprenticeshipRequest
             {
