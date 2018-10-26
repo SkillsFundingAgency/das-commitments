@@ -18,7 +18,6 @@ namespace SFA.DAS.Commitments.Domain.Entities.ApprovedApprenticeship
         public long EmployerAccountId { get; set; }
         public long ProviderId { get; set; }
         public long? TransferSenderId { get; set; }
-        public string Reference { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -45,7 +44,6 @@ namespace SFA.DAS.Commitments.Domain.Entities.ApprovedApprenticeship
         public string EndpointAssessorName { get; set; }
         public List<PriceHistory> PriceEpisodes { get; set; }
         public List<DataLockStatus> DataLocks { get; set; }
-        public ApprenticeshipUpdate PendingUpdate { get; set; }
 
         public ApprovedApprenticeship Clone()
         {

@@ -45,6 +45,5 @@ namespace SFA.DAS.Commitments.Api.Types.ApprovedApprenticeship
 
         public List<PriceHistory> PriceEpisodes { get; set; }
         public List<DataLockStatus> DataLocks { get; set; }
-        public ApprenticeshipUpdate PendingUpdate { get; set; }
     }
 }

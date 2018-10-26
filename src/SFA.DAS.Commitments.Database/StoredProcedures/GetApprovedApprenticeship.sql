@@ -8,7 +8,6 @@ AS
 	c.EmployerAccountId,
 	c.ProviderId,
 	c.TransferSenderId,
-	c.Reference,
 	a.FirstName,
 	a.LastName,
 	a.DateOfBirth,

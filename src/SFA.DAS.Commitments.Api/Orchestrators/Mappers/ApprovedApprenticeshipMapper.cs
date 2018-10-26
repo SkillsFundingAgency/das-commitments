@@ -24,7 +24,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 EmployerAccountId = domainObject.EmployerAccountId,
                 ProviderId = domainObject.ProviderId,
                 TransferSenderId = domainObject.TransferSenderId,
-                Reference = domainObject.Reference,
                 FirstName = domainObject.FirstName,
                 LastName = domainObject.LastName,
                 DateOfBirth = domainObject.DateOfBirth,
@@ -59,12 +58,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             foreach (var domainPriceEpisode in domainObject.PriceEpisodes)
             {
                 result.PriceEpisodes.Add(_apprenticeshipMapper.MapPriceHistory(domainPriceEpisode));
-            }
-
-            //pending update
-            if (domainObject.PendingUpdate != null)
-            {
-                result.PendingUpdate = _apprenticeshipMapper.MapApprenticeshipUpdate(domainObject.PendingUpdate);
             }
 
             return result;

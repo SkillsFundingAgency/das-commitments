@@ -42,11 +42,13 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             Assert.AreEqual(_source.FirstName, result.FirstName);
             Assert.AreEqual(_source.LastName, result.LastName);
             Assert.AreEqual(_source.DateOfBirth, result.DateOfBirth);
+            Assert.AreEqual((Types.Apprenticeship.Types.TrainingType) _source.TrainingType, result.TrainingType);
             Assert.AreEqual(_source.TrainingCode, result.TrainingCode);
             Assert.AreEqual(_source.TrainingName, result.TrainingName);
             Assert.AreEqual(_source.StartDate, result.StartDate);
             Assert.AreEqual(_source.EndDate, result.EndDate);
             Assert.AreEqual(_source.StopDate, result.StopDate);
+            Assert.AreEqual(_source.PauseDate, result.PauseDate);
             Assert.AreEqual(_source.ProviderRef, result.ProviderRef);
             Assert.AreEqual(_source.EmployerRef, result.EmployerRef);
             Assert.AreEqual(_source.EmployerAccountId, result.EmployerAccountId);
@@ -56,6 +58,10 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             Assert.AreEqual(_source.TransferSenderId, result.TransferSenderId);
             Assert.AreEqual(_source.CohortReference, result.CohortReference);
             Assert.AreEqual(_source.PaymentOrder, result.PaymentOrder);
+            Assert.AreEqual((Types.Apprenticeship.Types.Originator?) _source.UpdateOriginator, result.UpdateOriginator);
+            Assert.AreEqual(_source.HasHadDataLockSuccess, result.HasHadDataLockSuccess);
+            Assert.AreEqual(_source.AccountLegalEntityPublicHashedId, result.AccountLegalEntityPublicHashedId);
+            Assert.AreEqual(_source.EndpointAssessorName, result.EndpointAssessorName);
         }
 
         [Test]
