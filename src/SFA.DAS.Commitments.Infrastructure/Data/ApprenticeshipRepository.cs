@@ -317,7 +317,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         result = apprenticeship;
                     }
 
-                    if (history.ApprenticeshipId != 0)
+                    if (history != null && history.ApprenticeshipId != 0)
                     {
                         result.PriceHistory.Add(history);
                     }
