@@ -678,6 +678,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return data.Select(s => new Types.ApprenticeshipStatusSummary
             {
                 LegalEntityIdentifier = s.LegalEntityIdentifier,
+                LegalEntityOrganisationType = s.LegalEntityOrganisationType,
                 PendingApprovalCount = s.PendingApprovalCount,
                 ActiveCount = s.ActiveCount,
                 PausedCount = s.PausedCount,
