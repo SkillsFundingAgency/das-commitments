@@ -3,18 +3,78 @@ Apprenticeship Stop fix-up script
 This script stops a specific apprenticeship as at a given date. If the apprenticeship is already stopped, the stop date will be amended accordingly.
 IMPORTANT: Also generates a SQL statement to be run against the Events DB to keep things in sync.
 */
-  
+
+/*  todo: 
+ 1. table var for providers and stop date
+ 2. loop each provider
+ 3. loop each learner for that provider
+ 4. run existing script
+ 5. execute the emitted events and events history scripts
+ https://www.sqlservercentral.com/Forums/Topic574688-145-1.aspx
+*/  
+
 --Set the target record here:
-declare @ApprenticeshipId bigint = 0 -- This is the specific apprenticeship record you want to stop or correct
-declare @Uln varchar(max) = 'xxxxxxxxxx' -- For extra protection against errors, also specify the ULN for the apprenticeship
-declare @StopDate DATETIME = 'yyyy-mm-dd' /* YYYY-MM-DD */ --This is the date you want to stop the apprenticeship (or correct to)
+
+
+declare @providers TABLE (
+	ukprn bigint not null,
+	stopDate date not null
+);
+declare @ApprenticeshipId bigint
+declare @Uln varchar(max)
+declare @StopDate DATETIME
+
+insert into @providers
+values 
+(10005077,'2018-09-01'),-- for dev test only
+(10000476,'2018-10-24'),
+(10031241,'2018-10-12')
+;
+
 
 /* ========================================================================== */
 /* =================== DO NOT MODIFY BELOW THIS LINE ======================== */
 /* ========================================================================== */
    
-BEGIN TRAN
-   
+
+/*
+select a.Id, a.ULN, c.Id, c.ProviderId, c.EmployerAccountId, a.PaymentStatus, a.StopDate, a.EndDate, a.*
+from Apprenticeship a
+join Commitment c
+	on c.Id = a.CommitmentId
+join @providers p
+	on p.ukprn = c.ProviderId
+where PaymentStatus in (1,2) -- active, paused
+or (
+	PaymentStatus = 3 -- withdrawn
+	and a.StopDate > p.stopDate
+)*/
+
+declare cur cursor local for
+
+with apprenticesToStop (apprenticeshipId, uln, newStopDate) as (
+	select a.Id, a.ULN, p.stopDate
+	from Apprenticeship a
+	join Commitment c
+		on c.Id = a.CommitmentId
+	join @providers p
+		on p.ukprn = c.ProviderId
+	where PaymentStatus in (1,2) -- active, paused
+	or (
+		PaymentStatus = 3 -- withdrawn
+		and a.StopDate > p.stopDate
+	)
+)
+select * from apprenticesToStop
+
+open cur 
+
+fetch next from cur into @ApprenticeshipId, @Uln, @StopDate
+
+while @@FETCH_STATUS = 0 begin
+	BEGIN TRAN
+	print '====================================================================='
+  
     --Just some vars here
     DECLARE @error INT
 	declare @originalApprenticeId BIGINT
@@ -169,19 +229,29 @@ BEGIN TRAN
   
     /* End Events DB insert statement generation */
    
-    batch_abort:
+batch_abort:
            
-        IF @error != 0
-        BEGIN
-            ROLLBACK;
-            print 'Rollback performed'
-            RAISERROR ('Error(s) occurred', 11, 1);
-        END
-		ELSE
-		BEGIN
+    IF @error != 0
+    BEGIN
+        ROLLBACK;
+        print 'Rollback performed'
+        RAISERROR ('Error(s) occurred', 11, 1);
+    END
+	ELSE
+	BEGIN
 
-			print 'Committing transaction'
-			COMMIT
-			print 'Completed'
+		print 'Committing transaction for ApprenticeshipId [' + cast(@ApprenticeshipId as varchar) + ']'
+		ROLLBACK --COMMIT todo: change back
+		print 'Completed'
 
-		END
+	END
+	fetch next from cur into @ApprenticeshipId, @Uln, @StopDate
+end
+
+close cur
+deallocate cur
+
+
+
+
+
