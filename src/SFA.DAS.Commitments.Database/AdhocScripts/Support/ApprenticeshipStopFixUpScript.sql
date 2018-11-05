@@ -4,17 +4,6 @@ This script stops a specific apprenticeship as at a given date. If the apprentic
 IMPORTANT: Also generates a SQL statement to be run against the Events DB to keep things in sync.
 */
 
-/*  todo: 
- 1. table var for providers and stop date
- 2. loop each provider
- 3. loop each learner for that provider
- 4. run existing script
- 5. execute the emitted events and events history scripts
- https://www.sqlservercentral.com/Forums/Topic574688-145-1.aspx
-*/  
-
---Set the target record here:
-
 set nocount on;
 
 declare @providers TABLE (
@@ -27,12 +16,13 @@ declare @StopDate DATETIME
 
 insert into @providers
 values 
-(10005077,'2018-09-01'),-- for dev test only
+/* ========================================================================== */
+/* =================== DO NOT MODIFY ABOVE THIS LINE ======================== */
+/* ========================================================================== */
+-- put provider ukprns here e.g.
 (10000476,'2018-10-24'),
 (10031241,'2018-10-12')
 ;
-
-
 /* ========================================================================== */
 /* =================== DO NOT MODIFY BELOW THIS LINE ======================== */
 /* ========================================================================== */
