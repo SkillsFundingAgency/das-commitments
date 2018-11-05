@@ -74,6 +74,9 @@
     <Reference Include="Polly, Version=5.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.5.7.0\lib\net45\Polly.dll</HintPath>
     </Reference>
+    <Reference Include="SFA.DAS.Messaging, Version=3.0.0.53230, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.Messaging.3.0.0.53230\lib\net45\SFA.DAS.Messaging.dll</HintPath>
+    </Reference>
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.43242, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.43242\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
     </Reference>
@@ -106,10 +109,9 @@
     <Compile Include="DatalockStatusTestData.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="WhenRunningApprenticeshipUpdateJob.cs" />
-    <Compile Include="WhenRunningUpdate.cs" />
+    <Compile Include="WhenCallingRunDataLock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WhenRunningJob.cs" />
-    <Compile Include="WhenTestingAcademicYearEndExpiryProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -127,6 +129,10 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj">
+      <Project>{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}</Project>
+      <Name>SFA.DAS.Commitments.Events</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Notification.WebJob\SFA.DAS.Commitments.Notification.WebJob.csproj">
       <Project>{59b9f340-4489-4942-8ea2-0df38c4db3b9}</Project>
