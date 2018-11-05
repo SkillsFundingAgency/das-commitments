@@ -15,6 +15,7 @@ IMPORTANT: Also generates a SQL statement to be run against the Events DB to kee
 
 --Set the target record here:
 
+set nocount on;
 
 declare @providers TABLE (
 	ukprn bigint not null,
@@ -35,23 +36,11 @@ values
 /* ========================================================================== */
 /* =================== DO NOT MODIFY BELOW THIS LINE ======================== */
 /* ========================================================================== */
-   
-
-/*
-select a.Id, a.ULN, c.Id, c.ProviderId, c.EmployerAccountId, a.PaymentStatus, a.StopDate, a.EndDate, a.*
-from Apprenticeship a
-join Commitment c
-	on c.Id = a.CommitmentId
-join @providers p
-	on p.ukprn = c.ProviderId
-where PaymentStatus in (1,2) -- active, paused
-or (
-	PaymentStatus = 3 -- withdrawn
-	and a.StopDate > p.stopDate
-)*/
+print '-- ================================================================================'
+print '-- == COPY ALL LINES FROM HERE TO RUN ON [ApprenticeshipEvents] & [PriceHistory] =='
+print '-- ================================================================================'
 
 declare cur cursor local for
-
 with apprenticesToStop (apprenticeshipId, uln, newStopDate) as (
 	select a.Id, a.ULN, p.stopDate
 	from Apprenticeship a
@@ -66,15 +55,12 @@ with apprenticesToStop (apprenticeshipId, uln, newStopDate) as (
 	)
 )
 select * from apprenticesToStop
-
 open cur 
-
 fetch next from cur into @ApprenticeshipId, @Uln, @StopDate
 
 while @@FETCH_STATUS = 0 begin
 	BEGIN TRAN
-	print '====================================================================='
-  
+	  
     --Just some vars here
     DECLARE @error INT
 	declare @originalApprenticeId BIGINT
@@ -96,27 +82,26 @@ while @@FETCH_STATUS = 0 begin
     /* End data read */
    
     /* Validation checks - */
-    IF(@originalApprenticeId is null) BEGIN SET @error=50001 PRINT 'ERROR - Apprenticeship record not found' GOTO batch_abort END
-	IF(@originalUln <> @Uln) BEGIN SET @error=50002 PRINT 'ERROR - Apprenticeship ULN does not match' GOTO batch_abort END
-	IF(@originalPaymentStatus = 0) BEGIN SET @error=50003 PRINT 'ERROR - Apprenticeship is not approved so cannot be stopped' GOTO batch_abort END
-	IF(@StopDate < @originalStartDate) BEGIN SET @error=50004 PRINT 'ERROR - Stop date cannot be before start date' GOTO batch_abort END 
+    IF(@originalApprenticeId is null) BEGIN SET @error=50001 PRINT '-- ERROR - Apprenticeship record not found' GOTO batch_abort END
+	IF(@originalUln <> @Uln) BEGIN SET @error=50002 PRINT '-- ERROR - Apprenticeship ULN does not match' GOTO batch_abort END
+	IF(@originalPaymentStatus = 0) BEGIN SET @error=50003 PRINT '-- ERROR - Apprenticeship is not approved so cannot be stopped' GOTO batch_abort END
+	IF(@StopDate < @originalStartDate) BEGIN SET @error=50004 PRINT '-- ERROR - Stop date cannot be before start date' GOTO batch_abort END 
     /* End Validation */
    
-    print 'Original Apprenticeship Id: ' + convert(varchar, @originalApprenticeId)
-    print 'Original Start Date:' + convert(varchar, @originalStartDate, 126)
-    print 'Original Stop Date:' + convert(varchar, @originalStopDate, 126)
+    print '-- Original Apprenticeship Id: ' + convert(varchar, @originalApprenticeId)
+    print '-- Original Start Date:' + convert(varchar, @originalStartDate, 126)
+    print '-- Original Stop Date:' + convert(varchar, @originalStopDate, 126)
    
     /* Backdate the original apprenticeship Stop Date */
     update Apprenticeship set PaymentStatus=3, StopDate = @StopDate where Id = @originalApprenticeId
        
     if(@@ERROR != 0) BEGIN SET @error = @@ERROR GOTO batch_abort END
-    print 'New apprenticeship stop date:' + convert(varchar, @StopDate, 126)
-    print ''
+    print '-- New apprenticeship stop date:' + convert(varchar, @StopDate, 126)
    
     /* History */
 
 	if(@originalHistoryId is null) begin
-		print 'No History record found - history will not be written'
+		print '-- No History record found - history will not be written'
 	end else begin
 
 		set @historyJson = JSON_MODIFY(@originalHistoryJson,'$.PaymentStatus', 3)	
@@ -217,11 +202,10 @@ while @@FETCH_STATUS = 0 begin
         + 'VALUES (@eventId,' + convert(varchar,Cost)
         + ',''' + convert(varchar,FromDate,120) + ''','
         + COALESCE('''' + (CONVERT(varchar,ToDate,120) + ''''), 'NULL') + ');'
-        + CHAR(13) + CHAR(13)
+        + CHAR(13) 
     from PriceHistory where ApprenticeshipId = @originalApprenticeId
-  
-  
-    print 'Generated Sql statements to be run against Events DB:'
+
+    print '-- Generated Sql statements to be run against Events DB:'
     print ''
     print @eventsInsertSql
     print''
@@ -234,24 +218,22 @@ batch_abort:
     IF @error != 0
     BEGIN
         ROLLBACK;
-        print 'Rollback performed'
-        RAISERROR ('Error(s) occurred', 11, 1);
+        print '-- Rollback performed'
+        RAISERROR ('-- Error(s) occurred', 11, 1);
     END
 	ELSE
 	BEGIN
 
-		print 'Committing transaction for ApprenticeshipId [' + cast(@ApprenticeshipId as varchar) + ']'
+		print '-- Committing transaction for ApprenticeshipId [' + cast(@ApprenticeshipId as varchar) + ']'
 		ROLLBACK --COMMIT todo: change back
-		print 'Completed'
+		print '-- Completed'
 
 	END
+	print '-- ================================================================================'
 	fetch next from cur into @ApprenticeshipId, @Uln, @StopDate
 end
 
 close cur
 deallocate cur
 
-
-
-
-
+set nocount off;
