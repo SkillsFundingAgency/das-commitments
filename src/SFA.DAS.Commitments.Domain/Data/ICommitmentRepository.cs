@@ -7,7 +7,7 @@ namespace SFA.DAS.Commitments.Domain.Data
 {
     public interface ICommitmentRepository
     {
-        Task<long> Create(Commitment commitment, Relationship relationship =  null);
+        Task<long> Create(Commitment commitment);
         Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
         Task<IList<CommitmentAgreement>> GetCommitmentAgreementsForProvider(long providerId);

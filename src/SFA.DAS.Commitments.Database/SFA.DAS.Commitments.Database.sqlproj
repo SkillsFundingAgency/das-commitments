@@ -77,10 +77,6 @@
     <Build Include="StoredProcedures\GetCommitment.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
     <Build Include="StoredProcedures\DeleteCommitment.sql" />
-    <Build Include="Tables\Relationship.sql" />
-    <Build Include="StoredProcedures\CreateRelationship.sql" />
-    <Build Include="StoredProcedures\GetRelationship.sql" />
-    <Build Include="StoredProcedures\VerifyRelationship.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
     <Build Include="UserDefinedTypes\ULNTable.sql" />
     <Build Include="Tables\ApprenticeshipUpdate.sql" />
@@ -137,7 +133,6 @@
     <None Include="Database.publish.xml" />
     <Build Include="Tables\BulkUpload.sql" />
     <None Include="AdhocScripts\Support\ApprenticeshipStopFixUpScript.sql" />
-    <None Include="AdhocScripts\Support\RelationshipCreationScript.sql" />
     <None Include="AdhocScripts\Support\DPP-1661\DPP-1661_Remove_DataLock_7_if_also_Datalock_9.sql" />
   </ItemGroup>
   <ItemGroup>

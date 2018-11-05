@@ -12,7 +12,6 @@ using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Application.Commands.CreateCommitment;
-using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.HashingService;
 using Commitment = SFA.DAS.Commitments.Api.Types.Commitment.Commitment;
@@ -39,8 +38,6 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Controllers.EmployerControllerTests
             _mappedCommitment = new Fixture().Create<Domain.Entities.Commitment>();
             _commitmentMapper.Setup(m => m.MapFrom(It.IsAny<Commitment>()))
                 .Returns(_mappedCommitment);
-            _mockMediator.Setup(m => m.SendAsync(It.IsAny<GetRelationshipRequest>()))
-                .ReturnsAsync(new GetRelationshipResponse());
 
             _employerOrchestrator = new EmployerOrchestrator(
                 _mockMediator.Object, 

@@ -26,7 +26,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
     public sealed class WhenCreatingCommitment
     {
         private Mock<ICommitmentRepository> _mockCommitmentRespository;
-        private Mock<IRelationshipRepository> _mockRelationshipRepository;
         private CreateCommitmentCommandHandler _handler;
         private CreateCommitmentCommand _exampleValidRequest;
         private Mock<IHashingService> _mockHashingService;
@@ -39,22 +38,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public void SetUp()
         {
             _mockCommitmentRespository = new Mock<ICommitmentRepository>();
-            _mockRelationshipRepository = new Mock<IRelationshipRepository>();
             _mockHashingService = new Mock<IHashingService>();
 			var commandValidator = new CreateCommitmentValidator();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _messagePublisher = new Mock<IMessagePublisher>();
-
-            _mockRelationshipRepository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
-                .ReturnsAsync(new Relationship());
 
            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object,
                 _mockHashingService.Object,
                 commandValidator,
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
-                _messagePublisher.Object,
-               _mockRelationshipRepository.Object);
+                _messagePublisher.Object);
 
             var fixture = new Fixture();
             fixture.Customize<Apprenticeship>(ob => ob
@@ -86,7 +80,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             await _handler.Handle(_exampleValidRequest);
 
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>(), It.IsAny<Relationship>()));
+            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Domain.Entities.Commitment>()));
         }
 
         [Test]
@@ -95,9 +89,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             //Arrange
             Commitment argument = null;
             _mockCommitmentRespository.Setup(
-                    x => x.Create(It.IsAny<Commitment>(), It.IsAny<Relationship>()))
+                    x => x.Create(It.IsAny<Commitment>()))
                 .ReturnsAsync(4)
-                .Callback<Commitment, Relationship>((commitment, relationship) => argument = commitment);
+                .Callback<Commitment>((commitment) => argument = commitment);
 
             //Act
             await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
@@ -111,7 +105,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
             const long expectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<Relationship>())).ReturnsAsync(expectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 
@@ -145,7 +139,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         {
             //Arange
             const long expectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<Relationship>())).ReturnsAsync(expectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
             _exampleValidRequest.Message = "New Message";
 
             //Act
@@ -164,7 +158,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenAHistoryRecordIsCreated()
         {
             const long expectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<Relationship>())).ReturnsAsync(expectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -189,7 +183,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         public async Task ThenTheCohortEventIsCreated()
         {
             const long expectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>(), It.IsAny<Relationship>())).ReturnsAsync(expectedCommitmentId);
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
 
             await _handler.Handle(_exampleValidRequest);
 
@@ -198,61 +192,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                     x.PublishAsync(
                         It.Is<CohortCreated>(
                             m => m.AccountId == _exampleValidRequest.Commitment.EmployerAccountId && m.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value && m.CommitmentId == expectedCommitmentId)), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfRelationshipDoesNotExistThenItIsCreated()
-        {
-            //Arrange
-            _mockRelationshipRepository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
-                .ReturnsAsync(null as Relationship);
-
-            //Act
-            await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
-
-            //Assert
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>(), It.Is<Relationship>(r =>
-                r.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId
-                && r.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId
-                && r.ProviderId == _exampleValidRequest.Commitment.ProviderId)), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfRelationshipExistsThenAnotherIsNotCreated()
-        {
-            //Act
-            await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
-
-            //Assert
-            _mockCommitmentRespository.Verify(x => x.Create(It.IsAny<Commitment>(), It.Is<Relationship>(r => r == null)), Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfRelationshipIsCreatedThenRelationshipCreatedEventIsEmitted()
-        {
-            //Arrange
-            _mockRelationshipRepository.Setup(x => x.GetRelationship(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>()))
-                .ReturnsAsync(null as Relationship);
-
-            //Act
-            await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
-
-            //Assert
-            _messagePublisher.Verify(x => x.PublishAsync(It.Is<RelationshipCreated>(e =>
-                    e.Relationship.EmployerAccountId == _exampleValidRequest.Commitment.EmployerAccountId &&
-                    e.Relationship.LegalEntityId == _exampleValidRequest.Commitment.LegalEntityId &&
-                    e.Relationship.ProviderId == _exampleValidRequest.Commitment.ProviderId)),
-                Times.Once);
-        }
-
-        [Test]
-        public async Task ThenIfRelationshipIsNotCreatedThenRelationshipCreatedEventIsNotEmitted()
-        {
-            //Act
-            await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
-
-            //Assert
-            _messagePublisher.Verify(x => x.PublishAsync(It.IsAny<RelationshipCreated>()), Times.Never);
         }
 
         private void AssertMappingIsCorrect(Commitment argument)

@@ -44,7 +44,6 @@ using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.Apprenti
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
-using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators

@@ -46,14 +46,6 @@
   {
     "topicName": "provider_cohort_approval_undone_by_employer",
     "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployer" ]
-  },
-  {
-    "topicName": "relationship_created",
-    "subscription": [ "RDS_RelationshipCreated" ]
-  },
-  {
-    "topicName": "relationship_verified",
-    "subscription": [ "RDS_RelationshipVerified" ]
   }
 ]
 

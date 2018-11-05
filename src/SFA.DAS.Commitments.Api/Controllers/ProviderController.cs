@@ -181,30 +181,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetRelationshipByProviderAndLegalEntityId(long providerId, long employerAccountId, string legalEntityId)
-        {
-            var response = await _providerOrchestrator.GetRelationship(providerId, employerAccountId, legalEntityId);
-            return Ok(response);
-        }
-
-        [Route("{providerId}/relationships/{commitmentId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetRelationshipByCommitment(long providerId, long commitmentId)
-        {
-            var response = await _providerOrchestrator.GetRelationship(providerId, commitmentId);
-            return Ok(response);
-        }
-
-        [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchRelationship(long providerId, long employerAccountId, string legalEntityId, [FromBody] RelationshipRequest request)
-        {
-            await _providerOrchestrator.PatchRelationship(providerId, employerAccountId, legalEntityId, request);
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
         [Route("{providerId}/apprenticeships/{apprenticeshipId}/update")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)

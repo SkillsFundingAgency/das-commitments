@@ -20,7 +20,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
     {
         private readonly AbstractValidator<CreateCommitmentCommand> _validator;
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IRelationshipRepository _relationshipRepository;
         private readonly IHashingService _hashingService;
         private readonly ICommitmentsLogger _logger;
         private readonly IHistoryRepository _historyRepository;
@@ -31,8 +30,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             AbstractValidator<CreateCommitmentCommand> validator,
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
-            IMessagePublisher messagePublisher,
-            IRelationshipRepository relationshipRepository)
+            IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
@@ -40,7 +38,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             _logger = logger;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
-            _relationshipRepository = relationshipRepository;
         }
 
         public async Task<long> Handle(CreateCommitmentCommand message)
@@ -54,19 +51,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 throw new ValidationException(validationResult.Errors);
             }
 
-            Relationship relationship = null;
-            if (await _relationshipRepository.GetRelationship(message.Commitment.EmployerAccountId, message.Commitment.ProviderId.Value, message.Commitment.LegalEntityId) == null)
-            {
-                relationship = CreateRelationshipFromCommitment(message.Commitment);
-            }
-
-            var newCommitment = await CreateCommitment(message, relationship);
+            var newCommitment = await CreateCommitment(message);
 
             await Task.WhenAll(
                 CreateMessageIfNeeded(newCommitment.Id, message),
                 CreateHistory(newCommitment, message.Caller.CallerType, message.UserId, message.Commitment.LastUpdatedByEmployerName),
-                PublishCohortCreatedEvent(newCommitment),
-                PublishRelationshipCreatedEventIfNeeded(relationship)
+                PublishCohortCreatedEvent(newCommitment)
             );
             
             return newCommitment.Id;
@@ -78,12 +68,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                 newCommitment.Id));
         }
 
-        private async Task<Commitment> CreateCommitment(CreateCommitmentCommand message, Relationship relationshipToCreate)
+        private async Task<Commitment> CreateCommitment(CreateCommitmentCommand message)
         {
             var newCommitment = message.Commitment;
             newCommitment.LastAction = LastAction.None;
 
-            newCommitment.Id = await _commitmentRepository.Create(newCommitment, relationshipToCreate);
+            newCommitment.Id = await _commitmentRepository.Create(newCommitment);
             await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));
 
             return newCommitment;
@@ -109,42 +99,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             };
 
             await _commitmentRepository.SaveMessage(commitmentId, message);
-        }
-
-        private async Task PublishRelationshipCreatedEventIfNeeded(Relationship relationship)
-        {
-            if (relationship == null) return;
-            await _messagePublisher.PublishAsync(CreateRelationshipCreatedEvent(relationship));
-        }
-
-        private static Relationship CreateRelationshipFromCommitment(Commitment commitment)
-        {
-            return new Relationship
-            {
-                EmployerAccountId = commitment.EmployerAccountId,
-                LegalEntityId = commitment.LegalEntityId,
-                LegalEntityName = commitment.LegalEntityName,
-                LegalEntityAddress = commitment.LegalEntityAddress,
-                LegalEntityOrganisationType = commitment.LegalEntityOrganisationType,
-                ProviderId = commitment.ProviderId.Value,
-                ProviderName = commitment.ProviderName
-            };
-        }
-
-        private static RelationshipCreated CreateRelationshipCreatedEvent(Relationship entity)
-        {
-            return new RelationshipCreated(new Api.Types.Relationship
-            {
-                EmployerAccountId = entity.EmployerAccountId,
-                Id = entity.Id,
-                LegalEntityId = entity.LegalEntityId,
-                LegalEntityName = entity.LegalEntityName,
-                LegalEntityAddress = entity.LegalEntityAddress,
-                LegalEntityOrganisationType = entity.LegalEntityOrganisationType,
-                ProviderId = entity.ProviderId,
-                ProviderName = entity.ProviderName,
-                Verified = entity.Verified
-            });
         }
     }
 }

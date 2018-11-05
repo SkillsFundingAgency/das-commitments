@@ -21,9 +21,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task ApproveCohort(long providerId, long commitmentId, CommitmentSubmission submission);
         Task DeleteApprenticeship(long providerId, long apprenticeshipId, string userId, string userName);
         Task DeleteCommitment(long providerId, long commitmentId, string userId, string userName);
-        Task<Types.Relationship> GetRelationship(long providerId, long employerAccountId, string legalEntityId);
-        Task<Types.Relationship> GetRelationship(long providerId, long commitmentId);
-        Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest);
         Task<Types.Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId);
         Task CreateApprenticeshipUpdate(long providerId, ApprenticeshipUpdateRequest updateRequest);
         Task PatchApprenticeshipUpdate(long providerId, long apprenticeshipId, ApprenticeshipUpdateSubmission submission);
