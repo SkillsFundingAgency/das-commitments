@@ -225,7 +225,7 @@ batch_abort:
 	BEGIN
 
 		print '-- Committing transaction for ApprenticeshipId [' + cast(@ApprenticeshipId as varchar) + ']'
-		ROLLBACK --COMMIT todo: change back
+		COMMIT -- use ROLLBACK for dev'ing
 		print '-- Completed'
 
 	END
