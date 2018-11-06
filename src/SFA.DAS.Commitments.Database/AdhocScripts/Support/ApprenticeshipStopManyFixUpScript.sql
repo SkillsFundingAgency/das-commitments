@@ -21,7 +21,6 @@ values
 /* =================== DO NOT MODIFY ABOVE THIS LINE ======================== */
 /* ========================================================================== */
 -- put provider ukprns here e.g.
-(10005077,'2017-09-01'),
 (10000476,'2018-10-24'),
 (10031241,'2018-10-12')
 ;
@@ -221,7 +220,7 @@ batch_abort:
 	BEGIN
 
 		print '-- Committing transaction for ApprenticeshipId [' + cast(@ApprenticeshipId as varchar) + ']'
-		ROLLBACK -- use ROLLBACK for dev'ing
+		COMMIT -- use ROLLBACK for dev'ing
 		print '-- Completed'
 
 	END
