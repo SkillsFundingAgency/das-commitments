@@ -12,6 +12,7 @@ declare @providers TABLE (
 );
 declare @ApprenticeshipId bigint
 declare @Uln varchar(max)
+declare @StartDate DATETIME
 declare @StopDate DATETIME
 
 insert into @providers
@@ -20,6 +21,7 @@ values
 /* =================== DO NOT MODIFY ABOVE THIS LINE ======================== */
 /* ========================================================================== */
 -- put provider ukprns here e.g.
+(10005077,'2017-09-01'),
 (10000476,'2018-10-24'),
 (10031241,'2018-10-12')
 ;
@@ -32,8 +34,8 @@ print '-- ======================================================================
 print 'declare @eventId bigint;'
 
 declare cur cursor local for
-with apprenticesToStop (apprenticeshipId, uln, newStopDate) as (
-	select a.Id, a.ULN, p.stopDate
+with apprenticesToStop (apprenticeshipId, uln, startDate, newStopDate) as (
+	select a.Id, a.ULN, a.StartDate, p.stopDate
 	from Apprenticeship a
 	join Commitment c
 		on c.Id = a.CommitmentId
@@ -47,7 +49,7 @@ with apprenticesToStop (apprenticeshipId, uln, newStopDate) as (
 )
 select * from apprenticesToStop
 open cur 
-fetch next from cur into @ApprenticeshipId, @Uln, @StopDate
+fetch next from cur into @ApprenticeshipId, @Uln, @StartDate, @StopDate
 
 while @@FETCH_STATUS = 0 begin
 	BEGIN TRAN
@@ -71,6 +73,9 @@ while @@FETCH_STATUS = 0 begin
     select top 1 @originalHistoryId = Id, @originalHistoryJson = UpdatedState from History where ApprenticeshipId = @originalApprenticeId order by Id desc
   
     /* End data read */
+
+	/* check if start date is after new stop date */
+	if(@StartDate > @StopDate) begin set @StopDate = @StartDate end
    
     /* Validation checks - */
     IF(@originalApprenticeId is null) BEGIN SET @error=50001 PRINT '-- ERROR - Apprenticeship record not found' GOTO batch_abort END
@@ -82,7 +87,7 @@ while @@FETCH_STATUS = 0 begin
     print '-- Original Apprenticeship Id: ' + convert(varchar, @originalApprenticeId)
     print '-- Original Start Date:' + convert(varchar, @originalStartDate, 126)
     print '-- Original Stop Date:' + convert(varchar, @originalStopDate, 126)
-   
+
     /* Backdate the original apprenticeship Stop Date */
     update Apprenticeship set PaymentStatus=3, StopDate = @StopDate where Id = @originalApprenticeId
        
@@ -185,7 +190,7 @@ while @@FETCH_STATUS = 0 begin
   
   
     declare @eventsPriceHistoryInsertSql nvarchar(max) 
-    set @eventsPriceHistoryInsertSql = '@eventId = SCOPE_IDENTITY();' + CHAR(13) + CHAR(13)
+    set @eventsPriceHistoryInsertSql = 'set @eventId = SCOPE_IDENTITY();' + CHAR(13) + CHAR(13)
   
     select
     @eventsPriceHistoryInsertSql +=
@@ -216,12 +221,12 @@ batch_abort:
 	BEGIN
 
 		print '-- Committing transaction for ApprenticeshipId [' + cast(@ApprenticeshipId as varchar) + ']'
-		COMMIT -- use ROLLBACK for dev'ing
+		ROLLBACK -- use ROLLBACK for dev'ing
 		print '-- Completed'
 
 	END
 	print '-- ================================================================================'
-	fetch next from cur into @ApprenticeshipId, @Uln, @StopDate
+	fetch next from cur into @ApprenticeshipId, @Uln, @StartDate, @StopDate
 end
 
 close cur
