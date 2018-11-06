@@ -130,7 +130,7 @@
     <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipStatusesForCommitment.sql" />
     <None Include="AdhocScripts\Support\ProviderMergeScript.sql" />
-    <Build Include="AdhocScripts\Support\ApprenticeshipStopManyFixUpScript.sql" />
+    <None Include="AdhocScripts\Support\ApprenticeshipStopManyFixUpScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
