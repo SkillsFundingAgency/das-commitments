@@ -7,6 +7,7 @@ using System.Web.Http;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Infrastructure.Authorization;
@@ -32,6 +33,16 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var response = await _providerOrchestrator.GetCommitments(providerId);
 
             return Ok(response);
+        }
+
+
+        [Route("{providerId}/commitments/")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        public async Task<IHttpActionResult> CreateCommitment(long accountId, CommitmentRequest commitment)
+        {
+            var response = await _providerOrchestrator.CreateCommitment(accountId, commitment);
+
+            return CreatedAtRoute("GetCommitmentForProvider", new { accountId, commitmentId = response }, new CommitmentView { Id = response });
         }
 
         [Route("{providerId}/commitmentagreements")]
