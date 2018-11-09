@@ -68,6 +68,7 @@
     <Folder Include="AdhocScripts" />
     <Folder Include="AdhocScripts\Support" />
     <Folder Include="AdhocScripts\Support\DPP-1661" />
+    <Folder Include="PreDeployment" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -145,5 +146,8 @@
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="PreDeployment\PreDeploymentScript.sql" />
   </ItemGroup>
 </Project>
