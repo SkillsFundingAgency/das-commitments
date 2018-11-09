@@ -28,7 +28,8 @@
 	-- if null, no ApprenticeshipUpdate or Status != Pending
 	-- (we could store Originator and Status instead)
 	[PendingUpdateOriginator] TINYINT NULL,
-	[EPAOrgId] CHAR(7) NULL
+	[EPAOrgId] CHAR(7) NULL,
+	[CloneOf] BIGINT NULL,
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),
 	CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
