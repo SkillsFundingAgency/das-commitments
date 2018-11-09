@@ -45,7 +45,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            _logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand", accountId: message.Commitment.EmployerAccountId);
+            _logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called CreateCommitmentCommand",
+                accountId: message.Commitment.EmployerAccountId,
+                providerId: message.Commitment.ProviderId);
 
             var validationResult = _validator.Validate(message);
 
