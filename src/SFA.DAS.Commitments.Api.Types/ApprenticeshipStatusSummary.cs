@@ -5,6 +5,7 @@ namespace SFA.DAS.Commitments.Api.Types
     public sealed class ApprenticeshipStatusSummary
     {
         public string LegalEntityIdentifier { get; set; }
+        public SFA.DAS.Common.Domain.Types.OrganisationType LegalEntityOrganisationType { get; set; }
 
         public int PendingApprovalCount { get; set; }
         public int ActiveCount { get; set; }
