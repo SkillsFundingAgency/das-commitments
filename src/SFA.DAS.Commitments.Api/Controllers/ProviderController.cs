@@ -38,11 +38,11 @@ namespace SFA.DAS.Commitments.Api.Controllers
 
         [Route("{providerId}/commitments/")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateCommitment(long accountId, CommitmentRequest commitment)
+        public async Task<IHttpActionResult> CreateCommitment(long providerId, CommitmentRequest commitment)
         {
-            var response = await _providerOrchestrator.CreateCommitment(accountId, commitment);
+            var response = await _providerOrchestrator.CreateCommitment(providerId, commitment);
 
-            return CreatedAtRoute("GetCommitmentForProvider", new { accountId, commitmentId = response }, new CommitmentView { Id = response });
+            return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = response }, new CommitmentView { Id = response });
         }
 
         [Route("{providerId}/commitmentagreements")]
