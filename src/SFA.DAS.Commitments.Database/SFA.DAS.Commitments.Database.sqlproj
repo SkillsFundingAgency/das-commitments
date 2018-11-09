@@ -68,6 +68,7 @@
     <Folder Include="AdhocScripts" />
     <Folder Include="AdhocScripts\Support" />
     <Folder Include="AdhocScripts\Support\DPP-1661" />
+    <Folder Include="PreDeployment" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -126,6 +127,7 @@
     <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipStatusesForCommitment.sql" />
     <None Include="AdhocScripts\Support\ProviderMergeScript.sql" />
+    <None Include="AdhocScripts\Support\ApprenticeshipStopManyFixUpScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
@@ -139,5 +141,8 @@
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="PreDeployment\PreDeploymentScript.sql" />
   </ItemGroup>
 </Project>
