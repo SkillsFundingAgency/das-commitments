@@ -77,7 +77,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                        {
                                            Commitment = _populatedCommitment,
                                            Caller = new Caller(1L, CallerType.Employer),
-                                           UserId = "UserId"
+                                           UserId = "UserId",
+                                           LastAction = LastAction.None
                                        };
         }
 
