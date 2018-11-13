@@ -1,5 +1,5 @@
 /*
-This script emits an event for an apprenticeship.
+This script emits an event for all apprenticeships for the specified ukprns.
 It must be dealt with in two parts. First, this script must be run against the commitments db.
 It generates a script that must then be executed against the events db.
 */
@@ -20,7 +20,10 @@ declare cur cursor local for
 with apprenticeshipsWithCloneOf as (
   select a.*
   from Apprenticeship a
+  join Commitment c
+	on c.Id = a.CommitmentId
   where a.CloneOf is not null
+  and c.ProviderId in (@oldProviderId, @newProviderId)
 ), sourceApprenticeships as (
   select a.*
   from Apprenticeship a
