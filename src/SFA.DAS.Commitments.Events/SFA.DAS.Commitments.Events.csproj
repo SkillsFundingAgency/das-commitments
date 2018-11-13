@@ -80,8 +80,6 @@
     <Compile Include="ApprenticeshipUpdateCreated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderCohortApprovalUndoneByEmployerUpdate.cs" />
-    <Compile Include="RelationshipCreated.cs" />
-    <Compile Include="RelationshipVerified.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

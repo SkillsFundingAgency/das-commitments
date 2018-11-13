@@ -93,7 +93,6 @@
     <Compile Include="Data\IProviderPaymentRepository.cs" />
     <Compile Include="Data\IDataLockRepository.cs" />
     <Compile Include="Data\IHistoryRepository.cs" />
-    <Compile Include="Data\IRelationshipRepository.cs" />
     <Compile Include="Data\IStatisticsRepository.cs" />
     <Compile Include="Entities\AcademicYear\AcademicYearValidationResult.cs" />
     <Compile Include="Entities\AgreementStatus.cs" />
@@ -143,7 +142,6 @@
     <Compile Include="Configuration\EventsApiClientConfiguration.cs" />
     <Compile Include="Data\ICommitmentRepository.cs" />
     <Compile Include="Entities\ProviderUser.cs" />
-    <Compile Include="Entities\Relationship.cs" />
     <Compile Include="Entities\TrainingProgramme\Framework.cs" />
     <Compile Include="Entities\TrainingProgramme\FrameworksView.cs" />
     <Compile Include="Entities\TrainingProgramme\IApprenticeshipInfoServiceConfiguration.cs" />

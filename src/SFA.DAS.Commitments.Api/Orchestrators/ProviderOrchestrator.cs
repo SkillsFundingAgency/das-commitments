@@ -14,15 +14,12 @@ using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
-using SFA.DAS.Commitments.Application.Commands.VerifyRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
 using SFA.DAS.Commitments.Application.Queries.GetBulkUploadFile;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
 using SFA.DAS.Commitments.Application.Queries.GetCommitments;
 using SFA.DAS.Commitments.Application.Queries.GetPendingApprenticeshipUpdate;
-using SFA.DAS.Commitments.Application.Queries.GetRelationship;
-using SFA.DAS.Commitments.Application.Queries.GetRelationshipByCommitment;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -39,7 +36,6 @@ using SFA.DAS.Commitments.Application.Queries.GetCommitmentAgreements;
 using SFA.DAS.Commitments.Domain.Entities;
 
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
-using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
 {
@@ -351,65 +347,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Deleted commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
         }
 
-        public async Task<Types.Relationship> GetRelationship(long providerId, long employerAccountId, string legalEntityId)
-        {
-            _logger.Trace($"Getting relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-
-            var response = await _mediator.SendAsync(new GetRelationshipRequest
-            {
-                Caller = new Caller(providerId, CallerType.Provider),
-                ProviderId = providerId,
-                EmployerAccountId = employerAccountId,
-                LegalEntityId = legalEntityId
-            });
-
-            if (response.Data == null)
-            {
-                _logger.Info($"Relationship not found for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-                return null;
-            }
-
-            _logger.Info($"Retrieved relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-
-            return Map(response.Data);
-        }
-
-        public async Task<Types.Relationship> GetRelationship(long providerId, long commitmentId)
-        {
-            _logger.Trace($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
-
-            var response = await _mediator.SendAsync(new GetRelationshipByCommitmentRequest
-            {
-                Caller = new Caller(providerId, CallerType.Provider),
-                ProviderId = providerId,
-                CommitmentId = commitmentId
-            });
-
-            if (response.Data != null)
-                _logger.Info($"Getting relationship for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
-            else
-                _logger.Info($"Relationship not found for provider {providerId}, commitment {commitmentId}", null, providerId, commitmentId);
-
-            return Map(response.Data);
-        }
-
-        public async Task PatchRelationship(long providerId, long employerAccountId, string legalEntityId, RelationshipRequest patchRequest)
-        {
-            _logger.Trace($"Verifying relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-
-            await _mediator.SendAsync(new VerifyRelationshipCommand
-            {
-                Caller = new Caller(providerId, CallerType.Provider),
-                ProviderId = providerId,
-                EmployerAccountId = employerAccountId,
-                LegalEntityId = legalEntityId,
-                UserId = patchRequest.UserId,
-                Verified = patchRequest.Relationship.Verified
-            });
-
-            _logger.Info($"Verified relationship for provider {providerId}, employer {employerAccountId}, legal entity {legalEntityId}", employerAccountId, providerId);
-        }
-
         public async Task<Types.Apprenticeship.ApprenticeshipUpdate> GetPendingApprenticeshipUpdate(long providerId, long apprenticeshipId)
         {
             _logger.Trace($"Getting pending update for apprenticeship {apprenticeshipId} for provider account {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId);
@@ -515,22 +452,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved bulk upload for provider {providerId}", providerId: providerId);
             return result.Data;
-        }
-
-        private Types.Relationship Map(Relationship entity)
-        {
-            return new Types.Relationship
-            {
-                EmployerAccountId = entity.EmployerAccountId,
-                Id = entity.Id,
-                LegalEntityId = entity.LegalEntityId,
-                LegalEntityName = entity.LegalEntityName,
-                LegalEntityAddress = entity.LegalEntityAddress,
-                LegalEntityOrganisationType = entity.LegalEntityOrganisationType,
-                ProviderId = entity.ProviderId,
-                ProviderName = entity.ProviderName,
-                Verified = entity.Verified
-            };
         }
     }
 }
