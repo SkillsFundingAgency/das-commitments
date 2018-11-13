@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private async Task<Commitment> CreateCommitment(CreateCommitmentCommand message)
         {
             var newCommitment = message.Commitment;
-            newCommitment.LastAction = LastAction.None;
+            newCommitment.LastAction = message.LastAction;
 
             newCommitment.Id = await _commitmentRepository.Create(newCommitment);
             await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));

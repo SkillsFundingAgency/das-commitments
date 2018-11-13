@@ -15,6 +15,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         public string UserId { get; set; }
 
         public string Message { get; set; }
-
+        public LastAction LastAction { get; set; }
     }
 }
