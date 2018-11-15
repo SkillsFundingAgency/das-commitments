@@ -36,12 +36,12 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                                 result = apprenticeship;
                             }
 
-                            if (!result.PriceEpisodes.Exists(x => x.Id == priceEpisode.Id))
+                            if (priceEpisode != null && !result.PriceEpisodes.Exists(x => x.Id == priceEpisode.Id))
                             {
                                 result.PriceEpisodes.Add(priceEpisode);
                             }
 
-                            if (!result.DataLocks.Exists(x => x.Id == dataLock.Id))
+                            if (dataLock != null && !result.DataLocks.Exists(x => x.Id == dataLock.Id))
                             {
                                 result.DataLocks.Add(dataLock);
                             }
