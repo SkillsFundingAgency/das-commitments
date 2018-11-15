@@ -28,7 +28,7 @@ with apprenticeshipsWithCloneOf as (
   select a.*
   from Apprenticeship a
   join apprenticeshipsWithCloneOf c
-    on c.Id = a.CloneOf
+    on a.Id = c.CloneOf
 ), apprenticeshipsMissingMergeEvents as (
   select s.* from sourceApprenticeships s
   union
