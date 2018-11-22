@@ -475,21 +475,5 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             return id;
         }
-
-        private Types.Relationship Map(Relationship entity)
-        {
-            return new Types.Relationship
-            {
-                EmployerAccountId = entity.EmployerAccountId,
-                Id = entity.Id,
-                LegalEntityId = entity.LegalEntityId,
-                LegalEntityName = entity.LegalEntityName,
-                LegalEntityAddress = entity.LegalEntityAddress,
-                LegalEntityOrganisationType = entity.LegalEntityOrganisationType,
-                ProviderId = entity.ProviderId,
-                ProviderName = entity.ProviderName,
-                Verified = entity.Verified
-            };
-        }
     }
 }
