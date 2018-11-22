@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<ApprenticeshipSearchResponse> GetProviderApprenticeships(long providerId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);
         Task<Apprenticeship> GetProviderApprenticeship(long providerId, long apprenticeshipId);
 
+        Task<CommitmentView> CreateProviderCommitment(long providerId, CommitmentRequest commitment);
         Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentSubmission submission);
         Task DeleteProviderCommitment(long providerId, long commitmentId, DeleteRequest deleteRequest);
 
