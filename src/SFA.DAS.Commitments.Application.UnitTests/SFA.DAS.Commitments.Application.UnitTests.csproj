@@ -202,8 +202,6 @@
     <Compile Include="Commands\TriageDataLock\WhenValidatingRequest.cs" />
     <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenSavingNewPriorityList.cs" />
     <Compile Include="Commands\UpdateProviderPaymentsPriority\WhenValidatingCommand.cs" />
-    <Compile Include="Commands\VerifyRelationship\WhenVerifyingRelationship.cs" />
-    <Compile Include="Commands\VerifyRelationship\WhenValidatingCommand.cs" />
     <Compile Include="Extensions\DataLockStatusExtensions\WhenGettingPriceEpisodeIdentifierDate.cs" />
     <Compile Include="Extensions\DateTimeExtensions\WhenGettingFirstOfMonth.cs" />
     <Compile Include="Extensions\ITrainingProgrammeExtensions\WhenDeterminingFundingCap.cs" />
@@ -239,10 +237,6 @@
     <Compile Include="Queries\GetProviderCommitments\WhenGettingProviderCommitments.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenValidatingProviderId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\GetRelationshipByCommitment\WhenGettingRelationshipByCommitment.cs" />
-    <Compile Include="Queries\GetRelationshipByCommitment\WhenValidatingRequest.cs" />
-    <Compile Include="Queries\GetRelationship\WhenGettingRelationship.cs" />
-    <Compile Include="Queries\GetRelationship\WhenValidatingRequest.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewCommmitmentStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewEditStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewPaymentStatus.cs" />

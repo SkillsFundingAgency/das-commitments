@@ -20,20 +20,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
     {
         private readonly ICommitmentsLogger _logger;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IRelationshipTransactions _relationshipTransactions;
 
         public CommitmentRepository(string databaseConnectionString,
             ICommitmentsLogger logger,
-            ICurrentDateTime currentDateTime,
-            IRelationshipTransactions relationshipTransactions) : base(databaseConnectionString,
+            ICurrentDateTime currentDateTime) : base(databaseConnectionString,
             logger.BaseLogger)
         {
             _logger = logger;
             _currentDateTime = currentDateTime;
-            _relationshipTransactions = relationshipTransactions;
         }
 
-        public async Task<long> Create(Commitment commitment, Relationship relationship = null)
+        public async Task<long> Create(Commitment commitment)
         {
             _logger.Debug($"Creating commitment with ref: {commitment.Reference}", accountId: commitment.EmployerAccountId, providerId: commitment.ProviderId);
 
@@ -72,11 +69,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         param: parameters,
                         commandType: CommandType.Text,
                         transaction: trans)).Single();
-
-                    if (relationship != null)
-                    {
-                        await _relationshipTransactions.CreateRelationship(connection, trans, relationship);
-                    }
 
                     trans.Commit();
                     return commitmentId;
