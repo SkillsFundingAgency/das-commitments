@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="NLog.Extensions.Logging" Version="1.3.0" />
-    <PackageReference Include="SFA.DAS.NLog.Logger" Version="1.1.5" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
   </ItemGroup>
 
