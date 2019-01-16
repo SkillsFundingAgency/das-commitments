@@ -1,4 +1,5 @@
-﻿using StructureMap;
+﻿using SFA.DAS.ProviderCommitments.DependencyResolution;
+using StructureMap;
 
 namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
 {
@@ -8,6 +9,7 @@ namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
         {
             return new Container(c =>
             {
+                c.AddRegistry<LoggerRegistry>();
                 c.AddRegistry<DefaultRegistry>();
             });
         }
