@@ -16,6 +16,16 @@ namespace SFA.DAS.ProviderCommitments.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            //DependencyResolver.Current.GetService<IStartup>().StartAsync().GetAwaiter().GetResult();
+
         }
+
+        protected void Application_End()
+        {
+            //DependencyResolver.Current.GetService<IStartup>().StopAsync().GetAwaiter().GetResult();
+        }
+
+
+
     }
 }

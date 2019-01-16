@@ -13,9 +13,7 @@ namespace SFA.DAS.ProviderCommitments.Web
     {
         public void Configuration(IAppBuilder app)
         {
-            var a = 1;
-            a++;
-            //var container = StructuremapMvc.StructureMapDependencyScope.Container;
+            var container = StructuremapMvc.StructureMapDependencyScope.Container;
             //var logger = container.GetInstance<ILog>();
 
             //logger.Info("Starting Provider Relationships web application");
