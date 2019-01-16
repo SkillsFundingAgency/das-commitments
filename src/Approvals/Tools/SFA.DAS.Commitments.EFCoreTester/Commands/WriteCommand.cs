@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.EFCoreTester.Commands
         {
             var draft = new DraftApprenticeship
             {
-                //PaymentStatus = 0,
+                PaymentStatus = 0,
                 FirstName = $"Draft.First.{i}",
                 LastName = $"Draft.Last.{i}",
                 Uln = $"Draft.Uln.{i}",
@@ -69,7 +69,7 @@ namespace SFA.DAS.Commitments.EFCoreTester.Commands
         {
             var confirmed = new ConfirmedApprenticeship
             {
-                //PaymentStatus = 1,
+                PaymentStatus = 1,
                 AgreedOn = DateTime.UtcNow,
                 FirstName = $"Confirmed.First.{i}",
                 LastName = $"Confirmed.Last.{i}",

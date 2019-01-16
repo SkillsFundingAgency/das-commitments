@@ -31,8 +31,10 @@ namespace SFA.DAS.Commitments.EFCoreTester.Commands
                     db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 }
 
-                _timer.Time("Read drafts", () => db.DraftApprenticeships.ToList());
-                _timer.Time("Read confirmed", () => db.ConfirmedApprenticeships.ToList());
+                var l1 = _timer.Time("Read drafts", () => db.DraftApprenticeships.ToList());
+                var l2 = _timer.Time("Read confirmed", () => db.ConfirmedApprenticeships.ToList());
+
+                Console.WriteLine($"Draft: {l1.Count}  Approved: {l2.Count}");
             }
 
             return Task.CompletedTask;

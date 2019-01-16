@@ -4,6 +4,8 @@ namespace SFA.DAS.Commitments.EFCoreTester.Data.Models
 {
     public abstract class Apprenticeship
     {
+        public bool IsApproved { get; set; }
+
         public long Id { get; set; }
         public long CommitmentId { get; set; }
         public string FirstName { get; set; }

@@ -39,15 +39,32 @@ namespace SFA.DAS.Commitments.EFCoreTester.Data
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.1-servicing-10028");
 
+            #region Table-per-hierarchy
+            /*
+             *  TPH requires a discriminator column. By default this is called Discriminator and is a string, but this can be configured.
+             *  Here, the discriminator column is set to "IsApproved" and is a boolean.
+             *  We cannot use PaymentStatus directly because the discriminator requires one value for each entity type which
+             *  doesn't match the scenario since paymentstatus 0 means Draft and *all* other values mean approved.
+             *  So we create a calculated field in the database called IsApproved which is based on payment status:
+             * alter table [dbo].[Apprenticeship]
+             *      add IsApproved as (CASE WHEN PaymentStatus > 0 THEN CAST(1 as bit) ELSE CAST(0 as bit) END) PERSISTED;
+.            * Note that is persisted, since we will be selecting on this column.
+             * The fact that this is calculated field means that EF does not attempt to set it (which it would normally
+             * - do based on the discriminator for that entity type).
+             */
+
             modelBuilder.Entity<DraftApprenticeship>().HasBaseType<Apprenticeship>();
             modelBuilder.Entity<ConfirmedApprenticeship>().HasBaseType<Apprenticeship>();
 
-            // modelBuilder.
-
             modelBuilder.Entity<Apprenticeship>().ToTable("Apprenticeship")
-                .HasDiscriminator<short>(nameof(Apprenticeship.PaymentStatus))
-                .HasValue<DraftApprenticeship>(0)
-                .HasValue<ConfirmedApprenticeship>(1);
+                .HasDiscriminator<bool>(nameof(Apprenticeship.IsApproved))
+                .HasValue<DraftApprenticeship>(false)
+                .HasValue<ConfirmedApprenticeship>(true);
+
+            modelBuilder.Entity<Apprenticeship>().Property(p => p.IsApproved)
+                .HasComputedColumnSql("CASE WHEN PaymentStatus > 0 THEN 1 ELSE 0 END");
+
+            #endregion
 
             modelBuilder.Entity<ConfirmedApprenticeship>(entity =>
             {
