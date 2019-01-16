@@ -14,22 +14,17 @@
 // limitations under the License.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using Microsoft.Practices.ServiceLocation;
+using StructureMap;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.ProviderCommitments.Extensions;
 
 namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Web;
-
-    using Microsoft.Practices.ServiceLocation;
-
-    //using NLog.Logger;
-
-    //using SFA.DAS.ProviderRelationships.Extensions;
-
-    using StructureMap;
-
     /// <summary>
     /// The structure map dependency scope.
     /// </summary>
@@ -130,9 +125,9 @@ namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
             }
             catch (Exception ex)
             {
-                //var logger = Container.TryGetInstance<ILog>();
+                var logger = Container.TryGetInstance<ILogger<StructureMapDependencyScope>>();
 
-                //logger?.Error(ex, ex.GetAggregateMessage());
+                logger?.LogError(ex, ex.AggregateMessages());
 
                 throw ex;
             }
@@ -155,9 +150,9 @@ namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
             }
             catch (Exception ex)
             {
-                //var logger = container.TryGetInstance<ILog>();
+                var logger = container.TryGetInstance<ILogger<StructureMapDependencyScope>>();
 
-                //logger?.Error(ex, ex.GetAggregateMessage());
+                logger?.LogError(ex, ex.AggregateMessages());
 
                 throw ex;
             }

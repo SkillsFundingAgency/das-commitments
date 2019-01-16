@@ -1,15 +1,10 @@
-﻿namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
+﻿using System.Web;
+using StructureMap.Web.Pipeline;
+
+namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
 {
-    using System.Web;
-
-    using SFA.DAS.ProviderCommitments.Web;
-
-    using StructureMap.Web.Pipeline;
-
     public class StructureMapScopeModule : IHttpModule
     {
-        #region Public Methods and Operators
-
         public void Dispose()
         {
         }
@@ -22,7 +17,5 @@
                 StructuremapMvc.StructureMapDependencyScope.DisposeNestedContainer();
             };
         }
-
-        #endregion
     }
 }
