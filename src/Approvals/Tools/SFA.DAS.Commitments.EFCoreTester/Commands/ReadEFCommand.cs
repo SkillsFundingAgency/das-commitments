@@ -4,17 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.Commitments.EFCoreTester.Config;
 using SFA.DAS.Commitments.EFCoreTester.Data;
 using SFA.DAS.Commitments.EFCoreTester.Interfaces;
 
 namespace SFA.DAS.Commitments.EFCoreTester.Commands
 {
-    public class ReadCommand : ICommand
+    public class ReadEFCommand : ICommand
     {
         private readonly ITimer _timer;
+        private readonly ReadConfig _config;
 
-        public ReadCommand(ITimer timer)
+        public ReadEFCommand(IConfigProvider configProvider, ITimer timer)
         {
+            _config = configProvider.Get<ReadConfig>();
             _timer = timer;
         }
 
@@ -22,11 +26,13 @@ namespace SFA.DAS.Commitments.EFCoreTester.Commands
         {
             using (var db = CreateDbContext())
             {
-                var drafts = _timer.Time("Read drafts", () => db.DraftApprenticeships.ToList());
-                var confirmed = _timer.Time("Read confirmed", () => db.ConfirmedApprenticeships.ToList());
+                if (_config.NoTracking)
+                {
+                    db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                }
 
-                Console.WriteLine($"drafts.....{drafts.Count}");
-                Console.WriteLine($"confirmed..{confirmed.Count}");
+                _timer.Time("Read drafts", () => db.DraftApprenticeships.ToList());
+                _timer.Time("Read confirmed", () => db.ConfirmedApprenticeships.ToList());
             }
 
             return Task.CompletedTask;

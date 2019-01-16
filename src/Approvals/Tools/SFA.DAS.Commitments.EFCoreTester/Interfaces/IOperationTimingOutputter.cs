@@ -2,6 +2,7 @@
 {
     public interface IOperationTimingOutputter
     {
-        void Show(IOperation operation);
+        void ShowLog(IOperation operation);
+        void ShowSummary(IOperation operation);
     }
 }

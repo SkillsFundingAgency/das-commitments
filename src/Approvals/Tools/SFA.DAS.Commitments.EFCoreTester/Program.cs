@@ -28,8 +28,19 @@ namespace SFA.DAS.Commitments.EFCoreTester
 
         private void RunReads(ReadCommandLine args)
         {
-            SetConfigOverrides<ReadConfig>(config => config.TableName = args.TableName);
-            RunCommand<ReadCommand>(args.ShowTimings, args.Runs);
+            SetConfigOverrides<ReadConfig>(config => config.NoTracking = args.NoTracking);
+
+            switch (args.Mode)
+            {
+                case ReadMode.AllTables:
+                    break;
+                case ReadMode.Dapper:
+                    RunCommand<ReadDapperCommand>(args.TimingsMode, args.Runs);
+                    break;
+                case ReadMode.EF:
+                    RunCommand<ReadEFCommand>(args.TimingsMode, args.Runs);
+                    break;
+            }
         }
 
         private void RunWrites(WriteCommandLine args)
@@ -37,27 +48,40 @@ namespace SFA.DAS.Commitments.EFCoreTester
             SetConfigOverrides<WriteConfig>(config => config.SingleApprenticeshipPerCommitment = args.SingleApprenticeshipPerCommitment);
             SetConfigOverrides<WriteConfig>(config => config.DraftCount = args.DraftCount);
             SetConfigOverrides<WriteConfig>(config => config.ConfirmedCount = args.ConfirmedCount);
-            RunCommand<WriteCommand>(args.ShowTimings, args.Runs);
+            RunCommand<WriteCommand>(args.TimingsMode, args.Runs);
         }
 
-        private void RunCommand<TCommand>(bool showTimings, int runs) where TCommand : ICommand
+        private void RunCommand<TCommand>(TimingsMode timingsMode, int runs) where TCommand : ICommand
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
             var task = StartCommand<TCommand>(cancellationTokenSource.Token, runs);
 
             WaitForCommandToCompleteOrCancel(task, cancellationTokenSource);
-
-            if (showTimings)
-            {
-                ShowTimings(task.Result);
-            }
+            
+            ShowTimings(task.Result, timingsMode);
         }
 
-        private void ShowTimings(IOperation operation)
+        private void ShowTimings(IOperation operation, TimingsMode timingsMode)
         {
+            if (timingsMode == TimingsMode.None)
+            {
+                return;
+            }
+
             var outputter = _container.GetInstance<IOperationTimingOutputter>();
-            outputter.Show(operation);
+
+            switch (timingsMode)
+            {
+                case TimingsMode.Full:
+                    outputter.ShowLog(operation);
+                    outputter.ShowSummary(operation);
+                    break;
+
+                case TimingsMode.Summary:
+                    outputter.ShowSummary(operation);
+                    break;
+            }
         }
 
         private void SetConfigOverrides<TConfigType>(Action<TConfigType> setter) where TConfigType : class, new()
@@ -89,7 +113,14 @@ namespace SFA.DAS.Commitments.EFCoreTester
         private Task<IOperation> StartCommandWithTimer(ICommand command, ITimer timer, int repeat, CancellationToken cancellationToken)
         {
             timer.StartCommand();
-            return RunCommandANumberOfTimes(command, repeat, cancellationToken).ContinueWith(t => timer.EndCommand());
+            return RunCommandANumberOfTimes(command, repeat, cancellationToken).ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    throw t.Exception.InnerException;
+                }
+                return timer.EndCommand();
+            });
         }
 
         private async Task RunCommandANumberOfTimes(ICommand command, int repeat, CancellationToken cancellationToken)

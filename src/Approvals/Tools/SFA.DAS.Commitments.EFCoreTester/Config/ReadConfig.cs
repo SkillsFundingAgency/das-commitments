@@ -6,6 +6,6 @@ namespace SFA.DAS.Commitments.EFCoreTester.Config
 {
     public class ReadConfig
     {
-        public string TableName { get; set; }
+        public bool NoTracking { get; set; }
     }
 }

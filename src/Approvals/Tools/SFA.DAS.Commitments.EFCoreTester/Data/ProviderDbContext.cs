@@ -3,6 +3,12 @@ using SFA.DAS.Commitments.EFCoreTester.Data.Models;
 
 namespace SFA.DAS.Commitments.EFCoreTester.Data
 {
+
+    public class Constants
+    {
+        public const string ConnectionString = "Server=(localdb)\\ProjectsV13;Database=SFA.DAS.Commitments.Database;Trusted_Connection=True;";
+    }
+
     public class ProviderDbContext : DbContext
     {
         public DbSet<DraftApprenticeship> DraftApprenticeships { get; set; }
@@ -25,7 +31,7 @@ namespace SFA.DAS.Commitments.EFCoreTester.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=(localdb)\\ProjectsV13;Database=SFA.DAS.Commitments.Database;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(Constants.ConnectionString);
             }
         }
 
