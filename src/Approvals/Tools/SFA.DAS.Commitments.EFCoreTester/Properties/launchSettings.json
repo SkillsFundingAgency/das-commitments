@@ -2,7 +2,7 @@
   "profiles": {
     "SFA.DAS.Commitments.EFCoreTester": {
       "commandName": "Project",
-      "commandLineArgs": "read"
+      "commandLineArgs": "read -t"
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.Commitments.EFCoreTester.Config;
 using SFA.DAS.Commitments.EFCoreTester.Interfaces;
+using SFA.DAS.Commitments.EFCoreTester.Timing;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.EFCoreTester.IoC
@@ -9,6 +10,7 @@ namespace SFA.DAS.Commitments.EFCoreTester.IoC
         public CommonRegistry(string configLocation)
         {
             For<IConfigProvider>().Use(new ConfigProvider(configLocation)).Singleton();
+            For<ITimer>().Use<Timer>().Singleton();
 
             Scan(scan =>
             {

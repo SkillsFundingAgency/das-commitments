@@ -11,18 +11,30 @@ namespace SFA.DAS.Commitments.EFCoreTester.Commands
 {
     public class ReadCommand : ICommand
     {
+        private readonly ITimer _timer;
+
+        public ReadCommand(ITimer timer)
+        {
+            _timer = timer;
+        }
+
         public Task DoAsync(CancellationToken cancellationToken)
         {
-            using (var db = new ProviderDbContext())
+            using (var db = CreateDbContext())
             {
-                var drafts = db.DraftApprenticeships.ToList();
-                var confirmed = db.ConfirmedApprenticeships.ToList();
+                var drafts = _timer.Time("Read drafts", () => db.DraftApprenticeships.ToList());
+                var confirmed = _timer.Time("Read confirmed", () => db.ConfirmedApprenticeships.ToList());
 
                 Console.WriteLine($"drafts.....{drafts.Count}");
                 Console.WriteLine($"confirmed..{confirmed.Count}");
             }
 
             return Task.CompletedTask;
+        }
+
+        private ProviderDbContext CreateDbContext()
+        {
+            return _timer.Time("Create DB Context", () => new ProviderDbContext());
         }
     }
 }

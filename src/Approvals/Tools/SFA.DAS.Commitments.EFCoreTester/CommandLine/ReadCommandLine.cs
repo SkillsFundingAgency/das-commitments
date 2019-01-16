@@ -3,9 +3,9 @@
 namespace SFA.DAS.Commitments.EFCoreTester.CommandLine
 {
     [Verb("read", HelpText = "Runs queries against the database")]
-    public class ReadCommandLine
+    public class ReadCommandLine : CommonCommandLine
     {
-        [Option('t', "tableName", HelpText = "Execute a query against this table")]
+        [Option('n', "tableName", HelpText = "Execute a query against this table")]
         public string TableName { get; set; }
     }
 }

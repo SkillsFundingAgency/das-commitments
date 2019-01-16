@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.EFCoreTester
         private void RunReads(ReadCommandLine args)
         {
             SetConfigOverrides<ReadConfig>(config => config.TableName = args.TableName);
-            RunCommand<ReadCommand>();
+            RunCommand<ReadCommand>(args.ShowTimings, args.Runs);
         }
 
         private void RunWrites(WriteCommandLine args)
@@ -37,16 +37,27 @@ namespace SFA.DAS.Commitments.EFCoreTester
             SetConfigOverrides<WriteConfig>(config => config.SingleApprenticeshipPerCommitment = args.SingleApprenticeshipPerCommitment);
             SetConfigOverrides<WriteConfig>(config => config.DraftCount = args.DraftCount);
             SetConfigOverrides<WriteConfig>(config => config.ConfirmedCount = args.ConfirmedCount);
-            RunCommand<WriteCommand>();
+            RunCommand<WriteCommand>(args.ShowTimings, args.Runs);
         }
 
-        private void RunCommand<TCommand>() where TCommand : ICommand
+        private void RunCommand<TCommand>(bool showTimings, int runs) where TCommand : ICommand
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
-            var task = StartCommand<TCommand>(cancellationTokenSource.Token);
+            var task = StartCommand<TCommand>(cancellationTokenSource.Token, runs);
 
             WaitForCommandToCompleteOrCancel(task, cancellationTokenSource);
+
+            if (showTimings)
+            {
+                ShowTimings(task.Result);
+            }
+        }
+
+        private void ShowTimings(IOperation operation)
+        {
+            var outputter = _container.GetInstance<IOperationTimingOutputter>();
+            outputter.Show(operation);
         }
 
         private void SetConfigOverrides<TConfigType>(Action<TConfigType> setter) where TConfigType : class, new()
@@ -64,12 +75,34 @@ namespace SFA.DAS.Commitments.EFCoreTester
             }
         }
 
-        private Task StartCommand<TCommand>(CancellationToken cancellationToken) where TCommand : ICommand
+        private Task<IOperation> StartCommand<TCommand>(CancellationToken cancellationToken, int runs) where TCommand : ICommand
         {
             var command = _container.GetInstance<TCommand>();
-            var task = command.DoAsync(cancellationToken);
+            var timer = _container.GetInstance<ITimer>();
+
+            var task = StartCommandWithTimer(command, timer, runs, cancellationToken);
+
             Console.WriteLine("Task executing - waiting for it to finish");
             return task;
+        }
+
+        private Task<IOperation> StartCommandWithTimer(ICommand command, ITimer timer, int repeat, CancellationToken cancellationToken)
+        {
+            timer.StartCommand();
+            return RunCommandANumberOfTimes(command, repeat, cancellationToken).ContinueWith(t => timer.EndCommand());
+        }
+
+        private async Task RunCommandANumberOfTimes(ICommand command, int repeat, CancellationToken cancellationToken)
+        {
+            for (int i = 0; i < repeat; i++)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                await command.DoAsync(cancellationToken);
+            }
         }
 
         private void WaitForCommandToCompleteOrCancel(Task commandTask, CancellationTokenSource cancellationTokenSource)

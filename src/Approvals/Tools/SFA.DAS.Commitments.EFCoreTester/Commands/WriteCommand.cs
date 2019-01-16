@@ -15,23 +15,30 @@ namespace SFA.DAS.Commitments.EFCoreTester.Commands
     {
         private readonly WriteConfig _config;
         private Commitment _singleCommitment;
+        private readonly ITimer _timer;
 
-        public WriteCommand(IConfigProvider configProvider)
+        public WriteCommand(IConfigProvider configProvider, ITimer timer)
         {
             _config = configProvider.Get<WriteConfig>();
+            _timer = timer;
         }
 
         public async Task DoAsync(CancellationToken cancellationToken)
         {
-            using (var db = new ProviderDbContext())
+            using (var db = CreateDbContext())
             {
-                AddApprentices(_config.DraftCount, i => AddDraft(i, db));
-                AddApprentices(_config.ConfirmedCount, i => AddConfirmed(i, db));
+                _timer.Time("Add draft apprentices", () => AddApprentices(_config.DraftCount, i => AddDraft(i, db)));
+                _timer.Time("Add confirmed apprentices", () => AddApprentices(_config.ConfirmedCount, i => AddConfirmed(i, db)));
 
-                var writes = await db.SaveChangesAsync(CancellationToken.None);
+                var writes = await _timer.TimeAsync("Save changes", () => db.SaveChangesAsync(CancellationToken.None));
 
                 Console.WriteLine($"Number of changes....{writes}");
             }
+        }
+
+        private ProviderDbContext CreateDbContext()
+        {
+            return _timer.Time("Create DB Context", () => new ProviderDbContext());
         }
 
         private void AddApprentices(int number, Action<int> action)

@@ -3,7 +3,7 @@
 namespace SFA.DAS.Commitments.EFCoreTester.CommandLine
 {
     [Verb("write", HelpText = "Populates the database")]
-    public class WriteCommandLine
+    public class WriteCommandLine : CommonCommandLine
     {
         [Option('d', "draftCount", HelpText = "The number of drafts that are to be created", Default = 10)]
         public int DraftCount { get; set; }
