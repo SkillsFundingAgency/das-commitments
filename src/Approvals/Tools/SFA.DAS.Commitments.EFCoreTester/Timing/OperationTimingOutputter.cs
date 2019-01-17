@@ -24,13 +24,15 @@ namespace SFA.DAS.Commitments.EFCoreTester.Timing
 
             const int WarmUpTime = 2;
 
+            Console.WriteLine("Title total Warm-Elapsed Warm-Avg Runs");
+
             foreach (var aggregate in aggregates)
             {
                 var allElapsed = aggregate.Durations.Sum();
                 var afterWarmUpElapsed = aggregate.Durations.Skip(WarmUpTime).Sum();
                 var afterWarmUpAverage = aggregate.Durations.Length > WarmUpTime ? aggregate.Durations.Skip(WarmUpTime).Average() : aggregate.Durations.Average();
 
-                Console.Write($"{aggregate.Title,-20} total:{allElapsed:F3} Warm-Elapsed:{afterWarmUpElapsed:F3} Warm-Avg:{afterWarmUpAverage:F3} Runs:{aggregate.Durations.Length}");
+                Console.Write($"{aggregate.Title.Replace(' ','_'),-20} {allElapsed:F3} {afterWarmUpElapsed:F3} {afterWarmUpAverage:F3} {aggregate.Durations.Length}");
 
                 foreach (var duration in aggregate.Durations)
                 {
