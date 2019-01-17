@@ -33,6 +33,7 @@ namespace SFA.DAS.Commitments.EFCoreTester
             switch (args.Mode)
             {
                 case ReadMode.AllTables:
+                    RunCommand<ReadAllTablesCommand>(args.TimingsMode, args.Runs);
                     break;
                 case ReadMode.Dapper:
                     RunCommand<ReadDapperCommand>(args.TimingsMode, args.Runs);
