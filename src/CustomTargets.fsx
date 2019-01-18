@@ -13,4 +13,7 @@ Target "Dotnet Restore" (fun _ ->
     DotNetCli.Restore(fun p ->
         { p with
                 Project = ".\\SFA.DAS.Commitments.Api.Types" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\SFA.DAS.ProviderCommitments.UnitTests" })
 )
