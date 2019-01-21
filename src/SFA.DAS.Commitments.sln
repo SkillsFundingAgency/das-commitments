@@ -70,11 +70,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Approvals", "Approvals", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CF2089CE-37E0-4510-B3F9-FF2674A790C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Web", "SFA.DAS.ProviderCommitments.Web\SFA.DAS.ProviderCommitments.Web.csproj", "{46697CA3-402B-4D81-A6EE-9EB9B8F0F5B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Web", "Approvals\SFA.DAS.ProviderCommitments.Web\SFA.DAS.ProviderCommitments.Web.csproj", "{46697CA3-402B-4D81-A6EE-9EB9B8F0F5B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments", "SFA.DAS.ProviderCommitments\SFA.DAS.ProviderCommitments.csproj", "{966AABAF-268B-47F7-9C18-72D2D8651D95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments", "Approvals\SFA.DAS.ProviderCommitments\SFA.DAS.ProviderCommitments.csproj", "{966AABAF-268B-47F7-9C18-72D2D8651D95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.UnitTests", "SFA.DAS.ProviderCommitments.UnitTests\SFA.DAS.ProviderCommitments.UnitTests.csproj", "{124B829B-05A6-4644-B3A9-4E5B37F47449}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.UnitTests", "Approvals\SFA.DAS.ProviderCommitments.UnitTests\SFA.DAS.ProviderCommitments.UnitTests.csproj", "{124B829B-05A6-4644-B3A9-4E5B37F47449}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
