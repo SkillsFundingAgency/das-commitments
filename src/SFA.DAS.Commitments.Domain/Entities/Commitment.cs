@@ -33,6 +33,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public LastAction LastAction { get; set; }
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
+        public Originator Originator { get; set; }
 
         public string LastUpdatedByEmployerName { get; set; }
         public string LastUpdatedByEmployerEmail { get; set; }
@@ -45,6 +46,6 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public List<Message> Messages { get; set; }
         [JsonIgnore]
         public bool HasTransferSenderAssigned => TransferSenderId > 0;
-
+        
     }
 }
