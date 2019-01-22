@@ -20,13 +20,13 @@ using SFA.DAS.ProviderCommitments.Web.Models;
 
 namespace SFA.DAS.ProviderCommitments.Web
 {
-    public class Auth
+    public class AuthConfig
     {
         private const string ServiceName = "SFA.DAS.ProviderCommitments";
 
-        public void ConfigureAuth(IAppBuilder app)
+        public static void RegisterAuth(IAppBuilder app)
         {
-            var logger = LogManager.GetLogger(typeof(Auth).Name);
+            var logger = LogManager.GetLogger(typeof(AuthConfig).Name);
 
             var config = GetConfigurationObject();
 
@@ -71,7 +71,7 @@ namespace SFA.DAS.ProviderCommitments.Web
             ConfigurationFactory.Current = new IdentityServerConfigurationFactory(config);
         }
 
-        private Func<X509Certificate2> GetSigningCertificate(bool useCertificate)
+        private static Func<X509Certificate2> GetSigningCertificate(bool useCertificate)
         {
             if (!useCertificate)
             {
@@ -102,7 +102,7 @@ namespace SFA.DAS.ProviderCommitments.Web
             };
         }
 
-        private void PostAuthentiationAction(ClaimsIdentity identity, ILogger logger, Constants constants)
+        private static void PostAuthentiationAction(ClaimsIdentity identity, ILogger logger, Constants constants)
         {
             logger.Info("PostAuthenticationAction called");
             var userRef = GetClaimValue(identity, constants.Id);
@@ -119,14 +119,14 @@ namespace SFA.DAS.ProviderCommitments.Web
             identity.AddClaim(new Claim("email", GetClaimValue(identity, constants.Email)));
         }
 
-        private string GetClaimValue(ClaimsIdentity identity, string claimName)
+        private static string GetClaimValue(ClaimsIdentity identity, string claimName)
         {
             var claim = identity.Claims.FirstOrDefault(c => c.Type == claimName);
 
             return claim?.Value;
         }
 
-        private ProviderCommitmentsSecurityConfiguration GetConfigurationObject()
+        private static ProviderCommitmentsSecurityConfiguration GetConfigurationObject()
         {
             var environment = Environment.GetEnvironmentVariable("DASENV");
             if (string.IsNullOrEmpty(environment))
@@ -144,7 +144,7 @@ namespace SFA.DAS.ProviderCommitments.Web
             return config;
         }
 
-        private IConfigurationRepository GetConfigurationRepository()
+        private static IConfigurationRepository GetConfigurationRepository()
         {
             IConfigurationRepository configurationRepository;
             if (bool.Parse(ConfigurationManager.AppSettings["LocalConfig"]))

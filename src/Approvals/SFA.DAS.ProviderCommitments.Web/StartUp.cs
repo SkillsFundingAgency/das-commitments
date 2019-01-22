@@ -4,18 +4,19 @@ using Microsoft.Owin;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.ProviderCommitments.Web;
 
-[assembly: OwinStartup(typeof(StartUp))]
+[assembly: OwinStartup(typeof(Startup))]
 
 namespace SFA.DAS.ProviderCommitments.Web
 {
-    public class StartUp
+    public class Startup
     {
         public void Configuration(IAppBuilder app)
         {
             var logger = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<ILog>();
 
+            AuthConfig.RegisterAuth(app);
+
             logger.Info("Starting Provider Relationships web application");
         }
     }
 }
-
