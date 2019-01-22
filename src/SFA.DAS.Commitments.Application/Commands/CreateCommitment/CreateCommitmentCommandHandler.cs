@@ -76,6 +76,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             newCommitment.LastAction = message.LastAction;
 
             newCommitment.Id = await _commitmentRepository.Create(newCommitment);
+
+            //Does this need try-catch? CallerType enum has more valid entries than Originator enum
+            newCommitment.Originator = (Originator)message.Caller.CallerType; 
+
             await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));
 
             return newCommitment;
