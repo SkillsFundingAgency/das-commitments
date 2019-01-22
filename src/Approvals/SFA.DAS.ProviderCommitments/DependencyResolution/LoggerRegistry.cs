@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
+﻿using SFA.DAS.NLog.Logger;
 using StructureMap;
 
 namespace SFA.DAS.ProviderCommitments.DependencyResolution
@@ -8,9 +7,7 @@ namespace SFA.DAS.ProviderCommitments.DependencyResolution
     {
         public LoggerRegistry()
         {
-            For<ILoggerFactory>().Use(() => new LoggerFactory().AddNLog()).Singleton();
-            For<ILogger>().Use(c => c.GetInstance<ILoggerFactory>().CreateLogger(c.ParentType));
-            For(typeof(ILogger<>)).Use(typeof(Logger<>));
+            For<ILog>().Use(x => new NLogLogger(x.ParentType, null, null)).AlwaysUnique();
         }
     }
 }
