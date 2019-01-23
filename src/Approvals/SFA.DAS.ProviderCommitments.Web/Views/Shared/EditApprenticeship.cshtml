@@ -1,0 +1,250 @@
+﻿@using SFA.DAS.ProviderApprenticeshipsService.Web.Extensions
+@using SFA.DAS.ProviderApprenticeshipsService.Web.Validation.Text
+@model SFA.DAS.ProviderApprenticeshipsService.Web.Models.ApprenticeshipViewModel
+
+<div class="form-group @Html.AddClassIfPropertyInError(x => x.FirstName, "error")">
+
+    @Html.LabelFor(m => m.FirstName, "First name", new { @class = "form-label form-label-bold" })
+    @Html.ValidationMessageFor(m => m.FirstName, null, new { id = "error-message-" + Html.IdFor(m => m.FirstName) })
+    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control form-control-3-4" })
+</div>
+<div class="form-group @Html.AddClassIfPropertyInError(x => x.LastName, "error")">
+    @Html.LabelFor(m => m.LastName, "Last name", new { @class = "form-label form-label-bold" })
+    @Html.ValidationMessageFor(m => m.LastName, null, new { id = "error-message-" + Html.IdFor(m => m.LastName) })
+    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control form-control-3-4" })
+</div>
+
+<div class="form-error-group form-group @Html.AddClassIfPropertyInError(x => x.DateOfBirth, "error") ">
+    <hr />
+    <span class="form-label-bold">Date of birth</span>
+    <span class="form-hint">For example, 08 12 2001</span>
+
+    <div class="form-date">
+        @Html.ValidationMessageFor(m => m.DateOfBirth, null, new { id = "error-message-" + Html.IdFor(m => m.DateOfBirth), @class = "error-message" })
+
+        <div class="form-group form-group-day">
+            <label for="@Html.IdFor(m => m.DateOfBirth.Day)">
+                Day
+            </label>
+            @Html.TextBoxFor(m => m.DateOfBirth.Day, new { @class = "form-control length-limit", type = "number", maxlength = "2", min = "1", max = "31", aria_labelledby = Html.IdFor(m => m.DateOfBirth.Day) })
+        </div>
+        <div class="form-group form-group-month">
+            <label for="@Html.IdFor(m => m.DateOfBirth.Month)">
+                Month
+            </label>
+            @Html.TextBoxFor(m => m.DateOfBirth.Month, new { @class = "form-control length-limit", type = "number", maxlength = "2", min = "1", max = "12", aria_labelledby = Html.IdFor(m => m.DateOfBirth.Month) })
+        </div>
+        <div class="form-group form-group-year">
+            <label for="@Html.IdFor(m => m.DateOfBirth.Year)">
+                Year
+            </label>
+            <input aria-labelledby="@Html.IdFor(m => m.DateOfBirth.Year)" class="form-control length-limit" type="number" maxlength="4" min="1900" max="9999" data-val="true" data-val-number="The field Year must be a number." id="@Html.IdFor(m => m.DateOfBirth.Year)" name="DateOfBirth.Year" , value="@Model.DateOfBirth.Year">
+        </div>
+    </div>
+</div>
+
+@if (Model.IsLockedForUpdate)
+{
+    <div class="form-group">
+        <hr />
+        <label class="form-label-bold">
+            Unique learner number
+        </label>
+        <span>
+            @Model.ULN
+        </span>
+    </div>
+    @Html.HiddenFor(m => m.ULN)
+}
+else
+{
+    <div class="form-group @Html.AddClassIfPropertyInError(x => x.ULN, "error")">
+        <hr />
+        <label for="@Html.IdFor(m => m.ULN)">
+            <span class="form-label form-label-bold">Unique learner number</span>
+            @Html.ValidationMessageFor(m => m.ULN, null, new { id = "error-message-" + Html.IdFor(m => m.ULN), @class = "error-message" })
+        </label>
+        @Html.TextBoxFor(m => m.ULN, new { @class = "form-control form-control-3-4", type = "text", aria_labelledby = Html.IdFor(m => m.ULN), maxlength = "10" })
+    </div>
+}
+
+@if (Model.IsLockedForUpdate || Model.IsUpdateLockedForStartDateAndCourse)
+{
+    <div class="form-group">
+        <hr />
+        <label class="form-label-bold" for="TrainingCode">Apprenticeship training course</label>
+        <span id="TrainingCode">@Model.TrainingName</span>
+    </div>
+    @Html.HiddenFor(m => m.TrainingCode)
+    @Html.HiddenFor(m => m.TrainingName)
+}
+else
+{
+    <div class="form-group @Html.AddClassIfPropertyInError(x => x.TrainingCode, "error")">
+        <hr />
+        <label class="form-label-bold" for="TrainingCode">Apprenticeship training course</label>
+
+        @if (Model.IsPaidForByTransfer)
+        {
+            <span class="form-hint">Start typing in the name of the apprenticeship standard or choose an option from the list</span>
+        }
+        else
+        {
+            <span class="form-hint">Start typing in the name of the course or choose an option from the list</span>
+        }
+
+        @Html.ValidationMessageFor(m => m.TrainingCode, "Choose a training course for this apprentice", new { id = "error-message-" + Html.IdFor(m => m.TrainingCode), @class = "error-message" })
+        <select name="TrainingCode" id="TrainingCode" class="form-control form-control-3-4" aria-label="Apprenticeship training course">
+            <option value="">Please select</option>
+            @foreach (var programme in ViewBag.ApprenticeshipProgrammes)
+            {
+                <option value="@programme.Id" @if (programme.Id.ToString() == Model.TrainingCode) { @Html.Raw("selected") }>
+                    @programme.Title
+                </option>
+            }
+        </select>
+    </div>
+}
+
+@if (Model.IsLockedForUpdate || Model.IsUpdateLockedForStartDateAndCourse)
+{
+    <div class="form-error-group form-group">
+        <hr />
+        <label class="form-label-bold">Planned training start date</label>
+        <span>@Model.StartDate.DateTime.Value.ToGdsFormatWithoutDay() </span>
+    </div>
+
+    @Html.HiddenFor(m => m.StartDate.Month)
+    @Html.HiddenFor(m => m.StartDate.Year)
+}
+else
+{
+    <div class="form-error-group form-group @Html.AddClassIfPropertyInError(x => x.StartDate, "error") @Html.AddClassIfPropertyInError(x => x.StartDate, "error") @Html.AddClassIfPropertyInError("StartDateOverlap", "error")">
+        <hr />
+        <fieldset>
+            <legend>
+                <span class="form-label-bold">Planned training start date</span>
+                @if (Model.IsPaidForByTransfer)
+                {
+                    <span class="form-hint">Choose a date on or after May 2018. For example, 05 2018</span>
+                }
+                else
+                {
+                    <span class="form-hint">For example, 09 2017</span>
+                }
+            </legend>
+            <div class="form-date">
+                @* hack for alt error message *@
+                @if (!string.IsNullOrEmpty(Model.StartDateTransfersMinDateAltDetailMessage))
+                {
+                    <span id="error-message-StartDate" class="error-message" }>@Model.StartDateTransfersMinDateAltDetailMessage</span>
+                }
+                else
+                {
+                    @Html.DasValidationMessageFor(m=> m.StartDate);
+
+                    @Html.ValidationMessage("StartDateOverlap",
+                        "The date overlaps with existing training dates for the same apprentice. " +
+                        "Please check the date - contact the employer for help.",
+                        new {id = "error-message-StartDateOverlap", @class = "error-message"})
+                }
+                <div class="form-group form-group-month">
+                    <label for="@Html.IdFor(m => m.StartDate.Month)">
+                        <span class="form-label-bold">Month</span>
+                    </label>
+                    @Html.TextBoxFor(m => m.StartDate.Month, new { @class = "form-control length-limit", type = "number", maxlength = "2", min = "1", max = "12", aria_labelledby = Html.IdFor(m => m.StartDate.Month) })
+                </div>
+                <div class="form-group form-group-month">
+                    <label for="@Html.IdFor(m => m.StartDate)">
+                        <span class="form-label-bold">Year</span>
+                    </label>
+                    <input aria-labelledby="StartDate" class="form-control length-limit" maxlength="4" min="1900" max="9999" data-val="true" data-val-number="The field Year must be a number." id="@Html.IdFor(m => m.StartDate.Year)" name="@Html.NameFor(m => m.StartDate.Year)" type="number" value="@Model.StartDate.Year">
+                </div>
+            </div>
+        </fieldset>
+    </div>
+}
+@if (Model.IsEndDateLockedForUpdate)
+{
+    <div class="form-error-group form-group">
+        @*<hr/>*@
+        <span class="form-label-bold">Planned training finish date</span>
+        <span>@Model.EndDate.DateTime.Value.ToGdsFormatWithoutDay() </span>
+    </div>
+
+    @Html.HiddenFor(m => m.EndDate.Month)
+    @Html.HiddenFor(m => m.EndDate.Year)
+}
+else
+{
+    <div class="form-error-group form-group @Html.AddClassIfPropertyInError(x => x.EndDate, "error") @Html.AddClassIfPropertyInError("EndDateOverlap", "error")">
+        @*<hr/>*@
+        <fieldset>
+            <legend>
+                <span class="form-label-bold">Projected finish date</span>
+                <span class="form-hint">For example, 02 2019</span>
+            </legend>
+            <div class="form-date">
+                @Html.ValidationMessageFor(m => m.EndDate, null, new { id = "error-message-" + Html.IdFor(m => m.EndDate), @class = "error-message" })
+                @Html.ValidationMessage("EndDateOverlap",
+                "The date overlaps with existing training dates for the same apprentice. " +
+                    "Please check the date - contact the employer for help.",
+                new { id = "error-message-EndDateOverlap", @class = "error-message" })
+                <div class="form-group form-group-month">
+                    <label for="@Html.IdFor(m => m.EndDate.Month)">
+                        <span class="form-label-bold">Month</span>
+                    </label>
+                    @Html.TextBoxFor(m => m.EndDate.Month, new { @class = "form-control length-limit", type = "number", maxlength = "2", min = "1", max = "12", aria_labelledby = Html.IdFor(m => m.EndDate.Month) })
+                </div>
+
+                <div class="form-group form-group-month">
+                    <label for="@Html.IdFor(m => m.EndDate.Year)">
+                        <span class="form-label-bold">Year</span>
+                    </label>
+                    <input aria-labelledby="EndDate" class="form-control length-limit" data-val="true" data-val-number="The field Year must be a number." id="@Html.IdFor(m => m.EndDate.Year)" name="@Html.NameFor(m => m.EndDate.Year)" type="number" maxlength="4" min="1900" max="9999" value="@Model.EndDate.Year">
+                </div>
+            </div>
+        </fieldset>
+    </div>
+}
+
+<div class="form-group @Html.AddClassIfPropertyInError(x => x.Cost, "error")">
+    <hr />
+    @if (Model.IsLockedForUpdate)
+    {
+        <label for="@Html.IdFor(m => m.Cost)">
+            <span class="form-label-bold">Total agreed apprenticeship price (excluding VAT)</span>
+        </label>
+        <span class="heading-small">£ </span>
+        <span>@Model.Cost</span>
+        @Html.HiddenFor(m => m.Cost)
+        <div class="approve-alert">
+            <div class="panel panel-border-wide alert-blue">
+                If you want to change the total agreed apprenticeship price, you'll need to make the price change in your ILR
+                submission first. Once you've submitted your updated ILR, you'll see an option to update the price in the apprenticeship service.
+            </div>
+        </div>
+    }
+    else
+    {
+        <label for="@Html.IdFor(m => m.Cost)">
+            <span class="form-label-bold">Total agreed apprenticeship price (excluding VAT)</span>
+            <span class="form-hint">Enter the price, including any end-point assessment costs, in whole pounds. For example, for £1,500 enter 1500.</span>
+            @Html.ValidationMessageFor(m => m.Cost, null, new { id = "error-message-" + Html.IdFor(m => m.Cost), @class = "error-message" })
+        </label>
+        <span class="heading-small">£ </span>
+        @Html.TextBoxFor(m => m.Cost, new { @class = "form-control form-control-3-4", type = "text", aria_labelledby = Html.IdFor(m => m.Cost), maxlength = "7" })
+    }
+</div>
+
+<div class="form-group @Html.AddClassIfPropertyInError(x => x.ProviderRef, "error")">
+    <hr />
+    @Html.LabelFor(m => m.ProviderRef, "Reference (optional)", new { @class = "form-label-bold" })
+    <span class="form-hint">Add a reference, such as employee number or location - this won’t be seen by the employer</span>
+    @Html.ValidationMessageFor(m => m.ProviderRef, null, new { id = "error-message-" + Html.IdFor(m => m.ProviderRef) })
+    @Html.TextBoxFor(m => m.ProviderRef, new { @class = "form-control form-control-3-4" })
+    <p id="charCount-noJS">Enter up to a maximum of 20 characters</p>
+    <p id="charCount" style="display:none;"><span name="countchars" id="countchars"></span> characters remaining</p>
+</div>
+
+

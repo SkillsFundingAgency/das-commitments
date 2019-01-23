@@ -32,5 +32,17 @@ namespace SFA.DAS.ProviderCommitments.Web.Controllers
 
             return View(securedModel);
         }
+
+        [Route("~/terms", Name = "terms")]
+        public ActionResult Terms()
+        {
+            return View();
+        }
+
+        [Route("privacy", Name = "privacy")]
+        public ActionResult Privacy()
+        {
+            return View();
+        }
     }
 }

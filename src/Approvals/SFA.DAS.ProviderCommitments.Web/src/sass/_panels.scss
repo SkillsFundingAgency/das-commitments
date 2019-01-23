@@ -1,0 +1,18 @@
+.panel {
+    p {
+        font-size: 14px;
+        @include media(tablet) {
+            font-size: 16px;    
+        }      
+    }
+
+    @include media(tablet) {
+        .heading-medium {
+            margin-bottom: 10px;
+        }
+    }
+}
+
+.panel-filled {
+    background: $panel-colour;
+}

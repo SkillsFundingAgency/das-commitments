@@ -1,0 +1,119 @@
+﻿@using SFA.DAS.Commitments.Api.Types.Apprenticeship
+@using SFA.DAS.ProviderApprenticeshipsService.Web.Extensions
+@using SFA.DAS.ProviderApprenticeshipsService.Web.Models.ApprenticeshipUpdate
+@model ApprenticeshipUpdateViewModel
+            
+@{
+    var currentValueHeader = Model is CreateApprenticeshipUpdateViewModel ? "Current" : "Previous";
+}
+    
+<table class="edited-changes">
+    <thead>
+    <tr>
+        <th></th>
+        <th>@currentValueHeader</th>
+        <th>Changed to</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @if (!string.IsNullOrWhiteSpace(Model.FirstName) || !string.IsNullOrWhiteSpace(Model.LastName))
+    {
+        <tr>
+            <td>Name</td>
+            <td>@Model.OriginalApprenticeship.FirstName @Model.OriginalApprenticeship.LastName</td>
+            <td>@GetNameChange(Model.OriginalApprenticeship, Model)</td>
+            @Html.Hidden("FirstName", Model.FirstName)
+            @Html.Hidden("Lastname", Model.LastName)
+        </tr>
+    }
+
+    @if (Model.DateOfBirth?.DateTime != null)
+    {
+        <tr>
+            <td>Date of birth</td>
+            <td>@Model.OriginalApprenticeship.DateOfBirth.Value.ToGdsFormat() </td>
+            <td>@Model.DateOfBirth.DateTime.Value.ToGdsFormat()</td>
+            @Html.Hidden("DateOfBirth.Day", Model.DateOfBirth.Day)
+            @Html.Hidden("DateOfBirth.Month", Model.DateOfBirth.Month)
+            @Html.Hidden("DateOfBirth.Year", Model.DateOfBirth.Year)
+        </tr>
+    }
+
+    @if (Model.ULN != null)
+    {
+        <tr>
+            <td>Unique learner number</td>
+            <td>@Model.OriginalApprenticeship.ULN </td>
+            <td>@Model.ULN</td>
+            @Html.Hidden("ULN", Model.ULN)
+        </tr>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.TrainingName))
+    {
+        <tr>
+            <td>Apprenticeship training course</td>
+            <td>@Model.OriginalApprenticeship.TrainingName </td>
+            <td>@Model.TrainingName</td>
+            @Html.Hidden("TrainingCode", Model.TrainingCode)
+            @Html.Hidden("TrainingName", Model.TrainingName)
+            @Html.Hidden("TrainingType", Model.TrainingType)
+        </tr>
+    }
+
+    @if (Model.StartDate?.DateTime != null)
+    {
+        <tr>
+            <td>Planned training start date</td>
+            <td>@Model.OriginalApprenticeship.StartDate.Value.ToGdsFormat() </td>
+            <td>@Model.StartDate.DateTime.Value.ToGdsFormat()</td>
+            @Html.Hidden("StartDate.Month", Model.StartDate.Month)
+            @Html.Hidden("StartDate.Year", Model.StartDate.Year)
+        </tr>
+    }
+
+    @if (Model.EndDate?.DateTime != null)
+    {
+        <tr>
+            <td>Planned training end date</td>
+            <td>@Model.OriginalApprenticeship.EndDate.Value.ToGdsFormat() </td>
+            <td>@Model.EndDate.DateTime.Value.ToGdsFormat()</td>
+            @Html.Hidden("EndDate.Month", Model.EndDate.Month)
+            @Html.Hidden("EndDate.Year", Model.EndDate.Year)
+        </tr>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.Cost))
+    {
+        <tr>
+            <td>Cost</td>
+            <td>@Model.OriginalApprenticeship.Cost.FormatCost() </td>
+            <td>@Model.Cost.AsNullableDecimal().FormatCost()</td>
+            @Html.Hidden("Cost", Model.Cost)
+        </tr>
+    }
+
+    @if (Model.ProviderRef != null)
+    {
+        <tr>
+            <td>Reference</td>
+            <td>@Model.OriginalApprenticeship.ProviderRef</td>
+            <td>@Model.ProviderRef</td>
+            @Html.Hidden("ProviderRef", Model.ProviderRef)
+        </tr>
+    }
+
+    </tbody>
+</table>
+
+
+@functions
+{
+    private static string GetNameChange(Apprenticeship originalApprenticeship, ApprenticeshipUpdateViewModel update)
+    {
+        var first = !string.IsNullOrWhiteSpace(update.FirstName) ? update.FirstName : originalApprenticeship.FirstName;
+        var last = !string.IsNullOrWhiteSpace(update.LastName) ? update.LastName : originalApprenticeship.LastName;
+        return $"{first} {last}";
+    }
+}
