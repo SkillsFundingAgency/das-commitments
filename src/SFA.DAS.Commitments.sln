@@ -72,9 +72,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CF2089CE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Web", "Approvals\SFA.DAS.ProviderCommitments.Web\SFA.DAS.ProviderCommitments.Web.csproj", "{46697CA3-402B-4D81-A6EE-9EB9B8F0F5B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments", "Approvals\SFA.DAS.ProviderCommitments\SFA.DAS.ProviderCommitments.csproj", "{966AABAF-268B-47F7-9C18-72D2D8651D95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ProviderCommitments", "Approvals\SFA.DAS.ProviderCommitments\SFA.DAS.ProviderCommitments.csproj", "{966AABAF-268B-47F7-9C18-72D2D8651D95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.UnitTests", "Approvals\SFA.DAS.ProviderCommitments.UnitTests\SFA.DAS.ProviderCommitments.UnitTests.csproj", "{124B829B-05A6-4644-B3A9-4E5B37F47449}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ProviderCommitments.UnitTests", "Approvals\SFA.DAS.ProviderCommitments.UnitTests\SFA.DAS.ProviderCommitments.UnitTests.csproj", "{124B829B-05A6-4644-B3A9-4E5B37F47449}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.MessageHandlers", "Approvals\SFA.DAS.ProviderCommitments.MessageHandlers\SFA.DAS.ProviderCommitments.MessageHandlers.csproj", "{BD7D4B94-41B3-4E1F-B6B1-DF667B7B012C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Jobs", "Approvals\SFA.DAS.ProviderCommitments.Jobs\SFA.DAS.ProviderCommitments.Jobs.csproj", "{031CC491-BA20-4F3B-BFF1-861A903C64CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Host", "Approvals\SFA.DAS.ProviderCommitments.Host\SFA.DAS.ProviderCommitments.Host.csproj", "{C5BC46AE-7190-400E-9109-C77A75F7EFB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Api", "Approvals\SFA.DAS.ProviderCommitments.Api\SFA.DAS.ProviderCommitments.Api.csproj", "{9F5233D0-381C-4799-9706-D3C5E5E92E7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.MessageHandlers.UnitTests", "Approvals\SFA.DAS.ProviderCommitments.MessageHandlers.UnitTests\SFA.DAS.ProviderCommitments.MessageHandlers.UnitTests.csproj", "{72EFCC4B-3685-4F35-82BA-68FE6056D1D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ProviderCommitments.Messages", "Approvals\SFA.DAS.ProviderCommitments.Messages\SFA.DAS.ProviderCommitments.Messages.csproj", "{722AB636-E765-4D7A-B71F-7F8BD5DBED1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -191,6 +203,30 @@ Global
 		{124B829B-05A6-4644-B3A9-4E5B37F47449}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{124B829B-05A6-4644-B3A9-4E5B37F47449}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{124B829B-05A6-4644-B3A9-4E5B37F47449}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD7D4B94-41B3-4E1F-B6B1-DF667B7B012C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD7D4B94-41B3-4E1F-B6B1-DF667B7B012C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD7D4B94-41B3-4E1F-B6B1-DF667B7B012C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD7D4B94-41B3-4E1F-B6B1-DF667B7B012C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{031CC491-BA20-4F3B-BFF1-861A903C64CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{031CC491-BA20-4F3B-BFF1-861A903C64CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{031CC491-BA20-4F3B-BFF1-861A903C64CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{031CC491-BA20-4F3B-BFF1-861A903C64CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5BC46AE-7190-400E-9109-C77A75F7EFB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5BC46AE-7190-400E-9109-C77A75F7EFB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5BC46AE-7190-400E-9109-C77A75F7EFB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5BC46AE-7190-400E-9109-C77A75F7EFB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F5233D0-381C-4799-9706-D3C5E5E92E7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F5233D0-381C-4799-9706-D3C5E5E92E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F5233D0-381C-4799-9706-D3C5E5E92E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F5233D0-381C-4799-9706-D3C5E5E92E7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72EFCC4B-3685-4F35-82BA-68FE6056D1D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72EFCC4B-3685-4F35-82BA-68FE6056D1D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72EFCC4B-3685-4F35-82BA-68FE6056D1D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72EFCC4B-3685-4F35-82BA-68FE6056D1D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{722AB636-E765-4D7A-B71F-7F8BD5DBED1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{722AB636-E765-4D7A-B71F-7F8BD5DBED1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{722AB636-E765-4D7A-B71F-7F8BD5DBED1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{722AB636-E765-4D7A-B71F-7F8BD5DBED1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -215,6 +251,12 @@ Global
 		{46697CA3-402B-4D81-A6EE-9EB9B8F0F5B8} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
 		{966AABAF-268B-47F7-9C18-72D2D8651D95} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
 		{124B829B-05A6-4644-B3A9-4E5B37F47449} = {CF2089CE-37E0-4510-B3F9-FF2674A790C2}
+		{BD7D4B94-41B3-4E1F-B6B1-DF667B7B012C} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
+		{031CC491-BA20-4F3B-BFF1-861A903C64CE} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
+		{C5BC46AE-7190-400E-9109-C77A75F7EFB6} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
+		{9F5233D0-381C-4799-9706-D3C5E5E92E7D} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
+		{72EFCC4B-3685-4F35-82BA-68FE6056D1D0} = {CF2089CE-37E0-4510-B3F9-FF2674A790C2}
+		{722AB636-E765-4D7A-B71F-7F8BD5DBED1C} = {704EA997-9FC6-474C-B69F-1D06AC2E15F0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
