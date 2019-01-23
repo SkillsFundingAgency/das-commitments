@@ -9,11 +9,11 @@ using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using NLog;
 using Owin;
-using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Configuration.FileStorage;
 using SFA.DAS.EmployerUsers.WebClientComponents;
 using SFA.DAS.OidcMiddleware;
+using SFA.DAS.ProviderCommitments.Configuration;
 using SFA.DAS.ProviderCommitments.Web.App_Start;
 using SFA.DAS.ProviderCommitments.Web.Authentication;
 using SFA.DAS.ProviderCommitments.Web.Models;
@@ -22,13 +22,11 @@ namespace SFA.DAS.ProviderCommitments.Web
 {
     public class AuthConfig
     {
-        private const string ServiceName = "SFA.DAS.ProviderCommitments";
-
-        public static void RegisterAuth(IAppBuilder app)
+        public static void RegisterAuth(IAppBuilder app, IProviderCommitmentsConfigurationService providerCommitmentsConfigurationService)
         {
             var logger = LogManager.GetLogger(typeof(AuthConfig).Name);
 
-            var config = GetConfigurationObject();
+            var config = providerCommitmentsConfigurationService.GetSecurityConfiguration();
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
@@ -124,41 +122,6 @@ namespace SFA.DAS.ProviderCommitments.Web
             var claim = identity.Claims.FirstOrDefault(c => c.Type == claimName);
 
             return claim?.Value;
-        }
-
-        private static ProviderCommitmentsSecurityConfiguration GetConfigurationObject()
-        {
-            var environment = Environment.GetEnvironmentVariable("DASENV");
-            if (string.IsNullOrEmpty(environment))
-            {
-                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-            }
-
-            var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(
-                configurationRepository,
-                new ConfigurationOptions(ServiceName, environment, "1.0"));
-
-            var config = configurationService.Get<ProviderCommitmentsSecurityConfiguration>();
-
-            return config;
-        }
-
-        private static IConfigurationRepository GetConfigurationRepository()
-        {
-            IConfigurationRepository configurationRepository;
-            if (bool.Parse(ConfigurationManager.AppSettings["LocalConfig"]))
-            {
-                configurationRepository = new FileStorageConfigurationRepository();
-            }
-            else
-            {
-                configurationRepository =
-                    new AzureTableStorageConfigurationRepository(
-                        CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
-            }
-
-            return configurationRepository;
         }
     }
 }
