@@ -55,7 +55,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
                 parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
-                parameters.Add(@"Originator", commitment.Originator, DbType.Byte);
+                parameters.Add("@Originator", commitment.Originator, DbType.Byte);
 
                 using (var trans = connection.BeginTransaction())
                 {
@@ -65,7 +65,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                         LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName)
                         VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountLegalEntityPublicHashedId,
                         @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName,
-                        @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName);
+                        @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName, @Originator);
                         SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,
