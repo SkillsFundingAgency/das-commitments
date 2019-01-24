@@ -5,6 +5,7 @@
       <Site name="Web">
         <Bindings>
           <Binding name="Endpoint1" endpointName="SimpleEndPoint" />
+          <Binding name="Endpoint1" endpointName="SecureEndpoint" />
         </Bindings>
       </Site>
     </Sites>
@@ -12,6 +13,10 @@
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="SimpleEndPoint" protocol="http" port="80" />
+      <InputEndpoint name="SecureEndpoint" protocol="https" port="8080" certificate="SSLCert" />
     </Endpoints>
+    <Certificates>
+      <Certificate name="SSLCert" storeLocation="LocalMachine" storeName="My" />
+    </Certificates>
   </WebRole>
 </ServiceDefinition>

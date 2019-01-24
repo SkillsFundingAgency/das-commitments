@@ -39,6 +39,13 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<ActionResult> Search(string accountId)
+        {
+            return View(new ApprenticeshipSearchQuery(){PublicAccountHashedId = accountId });
+        }
+
+        [HttpPost]
         public async Task<ActionResult> Search(ApprenticeshipSearchQuery searchQuery)
         {
             if (string.IsNullOrWhiteSpace(searchQuery.SearchTerm))

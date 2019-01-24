@@ -11,7 +11,7 @@
     <div class="grid-row">
         <div class="column-full">
 
-            @using (Html.BeginForm("Search", "Apprenticeships", FormMethod.Get, new { accept_charset = "utf-8", @class = "search-header search-header-2", role = "search", id = "searchForm" }))
+            @using (Html.BeginForm("Search", "Apprenticeships", FormMethod.Post, new { accept_charset = "utf-8", @class = "search-header search-header-2", role = "search", id = "searchForm" }))
             {
                 <div class="searchfield form-group">
                     <fieldset class="search-input">
