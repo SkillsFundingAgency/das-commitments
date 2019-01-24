@@ -41,29 +41,29 @@ namespace SFA.DAS.ProviderCommitments.Web
                 AuthenticationMode = AuthenticationMode.Passive
             });
 
-            var constants = new Constants(config.Identity);
+            var wellKnownUrls = new WellKnownUrls(config.Identity);
 
             var urlHelper = new UrlHelper();
 
             UserLinksViewModel.ChangePasswordLink =
-                $"{constants.ChangePasswordLink}{urlHelper.Encode("https://" + config.DashboardUrl + "/service/password/change")}";
+                $"{wellKnownUrls.ChangePasswordLink}{urlHelper.Encode("https://" + config.DashboardUrl + "/service/password/change")}";
             UserLinksViewModel.ChangeEmailLink =
-                $"{constants.ChangeEmailLink}{urlHelper.Encode("https://" + config.DashboardUrl + "/service/email/change")}";
+                $"{wellKnownUrls.ChangeEmailLink}{urlHelper.Encode("https://" + config.DashboardUrl + "/service/email/change")}";
 
             app.UseCodeFlowAuthentication(new OidcMiddlewareOptions
             {
                 ClientId = config.Identity.ClientId,
                 ClientSecret = config.Identity.ClientSecret,
                 Scopes = config.Identity.Scopes,
-                BaseUrl = constants.Configuration.BaseAddress,
-                TokenEndpoint = constants.TokenEndpoint,
-                UserInfoEndpoint = constants.UserInfoEndpoint,
-                AuthorizeEndpoint = constants.AuthorizeEndpoint(),
+                BaseUrl = wellKnownUrls.Configuration.BaseAddress,
+                TokenEndpoint = wellKnownUrls.TokenEndpoint,
+                UserInfoEndpoint = wellKnownUrls.UserInfoEndpoint,
+                AuthorizeEndpoint = wellKnownUrls.AuthorizeEndpoint(),
                 TokenValidationMethod = config.Identity.UseCertificate
                     ? TokenValidationMethod.SigningKey
                     : TokenValidationMethod.BinarySecret,
                 TokenSigningCertificateLoader = GetSigningCertificate(config.Identity.UseCertificate),
-                AuthenticatedCallback = identity => { PostAuthentiationAction(identity, logger, constants); }
+                AuthenticatedCallback = identity => { PostAuthentiationAction(identity, logger, wellKnownUrls); }
             });
 
             ConfigurationFactory.Current = new IdentityServerConfigurationFactory(config);
@@ -100,21 +100,21 @@ namespace SFA.DAS.ProviderCommitments.Web
             };
         }
 
-        private static void PostAuthentiationAction(ClaimsIdentity identity, ILogger logger, Constants constants)
+        private static void PostAuthentiationAction(ClaimsIdentity identity, ILogger logger, WellKnownUrls wellKnownUrls)
         {
             logger.Info("PostAuthenticationAction called");
-            var userRef = GetClaimValue(identity, constants.Id);
-            var email = GetClaimValue(identity, constants.Email);
-            var firstName = GetClaimValue(identity, constants.GivenName);
-            var lastName = GetClaimValue(identity, constants.FamilyName);
+            var userRef = GetClaimValue(identity, wellKnownUrls.Id);
+            var email = GetClaimValue(identity, wellKnownUrls.Email);
+            var firstName = GetClaimValue(identity, wellKnownUrls.GivenName);
+            var lastName = GetClaimValue(identity, wellKnownUrls.FamilyName);
 
             logger.Info($"Claims retrieved from OIDC server {userRef}, {email}, {firstName}, {lastName}");
 
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, GetClaimValue(identity, constants.Id)));
-            identity.AddClaim(new Claim(ClaimTypes.Name, GetClaimValue(identity, constants.DisplayName)));
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, GetClaimValue(identity, wellKnownUrls.Id)));
+            identity.AddClaim(new Claim(ClaimTypes.Name, GetClaimValue(identity, wellKnownUrls.DisplayName)));
 
-            identity.AddClaim(new Claim("sub", GetClaimValue(identity, constants.Id)));
-            identity.AddClaim(new Claim("email", GetClaimValue(identity, constants.Email)));
+            identity.AddClaim(new Claim("sub", GetClaimValue(identity, wellKnownUrls.Id)));
+            identity.AddClaim(new Claim("email", GetClaimValue(identity, wellKnownUrls.Email)));
         }
 
         private static string GetClaimValue(ClaimsIdentity identity, string claimName)

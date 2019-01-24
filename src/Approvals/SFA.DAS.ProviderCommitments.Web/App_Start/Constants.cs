@@ -2,11 +2,11 @@
 
 namespace SFA.DAS.ProviderCommitments.Web.App_Start
 {
-    public class Constants
+    public class WellKnownUrls
     {
         private readonly string _baseUrl;
         public IdentityServerConfiguration Configuration { get; set; }
-        public Constants(IdentityServerConfiguration configuration)
+        public WellKnownUrls(IdentityServerConfiguration configuration)
         {
             this.Configuration = configuration;
             _baseUrl = configuration.ClaimIdentifierConfiguration.ClaimsBaseUrl;

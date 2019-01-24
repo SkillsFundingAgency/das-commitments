@@ -4,6 +4,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Configuration.FileStorage;
 using SFA.DAS.ProviderCommitments.Configuration;
+using SFA.DAS.ProviderCommitments.Services;
 using StructureMap;
 
 namespace SFA.DAS.ProviderCommitments.DependencyResolution

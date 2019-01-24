@@ -1,8 +1,9 @@
 ﻿using System;
 using Microsoft.Azure;
 using SFA.DAS.NLog.Logger;
+using SFA.DAS.ProviderCommitments.Configuration;
 
-namespace SFA.DAS.ProviderCommitments.Configuration
+namespace SFA.DAS.ProviderCommitments.Services
 {
     public class EnvironmentService : IEnvironmentService
     {
@@ -23,14 +24,16 @@ namespace SFA.DAS.ProviderCommitments.Configuration
         }
 
         public EnvironmentType EnvironmentType => _lazyEnvironmentDetails.Value.EnvironmentType;
+
         public string EnvironmentName => _lazyEnvironmentDetails.Value.Name;
 
         private EnvironmentDetails GetEnvironmentDetails()
         {
-            var environment = Environment.GetEnvironmentVariable("DASENV");
+            var environment = Environment.GetEnvironmentVariable(Constants.EnvironmentVariableNames.EnvironmentName);
+
             if (string.IsNullOrEmpty(environment))
             {
-                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+                environment = CloudConfigurationManager.GetSetting(Constants.EnvironmentVariableNames.EnvironmentName);
             }
 
             if (string.IsNullOrWhiteSpace(environment))
@@ -54,14 +57,14 @@ namespace SFA.DAS.ProviderCommitments.Configuration
         {
             switch(environmentName)
             {
-                case "LOCAL": return EnvironmentType.Local;
-                case "AT": return EnvironmentType.AT;
-                case "TEST": return EnvironmentType.Test;
-                case "TEST2": return EnvironmentType.Test;
-                case "PP": return EnvironmentType.PreProd;
-                case "PRD": return EnvironmentType.Production;
-                case "DEMO": return EnvironmentType.Demo;
-                case "MO": return EnvironmentType.ModelOffice;
+                case Constants.EnvironmentNames.Local: return EnvironmentType.Local;
+                case Constants.EnvironmentNames.AT: return EnvironmentType.AT;
+                case Constants.EnvironmentNames.Test: return EnvironmentType.Test;
+                case Constants.EnvironmentNames.Test2: return EnvironmentType.Test;
+                case Constants.EnvironmentNames.PreProd: return EnvironmentType.PreProd;
+                case Constants.EnvironmentNames.Production: return EnvironmentType.Production;
+                case Constants.EnvironmentNames.Demo: return EnvironmentType.Demo;
+                case Constants.EnvironmentNames.ModelOffice: return EnvironmentType.ModelOffice;
                 default:
                     throw new InvalidEnvironmentException(environmentName);
             }
