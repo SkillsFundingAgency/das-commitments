@@ -1,0 +1,38 @@
+﻿using System;
+
+namespace SFA.DAS.ProviderCommitments.Data.Models
+{
+    public abstract class Apprenticeship
+    {
+        public bool IsApproved { get; set; }
+
+        public long Id { get; set; }
+        public long CommitmentId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Uln { get; set; }
+        public int? TrainingType { get; set; }
+        public string TrainingCode { get; set; }
+        public string TrainingName { get; set; }
+        public decimal? Cost { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public short AgreementStatus { get; set; }
+        public short PaymentStatus { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string Ninumber { get; set; }
+        public string EmployerRef { get; set; }
+        public string ProviderRef { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public int? PaymentOrder { get; set; }
+        public DateTime? StopDate { get; set; }
+        public DateTime? PauseDate { get; set; }
+        public bool HasHadDataLockSuccess { get; set; }
+        public byte? PendingUpdateOriginator { get; set; }
+        public string EpaorgId { get; set; }
+        public long? CloneOf { get; set; }
+
+        public virtual Commitment Commitment { get; set; }
+        public virtual AssessmentOrganisation Epaorg { get; set; }
+    }
+}

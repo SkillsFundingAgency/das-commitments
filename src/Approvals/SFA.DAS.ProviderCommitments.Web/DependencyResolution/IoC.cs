@@ -1,4 +1,7 @@
-﻿using SFA.DAS.ProviderCommitments.DependencyResolution;
+﻿using SFA.DAS.ProviderCommitments.Data;
+using SFA.DAS.ProviderCommitments.DependencyResolution;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore;
+using SFA.DAS.UnitOfWork.SqlServer;
 using StructureMap;
 
 namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
@@ -12,8 +15,9 @@ namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
                 c.AddRegistry<ConfigurationRegistry>();
                 c.AddRegistry<LoggerRegistry>();
                 c.AddRegistry<DefaultRegistry>();
+                c.AddRegistry<SqlServerUnitOfWorkRegistry>();
+                c.AddRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderDbContext>>();
             });
         }
-
     }
 }

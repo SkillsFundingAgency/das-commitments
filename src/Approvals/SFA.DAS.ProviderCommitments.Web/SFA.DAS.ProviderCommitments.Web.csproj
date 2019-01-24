@@ -530,6 +530,18 @@
     <PackageReference Include="SFA.DAS.OidcMiddleware">
       <Version>2.0.0.61553</Version>
     </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork">
+      <Version>4.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore">
+      <Version>4.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork.Mvc">
+      <Version>4.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork.SqlServer">
+      <Version>4.1.1</Version>
+    </PackageReference>
     <PackageReference Include="StructureMap">
       <Version>4.7.0</Version>
     </PackageReference>
