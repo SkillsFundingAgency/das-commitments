@@ -65,6 +65,7 @@ namespace SFA.DAS.ProviderCommitments.Services
 
         private readonly IConfigurationRepository _configurationRepository;
         private readonly IAssemblyDiscoveryService _assemblyDiscoveryService;
+        private readonly IEnvironmentService _environmentService;
 
         private readonly Lazy<ConfigCache> _lazyConfig;
 
@@ -74,10 +75,12 @@ namespace SFA.DAS.ProviderCommitments.Services
         public ProviderCommitmentsConfigurationService(
             IConfigurationRepository configurationRepository, 
             IAssemblyDiscoveryService assemblyDiscoveryService,
+            IEnvironmentService environmentService,
             ILog logger)
         {
             _configurationRepository = configurationRepository;
             _assemblyDiscoveryService = assemblyDiscoveryService;
+            _environmentService = environmentService;
             _lazyConfig = new Lazy<ConfigCache>(LoadConfigData);
             _logger = logger;
         }
@@ -198,11 +201,7 @@ namespace SFA.DAS.ProviderCommitments.Services
 
         private JObject GetFullConfig()
         {
-#if DEBUG
-            var environmentName = "LOCAL";
-#else
             var environmentName = _environmentService.EnvironmentName;
-#endif
             var config = _configurationRepository.Get(Constants.ServiceName, environmentName, "1.0");
             return JObject.Parse(config);
         }

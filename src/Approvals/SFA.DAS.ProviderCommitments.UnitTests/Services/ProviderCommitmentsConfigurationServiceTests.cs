@@ -95,6 +95,7 @@ namespace SFA.DAS.ProviderCommitments.UnitTests.Services
         {
             AssemblyDiscoveryServiceMock = new Mock<IAssemblyDiscoveryService>();
             ConfigurationRepositoryMock = new Mock<IConfigurationRepository>();
+            EnvironmentServiceMock = new Mock<IEnvironmentService>();
             LogMock = new Mock<ILog>();
         }
 
@@ -105,6 +106,9 @@ namespace SFA.DAS.ProviderCommitments.UnitTests.Services
         public Mock<IConfigurationRepository> ConfigurationRepositoryMock { get; }
         public IConfigurationRepository ConfigurationRepository => ConfigurationRepositoryMock.Object;
 
+        public Mock<IEnvironmentService> EnvironmentServiceMock { get; }
+        public IEnvironmentService EnvironmentService => EnvironmentServiceMock.Object;
+
         public Mock<ILog> LogMock { get; }
         public ILog Log => LogMock.Object;
         
@@ -113,6 +117,7 @@ namespace SFA.DAS.ProviderCommitments.UnitTests.Services
             return new ProviderCommitmentsConfigurationService(
                 ConfigurationRepository,
                 AssemblyDiscoveryService,
+                EnvironmentService,
                 Log);
         }
 
