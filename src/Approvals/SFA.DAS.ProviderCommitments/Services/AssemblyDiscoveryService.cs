@@ -8,11 +8,33 @@ namespace SFA.DAS.ProviderCommitments.Services
     {
         public Type[] GetApplicationTypes(string matchingClassName)
         {
+            return GetApplicationTypes(Constants.AssemblyPrefixForApplication, matchingClassName);
+        }
+
+        public Type[] GetApplicationTypes(string matchingAssemblyName, string matchingClassName)
+        {
+            var lastWord = matchingClassName.LastIndexOf('.');
+
+            string nameSpace, className;
+
+            if (lastWord > -1)
+            {
+                nameSpace = matchingClassName.Substring(0, lastWord);
+                className = matchingClassName.Substring(lastWord + 1);
+            }
+            else
+            {
+                nameSpace = null;
+                className = matchingClassName;
+            }
+
             return AppDomain.CurrentDomain
                 .GetAssemblies()
-                .Where(assembly => assembly.GetName().Name.StartsWith(Constants.AssemblyPrefixForApplication, StringComparison.InvariantCultureIgnoreCase))
+                .Where(assembly => assembly.GetName().Name.StartsWith(matchingAssemblyName, StringComparison.InvariantCultureIgnoreCase))
                 .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => string.Equals(type.Name, matchingClassName, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                .Where(type => className.Equals(type.Name, StringComparison.InvariantCultureIgnoreCase) 
+                               && (nameSpace == null || (type.Namespace != null && type.Namespace.EndsWith(nameSpace, StringComparison.InvariantCultureIgnoreCase))))
+                .ToArray();
         }
     }
 }
