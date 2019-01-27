@@ -17,29 +17,68 @@ namespace SFA.DAS.ProviderCommitments.Services
         private class ConfigObject
         {
             public string Name { get; set; }
-            public Type Type { get; set; }
+            public Type Type => Types.Length == 1 ? Types[0] : null;
+            public Type[] Types { get; set; }
             public object Instance { get; set; }
             public ConfigObjectStatus Status { get; set; }
             public string ErrorMessage { get; set; }
         }
 
+        private class ConfigCache
+        {
+            private readonly Dictionary<Type, ConfigObject> _availableTypes = new Dictionary<Type, ConfigObject>();
+            private readonly List<ConfigObject> _unavailableTypes = new List<ConfigObject>();
+
+            public IEnumerable<ConfigObject> ConfigItems => _availableTypes.Values.Union(_unavailableTypes);
+
+            public bool TryGetAvailableConfigItem(Type configType, out ConfigObject configItem)
+            {
+                return _availableTypes.TryGetValue(configType, out configItem);
+            }
+
+            public bool TryGetUnavailbleType(Type configType, out ConfigObject configItem)
+            {
+                configItem = _unavailableTypes.FirstOrDefault(ci => ci.Types.Contains(configType));
+
+                if (configItem == null)
+                {
+                    configItem = _unavailableTypes.FirstOrDefault(ci => 
+                        ci.Status == ConfigObjectStatus.TypeNotFound &&
+                        configType.FullName.EndsWith(ci.Name, StringComparison.InvariantCultureIgnoreCase));
+                }
+
+                return configItem != null;
+            }
+
+            public void AddConfigItem(ConfigObject configItem)
+            {
+                if (configItem.Status == ConfigObjectStatus.Okay)
+                {
+                    _availableTypes.Add(configItem.Type, configItem);
+                }
+                else
+                {
+                    _unavailableTypes.Add(configItem);
+                }
+            }
+        }
+
         private readonly IConfigurationRepository _configurationRepository;
-        private readonly IEnvironmentService _environmentService;
         private readonly IAssemblyDiscoveryService _assemblyDiscoveryService;
-        private readonly Lazy<Dictionary<string, ConfigObject>> _lazyConfig;
+
+        private readonly Lazy<ConfigCache> _lazyConfig;
+
         private readonly ILog _logger;
         private DateTime _initialisedTime;
 
         public ProviderCommitmentsConfigurationService(
             IConfigurationRepository configurationRepository, 
-            IEnvironmentService environmentService,
             IAssemblyDiscoveryService assemblyDiscoveryService,
             ILog logger)
         {
             _configurationRepository = configurationRepository;
-            _environmentService = environmentService;
             _assemblyDiscoveryService = assemblyDiscoveryService;
-            _lazyConfig = new Lazy<Dictionary<string, ConfigObject>>(LoadConfigData);
+            _lazyConfig = new Lazy<ConfigCache>(LoadConfigData);
             _logger = logger;
         }
 
@@ -62,40 +101,40 @@ namespace SFA.DAS.ProviderCommitments.Services
 
         public object Get(Type requiredConfigType)
         {
-            var requiredConfigName = requiredConfigType.Name.ToUpperInvariant();
-
-            if (TryGet(requiredConfigName, out object config))
+            if (TryGet(requiredConfigType, out object config))
             {
                 return config;
             }
 
-            throw new MissingConfigItemException(requiredConfigName, _lazyConfig.Value.Keys.ToArray());
-
+            throw new MissingConfigItemException(requiredConfigType.FullName, Config.ConfigItems.Select(t => t.Type?.FullName ?? t.Name).ToArray());
         }
 
-        private bool TryGet(string requiredConfigName, out object config)
+        private ConfigCache Config => _lazyConfig.Value;
+
+        private bool TryGet(Type requiredConfigType, out object config)
         {
             config = null;
 
-            if (_lazyConfig.Value.TryGetValue(requiredConfigName, out var configItem))
+            if (Config.TryGetAvailableConfigItem(requiredConfigType, out var availableConfig))
             {
-                if (configItem.Status == ConfigObjectStatus.Okay)
-                {
-                    config = configItem.Instance;
-                    return true;
-                }
+                config = availableConfig.Instance;
+                return true;
+            }
 
-                throw new ConfigItemUnavailableException(requiredConfigName, configItem.Status, configItem.ErrorMessage,  _initialisedTime);
+            if (Config.TryGetUnavailbleType(requiredConfigType, out var unavailableConfig))
+            {
+                throw new ConfigItemUnavailableException(requiredConfigType.FullName, unavailableConfig.Status,
+                    unavailableConfig.ErrorMessage, _initialisedTime);
             }
 
             return false;
         }
         
-        private Dictionary<string, ConfigObject> LoadConfigData()
+        private ConfigCache LoadConfigData()
         {
             var fullConfig = GetFullConfig();
 
-            var configItems = new Dictionary<string, ConfigObject>();
+            var configItems = new ConfigCache();
 
             LoadAllConfigObjects(fullConfig, configItems);
 
@@ -104,13 +143,16 @@ namespace SFA.DAS.ProviderCommitments.Services
             return configItems;
         }
 
-        private void LoadAllConfigObjects(JObject fullConfig, Dictionary<string, ConfigObject> configItems)
+        private void LoadAllConfigObjects(JObject fullConfig, ConfigCache configItems)
         {
             foreach (var property in fullConfig.Children().OfType<JProperty>())
             {
                 var configItem = MapJsonPropertyToConfigObject(property);
 
-                AddConfigObject(configItems, configItem);
+                // Note: we do not need to be concerned with handling duplicate property definitions in the source json 
+                // because these are handled by NewtonSoft - see DuplicatePropertyNameHandling. Default is to take last 
+                // property value.
+                configItems.AddConfigItem(configItem);
             }
 
             _initialisedTime = DateTime.UtcNow;
@@ -118,13 +160,14 @@ namespace SFA.DAS.ProviderCommitments.Services
 
         private ConfigObject MapJsonPropertyToConfigObject(JProperty property)
         {
+            var types = _assemblyDiscoveryService.GetApplicationTypes(property.Name);
+
             var configItem = new ConfigObject
             {
                 Name = property.Name.ToUpperInvariant(),
-                Status = ConfigObjectStatus.Undefined
+                Status = ConfigObjectStatus.Undefined,
+                Types = types
             };
-
-            var types = _assemblyDiscoveryService.GetApplicationTypes(property.Name);
 
             switch (types.Length)
             {
@@ -133,7 +176,6 @@ namespace SFA.DAS.ProviderCommitments.Services
                     break;
 
                 case 1:
-                    configItem.Type = types[0];
                     try
                     {
                         configItem.Instance = property.Value.ToObject(configItem.Type);
@@ -154,14 +196,6 @@ namespace SFA.DAS.ProviderCommitments.Services
             return configItem;
         }
 
-        private static void AddConfigObject(Dictionary<string, ConfigObject> configItems, ConfigObject configItem)
-        {
-            // Note: we do not need to be concerned with handling duplicate property definitions in the source json 
-            // because these are handled by NewtonSoft - see DuplicatePropertyNameHandling. Default is to take last 
-            // property value.
-            configItems.Add(configItem.Name, configItem);
-        }
-
         private JObject GetFullConfig()
         {
 #if DEBUG
@@ -173,7 +207,7 @@ namespace SFA.DAS.ProviderCommitments.Services
             return JObject.Parse(config);
         }
 
-        private void LogResultsOfConfigLoad(Dictionary<string, ConfigObject> config)
+        private void LogResultsOfConfigLoad(ConfigCache config)
         {
             const int reasonableSizeOfLogMessage = 400;
             var logMessage = new StringBuilder(reasonableSizeOfLogMessage);
@@ -182,9 +216,9 @@ namespace SFA.DAS.ProviderCommitments.Services
             logMessage.AppendLine($"Only the case-insensitively-named config items named here will be recognised when requesting config.");
             logMessage.AppendLine($"Only the items with status {ConfigObjectStatus.Okay} will be available.");
 
-            foreach (var configItem in config.OrderBy(kvp => kvp.Key))
+            foreach (var configItem in config.ConfigItems.OrderBy(ci => ci.Name))
             {
-                logMessage.AppendLine($"propertyName:{configItem.Key} status:{configItem.Value.Status} typeName:{configItem.Value.Type?.FullName ?? "<not applicable>"} additionalErrorInfo:{configItem.Value.ErrorMessage ?? "<none>"}");
+                logMessage.AppendLine($"propertyName:{configItem.Name} status:{configItem.Status} typeName:{configItem.Type?.FullName ?? "<not applicable>"} additionalErrorInfo:{configItem.ErrorMessage ?? "<none>"}");
             }
 
             _logger.Info(logMessage.ToString());
