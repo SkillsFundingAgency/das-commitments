@@ -4,6 +4,7 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.Configuration.FileStorage;
 using SFA.DAS.ProviderCommitments.Configuration;
+using SFA.DAS.ProviderCommitments.Interfaces;
 using SFA.DAS.ProviderCommitments.Services;
 using StructureMap;
 
@@ -29,6 +30,7 @@ namespace SFA.DAS.ProviderCommitments.DependencyResolution
             For<IConfigurationRepository>().Use(configurationRepository).Singleton();
             For<IEnvironmentService>().Use<EnvironmentService>().Singleton();
             For<IProviderCommitmentsConfigurationService>().Use<ProviderCommitmentsConfigurationService>().Singleton();
+            For<IAssemblyDiscoveryService>().Use<AssemblyDiscoveryService>().Singleton();
         }
     }
 }

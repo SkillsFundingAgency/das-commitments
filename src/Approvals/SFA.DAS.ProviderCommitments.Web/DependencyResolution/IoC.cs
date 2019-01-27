@@ -13,10 +13,11 @@ namespace SFA.DAS.ProviderCommitments.Web.DependencyResolution
             return new Container(c =>
             {
                 c.AddRegistry<ConfigurationRegistry>();
-                c.AddRegistry<LoggerRegistry>();
+                c.AddRegistry<DatabaseRegistry>();
                 c.AddRegistry<DefaultRegistry>();
-                c.AddRegistry<SqlServerUnitOfWorkRegistry>();
+                c.AddRegistry<LoggerRegistry>();
                 c.AddRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderDbContext>>();
+                c.AddRegistry<SqlServerUnitOfWorkRegistry>();
             });
         }
     }
