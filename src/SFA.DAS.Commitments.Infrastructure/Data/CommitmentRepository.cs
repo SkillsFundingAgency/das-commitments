@@ -62,7 +62,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                     var commitmentId = (await connection.QueryAsync<long>(
                         @"INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, AccountLegalEntityPublicHashedId,
                         EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName,
-                        LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName)
+                        LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName, Originator)
                         VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountLegalEntityPublicHashedId,
                         @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName,
                         @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName, @Originator);
