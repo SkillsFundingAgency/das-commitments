@@ -76,12 +76,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             var newCommitment = message.Commitment;
             newCommitment.LastAction = message.LastAction;
 
-            switch ((int) message.Caller.CallerType)
+            switch (message.Caller.CallerType)
             {
-                case 0:
+                case CallerType.Employer:
                     newCommitment.Originator = (Originator) message.Caller.CallerType;
                     break;
-                case 1:
+                case CallerType.Provider:
                     newCommitment.Originator = (Originator) message.Caller.CallerType;
                     break;
                 default:
