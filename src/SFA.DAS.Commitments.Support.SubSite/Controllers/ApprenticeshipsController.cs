@@ -1,4 +1,5 @@
-﻿using SFA.DAS.Commitments.Support.SubSite.Enums;
+﻿using System;
+using SFA.DAS.Commitments.Support.SubSite.Enums;
 using SFA.DAS.Commitments.Support.SubSite.Models;
 using SFA.DAS.Commitments.Support.SubSite.Orchestrators;
 using System.Threading.Tasks;
@@ -42,7 +43,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
         [HttpGet]
         public async Task<ActionResult> Search(string hashedAccountId)
         {
-            return View(new ApprenticeshipSearchQuery(){PublicAccountHashedId = hashedAccountId });
+            var uriString = $"https://localhost:44347/resource/apprenticeships/search";    
+            return View(new ApprenticeshipSearchQuery()
+            {
+                PublicAccountHashedId = hashedAccountId ,
+                ResponseUrl = uriString
+            });
         }
 
         [HttpPost]

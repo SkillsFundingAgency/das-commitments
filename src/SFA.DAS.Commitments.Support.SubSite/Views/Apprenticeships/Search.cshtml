@@ -11,8 +11,21 @@
     <div class="grid-row">
         <div class="column-full">
 
-            @using (Html.BeginForm("Search", "Apprenticeships", FormMethod.Post, new { accept_charset = "utf-8", @class = "search-header search-header-2", role = "search", id = "searchForm" }))
+            @using (Html.BeginForm(
+                // ReSharper disable Mvc.ActionNotResolved
+                "Resource", "Apprenticeships",
+                // ReSharper restore Mvc.ActionNotResolved
+                FormMethod.Post,
+                new Dictionary<string, object>
+                {
+                {"action", $"{Model.ResponseUrl}"},
+                { "accept_charset", "utf-8"},
+                { "@class" , "search-header search-header-2"},
+                { "role" ,"search"},
+                { "id" , "searchForm" }
+                }))
             {
+
                 <div class="searchfield form-group">
                     <fieldset class="search-input">
                         <h1 class="heading-large">Search</h1>
