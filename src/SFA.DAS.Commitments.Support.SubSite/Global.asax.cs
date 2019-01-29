@@ -8,6 +8,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using SFA.DAS.Support.Shared.Authentication;
+using SFA.DAS.Support.Shared.SiteConnection;
 
 namespace SFA.DAS.Commitments.Support.SubSite
 {
@@ -25,6 +27,13 @@ namespace SFA.DAS.Commitments.Support.SubSite
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+
+            var siteValidatorSettings = ioc.GetService<ISiteValidatorSettings>();
+
+            GlobalConfiguration.Configuration.MessageHandlers.Add(new TokenValidationHandler(siteValidatorSettings, logger));
+            GlobalFilters.Filters.Add(new TokenValidationFilter(siteValidatorSettings, logger));
+
 
             logger.Info("Web role started");
         }

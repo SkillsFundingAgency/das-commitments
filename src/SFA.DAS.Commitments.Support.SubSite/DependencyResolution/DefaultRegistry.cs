@@ -15,6 +15,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using SFA.DAS.Support.Shared.SiteConnection;
+
 namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
 {
     using FluentValidation;
@@ -73,7 +75,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.DependencyResolution
             For<IMediator>().Use<Mediator>();
 
             var config = GetConfiguration();
-
+            For<ISiteValidatorSettings>().Use(config.SiteValidator);
             For<IUlnValidator>().Use<UlnValidator>();
             For<ICommitmentRepository>().Use<CommitmentRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
             For<IApprenticeshipRepository>().Use<ApprenticeshipRepository>().Ctor<string>().Is(config.DatabaseConnectionString);
