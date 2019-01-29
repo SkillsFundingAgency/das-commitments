@@ -14,7 +14,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
 
         public IEnumerable<string> ReponseMessages { get; set; }
 
-        public string PublicAccountHashedId {  get;set; }
         public string ResponseUrl { get; set; }
     }
 }
