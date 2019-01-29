@@ -17,7 +17,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             _orchestrator = apprenticeshipsOrchestrator;
         }
 
-        [Mvc.Route("Apprenticeships/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
+        [Route("Apprenticeships/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
         public async Task<ActionResult> CohortDetails(string hashedCohortId)
         {
             if (string.IsNullOrWhiteSpace(hashedCohortId))
@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
-        [Mvc.Route("Apprenticeships/{hashedApprenticeshipId}/account/{hashedAccountId}", Name = "ApprenticeshipDetails")]
+        [Route("Apprenticeships/{hashedApprenticeshipId}/account/{hashedAccountId}", Name = "ApprenticeshipDetails")]
         public async Task<ActionResult> Index(string hashedApprenticeshipId, string hashedAccountId)
         {
             if (string.IsNullOrWhiteSpace(hashedApprenticeshipId) || string.IsNullOrWhiteSpace(hashedAccountId))
@@ -39,10 +39,11 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
+        [Route("Apprenticeships/search/{hashedAccountId}")]
         [HttpGet]
-        public async Task<ActionResult> Search(string accountId)
+        public async Task<ActionResult> Search(string hashedAccountId)
         {
-            return View(new ApprenticeshipSearchQuery(){PublicAccountHashedId = accountId });
+            return View(new ApprenticeshipSearchQuery(){PublicAccountHashedId = hashedAccountId });
         }
 
         [HttpPost]
