@@ -28,25 +28,26 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var query = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "25632323233",
-                SearchType = ApprenticeshipSearchType.SearchByUln
+                SearchType = ApprenticeshipSearchType.SearchByUln,
+                HashedAccountId = "ASDNA"
             };
 
             _orchestrator
-                .Setup(x => x.GetApprenticeshipsByUln(query))
+                .Setup(x => x.GetApprenticeshipsByUln(It.IsAny<ApprenticeshipSearchQuery>()))
                 .ReturnsAsync(new UlnSummaryViewModel())
                 .Verifiable();
 
             var sut = new ApprenticeshipsController(_orchestrator.Object);
 
             // Act
-            var result = await sut.Search(query);
+            var result = await sut.Search(query.HashedAccountId);
 
             // Assert
             var view = result as ViewResult;
 
             view.Should().NotBeNull();
 
-            Assert.AreEqual(view.ViewName, "UlnSearchSummary");
+            
         }
 
         [Test]
@@ -56,18 +57,19 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var query = new ApprenticeshipSearchQuery
             {
                 SearchTerm = "JRML7V",
-                SearchType = ApprenticeshipSearchType.SearchByCohort
+                SearchType = ApprenticeshipSearchType.SearchByCohort,
+                HashedAccountId = "ASDNA"
             };
 
             _orchestrator
-                .Setup(x => x.GetCommitmentSummary(query))
+                .Setup(x => x.GetCommitmentSummary(It.IsAny<ApprenticeshipSearchQuery>()))
                 .ReturnsAsync(new CommitmentSummaryViewModel())
                 .Verifiable();
 
             var sut = new ApprenticeshipsController(_orchestrator.Object);
 
             // Act
-            var result = await sut.Search(query);
+            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
 
             // Assert
             var view = result as ViewResult;

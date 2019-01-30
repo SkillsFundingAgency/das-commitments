@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 {
-    [Authorize]
+    [System.Web.Mvc.Authorize(Roles = "das-support-portal")]
     public class ApprenticeshipsController : Controller
     {
         private readonly IApprenticeshipsOrchestrator _orchestrator;
@@ -52,8 +52,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 
         [Route("Apprenticeships/search")]
         [HttpPost]
-        public async Task<ActionResult> Search(ApprenticeshipSearchQuery searchQuery)
+        public async Task<ActionResult> SearchRequest(string hashedAccountId, ApprenticeshipSearchType searchType, string searchTerm)
         {
+            ApprenticeshipSearchQuery searchQuery = new ApprenticeshipSearchQuery()
+            {
+                HashedAccountId = hashedAccountId,
+                SearchType = searchType,
+                SearchTerm = searchTerm
+            };
+
             if (string.IsNullOrWhiteSpace(searchQuery.SearchTerm))
             {
                 return View(searchQuery);
