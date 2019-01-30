@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -29,13 +28,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpGet("{id}")]
         public ActionResult<string> Get(int id)
         {
+            var a = true;
+            if(a == true)
+                throw new Exception("Hello Error");
             return "value";
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post(string value)
         {
+            var a = true;
+            if (a == true)
+                throw new ApiDomainException(1, "Hello Domain Error");
         }
 
         // PUT api/values/5
