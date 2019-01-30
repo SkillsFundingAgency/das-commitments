@@ -13,7 +13,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public ApprenticeshipSearchType SearchType { get; set; }
 
         public IEnumerable<string> ReponseMessages { get; set; }
-
         public string ResponseUrl { get; set; }
     }
 }

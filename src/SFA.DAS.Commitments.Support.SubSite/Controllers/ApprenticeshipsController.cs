@@ -50,6 +50,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             });
         }
 
+        [Route("Apprenticeships/search")]
         [HttpPost]
         public async Task<ActionResult> Search(ApprenticeshipSearchQuery searchQuery)
         {
