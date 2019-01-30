@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
         [HttpGet]
         public async Task<ActionResult> Search(string hashedAccountId)
         {
-            var uriString = $"https://localhost:44347/resource/apprenticeships/search/{hashedAccountId}";    
+            var uriString = $"/resource/apprenticeships/search/{hashedAccountId}";    
             return View(new ApprenticeshipSearchQuery()
             {
                 ResponseUrl = uriString

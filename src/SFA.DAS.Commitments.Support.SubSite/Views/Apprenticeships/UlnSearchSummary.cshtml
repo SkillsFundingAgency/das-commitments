@@ -74,7 +74,7 @@
                             <td data-label="Organisation">@apprenticeship.EmployerName</td>
                             <td data-label="Training dates">@apprenticeship.TrainingDates</td>
                             <td data-label="Status">@apprenticeship.PaymentStatus</td>
-                            <td scope="col" class=""> <a href="@Url.RouteUrl("ApprenticeshipDetails", new { hashedApprenticeshipId = apprenticeship.ApprenticeshipHashId, hashedAccountId = apprenticeship.HashedAccountId})"> View</a>  </td>
+                            <td scole="col" class=""> <a href="\resource?key=CommitmentApprenticeDetail&id=@apprenticeship.HashedAccountId&childId=@apprenticeship.ApprenticeshipHashId"> View</a></td>
                         </tr>
 
                     }
