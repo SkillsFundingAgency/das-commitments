@@ -16,17 +16,17 @@ namespace SFA.DAS.CommitmentsV2.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
+            //env.ConfigureNLog("nlog.config");
             Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services, IHostingEnvironment env)
+        public void ConfigureServices(IServiceCollection services)
         {
-            env.ConfigureNLog("nlog.config");
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            
         }
     }
 }

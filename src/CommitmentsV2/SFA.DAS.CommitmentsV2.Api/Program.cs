@@ -15,6 +15,9 @@ namespace SFA.DAS.CommitmentsV2.Api
     {
         public static void Main(string[] args)
         {
+            var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            logger.Info("Starting up host");
+
             CreateWebHostBuilder(args).Build().Run();
         }
 

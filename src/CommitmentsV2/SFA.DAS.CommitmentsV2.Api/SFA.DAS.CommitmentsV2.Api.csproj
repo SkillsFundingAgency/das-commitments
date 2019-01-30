@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <None Remove="App_Data\.keep" />
+    <None Remove="internal-nlog.txt" />
+    <None Remove="SFA.DAS.CommitmentsV2.Api.csproj.DotSettings" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +26,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="nlog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
