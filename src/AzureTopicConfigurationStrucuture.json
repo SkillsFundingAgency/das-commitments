@@ -25,15 +25,15 @@
   },
   {
     "topicName": "cohort_approval_by_transfer_sender_requested",
-    "subscription": [ "MA_CohortApprovalByTransferSenderRequested" ]
+    "subscription": [ "Task_CohortApprovalByTransferSenderRequested" ]
   },
   {
     "topicName": "cohort_approved_by_transfer_sender",
-    "subscription": [ "MA_CohortApprovedByTransferSender" ]
+    "subscription": [ "Task_CohortApprovedByTransferSender" ]
   },
   {
     "topicName": "cohort_rejected_by_transfer_sender",
-    "subscription": [ "MA_CohortRejectedByTransferSender" ]
+    "subscription": [ "Task_CohortRejectedByTransferSender" ]
   },
   {
     "topicName": "cohort_created",
@@ -46,14 +46,6 @@
   {
     "topicName": "provider_cohort_approval_undone_by_employer",
     "subscription": [ "Task_ProviderCohortApprovalUndoneByEmployer" ]
-  },
-  {
-    "topicName": "relationship_created",
-    "subscription": [ "RDS_RelationshipCreated" ]
-  },
-  {
-    "topicName": "relationship_verified",
-    "subscription": [ "RDS_RelationshipVerified" ]
   }
 ]
 

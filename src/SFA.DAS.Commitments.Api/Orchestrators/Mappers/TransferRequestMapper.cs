@@ -26,6 +26,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 HashedCohortRef = _hashingService.HashValue(source.CommitmentId),
                 HashedSendingEmployerAccountId = _hashingService.HashValue(source.SendingEmployerAccountId),
                 TransferCost = source.TransferCost,
+                FundingCap = source.FundingCap,
                 Status = (TransferApprovalStatus) source.Status,
                 ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,
                 ApprovedOrRejectedByUserEmail = source.ApprovedOrRejectedByUserEmail,
@@ -54,11 +55,12 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 TransferSenderName = source.TransferSenderName,
                 LegalEntityName = source.LegalEntityName,
                 TransferCost = source.TransferCost,
-                TrainingList = JsonConvert.DeserializeObject<List<Types.Commitment.TrainingCourseSummary>>(source.TrainingCourses),
+                TrainingList = JsonConvert.DeserializeObject<List<TrainingCourseSummary>>(source.TrainingCourses),
                 Status = (TransferApprovalStatus)source.Status,
                 ApprovedOrRejectedByUserName = source.ApprovedOrRejectedByUserName,
                 ApprovedOrRejectedByUserEmail = source.ApprovedOrRejectedByUserEmail,
-                ApprovedOrRejectedOn = source.ApprovedOrRejectedOn
+                ApprovedOrRejectedOn = source.ApprovedOrRejectedOn,
+                FundingCap = source.FundingCap
             };
         }
     }

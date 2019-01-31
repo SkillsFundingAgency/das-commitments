@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using System.Web.Http;
 using SFA.DAS.Commitments.Api.Orchestrators;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
+using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Infrastructure.Authorization;
@@ -18,16 +18,10 @@ namespace SFA.DAS.Commitments.Api.Controllers
     public class ProviderController : ApiController
     {
         private readonly IProviderOrchestrator _providerOrchestrator;
-
         private readonly IApprenticeshipsOrchestrator _apprenticeshipsOrchestrator;
 
         public ProviderController(IProviderOrchestrator providerOrchestrator, IApprenticeshipsOrchestrator apprenticeshipsOrchestrator)
         {
-            if (providerOrchestrator == null)
-                throw new ArgumentNullException(nameof(providerOrchestrator));
-            if (apprenticeshipsOrchestrator == null)
-                throw new ArgumentNullException(nameof(apprenticeshipsOrchestrator));
-
             _providerOrchestrator = providerOrchestrator;
             _apprenticeshipsOrchestrator = apprenticeshipsOrchestrator;
         }
@@ -39,6 +33,23 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var response = await _providerOrchestrator.GetCommitments(providerId);
 
             return Ok(response);
+        }
+
+
+        [Route("{providerId}/commitments/")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        public async Task<IHttpActionResult> CreateCommitment(long providerId, CommitmentRequest commitment)
+        {
+            var response = await _providerOrchestrator.CreateCommitment(providerId, commitment);
+
+            return CreatedAtRoute("GetCommitmentForProvider", new { providerId, commitmentId = response }, new CommitmentView { Id = response });
+        }
+
+        [Route("{providerId}/commitmentagreements")]
+        [AuthorizeRemoteOnly(Roles = "Role1")]
+        public async Task<IHttpActionResult> GetCommitmentAgreements(long providerId)
+        {
+            return Ok(await _providerOrchestrator.GetCommitmentAgreements(providerId));
         }
 
         [Route("{providerId}/commitments/{commitmentId}", Name = "GetCommitmentForProvider")]
@@ -178,30 +189,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             await _providerOrchestrator.DeleteApprenticeship(providerId, apprenticeshipId, deleteRequest.UserId, deleteRequest.LastUpdatedByInfo?.Name);
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
-        [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetRelationshipByProviderAndLegalEntityId(long providerId, long employerAccountId, string legalEntityId)
-        {
-            var response = await _providerOrchestrator.GetRelationship(providerId, employerAccountId, legalEntityId);
-            return Ok(response);
-        }
-
-        [Route("{providerId}/relationships/{commitmentId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> GetRelationshipByCommitment(long providerId, long commitmentId)
-        {
-            var response = await _providerOrchestrator.GetRelationship(providerId, commitmentId);
-            return Ok(response);
-        }
-
-        [Route("{providerId}/relationships/{employerAccountId}/{legalEntityId}")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> PatchRelationship(long providerId, long employerAccountId, string legalEntityId, [FromBody] RelationshipRequest request)
-        {
-            await _providerOrchestrator.PatchRelationship(providerId, employerAccountId, legalEntityId, request);
             return StatusCode(HttpStatusCode.NoContent);
         }
 

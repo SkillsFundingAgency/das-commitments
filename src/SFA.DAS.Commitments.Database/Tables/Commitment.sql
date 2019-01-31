@@ -13,8 +13,8 @@
     [EditStatus] SMALLINT NOT NULL DEFAULT 0,
     [CreatedOn] DATETIME NULL, 
     [LastAction] SMALLINT NOT NULL DEFAULT 0, 
-	[LastUpdatedByEmployerName] NVARCHAR(255) NOT NULL,
-    [LastUpdatedByEmployerEmail] NVARCHAR(255) NOT NULL, 
+	[LastUpdatedByEmployerName] NVARCHAR(255) NULL,
+    [LastUpdatedByEmployerEmail] NVARCHAR(255) NULL, 
     [LastUpdatedByProviderName] NVARCHAR(255) NULL, 
     [LastUpdatedByProviderEmail] NVARCHAR(255) NULL,
     [TransferSenderId] BIGINT SPARSE,
@@ -22,14 +22,15 @@
 	[TransferApprovalStatus] TINYINT SPARSE,
 	[TransferApprovalActionedByEmployerName] NVARCHAR(255),
 	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
-	[TransferApprovalActionedOn] DATETIME2
+	[TransferApprovalActionedOn] DATETIME2,
+	[AccountLegalEntityPublicHashedId] CHAR(6) NULL
 )
 GO
 
 -- this was recommented by azure and has been added directly to prod
 CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus]
 ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) 
-INCLUDE ([CreatedOn], [EditStatus], [EmployerAccountId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
+INCLUDE ([AccountLegalEntityPublicHashedId], [CreatedOn], [EditStatus], [EmployerAccountId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
 GO
 
 -- but we have 2 natural id's, providerid and EmployerAccountId

@@ -2,13 +2,14 @@
 	@commitmentid BIGINT,
 	@cost MONEY,
 	@trainingCourses NVARCHAR(MAX),
+	@fundingCap MONEY = null,
 	@transferRequestId BIGINT = null OUT
 AS
 BEGIN
 
 	DECLARE @OldApprovalStatus AS TINYINT = NULL
 
-	INSERT INTO [dbo].[TransferRequest] (CommitmentId, Cost, TrainingCourses, [Status]) VALUES (@commitmentid, @cost, @trainingCourses, 0)
+	INSERT INTO [dbo].[TransferRequest] (CommitmentId, Cost, FundingCap, TrainingCourses, [Status]) VALUES (@commitmentid, @cost, @fundingCap, @trainingCourses, 0)
 
 	SELECT @transferRequestId = SCOPE_IDENTITY()
 

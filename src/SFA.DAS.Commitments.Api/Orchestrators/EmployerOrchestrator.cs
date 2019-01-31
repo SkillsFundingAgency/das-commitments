@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using SFA.DAS.Commitments.Api.Orchestrators.Mappers;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
-using SFA.DAS.Commitments.Application.Commands.CreateRelationship;
 using SFA.DAS.Commitments.Application.Commands.RejectApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest;
 using SFA.DAS.Commitments.Application.Commands.RejectTransferRequest;
@@ -36,7 +35,6 @@ using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStopDate;
 using SFA.DAS.Commitments.Application.Queries.GetActiveApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountIds;
 using SFA.DAS.Commitments.Application.Queries.GetEmployerAccountSummary;
-using SFA.DAS.Commitments.Application.Queries.GetRelationship;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequest;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForReceiver;
 using SFA.DAS.Commitments.Application.Queries.GetTransferRequestsForSender;
@@ -46,7 +44,6 @@ using ApprenticeshipStatusSummary = SFA.DAS.Commitments.Domain.Entities.Apprenti
 using Originator = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.Originator;
 using PaymentStatus = SFA.DAS.Commitments.Api.Types.Apprenticeship.Types.PaymentStatus;
 using ProviderPaymentPriorityItem = SFA.DAS.Commitments.Api.Types.ProviderPayment.ProviderPaymentPriorityItem;
-using Relationship = SFA.DAS.Commitments.Domain.Entities.Relationship;
 using TransferApprovalStatus = SFA.DAS.Commitments.Api.Types.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Api.Orchestrators
@@ -134,44 +131,13 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
                 Commitment = commitment,
                 UserId = commitmentRequest.UserId,
-                Message = commitmentRequest.Message
+                Message = commitmentRequest.Message,
+                LastAction = (LastAction) commitmentRequest.LastAction
             });
-            await CreateRelationshipIfDoesNotAlreadyExist(commitment);
 
             _logger.Info($"Created commitment {id} for employer account {accountId}", accountId: accountId);
 
             return id;
-        }
-
-        private  async Task CreateRelationshipIfDoesNotAlreadyExist(Domain.Entities.Commitment commitment)
-        {
-            var relationship = await _mediator.SendAsync(new GetRelationshipRequest
-            {
-                EmployerAccountId = commitment.EmployerAccountId,
-                ProviderId = commitment.ProviderId.Value,
-                LegalEntityId = commitment.LegalEntityId
-            });
-
-            if (relationship.Data == null)
-            {
-                _logger.Info($"Creating relationship between employer account {commitment.EmployerAccountId}," +
-                             $" legal entity {commitment.LegalEntityId}," +
-                             $" and provider {commitment.ProviderId}");
-
-                await _mediator.SendAsync(new CreateRelationshipCommand
-                {
-                    Relationship = new Relationship
-                    {
-                        EmployerAccountId = commitment.EmployerAccountId,
-                        LegalEntityId = commitment.LegalEntityId,
-                        LegalEntityName = commitment.LegalEntityName,
-                        LegalEntityAddress = commitment.LegalEntityAddress,
-                        LegalEntityOrganisationType = commitment.LegalEntityOrganisationType,
-                        ProviderId = commitment.ProviderId.Value,
-                        ProviderName = commitment.ProviderName
-                    }
-                });
-            }
         }
 
         public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)
@@ -711,6 +677,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return data.Select(s => new Types.ApprenticeshipStatusSummary
             {
                 LegalEntityIdentifier = s.LegalEntityIdentifier,
+                LegalEntityOrganisationType = s.LegalEntityOrganisationType,
                 PendingApprovalCount = s.PendingApprovalCount,
                 ActiveCount = s.ActiveCount,
                 PausedCount = s.PausedCount,

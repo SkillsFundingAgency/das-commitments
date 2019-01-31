@@ -48,6 +48,7 @@
     <DefineTrace>true</DefineTrace>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatTSqlWarningsAsErrors>True</TreatTSqlWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
@@ -64,6 +65,11 @@
     <Folder Include="StoredProcedures" />
     <Folder Include="UserDefinedTypes" />
     <Folder Include="PostDeployment" />
+    <Folder Include="AdhocScripts" />
+    <Folder Include="AdhocScripts\Support" />
+    <Folder Include="AdhocScripts\Support\DPP-1661" />
+    <Folder Include="AdhocScripts\Support\AML-2937" />
+    <Folder Include="PreDeployment" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -73,10 +79,6 @@
     <Build Include="StoredProcedures\GetCommitment.sql" />
     <Build Include="StoredProcedures\SetPaymentOrder.sql" />
     <Build Include="StoredProcedures\DeleteCommitment.sql" />
-    <Build Include="Tables\Relationship.sql" />
-    <Build Include="StoredProcedures\CreateRelationship.sql" />
-    <Build Include="StoredProcedures\GetRelationship.sql" />
-    <Build Include="StoredProcedures\VerifyRelationship.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
     <Build Include="UserDefinedTypes\ULNTable.sql" />
     <Build Include="Tables\ApprenticeshipUpdate.sql" />
@@ -125,6 +127,9 @@
     <Build Include="StoredProcedures\UpdateApprenticeshipUpdateStatus.sql" />
     <Build Include="StoredProcedures\GetStatistics.sql" />
     <Build Include="StoredProcedures\GetPendingTransferRequests.sql" />
+    <Build Include="StoredProcedures\UpdateApprenticeshipStatusesForCommitment.sql" />
+    <None Include="AdhocScripts\Support\ProviderMergeScript.sql" />
+    <None Include="AdhocScripts\Support\ApprenticeshipStopManyFixUpScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
@@ -132,8 +137,15 @@
   <ItemGroup>
     <None Include="Database.publish.xml" />
     <Build Include="Tables\BulkUpload.sql" />
+    <None Include="AdhocScripts\Support\ApprenticeshipStopFixUpScript.sql" />
+    <None Include="AdhocScripts\Support\EmitApprenticeshipEventScript.sql" />
+    <None Include="AdhocScripts\Support\DPP-1661\DPP-1661_Remove_DataLock_7_if_also_Datalock_9.sql" />
+    <None Include="AdhocScripts\Support\AML-2937\AML-2937_Migrate_Provider_Assigned_New_Cohorts_To_Amended.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="PreDeployment\PreDeploymentScript.sql" />
   </ItemGroup>
 </Project>

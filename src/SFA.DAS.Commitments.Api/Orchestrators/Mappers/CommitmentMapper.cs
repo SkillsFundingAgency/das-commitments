@@ -54,6 +54,16 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             };
         }
 
+        public Types.Commitment.CommitmentAgreement Map(Domain.Entities.CommitmentAgreement commitmentAgreement)
+        {
+            return new Types.Commitment.CommitmentAgreement
+            {
+                Reference = commitmentAgreement.Reference,
+                LegalEntityName = commitmentAgreement.LegalEntityName,
+                AccountLegalEntityPublicHashedId = commitmentAgreement.AccountLegalEntityPublicHashedId
+            };
+        }
+
         public IEnumerable<CommitmentListItem> MapFrom(IEnumerable<CommitmentSummary> source, CallerType callerType)
         {
             return source.Select(x => MapFrom(x, callerType));
@@ -124,6 +134,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityName = commitment.LegalEntityName,
                 LegalEntityAddress = commitment.LegalEntityAddress,
                 LegalEntityOrganisationType = (SFA.DAS.Common.Domain.Types.OrganisationType)commitment.LegalEntityOrganisationType,
+                AccountLegalEntityPublicHashedId = commitment.AccountLegalEntityPublicHashedId,
                 ProviderId = commitment.ProviderId,
                 ProviderName = commitment.ProviderName,
                 CommitmentStatus = (CommitmentStatus)commitment.CommitmentStatus,
@@ -134,8 +145,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             };
 
             return domainCommitment;
-
         }
+
         private static bool CommitmentCanBeApproved(CallerType callerType, Commitment commitment)
         {
             switch (callerType)
@@ -149,8 +160,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
             }
             return false;
         }
-
-
 
         //todo: could we reuse the apprenticeship mapper?       
         private static List<Types.Apprenticeship.Apprenticeship> MapApprenticeshipsFrom(List<Apprenticeship> apprenticeships, CallerType callerType)

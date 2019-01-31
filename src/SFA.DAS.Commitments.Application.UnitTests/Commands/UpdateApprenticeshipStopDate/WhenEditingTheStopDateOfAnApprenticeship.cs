@@ -202,5 +202,22 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                     list.Events[0].EffectiveFrom == ExampleValidRequest.StopDate
                     )), Times.Once);
         }
+
+        [Test]
+        public async Task ThenShouldResolveDataLocksLinkedToAppriceshipWhenStopDateEqualsStartDate()
+        {
+            var listOfDataLockStatuses = new List<DataLockStatus>
+            {
+                new DataLockStatus {DataLockEventId = 1},
+                new DataLockStatus {DataLockEventId = 2}
+            };
+            ExampleValidRequest.StopDate = TestApprenticeship.StartDate.Value;
+            MockDataLockRepository.Setup(x => x.GetDataLocks(It.IsAny<long>(), false)).ReturnsAsync(listOfDataLockStatuses);
+
+            await Handler.Handle(ExampleValidRequest);
+
+            MockDataLockRepository.Verify(x => x.GetDataLocks(TestApprenticeship.Id, false));
+            MockDataLockRepository.Verify(x => x.ResolveDataLock(It.Is<IEnumerable<long>>(p => p.SequenceEqual(new [] {1L, 2L}))));
+        }
     }
 }

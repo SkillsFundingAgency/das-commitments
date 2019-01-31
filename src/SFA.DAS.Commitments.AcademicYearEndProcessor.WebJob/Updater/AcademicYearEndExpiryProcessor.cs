@@ -3,6 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Events;
+using SFA.DAS.Commitments.Infrastructure.Data;
+using SFA.DAS.Messaging.Interfaces;
 using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
@@ -14,26 +17,23 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IApprenticeshipUpdateRepository _apprenticeshipUpdateRepository;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IMessagePublisher _messagePublisher;
+        private readonly IApprenticeshipRepository _apprenticeshipRepository;
 
-        public AcademicYearEndExpiryProcessor(
-            ILog logger, 
-            IAcademicYearDateProvider academicYearProvider, 
+        public AcademicYearEndExpiryProcessor(ILog logger,
+            IAcademicYearDateProvider academicYearProvider,
             IDataLockRepository dataLockRepository,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository,
-            ICurrentDateTime currentDateTime)
+            ICurrentDateTime currentDateTime,
+            IMessagePublisher messagePublisher, 
+            IApprenticeshipRepository apprenticeshipRepository)
         {
-
-            if (logger == null) throw new ArgumentException(nameof(logger));
-            if (dataLockRepository == null) throw new ArgumentException(nameof(dataLockRepository));
-            if (currentDateTime == null) throw new ArgumentException(nameof(currentDateTime));
-            if (academicYearProvider == null) throw new ArgumentException(nameof(academicYearProvider));
-            if (apprenticeshipUpdateRepository== null) throw new ArgumentException(nameof(apprenticeshipUpdateRepository));
-
-
             _logger = logger;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
             _currentDateTime = currentDateTime;
+            _messagePublisher = messagePublisher;
+            _apprenticeshipRepository = apprenticeshipRepository;
             _academicYearProvider = academicYearProvider;
         }
 
@@ -70,6 +70,14 @@ namespace SFA.DAS.Commitments.AcademicYearEndProcessor.WebJob.Updater
             {
                 _logger.Info($"Updating ApprenticeshipUpdate to expired, ApprenticeshipUpdateId: {update.Id}, JobId: {jobId}");
                 await _apprenticeshipUpdateRepository.ExpireApprenticeshipUpdate(update.Id);
+
+                var apprenticeship =
+                    await _apprenticeshipRepository.GetApprenticeship(update.ApprenticeshipId);
+
+                await _messagePublisher.PublishAsync(new ApprenticeshipUpdateCancelled(
+                    apprenticeship.EmployerAccountId, 
+                    apprenticeship.ProviderId, 
+                    apprenticeship.Id));
             }
 
             var expiredApprenticeshipUpdatesAfterJob =

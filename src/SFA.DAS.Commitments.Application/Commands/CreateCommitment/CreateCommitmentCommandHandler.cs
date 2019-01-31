@@ -25,7 +25,12 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private readonly IHistoryRepository _historyRepository;
         private readonly IMessagePublisher _messagePublisher;
 
-        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository, IHashingService hashingService, AbstractValidator<CreateCommitmentCommand> validator, ICommitmentsLogger logger, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public CreateCommitmentCommandHandler(ICommitmentRepository commitmentRepository,
+            IHashingService hashingService,
+            AbstractValidator<CreateCommitmentCommand> validator,
+            ICommitmentsLogger logger,
+            IHistoryRepository historyRepository,
+            IMessagePublisher messagePublisher)
         {
             _commitmentRepository = commitmentRepository;
             _hashingService = hashingService;
@@ -37,7 +42,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
         public async Task<long> Handle(CreateCommitmentCommand message)
         {
-            _logger.Info($"Employer: {message.Commitment.EmployerAccountId} has called CreateCommitmentCommand", accountId: message.Commitment.EmployerAccountId);
+            _logger.Info($"{message.Caller.CallerType}: {message.Caller.Id} has called CreateCommitmentCommand",
+                accountId: message.Commitment.EmployerAccountId,
+                providerId: message.Commitment.ProviderId);
 
             var validationResult = _validator.Validate(message);
 
@@ -50,8 +57,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
 
             await Task.WhenAll(
                 CreateMessageIfNeeded(newCommitment.Id, message),
-                CreateHistory(newCommitment, message.Caller.CallerType, message.UserId,
-                message.Commitment.LastUpdatedByEmployerName), PublishCohortCreatedEvent(newCommitment)
+                CreateHistory(newCommitment, message.Caller.CallerType, message.UserId, message.Commitment.LastUpdatedByEmployerName),
+                PublishCohortCreatedEvent(newCommitment)
             );
             
             return newCommitment.Id;
@@ -66,12 +73,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
         private async Task<Commitment> CreateCommitment(CreateCommitmentCommand message)
         {
             var newCommitment = message.Commitment;
-            newCommitment.LastAction = LastAction.None;
+            newCommitment.LastAction = message.LastAction;
 
             newCommitment.Id = await _commitmentRepository.Create(newCommitment);
+            await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));
 
-            await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id,
-                _hashingService.HashValue(newCommitment.Id));
             return newCommitment;
         }
 

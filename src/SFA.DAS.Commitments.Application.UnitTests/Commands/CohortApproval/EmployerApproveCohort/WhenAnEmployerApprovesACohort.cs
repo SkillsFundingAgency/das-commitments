@@ -8,12 +8,12 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
-using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
 {
@@ -30,7 +30,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
 
-            Target = new EmployerApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object, Mock.Of<ICommitmentsLogger>());
+            Target = new EmployerApproveCohortCommandHandler(Validator,
+                CommitmentRepository.Object,
+                ApprenticeshipRepository.Object,
+                OverlapRules.Object,
+                CurrentDateTime.Object,
+                HistoryRepository.Object,
+                ApprenticeshipEventsList.Object,
+                ApprenticeshipEventsPublisher.Object,
+                Mediator.Object,
+                MessagePublisher.Object,
+                Mock.Of<ICommitmentsLogger>(),
+                Mock.Of<IApprenticeshipInfoService>());
         }
 
         [Test]
@@ -73,7 +84,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.EmployerAgreed));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.PendingApproval));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreedOn == null));
-            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Apprenticeships), Times.Once());
+            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Id, PaymentStatus.PendingApproval, AgreementStatus.EmployerAgreed, null), Times.Once());
         }
 
         [Test]
@@ -120,7 +131,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.BothAgreed));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.PaymentStatus == PaymentStatus.Active));
             Assert.IsTrue(Commitment.Apprenticeships.All(x => x.AgreedOn == expectedAgreedOnDate));
-            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Apprenticeships), Times.Once());
+            ApprenticeshipRepository.Verify(x => x.UpdateApprenticeshipStatuses(Commitment.Id, PaymentStatus.Active, AgreementStatus.BothAgreed, expectedAgreedOnDate), Times.Once());
         }
 
         [Test]

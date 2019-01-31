@@ -1,7 +1,6 @@
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
-using SFA.DAS.Commitments.Api.Types.Commitment.Types;
 using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,11 +13,11 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
 
         Task PatchCommitment(string url, CommitmentSubmission submision);
 
-        Task PutCommitment(string url, CommitmentStatus commitmentStatus);
-
         Task PatchApprenticeship(string url, ApprenticeshipSubmission apprenticeshipSubmission);
 
         Task<List<CommitmentListItem>> GetCommitments(string url);
+
+        Task<List<CommitmentAgreement>> GetCommitmentAgreements(string url);
 
         Task<CommitmentView> GetCommitment(string url);
 

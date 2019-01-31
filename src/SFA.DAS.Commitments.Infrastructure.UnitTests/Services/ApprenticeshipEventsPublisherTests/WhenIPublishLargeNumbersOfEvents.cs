@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -19,7 +17,6 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
         private ApprenticeshipEventsPublisher _publisher;
         private Mock<IApprenticeshipEventsList> _eventsList;
         private Mock<IEventsApi> _eventsApi;
-
 
         [SetUp]
         public void Arrange()
@@ -58,8 +55,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
             await _publisher.Publish(_eventsList.Object);
 
             //Assert
-            _eventsApi.Verify(x =>
-                    x.BulkCreateApprenticeshipEvent(It.IsAny<IList<Events.Api.Types.ApprenticeshipEvent>>()), Times.Exactly(expectBatches));
+            _eventsApi.Verify(x => x.BulkCreateApprenticeshipEvent(It.IsAny<IList<Events.Api.Types.ApprenticeshipEvent>>()), Times.Exactly(expectBatches));
         }
     }
 }

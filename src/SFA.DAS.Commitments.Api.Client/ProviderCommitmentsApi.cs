@@ -33,6 +33,13 @@ namespace SFA.DAS.Commitments.Api.Client
             _commitmentHelper = new HttpCommitmentHelper(client);
         }
 
+        public async Task<CommitmentView> CreateProviderCommitment(long providerId, CommitmentRequest commitment)
+        {
+            var url = $"{_configuration.BaseUrl}api/provider/{providerId}/commitments";
+
+            return await _commitmentHelper.PostCommitment(url, commitment);
+        }
+
         public async Task PatchProviderCommitment(long providerId, long commitmentId, CommitmentSubmission submission)
         {
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/commitments/{commitmentId}";
@@ -80,6 +87,13 @@ namespace SFA.DAS.Commitments.Api.Client
             var url = $"{_configuration.BaseUrl}api/provider/{providerId}/commitments";
 
             return await _commitmentHelper.GetCommitments(url);
+        }
+
+        public async Task<List<CommitmentAgreement>> GetCommitmentAgreements(long providerId)
+        {
+            var url = $"{_configuration.BaseUrl}api/provider/{providerId}/commitmentagreements";
+
+            return await _commitmentHelper.GetCommitmentAgreements(url);
         }
 
         public async Task<CommitmentView> GetProviderCommitment(long providerId, long commitmentId)

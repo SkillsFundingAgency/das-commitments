@@ -7,7 +7,6 @@ using MediatR;
 
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
-using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -25,7 +24,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _eventsApi;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IApprenticeshipInfoServiceWrapper _apprenticeshipTrainingService;
+        private readonly IApprenticeshipInfoService _apprenticeshipTrainingService;
 
         private readonly ICommitmentsLogger _logger;
 
@@ -36,18 +35,9 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             IApprenticeshipEventsList apprenticeshipEventsList,
             ICommitmentRepository commitmentRepository, 
             ICurrentDateTime currentDateTime,
-            IApprenticeshipInfoServiceWrapper apprenticeshipTrainingService,
+            IApprenticeshipInfoService apprenticeshipTrainingService,
             ICommitmentsLogger logger)
         {
-            if (validator == null)
-                throw new ArgumentNullException(nameof(AbstractValidator<ApproveDataLockTriageCommand>));
-            if (dataLockRepository == null)
-                throw new ArgumentNullException(nameof(IDataLockRepository));
-            if (apprenticeshipRepository == null)
-                throw new ArgumentNullException(nameof(IApprenticeshipRepository));
-            if (commitmentRepository == null)
-                throw new ArgumentNullException(nameof(ICommitmentRepository));
-
             _validator = validator;
             _dataLockRepository = dataLockRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -93,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
                 if (dataLockWithUpdatedTraining != null)
                 {
                     var training = await
-                        _apprenticeshipTrainingService.GetTrainingProgramAsync(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
+                        _apprenticeshipTrainingService.GetTrainingProgram(dataLockWithUpdatedTraining.IlrTrainingCourseCode);
 
                     _logger.Info($"Updating course for apprenticeship {apprenticeship.Id} from training code {apprenticeship.TrainingCode} to {dataLockWithUpdatedTraining.IlrTrainingCourseCode}");
 

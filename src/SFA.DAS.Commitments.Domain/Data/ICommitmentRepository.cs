@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<long> Create(Commitment commitment);
         Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId);
         Task<IList<CommitmentSummary>> GetCommitmentsByEmployer(long accountId);
+        Task<IList<CommitmentAgreement>> GetCommitmentAgreementsForProvider(long providerId);
         Task<Commitment> GetCommitmentById(long id);
         Task DeleteCommitment(long commitmentId);
         Task UpdateCommitment(Commitment commitment);
@@ -20,11 +21,8 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);
         Task<IList<TransferRequestSummary>> GetPendingTransferRequests();
         Task<IList<TransferRequestSummary>> GetTransferRequestsForReceiver(long transferReceiverAccountId);
-        Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, List<TrainingCourseSummary> trainingCourses);
+        Task<long> StartTransferRequestApproval(long commitmentId, decimal cost, int fundingCap, List<TrainingCourseSummary> trainingCourses);
         Task ResetEditStatusToEmployer(long commitmentId);
-        Task<long> CreateRelationship(Relationship relationship);
-        Task<Relationship> GetRelationship(long employerAccountId, long providerId, string legalEntityCode);
-        Task VerifyRelationship(long employerAccountId, long providerId, string legalEntityCode, bool verified);
         Task SaveMessage(long commitmentId, Message message);
     }
 }

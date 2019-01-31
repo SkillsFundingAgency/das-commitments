@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -28,29 +27,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
         [Test]
         public void ThenMappingCompletesSuccessfully()
         {
-            var apprenticeship = new Domain.Entities.Apprenticeship
-            {
-                Cost = null,
-                AgreedOn = null,
-                DateOfBirth = null,
-                EndDate = null,
-                EmployerRef = null,
-                FirstName = null,
-                PauseDate = null,
-                LastName = null,
-                LegalEntityId = null,
-                LegalEntityName = null,
-                NINumber = null,
-                ProviderName = null,
-                ProviderRef = null,
-                Reference = null,
-                TrainingCode = null,
-                TrainingName = null,
-                StartDate = null,
-                ULN = null,
-                UpdateOriginator = null
-            };
-            var commitment = new Commitment {Apprenticeships = new List<Domain.Entities.Apprenticeship> {apprenticeship} };
+            var commitment = new Commitment {Apprenticeships = new List<Domain.Entities.Apprenticeship> { new Domain.Entities.Apprenticeship() } };
 
             Assert.DoesNotThrow(() => _mapper.MapFrom(commitment, CallerType.Provider));
         }
@@ -62,9 +39,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
         }
 
         [Test]
-        public void ThenMappingCommitment()
+        public void ThenCommitmentIsCorrectlyMapped()
         {
-            var from = new SFA.DAS.Commitments.Api.Types.Commitment.Commitment
+            const string accountLegalEntityPublicHashedId = "123456";
+
+            var from = new Types.Commitment.Commitment
             {
                 Reference = "Reference",
                 EmployerAccountId = 1,
@@ -77,11 +56,11 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
                 ProviderId = 3,
                 ProviderName = "ProviderName",
                 CommitmentStatus = Types.Commitment.Types.CommitmentStatus.Active,
-                EditStatus = Types.Commitment.Types.EditStatus.Both
+                EditStatus = Types.Commitment.Types.EditStatus.Both,
+                AccountLegalEntityPublicHashedId = accountLegalEntityPublicHashedId
             };
             from.EmployerLastUpdateInfo.Name = "Test";
             from.EmployerLastUpdateInfo.EmailAddress = "test@test.com";
-
 
             var result = _mapper.MapFrom(from);
 
@@ -97,7 +76,7 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
             Assert.AreEqual("ProviderName", result.ProviderName);
             Assert.AreEqual(CommitmentStatus.Active, result.CommitmentStatus);
             Assert.AreEqual(EditStatus.Both, result.EditStatus);
-
+            Assert.AreEqual(accountLegalEntityPublicHashedId, result.AccountLegalEntityPublicHashedId);
         }
 
         [TestCase(CallerType.Employer, true, false)]
@@ -133,6 +112,5 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
 
             result.Apprenticeships[0].CanBeApproved.Should().BeTrue();
         }
-
     }
 }

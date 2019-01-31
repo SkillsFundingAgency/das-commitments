@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         private Mock<IDataLockRepository> _dataLockRepository;
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
-        private Mock<IApprenticeshipInfoServiceWrapper> _apprenticeshipTrainingService;
+        private Mock<IApprenticeshipInfoService> _apprenticeshipTrainingService;
 
         private ApproveDataLockTriageCommand _command;
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _validator = new Mock<AbstractValidator<ApproveDataLockTriageCommand>>();
             _dataLockRepository = new Mock<IDataLockRepository>();
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
-            _apprenticeshipTrainingService = new Mock<IApprenticeshipInfoServiceWrapper>();
+            _apprenticeshipTrainingService = new Mock<IApprenticeshipInfoService>();
 
             _apprenticeshipRepository.Setup(x => x.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship());
@@ -137,7 +137,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             long[] idsToBeUpdated = null;
             _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>( (ids) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             IEnumerable<PriceHistory> prices = null;
             _apprenticeshipRepository.Setup(
@@ -187,7 +187,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
                 m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()))
                 .Callback<IEnumerable<long>>(
                     (ids) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
                 .ReturnsAsync(new Apprenticeship { HasHadDataLockSuccess = hasHadDatalockSuccess });
@@ -223,7 +223,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             long[] idsToBeUpdated = null;
             _dataLockRepository.Setup(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>())).Callback<IEnumerable<long>>( (ids) => { idsToBeUpdated = ids.ToArray(); })
-                .ReturnsAsync(0);
+                .Returns(Task.CompletedTask);
 
             await _sut.Handle(_command);
 
@@ -257,7 +257,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
             
-            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
+            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgram(It.IsAny<string>()), Times.Never);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), new Caller()), Times.Never);
         }
 
@@ -280,7 +280,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345 });
 
-            _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
+            _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgram($"{trainingCode}"))
                 .ReturnsAsync(standard);
 
             Apprenticeship updatedApprenticeship = null;
@@ -293,7 +293,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
 
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
-            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgramAsync(standard.Code.ToString(), false), Times.Once);
+            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgram(standard.Code.ToString()), Times.Once);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Once);
 
             updatedApprenticeship.TrainingCode.Should().Be(standard.Code.ToString());
@@ -320,14 +320,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _apprenticeshipRepository.Setup(m => m.GetApprenticeship(_command.ApprenticeshipId))
                 .ReturnsAsync(new Apprenticeship { CommitmentId = 123456L, HasHadDataLockSuccess = false, EmployerAccountId = 12345, TrainingCode = $"{trainingCode}"});
 
-            _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgramAsync($"{trainingCode}", false))
+            _apprenticeshipTrainingService.Setup(m => m.GetTrainingProgram($"{trainingCode}"))
                 .ReturnsAsync(standard);
 
             await _sut.Handle(_command);
 
             _dataLockRepository.Verify(m => m.ResolveDataLock(It.IsAny<IEnumerable<long>>()), Times.Once);
 
-            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgramAsync(It.IsAny<string>(), false), Times.Never);
+            _apprenticeshipTrainingService.Verify(m => m.GetTrainingProgram(It.IsAny<string>()), Times.Never);
             _apprenticeshipRepository.Verify(m => m.UpdateApprenticeship(It.IsAny<Apprenticeship>(), It.IsAny<Caller>()), Times.Never);
         }
 

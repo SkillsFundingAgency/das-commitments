@@ -39,7 +39,8 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                 EmployerAccountId = 987,
                 LegalEntityId = "LE ID",
                 LegalEntityName = "LE Name",
-                LegalEntityOrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType.CompaniesHouse
+                LegalEntityOrganisationType = Common.Domain.Types.OrganisationType.CompaniesHouse,
+                AccountLegalEntityPublicHashedId = "123456"
             };
 
             _apprenticeship = new Apprenticeship
@@ -137,9 +138,7 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
         private bool EventMatchesParameters(IList<ApprenticeshipEvent> apprenticeshipEvents, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
             if (apprenticeshipEvents.Count != 1)
-            {
                 return false;
-            }
 
             var apprenticeshipEvent = apprenticeshipEvents.First();
             return apprenticeshipEvent.AgreementStatus == (Events.Api.Types.AgreementStatus)_apprenticeship.AgreementStatus &&
@@ -159,9 +158,12 @@ namespace SFA.DAS.Commitments.Infrastructure.UnitTests.Services.ApprenticeshipEv
                    apprenticeshipEvent.TransferApprovalStatus ==(Events.Api.Types.TransferApprovalStatus?) _commitment.TransferApprovalStatus &&
                    apprenticeshipEvent.LegalEntityName == _commitment.LegalEntityName &&
                    apprenticeshipEvent.LegalEntityOrganisationType == _commitment.LegalEntityOrganisationType.ToString() &&
+                   apprenticeshipEvent.AccountLegalEntityPublicHashedId == _commitment.AccountLegalEntityPublicHashedId &&
                    apprenticeshipEvent.DateOfBirth == _apprenticeship.DateOfBirth &&
                    apprenticeshipEvent.EffectiveFrom == effectiveFrom &&
-                   apprenticeshipEvent.EffectiveTo == effectiveTo;
+                   apprenticeshipEvent.EffectiveTo == effectiveTo &&
+                   apprenticeshipEvent.StoppedOnDate == _apprenticeship.StopDate &&
+                   apprenticeshipEvent.PausedOnDate == _apprenticeship.PauseDate;
         } 
     }
 }

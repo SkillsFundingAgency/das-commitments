@@ -6,10 +6,13 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.ProviderApproveCohort
 {
@@ -28,26 +31,45 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             Commitment = CreateCommitment(Command.CommitmentId, 11234, Command.Caller.Id, 1000, "Nice Company");
             Commitment.EditStatus = EditStatus.ProviderOnly;
             Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
-            CommitmentRepository.Setup(x => x.StartTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(),
+            CommitmentRepository.Setup(x => x.StartTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<int>(),
                 It.IsAny<List<TrainingCourseSummary>>())).ReturnsAsync(_transferRequestId);
 
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             SetupSuccessfulOverlapCheck();
 
-            Target = new ProviderApproveCohortCommandHandler(Validator, CommitmentRepository.Object, ApprenticeshipRepository.Object, OverlapRules.Object, CurrentDateTime.Object, HistoryRepository.Object, ApprenticeshipEventsList.Object, ApprenticeshipEventsPublisher.Object, Mediator.Object, MessagePublisher.Object, Mock.Of<ICommitmentsLogger>());
+            ApprenticeshipInfoService = new Mock<IApprenticeshipInfoService>();
+            ApprenticeshipInfoService.Setup(x => x.GetTrainingProgram(It.IsAny<string>()))
+                .ReturnsAsync(new Standard
+                {
+                    FundingPeriods = new List<FundingPeriod>
+                    {
+                        new FundingPeriod {FundingCap = 1000}
+                    }
+                });
+
+            Target = new ProviderApproveCohortCommandHandler(Validator,
+                CommitmentRepository.Object,
+                ApprenticeshipRepository.Object,
+                OverlapRules.Object,
+                CurrentDateTime.Object,
+                HistoryRepository.Object,
+                ApprenticeshipEventsList.Object,
+                ApprenticeshipEventsPublisher.Object,
+                Mediator.Object,
+                MessagePublisher.Object,
+                Mock.Of<ICommitmentsLogger>(),
+                ApprenticeshipInfoService.Object);
         }
 
         [Test]
         public async Task ThenIfTheEmployerHasAlreadyApprovedAMessageIsPublishedToTransferSender()
         {
-
             await Target.Handle(Command);
 
             MessagePublisher.Verify(x => x.PublishAsync(It.Is<CohortApprovalByTransferSenderRequested>(y =>
                 y.TransferRequestId == _transferRequestId &&
                 y.ReceivingEmployerAccountId == Commitment.EmployerAccountId &&
-                y.CommitmentId == Commitment.Id && y.SendingEmployerAccountId == Commitment.TransferSenderId &&
-                y.TransferCost == Commitment.Apprenticeships.Sum(a => a.Cost ?? 0))), Times.Once);
+                y.CommitmentId == Commitment.Id && y.SendingEmployerAccountId == Commitment.TransferSenderId)), Times.Once);
         }
 
         [Test]
@@ -81,12 +103,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         [Test]
         public async Task ThenEnsureTheStartATransferRequestInRepositoryIsCalled()
         {
-            var expectedTotal = (decimal)Commitment.Apprenticeships.Sum(i => i.Cost);
-
             await Target.Handle(Command);
 
             CommitmentRepository.Verify(x => x.StartTransferRequestApproval(Commitment.Id,
-                expectedTotal, It.Is<List<TrainingCourseSummary>>(p =>
+                It.IsAny<decimal>(), It.IsAny<int>(), It.Is<List<TrainingCourseSummary>>(p =>
                     p.Count == 1 && p[0].ApprenticeshipCount == 2 &&
                     p[0].CourseTitle == Commitment.Apprenticeships[0].TrainingName)));
 

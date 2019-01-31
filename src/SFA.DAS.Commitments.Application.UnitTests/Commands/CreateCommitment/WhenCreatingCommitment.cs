@@ -42,7 +42,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
 			var commandValidator = new CreateCommitmentValidator();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _messagePublisher = new Mock<IMessagePublisher>();
-            _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object, 
+
+           _handler = new CreateCommitmentCommandHandler(_mockCommitmentRespository.Object,
                 _mockHashingService.Object,
                 commandValidator,
                 Mock.Of<ICommitmentsLogger>(),
@@ -70,7 +71,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                                        {
                                            Commitment = _populatedCommitment,
                                            Caller = new Caller(1L, CallerType.Employer),
-                                           UserId = "UserId"
+                                           UserId = "UserId",
+                                           LastAction = LastAction.None
                                        };
         }
 
@@ -85,15 +87,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [Test]
         public async Task ThenShouldCallTheRepositoryWithCommitmentMappedFromRequest()
         {
+            //Arrange
             Commitment argument = null;
             _mockCommitmentRespository.Setup(
                     x => x.Create(It.IsAny<Commitment>()))
                 .ReturnsAsync(4)
-                .Callback<Commitment>(
-                    commitment => argument = commitment);
+                .Callback<Commitment>((commitment) => argument = commitment);
 
-            await _handler.Handle(_exampleValidRequest);
+            //Act
+            await _handler.Handle(TestHelper.Clone(_exampleValidRequest));
 
+            //Assert
             argument.Should().NotBeNull();
             AssertMappingIsCorrect(argument);
         }
@@ -101,12 +105,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
         [Test]
         public async Task ThenShouldReturnTheCommitmentIdReturnedFromRepository()
         {
-            const long ExpectedCommitmentId = 45;
-            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Domain.Entities.Commitment>())).ReturnsAsync(ExpectedCommitmentId);
+            const long expectedCommitmentId = 45;
+            _mockCommitmentRespository.Setup(x => x.Create(It.IsAny<Commitment>())).ReturnsAsync(expectedCommitmentId);
 
             var commitmentId = await _handler.Handle(_exampleValidRequest);
 
-            commitmentId.Should().Be(ExpectedCommitmentId);
+            commitmentId.Should().Be(expectedCommitmentId);
         }
 
         [Test]
@@ -191,13 +195,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                             m => m.AccountId == _exampleValidRequest.Commitment.EmployerAccountId && m.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value && m.CommitmentId == expectedCommitmentId)), Times.Once);
         }
 
-        private void AssertMappingIsCorrect(Domain.Entities.Commitment argument)
+        private void AssertMappingIsCorrect(Commitment argument)
         {
             argument.Reference.Should().Be(_exampleValidRequest.Commitment.Reference);
             argument.EmployerAccountId.Should().Be(_exampleValidRequest.Commitment.EmployerAccountId);
             argument.LegalEntityId.Should().Be(_exampleValidRequest.Commitment.LegalEntityId);
             argument.LegalEntityAddress.Should().Be(_exampleValidRequest.Commitment.LegalEntityAddress);
             argument.LegalEntityOrganisationType.Should().Be(_exampleValidRequest.Commitment.LegalEntityOrganisationType);
+            argument.AccountLegalEntityPublicHashedId.Should().Be(_exampleValidRequest.Commitment.AccountLegalEntityPublicHashedId);
             argument.ProviderId.Should().Be(_exampleValidRequest.Commitment.ProviderId);
             argument.CommitmentStatus.Should().Be(CommitmentStatus.New);
             argument.LastAction.Should().Be(LastAction.None);

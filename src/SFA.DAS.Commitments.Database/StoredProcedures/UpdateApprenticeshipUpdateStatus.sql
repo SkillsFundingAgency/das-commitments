@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[UpdateApprenticeshipUpdateStatus]
-	@id BIGINT,
-	@status TINYINT
+	@Id BIGINT,
+	@Status TINYINT
 AS
 	SET XACT_ABORT ON
 
@@ -16,6 +16,6 @@ AS
 		WHERE Id=(SELECT ApprenticeshipId from ApprenticeshipUpdate where Id = @Id)
 
 		UPDATE [dbo].[ApprenticeshipUpdate]
-		SET Status = @status
-	    WHERE Id = @id;
+		SET Status = @Status
+	    WHERE Id = @Id;
 	COMMIT
