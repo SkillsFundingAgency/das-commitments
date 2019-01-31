@@ -86,7 +86,7 @@
                             <td data-label="Organisation">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
                             <td data-label="Training dates">@apprenticeship.TrainingDates</td>
                             <td data-label="Status">@apprenticeship.PaymentStatus</td>
-                            <td > <a href="@Url.RouteUrl("ApprenticeshipDetails", new { hashedApprenticeshipId = apprenticeship.ApprenticeshipHashId, hashedAccountId = apprenticeship.HashedAccountId})"> View</a>  </td>
+                            <td > <a href="\resource?key=CommitmentApprenticeDetail&id=@apprenticeship.HashedAccountId&childId=@apprenticeship.ApprenticeshipHashId"> View</a>  </td>
                         </tr>
 
                     }
