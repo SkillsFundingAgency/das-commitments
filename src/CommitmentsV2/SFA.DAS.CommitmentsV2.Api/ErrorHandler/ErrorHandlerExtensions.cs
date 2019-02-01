@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
 {
     public static class ErrorHandlerExtensions
     {
-        public static void ConfigureExceptionHandler(this IApplicationBuilder app, ILogger logger)
+        public static IApplicationBuilder UseApiGlobalExceptionHandler(this IApplicationBuilder app, ILogger logger)
         {
             async Task Handler(HttpContext context)
             {
@@ -22,10 +22,10 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    if (contextFeature.Error is ApiDomainException)
+                    if (contextFeature.Error is ApiException)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        var error = contextFeature.Error as ApiDomainException;
+                        var error = contextFeature.Error as ApiException;
                         logger.LogError($"Domain Error thrown: {contextFeature.Error}");
                         await context.Response.WriteAsync(WriteErrorDetails(error));
                     }
@@ -42,11 +42,12 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
             {
                 appError.Run(Handler);
             });
+            return app;
         }
 
-        public static string WriteErrorDetails(ApiDomainException exception)
+        public static string WriteErrorDetails(ApiException exception)
         {
-            return JsonConvert.SerializeObject(new ErrorDetails {ErrorCode = exception.Errorcode, Message = exception.Message});
+            return JsonConvert.SerializeObject(new ErrorDetails {ErrorCode = exception.ErrorCode, Message = exception.Message});
         }
 
         public static string WriteErrorDetails(int statusCode, string message)

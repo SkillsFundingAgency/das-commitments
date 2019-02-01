@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var a = true;
             if(a == true)
-                throw new Exception("Hello Error");
+                throw new ApiException(12,"Hello Error", new Exception("Inner A", new Exception("Inner B")));
             return "value";
         }
 
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var a = true;
             if (a == true)
-                throw new ApiDomainException(1, "Hello Domain Error");
+                throw new ApiException(1, "Hello Domain Error");
         }
 
         // PUT api/values/5

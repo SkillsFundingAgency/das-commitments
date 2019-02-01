@@ -8,15 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="App_Data\.keep" />
     <None Remove="internal-nlog.txt" />
     <None Remove="SFA.DAS.CommitmentsV2.Api.csproj.DotSettings" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="App_Data\.keep">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +20,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.1.5" />
+    <PackageReference Include="StructureMap" Version="4.7.0" />
+    <PackageReference Include="StructureMap.AspNetCore" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>

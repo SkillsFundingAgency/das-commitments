@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Authentication;
+using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
@@ -22,15 +25,22 @@ namespace SFA.DAS.CommitmentsV2.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddApiConfigurationSections(Configuration)
+                .AddApiAuthorization(_env)
+                .AddApiAuthentication();
+
+            services.AddMvc(x => { x.Filters.Add(new AuthorizeFilter("default")); }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddHealthChecks();
             _logger = services.BuildServiceProvider().GetService<ILogger>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void ConfigureContainer(Registry registry)
+        {
+            // Do nothing for the moment
+        }
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
@@ -42,11 +52,11 @@ namespace SFA.DAS.CommitmentsV2.Api
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.ConfigureExceptionHandler(loggerFactory.CreateLogger("Startup"));
-            app.UseMvc();
-            app.UseHealthChecks("/api/health-check");
-
+            app.UseHttpsRedirection()
+                .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
+                .UseMvc()
+                .UseAuthentication()
+                .UseHealthChecks("/api/health-check");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using NLog.Web;
+using StructureMap.AspNetCore;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
@@ -18,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
-                .UseNLog();
+                .UseNLog()
+                .UseStructureMap();
     }
 }

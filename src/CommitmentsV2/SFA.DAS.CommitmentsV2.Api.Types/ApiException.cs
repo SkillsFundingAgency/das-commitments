@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
 {
     public class ApiException : Exception
     {
-        public int Errorcode;
+        public int ErrorCode;
 
         public ApiException(int errorCode, string message) : this(errorCode, message, null)
         {
@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
 
         public ApiException(int errorCode, string message, Exception innerException) : base(message, innerException)
         {
-            Errorcode = errorCode;
+            ErrorCode = errorCode;
         }
     }
 }
