@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Api.UnitTests;
 using SFA.DAS.Testing;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Pipeline
+namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
 {
     [TestFixture]
     [Parallelizable]
