@@ -1,14 +1,12 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.Testing;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Pipeline
 {
     [TestFixture]
     [Parallelizable]
@@ -17,13 +15,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests
         [Test]
         public Task CallHealthCheckEndpoint_ThenShouldReturnOkResponse()
         {
-            return TestAsync(f => f.Client.GetAsync("/api/health-check"), (f,r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
+            return TestAsync(f => f.Client.GetAsync("/api/health-check"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
         }
 
         [Test]
-        public Task CallUnknownPage_ThenShouldReturnNotFoundResponse()
+        public Task CallUnknownEndpoint_ThenShouldReturnNotFoundResponse()
         {
             return TestAsync(f => f.Client.GetAsync("/no-such-page"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.NotFound));
+        }
+
+
+        [Test]
+        public Task CallSecureEndpoint_ThenShouldReturnUnauthorisedResponse()
+        {
+            return TestAsync(f => f.Client.GetAsync("/api/values"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.Unauthorized));
         }
     }
 
@@ -34,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests
 
         public HealthCheckFixture()
         {
-            Factory = new WebApplicationFactory<Startup>();
+            Factory = new CustomWebApplicationFactory<Startup>();
             Client = Factory.CreateClient(new WebApplicationFactoryClientOptions
             {
                 AllowAutoRedirect = false
