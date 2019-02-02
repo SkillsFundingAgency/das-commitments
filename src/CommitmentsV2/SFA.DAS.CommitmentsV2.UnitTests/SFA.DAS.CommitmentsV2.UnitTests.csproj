@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api\SFA.DAS.CommitmentsV2.Api.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>
 
 </Project>
