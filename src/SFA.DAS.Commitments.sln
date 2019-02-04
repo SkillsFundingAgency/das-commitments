@@ -76,19 +76,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Jobs", "CommitmentsV2\SFA.DAS.CommitmentsV2.Jobs\SFA.DAS.CommitmentsV2.Jobs.csproj", "{2DE78569-EB24-4F5A-A2CB-09D1D917F5A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.MessageHandlers", "CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj", "{52BFC6D7-995A-4BDF-BFCF-BC88C2AFD4DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.MessageHandlers", "CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj", "{52BFC6D7-995A-4BDF-BFCF-BC88C2AFD4DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.Messages", "CommitmentsV2\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj", "{9383C55B-196A-4C76-A546-2C190CDFB088}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Messages", "CommitmentsV2\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj", "{9383C55B-196A-4C76-A546-2C190CDFB088}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.Api.Client", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.Client\SFA.DAS.CommitmentsV2.Api.Client.csproj", "{781868BA-4C52-4E4A-8B5F-528B6591B69B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.Client", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.Client\SFA.DAS.CommitmentsV2.Api.Client.csproj", "{781868BA-4C52-4E4A-8B5F-528B6591B69B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.UnitTests\SFA.DAS.CommitmentsV2.UnitTests.csproj", "{2C8A062B-FABA-4B4E-9E84-4D48105C1240}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.UnitTests\SFA.DAS.CommitmentsV2.UnitTests.csproj", "{2C8A062B-FABA-4B4E-9E84-4D48105C1240}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2", "CommitmentsV2\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj", "{3A32C06D-87E6-4B24-98DB-AC9A530A38D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.IntegrationTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.IntegrationTests\SFA.DAS.CommitmentsV2.Api.IntegrationTests.csproj", "{96F2AB4D-E160-4CFF-9901-A3DAB90456B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.UnitTests\SFA.DAS.CommitmentsV2.Api.UnitTests.csproj", "{5E7BE0F5-A2FB-4C3E-A2D2-163D5F8BEC5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.UnitTests\SFA.DAS.CommitmentsV2.Api.UnitTests.csproj", "{560FEACD-9CB2-4FE3-BF61-868718E5BA67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -229,10 +229,10 @@ Global
 		{96F2AB4D-E160-4CFF-9901-A3DAB90456B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96F2AB4D-E160-4CFF-9901-A3DAB90456B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96F2AB4D-E160-4CFF-9901-A3DAB90456B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E7BE0F5-A2FB-4C3E-A2D2-163D5F8BEC5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E7BE0F5-A2FB-4C3E-A2D2-163D5F8BEC5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E7BE0F5-A2FB-4C3E-A2D2-163D5F8BEC5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E7BE0F5-A2FB-4C3E-A2D2-163D5F8BEC5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{560FEACD-9CB2-4FE3-BF61-868718E5BA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{560FEACD-9CB2-4FE3-BF61-868718E5BA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{560FEACD-9CB2-4FE3-BF61-868718E5BA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{560FEACD-9CB2-4FE3-BF61-868718E5BA67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -263,7 +263,7 @@ Global
 		{2C8A062B-FABA-4B4E-9E84-4D48105C1240} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{3A32C06D-87E6-4B24-98DB-AC9A530A38D0} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{96F2AB4D-E160-4CFF-9901-A3DAB90456B7} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
-		{5E7BE0F5-A2FB-4C3E-A2D2-163D5F8BEC5D} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{560FEACD-9CB2-4FE3-BF61-868718E5BA67} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
