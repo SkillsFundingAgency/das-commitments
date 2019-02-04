@@ -9,6 +9,9 @@
       </Site>
     </Sites>
     <ConfigurationSettings>
+      <Setting name="ConfigurationStorageConnectionString" />
+      <Setting name="LoggingRedisConnectionString" />
+      <Setting name="EnvironmentName" />
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="SecureEndpoint" protocol="https" port="443" certificate="SSLCert" />
