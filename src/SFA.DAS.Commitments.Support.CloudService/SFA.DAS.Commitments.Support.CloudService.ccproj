@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SFA.DAS.Commitments.Support.SubSiteContent\" />
-    <Folder Include="Configuration\">
+    <Folder Include="Configuration\" />
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="SFA.DAS.Commitments.Support.SubSiteContent\diagnostics.wadcfgx" />
