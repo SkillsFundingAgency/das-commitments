@@ -23,7 +23,8 @@
 	[TransferApprovalActionedByEmployerName] NVARCHAR(255),
 	[TransferApprovalActionedByEmployerEmail] NVARCHAR(255),
 	[TransferApprovalActionedOn] DATETIME2,
-	[AccountLegalEntityPublicHashedId] CHAR(6) NULL
+	[AccountLegalEntityPublicHashedId] CHAR(6) NULL,
+	[Originator] TINYINT NOT NULL DEFAULT 0
 )
 GO
 
