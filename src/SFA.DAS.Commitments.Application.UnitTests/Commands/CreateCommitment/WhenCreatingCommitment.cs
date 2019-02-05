@@ -195,6 +195,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
                             m => m.AccountId == _exampleValidRequest.Commitment.EmployerAccountId && m.ProviderId == _exampleValidRequest.Commitment.ProviderId.Value && m.CommitmentId == expectedCommitmentId)), Times.Once);
         }
 
+        [Test]
+        public void ThenIfTheCallerIsATransferSenderOrRecieverTheOriginatorWillNotBeSet()
+        {
+            //Arrange
+
+            //Act
+           _exampleValidRequest.Caller = new Caller(2, CallerType.TransferSender);
+
+            //Assert
+           Assert.ThrowsAsync<InvalidCastException>(() => _handler.Handle(_exampleValidRequest));
+        }
         private void AssertMappingIsCorrect(Commitment argument)
         {
             argument.Reference.Should().Be(_exampleValidRequest.Commitment.Reference);
@@ -209,6 +220,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateCommitment
             argument.LastUpdatedByEmployerName.Should().Be(_exampleValidRequest.Commitment.LastUpdatedByEmployerName);
             argument.LastUpdatedByEmployerEmail.Should().Be(_exampleValidRequest.Commitment.LastUpdatedByEmployerEmail);
             argument.Apprenticeships.Should().BeEmpty();
+            argument.Originator.ToString().Should().Be(_exampleValidRequest.Caller.CallerType.ToString());
         }
     }
 }
