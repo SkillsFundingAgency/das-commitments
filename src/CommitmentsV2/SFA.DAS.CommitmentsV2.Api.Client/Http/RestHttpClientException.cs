@@ -22,20 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             ErrorResponse = errorResponse;
         }
         
-        // assumes response content hasn't already been read
-        public static async Task<RestHttpClientException> Create(HttpResponseMessage httpResponseMessage)
-        {
-            var ErrorDetails = await httpResponseMessage.Content.ReadAsAsync<ErrorDetails>();
-
-            if (ErrorDetails != null && ErrorDetails.Message != null)
-            {
-
-            }
-
-            return new RestHttpClientException(httpResponseMessage,
-                    await httpResponseMessage.Content.ReadAsStringAsync());
-        }
-
         private static string GenerateMessage(HttpResponseMessage httpResponseMessage, string errorResponse)
         {
             return

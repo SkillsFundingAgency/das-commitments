@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             var response = await _httpClient.GetAsync(uri, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                throw await CreateClientException(response);
+                throw CreateClientException(response, await response.Content.ReadAsStringAsync());
             }
 
             return response;
@@ -63,21 +64,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             return QueryHelpers.AddQueryString(uri, queryDataDictionary);
         }
 
-        public async Task<Exception> CreateClientException(HttpResponseMessage httpResponseMessage)
+        public virtual Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
         {
-            var errorString = await httpResponseMessage.Content.ReadAsStringAsync();
-
-            var errorDetails = JsonConvert.DeserializeObject<ErrorDetails>(errorString);
-
-            if (errorDetails != null && errorDetails.Message != null)
-            {
-                return new ApiException(errorDetails.ErrorCode, errorDetails.Message);
-            }
-
-            return new RestHttpClientException(httpResponseMessage, errorString);
+            return new RestHttpClientException(httpResponseMessage, content);
         }
-
-
-
     }
 }
