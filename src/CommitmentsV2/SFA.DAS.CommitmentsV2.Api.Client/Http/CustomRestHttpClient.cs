@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types;
@@ -13,8 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 
         public override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
         {
-
-            var apiException = ConvertContentToApiException(httpResponseMessage, content);
+            var apiException = ConvertContentToApiException(content);
 
             if (apiException != null)
             {
@@ -24,26 +24,30 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
             return base.CreateClientException(httpResponseMessage, content);
         }
 
-        private Exception ConvertContentToApiException(HttpResponseMessage httpResponseMessage, string content)
+        private Exception ConvertContentToApiException(string content)
         {
             try
             {
-                var errorDetails = JsonConvert.DeserializeObject<ErrorDetails>(content);
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(content);
 
-                if (errorDetails != null && errorDetails.Message != null)
+                if (errorResponse != null)
                 {
-                    return new ApiException(errorDetails.ErrorCode, errorDetails.Message);
+                    if (errorResponse.ErrorType == ErrorType.CommitmentApiException)
+                    {
+                        var errorDetail = errorResponse.ErrorDetails?.FirstOrDefault();
+                        if (errorDetail != null)
+                        {
+                            return new CommitmentsApiException(errorDetail.ErrorCode, errorDetail.Message);
+                        }
+                    }
                 }
             }
             catch (Exception)
             {
-                // Do nothing 
+                // Consume the exception and do nothing
             }
 
             return null;
         }
-
-
-
     }
 }

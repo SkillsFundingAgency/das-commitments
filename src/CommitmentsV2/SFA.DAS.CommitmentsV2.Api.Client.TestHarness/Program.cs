@@ -34,8 +34,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
                 .CreateLogger<Program>();
             logger.LogDebug("Starting");
 
-            Console.WriteLine("Press to start");
-            Console.ReadKey();
 
 
             var factory = new HttpClientFactory(new AzureActiveDirectoryClientConfiguration
@@ -47,11 +45,35 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
             var restClient = new RestHttpClient(client);
 
             var sut = new CommitmentV2ApiClient(restClient);
+            var key = "";
 
-            var value = await sut.HealthCheck();
+            while (key != "x")
+            {
+                Console.Clear();
+                Console.WriteLine("Test Options");
+                Console.WriteLine("------------");
+                Console.WriteLine("A - Run Heath-Check");
+                Console.WriteLine("X - Exit");
+                Console.WriteLine("Press [Key] for Test Option");
+                key = Console.ReadKey().Key.ToString().ToLower();
 
-            Console.WriteLine(value);
-            Console.ReadKey();
+                switch (key)
+                {
+                    case "a":
+                        var value = await sut.HealthCheck();
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        Console.WriteLine($"Calling HeaithCheck endpoint - Result {value}");
+                        Console.WriteLine();
+                        Console.WriteLine("Press anykey to return to menu");
+                        Console.ReadKey();
+
+                        break;
+                }
+
+            }
+
 
             //do the actual work here
             //var bar = serviceProvider.GetService<IBarService>();

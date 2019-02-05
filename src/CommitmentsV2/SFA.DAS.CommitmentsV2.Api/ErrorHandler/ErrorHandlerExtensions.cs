@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -22,18 +22,15 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    if (contextFeature.Error is ApiException)
+                    if (contextFeature.Error is CommitmentsApiException exception)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        var error = contextFeature.Error as ApiException;
-                        logger.LogError($"Domain Error thrown: {contextFeature.Error}");
-                        await context.Response.WriteAsync(WriteErrorDetails(error));
+                        logger.LogError($"Domain Error thrown: {exception}");
+                        await context.Response.WriteAsync(WriteErrorResponse(exception));
                     }
                     else
                     {
-                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         logger.LogError($"Something went wrong: {contextFeature.Error}");
-                        await context.Response.WriteAsync(WriteErrorDetails(context.Response.StatusCode, "Internal Server Error."));
                     }
                 }
             }
@@ -45,14 +42,15 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
             return app;
         }
 
-        public static string WriteErrorDetails(ApiException exception)
+        public static string WriteErrorResponse(CommitmentsApiException exception)
         {
-            return JsonConvert.SerializeObject(new ErrorDetails {ErrorCode = exception.ErrorCode, Message = exception.Message});
-        }
+            var response = new ErrorResponse
+            {
+                ErrorType = ErrorType.CommitmentApiException,
+                ErrorDetails = new List<ErrorDetail>{new ErrorDetail {ErrorCode = exception.ErrorCode, Message = exception.Message}}
+            };
 
-        public static string WriteErrorDetails(int statusCode, string message)
-        {
-            return JsonConvert.SerializeObject(new ErrorDetails { ErrorCode = statusCode, Message = message });
+            return JsonConvert.SerializeObject(response);
         }
     }
 }

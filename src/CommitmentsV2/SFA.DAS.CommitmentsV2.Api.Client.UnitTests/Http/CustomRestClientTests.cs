@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -33,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         {
             return TestExceptionAsync(f => f.SetupHttpClientGetToReturnCustomError(), 
                 f => f.CallGet(null),
-                (f, r) => r.Should().Throw<ApiException>()
+                (f, r) => r.Should().Throw<CommitmentsApiException>()
                     .Where(ex => ex.ErrorCode == 123
                                  && ex.Message == "This is a domain error"));
         }
@@ -63,7 +64,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         
         public void SetupHttpClientGetToReturnCustomError()
         {
-            ResponseObject = new ErrorDetails { ErrorCode = 123, Message = "This is a domain error"};
+            ResponseObject =
+                new ErrorResponse
+                {
+                    ErrorType = ErrorType.CommitmentApiException,
+                    ErrorDetails = new List<ErrorDetail>
+                    {
+                        new ErrorDetail {ErrorCode = 123, Message = "This is a domain error"}
+                    }
+                };
                 
             var stringBody = JsonConvert.SerializeObject(ResponseObject);
             HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -86,11 +95,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         public async Task<string> CallGet(object queryData)
         {
             return await RestHttpClient.Get("https://example.com", queryData);
-        }
-
-        public async Task<ExampleResponseObject> CallGetObject(object queryData)
-        {
-            return await RestHttpClient.Get<ExampleResponseObject>("https://example.com", queryData);
         }
     }
 }
