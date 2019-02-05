@@ -444,12 +444,13 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             });
         }
 
-        public async Task<ApprenticeshipsResult> GetApprenticeshipsByUln(string uln)
+        public async Task<ApprenticeshipsResult> GetApprenticeshipsByUln(string uln, string hashedAccountId)
         {
             return await WithConnection(async c =>
              {
                  var parameters = new DynamicParameters();
                  parameters.Add("@ULN", uln, DbType.String);
+                 parameters.Add("@hashedAccountId", hashedAccountId, DbType.String);
 
                  const string sql = "[GetApprenticeshipsByULN]";
 

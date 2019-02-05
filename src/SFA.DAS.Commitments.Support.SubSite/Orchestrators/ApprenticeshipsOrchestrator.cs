@@ -11,6 +11,7 @@ using SFA.DAS.NLog.Logger;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights.Web;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
@@ -112,6 +113,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
 
             long commitmentId = 0;
+            long accountId = 0;
 
             try
             {
@@ -127,11 +129,26 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            var response = await _mediator.SendAsync(new GetCommitmentRequest
+            try
+            {
+                accountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unable to decode Hashed Account Id");
+
+                return new CommitmentSummaryViewModel
+                {
+                    ReponseMessages = { "Problem validating your account Id" }
+                };
+            }
+
+            var response = await _mediator.SendAsync(new GetAccountCommitmentRequest
             {
                 CommitmentId = commitmentId,
                 Caller = new Caller
                 {
+                    Id = accountId,
                     CallerType = CallerType.Support
                 }
             });
