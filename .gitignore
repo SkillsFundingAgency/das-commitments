@@ -261,3 +261,5 @@ src/Tools/**/*.*
 src/Tools/PhantomJS/tools/phantomjs/ChangeLog
 *.ncrunchsolution
 *.ncrunchproject
+*.DotSettings
+src/CommitmentsV2/SFA.DAS.CommitmentsV2.Api/internal-nlog.txt
