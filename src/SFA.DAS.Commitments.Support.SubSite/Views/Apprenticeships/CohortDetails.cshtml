@@ -64,16 +64,16 @@
     <div class="grid-row">
 
         <div class="column-full">
-            <hr >
+            <hr>
             <table class="responsive">
                 <thead>
                     <tr>
-                        <th >Name</th>
-                        <th >ULN</th>
-                        <th >Date Of Birth</th>
-                        <th >Training dates</th>
-                        <th >Status</th>
-                        <th ></th>
+                        <th>Name</th>
+                        <th>ULN</th>
+                        <th>Date Of Birth</th>
+                        <th>Training dates</th>
+                        <th>Status</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,7 +86,7 @@
                             <td data-label="Organisation">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
                             <td data-label="Training dates">@apprenticeship.TrainingDates</td>
                             <td data-label="Status">@apprenticeship.PaymentStatus</td>
-                            <td > <a href="\resource?key=CommitmentApprenticeDetail&id=@apprenticeship.ApprenticeshipHashId&childId=@apprenticeship.HashedAccountId"> View</a>  </td>
+                            <td> <a href="\resource?key=CommitmentApprenticeDetail&Id=@apprenticeship.HashedAccountId&childid=@apprenticeship.ApprenticeshipHashId"> View</a>  </td>
                         </tr>
 
                     }

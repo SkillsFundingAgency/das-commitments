@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             return View(model);
         }
 
-        [Route("Apprenticeships/{hashedApprenticeshipId}/account/{hashedAccountId}", Name = "ApprenticeshipDetails")]
+        [Route("Apprenticeships/account/{hashedAccountId}/Apprenticeship/{hashedApprenticeshipId}", Name = "ApprenticeshipDetails")]
         public async Task<ActionResult> Index(string hashedApprenticeshipId, string hashedAccountId)
         {
             if (string.IsNullOrWhiteSpace(hashedApprenticeshipId) || string.IsNullOrWhiteSpace(hashedAccountId))
