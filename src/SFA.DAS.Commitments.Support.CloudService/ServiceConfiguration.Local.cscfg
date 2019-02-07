@@ -3,6 +3,9 @@
   <Role name="SFA.DAS.Commitments.Support.SubSite">
     <Instances count="1" />
     <ConfigurationSettings>
+      <Setting name="ConfigurationStorageConnectionString" value="UseDevelopmentStorage=true;" />
+      <Setting name="LoggingRedisConnectionString" value="" />
+      <Setting name="EnvironmentName" value="LOCAL" />
     </ConfigurationSettings>
     <Certificates>
       <Certificate name="SSLCert" thumbprint="C330ADC8A2164D684E5ED7F0140ADD22505CC9E7" thumbprintAlgorithm="sha1" />

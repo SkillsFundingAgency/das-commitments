@@ -33,7 +33,6 @@
   <!-- Items for the project -->
   <ItemGroup>
     <ServiceDefinition Include="ServiceDefinition.csdef" />
-    <None Include="ServiceDefinition.Cloud.csdef" />
     <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
@@ -53,6 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="SFA.DAS.Commitments.Support.SubSiteContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Configuration\ServiceDefinition.Cloud.csdef">
+      <SubType>Content</SubType>
+    </Content>
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>
