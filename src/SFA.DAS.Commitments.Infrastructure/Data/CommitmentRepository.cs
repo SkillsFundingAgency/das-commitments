@@ -55,16 +55,17 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 parameters.Add("@lastAction", commitment.LastAction, DbType.Int16);
                 parameters.Add("@lastUpdateByEmployerName", commitment.LastUpdatedByEmployerName, DbType.String);
                 parameters.Add("@lastUpdateByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
+                parameters.Add("@Originator", commitment.Originator, DbType.Byte);
 
                 using (var trans = connection.BeginTransaction())
                 {
                     var commitmentId = (await connection.QueryAsync<long>(
                         @"INSERT INTO [dbo].[Commitment](Reference, LegalEntityId, LegalEntityName, LegalEntityAddress, LegalEntityOrganisationType, AccountLegalEntityPublicHashedId,
                         EmployerAccountId, ProviderId, ProviderName, CommitmentStatus, EditStatus, CreatedOn, LastAction, LastUpdatedByEmployerName,
-                        LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName)
+                        LastUpdatedByEmployerEmail, TransferSenderId, TransferSenderName, Originator)
                         VALUES (@reference, @legalEntityId, @legalEntityName, @legalEntityAddress, @legalEntityOrganisationType, @accountLegalEntityPublicHashedId,
                         @accountId, @providerId, @providerName, @commitmentStatus, @editStatus, @createdOn, @lastAction, @lastUpdateByEmployerName,
-                        @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName);
+                        @lastUpdateByEmployerEmail, @TransferSenderId, @TransferSenderName, @Originator);
                         SELECT CAST(SCOPE_IDENTITY() as int);",
                         param: parameters,
                         commandType: CommandType.Text,

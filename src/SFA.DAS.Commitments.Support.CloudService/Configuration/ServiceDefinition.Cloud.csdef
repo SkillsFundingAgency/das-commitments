@@ -4,19 +4,17 @@
     <Sites>
       <Site name="Web">
         <Bindings>
-          <Binding name="Endpoint1" endpointName="SimpleEndPoint" />
           <Binding name="Endpoint1" endpointName="SecureEndpoint" />
         </Bindings>
       </Site>
     </Sites>
     <ConfigurationSettings>
       <Setting name="ConfigurationStorageConnectionString" />
-      <Setting name="LoggingRedisConnectionString"  />
-      <Setting name="EnvironmentName"  />
+      <Setting name="LoggingRedisConnectionString" />
+      <Setting name="EnvironmentName" />
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="SimpleEndPoint" protocol="http" port="80" />
-      <InputEndpoint name="SecureEndpoint" protocol="https" port="8080" certificate="SSLCert" />
+      <InputEndpoint name="SecureEndpoint" protocol="https" port="443" certificate="SSLCert" />
     </Endpoints>
     <Certificates>
       <Certificate name="SSLCert" storeLocation="LocalMachine" storeName="My" />

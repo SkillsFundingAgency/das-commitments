@@ -3,9 +3,12 @@
   <Role name="SFA.DAS.Commitments.Support.SubSite">
     <Instances count="1" />
     <ConfigurationSettings>
+      <Setting name="ConfigurationStorageConnectionString" value="__ConfigurationStorageConnectionString__" />
+      <Setting name="LoggingRedisConnectionString" value="__LoggingRedisConnectionString__" />
+      <Setting name="EnvironmentName" value="__EnvironmentName__" />
     </ConfigurationSettings>
     <Certificates>
-      <Certificate name="SSLCert" thumbprint="EBA4BC5231BEECABCE38A169BA3FA893B8BE6022" thumbprintAlgorithm="sha1" />
+      <Certificate name="SSLCert" thumbprint="7A1BC8263B7CBAA2B355934D0BB8031B469C1AE1" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
 </ServiceConfiguration>
