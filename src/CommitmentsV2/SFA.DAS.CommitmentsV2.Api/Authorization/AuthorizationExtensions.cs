@@ -26,8 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Authorization
             });
             services.AddSingleton<IAuthorizationHandler, LocalAuthorizationHandler>();
             return services;
-
         }
-
     }
 }

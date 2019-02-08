@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
     {
         public static IServiceCollection AddApiAuthentication(this IServiceCollection services)
         {
-            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryConfiguration>>().Value;
+            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value;
 
             services.AddAuthentication(auth =>
             {
@@ -24,8 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
                 {
                     ValidAudiences = new List<string>
                     {
-                        azureActiveDirectoryConfiguration.Identifier,
-                        azureActiveDirectoryConfiguration.Id
+                        azureActiveDirectoryConfiguration.Identifier
                     }
                 };
             });

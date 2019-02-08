@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
@@ -15,17 +16,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
     {
 
         public static async Task Main(string[] args)
+
         {
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false);
 
             IConfigurationRoot configuration = builder.Build();
-            var section = configuration.GetSection("AzureADAuthentication");
 
             var provider = new ServiceCollection()
                 .AddOptions()
                 .Configure<AzureActiveDirectoryClientConfiguration>(configuration.GetSection("AzureADClientAuthentication"))
-                .AddLogging()
+                .AddLogging(configure => configure.AddConsole())
                 .AddSingleton<IHttpClientFactory>(x=>
                 {
                     var config = x.GetService<IOptions<AzureActiveDirectoryClientConfiguration>>().Value;

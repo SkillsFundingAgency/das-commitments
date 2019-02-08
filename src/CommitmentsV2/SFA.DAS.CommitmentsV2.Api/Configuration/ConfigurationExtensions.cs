@@ -1,16 +1,14 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.CommitmentsV2.Api.Configuration;
 
-namespace SFA.DAS.CommitmentsV2.Api.Authentication
+namespace SFA.DAS.CommitmentsV2.Api.Configuration
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddApiConfigurationSections(this IServiceCollection services, IConfiguration Configuration)
+        public static IServiceCollection AddApiConfigurationSections(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddOptions();
-            services.Configure<AzureActiveDirectoryConfiguration>(Configuration.GetSection("AzureAd"));
+            services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection("AzureADApiAuthentication"));
             return services;
         }
 
