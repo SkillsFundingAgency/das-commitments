@@ -86,7 +86,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             long employerAccountId;
             try
             {
-                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
+                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId.ToUpper());
             }
             catch (Exception ex)
             {
