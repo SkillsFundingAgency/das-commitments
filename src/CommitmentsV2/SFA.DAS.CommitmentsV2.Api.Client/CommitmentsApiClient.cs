@@ -4,11 +4,11 @@ using SFA.DAS.CommitmentsV2.Api.Client.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
-    public class CommitmentV2ApiClient : ICommitmentV2ApiClient
+    public class CommitmentsApiClient : ICommitmentsApiClient
     {
         private readonly IRestHttpClient _client;
 
-        public CommitmentV2ApiClient(IRestHttpClient client)
+        public CommitmentsApiClient(IRestHttpClient client)
         {
             _client = client;
         }
@@ -21,6 +21,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             }
 
             return false;
+        }
+
+        public Task<string> SecureCheck()
+        {
+            return _client.Get("api/values");
         }
     }
 }

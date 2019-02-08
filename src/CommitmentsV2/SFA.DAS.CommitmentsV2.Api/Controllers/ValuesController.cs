@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types;
@@ -8,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Provider")]
     public class ValuesController : ControllerBase
     {
         private readonly ILogger<ValuesController> _logger;
@@ -20,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
+            var user = User;
             _logger.LogInformation("Testing Get Values");
             return new string[] { "value1", "value2" };
         }

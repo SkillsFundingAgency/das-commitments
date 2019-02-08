@@ -19,13 +19,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
 
             }).AddJwtBearer(auth =>
             {
-                auth.Authority = azureActiveDirectoryConfiguration.Authority;
+                auth.Authority = $"https://login.microsoftonline.com/{azureActiveDirectoryConfiguration.Tenant}";
                 auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
                     ValidAudiences = new List<string>
                     {
-                        azureActiveDirectoryConfiguration.AppIdUri,
-                        azureActiveDirectoryConfiguration.ClientId
+                        azureActiveDirectoryConfiguration.Identifier,
+                        azureActiveDirectoryConfiguration.Id
                     }
                 };
             });

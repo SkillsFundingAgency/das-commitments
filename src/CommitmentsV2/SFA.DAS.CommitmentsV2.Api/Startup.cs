@@ -28,8 +28,8 @@ namespace SFA.DAS.CommitmentsV2.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApiConfigurationSections(Configuration)
-                .AddApiAuthorization(_env)
                 .AddApiAuthentication()
+                .AddApiAuthorization(_env)
                 ;
 
             services.AddMvc(/*x => { x.Filters.Add(new AuthorizeFilter("default")); } */).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -55,8 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Api
 
             app.UseHttpsRedirection()
                 .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
-                .UseMvc()
                 .UseAuthentication()
+                .UseMvc()
                 .UseHealthChecks("/api/health-check");
         }
     }

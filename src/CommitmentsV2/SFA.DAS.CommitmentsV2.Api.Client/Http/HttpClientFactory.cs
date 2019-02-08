@@ -29,17 +29,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 
     public class AzureActiveDirectoryClientConfiguration : IAzureADClientConfiguration
     {
-        public AzureActiveDirectoryClientConfiguration()
-        {
-            ClientId = "85f054e9-df35-4646-abb6-7a2efb4a8d48";
-            ClientSecret = "mBjbdtTFO/LelO8vvTWgEy6/B97Z3J3YUHIo+Ewl7OQ=";
-            IdentifierUri = "https://citizenazuresfabisgov.onmicrosoft.com/das-provider-relationships-api";
-            Tenant = "citizenazuresfabisgov.onmicrosoft.com";
-        }
         public string ApiBaseUrl { get; set; }
-        public string Tenant { get; }
-        public string ClientId { get; }
-        public string ClientSecret { get; }
-        public string IdentifierUri { get; }
+        public string Tenant { get; set; }
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+        public string IdentifierUri { get; set; }
     }
 }

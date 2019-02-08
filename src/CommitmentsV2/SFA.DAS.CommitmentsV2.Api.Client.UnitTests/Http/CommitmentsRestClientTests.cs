@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
 {
     [TestFixture]
     [Parallelizable]
-    public class CustomRestClientTests : FluentTest<CustomRestClientTestsFixture>
+    public class CommitmentsRestClientTests : FluentTest<CommitmentsRestClientTestsFixture>
     {
         [Test]
         public Task WhenCallingGetAndHttpClientReturnsNonSuccess_ThenShouldThrowRestClientException()
@@ -38,10 +38,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                     .Where(ex => ex.ErrorCode == 123
                                  && ex.Message == "This is a domain error"));
         }
-
     }
 
-    public class CustomRestClientTestsFixture
+    public class CommitmentsRestClientTestsFixture
     {
         public class ExampleResponseObject
         {
@@ -55,11 +54,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         public string ResponseString { get; set; }
         public object ResponseObject { get; set; }
         
-        public CustomRestClientTestsFixture()
+        public CommitmentsRestClientTestsFixture()
         {
             HttpMessageHandler = new FakeHttpMessageHandler();
             HttpClient = new HttpClient(HttpMessageHandler) { BaseAddress = new Uri("https://example.com") };
-            RestHttpClient = new CustomRestHttpClient(HttpClient);
+            RestHttpClient = new CommitmentsRestHttpClient(HttpClient);
         }
         
         public void SetupHttpClientGetToReturnCustomError()

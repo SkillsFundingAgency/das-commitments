@@ -6,9 +6,9 @@ using SFA.DAS.CommitmentsV2.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 {
-    public class CustomRestHttpClient : RestHttpClient
+    public class CommitmentsRestHttpClient : RestHttpClient
     {
-        public CustomRestHttpClient(HttpClient httpClient) : base(httpClient)
+        public CommitmentsRestHttpClient(HttpClient httpClient) : base(httpClient)
         {
         }
 

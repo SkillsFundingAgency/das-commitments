@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
         public static IServiceCollection AddApiConfigurationSections(this IServiceCollection services, IConfiguration Configuration)
         {
             services.AddOptions();
-            services.Configure<AzureActiveDirectoryConfiguration>(Configuration.GetSection("AzureADAuthentication"));
+            services.Configure<AzureActiveDirectoryConfiguration>(Configuration.GetSection("AzureAd"));
             return services;
         }
 
