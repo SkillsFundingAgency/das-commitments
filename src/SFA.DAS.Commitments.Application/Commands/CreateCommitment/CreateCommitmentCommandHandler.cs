@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 
@@ -75,7 +76,24 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
             var newCommitment = message.Commitment;
             newCommitment.LastAction = message.LastAction;
 
+            switch (message.Caller.CallerType)
+            {
+                case CallerType.Employer:
+                    newCommitment.Originator = (Originator) message.Caller.CallerType;
+                    break;
+                case CallerType.Provider:
+                    newCommitment.Originator = (Originator) message.Caller.CallerType;
+                    break;
+                default:
+                {
+                    var e = new InvalidCastException();
+                    _logger.Error(e, $"{message.Caller.CallerType} is not a valid originator");
+                    throw e;
+                };
+            }
+
             newCommitment.Id = await _commitmentRepository.Create(newCommitment);
+            
             await _commitmentRepository.UpdateCommitmentReference(newCommitment.Id, _hashingService.HashValue(newCommitment.Id));
 
             return newCommitment;
