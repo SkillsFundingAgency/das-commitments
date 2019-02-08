@@ -11,7 +11,6 @@ using SFA.DAS.NLog.Logger;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights.Web;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 {
