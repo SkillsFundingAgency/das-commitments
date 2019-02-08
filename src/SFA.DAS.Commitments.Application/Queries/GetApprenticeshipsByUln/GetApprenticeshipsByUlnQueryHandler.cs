@@ -25,7 +25,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln
         {
             ValidateRequest(request);
 
-            var result = await _apprenticeshipRepository.GetApprenticeshipsByUln(request.Uln, request.HashedAccountId);
+            var result = await _apprenticeshipRepository.GetApprenticeshipsByUln(request.Uln, request.EmployerAccountId);
 
             return new GetApprenticeshipsByUlnResponse
             {

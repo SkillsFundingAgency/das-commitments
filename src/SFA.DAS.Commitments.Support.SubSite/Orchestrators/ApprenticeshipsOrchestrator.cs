@@ -73,6 +73,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var validationResult = _searchValidator.Validate(searchQuery);
 
+
+
+
             if (!validationResult.IsValid)
             {
                 return new UlnSummaryViewModel
@@ -83,7 +86,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var response = await _mediator.SendAsync(new GetApprenticeshipsByUlnRequest
             {
-                Uln = searchQuery.SearchTerm
+                Uln = searchQuery.SearchTerm,
+                EmployerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId)
             });
 
             if ((response?.TotalCount ?? 0) == 0)
