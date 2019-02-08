@@ -12,9 +12,6 @@ Target "Dotnet Restore" (fun _ ->
                 Project = ".\\SFA.DAS.Commitments.Api.Client" })
     DotNetCli.Restore(fun p ->
         { p with
-                Project = ".\\SFA.DAS.Commitments.Api.Client.TestHarness" })
-    DotNetCli.Restore(fun p ->
-        { p with
                 Project = ".\\SFA.DAS.Commitments.Api.Types" })
     DotNetCli.Restore(fun p ->
         { p with
@@ -34,6 +31,9 @@ Target "Dotnet Restore" (fun _ ->
     DotNetCli.Restore(fun p ->
         { p with
                 Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.Client" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.Commitments.Api.Client.TestHarness" })
     DotNetCli.Restore(fun p ->
         { p with
                 Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.Types" })
