@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddApiAuthorization(_env)
                 ;
 
-            services.AddMvc(/*x => { x.Filters.Add(new AuthorizeFilter("default")); } */).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddHealthChecks();
             _logger = services.BuildServiceProvider().GetService<ILogger>();
         }

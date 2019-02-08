@@ -25,7 +25,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<string> SecureCheck()
         {
-            return _client.Get("api/values");
+            return _client.Get("api/test");
+        }
+
+        public Task<string> SecureEmployerCheck()
+        {
+            return _client.Get("api/test/employer");
+        }
+
+        public Task<string> SecureProviderCheck()
+        {
+            return _client.Get("api/test/provider");
         }
     }
 }

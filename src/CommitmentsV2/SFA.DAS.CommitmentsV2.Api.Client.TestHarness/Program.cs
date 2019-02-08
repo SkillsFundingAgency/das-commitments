@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
                     var httpClient = x.GetService<IHttpClientFactory>().CreateHttpClient();
                     return new RestHttpClient(httpClient);
                 })
-                .AddTransient<ICommitmentsApiClient, CommitmentsApiClient>()
+                .AddTransient<CommitmentsApiClient>()
                 .AddTransient<TestHarness>()
                 .BuildServiceProvider();
 

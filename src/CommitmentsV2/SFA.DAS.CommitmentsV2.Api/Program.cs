@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Api
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureKestrel(options => options.AddServerHeader = false)
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
                 .UseNLog()

@@ -5,6 +5,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     public interface ICommitmentsApiClient
     {
         Task<bool> HealthCheck();
-        Task<string> SecureCheck();
     }
 }
