@@ -83,10 +83,26 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
+            long employerAccountId;
+            try
+            {
+                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unable to decode Hashed Employer Account Id");
+
+                return new UlnSummaryViewModel
+                {
+                    ReponseMessages = { "Unable to decode the account id" }
+                };
+            }
+
+
             var response = await _mediator.SendAsync(new GetApprenticeshipsByUlnRequest
             {
                 Uln = searchQuery.SearchTerm,
-                EmployerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId)
+                EmployerAccountId = employerAccountId
             });
 
             if ((response?.TotalCount ?? 0) == 0)
@@ -146,7 +162,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            var response = await _mediator.SendAsync(new GetAccountCommitmentRequest
+            var response = await _mediator.SendAsync(new GetCommitmentRequest
             {
                 CommitmentId = commitmentId,
                 Caller = new Caller

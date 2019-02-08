@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
-using FluentValidation.Results;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
@@ -33,7 +32,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeshipsBy
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
 
             _apprenticeshipRepository
-                .Setup(x => x.GetApprenticeshipsByUln(It.IsAny<string>()))
+                .Setup(x => x.GetApprenticeshipsByUln(It.IsAny<string>(), It.IsAny<long>()))
                 .ReturnsAsync(CreateTestData(TestUln));
 
             _logger = new Mock<ICommitmentsLogger>();
@@ -68,7 +67,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeshipsBy
 
             var result = await _sut.Handle(request);
 
-            _apprenticeshipRepository.Verify(x => x.GetApprenticeshipsByUln(It.IsAny<string>()), Times.Once);
+            _apprenticeshipRepository.Verify(x => x.GetApprenticeshipsByUln(It.IsAny<string>(), It.IsAny<long>()), Times.Once);
 
             result.Apprenticeships.ShouldAllBeEquivalentTo(CreateTestData(TestUln).Apprenticeships);
             result.TotalCount.ShouldBeEquivalentTo(6);
@@ -82,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetApprenticeshipsBy
             Func<Task> act = async () => await _sut.Handle(request);
             act.ShouldThrow<ValidationException>();
 
-            _apprenticeshipRepository.Verify(x => x.GetApprenticeshipsByUln(It.IsAny<string>()), Times.Never);
+            _apprenticeshipRepository.Verify(x => x.GetApprenticeshipsByUln(It.IsAny<string>(), It.IsAny<long>()), Times.Never);
         }
 
         private ApprenticeshipsResult CreateTestData(string testUln)
