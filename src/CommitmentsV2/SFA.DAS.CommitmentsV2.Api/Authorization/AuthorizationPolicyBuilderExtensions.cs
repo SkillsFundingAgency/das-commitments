@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authorization
     {
         public static AuthorizationPolicyBuilder AllowAnonymousUser(this AuthorizationPolicyBuilder builder)
         {
-            builder.Requirements.Add(new IsDevelopmentRequirement(true));
+            builder.Requirements.Add(new NoneRequirement());
             return builder;
         }
     }

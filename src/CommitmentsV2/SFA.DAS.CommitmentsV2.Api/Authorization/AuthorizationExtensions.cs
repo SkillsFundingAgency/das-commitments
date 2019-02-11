@@ -47,7 +47,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Authorization
                     x.DefaultPolicy = x.GetPolicy("default");
                 }
             });
-            services.AddSingleton<IAuthorizationHandler, LocalAuthorizationHandler>();
+            if(isDevelopment)
+                services.AddSingleton<IAuthorizationHandler, LocalAuthorizationHandler>();
             return services;
         }
     }
