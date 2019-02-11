@@ -15,19 +15,33 @@ namespace SFA.DAS.CommitmentsV2.Api.Authorization
                 {
                     x.AddPolicy("default", policy =>
                     {
-                        policy.RequireAuthenticatedUser();
+                        if(isDevelopment)
+                            policy.AllowAnonymousUser();
+                        else
+                            policy.RequireAuthenticatedUser();
+
                     });
 
                     x.AddPolicy("Provider", policy =>
                     {
-                        policy.RequireAuthenticatedUser();
-                        policy.RequireRole("Provider");
+                        if (isDevelopment)
+                            policy.AllowAnonymousUser();
+                        else
+                        {
+                            policy.RequireAuthenticatedUser();
+                            policy.RequireRole("Provider");
+                        }
                     });
 
                     x.AddPolicy("Employer", policy =>
                     {
-                        policy.RequireAuthenticatedUser();
-                        policy.RequireRole("Employer");
+                        if (isDevelopment)
+                            policy.AllowAnonymousUser();
+                        else
+                        {
+                            policy.RequireAuthenticatedUser();
+                            policy.RequireRole("Employer");
+                        }
                     });
 
                     x.DefaultPolicy = x.GetPolicy("default");
