@@ -12,17 +12,26 @@ namespace SFA.DAS.CommitmentsV2.Api.Authorization
 
             services.AddAuthorization(x =>
             {
-                x.AddPolicy("default", policy =>
                 {
-                    if (isDevelopment)
-                    {
-                        policy.Requirements.Add(new IsDevelopmentRequirement(true));
-                    }
-                    else
+                    x.AddPolicy("default", policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                    }
-                });
+                    });
+
+                    x.AddPolicy("Provider", policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireRole("Provider");
+                    });
+
+                    x.AddPolicy("Employer", policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireRole("Employer");
+                    });
+
+                    x.DefaultPolicy = x.GetPolicy("default");
+                }
             });
             services.AddSingleton<IAuthorizationHandler, LocalAuthorizationHandler>();
             return services;

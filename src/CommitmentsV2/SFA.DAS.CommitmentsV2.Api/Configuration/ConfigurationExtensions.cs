@@ -11,6 +11,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Configuration
             services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection("AzureADApiAuthentication"));
             return services;
         }
-
     }
 }
