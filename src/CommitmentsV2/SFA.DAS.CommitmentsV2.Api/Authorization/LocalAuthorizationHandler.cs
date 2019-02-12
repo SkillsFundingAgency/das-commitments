@@ -3,15 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace SFA.DAS.CommitmentsV2.Api.Authorization
 {
-    public class LocalAuthorizationHandler : AuthorizationHandler<IsDevelopmentRequirement>
+    public class LocalAuthorizationHandler : AuthorizationHandler<NoneRequirement>
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-            IsDevelopmentRequirement requirement)
+            NoneRequirement requirement)
         {
-            if (requirement.IsDevelopment)
-            {
-                context.Succeed(requirement);
-            }
+            context.Succeed(requirement);
             return Task.CompletedTask;
         }
     }

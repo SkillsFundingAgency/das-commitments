@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
     {
         public static IServiceCollection AddApiAuthentication(this IServiceCollection services)
         {
-            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryConfiguration>>().Value;
+            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value;
 
             services.AddAuthentication(auth =>
             {
@@ -19,13 +19,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
 
             }).AddJwtBearer(auth =>
             {
-                auth.Authority = azureActiveDirectoryConfiguration.Authority;
+                auth.Authority = $"https://login.microsoftonline.com/{azureActiveDirectoryConfiguration.Tenant}";
                 auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
                     ValidAudiences = new List<string>
                     {
-                        azureActiveDirectoryConfiguration.AppIdUri,
-                        azureActiveDirectoryConfiguration.ClientId
+                        azureActiveDirectoryConfiguration.Identifier
                     }
                 };
             });
