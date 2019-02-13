@@ -1,6 +1,4 @@
-﻿using SFA.DAS.ProviderCommitments.Services;
-
-namespace SFA.DAS.ProviderCommitments.Configuration
+﻿namespace SFA.DAS.ProviderCommitments.Configuration
 {
 
     /// <summary>

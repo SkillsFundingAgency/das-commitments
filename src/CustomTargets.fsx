@@ -15,9 +15,6 @@ Target "Dotnet Restore" (fun _ ->
                 Project = ".\\SFA.DAS.Commitments.Api.Types" })
     DotNetCli.Restore(fun p ->
         { p with
-                Project = ".\\Approvals\\Tools\\SFA.DAS.Commitments.EFCoreTester" })
-    DotNetCli.Restore(fun p ->
-        { p with
                 Project = ".\\Approvals\\SFA.DAS.ProviderCommitments" })
     DotNetCli.Restore(fun p ->
         { p with
