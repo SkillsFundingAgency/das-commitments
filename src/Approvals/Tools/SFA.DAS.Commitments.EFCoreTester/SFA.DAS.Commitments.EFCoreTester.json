@@ -1,0 +1,10 @@
+﻿{
+  "ReadConfig": {
+
+  }, 
+
+  "WriteConfig": {
+    "draftCount": 50,
+    "confirmedCount":  50 
+  } 
+}

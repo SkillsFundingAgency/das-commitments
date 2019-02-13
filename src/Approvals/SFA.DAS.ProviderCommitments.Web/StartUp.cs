@@ -3,6 +3,7 @@ using Owin;
 using Microsoft.Owin;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.ProviderCommitments.Configuration;
+using SFA.DAS.ProviderCommitments.Interfaces;
 using SFA.DAS.ProviderCommitments.Web;
 
 [assembly: OwinStartup(typeof(Startup))]

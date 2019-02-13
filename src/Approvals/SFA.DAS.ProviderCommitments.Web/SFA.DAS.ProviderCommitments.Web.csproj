@@ -60,6 +60,7 @@
     <Compile Include="Authentication\IdentityServerConfigurationFactory.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="DependencyResolution\ControllerConvention.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Models\FlashMessageSeverityLevel.cs" />
     <Compile Include="Models\FlashMessageViewModel.cs" />
     <Compile Include="Models\SecuredViewModel.cs" />
+    <Compile Include="Models\TestModel.cs" />
     <Compile Include="Models\UserLinksViewModel.cs" />
     <Compile Include="Models\ViewModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -459,6 +461,7 @@
     <Content Include="src\sass\_provider.scss" />
     <Content Include="src\sass\_tables.scss" />
     <Content Include="src\sass\_typography.scss" />
+    <Content Include="Views\Test\HitDb.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />
@@ -529,6 +532,18 @@
     </PackageReference>
     <PackageReference Include="SFA.DAS.OidcMiddleware">
       <Version>2.0.0.61553</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork">
+      <Version>4.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore">
+      <Version>4.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork.Mvc">
+      <Version>4.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="SFA.DAS.UnitOfWork.SqlServer">
+      <Version>4.1.1</Version>
     </PackageReference>
     <PackageReference Include="StructureMap">
       <Version>4.7.0</Version>
