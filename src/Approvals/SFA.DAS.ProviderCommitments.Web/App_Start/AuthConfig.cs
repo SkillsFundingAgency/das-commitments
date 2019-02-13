@@ -14,7 +14,6 @@ using SFA.DAS.Configuration.FileStorage;
 using SFA.DAS.EmployerUsers.WebClientComponents;
 using SFA.DAS.OidcMiddleware;
 using SFA.DAS.ProviderCommitments.Configuration;
-using SFA.DAS.ProviderCommitments.Interfaces;
 using SFA.DAS.ProviderCommitments.Web.App_Start;
 using SFA.DAS.ProviderCommitments.Web.Authentication;
 using SFA.DAS.ProviderCommitments.Web.Models;

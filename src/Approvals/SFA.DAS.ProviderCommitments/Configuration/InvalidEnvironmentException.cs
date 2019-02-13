@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.ProviderCommitments.Exceptions
+namespace SFA.DAS.ProviderCommitments.Configuration
 {
     public class InvalidEnvironmentException : Exception
     {

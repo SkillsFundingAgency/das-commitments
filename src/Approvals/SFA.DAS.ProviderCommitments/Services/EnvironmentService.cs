@@ -2,7 +2,6 @@
 using Microsoft.Azure;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.ProviderCommitments.Configuration;
-using SFA.DAS.ProviderCommitments.Exceptions;
 
 namespace SFA.DAS.ProviderCommitments.Services
 {

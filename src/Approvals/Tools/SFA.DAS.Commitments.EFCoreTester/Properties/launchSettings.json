@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SFA.DAS.Commitments.EFCoreTester": {
-      "commandName": "Project",
-      "commandLineArgs": "read -t Summary -r 10 -m EF"
-    }
-  }
-}

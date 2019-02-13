@@ -2,21 +2,6 @@
 {
     public static class Constants
     {
-        /// <summary>
-        ///     Only assemblies starting with this prefix will be considered as application specific
-        ///     assemblies. SFA DAS nuget packages will not be included in this. The name is not
-        ///     case-sensitive when evaluating assembly names.
-        /// </summary>
-        public const string AssemblyPrefixForApplication = "SFA.DAS.ProviderCommitments";
-
-        /// <summary>
-        ///     The service name used for the application config.
-        /// </summary>
-        public const string ServiceName = "SFA.DAS.ProviderCommitments";
-
-        /// <summary>
-        ///     Environment variables used directly by the application.
-        /// </summary>
         public static class EnvironmentVariableNames
         {
             /// <summary>
@@ -27,9 +12,6 @@
             public const string EnvironmentName = "DASENV";
         }
 
-        /// <summary>
-        ///     App setting names used directly by the application.
-        /// </summary>
         public static class AppSettingNames
         {
             /// <summary>

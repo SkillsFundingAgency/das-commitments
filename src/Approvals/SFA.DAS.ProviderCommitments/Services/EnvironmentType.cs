@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.ProviderCommitments.Services
+﻿namespace SFA.DAS.ProviderCommitments.Configuration
 {
     /// <summary>
     ///     Enum of possible environments.
