@@ -23,15 +23,23 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln
 
         public async Task<GetApprenticeshipsByUlnResponse> Handle(GetApprenticeshipsByUlnRequest request)
         {
-            ValidateRequest(request);
-
-            var result = await _apprenticeshipRepository.GetApprenticeshipsByUln(request.Uln, request.EmployerAccountId);
-
-            return new GetApprenticeshipsByUlnResponse
+            try
             {
-                Apprenticeships = result.Apprenticeships,
-                TotalCount = result.TotalCount
-            };
+                ValidateRequest(request);
+
+                var result = await _apprenticeshipRepository.GetApprenticeshipsByUln(request.Uln, request.EmployerAccountId);
+
+                return new GetApprenticeshipsByUlnResponse
+                {
+                    Apprenticeships = result.Apprenticeships,
+                    TotalCount = result.TotalCount
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to get Apprentiships for ULN");
+                throw ex;
+            }
         }
 
         private void ValidateRequest(GetApprenticeshipsByUlnRequest request)
