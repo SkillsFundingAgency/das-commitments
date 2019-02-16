@@ -1,4 +1,5 @@
-﻿using StructureMap;
+﻿using SFA.DAS.CommitmentsV2.Test;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
 {
@@ -15,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 });
 
-            //For<ITestInterface>().Use<TestClass>();
+            For<Interface1>().Use<Class1>();
         }
     }
 }

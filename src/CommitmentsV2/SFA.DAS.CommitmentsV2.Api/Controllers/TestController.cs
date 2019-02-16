@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
+using SFA.DAS.CommitmentsV2.Test;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -11,10 +12,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class TestController : ControllerBase
     {
         private readonly ILogger<TestController> _logger;
+        private readonly Interface1 _test;
 
-        public TestController(ILogger<TestController> logger)
+        public TestController(ILogger<TestController> logger, Interface1 test)
         {
             _logger = logger;
+            _test = test;
         }
         // GET api/
         //
