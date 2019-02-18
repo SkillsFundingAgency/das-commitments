@@ -1,5 +1,7 @@
 ﻿using System;
+using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.Configuration;
@@ -10,7 +12,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
 {
     public static class HostBuilderExtensions
     {
-        public static IHostBuilder ConfigureMessageHandlerAppConfiguration(this IHostBuilder hostBuilder, string[] args)
+
+        public static IHostBuilder ConfigureDasWebJobs(this IHostBuilder builder)
+        {
+            builder.ConfigureWebJobs(b => b.AddAzureStorageCoreServices().AddTimers());
+
+//pragma warning disable 618
+            builder.ConfigureServices(s => s.AddSingleton<IWebHookProvider>(p => null));
+//pragma warning restore 618
+
+            return builder;
+        }
+
+
+
+        public static IHostBuilder MessageHandlerAppConfiguration(this IHostBuilder hostBuilder, string[] args)
         {
             return hostBuilder.ConfigureAppConfiguration((context, builder) =>
             {

@@ -17,9 +17,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
 
             try
             {
-                hostBuilder.UseDasEnvironment()
-                    .UseStructureMap()
-                    .ConfigureMessageHandlerAppConfiguration(args)
+                hostBuilder
+                    .ConfigureDasWebJobs()
+                    .UseDasEnvironment()
+                    .MessageHandlerAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
                         services.AddOptions();
@@ -29,12 +30,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
 
                     })
                     .ConfigureLogging(b => b.AddNLog())
-                    .ConfigureContainer<Registry>(IoC.Initialize)
-                    .UseConsoleLifetime();
+                    .UseConsoleLifetime()
+                    .UseStructureMap()
+                    .ConfigureContainer<Registry>(IoC.Initialize);
 
             }
             catch (Exception e)
             {
+
                 Console.WriteLine(e.Message);
                 throw;
             }

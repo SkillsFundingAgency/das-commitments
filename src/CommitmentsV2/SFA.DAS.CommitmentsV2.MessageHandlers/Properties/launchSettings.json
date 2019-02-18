@@ -1,6 +1,6 @@
 ﻿{
   "profiles": {
-    "SFA.DAS.EmployerFinance.MessageHandlers": {
+    "SFA.DAS.Commitmentsv2.MessageHandlers": {
       "commandName": "Project",
       "environmentVariables": {
         "APPSETTING_EnvironmentName": "LOCAL",
