@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.MessageHandlers.Configuration;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
+using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers
@@ -14,41 +13,37 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
     {
         public static async Task Main(string[] args)
         {
-            //var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-            //logger.Info("Starting up host");
+            var hostBuilder = new HostBuilder();
 
+            try
+            {
+                hostBuilder.UseDasEnvironment()
+                    .UseStructureMap()
+                    .ConfigureMessageHandlerAppConfiguration(args)
+                    .ConfigureServices((hostContext, services) =>
+                    {
+                        services.AddOptions();
 
-            var host = new HostBuilder()
-                .ConfigureMessageHandlerAppConfiguration(args)
-                .ConfigureServices((hostContext, services) =>
-                {
-                    var config = services.BuildServiceProvider().GetService<IConfiguration>();
-                    var section = config.GetSection("SFA.DAS.Commitments");
+                        services.ConfigureNServiceBus();
+                        services.AddHostedService<NServiceBusHostedService>();
 
-                    services.AddOptions();
-                    services.Configure<MyClass>(section);
+                    })
+                    .ConfigureLogging(b => b.AddNLog())
+                    .ConfigureContainer<Registry>(IoC.Initialize)
+                    .UseConsoleLifetime();
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
 
-                    var a = services.BuildServiceProvider().GetService<IOptions<MyClass>>();
-                    services.AddHostedService<MessageHandlerService>();
-
-                })
-                .ConfigureLogging(b => b.AddNLog())
-                .UseStructureMap()
-                .ConfigureContainer<Registry>(IoC.Initialize)
-                .UseConsoleLifetime()
-                .Build();
-
-            using (host)
+            using (var host = hostBuilder.Build())
             {
                 await host.RunAsync();
             }
                 
         }
-    }
-
-    public class MyClass
-    {
-        public string DatabaseConnectionString { get; set; }
     }
 }
