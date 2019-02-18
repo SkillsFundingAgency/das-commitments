@@ -72,6 +72,9 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
 
             var validationResult = _searchValidator.Validate(searchQuery);
 
+
+
+
             if (!validationResult.IsValid)
             {
                 return new UlnSummaryViewModel
@@ -80,9 +83,26 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
+            long employerAccountId;
+            try
+            {
+                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId); //was .ToUpper() but broke tests
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unable to decode Hashed Employer Account Id");
+
+                return new UlnSummaryViewModel
+                {
+                    ReponseMessages = { "Unable to decode the account id" }
+                };
+            }
+
+
             var response = await _mediator.SendAsync(new GetApprenticeshipsByUlnRequest
             {
-                Uln = searchQuery.SearchTerm
+                Uln = searchQuery.SearchTerm,
+                EmployerAccountId = employerAccountId
             });
 
             if ((response?.TotalCount ?? 0) == 0)
@@ -112,6 +132,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             }
 
             long commitmentId = 0;
+            long accountId = 0;
 
             try
             {
@@ -127,11 +148,26 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
+            try
+            {
+                accountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Unable to decode Hashed Account Id");
+
+                return new CommitmentSummaryViewModel
+                {
+                    ReponseMessages = { "Problem validating your account Id" }
+                };
+            }
+
             var response = await _mediator.SendAsync(new GetCommitmentRequest
             {
                 CommitmentId = commitmentId,
                 Caller = new Caller
                 {
+                    Id = accountId,
                     CallerType = CallerType.Support
                 }
             });

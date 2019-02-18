@@ -81,6 +81,10 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return await WithConnection(c => GetCommitment(id, c));
         }
+        public async Task<Commitment> GetAccountCommitmentById(long id)
+        {
+            return await WithConnection(c => GetCommitment(id, c));
+        }
 
         public async Task<IList<CommitmentSummary>> GetCommitmentsByProvider(long providerId)
         {
@@ -390,7 +394,29 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
             }
             return commitment;
         }
+        private static async Task<Commitment> GetAccountCommitment(long accountId, long commitmentId, IDbConnection connection, IDbTransaction transation = null)
+        {
+            var lookup = new Dictionary<object, Commitment>();
+            var mapper = new ParentChildrenMapper<Commitment, Apprenticeship>();
 
+            var parameters = new DynamicParameters();
+            parameters.Add("@accountId", commitmentId);
+            parameters.Add("@commitmentId", commitmentId);
+
+            var results = await connection.QueryAsync(
+                sql: $"[dbo].[GetCommitment]",
+                param: parameters,
+                transaction: transation,
+                commandType: CommandType.StoredProcedure,
+                map: mapper.Map(lookup, x => x.Id, x => x.Apprenticeships));
+
+            var commitment = lookup.Values.SingleOrDefault();
+            if (commitment != null)
+            {
+                commitment.Messages = await GetMessages(connection, commitmentId);
+            }
+            return commitment;
+        }
         private Task<IList<CommitmentSummary>> GetCommitmentsByIdentifier(string identifierName, long identifierValue)
         {
             var lookup = new Dictionary<object, CommitmentSummary>();
