@@ -49,8 +49,5 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             view.Should().NotBeNull();
             view.Model.Should().BeOfType<ApprenticeshipViewModel>();
         }
-
-
-
     }
 }

@@ -61,11 +61,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
                 SearchTerm = searchTerm
             };
 
-            if (string.IsNullOrWhiteSpace(searchQuery.SearchTerm))
-            {
-                return View(searchQuery);
-            }
-
             switch (searchQuery.SearchType)
             {
                 case ApprenticeshipSearchType.SearchByUln:
