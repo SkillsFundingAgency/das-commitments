@@ -40,6 +40,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
             return new CommitmentSummaryViewModel
             {
                 CohortReference = _hashingService.HashValue(commitment.Id),
+                HashedAccountId = _hashingService.HashValue(commitment.EmployerAccountId),
                 EmployerName = commitment.LegalEntityName,
                 ProviderName = commitment.ProviderName,
                 ProviderUkprn = commitment.ProviderId,

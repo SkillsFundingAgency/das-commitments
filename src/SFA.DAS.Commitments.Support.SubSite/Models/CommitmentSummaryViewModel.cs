@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 namespace SFA.DAS.Commitments.Support.SubSite.Models
 {
@@ -14,6 +12,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public string CohortReference { get; set; }
         public string EmployerName { get; set; }
         public string ProviderName  { get; set; }
+        public string HashedAccountId { get; set; }
         public long? ProviderUkprn { get; set; }
         public string CohortStatusText { get; set; }
         public List<string> ReponseMessages { get; set; }
