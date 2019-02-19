@@ -1,5 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Test;
-using StructureMap;
+﻿using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
 {
