@@ -15,8 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
                     scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                     scan.RegisterConcreteTypesAgainstTheFirstInterface();
                 });
-
-            For<Interface1>().Use<Class1>();
         }
     }
 }

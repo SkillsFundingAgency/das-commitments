@@ -17,14 +17,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
         {
             builder.ConfigureWebJobs(b => b.AddAzureStorageCoreServices().AddTimers());
 
-//pragma warning disable 618
+#pragma warning disable 618
             builder.ConfigureServices(s => s.AddSingleton<IWebHookProvider>(p => null));
-//pragma warning restore 618
+#pragma warning restore 618
 
             return builder;
         }
-
-
 
         public static IHostBuilder MessageHandlerAppConfiguration(this IHostBuilder hostBuilder, string[] args)
         {

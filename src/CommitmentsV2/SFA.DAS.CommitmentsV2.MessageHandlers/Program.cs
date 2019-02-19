@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
             try
             {
                 hostBuilder
-                    //.ConfigureDasWebJobs()
+                    //.ConfigureDasWebJobs() 
                     .UseDasEnvironment()
                     .MessageHandlerAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>

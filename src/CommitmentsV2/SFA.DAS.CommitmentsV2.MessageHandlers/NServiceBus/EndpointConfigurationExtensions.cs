@@ -13,5 +13,4 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
             return config;
         }
     }
-
 }

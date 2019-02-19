@@ -1,5 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Test;
-using StructureMap;
+﻿using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
 {
@@ -9,7 +8,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
 
         public DefaultRegistry()
         {
-            For<Interface1>().Use<Class1>();
         }
     }
 }
