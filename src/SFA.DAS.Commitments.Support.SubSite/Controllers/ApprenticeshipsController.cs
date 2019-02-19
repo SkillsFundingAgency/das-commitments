@@ -17,8 +17,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
             _orchestrator = apprenticeshipsOrchestrator;
         }
 
-        [Route("Apprenticeships/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
-        public async Task<ActionResult> CohortDetails(string hashedCohortId)
+        [Route("Apprenticeships/account/{hashedAccountId}/Cohort/{hashedCohortId}/", Name = "CohortDetails")]
+        public async Task<ActionResult> CohortDetails(string hashedAccontId, string hashedCohortId)
         {
             if (string.IsNullOrWhiteSpace(hashedCohortId))
             {
