@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="nlog.config">
@@ -26,8 +26,8 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="1.4.0" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.1" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="8.0.1" />
-    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="8.0.1" />
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="9.0.1" />
+    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="9.0.1" />
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="4.1.1" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="2.0.0" />
@@ -35,6 +35,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmployerAccounts.Messages\SFA.DAS.EmployerAccounts.Messages.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.Development.json">

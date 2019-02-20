@@ -39,8 +39,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
-                        .UseOutbox()
-                        .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
+                        //.UseOutbox()
+                        //.UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
                         .UseInstallers()
                         .UseStructureMapBuilder(container)
                         .UseUnitOfWork();
