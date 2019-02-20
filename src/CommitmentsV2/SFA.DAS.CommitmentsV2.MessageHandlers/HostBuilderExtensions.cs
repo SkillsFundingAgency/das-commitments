@@ -28,8 +28,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
         {
             return hostBuilder.ConfigureAppConfiguration((context, builder) =>
             {
-                var a = context.HostingEnvironment.EnvironmentName;
-
                 builder.AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2Api)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", true, true)
