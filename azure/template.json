@@ -47,7 +47,7 @@
         "workerStorageAccountName": "[toLower(concat('das', parameters('resourceEnvironmentName'), parameters('serviceName'), 'wkrstr'))]",
         "apiAppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
         "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
-        "workerAppServicePlanName" : "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
+        "workerAppServicePlanName" : "[concat(variables('resourceNamePrefix'), 'wkr-asp')]"
     },
     "resources": [
         {
@@ -173,7 +173,7 @@
                         "value": "[variables('workerAppServiceName')]"
                     },
                     "appServicePlanName": {
-                        "value": "[parameters('workerAppServicePlanName')]"
+                        "value": "[variables('workerAppServicePlanName')]"
                     },
                     "appServicePlanResourceGroup": {
                         "value": "[resourceGroup().name]"
