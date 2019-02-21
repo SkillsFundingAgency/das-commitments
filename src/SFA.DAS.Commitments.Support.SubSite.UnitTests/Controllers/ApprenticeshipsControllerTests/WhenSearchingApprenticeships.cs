@@ -46,7 +46,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
         }
 
         [Test]
-        public async Task UlnSearchResultHasErrorShouldReturnSearchViewWithErrorResponse()
+        public async Task GivenUlnSearchResultHasErrorShouldReturnSearchViewWithErrorResponse()
         {
             // Arrange
             var errorResponse = "InvalidUrn";
@@ -106,7 +106,35 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
         }
 
         [Test]
-        public async Task CohortSearchResultHasErrorShouldReturnSearchViewWithErrorResponse()
+        public async Task GivenValidUlnSearchShouldSetAccountIdOnViewModel()
+        {
+            // Arrange
+            var query = new ApprenticeshipSearchQuery
+            {
+                SearchTerm = "25632323233",
+                SearchType = ApprenticeshipSearchType.SearchByUln,
+                HashedAccountId = "ASDNA"
+            };
+
+            _orchestrator
+                .Setup(x => x.GetApprenticeshipsByUln(It.IsAny<ApprenticeshipSearchQuery>()))
+                .ReturnsAsync(new UlnSummaryViewModel())
+                .Verifiable();
+
+            var sut = new ApprenticeshipsController(_orchestrator.Object);
+
+            // Act
+            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
+
+            // Assert
+            var view = result as ViewResult;
+
+            var model = view.Model as UlnSummaryViewModel;
+            model.CurrentHashedAccountId.Should().BeEquivalentTo(query.HashedAccountId);
+        }
+
+        [Test]
+        public async Task GivenCohortSearchResultHasErrorShouldReturnSearchViewWithErrorResponse()
         {
             // Arrange
             var errorResponse = "InvalidUrn";

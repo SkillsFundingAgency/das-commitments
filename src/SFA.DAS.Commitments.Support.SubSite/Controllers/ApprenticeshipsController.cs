@@ -85,13 +85,15 @@ namespace SFA.DAS.Commitments.Support.SubSite.Controllers
 
         private async Task<ActionResult> UlnSearch(ApprenticeshipSearchQuery searchQuery)
         {
-            var unlSearchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
-            if (unlSearchResult.HasError)
+            var ulnSearchResult = await _orchestrator.GetApprenticeshipsByUln(searchQuery);
+            if (ulnSearchResult.HasError)
             {
-                searchQuery.ReponseMessages = unlSearchResult.ReponseMessages;
+                searchQuery.ReponseMessages = ulnSearchResult.ReponseMessages;
                 return View("Search", searchQuery);
             }
-            return View("UlnSearchSummary", unlSearchResult);
+
+            ulnSearchResult.CurrentHashedAccountId = searchQuery.HashedAccountId;
+            return View("UlnSearchSummary", ulnSearchResult);
         }
     }
 }

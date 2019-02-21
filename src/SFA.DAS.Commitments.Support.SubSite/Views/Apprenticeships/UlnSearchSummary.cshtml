@@ -74,7 +74,13 @@
                             <td data-label="Organisation">@apprenticeship.EmployerName</td>
                             <td data-label="Training dates">@apprenticeship.TrainingDates</td>
                             <td data-label="Status">@apprenticeship.PaymentStatus</td>
-                            <td scole="col" class=""> <a href="\resource?key=CommitmentApprenticeDetail&id=@apprenticeship.HashedAccountId&childId=@apprenticeship.ApprenticeshipHashId"> View</a></td>
+                            <td>
+                                @if (apprenticeship.HashedAccountId == Model.CurrentHashedAccountId)
+                                {
+                                    <a href="\resource?key=CommitmentApprenticeDetail&id=@apprenticeship.HashedAccountId&childId=@apprenticeship.ApprenticeshipHashId"> View</a>
+                                }
+                            </td>
+
                         </tr>
 
                     }

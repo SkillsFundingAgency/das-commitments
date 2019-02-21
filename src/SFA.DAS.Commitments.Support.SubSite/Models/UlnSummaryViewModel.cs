@@ -15,5 +15,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public List<ApprenticeshipSearchItemViewModel> SearchResults { get; set; }
         public List<string> ReponseMessages { get; set; }
         public bool HasError => ReponseMessages != null && ReponseMessages.Any();
+        public string CurrentHashedAccountId { get; set; }
     }
 }
