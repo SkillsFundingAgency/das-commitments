@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using StructureMap;
@@ -23,10 +26,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .MessageHandlerAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
-                        services.AddOptions();
-
-                        services.ConfigureNServiceBus();
-                        services.AddHostedService<NServiceBusHostedService>();
+                        services.AddMessageHandlerConfigurationSections()
+                                .ConfigureNServiceBus()
+                                .AddHostedService<NServiceBusHostedService>();
 
                     })
                     .ConfigureLogging(b => b.AddNLog())
@@ -37,7 +39,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
             }
             catch (Exception e)
             {
-
                 Console.WriteLine(e.Message);
                 throw;
             }
