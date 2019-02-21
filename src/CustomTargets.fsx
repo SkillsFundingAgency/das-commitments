@@ -13,4 +13,41 @@ Target "Dotnet Restore" (fun _ ->
     DotNetCli.Restore(fun p ->
         { p with
                 Project = ".\\SFA.DAS.Commitments.Api.Types" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.UnitTests" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.UnitTests" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.IntegrationTests" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.Client" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.Client.UnitTests" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.Client.TestHarness" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Api.Types" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Jobs" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.MessageHandlers" })
+    DotNetCli.Restore(fun p ->
+        { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Messages" })
+
 )

@@ -30,6 +30,7 @@
 	[PendingUpdateOriginator] TINYINT NULL,
 	[EPAOrgId] CHAR(7) NULL,
 	[CloneOf] BIGINT NULL,
+    [IsApproved] AS (CASE WHEN PaymentStatus > 0 THEN CAST(1 as bit) ELSE CAST(0 as bit) END) PERSISTED, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),
 	CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
