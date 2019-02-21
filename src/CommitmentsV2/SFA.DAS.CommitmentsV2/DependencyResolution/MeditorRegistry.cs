@@ -8,6 +8,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
     {
         public DefaultRegistry()
         {
+            For<IMediator>().Use<Mediator>();
+            For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
+            For<IRequestHandler<CreateAccountCommand>>().Use<CreateAccountCommandHandler>();
         }
     }
 }
