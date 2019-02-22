@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
-                        //.UseOutbox()
+                        .UseOutbox()
                         .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
                         .UseStructureMapBuilder(container)
                         .UseUnitOfWork();

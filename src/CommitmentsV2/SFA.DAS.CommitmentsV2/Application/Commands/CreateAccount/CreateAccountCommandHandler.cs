@@ -19,7 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount
             var account = new Account(request.AccountId, request.HashedId, request.PublicHashedId, request.Name, request.Created);
 
             _db.Value.Accounts.Add(account);
-            _db.Value.SaveChanges(true);
         }
     }
 }
