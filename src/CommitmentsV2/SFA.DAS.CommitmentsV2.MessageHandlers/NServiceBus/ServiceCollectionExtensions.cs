@@ -44,7 +44,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                         .UseNLogFactory()
                         //.UseOutbox()
                         .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
-                        .UseInstallers()
                         .UseStructureMapBuilder(container)
                         .UseUnitOfWork();
 
