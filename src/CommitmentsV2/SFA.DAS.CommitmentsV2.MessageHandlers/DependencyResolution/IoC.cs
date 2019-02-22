@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            registry.IncludeRegistry<MeditorRegistry>();
             registry.IncludeRegistry<DataRegistry>();
 
             registry.IncludeRegistry<DefaultRegistry>();
