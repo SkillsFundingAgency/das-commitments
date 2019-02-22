@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Data
     public class AccountsDbContext : DbContext
     {
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
 
         public AccountsDbContext(DbContextOptions<AccountsDbContext> options) : base(options)
         {
@@ -24,6 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new AccountConfiguration());
+            modelBuilder.ApplyConfiguration(new AccountLegalEntityConfiguration());
         }
     }
 }

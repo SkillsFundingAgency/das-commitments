@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class Account
+    public class Account 
     {
         public long Id { get; private set; }
         public string HashedId { get; private set; }
@@ -10,6 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string Name { get; private set; }
         public DateTime Created { get; private set; }
         public DateTime? Updated { get; private set; }
+        public IEnumerable<AccountLegalEntity> AccountLegalEntities => _accountLegalEntities;
+
+        private readonly List<AccountLegalEntity> _accountLegalEntities = new List<AccountLegalEntity>();
 
         public Account(long id, string hashedId, string publicHashedId, string name, DateTime created)
         {
@@ -24,12 +29,47 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
         }
 
+        public AccountLegalEntity AddAccountLegalEntity(long accountLegalEntityId, string accountLegalEntityPublicHashedId, string name, DateTime added)
+        {
+            EnsureAccountLegalEntityHasNotAlreadyBeenAdded(accountLegalEntityId);
+
+            var accountLegalEntity = new AccountLegalEntity(this, accountLegalEntityId, accountLegalEntityPublicHashedId, name, added);
+
+            _accountLegalEntities.Add(accountLegalEntity);
+
+            return accountLegalEntity;
+        }
+
         public void UpdateName(string name, DateTime updated)
         {
             if (IsUpdatedNameDateChronological(updated) && IsUpdatedNameDifferent(name))
             {
                 Name = name;
                 Updated = updated;
+            }
+        }
+
+
+        public void RemoveAccountLegalEntity(AccountLegalEntity accountLegalEntity, DateTime removed)
+        {
+            EnsureAccountLegalEntityHasBeenAdded(accountLegalEntity);
+
+            accountLegalEntity.Delete(removed);
+        }
+
+        private void EnsureAccountLegalEntityHasBeenAdded(AccountLegalEntity accountLegalEntity)
+        {
+            if (_accountLegalEntities.All(ale => ale.Id != accountLegalEntity.Id))
+            {
+                throw new InvalidOperationException("Requires account legal entity has been added");
+            }
+        }
+
+        private void EnsureAccountLegalEntityHasNotAlreadyBeenAdded(long accountLegalEntityId)
+        {
+            if (_accountLegalEntities.Any(ale => ale.Id == accountLegalEntityId))
+            {
+                throw new InvalidOperationException("Requires account legal entity has not already been added");
             }
         }
 
@@ -43,5 +83,4 @@ namespace SFA.DAS.CommitmentsV2.Models
             return name != Name;
         }
     }
-
 }
