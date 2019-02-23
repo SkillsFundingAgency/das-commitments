@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity;
 using SFA.DAS.EmployerAccounts.Messages.Events;
-using SFA.DAS.ProviderRelationships.Application.Commands.AddAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
@@ -17,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public Task Handle(AddedLegalEntityEvent message, IMessageHandlerContext context)
         {
+
             return _mediator.Send(new AddAccountLegalEntityCommand(message.AccountId, message.AccountLegalEntityId, message.AccountLegalEntityPublicHashedId, message.OrganisationName, message.Created));
         }
     }

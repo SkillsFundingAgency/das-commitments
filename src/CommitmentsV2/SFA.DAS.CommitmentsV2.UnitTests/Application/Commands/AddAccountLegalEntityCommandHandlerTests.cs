@@ -10,7 +10,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.ProviderRelationships.Application.Commands.AddAccountLegalEntity;
 using SFA.DAS.Testing;
 using SFA.DAS.Testing.Builders;
 

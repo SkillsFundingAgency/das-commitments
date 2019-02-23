@@ -1,7 +1,7 @@
 using System;
 using MediatR;
 
-namespace SFA.DAS.ProviderRelationships.Application.Commands.RemoveAccountLegalEntity
+namespace SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity
 {
     public class RemoveAccountLegalEntityCommand : IRequest
     {
