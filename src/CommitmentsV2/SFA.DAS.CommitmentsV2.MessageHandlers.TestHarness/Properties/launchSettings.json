@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "SFA.DAS.Commitmentsv2.MessageHandlers": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "APPSETTING_EnvironmentName": "LOCAL",
+        "APPSETTING_LoggingRedisConnectionString": "localhost:6379"
+      }
+    }
+  }
+}
