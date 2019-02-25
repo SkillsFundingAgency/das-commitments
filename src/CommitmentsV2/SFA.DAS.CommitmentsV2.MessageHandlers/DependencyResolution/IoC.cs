@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         {
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<AccountsDbContext>>();
-            registry.IncludeRegistry<MeditorRegistry>();
+            registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<DataRegistry>();
 
             registry.IncludeRegistry<DefaultRegistry>();

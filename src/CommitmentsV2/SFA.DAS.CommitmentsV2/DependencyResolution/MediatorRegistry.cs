@@ -8,9 +8,9 @@ using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
 {
-    public class MeditorRegistry : Registry
+    public class MediatorRegistry : Registry
     {
-        public MeditorRegistry()
+        public MediatorRegistry()
         {
             For<IMediator>().Use<Mediator>();
             For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
