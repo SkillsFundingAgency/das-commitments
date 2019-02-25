@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 AgreementStatus = apprenticeship.AgreementStatus.GetEnumDescription(),
                 PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 Alerts = MapRecordStatus(apprenticeship.UpdateOriginator, apprenticeship.DataLockCourseTriaged, changeRequested),
-                ULN = apprenticeship.ULN,
+                Uln = apprenticeship.ULN,
                 DateOfBirth = apprenticeship.DateOfBirth,
                 CohortReference = _hashingService.HashValue(apprenticeship.CommitmentId),
                 EmployerReference = apprenticeship.EmployerRef,
@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Mappers
                 TrainingDates = $"{apprenticeship.StartDate.ToGdsFormatWithSlashSeperator() ?? "-"} to {apprenticeship.EndDate.ToGdsFormatWithSlashSeperator() ?? "-"}",
                 PaymentStatus = MapPaymentStatus(apprenticeship.PaymentStatus, apprenticeship.StartDate, apprenticeship.StopDate, apprenticeship.PauseDate),
                 DateOfBirth = apprenticeship.DateOfBirth,
-                ULN = apprenticeship.ULN
+                Uln = apprenticeship.ULN
             };
         }
 

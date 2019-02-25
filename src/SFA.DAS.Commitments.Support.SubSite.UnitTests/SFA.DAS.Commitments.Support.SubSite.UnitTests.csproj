@@ -165,7 +165,8 @@
     <Compile Include="Controllers\StatusControllerTests\WhenGettingStatus.cs" />
     <Compile Include="Mappers\CommitmentMapperTest.cs" />
     <Compile Include="Mappers\ApprenticeshipMapperTest.cs" />
-    <Compile Include="Orchestrators\ApprenticeshipsOrchestratorTest.cs" />
+    <Compile Include="Orchestrators\ApprenticeshipOrchestratorTests\WhenGettingApprenticeshipByUln.cs" />
+    <Compile Include="Orchestrators\ApprenticeshipOrchestratorTests\WhenGettingCommitmentSummary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

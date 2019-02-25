@@ -13,6 +13,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
         public string TrainingDates { get; set; }
         public string PaymentStatus { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public string ULN { get; set; }
+        public string Uln { get; set; }
+        public string UlnText => string.IsNullOrEmpty(Uln) ? "Pending" : Uln;
     }
 }

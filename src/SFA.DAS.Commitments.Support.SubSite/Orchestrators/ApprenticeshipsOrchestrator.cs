@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeshipsByUln;
 using SFA.DAS.Commitments.Application.Queries.GetCommitment;
@@ -162,27 +163,38 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 };
             }
 
-            var response = await _mediator.SendAsync(new GetCommitmentRequest
+            try
             {
-                CommitmentId = commitmentId,
-                Caller = new Caller
+                var response = await _mediator.SendAsync(new GetCommitmentRequest
                 {
-                    Id = accountId,
-                    CallerType = CallerType.Support
-                }
-            });
+                    CommitmentId = commitmentId,
+                    Caller = new Caller
+                    {
+                        Id = accountId,
+                        CallerType = CallerType.Employer
+                    }
+                });
 
-            if (response?.Data == null)
+                if (response?.Data == null)
+                {
+                    return new CommitmentSummaryViewModel
+                    {
+                        ReponseMessages = { "No record Found" }
+                    };
+                }
+
+                _logger.Info($"Commitment Record with Id: {response.Data.Id}");
+
+                return _commitmentMapper.MapToCommitmentSummaryViewModel(response.Data);
+            }
+            catch(UnauthorizedException unauthorizedException)
             {
+                _logger.Warn(unauthorizedException.Message);
                 return new CommitmentSummaryViewModel
                 {
-                    ReponseMessages = { "No record Found" }
+                    ReponseMessages = { "Account is unauthorised to access this Cohort." }
                 };
             }
-
-            _logger.Info($"Commitment Record with Id: {response.Data.Id}");
-
-            return _commitmentMapper.MapToCommitmentSummaryViewModel(response?.Data);
         }
 
         public async Task<CommitmentDetailViewModel> GetCommitmentDetails(string hashCommitmentId)

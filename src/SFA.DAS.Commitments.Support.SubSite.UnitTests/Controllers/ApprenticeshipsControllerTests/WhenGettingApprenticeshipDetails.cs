@@ -29,7 +29,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
             var accountHashId = "HTYDUD120";
             var apprenticeshipVm = new ApprenticeshipViewModel
             {
-                ULN = "123456782"
+                Uln = "123456782"
             };
 
             _orchestrator

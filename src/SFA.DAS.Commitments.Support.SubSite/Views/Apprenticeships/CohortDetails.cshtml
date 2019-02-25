@@ -82,7 +82,7 @@
                     {
                         <tr>
                             <td data-label="Name">@apprenticeship.ApprenticeName</td>
-                            <td data-label="ULN">@(string.IsNullOrEmpty(apprenticeship.ULN) ? "Pending": apprenticeship.ULN)</td>
+                            <td data-label="ULN">@apprenticeship.UlnText</td>
                             <td data-label="Date Of Birth">@apprenticeship.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
                             <td data-label="Training dates">@apprenticeship.TrainingDates</td>
                             <td data-label="Status">@apprenticeship.PaymentStatus</td>

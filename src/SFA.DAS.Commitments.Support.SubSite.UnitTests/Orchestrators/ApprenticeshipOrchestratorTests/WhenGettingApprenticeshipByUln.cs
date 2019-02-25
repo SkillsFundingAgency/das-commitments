@@ -19,13 +19,14 @@ using SFA.DAS.Commitments.Support.SubSite.Mappers;
 namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators
 {
     [TestFixture]
-    public class ApprenticeshipsOrchestratorTest
+    [Parallelizable]
+    public class WhenGettingApprenticeshipByUln
     {
         private Mock<ILog> _logger;
         private Mock<IMediator> _mediator;
         private Mock<IValidator<ApprenticeshipSearchQuery>> _searchValidator;
         private Mock<IApprenticeshipMapper> _apprenticeshipMapper;
-        private  Mock<IHashingService> _hashingService;
+        private Mock<IHashingService> _hashingService;
         private Mock<ICommitmentMapper> _commitmentMapper;
 
         [SetUp]

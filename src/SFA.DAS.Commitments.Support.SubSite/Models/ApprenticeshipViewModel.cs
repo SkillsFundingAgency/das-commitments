@@ -9,15 +9,16 @@ namespace SFA.DAS.Commitments.Support.SubSite.Models
     public class ApprenticeshipViewModel
     {
        
-        public String PaymentStatus { get; set; }
-        public String AgreementStatus { get; set; }
+        public string PaymentStatus { get; set; }
+        public string AgreementStatus { get; set; }
         public IEnumerable<string> Alerts { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Name => $"{FirstName} {LastName}";
 
-        public string ULN { get; set; }
+        public string Uln { get; set; }
+        public string UlnText => string.IsNullOrEmpty(Uln) ? "Pending" : Uln;
         public DateTime? DateOfBirth { get; set; }
         public string CohortReference { get; set; }
         public string EmployerReference { get; set; } = string.Empty;
