@@ -25,12 +25,12 @@
 
                 <tbody>
                     <tr>
-                        <td>Agreement status</td>
+                        <th class="tw-50">Agreement status</th>
                         <td>@Model.AgreementStatus</td>
 
                     </tr>
                     <tr>
-                        <td>Payment status</td>
+                        <th>Payment status</th>
                         <td>@Model.PaymentStatus</td>
 
                     </tr>
@@ -39,7 +39,7 @@
                     {
 
                         <tr>
-                            <td>Alerts</td>
+                            <th>Alerts</th>
                             <td><a href="#"> @Model.Alerts.First()</a></td>
                         </tr>
 
@@ -67,26 +67,26 @@
             <table class="responsive twoColumn">
                 <tbody>
                     <tr>
-                        <td>Name</td>
+                        <th class="tw-50">Name</th>
                         <td>@Model.Name</td>
                     </tr>
                     <tr >
-                        <td>Unique learner number</td>
+                        <th>Unique learner number</th>
                         <td>@Model.UlnText</td>
                     </tr>
                     <tr>
-                        <td>Date of birth</td>
+                        <th>Date of birth</th>
                         <td>@Model.DateOfBirth.ToGdsFormatWithSpaceSeperator()</td>
                     </tr>
                     <tr >
-                        <td>Cohort reference</td>
+                        <th>Cohort reference</th>
                         <td>@Model.CohortReference</td>
                     </tr>
 
                     <tr >
-                        <td>
+                        <th>
                             Employer reference
-                        </td>
+                        </th>
                         <td>
                             @Model.EmployerReference
                        </td>
@@ -107,24 +107,24 @@
         <table class="responsive twoColumn">
             <tbody>
                 <tr >
-                    <td>Legal entity</td>
+                    <th class="tw-50">Legal entity</th>
                     <td>@Model.LegalEntity</td>
                 </tr>
                 <tr >
-                    <td>Training provider</td>
+                    <th>Training provider</th>
                     <td>@Model.TrainingProvider</td>
                 </tr>
                 <tr >
-                    <td>UKPRN</td>
+                    <th>UKPRN</th>
                     <td>@Model.UKPRN</td>
                 </tr>
 
                 <tr>
-                    <td>Apprenticeship training course</td>
+                    <th>Apprenticeship training course</th>
                     <td>@Model.Trainingcourse</td>
                 </tr>
                 <tr>
-                    <td>Apprenticeship code</td>
+                    <th>Apprenticeship code</th>
                     <td>@Model.ApprenticeshipCode</td>
                 </tr>
 
@@ -145,7 +145,7 @@
             <tbody>
 
                 <tr>
-                    <td>AS training start date</td>
+                    <th class="tw-50">AS training start date</th>
                     <td>
                         @{
                             var startDate = Model.DasTrainingStartDate?.ToGdsFormatWithoutDay() ?? "";
@@ -155,7 +155,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>AS training end date</td>
+                    <th>AS training end date</th>
                     <td>
                         @{
                             var endDate = Model.DasTrainingEndDate?.ToGdsFormatWithoutDay() ?? "";
@@ -179,7 +179,7 @@
         <table class="responsive twoColumn">
             <tbody>
                 <tr>
-                    <td>Cost</td>
+                    <th class="tw-50">Cost</th>
                     <td>@Model.TrainingCost.ToGdsCurrencyFormat()</td>
                 </tr>
 
