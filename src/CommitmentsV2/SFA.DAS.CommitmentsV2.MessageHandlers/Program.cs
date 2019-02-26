@@ -14,7 +14,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
         public static async Task Main(string[] args)
         {
             var hostBuilder = new HostBuilder();
-
             try
             {
                 hostBuilder
@@ -25,21 +24,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                         services.AddMessageHandlerConfigurationSections()
                                 .ConfigureNServiceBus()
                                 .AddHostedService<NServiceBusHostedService>();
-
                     })
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
                     .UseStructureMap()
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
-
                 using (var host = hostBuilder.Build())
                 {
                     await host.RunAsync();
                 }
-
-
-
             }
             catch (Exception e)
             {
