@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using StructureMap;
@@ -21,7 +18,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
             try
             {
                 hostBuilder
-                    //.ConfigureDasWebJobs() 
                     .UseDasEnvironment()
                     .MessageHandlerAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
@@ -36,6 +32,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .UseStructureMap()
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
+
+                using (var host = hostBuilder.Build())
+                {
+                    await host.RunAsync();
+                }
+
+
+
             }
             catch (Exception e)
             {
@@ -43,11 +47,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                 throw;
             }
 
-            using (var host = hostBuilder.Build())
-            {
-                await host.RunAsync();
-            }
-                
         }
     }
 }

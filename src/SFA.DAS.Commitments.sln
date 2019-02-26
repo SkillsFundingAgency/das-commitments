@@ -96,7 +96,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests\SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.csproj", "{F6A4182E-671B-4E4F-A240-4E80A4D6E3A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness", "CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness\SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness.csproj", "{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness", "CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness\SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness.csproj", "{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.Host", "CommitmentsV2\SFA.DAS.CommitmentsV2.Host\SFA.DAS.CommitmentsV2.Host.csproj", "{68472C2D-8618-44DD-99E3-1112B27BD3E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -257,6 +259,10 @@ Global
 		{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68472C2D-8618-44DD-99E3-1112B27BD3E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68472C2D-8618-44DD-99E3-1112B27BD3E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68472C2D-8618-44DD-99E3-1112B27BD3E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68472C2D-8618-44DD-99E3-1112B27BD3E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -292,6 +298,7 @@ Global
 		{318E3525-41E8-4727-9F72-7EBE6325DA78} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{F6A4182E-671B-4E4F-A240-4E80A4D6E3A3} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{68472C2D-8618-44DD-99E3-1112B27BD3E7} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
