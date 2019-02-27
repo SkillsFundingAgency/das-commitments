@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +11,8 @@ using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -25,15 +29,25 @@ namespace SFA.DAS.CommitmentsV2.Api
 
         public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddApiConfigurationSections(Configuration)
                 .AddApiAuthentication()
                 .AddApiAuthorization(_env);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddFluentValidation();
+
             services.AddHealthChecks();
+
+            services.Configure<CommitmentsV2Configuration>(Configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler));
+
+            var container = CreateStructureMapContainer(services);
+
+            return container.GetInstance<IServiceProvider>();
         }
+
         public void ConfigureContainer(Registry registry)
         {
             IoC.Initialize(registry);
@@ -55,6 +69,21 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseAuthentication()
                 .UseMvc()
                 .UseHealthChecks("/api/health-check");
+                
+        }
+
+        private static Container CreateStructureMapContainer(IServiceCollection services)
+        {
+            var container = new Container();
+            container.Configure(config =>
+            {
+                config.AddRegistry<DataRegistry>();
+                config.AddRegistry<DefaultRegistry>();
+                config.AddRegistry<ConfigurationRegistry>();
+                config.Populate(services);
+            });
+
+            return container;
         }
     }
 }

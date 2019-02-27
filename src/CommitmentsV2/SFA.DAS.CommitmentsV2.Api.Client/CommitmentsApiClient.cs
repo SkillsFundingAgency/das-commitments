@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -21,6 +23,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             }
 
             return false;
+        }
+
+        public Task<LegalEntity> GetLegalEntity(GetLegalEntity request)
+        {
+            return _client.Get<LegalEntity>($"api/accountlegalentity/{request.AccountLegalEntityId}");
         }
 
         public Task<string> SecureCheck()
