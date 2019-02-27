@@ -9,8 +9,8 @@ namespace SFA.DAS.CommitmentsV2.Data
         public void Configure(EntityTypeBuilder<Account> builder)
         {
             builder.Property(a => a.Id).ValueGeneratedNever();
-            builder.Property(a => a.HashedId).IsRequired().HasColumnType("char(6)");
-            builder.Property(a => a.PublicHashedId).IsRequired().HasColumnType("char(6)");
+            builder.Property(a => a.HashedId).IsRequired().HasColumnType("nchar(6)");
+            builder.Property(a => a.PublicHashedId).IsRequired().HasColumnType("nchar(6)");
             builder.Property(a => a.Name).IsRequired().HasColumnType("nvarchar(100)");
         }
     }

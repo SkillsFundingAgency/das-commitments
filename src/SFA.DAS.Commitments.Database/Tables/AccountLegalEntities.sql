@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[AccountLegalEntities]
 (
     [Id] BIGINT NOT NULL,
-    [PublicHashedId] CHAR(6) NOT NULL, 
+    [PublicHashedId] NCHAR(6) NOT NULL, 
     [AccountId] BIGINT NOT NULL, 
     [Name] NVARCHAR(100) NOT NULL, 
     [Created] DATETIME2 NOT NULL,

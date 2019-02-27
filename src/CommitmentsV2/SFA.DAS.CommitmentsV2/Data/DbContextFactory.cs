@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    public class DbContextWithNewTransactionFactory : IDbContextFactory
+    public class DbContextWithDbConnectionFactory : IDbContextFactory
     {
         private readonly DbConnection _dbConnection;
 
-        public DbContextWithNewTransactionFactory(DbConnection dbConnection)
+        public DbContextWithDbConnectionFactory(DbConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
