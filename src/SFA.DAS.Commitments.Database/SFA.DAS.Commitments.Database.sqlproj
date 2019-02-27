@@ -70,6 +70,7 @@
     <Folder Include="AdhocScripts\Support\DPP-1661" />
     <Folder Include="AdhocScripts\Support\AML-2937" />
     <Folder Include="PreDeployment" />
+    <Folder Include="AdhocScripts\Manual" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Commitment.sql" />
@@ -129,6 +130,7 @@
     <Build Include="StoredProcedures\UpdateApprenticeshipStatusesForCommitment.sql" />
     <None Include="AdhocScripts\Support\ProviderMergeScript.sql" />
     <None Include="AdhocScripts\Support\ApprenticeshipStopManyFixUpScript.sql" />
+    <None Include="AdhocScripts\Manual\CV-69_Populate_EmployerAccountLegalEntities.sql" />
     <Build Include="Tables\Accounts.sql" />
     <Build Include="Tables\AccountLegalEntities.sql" />
     <Build Include="Tables\OutboxData.sql" />
