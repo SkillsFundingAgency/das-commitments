@@ -48,6 +48,9 @@ Target "Dotnet Restore" (fun _ ->
                 Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.MessageHandlers" })
     DotNetCli.Restore(fun p ->
         { p with
+                Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests" })
+    DotNetCli.Restore(fun p ->
+        { p with
                 Project = ".\\CommitmentsV2\\SFA.DAS.CommitmentsV2.Messages" })
     DotNetCli.Restore(fun p ->
         { p with
