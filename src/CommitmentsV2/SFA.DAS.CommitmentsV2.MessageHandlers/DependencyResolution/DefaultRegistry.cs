@@ -1,11 +1,11 @@
-﻿using StructureMap;
+﻿using MediatR;
+using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {
-        private const string ServiceName = "SFA.DAS.CommitmentsV2";
-
         public DefaultRegistry()
         {
         }

@@ -1,4 +1,7 @@
-﻿using SFA.DAS.UnitOfWork.NServiceBus;
+﻿using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore;
+using SFA.DAS.UnitOfWork.NServiceBus;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
@@ -8,6 +11,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<AccountsDbContext>>();
+            registry.IncludeRegistry<MediatorRegistry>();
+            registry.IncludeRegistry<DataRegistry>();
+
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }
