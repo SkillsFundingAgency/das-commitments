@@ -70,7 +70,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
         {
             return RunWithDbContext(dbContext =>
             {
-                var handler = new GetEmployerHandler(dbContext);
+                var lazy = new Lazy<AccountsDbContext>(dbContext);
+                var handler = new GetEmployerHandler(lazy);
 
                 return handler.Handle(request, CancellationToken.None);
             });

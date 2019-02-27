@@ -84,11 +84,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
         {
             var controller = new AccountLegalEntityController(Logger, Mediator);
 
-            var response = await controller.GetAccountLegalEntity(
-                new Api.Types.Requests.GetLegalEntity
-                {
-                    AccountLegalEntityId = accountLegalEntityId
-                });
+            var response = await controller.GetAccountLegalEntity(accountLegalEntityId);
 
             return response;
         }
