@@ -5,9 +5,8 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsWebJobProject>true</IsWebJobProject>
-      <OutputType>Exe</OutputType>
-      <WebJobName>EmployerFinance-MessageHandlers</WebJobName>
-      <WebJobType>Continuous</WebJobType>
+    <WebJobName>Commitmentsv2-MessageHandlers</WebJobName>
+    <WebJobType>Continuous</WebJobType>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="nlog.config">
