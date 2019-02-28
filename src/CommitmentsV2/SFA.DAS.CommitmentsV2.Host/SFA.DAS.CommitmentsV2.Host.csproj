@@ -7,12 +7,19 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <MSDeployPackagePublishDependsOn>CopyWebJobs</MSDeployPackagePublishDependsOn>
-    <WebJobProjects>$(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj;</WebJobProjects>
+    <WebJobProjects>$(MSBuildProjectDirectory)\..\CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj;</WebJobProjects>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Web.WebJobs.Publish" Version="2.0.0" />
+    <FilesToCreate Include="$(MSBuildProjectDirectory)\HelloWorld.txt" />
   </ItemGroup>
+
+
+  <Target Name="CopyWebJobs">
+    <MSBuild Projects="$(WebJobProjects)" Targets="Restore;Build" Properties="DeployOnBuild=true;Configuration=$(Configuration);WebPublishMethod=FileSystem;PublishUrl=$(PublishIntermediateOutputPath)" RunEachTargetSeparately="true" StopOnFirstFailure="true" />
+  </Target>
+
 
 </Project>
