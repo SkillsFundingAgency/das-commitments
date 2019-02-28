@@ -7,7 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <MSDeployPackagePublishDependsOn>CopyWebJobs</MSDeployPackagePublishDependsOn>
-    <WebJobProjects>$(MSBuildProjectDirectory)\..\CommitmentsV2\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj;</WebJobProjects>
+    <WebJobProjects>$(MSBuildProjectDirectory)\..\SFA.DAS.CommitmentsV2.MessageHandlers\SFA.DAS.CommitmentsV2.MessageHandlers.csproj;</WebJobProjects>
   </PropertyGroup>
 
   <ItemGroup>
