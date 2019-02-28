@@ -4,6 +4,10 @@
     <LangVersion>latest</LangVersion>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsWebJobProject>true</IsWebJobProject>
+      <OutputType>Exe</OutputType>
+      <WebJobName>EmployerFinance-MessageHandlers</WebJobName>
+      <WebJobType>Continuous</WebJobType>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="nlog.config">
@@ -30,6 +34,9 @@
     <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="5.0.4" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
     <PackageReference Include="StructureMap.Microsoft.DependencyInjection" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj" />
