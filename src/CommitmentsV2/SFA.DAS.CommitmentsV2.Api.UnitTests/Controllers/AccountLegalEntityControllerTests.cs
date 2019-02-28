@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Queries.GetEmployer;
+using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
 {
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetEmployerResponse {AccountName="AccountName", LegalEntityName="" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse {AccountName="AccountName", LegalEntityName="" });
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -69,11 +69,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
         public Mock<ILogger<AccountLegalEntityController>> LoggerMock { get; set; }
         public ILogger<AccountLegalEntityController> Logger => LoggerMock.Object;
 
-        public AccountLegalEntityControllerTestFixtures SetQueryResponse(long forAccountLegalEntityId, GetEmployerResponse sendResponse)
+        public AccountLegalEntityControllerTestFixtures SetQueryResponse(long forAccountLegalEntityId, GetAccountLegalEntityResponse sendResponse)
         {
             MediatorMock
                 .Setup(m => m.Send(
-                                    It.Is<GetEmployerRequest>(request => request.AccountLegalEntityId == forAccountLegalEntityId), 
+                                    It.Is<GetAccountLegalEntityRequest>(request => request.AccountLegalEntityId == forAccountLegalEntityId), 
                                     It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(sendResponse));
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Queries.GetEmployer;
+using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Policies.Employer)]
+        [Authorize(Policies.Provider)]
         [HttpGet]
         [Route("{AccountLegalEntityId}")]
         public async Task<IActionResult> GetAccountLegalEntity(long accountLegalEntityId)
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var employer = await _mediator.Send(new GetEmployerRequest
+            var employer = await _mediator.Send(new GetAccountLegalEntityRequest
             {
                 AccountLegalEntityId = accountLegalEntityId
             });
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(new LegalEntity
+            return Ok(new AccountLegalEntity
             {
                 AccountName = employer.AccountName,
                 LegalEntityName = employer.LegalEntityName

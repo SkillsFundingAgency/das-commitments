@@ -8,6 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     {
         Task<bool> HealthCheck();
 
-        Task<LegalEntity> GetLegalEntity(GetLegalEntity request);
+        Task<AccountLegalEntity> GetLegalEntity(GetAccountLegalEntity request);
     }
 }

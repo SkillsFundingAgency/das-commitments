@@ -25,9 +25,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return false;
         }
 
-        public Task<LegalEntity> GetLegalEntity(GetLegalEntity request)
+        public Task<AccountLegalEntity> GetLegalEntity(GetAccountLegalEntity request)
         {
-            return _client.Get<LegalEntity>($"api/accountlegalentity/{request.AccountLegalEntityId}");
+            return _client.Get<AccountLegalEntity>($"api/accountlegalentity/{request.AccountLegalEntityId}");
         }
 
         public Task<string> SecureCheck()

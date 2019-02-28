@@ -6,25 +6,25 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 
-namespace SFA.DAS.CommitmentsV2.Queries.GetEmployer
+namespace SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity
 {
-    public class GetEmployerHandler : IRequestHandler<GetEmployerRequest, GetEmployerResponse>
+    public class GetAccountLegalEntityHandler : IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>
     {
         private readonly Lazy<AccountsDbContext> _dbContext;
 
-        public GetEmployerHandler(Lazy<AccountsDbContext> dbContext)
+        public GetAccountLegalEntityHandler(Lazy<AccountsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public Task<GetEmployerResponse> Handle(GetEmployerRequest request, CancellationToken cancellationToken)
+        public Task<GetAccountLegalEntityResponse> Handle(GetAccountLegalEntityRequest request, CancellationToken cancellationToken)
         {
             return _dbContext.Value
                 .AccountLegalEntities
                 .Include( ale => ale.Account)
                 .Where(ale => ale.Id == request.AccountLegalEntityId)
                 .AsNoTracking()
-                .Select(ale => new GetEmployerResponse {AccountName = ale.Account.Name, LegalEntityName = ale.Name})
+                .Select(ale => new GetAccountLegalEntityResponse {AccountName = ale.Account.Name, LegalEntityName = ale.Name})
                 .SingleOrDefaultAsync(cancellationToken);
         }
     }

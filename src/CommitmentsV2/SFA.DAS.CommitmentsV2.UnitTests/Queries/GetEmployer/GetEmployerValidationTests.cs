@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Queries.GetEmployer;
+using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
 {
@@ -12,8 +12,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(int id, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetEmployerValidator();
-            var validationResults = validator.Validate(new GetEmployerRequest {AccountLegalEntityId = id});
+            var validator = new GetAccountLegalEntityValidator();
+            var validationResults = validator.Validate(new GetAccountLegalEntityRequest {AccountLegalEntityId = id});
 
             // act
             var actualIsValid = validationResults.IsValid;
