@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Api
 
         public IConfiguration Configuration { get; }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.AddApiConfigurationSections(Configuration)
                 .AddApiAuthentication()
@@ -42,10 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddHealthChecks();
 
             services.Configure<CommitmentsV2Configuration>(Configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler));
-
-            var container = CreateStructureMapContainer(services);
-
-            return container.GetInstance<IServiceProvider>();
         }
 
         public void ConfigureContainer(Registry registry)
@@ -70,20 +66,6 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseMvc()
                 .UseHealthChecks("/api/health-check");
                 
-        }
-
-        private static Container CreateStructureMapContainer(IServiceCollection services)
-        {
-            var container = new Container();
-            container.Configure(config =>
-            {
-                config.AddRegistry<DataRegistry>();
-                config.AddRegistry<DefaultRegistry>();
-                config.AddRegistry<ConfigurationRegistry>();
-                config.Populate(services);
-            });
-
-            return container;
         }
     }
 }
