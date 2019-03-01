@@ -1,0 +1,10 @@
+﻿namespace SFA.DAS.CommitmentsV2.Api.Types
+{
+    // Do we need to return encoded values and should we include the AccountId? 
+    public sealed class NewCohortWithSingleApprenticeResponse
+    {
+        public int Cohortid { get; set; }
+
+        public int DraftApprenticeshipId { get; set; }
+    }
+}
