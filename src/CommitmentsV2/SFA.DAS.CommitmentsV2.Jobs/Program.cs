@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Jobs.DependencyResolution;
+using SFA.DAS.CommitmentsV2.Startup;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs
@@ -15,10 +16,11 @@ namespace SFA.DAS.CommitmentsV2.Jobs
             try
             {
                 hostBuilder
-                    //.UseDasEnvironment()
-                    //.MessageHandlerAppConfiguration(args)
+                    .UseDasEnvironment()
+                    .UseDasAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
+                        services.AddJobConfigurationSections();
                     })
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
@@ -35,4 +37,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs
                 Console.WriteLine(e.Message);
                 throw;
             }
+        }
+    }
 }

@@ -6,11 +6,11 @@ using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers
+namespace SFA.DAS.CommitmentsV2.Startup
 {
     public static class HostBuilderExtensions
     {
-        public static IHostBuilder MessageHandlerAppConfiguration(this IHostBuilder hostBuilder, string[] args)
+        public static IHostBuilder UseDasAppConfiguration(this IHostBuilder hostBuilder, string[] args)
         {
             return hostBuilder.ConfigureAppConfiguration((context, builder) =>
             {

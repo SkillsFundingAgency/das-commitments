@@ -1,8 +1,6 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
-using StructureMap;
+﻿using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
+namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
 {
     public class DefaultRegistry : Registry
     {
