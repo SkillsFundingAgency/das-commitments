@@ -5,7 +5,5 @@
         public long CohortId { get; set; }
 
         public string CohortReference { get; set; }
-
-        public long DraftApprenticeshipId { get; set; }
     }
 }
