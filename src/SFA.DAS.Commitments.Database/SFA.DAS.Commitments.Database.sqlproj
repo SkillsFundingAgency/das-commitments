@@ -135,6 +135,8 @@
     <Build Include="Tables\AccountLegalEntities.sql" />
     <Build Include="Tables\OutboxData.sql" />
     <Build Include="Tables\ClientOutboxData.sql" />
+    <Build Include="Tables\Providers.sql" />
+    <Build Include="StoredProcedures\ImportProviders.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
@@ -146,6 +148,7 @@
     <None Include="AdhocScripts\Support\EmitApprenticeshipEventScript.sql" />
     <None Include="AdhocScripts\Support\DPP-1661\DPP-1661_Remove_DataLock_7_if_also_Datalock_9.sql" />
     <None Include="AdhocScripts\Support\AML-2937\AML-2937_Migrate_Provider_Assigned_New_Cohorts_To_Amended.sql" />
+    <Build Include="UserDefinedTypes\Providers.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploymentScript.sql" />
