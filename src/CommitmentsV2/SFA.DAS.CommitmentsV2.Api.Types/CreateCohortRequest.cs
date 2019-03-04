@@ -1,8 +1,5 @@
 ﻿using System;
 
-// Comment. I think there is a benefit and simplicity in keeping models within Request and Response types as inner classes. It does duplicate the interfaces, 
-// but it makes it clear that the request only requires these explicit fields
-
 namespace SFA.DAS.CommitmentsV2.Api.Types
 {
     public sealed class CreateCohortRequest
@@ -13,7 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
 
         public NewDraftApprenticeship DraftApprenticeship { get; set; }
 
-        // Does this need teh Names? 
         public sealed class NewCohort
         {
             public long EmployerAccountId { get; set; }
