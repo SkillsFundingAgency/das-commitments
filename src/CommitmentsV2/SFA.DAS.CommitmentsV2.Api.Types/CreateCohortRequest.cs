@@ -5,27 +5,23 @@
 
 namespace SFA.DAS.CommitmentsV2.Api.Types
 {
-    public sealed class NewCohortWithSingleApprenticeRequest
+    public sealed class CreateCohortRequest
     {
         public string UserId { get; set; }
 
-        public NewCohortDetails CohortDetails { get; set; }
+        public NewCohort Cohort { get; set; }
 
-        public NewApprenticeshipDetails ApprenticeshipDetails { get; set; }
+        public NewDraftApprenticeship DraftApprenticeship { get; set; }
 
         // Does this need teh Names? 
-        public sealed class NewCohortDetails
+        public sealed class NewCohort
         {
-            public string CohortReference { get; set; }
             public long EmployerAccountId { get; set; }
             public string LegalEntityId { get; set; }
-            public long? ProviderId { get; set; }
-
-            // Not sure whether we need to pass in the names here? 
-
+            public long ProviderId { get; set; }
         }
 
-        public sealed class NewApprenticeshipDetails
+        public sealed class NewDraftApprenticeship
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
@@ -36,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
             //public TrainingType TrainingType { get; set; }
             public string TrainingCode { get; set; }
             public string TrainingName { get; set; }
-            public decimal? Cost { get; set; }
+            public int? Cost { get; set; }
             public DateTime? StartDate { get; set; }
             public DateTime? EndDate { get; set; }
             public string ProviderReference { get; set; }
