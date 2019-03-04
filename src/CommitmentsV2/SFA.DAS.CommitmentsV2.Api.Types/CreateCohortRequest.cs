@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
             public int? Cost { get; set; }
             public DateTime? StartDate { get; set; }
             public DateTime? EndDate { get; set; }
-            public string OriginatorsReference { get; set; }
+            public string OriginatorReference { get; set; }
         }
     }
 
