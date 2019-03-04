@@ -27,9 +27,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
             public string LastName { get; set; }
             public DateTime? DateOfBirth { get; set; }
             public string ULN { get; set; }
-
-            // I assume this will be needed (can't see it in provider commitments)
-            //public TrainingType TrainingType { get; set; }
             public string TrainingCode { get; set; }
             public string TrainingName { get; set; }
             public int? Cost { get; set; }
