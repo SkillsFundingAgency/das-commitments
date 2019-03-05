@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types.Providers;
@@ -20,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
     {
 
         [Test]
-        public Task Functions_WhenRunningImportProvidersJob_ThenShouldImportProvidersInBatchesOf1000()
+        public Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProvidersInBatchesOf1000()
         {
             return TestAsync(f => f.SetProviders(1500), f => f.Run(), f => f.Db.Verify(d => d.ExecuteSqlCommandAsync(
                 "EXEC ImportProviders @providers, @now",
@@ -29,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         }
 
         [Test]
-        public Task Functions_WhenRunningImportProvidersJob_ThenShouldImportProviders()
+        public Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProviders()
         {
             return TestAsync(f => f.SetProviders(1500), f => f.Run(), f => f.ImportedProviders.Should().BeEquivalentTo(f.Providers));
         }
@@ -65,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                     }));
                 });
 
-            Functions = new Functions(null, ProviderApiClient.Object, new Lazy<AccountsDbContext>(() => Db.Object));
+            Functions = new Functions((new Mock<ILogger<Functions>>()).Object, ProviderApiClient.Object, new Lazy<AccountsDbContext>(() => Db.Object));
         }
 
         public Task Run()
