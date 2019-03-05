@@ -10,11 +10,11 @@ namespace SFA.DAS.CommitmentsV2.Startup
 {
     public static class HostBuilderExtensions
     {
-        public static IHostBuilder UseDasAppConfiguration(this IHostBuilder hostBuilder, string[] args)
+        public static IHostBuilder ConfigureDasAppConfiguration(this IHostBuilder hostBuilder, string[] args)
         {
             return hostBuilder.ConfigureAppConfiguration((context, builder) =>
             {
-                builder.AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler)
+                builder.AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2, CommitmentsConfigurationKeys.ApprenticeshipInfoServiceApi)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", true, true)
                     .AddEnvironmentVariables()

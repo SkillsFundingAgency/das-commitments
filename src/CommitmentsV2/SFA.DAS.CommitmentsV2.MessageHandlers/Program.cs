@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
             {
                 hostBuilder
                     .UseDasEnvironment()
-                    .UseDasAppConfiguration(args)
+                    .ConfigureDasAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
                         services.AddMessageHandlerConfigurationSections()

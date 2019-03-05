@@ -17,11 +17,12 @@ namespace SFA.DAS.CommitmentsV2.Jobs
             {
                 hostBuilder
                     .UseDasEnvironment()
-                    .UseDasAppConfiguration(args)
+                    .ConfigureDasAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
                         services.AddJobConfigurationSections();
                     })
+                    .ConfigureDasWebJobs()
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
                     .UseStructureMap()

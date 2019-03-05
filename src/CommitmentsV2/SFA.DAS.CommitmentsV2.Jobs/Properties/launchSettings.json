@@ -3,7 +3,9 @@
     "SFA.DAS.CommitmentsV2.Jobs": {
       "commandName": "Project",
       "environmentVariables": {
-        "APPSETTING_EnvironmentName": "LOCAL"
+        "APPSETTING_EnvironmentName": "LOCAL",
+        "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true"
       }
     }
   }
