@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs
             _db = db;
         }
 
-        public async Task ImportProviders([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
+        public async Task ImportProvidersJob([TimerTrigger("45 10 1 * * *", RunOnStartup = true)] TimerInfo timer)
         {
             var providers = await _providerApiClient.FindAllAsync();
             var batches = providers.Batch(1000).Select(b => b.ToDataTable(p => p.Ukprn, p => p.ProviderName));
