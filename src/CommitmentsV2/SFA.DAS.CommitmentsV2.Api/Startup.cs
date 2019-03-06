@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +11,8 @@ using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -31,9 +35,15 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddApiAuthentication()
                 .AddApiAuthorization(_env);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddFluentValidation();
+
             services.AddHealthChecks();
+
+            services.Configure<CommitmentsV2Configuration>(Configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler));
         }
+
         public void ConfigureContainer(Registry registry)
         {
             IoC.Initialize(registry);
@@ -55,6 +65,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseAuthentication()
                 .UseMvc()
                 .UseHealthChecks("/api/health-check");
+                
         }
     }
 }
