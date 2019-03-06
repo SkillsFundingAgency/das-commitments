@@ -8,5 +8,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<bool> HealthCheck();
 
         Task<AccountLegalEntity> GetLegalEntity(long accountLegalEntityId);
+
+        // To be removed latter
+        Task<string> SecureCheck();
+        Task<string> SecureEmployerCheck();
+        Task<string> SecureProviderCheck();
     }
 }

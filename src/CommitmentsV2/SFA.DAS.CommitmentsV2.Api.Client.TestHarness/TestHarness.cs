@@ -6,10 +6,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 {
     public class TestHarness
     {
-        private readonly CommitmentsApiClient _client;
+        private readonly ICommitmentsApiClient _client;
         private readonly ILogger<TestHarness> _logger;
 
-        public TestHarness(CommitmentsApiClient client, ILogger<TestHarness> logger)
+        public TestHarness(ICommitmentsApiClient client, ILogger<TestHarness> logger)
         {
             _client = client;
             _logger = logger;
