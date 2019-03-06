@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Extensions
         public static IWebHostBuilder ConfigureDasAppConfiguration(this IWebHostBuilder hostBuilder)
         {
             return hostBuilder.ConfigureAppConfiguration(c => c
-                .AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler));
+                .AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2Base));
         }
     }
 }

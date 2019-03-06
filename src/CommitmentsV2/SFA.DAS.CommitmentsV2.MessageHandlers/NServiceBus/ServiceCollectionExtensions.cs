@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
         {
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             services.AddOptions();
-            services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler));
+            services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2Base));
             return services;
         }
         public static IServiceCollection ConfigureNServiceBus(this IServiceCollection services)

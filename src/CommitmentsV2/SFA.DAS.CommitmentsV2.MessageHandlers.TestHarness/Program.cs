@@ -18,13 +18,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         public static async Task Main()
         {
             var builder = new ConfigurationBuilder()
-                .AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler);
+                .AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2Base);
 
             IConfigurationRoot configuration = builder.Build();
 
             var provider = new ServiceCollection()
                 .AddOptions()
-                .Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler)).BuildServiceProvider();
+                .Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2Base)).BuildServiceProvider();
 
             var config = provider.GetService<IOptions<CommitmentsV2Configuration>>().Value.NServiceBusConfiguration;
             var isDevelopment = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName) == "LOCAL";

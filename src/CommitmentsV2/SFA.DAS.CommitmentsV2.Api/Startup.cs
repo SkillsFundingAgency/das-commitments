@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
@@ -33,15 +34,17 @@ namespace SFA.DAS.CommitmentsV2.Api
         {
             services.AddApiConfigurationSections(Configuration)
                 .AddApiAuthentication()
-                .AddApiAuthorization(_env);
-
-            services.AddMvc()
+                .AddApiAuthorization(_env)
+                .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddFluentValidation();
 
             services.AddHealthChecks();
 
-            services.Configure<CommitmentsV2Configuration>(Configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2MessageHandler));
+            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value;
+            var conf2 = services.BuildServiceProvider().GetService<IOptions<CommitmentsV2Configuration>>().Value;
+
+
         }
 
         public void ConfigureContainer(Registry registry)
