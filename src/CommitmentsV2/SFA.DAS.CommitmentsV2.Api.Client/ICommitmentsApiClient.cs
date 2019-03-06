@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
@@ -13,5 +14,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<string> SecureCheck();
         Task<string> SecureEmployerCheck();
         Task<string> SecureProviderCheck();
+        Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request);
     }
 }
