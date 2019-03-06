@@ -1,11 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SFA.DAS.CommitmentsV2.Api.Client.Configuration;
-using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 {
