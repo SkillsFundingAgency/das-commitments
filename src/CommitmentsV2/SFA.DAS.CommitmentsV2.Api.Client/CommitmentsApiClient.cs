@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Api.Client.Http;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {

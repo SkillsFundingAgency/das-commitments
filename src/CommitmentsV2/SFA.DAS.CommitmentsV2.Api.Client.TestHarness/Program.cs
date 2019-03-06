@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SFA.DAS.CommitmentsV2.Api.Client.Http;
+using SFA.DAS.CommitmentsV2.Api.Client.Configuration;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 {
@@ -25,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
                 .AddSingleton<IHttpClientFactory>(x=>
                 {
                     var config = x.GetService<IOptions<AzureActiveDirectoryClientConfiguration>>().Value;
-                    return new HttpClientFactory(config);
+                    return new AzureActiveDirectoryHttpClientFactory(config);
                 })
                 .AddTransient<IRestHttpClient>(x =>
                 {
@@ -41,6 +43,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
             await testHarness.Run();
 
         }
-
     }
 }

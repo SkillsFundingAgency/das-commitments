@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 {
@@ -12,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
         {
         }
 
-        public override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
+        protected override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
         {
             var apiException = ConvertContentToApiException(content);
 
