@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Policies.Provider)]
+        [Authorize]
         [HttpGet]
         [Route("{AccountLegalEntityId}")]
         public async Task<IActionResult> GetAccountLegalEntity(long accountLegalEntityId)
