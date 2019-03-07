@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.Configuration
 {
-    public class AzureActiveDirectoryClientConfiguration : IAzureActiveDirectoryClientConfiguration
+    public class CommitmentsClientApiConfiguration : IAzureActiveDirectoryClientConfiguration
     {
         public string ApiBaseUrl { get; set; }
         public string Tenant { get; set; }

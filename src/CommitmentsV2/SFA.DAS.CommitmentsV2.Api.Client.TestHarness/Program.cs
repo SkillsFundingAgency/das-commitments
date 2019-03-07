@@ -20,11 +20,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 
             var provider = new ServiceCollection()
                 .AddOptions()
-                .Configure<AzureActiveDirectoryClientConfiguration>(configuration.GetSection("AzureADClientAuthentication"))
+                .Configure<CommitmentsClientApiConfiguration>(configuration.GetSection("AzureADClientAuthentication"))
                 .AddLogging(configure => configure.AddConsole())
                 .AddSingleton<ICommitmentsApiClientFactory>(x=>
                 {
-                    var config = x.GetService<IOptions<AzureActiveDirectoryClientConfiguration>>().Value;
+                    var config = x.GetService<IOptions<CommitmentsClientApiConfiguration>>().Value;
                     return new CommitmentsApiClientFactory(config);
                 })
                 .AddTransient<ICommitmentsApiClient>(x => x.GetService<ICommitmentsApiClientFactory>().CreateClient())

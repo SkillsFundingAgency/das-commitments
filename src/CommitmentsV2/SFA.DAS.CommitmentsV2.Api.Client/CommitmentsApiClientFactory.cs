@@ -5,9 +5,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 {
     public class CommitmentsApiClientFactory : ICommitmentsApiClientFactory
     {
-        private readonly AzureActiveDirectoryClientConfiguration _config;
+        private readonly CommitmentsClientApiConfiguration _config;
 
-        public CommitmentsApiClientFactory(AzureActiveDirectoryClientConfiguration config)
+        public CommitmentsApiClientFactory(CommitmentsClientApiConfiguration config)
         {
             _config = config;
         }
