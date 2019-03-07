@@ -52,54 +52,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Orchestrators.Apprentice
             _logger.Setup(x => x.Trace(It.IsAny<string>()));
             _logger.Setup(x => x.Info(It.IsAny<string>()));
         }
-
-        [Test]
-        [Category("UnitTest")]
-        public async Task GivenValidCohortIdShouldCallRequiredServices()
-        {
-            // Arrange
-            ApprenticeshipSearchQuery searchQuery = new Models.ApprenticeshipSearchQuery
-            {
-                SearchTerm = "CHRTID",
-                SearchType = ApprenticeshipSearchType.SearchByCohort
-            };
-
-            _mediator.Setup(x => x.SendAsync(It.IsAny<GetCommitmentRequest>()))
-            .ReturnsAsync(new GetCommitmentResponse
-            {
-                Data = new Commitment
-                {
-                }
-            }).Verifiable();
-
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.SetupGet(x => x.IsValid).Returns(true);
-
-            _searchValidator.Setup(x => x.Validate(searchQuery))
-                .Returns(validationResult.Object)
-                .Verifiable();
-
-            _commitmentMapper
-                .Setup(o => o.MapToCommitmentSummaryViewModel(It.IsAny<Commitment>()))
-                .Returns(new CommitmentSummaryViewModel())
-                .Verifiable();
-
-            var _orchestrator = new ApprenticeshipsOrchestrator(_logger.Object,
-                _mediator.Object,
-                _apprenticeshipMapper.Object,
-                _searchValidator.Object,
-                _hashingService.Object,
-                _commitmentMapper.Object);
-
-            // Act
-            var result = await _orchestrator.GetCommitmentSummary(searchQuery);
-
-            // Arrange
-            _searchValidator.VerifyAll();
-            _mediator.VerifyAll();
-            _commitmentMapper.VerifyAll();
-        }
-
+        
         [Test]
         [Category("UnitTest")]
         public async Task GivenInvalidCohortShouldReturnResponseMessageAndNotCallSearchService()

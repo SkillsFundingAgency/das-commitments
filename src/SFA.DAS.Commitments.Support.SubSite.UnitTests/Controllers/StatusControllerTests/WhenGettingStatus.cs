@@ -19,7 +19,5 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.StatusContro
             Assert.IsNotNull(result.Content);
             Assert.AreEqual(ApplicationConstants.ServiceName, result.Content.ServiceName);
         }
-
-
     }
 }

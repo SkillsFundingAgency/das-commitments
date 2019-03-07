@@ -14,35 +14,30 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
     public class WhenSearchingApprenticeships
     {
         private Mock<IApprenticeshipsOrchestrator> _orchestrator;
+        private ApprenticeshipsController _sut;
 
         [SetUp]
         public void SetUpTest()
         {
             _orchestrator = new Mock<IApprenticeshipsOrchestrator>();
+            _sut = new ApprenticeshipsController(_orchestrator.Object); ;
         }
 
         [Test]
         public async Task GivenValidAccountIdShouldReturnSearchView()
         {
             // Arrange
-            var query = new ApprenticeshipSearchQuery
-            {
-                SearchTerm = "25632323233",
-                SearchType = ApprenticeshipSearchType.SearchByUln,
-                HashedAccountId = "ASDNA"
-            };
-
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
+            var hashedAccountId = "ASDNA";
 
             // Act
-            var result = await sut.Search(query.HashedAccountId);
+            var result = await _sut.Search(hashedAccountId);
 
             // Assert
             var view = result as ViewResult;
             view.Should().NotBeNull();
 
             var model = view.Model as ApprenticeshipSearchQuery;
-            model.ResponseUrl.Should().Contain(query.HashedAccountId);
+            model.ResponseUrl.Should().Contain(hashedAccountId);
         }
 
         [Test]
@@ -62,10 +57,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
                 .ReturnsAsync(new UlnSummaryViewModel { ReponseMessages = { errorResponse } })
                 .Verifiable();
 
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
-
             // Act
-            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
+            var result = await _sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
 
             // Assert
             var view = result as ViewResult;
@@ -93,10 +86,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
                 .ReturnsAsync(new UlnSummaryViewModel())
                 .Verifiable();
 
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
-
             // Act
-            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
+            var result = await _sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
 
             // Assert
             var view = result as ViewResult;
@@ -121,10 +112,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
                 .ReturnsAsync(new UlnSummaryViewModel())
                 .Verifiable();
 
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
-
             // Act
-            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
+            var result = await _sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
 
             // Assert
             var view = result as ViewResult;
@@ -150,10 +139,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
                 .ReturnsAsync(new CommitmentSummaryViewModel { ReponseMessages = { errorResponse } })
                 .Verifiable();
 
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
-
             // Act
-            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
+            var result = await _sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
 
             // Assert
             var view = result as ViewResult;
@@ -181,10 +168,8 @@ namespace SFA.DAS.Commitments.Support.SubSite.UnitTests.Controllers.Apprenticesh
                 .ReturnsAsync(new CommitmentSummaryViewModel())
                 .Verifiable();
 
-            var sut = new ApprenticeshipsController(_orchestrator.Object);
-
             // Act
-            var result = await sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
+            var result = await _sut.SearchRequest(query.HashedAccountId, query.SearchType, query.SearchTerm);
 
             // Assert
             var view = result as ViewResult;
