@@ -322,7 +322,6 @@
     <Content Include="assets\images\gov.uk_logotype_crown_invert_trans.png" />
     <Content Include="assets\images\icon-pointer-2x.png" />
     <Content Include="assets\images\opengraph-image.png" />
-    <Content Include="assets\javascripts\app.js" />
     <Content Include="assets\javascripts\ie.js" />
     <Content Include="assets\javascripts\search-index.js" />
     <Content Include="assets\stylesheets\application.css" />

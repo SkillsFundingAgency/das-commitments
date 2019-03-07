@@ -31,12 +31,12 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                                             IHashingService hashingService,
                                             ICommitmentMapper commitmentMapper)
         {
-            _logger = logger ?? throw new ArgumentException(nameof(logger));
-            _mediator = mediator ?? throw new ArgumentException(nameof(mediator));
-            _searchValidator = searchValidator ?? throw new ArgumentException(nameof(searchValidator));
-            _hashingService = hashingService ?? throw new ArgumentException(nameof(hashingService));
-            _apprenticeshipMapper = apprenticeshipMapper ?? throw new ArgumentException(nameof(apprenticeshipMapper));
-            _commitmentMapper = commitmentMapper ?? throw new ArgumentException(nameof(commitmentMapper));
+            _logger = logger;
+            _mediator = mediator;
+            _searchValidator = searchValidator;
+            _hashingService = hashingService;
+            _apprenticeshipMapper = apprenticeshipMapper;
+            _commitmentMapper = commitmentMapper;
         }
 
         public async Task<ApprenticeshipViewModel> GetApprenticeship(string hashId, string accountHashedId)
@@ -72,9 +72,6 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             _logger.Trace("Retrieving Apprenticeships Record");
 
             var validationResult = _searchValidator.Validate(searchQuery);
-
-
-
 
             if (!validationResult.IsValid)
             {
