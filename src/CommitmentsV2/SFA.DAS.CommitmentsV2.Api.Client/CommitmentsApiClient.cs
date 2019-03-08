@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
+using SFA.DAS.CommitmentsV2.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -21,6 +22,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             }
 
             return false;
+        }
+        public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<string> SecureCheck()
