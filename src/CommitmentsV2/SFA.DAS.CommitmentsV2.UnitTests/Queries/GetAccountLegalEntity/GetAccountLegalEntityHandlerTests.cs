@@ -14,13 +14,13 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
+namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
 {
     [TestFixture]
-    public class GetEmployerHandlerTests
+    public class GetAccountLegalEntityHandlerTests
     {
         [Test]
-        public async Task Validate_WithSpecifiedId_ShouldSetIsValidCorrectly()
+        public async Task Handle_WithSpecifiedId_ShouldSetIsValidCorrectly()
         {
             const long accountLegalEntityId = 456;
 
