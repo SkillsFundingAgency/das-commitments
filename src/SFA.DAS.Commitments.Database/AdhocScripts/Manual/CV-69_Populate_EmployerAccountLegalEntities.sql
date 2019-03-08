@@ -3,16 +3,17 @@ Script to populate Account/Legal Entity data for Approvals from MA source data
 
 Instructions for use:
 1. Think about obtaining a prod db backup for sourcing the data, since it kills the db
-2. Turn on SQL CMD mode
+2. Turn on SQL CMD mode and Results to Text and max characters in text output to 8192 (query->query options->results->text->Maximum number of characters displayed in each column)
 3. Execute this script against MA employer_account database
-4. Execute the resulting script against provider-relationships database
+4. Execute the resulting script against commitments database
 
 Expectations:
 ~30 minutes on employer_account database
-~20 seconds on provider-relationships db
+~20 seconds on commitments db
 ~15k+ Accounts created
 ~27k+ AccountLegalEntities created
 */
+
 
 SET NOCOUNT ON
 
@@ -20,14 +21,14 @@ declare @MAXINSERT int = 1000 --insert values() batch size (cannot be more than 
 
 --Some table var declarations
 print 'declare @Accounts table ([AccountId] bigint,[HashedId] nvarchar(100),[PublicHashedId] nvarchar(100),[Name] nvarchar(100),[CreatedDate] datetime)'
-print 'declare @AccountLegalEntities table ([AccountLegalEntityId] bigint,[AccountLegalEntityPublicHashedId] nvarchar(6),[AccountId] bigint,[Name] nvarchar(100),[Created] datetime)'
+print 'declare @AccountLegalEntities table ([AccountLegalEntityId] bigint,[AccountLegalEntityPublicHashedId] nvarchar(6),[AccountId] bigint,[Name] nvarchar(100),[Address] NVARCHAR(256),[OrganisationType] TINYINT,[LegalEntityId] NVARCHAR(50),[Created] datetime)'
 
 BEGIN TRY
 
 	--Accounts
 	select
 	case (ROW_NUMBER() OVER (ORDER BY a.Id) % @MAXINSERT) when 1 then 'insert into @Accounts ([AccountId],[HashedId],[PublicHashedId],[Name],[CreatedDate]) values' + char(13) + char(10) else '' end +
-	' (' + convert(varchar,[Id]) + ', ' + '''' + convert(varchar,[HashedId]) + '''' + ', ' + '''' + convert(varchar,[PublicHashedId]) + '''' + ', ' + '''' + replace([Name],'''','''''') + '''' + ', ' + '''' + convert(varchar,[CreatedDate],121) + '''' + ')' + 
+	' (' + convert(varchar,[Id]) + ', ' + '''' + convert(char(6),[HashedId]) + '''' + ', ' + '''' + convert(varchar,[PublicHashedId]) + '''' + ', ' + '''' + replace([Name],'''','''''') + '''' + ', ' + '''' + convert(varchar,[CreatedDate],121) + '''' + ')' + 
 	case when ((ROW_NUMBER() OVER (ORDER BY a.Id) % @MAXINSERT = 0) OR (ROW_NUMBER() OVER (ORDER BY a.Id) = (select count(1) from [employer_account].[Account] where HashedId is not null and PublicHashedId is not null))) then '' else ',' end
 	from
 	[employer_account].[Account] a
@@ -38,17 +39,21 @@ BEGIN TRY
 
 	--AccountLegalEntities
 	select
-	case (ROW_NUMBER() OVER (ORDER BY ale.Id) % @MAXINSERT) when 1 then 'insert into @AccountLegalEntities ([AccountLegalEntityId],[AccountLegalEntityPublicHashedId],[AccountId],[Name],[Created]) values' + char(13) + char(10) else '' end +
-	' (' + convert(varchar,ale.[Id]) + ', '
+	case (ROW_NUMBER() OVER (ORDER BY ale.Id) % @MAXINSERT)
+	when 1 then CONVERT(nvarchar(max),'insert into @AccountLegalEntities ([AccountLegalEntityId],[AccountLegalEntityPublicHashedId],[AccountId],[Name],[Address],[OrganisationType],[LegalEntityId],[Created]) values') + char(13) + char(10) else '' end +
+	CONVERT(NVARCHAR(MAX),' (' + convert(varchar,ale.[Id]) + ', '
 		+ '''' + ale.[PublicHashedId] + '''' + ', '
-		+ convert(varchar,ale.[AccountId]) + ', '
+		+ convert(NVARCHAR(MAX),ale.[AccountId]) + ', '
 		+ '''' + replace(ale.[Name],'''','''''') + '''' + ','
-		+ '''' + convert(varchar,[Created],121) + ''''
-	+ ')'  + 
+		+ '''' + replace(ale.[Address],'''','''''') + '''' + ','
+		+ convert(NVARCHAR(MAX),le.[Source]) + ', '
+		+ '''' + replace(le.[Code],'''','''''') + '''' + ','
+		+ '''' + convert(NVARCHAR(MAX),[Created],121) + ''''
+	+ ')')  + 
 	case when
 		((ROW_NUMBER() OVER (ORDER BY ale.Id) % @MAXINSERT = 0)
 		OR (ROW_NUMBER() OVER (ORDER BY ale.Id) = (select count(1) from [employer_account].[AccountLegalEntity] where PublicHashedId is not null and Deleted is null)))
-	then '' else ',' end
+	then CONVERT(NVARCHAR(MAX), '') else CONVERT(NVARCHAR(MAX),',') end
 	from [employer_account].[AccountLegalEntity] ale
 	join [employer_account].[LegalEntity] le on le.Id = ale.LegalEntityId
 	where ale.PublicHashedId is not null
@@ -67,8 +72,8 @@ BEGIN TRY
 	'
 
 	print '
-	insert into AccountLegalEntities([Id],[PublicHashedId],[AccountId],[Name], [Created])
-	select ale.[AccountLegalEntityId], ale.[AccountLegalEntityPublicHashedId], ale.[AccountId], ale.[Name], ale.[Created] 
+	insert into AccountLegalEntities([Id],[PublicHashedId],[AccountId],[Name],[Address],[OrganisationType],[LegalEntityId],[Created])
+	select ale.[AccountLegalEntityId], ale.[AccountLegalEntityPublicHashedId], ale.[AccountId], ale.[Name], ale.[Address],ale.[OrganisationType],ale.[LegalEntityId],ale.[Created] 
 	from @AccountLegalEntities ale
 	left join AccountLegalEntities e on e.[Id] = ale.[AccountLegalEntityId]
 	where e.[Id] is null --skip existing
