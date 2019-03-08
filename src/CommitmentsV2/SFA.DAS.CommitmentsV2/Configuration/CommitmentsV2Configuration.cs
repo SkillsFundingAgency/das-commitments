@@ -10,5 +10,7 @@
         public ApprenticeshipInfoServiceConfiguration ApprenticeshipInfoService { get; set; }
 
         public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
+
+        public AzureActiveDirectoryApiConfiguration AzureADApiAuthentication { get; set; }
     }
 }
