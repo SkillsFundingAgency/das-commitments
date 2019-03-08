@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
+namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
 {
     [TestFixture]
-    public class GetEmployerValidationTests
+    public class GetAccountLegalEntityValidationTests
     {
         [TestCase(-1, false)]
         [TestCase( 0, false)]
