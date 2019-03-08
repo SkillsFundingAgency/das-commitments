@@ -29,6 +29,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     a.Account == f.Account &&
                     a.AccountId == f.Command.AccountId &&
                     a.Name == f.Command.OrganisationName &&
+                    a.OrganisationType == f.Command.OrganisationType &&
+                    a.LegalEntityId == f.Command.OrganisationReferenceNumber &&
+                    a.Address == f.Command.OrganisationAddress &&
                     a.Created == f.Command.Created));
         }
     }
@@ -49,7 +52,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db.Accounts.Add(Account);
             Db.SaveChanges();
 
-            Command = new AddAccountLegalEntityCommand(Account.Id, 2, "ALE123", "Foo", DateTime.UtcNow);
+            Command = new AddAccountLegalEntityCommand(Account.Id, 2,  "ALE123", "Foo",
+                OrganisationType.CompaniesHouse, "REFNo", "Address", DateTime.UtcNow);
             Handler = new AddAccountLegalEntityCommandHandler(new Lazy<AccountsDbContext>(() => Db));
         }
 

@@ -17,8 +17,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public Task Handle(AddedLegalEntityEvent message, IMessageHandlerContext context)
         {
-
-            return _mediator.Send(new AddAccountLegalEntityCommand(message.AccountId, message.AccountLegalEntityId, message.AccountLegalEntityPublicHashedId, message.OrganisationName, message.Created));
+            return _mediator.Send(new AddAccountLegalEntityCommand(message.AccountId, message.AccountLegalEntityId,
+                message.AccountLegalEntityPublicHashedId, message.OrganisationName, 
+                (Models.OrganisationType)message.OrganisationType,
+                message.OrganisationReferenceNumber,
+                message.OrganisationAddress,
+                message.Created));
         }
     }
 }
