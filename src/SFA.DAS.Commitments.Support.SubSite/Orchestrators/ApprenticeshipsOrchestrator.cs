@@ -56,7 +56,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
                 ApprenticeshipId = apprenticeshipId
             });
 
-            if (response == null)
+            if (response.Data == null)
             {
                 var errorMsg = $"Can't find Apprenticeship with Hash Id {hashId}";
                 _logger.Warn(errorMsg);
@@ -84,7 +84,7 @@ namespace SFA.DAS.Commitments.Support.SubSite.Orchestrators
             long employerAccountId;
             try
             {
-                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId); //was .ToUpper() but broke tests
+                employerAccountId = _hashingService.DecodeValue(searchQuery.HashedAccountId);
             }
             catch (Exception ex)
             {
