@@ -5,7 +5,7 @@
 	[PublicHashedId] NCHAR(6) NOT NULL, 
     [AccountId] BIGINT NOT NULL, 
     [Name] NVARCHAR(100) NOT NULL, 
-	[OrganisationType] TINYINT NOT NULL,
+	[OrganisationType] SMALLINT NOT NULL,
     [Address] NVARCHAR(256) NOT NULL,
     [Created] DATETIME2 NOT NULL,
     [Updated] DATETIME2 NULL,

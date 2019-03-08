@@ -55,11 +55,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
 
         public List<Account> SeedAccounts { get; }
 
-        public GetEmployerHandlerTestFixtures AddAccountWithLegalEntities(long accountId, string accountName, long accountLegalEntityId, string name)
+        public GetEmployerHandlerTestFixtures AddAccountWithLegalEntities(long accountId, string accountName,
+            long accountLegalEntityId, string name)
         {
             var account = new Account(accountId, "PRI123", "PUB123", accountName, DateTime.Now);
 
-            account.AddAccountLegalEntity(accountLegalEntityId, "PUB456", name, DateTime.Now);
+            account.AddAccountLegalEntity(accountLegalEntityId, "ABC456", "PUB456", 
+                name, OrganisationType.Charities, "My address", DateTime.Now);
 
             SeedAccounts.Add(account);
 

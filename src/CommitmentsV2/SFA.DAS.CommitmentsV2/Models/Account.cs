@@ -29,11 +29,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
         }
 
-        public AccountLegalEntity AddAccountLegalEntity(long accountLegalEntityId, string accountLegalEntityPublicHashedId, string name, DateTime added)
+        public AccountLegalEntity AddAccountLegalEntity(long accountLegalEntityId, string legalEntityId,
+            string accountLegalEntityPublicHashedId, string name, OrganisationType organisationType, string address,
+            DateTime added)
         {
             EnsureAccountLegalEntityHasNotAlreadyBeenAdded(accountLegalEntityId);
 
-            var accountLegalEntity = new AccountLegalEntity(this, accountLegalEntityId, accountLegalEntityPublicHashedId, name, added);
+            var accountLegalEntity = new AccountLegalEntity(this, accountLegalEntityId, legalEntityId,
+                accountLegalEntityPublicHashedId, name, organisationType, address, added);
 
             _accountLegalEntities.Add(accountLegalEntity);
 
