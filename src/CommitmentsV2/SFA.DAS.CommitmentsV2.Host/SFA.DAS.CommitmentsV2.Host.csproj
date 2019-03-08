@@ -13,7 +13,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Web.WebJobs.Publish" Version="2.0.0" />
-    <FilesToCreate Include="$(MSBuildProjectDirectory)\HelloWorld.txt" />
   </ItemGroup>
 
   <ItemGroup>
