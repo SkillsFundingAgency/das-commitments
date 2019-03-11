@@ -7,8 +7,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
     {
         public static void Initialize(Registry registry)
         {
-            registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
+            registry.IncludeRegistry<ConfigurationRegistry>();
+            registry.IncludeRegistry<DataRegistry>();
         }
     }
 }

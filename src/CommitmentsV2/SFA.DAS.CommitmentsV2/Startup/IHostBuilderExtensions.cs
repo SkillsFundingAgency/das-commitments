@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Startup
         {
             return hostBuilder.ConfigureAppConfiguration((context, builder) =>
             {
-                builder.AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2, CommitmentsConfigurationKeys.ApprenticeshipInfoServiceApi)
+                builder.AddAzureTableStorage(CommitmentsConfigurationKeys.CommitmentsV2)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", true, true)
                     .AddEnvironmentVariables()

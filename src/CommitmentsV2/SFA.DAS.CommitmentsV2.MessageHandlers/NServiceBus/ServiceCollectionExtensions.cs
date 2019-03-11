@@ -17,13 +17,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMessageHandlerConfigurationSections(this IServiceCollection services)
-        {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            services.AddOptions();
-            services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2));
-            return services;
-        }
         public static IServiceCollection ConfigureNServiceBus(this IServiceCollection services)
         {
 
@@ -32,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                 {
                     var container = s.GetService<IContainer>();
                     var hostingEnvironment = s.GetService<IHostingEnvironment>();
-                    var configuration = s.GetService<IOptions<CommitmentsV2Configuration>>().Value.NServiceBusConfiguration;
+                    var configuration = s.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
                     var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.MessageHandlers")

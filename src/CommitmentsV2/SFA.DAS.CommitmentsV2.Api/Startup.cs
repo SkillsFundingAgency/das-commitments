@@ -33,18 +33,13 @@ namespace SFA.DAS.CommitmentsV2.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApiConfigurationSections(Configuration)
-                .AddApiAuthentication()
+                .AddApiAuthentication(Configuration)
                 .AddApiAuthorization(_env)
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddFluentValidation();
 
             services.AddHealthChecks();
-
-            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value;
-            var conf2 = services.BuildServiceProvider().GetService<IOptions<CommitmentsV2Configuration>>().Value;
-
-
         }
 
         public void ConfigureContainer(Registry registry)

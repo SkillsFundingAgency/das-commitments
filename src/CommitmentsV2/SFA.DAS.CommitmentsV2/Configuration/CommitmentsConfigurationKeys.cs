@@ -2,8 +2,8 @@
 {
     public static class CommitmentsConfigurationKeys
     {
-        public const string CommitmentsV2Api = "SFA.DAS.CommitmentsV2";
         public const string CommitmentsV2 = "SFA.DAS.CommitmentsV2";
-        public const string ApprenticeshipInfoServiceApi = "SFA.DAS.ApprenticeshipInfoServiceAPI";
+        public static string ApprenticeshipInfoService => $"{CommitmentsV2}:ApprenticeshipInfoService";
+        public static string AzureActiveDirectoryApiConfiguration => $"{CommitmentsV2}:AzureADApiAuthentication";
     }
 }
