@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasDefaultValueSql("('X')");
 
             builder.Property(e => e.AddEpaLastSubmissionEventId).HasColumnName("AddEpa_LastSubmissionEventId");
-
             builder.Property(e => e.IntTestSchemaVersion).HasColumnName("IntTest_SchemaVersion");
         }
     }

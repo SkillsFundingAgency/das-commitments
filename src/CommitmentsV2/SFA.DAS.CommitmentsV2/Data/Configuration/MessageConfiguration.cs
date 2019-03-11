@@ -20,8 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.HasOne(d => d.Commitment)
                 .WithMany(p => p.Message)
                 .HasForeignKey(d => d.CommitmentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Message_Commitment");
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

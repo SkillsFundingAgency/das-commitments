@@ -13,13 +13,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .IsUnicode(false);
 
             builder.Property(e => e.CreatedOn).HasColumnType("datetime");
-
             builder.Property(e => e.LastUpdatedByEmployerEmail).HasMaxLength(255);
-
             builder.Property(e => e.LastUpdatedByEmployerName).HasMaxLength(255);
-
             builder.Property(e => e.LastUpdatedByProviderEmail).HasMaxLength(255);
-
             builder.Property(e => e.LastUpdatedByProviderName).HasMaxLength(255);
 
             builder.Property(e => e.LegalEntityAddress)
@@ -41,11 +37,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasMaxLength(100);
 
             builder.Property(e => e.TransferApprovalActionedByEmployerEmail).HasMaxLength(255);
-
             builder.Property(e => e.TransferApprovalActionedByEmployerName).HasMaxLength(255);
-
             builder.Property(e => e.TransferSenderName).HasMaxLength(100);
-
         }
     }
 }

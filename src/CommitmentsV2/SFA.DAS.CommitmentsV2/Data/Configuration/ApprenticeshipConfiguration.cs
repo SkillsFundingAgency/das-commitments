@@ -11,13 +11,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             SetTablePerHierarchy(builder);
             
             builder.Property(e => e.Cost).HasColumnType("decimal(18, 0)");
-
             builder.Property(e => e.CreatedOn).HasColumnType("datetime");
-
             builder.Property(e => e.DateOfBirth).HasColumnType("datetime");
-
             builder.Property(e => e.EmployerRef).HasMaxLength(50);
-
             builder.Property(e => e.EndDate).HasColumnType("datetime");
 
             builder.Property(e => e.EpaorgId)
@@ -26,7 +22,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .IsUnicode(false);
 
             builder.Property(e => e.FirstName).HasMaxLength(100);
-
             builder.Property(e => e.LastName).HasMaxLength(100);
 
             builder.Property(e => e.Ninumber)
@@ -34,15 +29,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasMaxLength(10);
 
             builder.Property(e => e.PauseDate).HasColumnType("date");
-
             builder.Property(e => e.ProviderRef).HasMaxLength(50);
-
             builder.Property(e => e.StartDate).HasColumnType("datetime");
-
             builder.Property(e => e.StopDate).HasColumnType("date");
-
             builder.Property(e => e.TrainingCode).HasMaxLength(20);
-
             builder.Property(e => e.TrainingName).HasMaxLength(126);
 
             builder.Property(e => e.Uln)
@@ -52,14 +42,12 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.HasOne(d => d.Commitment)
                 .WithMany(p => p.Apprenticeship)
                 .HasForeignKey(d => d.CommitmentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Apprenticeship_Commitment");
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             builder.HasOne(d => d.Epaorg)
                 .WithMany(p => p.Apprenticeship)
                 .HasPrincipalKey(p => p.EpaorgId)
-                .HasForeignKey(d => d.EpaorgId)
-                .HasConstraintName("FK_Apprenticeship_AssessmentOrganisation");
+                .HasForeignKey(d => d.EpaorgId);
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<Apprenticeship> builder)
