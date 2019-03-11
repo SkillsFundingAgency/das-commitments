@@ -10,9 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity
 {
     public class GetAccountLegalEntityHandler : IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>
     {
-        private readonly Lazy<AccountsDbContext> _dbContext;
+        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public GetAccountLegalEntityHandler(Lazy<AccountsDbContext> dbContext)
+        public GetAccountLegalEntityHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }

@@ -9,9 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateAccountName
 {
     public class UpdateAccountNameCommandHandler : AsyncRequestHandler<UpdateAccountNameCommand>
     {
-        private readonly Lazy<AccountsDbContext> _db;
+        private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
-        public UpdateAccountNameCommandHandler(Lazy<AccountsDbContext> db)
+        public UpdateAccountNameCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
         {
             _db = db;
         }

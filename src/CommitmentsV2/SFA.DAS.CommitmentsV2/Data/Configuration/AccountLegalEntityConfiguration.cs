@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.CommitmentsV2.Models;
 
-namespace SFA.DAS.CommitmentsV2.Data
+namespace SFA.DAS.CommitmentsV2.Data.Configuration
 {
     public class AccountLegalEntityConfiguration : IEntityTypeConfiguration<AccountLegalEntity>
     {

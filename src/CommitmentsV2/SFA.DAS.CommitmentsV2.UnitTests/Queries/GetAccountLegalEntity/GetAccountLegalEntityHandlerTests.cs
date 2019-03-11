@@ -70,22 +70,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
         {
             return RunWithDbContext(dbContext =>
             {
-                var lazy = new Lazy<AccountsDbContext>(dbContext);
+                var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
                 var handler = new GetAccountLegalEntityHandler(lazy);
 
                 return handler.Handle(request, CancellationToken.None);
             });
         }
 
-        public Task<T> RunWithDbContext<T>(Func<AccountsDbContext, Task<T>> action)
+        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
         {
             return RunWithConnection(connection =>
             {
-                var options = new DbContextOptionsBuilder<AccountsDbContext>()
+                var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseSqlite(connection)
                     .Options;
 
-                using (var dbContext = new AccountsDbContext(options))
+                using (var dbContext = new ProviderCommitmentsDbContext(options))
                 {
                     dbContext.Database.EnsureCreated();
                     SeedData(dbContext);
@@ -94,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
             });
         }
 
-        private void SeedData(AccountsDbContext dbContext)
+        private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             dbContext.Accounts.AddRange(SeedAccounts);
             dbContext.AccountLegalEntities.AddRange(SeedAccounts.SelectMany(ac => ac.AccountLegalEntities));

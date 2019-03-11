@@ -11,7 +11,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
-            registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<AccountsDbContext>>();
+            registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<DataRegistry>();
 
