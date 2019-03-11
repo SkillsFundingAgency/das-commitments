@@ -1,8 +1,6 @@
 ﻿using System.Data.Common;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.NServiceBus;
@@ -19,7 +17,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
     {
         public static IServiceCollection ConfigureNServiceBus(this IServiceCollection services)
         {
-
             return services
                 .AddSingleton<IEndpointInstance>(s =>
                 {
