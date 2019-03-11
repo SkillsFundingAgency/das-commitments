@@ -257,10 +257,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\StructuremapMvc.cs" />
-    <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Configuration\CommitmentSupportSiteConfiguartion.cs" />
     <Compile Include="Controllers\ApprenticeshipsController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
