@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<CustomProviderPaymentPriority> builder)
         {
-            // No special customization required for this class
+            builder.HasKey(e => new {e.EmployerAccountId, e.ProviderId});
         }
     }
 }

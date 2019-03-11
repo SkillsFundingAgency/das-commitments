@@ -8,10 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<DefaultRegistry>();
-
+            registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<DataRegistry>();
-
-
         }
     }
 }

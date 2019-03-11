@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NServiceBus;
 using SFA.DAS.EmployerAccounts.Messages.Events;
+using SFA.DAS.EmployerAccounts.Types.Models;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 {
@@ -50,7 +51,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published ChangedAccountNameEvent");
                             break;
                         case "c":
-                            await _publisher.Publish(new AddedLegalEntityEvent { AccountId = accountId, Created = DateTime.Now, AccountLegalEntityId = accountLegalEntityId, AccountLegalEntityPublicHashedId = "ABCD", AgreementId = 9898, LegalEntityId = 75263, OrganisationName = "My Legal Entity",  UserName = "Tester", UserRef = Guid.NewGuid() });
+                            await _publisher.Publish(new AddedLegalEntityEvent { AccountId = accountId, Created = DateTime.Now, AccountLegalEntityId = accountLegalEntityId,
+                                OrganisationType = OrganisationType.Charities, OrganisationReferenceNumber = "MyLegalEntityId", OrganisationAddress = "My Address",
+                                AccountLegalEntityPublicHashedId = "ABCD", AgreementId = 9898, LegalEntityId = 75263,
+                                OrganisationName = "My Legal Entity",  UserName = "Tester", UserRef = Guid.NewGuid() });
                             Console.WriteLine();
                             Console.WriteLine($"Published AddedLegalEntityEvent");
                             break;

@@ -22,8 +22,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .ConfigureDasAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
-                        services.AddMessageHandlerConfigurationSections()
-                                .ConfigureNServiceBus()
+                        services.ConfigureNServiceBus()
                                 .AddHostedService<NServiceBusHostedService>();
                     })
                     .ConfigureLogging(b => b.AddNLog())

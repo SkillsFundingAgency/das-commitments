@@ -20,7 +20,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity
         {
             var account = await _db.Value.Accounts.SingleAsync(a => a.Id == request.AccountId, cancellationToken);
             
-            account.AddAccountLegalEntity(request.AccountLegalEntityId, request.AccountLegalEntityPublicHashedId, request.OrganisationName, request.Created);
+            account.AddAccountLegalEntity(request.AccountLegalEntityId, request.OrganisationReferenceNumber, 
+                request.AccountLegalEntityPublicHashedId, request.OrganisationName, request.OrganisationType, 
+                request.OrganisationAddress, request.Created);
         }
     }
 }
