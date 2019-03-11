@@ -9,9 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddAccountLegalEntity
 {
     public class AddAccountLegalEntityCommandHandler : AsyncRequestHandler<AddAccountLegalEntityCommand>
     {
-        private readonly Lazy<AccountsDbContext> _db;
+        private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
-        public AddAccountLegalEntityCommandHandler(Lazy<AccountsDbContext> db)
+        public AddAccountLegalEntityCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
         {
             _db = db;
         }
