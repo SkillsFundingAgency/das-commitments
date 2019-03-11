@@ -15,8 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.CreatedDateTime).HasColumnType("datetime");
 
             builder.Property(e => e.Text)
-                .IsRequired()
-                .HasColumnType("nvarchar(max)");
+                .IsRequired();
 
             builder.HasOne(d => d.Commitment)
                 .WithMany(p => p.Message)
