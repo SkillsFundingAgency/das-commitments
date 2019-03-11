@@ -1,4 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.DependencyResolution;
+﻿using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore;
+using SFA.DAS.UnitOfWork.NServiceBus;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
@@ -9,6 +12,8 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         {
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
+            registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<DataRegistry>();
         }
     }
