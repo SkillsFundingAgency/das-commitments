@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.EmployerRef).HasMaxLength(50);
             builder.Property(e => e.EndDate).HasColumnType("datetime");
 
-            builder.Property(e => e.EpaorgId)
+            builder.Property(e => e.EpaOrgId)
                 .HasColumnName("EPAOrgId")
                 .HasMaxLength(7)
                 .IsUnicode(false);
@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.FirstName).HasMaxLength(100);
             builder.Property(e => e.LastName).HasMaxLength(100);
 
-            builder.Property(e => e.Ninumber)
+            builder.Property(e => e.NiNumber)
                 .HasColumnName("NINumber")
                 .HasMaxLength(10);
 
@@ -44,10 +44,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasForeignKey(d => d.CommitmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            builder.HasOne(d => d.Epaorg)
+            builder.HasOne(d => d.EpaOrg)
                 .WithMany(p => p.Apprenticeship)
-                .HasPrincipalKey(p => p.EpaorgId)
-                .HasForeignKey(d => d.EpaorgId);
+                .HasPrincipalKey(p => p.EpaOrgId)
+                .HasForeignKey(d => d.EpaOrgId);
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<Apprenticeship> builder)

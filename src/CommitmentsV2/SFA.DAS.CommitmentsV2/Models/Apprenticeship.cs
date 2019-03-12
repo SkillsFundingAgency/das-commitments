@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public short AgreementStatus { get; set; }
         public short PaymentStatus { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public string Ninumber { get; set; }
+        public string NiNumber { get; set; }
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }
         public DateTime? CreatedOn { get; set; }
@@ -29,10 +29,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public byte? PendingUpdateOriginator { get; set; }
-        public string EpaorgId { get; set; }
+        public string EpaOrgId { get; set; }
         public long? CloneOf { get; set; }
 
         public virtual Commitment Commitment { get; set; }
-        public virtual AssessmentOrganisation Epaorg { get; set; }
+        public virtual AssessmentOrganisation EpaOrg { get; set; }
     }
 }

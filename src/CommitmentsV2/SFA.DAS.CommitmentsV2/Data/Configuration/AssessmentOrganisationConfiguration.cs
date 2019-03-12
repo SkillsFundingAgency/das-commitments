@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<AssessmentOrganisation> builder)
         {
-            builder.Property(e => e.EpaorgId)
+            builder.Property(e => e.EpaOrgId)
                 .IsRequired()
                 .HasColumnName("EPAOrgId")
                 .HasMaxLength(7)
