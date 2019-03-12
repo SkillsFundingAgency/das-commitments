@@ -121,6 +121,7 @@
     <Build Include="StoredProcedures\GetTransferRequestsForReceiver.sql" />
     <Build Include="Views\TransferRequestSummary.sql" />
     <Build Include="StoredProcedures\GetTransferRequest.sql" />
+    <Build Include="StoredProcedures\GetApprenticeshipsByULN.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsForEmployer.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsForProvider.sql" />
     <Build Include="StoredProcedures\UpdateApprenticeshipUpdateStatus.sql" />

@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Commitments.Api
 {
-    public class FilterConfig
+    public  static class FilterConfig
     {
         public static void RegisterGlobalFilters(HttpFilterCollection filters)
         {

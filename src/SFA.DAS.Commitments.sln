@@ -26,6 +26,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC8DEBD-332E-42CB-95AF-4230E1385B75}"
 	ProjectSection(SolutionItems) = preProject
 		Build.fsx = Build.fsx
+		GenCert.ps1 = GenCert.ps1
 		RunBuild.bat = RunBuild.bat
 	EndProjectSection
 EndProject
@@ -57,6 +58,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureConfiguration", "Azure
 	ProjectSection(SolutionItems) = preProject
 		AzureTopicConfigurationStrucuture.json = AzureTopicConfigurationStrucuture.json
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support.Portal", "Support.Portal", "{D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite", "SFA.DAS.Commitments.Support.SubSite\SFA.DAS.Commitments.Support.SubSite.csproj", "{9173AFD2-EE6B-40A8-825F-35FD6735A61A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8DEFE127-06E5-4CEE-9A89-5D5490A4C370}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Support.SubSite.UnitTests", "SFA.DAS.Commitments.Support.SubSite.UnitTests\SFA.DAS.Commitments.Support.SubSite.UnitTests.csproj", "{D7D3924E-48DE-495D-803D-DD0288242E16}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CloudServices", "CloudServices", "{0238CBAD-36DF-42B8-B303-0E5FB5864693}"
+EndProject
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "SFA.DAS.Commitments.Support.CloudService", "SFA.DAS.Commitments.Support.CloudService\SFA.DAS.Commitments.Support.CloudService.ccproj", "{48483E71-445F-46B8-9195-8D67E547C9A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api.IntegrationTests", "SFA.DAS.Commitments.Api.IntegrationTests\SFA.DAS.Commitments.Api.IntegrationTests.csproj", "{30D5D7DA-8613-45CE-8521-B4FF7F2B6100}"
 EndProject
@@ -93,6 +106,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Api.Client.TestHarness", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.Client.TestHarness\SFA.DAS.CommitmentsV2.Api.Client.TestHarness.csproj", "{15D6FE5C-406F-45EA-9764-96A886D7DBE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.Api.Client.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Api.Client.UnitTests\SFA.DAS.CommitmentsV2.Api.Client.UnitTests.csproj", "{318E3525-41E8-4727-9F72-7EBE6325DA78}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{8F14A807-720B-4CC3-83F7-DD78F0495F20}"
+	ProjectSection(SolutionItems) = preProject
+		Certificates\localhost.pfx = Certificates\localhost.pfx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -185,6 +203,18 @@ Global
 		{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9173AFD2-EE6B-40A8-825F-35FD6735A61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9173AFD2-EE6B-40A8-825F-35FD6735A61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9173AFD2-EE6B-40A8-825F-35FD6735A61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9173AFD2-EE6B-40A8-825F-35FD6735A61A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D3924E-48DE-495D-803D-DD0288242E16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D3924E-48DE-495D-803D-DD0288242E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D3924E-48DE-495D-803D-DD0288242E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D3924E-48DE-495D-803D-DD0288242E16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48483E71-445F-46B8-9195-8D67E547C9A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48483E71-445F-46B8-9195-8D67E547C9A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48483E71-445F-46B8-9195-8D67E547C9A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48483E71-445F-46B8-9195-8D67E547C9A4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30D5D7DA-8613-45CE-8521-B4FF7F2B6100}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{30D5D7DA-8613-45CE-8521-B4FF7F2B6100}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30D5D7DA-8613-45CE-8521-B4FF7F2B6100}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -250,6 +280,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{3AABCD1E-260B-4333-9B7F-014F58D2F656} = {0238CBAD-36DF-42B8-B303-0E5FB5864693}
 		{8EDF4429-251A-416D-BB68-93F227191BCF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{C0C88789-3229-4B47-8081-16D1B5D85D9A} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{6669C64D-7DAE-47C2-A469-7636C89C0974} = {AEF29222-4B94-48CB-9438-78E5A6333438}
@@ -262,6 +293,10 @@ Global
 		{A4797542-57A6-465F-919B-8E613EFD7A00} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{29173485-58C9-4310-BC16-D485E67D09AF} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{72DEEA89-6555-4AAB-B48B-63C050E16B95} = {2843BBDC-578C-4D53-B466-675AABC7520F}
+		{9173AFD2-EE6B-40A8-825F-35FD6735A61A} = {D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}
+		{8DEFE127-06E5-4CEE-9A89-5D5490A4C370} = {D9FC76F9-58FC-4E31-AB23-F54D8597AA3F}
+		{D7D3924E-48DE-495D-803D-DD0288242E16} = {8DEFE127-06E5-4CEE-9A89-5D5490A4C370}
+		{48483E71-445F-46B8-9195-8D67E547C9A4} = {0238CBAD-36DF-42B8-B303-0E5FB5864693}
 		{30D5D7DA-8613-45CE-8521-B4FF7F2B6100} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 		{4ED42C47-4671-4C63-B0AF-B7CEEC2F15D8} = {2843BBDC-578C-4D53-B466-675AABC7520F}
 		{44EA50F0-1EBD-469F-BF64-502D236617A2} = {AEF29222-4B94-48CB-9438-78E5A6333438}
