@@ -5,19 +5,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Types
     public sealed class CreateCohortRequest
     {
         public string UserId { get; set; }
+        public long AccountLegalEntityId { get; set; }
+        public int ProviderId { get; set; }
 
-        public NewCohort Cohort { get; set; }
+        public DraftApprenticeshipDetails DraftApprenticeship { get; set; }
 
-        public NewDraftApprenticeship DraftApprenticeship { get; set; }
-
-        public sealed class NewCohort
-        {
-            public long EmployerAccountId { get; set; }
-            public string LegalEntityId { get; set; }
-            public int ProviderId { get; set; }
-        }
-
-        public sealed class NewDraftApprenticeship
+        public sealed class DraftApprenticeshipDetails
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
