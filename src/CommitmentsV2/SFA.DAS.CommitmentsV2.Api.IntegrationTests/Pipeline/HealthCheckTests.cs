@@ -26,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
 
 
         [Test]
-        //[Ignore("Wait until we add the AD Jwt token")]
         public Task CallSecureEndpoint_ThenShouldReturnUnauthorisedResponse()
         {
             return TestAsync(f => f.Client.GetAsync("/api/test"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.Unauthorized));
