@@ -1,4 +1,5 @@
-﻿using StructureMap;
+﻿using SFA.DAS.CommitmentsV2.DependencyResolution;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
 {
@@ -7,6 +8,10 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<DefaultRegistry>();
+
+            registry.IncludeRegistry<DataRegistry>();
+
+
         }
     }
 }

@@ -1,15 +1,19 @@
 ﻿using System;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -30,11 +34,19 @@ namespace SFA.DAS.CommitmentsV2.Api
         {
             services.AddApiConfigurationSections(Configuration)
                 .AddApiAuthentication()
-                .AddApiAuthorization(_env);
+                .AddApiAuthorization(_env)
+                .AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddFluentValidation();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddHealthChecks();
+
+            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value;
+            var conf2 = services.BuildServiceProvider().GetService<IOptions<CommitmentsV2Configuration>>().Value;
+
+
         }
+
         public void ConfigureContainer(Registry registry)
         {
             IoC.Initialize(registry);
@@ -56,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseAuthentication()
                 .UseMvc()
                 .UseHealthChecks("/api/health-check");
+                
         }
     }
 }

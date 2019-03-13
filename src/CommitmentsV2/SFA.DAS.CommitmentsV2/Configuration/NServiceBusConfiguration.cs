@@ -1,8 +1,7 @@
-﻿namespace SFA.DAS.CommitmentsV2.MessageHandlers.Configuration
+﻿namespace SFA.DAS.CommitmentsV2.Configuration
 {
-    public class CommitmentsV2Configuration
+    public class NServiceBusConfiguration
     {
-        public string DatabaseConnectionString { get; set; }
         public string ServiceBusConnectionString { get; set; }
 
         public string NServiceBusLicense
@@ -15,5 +14,4 @@
         private string _nServiceBusLicense;
         private string _decodedNServiceBusLicense;
     }
-
 }

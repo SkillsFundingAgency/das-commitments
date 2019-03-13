@@ -14,39 +14,33 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
         public static async Task Main(string[] args)
         {
             var hostBuilder = new HostBuilder();
-
             try
             {
                 hostBuilder
-                    //.ConfigureDasWebJobs() 
                     .UseDasEnvironment()
                     .MessageHandlerAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
-                        services.AddOptions();
-
-                        services.ConfigureNServiceBus();
-                        services.AddHostedService<NServiceBusHostedService>();
-
+                        services.AddMessageHandlerConfigurationSections()
+                                .ConfigureNServiceBus()
+                                .AddHostedService<NServiceBusHostedService>();
                     })
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
                     .UseStructureMap()
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
+                using (var host = hostBuilder.Build())
+                {
+                    await host.RunAsync();
+                }
             }
             catch (Exception e)
             {
-
                 Console.WriteLine(e.Message);
                 throw;
             }
 
-            using (var host = hostBuilder.Build())
-            {
-                await host.RunAsync();
-            }
-                
         }
     }
 }

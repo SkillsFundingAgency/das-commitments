@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
 using SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Fakes;
 using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.Http;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http

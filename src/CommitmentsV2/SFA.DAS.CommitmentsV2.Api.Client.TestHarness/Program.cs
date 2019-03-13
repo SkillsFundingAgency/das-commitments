@@ -1,14 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SFA.DAS.CommitmentsV2.Api.Client.Http;
-using SFA.DAS.Http;
+using SFA.DAS.CommitmentsV2.Api.Client.Configuration;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 {
@@ -25,19 +20,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 
             var provider = new ServiceCollection()
                 .AddOptions()
-                .Configure<AzureActiveDirectoryClientConfiguration>(configuration.GetSection("AzureADClientAuthentication"))
+                .Configure<CommitmentsClientApiConfiguration>(configuration.GetSection("AzureADClientAuthentication"))
                 .AddLogging(configure => configure.AddConsole())
-                .AddSingleton<IHttpClientFactory>(x=>
+                .AddSingleton<ICommitmentsApiClientFactory>(x=>
                 {
-                    var config = x.GetService<IOptions<AzureActiveDirectoryClientConfiguration>>().Value;
-                    return new HttpClientFactory(config);
+                    var config = x.GetService<IOptions<CommitmentsClientApiConfiguration>>().Value;
+                    return new CommitmentsApiClientFactory(config);
                 })
-                .AddTransient<IRestHttpClient>(x =>
-                {
-                    var httpClient = x.GetService<IHttpClientFactory>().CreateHttpClient();
-                    return new RestHttpClient(httpClient);
-                })
-                .AddTransient<CommitmentsApiClient>()
+                .AddTransient<ICommitmentsApiClient>(x => x.GetService<ICommitmentsApiClientFactory>().CreateClient())
                 .AddTransient<TestHarness>()
                 .BuildServiceProvider();
 
@@ -46,6 +36,5 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
             await testHarness.Run();
 
         }
-
     }
 }
