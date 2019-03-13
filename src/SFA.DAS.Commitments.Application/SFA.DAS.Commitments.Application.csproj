@@ -172,6 +172,9 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\ITrainingProgrammeExtensions.cs" />
     <Compile Include="Interfaces\IApprenticeshipInfoService.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnQueryHandler.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnRequest.cs" />
+    <Compile Include="Queries\GetApprenticeshipsByUln\GetApprenticeshipsByUlnResponse.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnQueryHandler.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnRequest.cs" />
     <Compile Include="Queries\GetActiveApprenticeshipsByUln\GetActiveApprenticeshipsByUlnResponse.cs" />
