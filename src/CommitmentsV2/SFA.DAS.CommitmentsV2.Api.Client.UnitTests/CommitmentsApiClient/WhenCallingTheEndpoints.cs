@@ -37,11 +37,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         [Test]
         public async Task CreateCohort_VerifyResponseWasReturned()
         {
-            var result = await _fixture.SetupResponseForCreateCohort().CommitmentsApiClient.CreateCohort(_fixture.CreateCohortRequest, CancellationToken.None);
+            _fixture.SetupResponseForCreateCohort();
+            var result = await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortRequest, CancellationToken.None);
             Assert.IsNotNull(result);
         }
     }
-
 
     public class WhenCallingEndpointsFixture
     {
