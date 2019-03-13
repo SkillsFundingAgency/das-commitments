@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.TransferApprovalActionedByEmployerEmail).HasMaxLength(255);
             builder.Property(e => e.TransferApprovalActionedByEmployerName).HasMaxLength(255);
             builder.Property(e => e.TransferSenderName).HasMaxLength(100);
+            builder.Property(e => e.Originator).IsRequired().HasColumnType("tinyint");
         }
     }
 }

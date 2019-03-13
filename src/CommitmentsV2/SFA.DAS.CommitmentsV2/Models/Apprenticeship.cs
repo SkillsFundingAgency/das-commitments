@@ -1,4 +1,6 @@
 ﻿using System;
+using SFA.DAS.Commitments.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -17,8 +19,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public short AgreementStatus { get; set; }
-        public short PaymentStatus { get; set; }
+        public AgreementStatus AgreementStatus { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string NiNumber { get; set; }
         public string EmployerRef { get; set; }

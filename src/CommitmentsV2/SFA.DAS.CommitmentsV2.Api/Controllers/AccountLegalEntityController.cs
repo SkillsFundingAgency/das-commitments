@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {

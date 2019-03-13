@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
             AddConfiguration<ApprenticeshipInfoServiceConfiguration>(CommitmentsConfigurationKeys.ApprenticeshipInfoService);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
+            AddConfiguration<CommitmentIdHashingConfiguration>(CommitmentsConfigurationKeys.CommitmentIdHashingConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class

@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEntity
 {
     [TestFixture]
     public class GetAccountLegalEntityValidationTests

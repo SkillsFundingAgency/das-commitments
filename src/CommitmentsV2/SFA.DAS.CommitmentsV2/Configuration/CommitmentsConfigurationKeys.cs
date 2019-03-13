@@ -5,5 +5,6 @@
         public const string CommitmentsV2 = "SFA.DAS.CommitmentsV2";
         public static string ApprenticeshipInfoService => $"{CommitmentsV2}:ApprenticeshipInfoService";
         public static string AzureActiveDirectoryApiConfiguration => $"{CommitmentsV2}:AzureADApiAuthentication";
+        public static string CommitmentIdHashingConfiguration => $"{CommitmentsV2}:CommitmentIdHashing";
     }
 }

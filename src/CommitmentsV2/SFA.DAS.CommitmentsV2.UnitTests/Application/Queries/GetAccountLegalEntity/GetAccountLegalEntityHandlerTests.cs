@@ -12,11 +12,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetAccountLegalEntity
+namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEntity
 {
     [TestFixture]
     public class GetAccountLegalEntityHandlerTests

@@ -1,15 +1,44 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/[controller]")]
-    public class CohortController : Controller
+    public class CohortController : ControllerBase
     {
-        public CreateCohortResponse Post([FromBody]CreateCohortRequest request)
+        private readonly IMediator _mediator;
+        private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
+
+        public CohortController(
+            IMediator mediator,
+            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper)
         {
-            return new CreateCohortResponse();
+            _mediator = mediator;
+            _addCohortMapper = addCohortMapper;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var employer = await _mediator.Send(_addCohortMapper.Map(request));
+
+            return Ok(new AddCohortResponse
+            {
+                Id = employer.Id,
+                Reference = employer.Reference,
+                DraftApprenticeshipId = employer.DraftApprenticeshipId
+            });
         }
     }
 }

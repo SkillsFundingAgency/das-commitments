@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.Api.Types
+﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
     public sealed class CreateCohortResponse
     {

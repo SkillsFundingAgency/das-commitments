@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
 {

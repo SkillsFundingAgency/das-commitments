@@ -9,7 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         {
             registry.IncludeRegistry<DefaultRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
+            registry.IncludeRegistry<HashingRegistry>();
             registry.IncludeRegistry<DataRegistry>();
+            registry.IncludeRegistry<MappingRegistry>();
         }
     }
 }
