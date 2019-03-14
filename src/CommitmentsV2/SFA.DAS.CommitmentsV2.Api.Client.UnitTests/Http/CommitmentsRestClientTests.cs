@@ -39,6 +39,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                     .Where(ex => ex.ErrorCode == 123
                                  && ex.Message == "This is a domain error"));
         }
+
+        [Test]
+        public Task WhenCallingPostAsJsonAndHttpClientReturnsBadRequestWithCustomException_ThenShouldThrowApiException()
+        {
+            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnCustomError(),
+                f => f.CallPostAsJson(null),
+                (f, r) => r.Should().Throw<CommitmentsApiException>()
+                    .Where(ex => ex.ErrorCode == 123
+                                 && ex.Message == "This is a domain error"));
+        }
+
+
     }
 
     public class CommitmentsRestClientTestsFixture
@@ -95,6 +107,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         public async Task<string> CallGet(object queryData)
         {
             return await RestHttpClient.Get("https://example.com", queryData);
+        }
+        public async Task<string> CallPostAsJson(object queryData)
+        {
+            return await RestHttpClient.PostAsJson("https://example.com", queryData);
         }
     }
 }
