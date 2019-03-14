@@ -129,6 +129,24 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
             act.ShouldThrow<UnauthorizedException>().WithMessage($"Employer {employerAccountId} not authorised to access commitment {_fakeRepositoryCommitment.Id}, expected employer {_fakeRepositoryCommitment.EmployerAccountId}"); ;
         }
 
+        [Test]
+        public void ThenNoExceptionIsThrownForSupportCallerIdMisMatch()
+        {
+            _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_fakeRepositoryCommitment);
+
+            Func<Task> act = async () => await _handler.Handle(new GetCommitmentRequest
+            {
+                CommitmentId = _fakeRepositoryCommitment.Id,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Support,
+                }
+            });
+
+            act.ShouldNotThrow<UnauthorizedException>();
+        }
+
+
         [TestCase(AgreementStatus.NotAgreed)]
         [TestCase(AgreementStatus.BothAgreed)]
         [TestCase(AgreementStatus.ProviderAgreed)]

@@ -5,6 +5,7 @@
         Employer = 0,
         Provider,
         TransferSender,
-        TransferReceiver
+        TransferReceiver,
+        Support
     }
 }

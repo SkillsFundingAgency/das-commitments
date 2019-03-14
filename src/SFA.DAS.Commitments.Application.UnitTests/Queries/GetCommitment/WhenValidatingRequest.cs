@@ -83,5 +83,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Queries.GetCommitment
 
             result.IsValid.Should().BeFalse();
         }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(1)]
+        [TestCase(99999)]
+        public void ThenAnyRequestCallerIdIsAlwaysValid(long testCallerId)
+        {
+            var result = _validator.Validate(new GetCommitmentRequest
+            {
+                CommitmentId = 1,
+                Caller = new Caller
+                {
+                    CallerType = CallerType.Support,
+                    Id = testCallerId
+                }
+            });
+
+            result.IsValid.Should().BeTrue();
+        }
+
     }
 }

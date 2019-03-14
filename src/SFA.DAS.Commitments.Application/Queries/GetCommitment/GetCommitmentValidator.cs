@@ -17,6 +17,8 @@ namespace SFA.DAS.Commitments.Application.Queries.GetCommitment
                         if (request.Caller.Id <= 0)
                             return new FluentValidation.Results.ValidationFailure("ProviderId", "ProviderId must be greater than zero.");
                         break;
+                    case CallerType.Support:
+                        break;
                     case CallerType.Employer:
                     default:
                         if (request.Caller.Id <= 0)

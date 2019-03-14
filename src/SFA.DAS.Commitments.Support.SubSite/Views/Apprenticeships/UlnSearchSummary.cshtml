@@ -1,0 +1,95 @@
+﻿@using SFA.DAS.Commitments.Support.SubSite.Models
+@model UlnSummaryViewModel
+
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <div class="info-summary ">
+            <h2 class="heading-medium">Confidentiality</h2>
+            <p>Don't share details of an organisation's apprenticeships with anyone from a different organisation.</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge" id="commitmentsHeader">View ULN</h1>
+    </div>
+</div>
+
+<div class="grid-row" style="padding-bottom:15px">
+    <div class="column-two-thirds">
+
+        <div class="grid-row">
+
+            <div class="column-one-half">
+                <p class="bold">ULN: &nbsp; @Model.UlnText</p>
+            </div>
+        </div>
+        <div class="grid-row">
+
+            <div class="column-one-half">
+                <p class="bold">Number of apprenticeships: &nbsp;  @Model.ApprenticeshipsCount</p>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+@if (Model.SearchResults != null && Model.SearchResults.Any())
+{
+    <div class="grid-row">
+
+        <div class="column-full">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col" class="">Name</th>
+                        <th scope="col" class="">UKPRN</th>
+                        <th scope="col" class="">Organisation</th>
+                        <th scope="col" class="">Training dates</th>
+                        <th scope="col" class="">Status</th>
+                        <th scope="col" class=""></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var apprenticeship in Model.SearchResults)
+                    {
+
+                        <tr>
+                            <td data-label="Name">@apprenticeship.ApprenticeName</td>
+                            <td data-label="UKPRN">@apprenticeship.ProviderUkprn</td>
+                            <td data-label="Organisation">@apprenticeship.EmployerName</td>
+                            <td data-label="Training dates">@apprenticeship.TrainingDates</td>
+                            <td data-label="Status">@apprenticeship.PaymentStatus</td>
+                            <td>
+                                @if (apprenticeship.HashedAccountId == Model.CurrentHashedAccountId)
+                                {
+                                    <a href="\resource?key=CommitmentApprenticeDetail&id=@apprenticeship.HashedAccountId&childId=@apprenticeship.ApprenticeshipHashId"> View</a>
+                                }
+                            </td>
+
+                        </tr>
+
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+}
+

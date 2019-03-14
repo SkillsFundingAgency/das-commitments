@@ -85,11 +85,9 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateCommitment
                     newCommitment.Originator = (Originator) message.Caller.CallerType;
                     break;
                 default:
-                {
                     var e = new InvalidCastException();
                     _logger.Error(e, $"{message.Caller.CallerType} is not a valid originator");
                     throw e;
-                };
             }
 
             newCommitment.Id = await _commitmentRepository.Create(newCommitment);

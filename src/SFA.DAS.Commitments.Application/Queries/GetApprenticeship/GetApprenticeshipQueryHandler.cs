@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetApprenticeship
 
             var apprenticeship = await _apprenticeshipRepository.GetApprenticeship(message.ApprenticeshipId);
 
-            if (apprenticeship== null)
+            if (apprenticeship == null)
             {
                 return new GetApprenticeshipResponse();
             }
