@@ -33,8 +33,12 @@
   <!-- Items for the project -->
   <ItemGroup>
     <ServiceDefinition Include="ServiceDefinition.csdef" />
+    <None Include="Configuration\ServiceDefinition.Cloud.csdef" />
+    <None Include="Configuration\ServiceDefinition.Release.csdef" />
     <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.PreProd.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.Release.cscfg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.Commitments.Support.SubSite\SFA.DAS.Commitments.Support.SubSite.csproj">
