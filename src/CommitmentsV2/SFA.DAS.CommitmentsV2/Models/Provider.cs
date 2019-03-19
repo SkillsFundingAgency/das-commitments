@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class Provider
+    public class Provider
     {
         public long UkPrn { get; set; }
         public string Name { get; set; }

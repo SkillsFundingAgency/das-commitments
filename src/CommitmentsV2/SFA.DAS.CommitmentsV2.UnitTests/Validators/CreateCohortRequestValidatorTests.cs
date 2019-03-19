@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
-using System.Text;
-using FluentValidation;
-using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
 using NUnit.Framework.Internal;

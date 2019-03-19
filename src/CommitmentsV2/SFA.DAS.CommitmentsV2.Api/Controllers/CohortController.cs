@@ -36,8 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(new AddCohortResponse
             {
                 Id = employer.Id,
-                Reference = employer.Reference,
-                DraftApprenticeshipId = employer.DraftApprenticeshipId
+                Reference = employer.Reference
             });
         }
     }

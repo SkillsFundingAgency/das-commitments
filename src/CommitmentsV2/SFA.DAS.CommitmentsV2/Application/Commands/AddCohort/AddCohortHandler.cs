@@ -51,28 +51,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             Commitment result = null;
             try
             {
-                result = await SaveCohort(db, command, cancellationToken);
+                result = await AddCohort(db, command, cancellationToken);
+                _logger.LogInformation($"Saved-commitment Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{result?.Id} Apprenticeship:{result?.Apprenticeship?.First()?.Id}");
                 return result;
             }
             catch (Exception ex)
             {
                 exception = ex;
+                _logger.LogError(exception, $"Saving-commitment provider: {command.ProviderId} account-legal-entity:{command.AccountLegalEntityId} reservation-id:{command.ReservationId}");
                 throw;
-            }
-            finally
-            {
-                if (exception == null)
-                {
-                    _logger.LogInformation($"Saved-commitment Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{result?.Id} Apprenticeship:{result?.Apprenticeship?.First()?.Id}");
-                }
-                else
-                {
-                    _logger.LogError(exception, $"Saving-commitment provider: {command.ProviderId} account-legal-entity:{command.AccountLegalEntityId} reservation-id:{command.ReservationId}");
-                }
             }
         }
 
-        private async Task<Commitment> SaveCohort(ProviderCommitmentsDbContext db, AddCohortCommand command, CancellationToken cancellationToken)
+        private async Task<Commitment> AddCohort(ProviderCommitmentsDbContext db, AddCohortCommand command, CancellationToken cancellationToken)
         {
             var commitment = await AddCommitment(db, command, cancellationToken);
             var apprentice = AddDraftApprenticeship(command);

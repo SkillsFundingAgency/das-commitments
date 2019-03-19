@@ -57,6 +57,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
     public class CohortControllerTestFixtures
     {
+        public const long CohortId = 123;
+        public const string Reference = "ABC123";
+        public const long DraftApprenticeshipId = 456;
+
         public CohortControllerTestFixtures()
         {
             MediatorMock = new Mock<IMediator>();
@@ -68,10 +72,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         private Mock<IMapper<CreateCohortRequest, AddCohortCommand>> MapperMock { get; }
         private IMapper<CreateCohortRequest, AddCohortCommand> Mapper => MapperMock.Object;
-
-        public const long CohortId = 123;
-        public const string Reference = "ABC123";
-        public const long DraftApprenticeshipId = 456;
 
         public CohortController CreateController()
         {
