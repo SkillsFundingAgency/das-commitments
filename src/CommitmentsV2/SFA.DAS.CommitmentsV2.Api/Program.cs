@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using NLog.Web;
-using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
-using StructureMap;
 using StructureMap.AspNetCore;
 
 namespace SFA.DAS.CommitmentsV2.Api

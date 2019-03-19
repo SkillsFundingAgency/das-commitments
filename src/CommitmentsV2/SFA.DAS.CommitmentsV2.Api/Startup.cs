@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
@@ -31,7 +32,8 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddApiConfigurationSections(Configuration)
                 .AddApiAuthentication(Configuration)
                 .AddApiAuthorization(_env)
-                .AddMvc()
+                .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
+                .AddMvc(options => { options.Filters.Add<ValidateModelAttribute>(); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddFluentValidation();
 
