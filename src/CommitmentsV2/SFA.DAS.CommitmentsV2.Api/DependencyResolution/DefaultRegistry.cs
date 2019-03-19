@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution

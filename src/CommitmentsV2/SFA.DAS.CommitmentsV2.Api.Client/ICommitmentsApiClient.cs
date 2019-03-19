@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     {
         Task<bool> HealthCheck();
 
-        Task<AccountLegalEntity> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
+        Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
 
         // To be removed latter
         Task<string> SecureCheck();

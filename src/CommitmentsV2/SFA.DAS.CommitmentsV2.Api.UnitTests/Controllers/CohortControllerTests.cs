@@ -17,42 +17,59 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     public class CohortControllerTests
     {
         [Test]
-        public Task CreateController_ValidRequest_ShouldReturnAnOkResult()
+        public async Task CreateController_ValidRequest_ShouldReturnAnOkResult()
         {
-            return new CohortControllerTestFixtures()
-                        .AssertOkayResponse();
+            //Arrange
+            var fixture = new CohortControllerTestFixtures().WithCommandResponse();
+
+            //Act
+            var response = await fixture.RunAndReturnResponse();
+
+            //Assert
+            Assert.IsTrue(response is OkObjectResult);
         }
 
         [Test]
-        public Task CreateController_ValidRequest_ShouldReturnExpectedExpectedResponseObject()
+        public async Task CreateController_ValidRequest_ShouldReturnExpectedExpectedResponseObject()
         {
-            return new CohortControllerTestFixtures()
-                        .AssertExpectedResponseType();
+            //Arrange
+            var fixture = new CohortControllerTestFixtures().WithCommandResponse();
+
+            //Act
+            var response = await fixture.RunAndReturnResponse();
+
+            //Assert
+            Assert.IsTrue(((OkObjectResult)response).Value is AddCohortResponse);
         }
 
         [Test]
-        public Task CreateController_ValidRequest_ShouldReturnExpectedCohortId()
+        public async Task CreateController_ValidRequest_ShouldReturnExpectedCohortId()
         {
-            return new CohortControllerTestFixtures()
-                .AssertResponseIsValid(response => 
-                    Assert.AreEqual(CohortControllerTestFixtures.CohortId, response.Id));
+            //Arrange
+            var fixture = new CohortControllerTestFixtures().WithCommandResponse();
+
+            //Act
+            var response = await fixture.RunAndReturnResponse();
+            var addCohortResponse = ((OkObjectResult)response).Value as AddCohortResponse;
+
+            //Assert
+            Assert.AreEqual(CohortControllerTestFixtures.CohortId, addCohortResponse.Id);
         }
 
         [Test]
-        public Task CreateController_ValidRequest_ShouldReturnExpectedReference()
+        public async Task CreateController_ValidRequest_ShouldReturnExpectedReference()
         {
-            return new CohortControllerTestFixtures()
-                .AssertResponseIsValid(response =>
-                    Assert.AreEqual(CohortControllerTestFixtures.Reference, response.Reference));
+            //Arrange
+            var fixture = new CohortControllerTestFixtures().WithCommandResponse();
+
+            //Act
+            var response = await fixture.RunAndReturnResponse();
+            var addCohortResponse = ((OkObjectResult)response).Value as AddCohortResponse;
+
+            //Assert
+            Assert.AreEqual(CohortControllerTestFixtures.Reference, addCohortResponse.Reference);
         }
 
-        [Test]
-        public Task CreateController_ValidRequest_ShouldReturnExpectedApprenticeshipId()
-        {
-            return new CohortControllerTestFixtures()
-                .AssertResponseIsValid(response => 
-                    Assert.AreEqual(CohortControllerTestFixtures.DraftApprenticeshipId, response.DraftApprenticeshipId));
-        }
     }
 
     public class CohortControllerTestFixtures
@@ -84,7 +101,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 .Setup(m => m.Send(It.IsAny<AddCohortCommand>(), CancellationToken.None))
                 .ReturnsAsync(new AddCohortResponse
                 {
-                    DraftApprenticeshipId = draftApprenticeshipId,
                     Id = id,
                     Reference = reference
                 });
@@ -92,39 +108,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
-        public async Task<OkObjectResult> AssertOkayResponse()
+        public CohortControllerTestFixtures WithCommandResponse()
         {
-            var fixtures = new CohortControllerTestFixtures()
-                .WithCommandResponse(CohortId, Reference, DraftApprenticeshipId);
-
-            //Arrange
-            var controller = fixtures.CreateController();
-
-            //Act
-            var response = await controller.CreateCohort(new CreateCohortRequest());
-
-            //Assert
-            Assert.IsTrue(response is OkObjectResult);
-
-            return (OkObjectResult)response;
+            var fixtures = WithCommandResponse(CohortId, Reference, DraftApprenticeshipId);
+            return this;
         }
 
-        public async Task<AddCohortResponse> AssertExpectedResponseType()
+        public Task<IActionResult> RunAndReturnResponse()
         {
-            var okResponse = await AssertOkayResponse();
+            var controller = CreateController();
 
-            //Assert
-            Assert.IsTrue(okResponse.Value is AddCohortResponse);
-
-            return (AddCohortResponse)okResponse.Value;
-        }
-
-        public async Task AssertResponseIsValid(Action<AddCohortResponse> assert)
-        {
-            var responseBody = await AssertExpectedResponseType();
-
-            //Assert
-            assert(responseBody);
+            return controller.CreateCohort(new CreateCohortRequest());
         }
     }
 }

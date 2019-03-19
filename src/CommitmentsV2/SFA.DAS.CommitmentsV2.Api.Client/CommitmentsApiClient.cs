@@ -31,9 +31,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/createcohort", request, cancellationToken);
         }
 
-        public Task<AccountLegalEntity> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)
+        public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)
         {
-            return _client.Get<AccountLegalEntity>($"api/accountlegalentity/{accountLegalEntityId}", null, cancellationToken);
+            return _client.Get<AccountLegalEntityResponse>($"api/accountlegalentity/{accountLegalEntityId}", null, cancellationToken);
         }
 
         public Task<string> SecureCheck()

@@ -38,7 +38,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Assert.IsNotNull(response);
             Assert.AreNotEqual(0, response.Id);
-            Assert.AreNotEqual(0, response.DraftApprenticeshipId);
             Assert.AreEqual(expectedHash, response.Reference);
              
             Assert.IsTrue(fixtures.Logger.HasInfo);
@@ -120,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             account.AddAccountLegalEntity(accountLegalEntityId,
                 $"PUB{accountLegalEntityId:D3}",
                 $"ALE {accountLegalEntityId}",
-                $"AccountLegalEntity {accountLegalEntityId:D3}",
+                $"AccountLegalEntityResponse {accountLegalEntityId:D3}",
                 OrganisationType.Charities,
                 "High Street", DateTime.Now);
 

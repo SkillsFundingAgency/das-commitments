@@ -38,8 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             var response = new AddCohortResponse
             {
                 Id = commitment.Id,
-                Reference = commitment.Reference,
-                DraftApprenticeshipId = commitment.Apprenticeship.Single().Id
+                Reference = commitment.Reference
             };
 
             return response;
@@ -189,8 +188,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             public string Address { get; set; }
             public string OrganisationId { get; set; }
             public OrganisationType OrganisationType { get; set; }
-            public short Commitment { get; set; }
-            public short EditStatus { get; set; }
             public string PublicHashedId { get; set; }
         }
 
