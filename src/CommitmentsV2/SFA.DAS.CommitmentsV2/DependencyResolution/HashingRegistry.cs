@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.ProviderCommitments.HashingTemp;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.HashingService;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
@@ -13,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
                 .Add("", ctx =>
                 {
                     var config = ctx.GetInstance<CommitmentIdHashingConfiguration>();
-                    return new HashingService(config.Alphabet, config.Salt);
+                    return new HashingService.HashingService(config.Alphabet, config.Salt);
                 })
                 .Singleton();
         }

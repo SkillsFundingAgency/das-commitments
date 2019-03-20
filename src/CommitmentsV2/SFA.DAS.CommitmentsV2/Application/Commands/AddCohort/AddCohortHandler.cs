@@ -2,16 +2,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.ProviderCommitments.HashingTemp;
+using SFA.DAS.HashingService;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
@@ -46,18 +44,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
         private async Task<Commitment> SaveCohortWithLogging(ProviderCommitmentsDbContext db, AddCohortCommand command, CancellationToken cancellationToken)
         {
-            Exception exception = null;
-            Commitment result = null;
             try
             {
-                result = await AddCohort(db, command, cancellationToken);
+                var result = await AddCohort(db, command, cancellationToken);
                 _logger.LogInformation($"Saved-commitment Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{result?.Id} Apprenticeship:{result?.Apprenticeship?.First()?.Id}");
                 return result;
             }
             catch (Exception ex)
             {
-                exception = ex;
-                _logger.LogError(exception, $"Saving-commitment provider: {command.ProviderId} account-legal-entity:{command.AccountLegalEntityId} reservation-id:{command.ReservationId}");
+                _logger.LogError(ex, $"Saving-commitment provider: {command.ProviderId} account-legal-entity:{command.AccountLegalEntityId} reservation-id:{command.ReservationId}");
                 throw;
             }
         }
