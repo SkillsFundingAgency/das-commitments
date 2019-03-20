@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
+using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
 
@@ -31,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(ModelState.CreateErrorResponse());
             }
 
             var employer = await _mediator.Send(new GetAccountLegalEntityRequest
