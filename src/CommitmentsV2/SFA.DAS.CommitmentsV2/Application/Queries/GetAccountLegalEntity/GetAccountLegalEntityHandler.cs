@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 
-namespace SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity
 {
     public class GetAccountLegalEntityHandler : IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>
     {
@@ -20,12 +19,10 @@ namespace SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity
         public Task<GetAccountLegalEntityResponse> Handle(GetAccountLegalEntityRequest request, CancellationToken cancellationToken)
         {
             return _dbContext.Value
-                .AccountLegalEntities
-                .Include( ale => ale.Account)
-                .Where(ale => ale.Id == request.AccountLegalEntityId)
-                .AsNoTracking()
-                .Select(ale => new GetAccountLegalEntityResponse {AccountName = ale.Account.Name, LegalEntityName = ale.Name})
-                .SingleOrDefaultAsync(cancellationToken);
+                .AccountLegalEntities.GetById(
+                    request.AccountLegalEntityId, 
+                    ale => new GetAccountLegalEntityResponse {AccountName = ale.Account.Name, LegalEntityName = ale.Name}, 
+                    cancellationToken);
         }
     }
 }

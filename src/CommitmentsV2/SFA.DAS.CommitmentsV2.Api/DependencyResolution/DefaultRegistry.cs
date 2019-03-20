@@ -1,5 +1,8 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Builder;
+using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.DependencyResolution;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
@@ -20,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
 
             For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
             For<IMediator>().Use<Mediator>();
-
+            For(typeof(IPipelineBehavior<,>)).Use(typeof(ValidationBehavior<,>));
         }
     }
 }

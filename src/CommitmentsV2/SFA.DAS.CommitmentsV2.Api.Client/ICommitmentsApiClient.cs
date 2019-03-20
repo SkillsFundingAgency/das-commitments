@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
@@ -9,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     {
         Task<bool> HealthCheck();
 
-        Task<AccountLegalEntity> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
+        Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
 
         // To be removed latter
         Task<string> SecureCheck();

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -18,13 +20,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string LegalEntityAddress { get; set; }
-        public byte LegalEntityOrganisationType { get; set; }
+        public OrganisationType LegalEntityOrganisationType { get; set; }
         public long? ProviderId { get; set; }
         public string ProviderName { get; set; }
-        public short CommitmentStatus { get; set; }
-        public short EditStatus { get; set; }
+        public CommitmentStatus CommitmentStatus { get; set; }
+        public EditStatus EditStatus { get; set; }
         public DateTime? CreatedOn { get; set; }
-        public short LastAction { get; set; }
+        public LastAction LastAction { get; set; }
         public string LastUpdatedByEmployerName { get; set; }
         public string LastUpdatedByEmployerEmail { get; set; }
         public string LastUpdatedByProviderName { get; set; }
@@ -36,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string TransferApprovalActionedByEmployerEmail { get; set; }
         public DateTime? TransferApprovalActionedOn { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
+        public Originator Originator { get; set; }
 
         public virtual ICollection<Apprenticeship> Apprenticeship { get; set; }
         public virtual ICollection<Message> Message { get; set; }

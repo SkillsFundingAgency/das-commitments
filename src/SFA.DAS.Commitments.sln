@@ -113,7 +113,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Messa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Host", "CommitmentsV2\SFA.DAS.CommitmentsV2.Host\SFA.DAS.CommitmentsV2.Host.csproj", "{68472C2D-8618-44DD-99E3-1112B27BD3E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.Jobs.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Jobs.UnitTests\SFA.DAS.CommitmentsV2.Jobs.UnitTests.csproj", "{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Jobs.UnitTests", "CommitmentsV2\SFA.DAS.CommitmentsV2.Jobs.UnitTests\SFA.DAS.CommitmentsV2.Jobs.UnitTests.csproj", "{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificates", "{8F14A807-720B-4CC3-83F7-DD78F0495F20}"
 	ProjectSection(SolutionItems) = preProject

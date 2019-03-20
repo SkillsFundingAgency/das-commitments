@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<IntegrationTestIds> IntegrationTestIds { get; set; }
         public virtual DbSet<JobProgress> JobProgress { get; set; }
         public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<Provider> Providers { get; set; }
         public virtual DbSet<PriceHistory> PriceHistory { get; set; }
         public virtual DbSet<TransferRequest> TransferRequest { get; set; }
 
@@ -54,8 +55,8 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new JobProgressConfiguration());
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
             modelBuilder.ApplyConfiguration(new PriceHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderConfiguration());
             modelBuilder.ApplyConfiguration(new TransferRequestConfiguration());
-
         }
     }
 }

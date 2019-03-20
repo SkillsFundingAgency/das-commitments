@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Commands\" />
-    <Folder Include="Application\Queries\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="8.1.3" />
     <PackageReference Include="MediatR" Version="6.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.2" />
@@ -22,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="SFA.DAS.HashingService" Version="1.0.183" />
     <PackageReference Include="SFA.DAS.UnitOfWork" Version="5.0.4" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.1" />
     <PackageReference Include="StructureMap" Version="4.7.0" />
@@ -29,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api.Types\SFA.DAS.CommitmentsV2.Api.Types.csproj" />
   </ItemGroup>
 
