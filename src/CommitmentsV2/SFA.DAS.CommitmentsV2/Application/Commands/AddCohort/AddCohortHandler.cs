@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
@@ -19,12 +20,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IHashingService _hashingService;
         private readonly ILogger<AddCohortHandler> _logger;
+        private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
 
-        public AddCohortHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IHashingService hashingService, ILogger<AddCohortHandler> logger)
+        public AddCohortHandler(
+            Lazy<ProviderCommitmentsDbContext> dbContext, 
+            IHashingService hashingService, 
+            ILogger<AddCohortHandler> logger,
+            ITrainingProgrammeApiClient trainingProgrammeApiClient)
         {
             _dbContext = dbContext;
             _hashingService = hashingService;
             _logger = logger;
+            _trainingProgrammeApiClient = trainingProgrammeApiClient;
         }
 
         public async Task<AddCohortResponse> Handle(AddCohortCommand command, CancellationToken cancellationToken)
@@ -60,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private async Task<Commitment> AddCohort(ProviderCommitmentsDbContext db, AddCohortCommand command, CancellationToken cancellationToken)
         {
             var commitment = await AddCommitment(db, command, cancellationToken);
-            var apprentice = AddDraftApprenticeship(command);
+            var apprentice = await AddDraftApprenticeship(command);
 
             commitment.Apprenticeship.Add(apprentice);
 
@@ -155,8 +162,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             return accountLegalEntity;
         }
 
-        private DraftApprenticeship AddDraftApprenticeship(AddCohortCommand command)
+        private async Task<DraftApprenticeship> AddDraftApprenticeship(AddCohortCommand command)
         {
+            var trainingProgram = await GetCourseName(command.CourseCode);
+
             var apprentice = new DraftApprenticeship
             {
                 AgreementStatus = AgreementStatus.ProviderAgreed,
@@ -168,11 +177,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 StartDate = command.StartDate,
                 EndDate = command.EndDate,
                 TrainingCode = command.CourseCode,
+                TrainingName = trainingProgram,
                 Uln = command.ULN,
                 ProviderRef = command.OriginatorReference
             };
 
             return apprentice;
+        }
+
+        private async Task<string> GetCourseName(string courseCode)
+        {
+            var course = await _trainingProgrammeApiClient.GetTrainingProgramme(courseCode);
+
+            if (course == null)
+            {
+                throw new Exception($"The course code {courseCode} was not found");
+            }
+
+            return course.ExtendedTitle();
         }
 
         private class AccountLegalEntityDetailsNeededForCohort

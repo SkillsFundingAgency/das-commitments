@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Api.Client;
+using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Exceptions;
@@ -29,9 +31,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash)
                                 .WithProvider(1)
-                                .WithAccountLegalEntity(2, 3);
+                                .WithAccountLegalEntity(2, 3)
+                                .WithCourse("Course1");
 
-            var response = await fixtures.Handle(3, 1);
+            var response = await fixtures.Handle(3, 1, "Course1");
 
             Assert.IsNotNull(response);
             Assert.AreNotEqual(0, response.Id);
@@ -47,9 +50,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             const string expectedHash = "ABC123";
 
             var fixtures = new AddCohortCommandHandlerTestFixture()
-                .WithGeneratedHash(expectedHash);
+                .WithGeneratedHash(expectedHash)
+                .WithCourse("Course1"); 
 
-            Assert.ThrowsAsync<BadRequestException>(() => fixtures.Handle(3, 1));
+            Assert.ThrowsAsync<BadRequestException>(() => fixtures.Handle(3, 1, "Course1"));
             Assert.IsFalse(fixtures.Logger.HasInfo);
             Assert.IsTrue(fixtures.Logger.HasErrors);
         }
@@ -91,11 +95,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             HashingServiceMock = new Mock<IHashingService>();
 
+            TrainingProgrammeApiClientMock = new Mock<ITrainingProgrammeApiClient>();
+
             Logger = new TestLogger(); 
         }
 
         public Mock<IHashingService> HashingServiceMock { get; }
         public IHashingService HashingService => HashingServiceMock.Object;
+
+        public Mock<ITrainingProgrammeApiClient> TrainingProgrammeApiClientMock { get; }
+        public ITrainingProgrammeApiClient TrainingProgrammeApiClient => TrainingProgrammeApiClientMock.Object;
+
 
         public TestLogger Logger { get; }
 
@@ -104,6 +114,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HashingServiceMock
                 .Setup(hs => hs.HashValue(It.IsAny<long>()))
                 .Returns(hash);
+
+            return this;
+        }
+
+        public AddCohortCommandHandlerTestFixture WithCourse(string courseCode)
+        {
+            TrainingProgrammeApiClientMock
+                .Setup(tp => tp.GetTrainingProgramme(courseCode))
+                .ReturnsAsync(() => new Framework
+                {
+                    FrameworkId = courseCode,
+                    FrameworkName = $"Framework {courseCode}",
+                    PathwayName = $"Pathway {courseCode}",
+                    Title = $"Course {courseCode}"
+                });
 
             return this;
         }
@@ -134,11 +159,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public async Task<AddCohortResponse> Handle(long accountLegalEntity, long providerId)
+        public async Task<AddCohortResponse> Handle(long accountLegalEntity, long providerId, string courseCode)
         {
             Db.SaveChanges();
-            var command = new AddCohortCommand { AccountLegalEntityId = accountLegalEntity, ProviderId = providerId, ReservationId = Guid.NewGuid() };
-            var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), HashingService, Logger);
+            var command = new AddCohortCommand
+            {
+                AccountLegalEntityId = accountLegalEntity,
+                ProviderId = providerId,
+                ReservationId = Guid.NewGuid(),
+                CourseCode = courseCode
+            };
+
+            var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), HashingService, Logger, TrainingProgrammeApiClient);
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
 
