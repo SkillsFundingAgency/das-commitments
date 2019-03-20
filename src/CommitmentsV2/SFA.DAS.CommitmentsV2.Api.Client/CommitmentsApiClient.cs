@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
-using SFA.DAS.CommitmentsV2.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
