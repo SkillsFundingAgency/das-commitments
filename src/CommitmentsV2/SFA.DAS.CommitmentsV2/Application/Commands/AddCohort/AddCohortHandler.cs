@@ -179,7 +179,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 TrainingCode = command.CourseCode,
                 TrainingName = trainingProgram,
                 Uln = command.ULN,
-                ProviderRef = command.OriginatorReference
+                ProviderRef = command.OriginatorReference,
+                FirstName = command.FirstName,
+                LastName = command.LastName
             };
 
             return apprentice;
