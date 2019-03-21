@@ -38,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddFluentValidation();
 
             services.AddHealthChecks();
+            services.AddMemoryCache();
         }
 
         public void ConfigureContainer(Registry registry)

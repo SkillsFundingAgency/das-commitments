@@ -25,4 +25,13 @@
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Client">
+      <HintPath>..\..\..\..\das-apprenticeship-programs-api\src\SFA.DAS.Apprenticeships.Api.Client\bin\Debug\netstandard2.0\SFA.DAS.Apprenticeships.Api.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="SFA.DAS.Apprenticeships.Api.Types">
+      <HintPath>..\..\..\..\das-apprenticeship-programs-api\src\SFA.DAS.Apprenticeships.Api.Client\bin\Debug\netstandard2.0\SFA.DAS.Apprenticeships.Api.Types.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
