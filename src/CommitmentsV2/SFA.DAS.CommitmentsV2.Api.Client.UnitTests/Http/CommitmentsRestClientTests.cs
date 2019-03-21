@@ -31,26 +31,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         }
 
         [Test]
-        public Task WhenCallingGetAndHttpClientReturnsBadRequestWithCustomException_ThenShouldThrowApiDomainException()
-        {
-            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnDomainError(), 
-                f => f.CallGet(null),
-                (f, r) => r.Should().Throw<CommitmentsApiDomainException>()
-                    .Where(ex => ex.ErrorCode == 123
-                                 && ex.Message == "This is a domain error"));
-        }
-
-        [Test]
-        public Task WhenCallingPostAsJsonAndHttpClientReturnsBadRequestWithDomainException_ThenShouldThrowApiDomainException()
-        {
-            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnDomainError(),
-                f => f.CallPostAsJson(null),
-                (f, r) => r.Should().Throw<CommitmentsApiDomainException>()
-                    .Where(ex => ex.ErrorCode == 123
-                                 && ex.Message == "This is a domain error"));
-        }
-
-        [Test]
         public Task WhenCallingPostAsJsonAndHttpClientReturnsBadRequestWithModelException_ThenShouldThrowApiModelException()
         {
             return TestExceptionAsync(f => f.SetupHttpClientGetToReturnModelError(),
@@ -84,20 +64,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             RestHttpClient = new CommitmentsRestHttpClient(HttpClient);
         }
         
-        public void SetupHttpClientGetToReturnDomainError()
-        {
-            ResponseObject = new ErrorResponse(ErrorType.CommitmentApiDomainException, 123, "This is a domain error");
-                
-            var stringBody = JsonConvert.SerializeObject(ResponseObject);
-            HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
-            {
-                Content = new StringContent(stringBody, Encoding.Default, "application/json") 
-            };
-        }
-
         public void SetupHttpClientGetToReturnModelError()
         {
-            ResponseObject = new ErrorResponse(ErrorType.CommitmentApiModelException, ModelErrors);
+            ResponseObject = new ErrorResponse(ModelErrors);
 
             var stringBody = JsonConvert.SerializeObject(ResponseObject);
             HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)

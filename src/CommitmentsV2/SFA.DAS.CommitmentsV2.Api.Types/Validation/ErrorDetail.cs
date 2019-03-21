@@ -7,29 +7,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Validation
     public class ErrorDetail
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int? ErrorCode { get; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Field { get; }
 
         public string Message { get; }
 
+        [JsonConstructor]
         public ErrorDetail(string field, string message)
         {
             Field = field != string.Empty ? field : null;
-            Message = message;
-        }
-        public ErrorDetail(int errorCode, string message)
-        {
-            ErrorCode = errorCode;
-            Message = message;
-        }
-
-        [JsonConstructor]
-        protected ErrorDetail(int? errorCode, string field, string message)
-        {
-            ErrorCode = errorCode;
-            Field = field;
             Message = message;
         }
     }

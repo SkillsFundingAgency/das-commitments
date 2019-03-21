@@ -33,19 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 
                 if (errorResponse != null)
                 {
-                    if (errorResponse.ErrorType == ErrorType.CommitmentApiDomainException)
-                    {
-                        var errorDetail = errorResponse.Errors?.FirstOrDefault();
-                        if (errorDetail != null)
-                        {
-                            int errorCode = errorDetail.ErrorCode ?? 0;
-                            return new CommitmentsApiDomainException(errorCode, errorDetail.Message);
-                        }
-                    }
-                    else if (errorResponse.ErrorType == ErrorType.CommitmentApiModelException)
-                    {
-                        return new CommitmentsApiModelException(errorResponse.Errors);
-                    }
+                    return new CommitmentsApiModelException(errorResponse.Errors);
                 }
             }
             catch (Exception)

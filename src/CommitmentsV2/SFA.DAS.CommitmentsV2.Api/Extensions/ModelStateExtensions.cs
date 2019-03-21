@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Extensions
                 .SelectMany(key => modelState[key].Errors.Select(x => new ErrorDetail(key, x.ErrorMessage)))
                 .ToList();
 
-            return new ErrorResponse(ErrorType.CommitmentApiModelException, errors);
+            return new ErrorResponse(errors);
         }
     }
 }

@@ -20,13 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    if (contextFeature.Error is CommitmentsApiDomainException domainException)
-                    {
-                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        logger.LogError($"Domain Error thrown: {domainException}");
-                        await context.Response.WriteAsync(WriteErrorResponse(domainException));
-                    }
-                    else if (contextFeature.Error is CommitmentsApiModelException modelException)
+                    if (contextFeature.Error is CommitmentsApiModelException modelException)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                         logger.LogError($"Model Error thrown: {modelException}");
@@ -46,16 +40,9 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
             return app;
         }
 
-        public static string WriteErrorResponse(CommitmentsApiDomainException domainException)
-        {
-            var response = new ErrorResponse(ErrorType.CommitmentApiDomainException, domainException.ErrorCode,
-                domainException.Message);
-            return JsonConvert.SerializeObject(response);
-        }
-
         public static string WriteErrorResponse(CommitmentsApiModelException domainException)
         {
-            var response = new ErrorResponse(ErrorType.CommitmentApiModelException, domainException.Errors);
+            var response = new ErrorResponse(domainException.Errors);
             return JsonConvert.SerializeObject(response);
         }
     }
