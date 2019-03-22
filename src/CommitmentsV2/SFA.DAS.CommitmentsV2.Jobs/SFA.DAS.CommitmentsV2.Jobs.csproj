@@ -5,6 +5,9 @@
     <LangVersion>latest</LangVersion>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsWebJobProject>true</IsWebJobProject>
+    <WebJobName>Commitmentsv2-Jobs</WebJobName>
+    <WebJobType>Continuous</WebJobType>
   </PropertyGroup>
 
   <ItemGroup>
