@@ -36,13 +36,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ProviderId, value, expectedValid);
         }
 
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("TX1095", true)]
-        public void Validate_CourseCode_ShouldBeValidated(string value, bool expectedValid)
-        {
-            AssertValidationResult(request => request.CourseCode, value, expectedValid);
-        }
 
         [TestCase("2019-04-01", "2019-03-01", false)]
         [TestCase("2019-04-01", "2019-04-01", false)]
