@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Apprenticeships.Api.Client;
+using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
@@ -177,7 +178,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 StartDate = command.StartDate,
                 EndDate = command.EndDate,
                 TrainingCode = command.CourseCode,
-                TrainingName = trainingProgram,
+                TrainingName = trainingProgram?.ExtendedTitle,
+                TrainingType = (int?) (trainingProgram?.ProgrammeType),
                 Uln = command.ULN,
                 ProviderRef = command.OriginatorReference,
                 FirstName = command.FirstName,
@@ -187,7 +189,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             return apprentice;
         }
 
-        private async Task<string> GetCourseName(string courseCode)
+        private async Task<ITrainingProgramme> GetCourseName(string courseCode)
         {
             if (string.IsNullOrWhiteSpace(courseCode))
             {
@@ -201,7 +203,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 throw new Exception($"The course code {courseCode} was not found");
             }
 
-            return course.ExtendedTitle();
+            return course;
         }
 
         private class AccountLegalEntityDetailsNeededForCohort
