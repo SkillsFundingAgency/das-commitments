@@ -11,12 +11,14 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         {
             For<IMediator>().Use<Mediator>();
             For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
+            For(typeof(IPipelineBehavior<,>)).Use(typeof(ValidationBehavior<,>));
 
             Scan(scan =>
             {
                 scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<>));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
+                scan.ConnectImplementationsToTypesClosing(typeof(ICommandValidator<>));
             });
         }
     }
