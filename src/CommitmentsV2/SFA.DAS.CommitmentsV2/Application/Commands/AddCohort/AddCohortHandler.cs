@@ -189,6 +189,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
         private async Task<string> GetCourseName(string courseCode)
         {
+            if (string.IsNullOrWhiteSpace(courseCode))
+            {
+                return null;
+            }
+
             var course = await _trainingProgrammeApiClient.GetTrainingProgramme(courseCode);
 
             if (course == null)
