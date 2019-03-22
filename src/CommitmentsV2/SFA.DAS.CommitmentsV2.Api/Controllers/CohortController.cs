@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Mapping;
 
@@ -31,12 +32,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var employer = await _mediator.Send(_addCohortMapper.Map(request));
+            var result = await _mediator.Send(_addCohortMapper.Map(request));
 
-            return Ok(new AddCohortResponse
+            return Ok(new CreateCohortResponse
             {
-                Id = employer.Id,
-                Reference = employer.Reference
+                CohortId = result.Id,
+                CohortReference = result.Reference
             });
         }
     }
