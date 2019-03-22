@@ -13,14 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
 
         public DefaultRegistry()
         {
-            Scan(
-                scan =>
-                {
-                    scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
-                    scan.ConnectImplementationsToTypesClosing(typeof(IValidator<>));
-                    scan.RegisterConcreteTypesAgainstTheFirstInterface();
-                });
-
             For<ServiceFactory>().Use<ServiceFactory>(ctx => ctx.GetInstance);
             For<IMediator>().Use<Mediator>();
             For(typeof(IPipelineBehavior<,>)).Use(typeof(ValidationBehavior<,>));
