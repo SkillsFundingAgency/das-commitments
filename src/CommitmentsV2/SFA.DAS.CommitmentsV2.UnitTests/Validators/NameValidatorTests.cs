@@ -28,13 +28,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.LastName, value, expectedValid);
         }
 
-
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property, T value, bool expectedValid)
         {
-            // Arrange
             var validator = new NameValidator();
 
-            // Act
             if (expectedValid)
             {
                 validator.ShouldNotHaveValidationErrorFor(property, value);
