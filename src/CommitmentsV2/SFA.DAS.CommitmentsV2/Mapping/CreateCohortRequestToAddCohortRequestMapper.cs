@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 DateOfBirth = source.DateOfBirth,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
-                ULN = source.ULN
+                ULN = source.Uln
             };
         }
     }

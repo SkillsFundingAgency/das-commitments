@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.TrainingName).HasMaxLength(126);
 
             builder.Property(e => e.Uln)
-                .HasColumnName("ULN")
+                .HasColumnName("Uln")
                 .HasMaxLength(50);
 
             builder.HasOne(d => d.Commitment)
