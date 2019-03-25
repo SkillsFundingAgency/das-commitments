@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 {
-    [TestFixture()]
+    [TestFixture]
     public class CreateCohortRequestValidatorTests
     {
         [TestCase(null, false)]
@@ -65,6 +65,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ReservationId, guidToUse, expectedValid);
         }
 
+        [TestCase(null, false)]
+        [TestCase(-1, false)]
+        [TestCase(0, true)]
+        [TestCase(1, true)]
+        [TestCase(100000, true)]
+        [TestCase(100001, false)]
+        public void Validate_Cost_ShouldBeValidated(int? cost, bool expectedValid)
+        {
+           AssertValidationResult(request => request.Cost, cost, expectedValid);
+        }
+
+        [TestCase(null, true)]
+        [TestCase("", true)]
+        [TestCase("                                                           ", true)]
+        [TestCase("A long string that is much longer than the allowed 20 chars", false)]
+        [TestCase("A", true)]
+        [TestCase("....:....|....:....|", true)]
+        public void Validate_OriginatorReference_ShouldBeValidated(string originatorReference, bool expectedValid)
+        {
+            AssertValidationResult(request => request.OriginatorReference, originatorReference, expectedValid);
+        }
+
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property, T value, bool expectedValid)
         {
             // Arrange
@@ -96,6 +118,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
                 validator.ShouldHaveValidationErrorFor(property, instance);
             }
         }
-
     }
 }
