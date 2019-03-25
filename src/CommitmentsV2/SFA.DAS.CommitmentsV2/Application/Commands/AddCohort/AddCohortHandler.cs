@@ -169,7 +169,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
             var apprentice = new DraftApprenticeship
             {
-                AgreementStatus = AgreementStatus.ProviderAgreed,
+                AgreementStatus = AgreementStatus.NotAgreed,
                 PaymentStatus = PaymentStatus.PendingApproval,
                 HasHadDataLockSuccess = false,
                 CreatedOn = DateTime.UtcNow,
