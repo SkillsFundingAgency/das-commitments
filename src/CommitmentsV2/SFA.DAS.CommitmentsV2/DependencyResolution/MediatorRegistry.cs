@@ -18,6 +18,8 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<>));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
             });
+
+            For(typeof(IPipelineBehavior<,>)).Use(typeof(ValidationBehavior<,>));
         }
     }
 }
