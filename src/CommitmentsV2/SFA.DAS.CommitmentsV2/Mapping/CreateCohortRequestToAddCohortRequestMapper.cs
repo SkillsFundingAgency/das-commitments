@@ -1,6 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Helper;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
@@ -14,12 +14,12 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ProviderId = source.ProviderId,
                 Cost = source.Cost,
                 CourseCode = source.CourseCode,
-                EndDate = source.EndDate,
+                EndDate = DateHelper.ConvertToNullableDate(source.CourseEndMonth, source.CourseEndYear),
                 OriginatorReference = source.OriginatorReference,
                 ReservationId = source.ReservationId,
-                StartDate = source.StartDate,
+                StartDate = DateHelper.ConvertToNullableDate(source.CourseStartMonth, source.CourseStartYear),
                 UserId = source.UserId,
-                DateOfBirth = source.DateOfBirth,
+                DateOfBirth = DateHelper.ConvertToNullableDate(source.BirthDay, source.BirthMonth, source.BirthYear),
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 ULN = source.Uln

@@ -40,8 +40,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [Test]
         public void Map_EndDate_ShouldBeSet()
         {
-            DateTime endDate = DateTime.Now;
-            AssertPropertySet(input => input.EndDate = endDate, output => output.EndDate == endDate);
+            AssertPropertySet(input =>
+            {
+                input.CourseEndMonth = 2;
+                input.CourseEndYear = 2011;
+            }, output => output.EndDate == new DateTime(2011,2,1));
         }
 
         [Test]
@@ -62,7 +65,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public void Map_StartDate_ShouldBeSet()
         {
             DateTime startDate = DateTime.Now;
-            AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
+            AssertPropertySet(input =>
+            {
+                input.CourseStartMonth = 4;
+                input.CourseStartYear = 2012;
+            }, output => output.StartDate == new DateTime(2012, 4,1));
         }
 
         private void AssertPropertySet(Action<CreateCohortRequest> setInput, Func<AddCohortCommand, bool> expectOutput)

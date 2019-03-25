@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Validators;
 
@@ -36,26 +34,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ProviderId, value, expectedValid);
         }
 
-
-        [TestCase("2019-04-01", "2019-03-01", false)]
-        [TestCase("2019-04-01", "2019-04-01", false)]
-        [TestCase("2019-04-01", "2019-05-01", true)]
-        public void Validate_EndDateCode_ShouldBeValidated(string startDateValue, string endDateValue, bool expectedValid)
-        {
-            const string requiredDateFormat = "yyyy-MM-dd";
-
-            var startDate = DateTime.ParseExact(startDateValue, requiredDateFormat, CultureInfo.CurrentCulture);
-            var endDate = DateTime.ParseExact(endDateValue, requiredDateFormat, CultureInfo.CurrentCulture);
-
-            var requestInstance = new CreateCohortRequest
-            {
-                StartDate = startDate,
-                EndDate = endDate
-            };
-
-            AssertValidationResult(request => request.EndDate, requestInstance, expectedValid);
-        }
-
         [TestCase(true, false)]
         [TestCase(false, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool useBlankGuid, bool expectedValid)
@@ -65,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ReservationId, guidToUse, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
             var validator = new CreateCohortRequestValidator();
@@ -96,6 +74,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
                 validator.ShouldHaveValidationErrorFor(property, instance);
             }
         }
-
     }
 }
