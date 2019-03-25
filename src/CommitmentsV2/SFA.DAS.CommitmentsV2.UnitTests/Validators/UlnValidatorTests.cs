@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase("Ten digits", false)]
         public void Validate_Uln(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.ULN, value, expectedValid);
+            AssertValidationResult(request => request.Uln, value, expectedValid);
         }
 
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property,T value, bool expectedValid)

@@ -8,19 +8,14 @@ namespace SFA.DAS.CommitmentsV2.Validators
     {
         public UlnValidator()
         {
-            RuleFor(model => model.ULN).Must(UlnValidation).WithMessage(x => $"{FailedValidationMessage(x.ULN)}");
+            RuleFor(model => model.Uln).Must(UlnValidation).WithMessage(x => $"{FailedValidationMessage(x.Uln)}");
         }
 
         private bool UlnValidation(string uln)
         {
             var validator = new Learners.Validators.UlnValidator();
-            switch (validator.Validate(uln))
-            {
-                case UlnValidationResult.Success:
-                    return true;
-                default:
-                    return false;
-            }
+
+            return (validator.Validate(uln) == UlnValidationResult.Success);
         }
         private string FailedValidationMessage(string uln)
         {
@@ -28,11 +23,11 @@ namespace SFA.DAS.CommitmentsV2.Validators
             switch (validator.Validate(uln))
             {
                 case UlnValidationResult.IsEmptyUlnNumber:
-                    return "You must enter a ULN that is not empty";
+                    return "You must enter a Uln that is not empty";
                 case UlnValidationResult.IsInValidTenDigitUlnNumber:
-                    return "You must enter a ULN that is 10 digits long";
+                    return "You must enter a Uln that is 10 digits long";
                 case UlnValidationResult.IsInvalidUln:
-                    return "You must enter a valid ULN";
+                    return "You must enter a valid Uln";
             }
 
             return "";

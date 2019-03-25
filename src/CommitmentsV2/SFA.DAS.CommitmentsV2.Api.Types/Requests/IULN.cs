@@ -2,6 +2,6 @@
 {
     public interface IUln
     {
-        string ULN { get; set; }
+        string Uln { get; set; }
     }
 }
