@@ -183,7 +183,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 Uln = command.ULN,
                 ProviderRef = command.OriginatorReference,
                 FirstName = command.FirstName,
-                LastName = command.LastName
+                LastName = command.LastName,
+                ReservationId = command.ReservationId
             };
 
             return apprentice;
