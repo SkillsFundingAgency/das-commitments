@@ -12,7 +12,9 @@ using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.HashingService;
 using SFA.DAS.Testing;
@@ -97,6 +99,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             TrainingProgrammeApiClientMock = new Mock<ITrainingProgrammeApiClient>();
 
+            AddCohortCommandToDraftApprenticeshipDetailsMapperMock =
+                new Mock<IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
+            AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
+                .ReturnsAsync(() => new DraftApprenticeshipDetails
+                {
+                    FirstName = "Test",
+                    LastName = "Tester"
+                }); //todo: return a valid value always?
+
             Logger = new TestLogger(); 
         }
 
@@ -105,6 +116,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public Mock<ITrainingProgrammeApiClient> TrainingProgrammeApiClientMock { get; }
         public ITrainingProgrammeApiClient TrainingProgrammeApiClient => TrainingProgrammeApiClientMock.Object;
+        public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> AddCohortCommandToDraftApprenticeshipDetailsMapperMock { get; }
 
 
         public TestLogger Logger { get; }
@@ -170,7 +182,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 CourseCode = courseCode
             };
 
-            var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db), HashingService, Logger, TrainingProgrammeApiClient);
+            var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                HashingService,
+                Logger,
+                TrainingProgrammeApiClient,
+                AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Object);
+
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
 

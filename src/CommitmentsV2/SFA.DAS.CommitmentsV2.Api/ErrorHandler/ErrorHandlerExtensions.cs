@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
 {
@@ -20,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
                 var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
                 if (contextFeature != null)
                 {
-                    if (contextFeature.Error is CommitmentsApiModelException modelException)
+                    if (contextFeature.Error is DomainException modelException)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                         logger.LogError($"Model Error thrown: {modelException}");
@@ -40,10 +43,17 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
             return app;
         }
 
-        public static string WriteErrorResponse(CommitmentsApiModelException domainException)
+        public static string WriteErrorResponse(DomainException domainException)
         {
-            var response = new ErrorResponse(domainException.Errors);
+            var response = new ErrorResponse(MapToApiErrors(domainException.DomainErrors));
             return JsonConvert.SerializeObject(response);
         }
+
+        //todo: move this mapping
+        private static List<ErrorDetail> MapToApiErrors(IEnumerable<DomainError> source)
+        {
+            return source.Select(sourceItem => new ErrorDetail(sourceItem.PropertyName, sourceItem.ErrorMessage)).ToList();
+        }
+
     }
 }

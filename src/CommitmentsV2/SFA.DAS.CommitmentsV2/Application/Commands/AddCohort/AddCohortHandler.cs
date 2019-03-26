@@ -4,15 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
+using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.HashingService;
-using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
@@ -21,18 +20,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IHashingService _hashingService;
         private readonly ILogger<AddCohortHandler> _logger;
-        private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
+
+        private readonly IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
 
         public AddCohortHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext, 
             IHashingService hashingService, 
             ILogger<AddCohortHandler> logger,
-            ITrainingProgrammeApiClient trainingProgrammeApiClient)
+            IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper)
         {
             _dbContext = dbContext;
             _hashingService = hashingService;
             _logger = logger;
-            _trainingProgrammeApiClient = trainingProgrammeApiClient;
+            _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
         }
 
         public async Task<AddCohortResponse> Handle(AddCohortCommand command, CancellationToken cancellationToken)
@@ -68,9 +68,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private async Task<Commitment> AddCohort(ProviderCommitmentsDbContext db, AddCohortCommand command, CancellationToken cancellationToken)
         {
             var commitment = await AddCommitment(db, command, cancellationToken);
-            var apprentice = await AddDraftApprenticeship(command);
 
-            commitment.Apprenticeship.Add(apprentice);
+            var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
+
+            commitment.AddDraftApprenticeship(draftApprenticeshipDetails);           
 
             await db.SaveChangesAsync(cancellationToken);
 
@@ -161,49 +162,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             }
 
             return accountLegalEntity;
-        }
-
-        private async Task<DraftApprenticeship> AddDraftApprenticeship(AddCohortCommand command)
-        {
-            var trainingProgram = await GetCourseName(command.CourseCode);
-
-            var apprentice = new DraftApprenticeship
-            {
-                AgreementStatus = AgreementStatus.ProviderAgreed,
-                PaymentStatus = PaymentStatus.PendingApproval,
-                HasHadDataLockSuccess = false,
-                CreatedOn = DateTime.UtcNow,
-                Cost = command.Cost,
-                DateOfBirth = command.DateOfBirth,
-                StartDate = command.StartDate,
-                EndDate = command.EndDate,
-                TrainingCode = command.CourseCode,
-                TrainingName = trainingProgram?.ExtendedTitle,
-                TrainingType = (int?) (trainingProgram?.ProgrammeType),
-                Uln = command.ULN,
-                ProviderRef = command.OriginatorReference,
-                FirstName = command.FirstName,
-                LastName = command.LastName
-            };
-
-            return apprentice;
-        }
-
-        private async Task<ITrainingProgramme> GetCourseName(string courseCode)
-        {
-            if (string.IsNullOrWhiteSpace(courseCode))
-            {
-                return null;
-            }
-
-            var course = await _trainingProgrammeApiClient.GetTrainingProgramme(courseCode);
-
-            if (course == null)
-            {
-                throw new Exception($"The course code {courseCode} was not found");
-            }
-
-            return course;
         }
 
         private class AccountLegalEntityDetailsNeededForCohort

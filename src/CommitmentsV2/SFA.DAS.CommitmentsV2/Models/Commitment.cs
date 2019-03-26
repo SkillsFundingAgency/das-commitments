@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -43,5 +44,31 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Apprenticeship> Apprenticeship { get; set; }
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
+
+        public void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails);
+            Apprenticeship.Add(draftApprenticeship);
+        }
+
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            var errors = new List<DomainError>();
+
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.FirstName))
+            {
+                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name is required"));
+            }
+
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
+            {
+                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name is required"));
+            }
+
+            //todo...more rules here...
+
+            errors.ThrowIfAny();
+        }
     }
 }
