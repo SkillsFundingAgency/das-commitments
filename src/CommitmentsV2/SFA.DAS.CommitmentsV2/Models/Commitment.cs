@@ -54,21 +54,42 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
+            BuildValidationFailures(draftApprenticeshipDetails).ThrowIfAny();
+        }
+
+        private List<DomainError> BuildValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
             var errors = new List<DomainError>();
 
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.FirstName))
             {
-                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name is required"));
+                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered"));
             }
+            else
+            {
+                if (draftApprenticeshipDetails.FirstName.Length > 100)
+                {
+                    errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters"));
+
+                }
+            }
+
 
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
             {
-                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name is required"));
+                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered"));
+            }
+            else
+            {
+                if (draftApprenticeshipDetails.LastName.Length > 100)
+                {
+                    errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a last name that's no longer than 100 characters"));
+
+                }
             }
 
-            //todo...more rules here...
-
-            errors.ThrowIfAny();
+            return errors;
         }
+
     }
 }
