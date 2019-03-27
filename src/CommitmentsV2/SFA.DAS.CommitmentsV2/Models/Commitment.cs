@@ -54,42 +54,77 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            BuildValidationFailures(draftApprenticeshipDetails).ThrowIfAny();
+            var errors = new List<DomainError>();
+            errors.AddRange(BuildNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildReferenceValidationFailures(draftApprenticeshipDetails));
+                
+            errors.ThrowIfAny();
         }
 
-        private List<DomainError> BuildValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private IEnumerable<DomainError> BuildNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            var errors = new List<DomainError>();
 
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.FirstName))
             {
-                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered"));
+                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered");
             }
             else
             {
                 if (draftApprenticeshipDetails.FirstName.Length > 100)
                 {
-                    errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters"));
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
 
                 }
             }
 
-
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
             {
-                errors.Add(new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered"));
+                yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered");
             }
             else
             {
                 if (draftApprenticeshipDetails.LastName.Length > 100)
                 {
-                    errors.Add(new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a last name that's no longer than 100 characters"));
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "You must enter a last name that's no longer than 100 characters");
 
                 }
             }
-
-            return errors;
         }
 
+        private IEnumerable<DomainError> BuildEndDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+            }
+
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate <= DateTime.Today)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be in the past Pre approval");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.Cost.HasValue && !(draftApprenticeshipDetails.Cost >= 0 && draftApprenticeshipDetails.Cost <= 100000))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildReferenceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.ProviderRef != null && draftApprenticeshipDetails.ProviderRef.Length > 20)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.ProviderRef), "The Reference must be 20 characters or fewer");
+            }
+
+            if (draftApprenticeshipDetails.EmployerRef != null && draftApprenticeshipDetails.EmployerRef.Length > 20)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EmployerRef), "The Reference must be 20 characters or fewer");
+            }
+        }
     }
 }
