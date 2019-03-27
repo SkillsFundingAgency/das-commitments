@@ -12,6 +12,7 @@ using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -81,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                                                     .Options);
 
             HashingServiceMock = new Mock<IHashingService>();
+            UlnValidatorMock = new Mock<IUlnValidator>();
 
             AddCohortCommandToDraftApprenticeshipDetailsMapperMock =
                 new Mock<IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
@@ -96,6 +98,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public Mock<IHashingService> HashingServiceMock { get; }
         public IHashingService HashingService => HashingServiceMock.Object;
+
+        public Mock<IUlnValidator> UlnValidatorMock { get; }
+        public IUlnValidator UlnValidator => UlnValidatorMock.Object;
 
         public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> AddCohortCommandToDraftApprenticeshipDetailsMapperMock { get; }
 
@@ -151,7 +156,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 HashingService,
                 Logger,
-                AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Object);
+                AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Object,
+                UlnValidator);
 
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
