@@ -4,11 +4,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : Apprenticeship
     {
+        //todo: can this be made private? EF ok with that?
         public DraftApprenticeship()
         {
         }
 
-        //todo: testing
         public DraftApprenticeship(DraftApprenticeshipDetails source)
         {
             FirstName = source.FirstName;
@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TrainingName = source.TrainingName;
             Cost = source.Cost;
             StartDate = source.StartDate;
-            EndDate =  source.EndDate;
+            EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
             EmployerRef = source.EmployerRef;
             ProviderRef = source.ProviderRef;

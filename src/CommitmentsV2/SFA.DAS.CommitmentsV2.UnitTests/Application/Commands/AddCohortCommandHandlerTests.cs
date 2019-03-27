@@ -26,15 +26,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class AddCohortCommandHandlerTests : FluentTest<AddCohortCommandHandlerTestFixture>
     {
         [Test]
-        public async Task Handle_WhenHandlingValidCommand_ThenShouldCreateAccountAndLogSuccess()
+        public async Task ShouldCreateAccountAndLogSuccess()
         {
             const string expectedHash = "ABC123";
 
             var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash)
                                 .WithProvider(1)
-                                .WithAccountLegalEntity(2, 3)
-                                .WithCourse("Course1");
+                                .WithAccountLegalEntity(2, 3);
 
             var response = await fixtures.Handle(3, 1, "Course1");
 
@@ -44,20 +43,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
              
             Assert.IsTrue(fixtures.Logger.HasInfo);
             Assert.IsFalse(fixtures.Logger.HasErrors);
-        }
-
-        [Test]
-        public void Handle_WhenHandlingInvalidCommand_ThenShouldThrowExceptionAndLogFailure()
-        {
-            const string expectedHash = "ABC123";
-
-            var fixtures = new AddCohortCommandHandlerTestFixture()
-                .WithGeneratedHash(expectedHash)
-                .WithCourse("Course1"); 
-
-            Assert.ThrowsAsync<BadRequestException>(() => fixtures.Handle(3, 1, "Course1"));
-            Assert.IsFalse(fixtures.Logger.HasInfo);
-            Assert.IsTrue(fixtures.Logger.HasErrors);
         }
     }
 
@@ -97,8 +82,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             HashingServiceMock = new Mock<IHashingService>();
 
-            TrainingProgrammeApiClientMock = new Mock<ITrainingProgrammeApiClient>();
-
             AddCohortCommandToDraftApprenticeshipDetailsMapperMock =
                 new Mock<IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
             AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
@@ -114,8 +97,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IHashingService> HashingServiceMock { get; }
         public IHashingService HashingService => HashingServiceMock.Object;
 
-        public Mock<ITrainingProgrammeApiClient> TrainingProgrammeApiClientMock { get; }
-        public ITrainingProgrammeApiClient TrainingProgrammeApiClient => TrainingProgrammeApiClientMock.Object;
         public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> AddCohortCommandToDraftApprenticeshipDetailsMapperMock { get; }
 
 
@@ -126,21 +107,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HashingServiceMock
                 .Setup(hs => hs.HashValue(It.IsAny<long>()))
                 .Returns(hash);
-
-            return this;
-        }
-
-        public AddCohortCommandHandlerTestFixture WithCourse(string courseCode)
-        {
-            TrainingProgrammeApiClientMock
-                .Setup(tp => tp.GetTrainingProgramme(courseCode))
-                .ReturnsAsync(() => new Framework
-                {
-                    FrameworkId = courseCode,
-                    FrameworkName = $"Framework {courseCode}",
-                    PathwayName = $"Pathway {courseCode}",
-                    Title = $"Course {courseCode}"
-                });
 
             return this;
         }
@@ -185,7 +151,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 HashingService,
                 Logger,
-                TrainingProgrammeApiClient,
                 AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Object);
 
             var response = await handler.Handle(command, CancellationToken.None);
