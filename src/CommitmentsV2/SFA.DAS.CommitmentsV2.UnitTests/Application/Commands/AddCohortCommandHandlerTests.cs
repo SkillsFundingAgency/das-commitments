@@ -185,7 +185,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 HashingService,
                 Logger,
-                TrainingProgrammeApiClient,
                 AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Object);
 
             var response = await handler.Handle(command, CancellationToken.None);
