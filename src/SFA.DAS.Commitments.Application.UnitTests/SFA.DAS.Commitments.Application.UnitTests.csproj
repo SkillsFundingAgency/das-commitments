@@ -257,6 +257,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommitmentsV2\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj">
+      <Project>{9383c55b-196a-4c76-a546-2c190cdfb088}</Project>
+      <Name>SFA.DAS.CommitmentsV2.Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
       <Project>{AA3B3870-F97A-443B-8429-663DE064A8AD}</Project>
       <Name>SFA.DAS.Commitments.Api.Types</Name>

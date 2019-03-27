@@ -10,10 +10,12 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeship
 {
@@ -24,6 +26,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
         private Mock<IApprenticeshipEvents> _mockApprenticeshipEvents;
         private Mock<IHistoryRepository> _mockHistoryRepository;
+        private Mock<IV2EventsPublisher> _mockV2EventsPublisher;
         private AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private DeleteApprenticeshipCommandHandler _handler;
         private DeleteApprenticeshipCommand _validCommand;
@@ -37,15 +40,19 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockApprenticeshipEvents = new Mock<IApprenticeshipEvents>();
             _mockHistoryRepository = new Mock<IHistoryRepository>();
+            _mockV2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             _mockHistoryRepository.Setup(x => x.InsertHistory(It.IsAny<IEnumerable<HistoryItem>>()))
                 .Callback((object o) => { _historyResult = o as IEnumerable<HistoryItem>; })
                 .Returns(() => Task.CompletedTask);
 
+            _mockV2EventsPublisher.Setup(x => x.PublishApprenticeshipDeleted(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>()))
+                .Returns(() => Task.CompletedTask);
+
             _validator = new DeleteApprenticeshipValidator();
             _handler = new DeleteApprenticeshipCommandHandler(_mockCommitmentRepository.Object,
                 _mockApprenticeshipRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(),
-                _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object);
+                _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object, _mockV2EventsPublisher.Object);
 
             _validCommand = new DeleteApprenticeshipCommand { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserName = "Bob", UserId = "User" };
 
@@ -252,6 +259,25 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
             //Assert
             _mockCommitmentRepository.Verify(x => x.UpdateCommitment(It.IsAny<Commitment>()), Times.Never);
             
+        }
+
+        [Test]
+        public async Task ThenApprenticeshipDeletedEventIsPublished()
+        {
+            //Arrange
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                TransferApprovalStatus = TransferApprovalStatus.TransferApproved
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            //Act
+            await _handler.Handle(_validCommand);
+
+            //Assert
+            _mockV2EventsPublisher.Verify(x => x.PublishApprenticeshipDeleted(testCommitment, _apprenticeship));
         }
     }
 }

@@ -52,6 +52,7 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public List<PriceHistory> PriceHistory { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
         public string EndpointAssessorName { get; set; }
+        public Guid? ReservationId { get; set; }
 
         public Apprenticeship Clone()
         {

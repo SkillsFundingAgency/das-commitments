@@ -41,7 +41,8 @@ SELECT
 		ELSE
 			0
 	END AS 'ProviderCanApproveApprenticeship',
-	ao.Name AS 'EndpointAssessorName'
+	ao.Name AS 'EndpointAssessorName',
+	a.ReservationId
 
 	FROM 
 		Apprenticeship a

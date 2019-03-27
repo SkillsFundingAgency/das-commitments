@@ -5,6 +5,7 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Messaging.Interfaces;
@@ -22,7 +23,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         public void Setup()
         {
             _validator = new DeleteCommitmentValidator();
-            _handler = new DeleteCommitmentCommandHandler(Mock.Of<ICommitmentRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>(), Mock.Of<IMessagePublisher>());
+            _handler = new DeleteCommitmentCommandHandler(Mock.Of<ICommitmentRepository>(), _validator, Mock.Of<ICommitmentsLogger>(), Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>(), Mock.Of<IMessagePublisher>(), Mock.Of<IV2EventsPublisher>());
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }

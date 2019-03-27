@@ -6,6 +6,7 @@ using FluentValidation;
 using MediatR;
 
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -25,8 +26,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly IHistoryRepository _historyRepository;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
-        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public DeleteCommitmentCommandHandler(ICommitmentRepository commitmentRepository, AbstractValidator<DeleteCommitmentCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository, IMessagePublisher messagePublisher, IV2EventsPublisher v2EventsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _validator = validator;
@@ -34,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             _apprenticeshipEvents = apprenticeshipEvents;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(DeleteCommitmentCommand command)
@@ -61,6 +64,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             await CreateHistory(commitment, command.Caller.CallerType, command.UserId, command.UserName);
             await _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED");
             await PublishMessageIfProviderApprovedCohortDeletedByEmployer(commitment, command.Caller.CallerType);
+            await PublishV2Events(commitment);
         }
 
         private async Task PublishMessageIfProviderApprovedCohortDeletedByEmployer(Commitment commitment, CallerType callerType)
@@ -108,11 +112,11 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
             {
                 case CallerType.Provider:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.ProviderOnly)
-                        throw new UnauthorizedException($"Provider {message.Caller.Id} not allowed to delete commitment {message.CommitmentId}, expected provider {commitment.ProviderId}");
+                        throw new UnauthorizedException($"Provider {message.Caller.Id} not allowed to delete commitment {message.CommitmentId} because it is not with the provider");
                     break;
                 case CallerType.Employer:
                     if (commitment.EditStatus != EditStatus.Both && commitment.EditStatus != EditStatus.EmployerOnly)
-                        throw new UnauthorizedException($"Employer {message.Caller.Id} not allowed to delete commitment {message.CommitmentId}, expected employer {commitment.EmployerAccountId}");
+                        throw new UnauthorizedException($"Employer {message.Caller.Id} not allowed to delete commitment {message.CommitmentId} because it is not with the employer");
                     break;
             }
         }
@@ -137,6 +141,14 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteCommitment
                 _logger.Info(messageTemplate, accountId: command.Caller.Id, commitmentId: command.CommitmentId);
             else
                 _logger.Info(messageTemplate, providerId: command.Caller.Id, commitmentId: command.CommitmentId);
+        }
+
+        private async Task PublishV2Events(Commitment commitment)
+        {
+            foreach (var apprenticeship in commitment.Apprenticeships)
+            {
+                await _v2EventsPublisher.PublishApprenticeshipDeleted(commitment, apprenticeship);
+            }
         }
     }
 }
