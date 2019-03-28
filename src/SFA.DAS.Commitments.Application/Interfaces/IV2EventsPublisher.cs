@@ -34,7 +34,7 @@ namespace SFA.DAS.Commitments.Application.Interfaces
                 ev.Apprenticeship = apprenticeship.Id;
                 ev.CommitmentId = commitment.Id;
                 ev.CourseStartDate = apprenticeship.StartDate;
-                ev.Deleted = DateTime.UtcNow;
+                ev.DeletedOn = DateTime.UtcNow;
                 ev.ReservationId = apprenticeship.ReservationId;
                 ev.Uln = apprenticeship.ULN;
             });

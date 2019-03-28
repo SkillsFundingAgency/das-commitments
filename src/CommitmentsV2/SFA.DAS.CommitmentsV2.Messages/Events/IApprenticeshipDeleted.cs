@@ -12,6 +12,6 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         Guid? ReservationId { get; set; }
         DateTime? CourseStartDate { get; set; }
         string CourseCode { get; set; }
-        DateTime Deleted { get; set; }
+        DateTime DeletedOn { get; set; }
     }
 }
