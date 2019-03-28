@@ -120,6 +120,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificate
 		Certificates\localhost.pfx = Certificates\localhost.pfx
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.Api.Client\SFA.DAS.Reservations.Api.Client.csproj", "{70F307F3-9BD1-463C-B1E9-02BD9C53B0C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -299,6 +301,10 @@ Global
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70F307F3-9BD1-463C-B1E9-02BD9C53B0C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70F307F3-9BD1-463C-B1E9-02BD9C53B0C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70F307F3-9BD1-463C-B1E9-02BD9C53B0C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70F307F3-9BD1-463C-B1E9-02BD9C53B0C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -341,6 +347,7 @@ Global
 		{90AFD10C-13A4-4C65-97BF-FD5AEBBDA22A} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{68472C2D-8618-44DD-99E3-1112B27BD3E7} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{70F307F3-9BD1-463C-B1E9-02BD9C53B0C1} = {15A95BFE-8923-440A-8F15-5B28E9F92906}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}
