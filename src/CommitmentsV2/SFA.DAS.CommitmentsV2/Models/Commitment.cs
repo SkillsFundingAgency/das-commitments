@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -45,14 +47,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails);
             Apprenticeship.Add(draftApprenticeship);
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             var errors = new List<DomainError>();
 
@@ -66,6 +68,22 @@ namespace SFA.DAS.CommitmentsV2.Models
                 errors.Add(new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name is required"));
             }
 
+            if (!string.IsNullOrEmpty(draftApprenticeshipDetails.Uln))
+            {
+                switch (ulnValidator.Validate(draftApprenticeshipDetails.Uln))
+                {
+                    case UlnValidationResult.IsEmptyUlnNumber:
+                        errors.Add(new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a Uln that is not empty"));
+                        break;
+                    case UlnValidationResult.IsInValidTenDigitUlnNumber:
+                        errors.Add(new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a Uln that is 10 digits long"));
+                        break;
+                    case UlnValidationResult.IsInvalidUln:
+                        errors.Add(new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a valid Uln"));
+                        break;
+                }
+
+            }
             //todo...more rules here...
 
             errors.ThrowIfAny();

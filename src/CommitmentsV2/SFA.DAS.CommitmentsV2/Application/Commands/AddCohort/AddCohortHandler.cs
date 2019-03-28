@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -20,17 +21,20 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly ILogger<AddCohortHandler> _logger;
 
         private readonly IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
+        private readonly IUlnValidator _ulnValidator;
 
         public AddCohortHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext, 
             IHashingService hashingService, 
             ILogger<AddCohortHandler> logger,
-            IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper)
+            IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+            IUlnValidator ulnValidator)
         {
             _dbContext = dbContext;
             _hashingService = hashingService;
             _logger = logger;
             _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
+            _ulnValidator = ulnValidator;
         }
 
         public async Task<AddCohortResponse> Handle(AddCohortCommand command, CancellationToken cancellationToken)
@@ -44,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
 
-            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails);
+            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _ulnValidator);
 
             db.Commitment.Add(cohort);
             await db.SaveChangesAsync(cancellationToken);

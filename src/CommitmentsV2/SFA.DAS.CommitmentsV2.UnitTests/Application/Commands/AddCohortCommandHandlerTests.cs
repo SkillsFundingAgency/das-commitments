@@ -10,6 +10,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
@@ -39,7 +40,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             fixtures.Provider.Verify(x =>
                     x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
                             ale.AccountId == accountId && ale.Id == accountLegalEntityId),
-                        It.IsAny<DraftApprenticeshipDetails>()),
+                        It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
+                        It.IsAny<IUlnValidator>()),
                 Times.Once);
 
             Assert.AreEqual(expectedHash, response.Reference);
@@ -95,7 +97,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Provider = new Mock<Provider>();
             Provider.Setup(
-                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(), It.IsAny<DraftApprenticeshipDetails>()))
+                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(), It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<IUlnValidator>()))
                 .Returns(commitment);
 
             Db.Providers.Add(Provider.Object);
@@ -151,7 +153,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 HashingService,
                 Logger,
-                DraftApprenticeshipDetailsMapperMock.Object);
+                DraftApprenticeshipDetailsMapperMock.Object,
+                Mock.Of<IUlnValidator>());
 
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();

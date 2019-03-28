@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -26,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Updated { get; set; }
 
         //todo: The AccountLegalEntity here is an aggregate, but could be a query result instead.
-        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             var commitment = new Commitment
             {
@@ -47,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            commitment.AddDraftApprenticeship(draftApprenticeshipDetails);  
+            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, ulnValidator);  
 
             return commitment;
         }
