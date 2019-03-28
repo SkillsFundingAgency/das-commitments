@@ -68,14 +68,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _handler = new CreateApprenticeshipCommandHandler(
                 _mockCommitmentRespository.Object,
                 _mockApprenticeshipRepository.Object,
-                validator, 
-                _mockApprenticeshipEvents.Object, 
+                validator,
+                _mockApprenticeshipEvents.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 _mockHistoryRepository.Object,
                 Mock.Of<IMessagePublisher>());
 
             var fixture = new Fixture();
             var populatedApprenticeship = fixture.Build<Apprenticeship>()
+                .With(x => x.Id, 1000)
                 .With(x => x.ULN, "1234567890")
                 .With(x => x.ULN, ApprenticeshipTestDataHelper.CreateValidULN())
                 .With(x => x.NINumber, ApprenticeshipTestDataHelper.CreateValidNino())
@@ -91,7 +92,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 .Create();
 
             _mockApprenticeshipRepository.Setup(m => m.GetApprenticeship(It.IsAny<long>()))
-                .ReturnsAsync(new Domain.Entities.Apprenticeship {Id = expectedApprenticeshipId, ProviderId = _providerId, EmployerAccountId = _employerAccountId });
+                .ReturnsAsync(new Domain.Entities.Apprenticeship { Id = expectedApprenticeshipId, ProviderId = _providerId, EmployerAccountId = _employerAccountId });
 
             _exampleValidRequest = new CreateApprenticeshipCommand
             {
@@ -123,7 +124,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             await _handler.Handle(_exampleValidRequest);
 
-            _mockApprenticeshipRepository.Verify(x => 
+            _mockApprenticeshipRepository.Verify(x =>
                 x.CreateApprenticeship(It.IsAny<Domain.Entities.Apprenticeship>()));
         }
 
@@ -215,7 +216,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         [TestCase(EditStatus.Neither, CallerType.Employer)]
         public void ThenWhenEditStatusIsIncorrectAnInvalidRequestExceptionIsThrown(EditStatus editStatus, CallerType callerType)
         {
-            var c = new Commitment { EditStatus = editStatus, ProviderId = 5L, EmployerAccountId = 5L, CommitmentStatus = CommitmentStatus.Active};
+            var c = new Commitment { EditStatus = editStatus, ProviderId = 5L, EmployerAccountId = 5L, CommitmentStatus = CommitmentStatus.Active };
             _exampleValidRequest.Caller = new Caller { Id = 5L, CallerType = callerType };
             _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
             Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
@@ -250,13 +251,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         public async Task ThenItShouldUpdatedTheAgreementStatusForAllApprenticeshipsOnTheSameCommitment()
         {
             var c = new Commitment
-                        {
-                            Id = 123L,
-                            EditStatus = EditStatus.ProviderOnly,
-                            ProviderId = _providerId,
-                            EmployerAccountId = 5L,
-                            CommitmentStatus = CommitmentStatus.Active,
-                            Apprenticeships =
+            {
+                Id = 123L,
+                EditStatus = EditStatus.ProviderOnly,
+                ProviderId = _providerId,
+                EmployerAccountId = 5L,
+                CommitmentStatus = CommitmentStatus.Active,
+                Apprenticeships =
                                 new List<Apprenticeship>
                                     {
                                         new Apprenticeship { Id = 1, CommitmentId = 123L, AgreementStatus = AgreementStatus.BothAgreed},
@@ -264,7 +265,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                                         new Apprenticeship { Id = 3, CommitmentId = 123L, AgreementStatus = AgreementStatus.ProviderAgreed },
                                         new Apprenticeship { Id = 4, CommitmentId = 123L, AgreementStatus = AgreementStatus.NotAgreed }
                                     }
-                        };
+            };
 
             _mockCommitmentRespository.Setup(m => m.GetCommitmentById(It.IsAny<long>())).Returns(Task.Run(() => c));
             await _handler.Handle(_exampleValidRequest);
@@ -326,12 +327,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             argument.Cost.Should().Be(_exampleValidRequest.Apprenticeship.Cost);
             argument.StartDate.Should().Be(_exampleValidRequest.Apprenticeship.StartDate);
             argument.EndDate.Should().Be(_exampleValidRequest.Apprenticeship.EndDate);
-            argument.TrainingType.Should().Be((TrainingType) _exampleValidRequest.Apprenticeship.TrainingType);
+            argument.TrainingType.Should().Be((TrainingType)_exampleValidRequest.Apprenticeship.TrainingType);
             argument.TrainingCode.Should().Be(_exampleValidRequest.Apprenticeship.TrainingCode);
             argument.TrainingName.Should().Be(_exampleValidRequest.Apprenticeship.TrainingName);
             argument.ULN.Should().Be(_exampleValidRequest.Apprenticeship.ULN);
             argument.PaymentStatus.Should().Be(PaymentStatus.PendingApproval);
-            argument.AgreementStatus.Should().Be((AgreementStatus) _exampleValidRequest.Apprenticeship.AgreementStatus);
+            argument.AgreementStatus.Should().Be((AgreementStatus)_exampleValidRequest.Apprenticeship.AgreementStatus);
         }
     }
 }
