@@ -35,6 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string EpaOrgId { get; set; }
         public long? CloneOf { get; set; }
 
+        public Guid? ReservationId { get; set; }
+
         public virtual Commitment Commitment { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }
     }

@@ -26,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
 
-        //todo: The AccountLegalEntity here is an aggregate, but could be a query result instead.
         public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             var commitment = new Commitment

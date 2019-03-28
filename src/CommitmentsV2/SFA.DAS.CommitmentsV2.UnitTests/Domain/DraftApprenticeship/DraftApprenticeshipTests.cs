@@ -99,5 +99,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source));
             Assert.AreEqual(_source.ProviderRef, result.ProviderRef);
         }
+
+        [Test]
+        public void ThenReservationIdIsMappedCorrectly()
+        {
+            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source));
+            Assert.AreEqual(_source.ReservationId, result.ReservationId);
+        }
     }
 }
