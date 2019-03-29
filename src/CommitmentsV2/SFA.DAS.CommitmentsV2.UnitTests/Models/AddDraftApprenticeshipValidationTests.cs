@@ -100,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
     {
         public DraftApprenticeshipDetails DraftApprenticeshipDetails;
         public Commitment Cohort;
+
         public AddDraftApprenticeshipValidationTestsFixture()
         {
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails();
@@ -120,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails);
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Mock.Of<IUlnValidator>());
                 Assert.AreEqual(expected, true);
             }
             catch (DomainException ex)
