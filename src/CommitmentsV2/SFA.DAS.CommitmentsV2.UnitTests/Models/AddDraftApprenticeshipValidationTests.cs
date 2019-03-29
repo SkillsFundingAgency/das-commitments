@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
