@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator);
-            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
         }
 
@@ -77,6 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if (draftApprenticeshipDetails.FirstName.Length > 100)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
+
                 }
             }
 
@@ -119,18 +120,22 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (EditStatus == EditStatus.ProviderOnly)
             {
-                if (draftApprenticeshipDetails.ProviderRef != null && draftApprenticeshipDetails.ProviderRef.Length > 20)
+                if (draftApprenticeshipDetails.Reference != null && draftApprenticeshipDetails.Reference.Length > 20)
                 {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.ProviderRef), "The Reference must be 20 characters or fewer");
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.Reference), "The Reference must be 20 characters or fewer");
                 }
             }
             else
             {
-                if (draftApprenticeshipDetails.EmployerRef != null && draftApprenticeshipDetails.EmployerRef.Length > 20)
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.EmployerRef), "The Reference must be 20 characters or fewer");
-                }
+            if (draftApprenticeshipDetails.Reference != null && draftApprenticeshipDetails.Reference.Length > 20)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Reference), "The Reference must be 20 characters or fewer");
             }
+            }
+
+
+
+
         }
     }
 }

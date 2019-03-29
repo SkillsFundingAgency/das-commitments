@@ -15,8 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public string EmployerRef { get; set; }
-        public string ProviderRef { get; set; }
+        public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
     }
 }

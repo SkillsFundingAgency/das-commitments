@@ -83,8 +83,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public void ProviderRef_CheckValidation(string @ref, bool passes)
         {
             _fixture.WithProviderCohort()
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ProviderRef = @ref,
-                nameof(_fixture.DraftApprenticeshipDetails.ProviderRef),
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Reference = @ref,
+                nameof(_fixture.DraftApprenticeshipDetails.Reference),
                 passes);
         }
 
@@ -94,8 +94,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public void EmployerRef_CheckValidation(string @ref, bool passes)
         {
             _fixture.WithEmployerCohort()
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.EmployerRef = @ref,
-                nameof(_fixture.DraftApprenticeshipDetails.EmployerRef),
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Reference = @ref,
+                nameof(_fixture.DraftApprenticeshipDetails.Reference),
                 passes);
         }
 

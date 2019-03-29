@@ -79,7 +79,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public async Task Map_ProviderRef_ShouldBeSet()
         {
             const string providerRef = "TestProviderRef";
-            await AssertPropertySet(input => input.OriginatorReference = providerRef, output => output.ProviderRef == providerRef);
+            await AssertPropertySet(input => input.OriginatorReference = providerRef, output => output.Reference == providerRef);
         }
 
         [Test]
