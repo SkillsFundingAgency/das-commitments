@@ -102,7 +102,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
                     fixture.Create<string>(),
                     fixture.Create<DateTime>());
 
-                DraftApprenticeshipDetails = fixture.Create<DraftApprenticeshipDetails>();
+                DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+                {
+                    FirstName = fixture.Create<string>(),
+                    LastName = fixture.Create<string>(),
+                    ReservationId = Guid.NewGuid()
+                };
             }
 
             public Commitment CreateCohort()
