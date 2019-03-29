@@ -110,7 +110,13 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.Cost.HasValue && !(draftApprenticeshipDetails.Cost >= 0 && draftApprenticeshipDetails.Cost <= 100000))
+            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > 100000)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
             }
