@@ -67,10 +67,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
         [TestCase(null, true)]
         [TestCase(-1, false)]
-        [TestCase(0, true)]
+        [TestCase(0, false)]
         [TestCase(100000, true)]
         [TestCase(100001, false)]
-        public void Cost_CheckValidation(decimal? cost, bool passes)
+        public void Cost_CheckValidation(int? cost, bool passes)
         {
             _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Cost = cost,
                 nameof(_fixture.DraftApprenticeshipDetails.Cost),

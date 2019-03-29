@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
         {
-            var trainingProgram = await GetCourseName(source.CourseCode);
+            var trainingProgram = await GetCourse(source.CourseCode);
 
             return new DraftApprenticeshipDetails
             {
@@ -36,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId
             };
         }
-        private async Task<ITrainingProgramme> GetCourseName(string courseCode)
+        private async Task<ITrainingProgramme> GetCourse(string courseCode)
         {
             if (string.IsNullOrWhiteSpace(courseCode))
             {
