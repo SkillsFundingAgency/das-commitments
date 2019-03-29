@@ -37,25 +37,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         }
 
 
-        [TestCase("2019-04-01", "2019-03-01", false)]
-        [TestCase("2019-04-01", "2019-04-01", false)]
-        [TestCase("2019-04-01", "2019-05-01", true)]
-        public void Validate_EndDateCode_ShouldBeValidated(string startDateValue, string endDateValue, bool expectedValid)
-        {
-            const string requiredDateFormat = "yyyy-MM-dd";
-
-            var startDate = DateTime.ParseExact(startDateValue, requiredDateFormat, CultureInfo.CurrentCulture);
-            var endDate = DateTime.ParseExact(endDateValue, requiredDateFormat, CultureInfo.CurrentCulture);
-
-            var requestInstance = new CreateCohortRequest
-            {
-                StartDate = startDate,
-                EndDate = endDate
-            };
-
-            AssertValidationResult(request => request.EndDate, requestInstance, expectedValid);
-        }
-
         [TestCase(true, false)]
         [TestCase(false, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool useBlankGuid, bool expectedValid)

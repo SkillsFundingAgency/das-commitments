@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using SFA.DAS.CommitmentsV2.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class Commitment
+    public class Commitment
     {
         public Commitment()
         {
@@ -43,5 +46,106 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Apprenticeship> Apprenticeship { get; set; }
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
+
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        {
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
+            Apprenticeship.Add(draftApprenticeship);
+        }
+
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        {
+            var errors = new List<DomainError>();
+            errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildReferenceValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
+            errors.ThrowIfAny();
+        }
+
+        private IEnumerable<DomainError> BuildFirstNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.FirstName))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.FirstName.Length > 100)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildLastNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.LastName.Length > 100)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "You must enter a last name that's no longer than 100 characters");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildEndDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate <= DateTime.Today)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be in the past");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost <= 0)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "Enter the total agreed training cost");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > 100000)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildReferenceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.Reference != null && draftApprenticeshipDetails.Reference.Length > 20)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Reference), "The Reference must be 20 characters or fewer");
+            }
+        }
+        private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        {
+            if (!string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
+            {
+                var validationResult = ulnValidator.Validate(draftApprenticeshipDetails.Uln);
+                switch(validationResult)
+                {
+                    case UlnValidationResult.IsInValidTenDigitUlnNumber:
+                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a 10-digit unique learner number");
+                        yield break;
+                    case UlnValidationResult.IsInvalidUln:
+                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a valid unique learner number");
+                        yield break;
+                    default:
+                        yield break;
+                }  
+            }
+        }
     }
 }
