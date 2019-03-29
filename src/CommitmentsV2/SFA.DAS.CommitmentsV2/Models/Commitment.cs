@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class Commitment
+    public class Commitment
     {
         public Commitment()
         {
@@ -57,40 +57,40 @@ namespace SFA.DAS.CommitmentsV2.Models
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             var errors = new List<DomainError>();
-            errors.AddRange(BuildNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildReferenceValidationFailures(draftApprenticeshipDetails));
-                
+            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
             errors.ThrowIfAny();
         }
 
-        private IEnumerable<DomainError> BuildNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private IEnumerable<DomainError> BuildFirstNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.FirstName))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered");
+                yield break;
             }
-            else
+
+            if (draftApprenticeshipDetails.FirstName.Length > 100)
             {
-                if (draftApprenticeshipDetails.FirstName.Length > 100)
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
-
-                }
+                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
             }
+        }
 
+        private IEnumerable<DomainError> BuildLastNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered");
+                yield break;
             }
-            else
+
+            if (draftApprenticeshipDetails.LastName.Length > 100)
             {
-                if (draftApprenticeshipDetails.LastName.Length > 100)
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "You must enter a last name that's no longer than 100 characters");
-                }
+                yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "You must enter a last name that's no longer than 100 characters");
             }
         }
 
@@ -118,24 +118,28 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildReferenceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (EditStatus == EditStatus.ProviderOnly)
-            {
-                if (draftApprenticeshipDetails.Reference != null && draftApprenticeshipDetails.Reference.Length > 20)
-                {
-                    yield return new DomainError(nameof(draftApprenticeshipDetails.Reference), "The Reference must be 20 characters or fewer");
-                }
-            }
-            else
-            {
             if (draftApprenticeshipDetails.Reference != null && draftApprenticeshipDetails.Reference.Length > 20)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Reference), "The Reference must be 20 characters or fewer");
             }
+        }
+        private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        {
+            if (!string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
+            {
+                var validationResult = ulnValidator.Validate(draftApprenticeshipDetails.Uln);
+                switch(validationResult)
+                {
+                    case UlnValidationResult.IsInValidTenDigitUlnNumber:
+                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a 10-digit unique learner number");
+                        yield break;
+                    case UlnValidationResult.IsInvalidUln:
+                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a valid unique learner number");
+                        yield break;
+                    default:
+                        yield break;
+                }  
             }
-
-
-
-
         }
     }
 }
