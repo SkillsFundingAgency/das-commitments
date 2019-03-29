@@ -49,7 +49,6 @@ namespace SFA.DAS.CommitmentsV2.Api.ErrorHandler
             return JsonConvert.SerializeObject(response);
         }
 
-        //todo: move this mapping
         private static List<ErrorDetail> MapToApiErrors(IEnumerable<DomainError> source)
         {
             return source.Select(sourceItem => new ErrorDetail(sourceItem.PropertyName, sourceItem.ErrorMessage)).ToList();
