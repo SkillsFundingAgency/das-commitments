@@ -8,12 +8,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
-using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.HashingService;
@@ -26,23 +24,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     public class AddCohortCommandHandlerTests : FluentTest<AddCohortCommandHandlerTestFixture>
     {
         [Test]
-        public async Task ShouldCreateAccountAndLogSuccess()
+        public async Task ShouldCreateCohort()
         {
             const string expectedHash = "ABC123";
 
+            long accountId = 2;
+            long accountLegalEntityId = 3;
+
             var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash)
-                                .WithProvider(1)
-                                .WithAccountLegalEntity(2, 3);
+                                .WithAccountLegalEntity(accountId, accountLegalEntityId);
 
             var response = await fixtures.Handle(3, 1, "Course1");
 
-            Assert.IsNotNull(response);
-            Assert.AreNotEqual(0, response.Id);
+            fixtures.Provider.Verify(x =>
+                    x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
+                            ale.AccountId == accountId && ale.Id == accountLegalEntityId),
+                        It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
+                        It.IsAny<IUlnValidator>()),
+                Times.Once);
+
             Assert.AreEqual(expectedHash, response.Reference);
-             
-            Assert.IsTrue(fixtures.Logger.HasInfo);
-            Assert.IsFalse(fixtures.Logger.HasErrors);
+            
         }
     }
 
@@ -73,6 +76,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     {
         public ProviderCommitmentsDbContext Db { get; set; }
 
+        public Mock<Provider> Provider { get; set; }
+
         public AddCohortCommandHandlerTestFixture()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
@@ -82,14 +87,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             HashingServiceMock = new Mock<IHashingService>();
 
-            AddCohortCommandToDraftApprenticeshipDetailsMapperMock =
+            DraftApprenticeshipDetailsMapperMock =
                 new Mock<IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
-            AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
-                .ReturnsAsync(() => new DraftApprenticeshipDetails
-                {
-                    FirstName = "Test",
-                    LastName = "Tester"
-                }); //todo: return a valid value always?
+            DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
+                .ReturnsAsync(() => new DraftApprenticeshipDetails());
+
+            var commitment = new Commitment();
+            commitment.Apprenticeship.Add(new DraftApprenticeship());
+
+            Provider = new Mock<Provider>();
+            Provider.Setup(
+                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(), It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<IUlnValidator>()))
+                .Returns(commitment);
+
+            Db.Providers.Add(Provider.Object);
 
             Logger = new TestLogger(); 
         }
@@ -97,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IHashingService> HashingServiceMock { get; }
         public IHashingService HashingService => HashingServiceMock.Object;
 
-        public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> AddCohortCommandToDraftApprenticeshipDetailsMapperMock { get; }
+        public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
 
         public TestLogger Logger { get; }
@@ -128,15 +139,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public AddCohortCommandHandlerTestFixture WithProvider(long providerId)
-        {
-            var provider = new Provider{UkPrn = providerId, Name=$"Provider {providerId:D3}"};
-
-            Db.Providers.Add(provider);
-
-            return this;
-        }
-
         public async Task<AddCohortResponse> Handle(long accountLegalEntity, long providerId, string courseCode)
         {
             Db.SaveChanges();
@@ -151,7 +153,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 HashingService,
                 Logger,
-                AddCohortCommandToDraftApprenticeshipDetailsMapperMock.Object);
+                DraftApprenticeshipDetailsMapperMock.Object,
+                Mock.Of<IUlnValidator>());
 
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();

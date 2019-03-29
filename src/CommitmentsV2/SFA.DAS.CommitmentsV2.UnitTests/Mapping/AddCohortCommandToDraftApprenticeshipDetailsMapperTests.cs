@@ -106,6 +106,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             await AssertPropertySet(input => input.CourseCode = "test", output => output.TrainingName == trainingName);
         }
 
+        [Test]
+        public async Task Map_ReservationId_ShouldBeSet()
+        {
+            var reservationId = Guid.NewGuid();
+            await AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == reservationId);
+        }
+
         private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
             var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApiClient.Object);
@@ -118,8 +125,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
             Assert.IsTrue(expectOutput(output));
         }
-
-
-
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -45,14 +47,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails);
             Apprenticeship.Add(draftApprenticeship);
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             var errors = new List<DomainError>();
             errors.AddRange(BuildNameValidationFailures(draftApprenticeshipDetails));
@@ -88,7 +90,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if (draftApprenticeshipDetails.LastName.Length > 100)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "You must enter a last name that's no longer than 100 characters");
-
                 }
             }
         }

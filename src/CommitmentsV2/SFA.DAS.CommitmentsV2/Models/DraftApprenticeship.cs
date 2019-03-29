@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : Apprenticeship
     {
-        private DraftApprenticeship()
+        internal DraftApprenticeship()
         {
         }
 
@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DateOfBirth = source.DateOfBirth;
             EmployerRef = source.EmployerRef;
             ProviderRef = source.ProviderRef;
+            ReservationId = source.ReservationId;
         }
     }
 }

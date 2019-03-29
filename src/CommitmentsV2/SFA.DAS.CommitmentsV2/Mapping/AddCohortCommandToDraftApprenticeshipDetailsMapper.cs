@@ -32,7 +32,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
-                ProviderRef = source.OriginatorReference //todo: this won't work then the employer creates
+                ProviderRef = source.OriginatorReference, //todo: this won't work then the employer creates
+                ReservationId = source.ReservationId
             };
         }
         private async Task<ITrainingProgramme> GetCourseName(string courseCode)
