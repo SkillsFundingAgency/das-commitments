@@ -2,6 +2,7 @@
 using System.Linq;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
@@ -81,7 +82,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         [TestCase("Provider", true)]
         public void ProviderRef_CheckValidation(string @ref, bool passes)
         {
-            _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ProviderRef = @ref,
+            _fixture.WithProviderCohort()
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.ProviderRef = @ref,
                 nameof(_fixture.DraftApprenticeshipDetails.ProviderRef),
                 passes);
         }
@@ -91,7 +93,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         [TestCase("Employer", true)]
         public void EmployerRef_CheckValidation(string @ref, bool passes)
         {
-            _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.EmployerRef = @ref,
+            _fixture.WithEmployerCohort()
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.EmployerRef = @ref,
                 nameof(_fixture.DraftApprenticeshipDetails.EmployerRef),
                 passes);
         }
@@ -106,8 +109,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public AddDraftApprenticeshipValidationTestsFixture()
         {
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails();
-            Cohort = new Commitment();
             SetupMinimumNameProperties();
+            Cohort = new Commitment();
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithProviderCohort()
+        {
+            Cohort = new Commitment{ EditStatus = EditStatus.ProviderOnly };
+            return this;
+        }
+        public AddDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
+        {
+            Cohort = new Commitment { EditStatus = EditStatus.EmployerOnly };
+            return this;
         }
 
         public AddDraftApprenticeshipValidationTestsFixture SetupMinimumNameProperties()

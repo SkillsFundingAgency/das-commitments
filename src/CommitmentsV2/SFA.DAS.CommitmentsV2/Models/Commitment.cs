@@ -77,7 +77,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 if (draftApprenticeshipDetails.FirstName.Length > 100)
                 {
                     yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
-
                 }
             }
 
@@ -96,14 +95,15 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildEndDateValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
+            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate <= DateTime.Today)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be in the past");
+                yield break;
+            }
+
             if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
-            }
-
-            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.EndDate <= DateTime.Today)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be in the past Pre approval");
             }
         }
 
@@ -117,14 +117,19 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildReferenceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.ProviderRef != null && draftApprenticeshipDetails.ProviderRef.Length > 20)
+            if (EditStatus == EditStatus.ProviderOnly)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.ProviderRef), "The Reference must be 20 characters or fewer");
+                if (draftApprenticeshipDetails.ProviderRef != null && draftApprenticeshipDetails.ProviderRef.Length > 20)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.ProviderRef), "The Reference must be 20 characters or fewer");
+                }
             }
-
-            if (draftApprenticeshipDetails.EmployerRef != null && draftApprenticeshipDetails.EmployerRef.Length > 20)
+            else
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EmployerRef), "The Reference must be 20 characters or fewer");
+                if (draftApprenticeshipDetails.EmployerRef != null && draftApprenticeshipDetails.EmployerRef.Length > 20)
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EmployerRef), "The Reference must be 20 characters or fewer");
+                }
             }
         }
     }
