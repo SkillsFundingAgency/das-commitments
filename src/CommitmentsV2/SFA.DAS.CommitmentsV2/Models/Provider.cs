@@ -26,7 +26,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
 
-        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails,
+            IUlnValidator ulnValidator)
         {
             var commitment = new Commitment
             {

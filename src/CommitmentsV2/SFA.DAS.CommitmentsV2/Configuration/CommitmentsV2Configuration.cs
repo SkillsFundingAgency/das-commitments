@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Configuration
+﻿using System;
+
+namespace SFA.DAS.CommitmentsV2.Configuration
 {
     public class CommitmentsV2Configuration
     {
@@ -10,5 +12,6 @@
         public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
 
         public AzureActiveDirectoryApiConfiguration AzureADApiAuthentication { get; set; }
+        public DateTime? CurrentDateTime { get; set; }
     }
 }
