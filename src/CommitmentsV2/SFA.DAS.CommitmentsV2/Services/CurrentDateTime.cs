@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly DateTime? _time;
 
-        public DateTime Now => _time ?? DateTime.UtcNow;
+        public DateTime UtcNow => _time ?? DateTime.UtcNow;
 
         public CurrentDateTime()
         {

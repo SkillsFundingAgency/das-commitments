@@ -16,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             get
             {
-                var now = _currentDateTime.Now;
-                var cutoff = new DateTime(now.Year, 8, 1);
-                return now >= cutoff ? cutoff : new DateTime(now.Year - 1, 8, 1);
+                var now = _currentDateTime.UtcNow;
+                var cutoffUtc = new DateTime(now.Year, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+                return now >= cutoffUtc ? cutoffUtc : new DateTime(now.Year - 1, 8, 1);
             }
         }
 
