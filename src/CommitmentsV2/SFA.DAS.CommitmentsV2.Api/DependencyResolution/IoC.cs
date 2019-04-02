@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<TrainingProgrammeRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
+            registry.IncludeRegistry<CurrentDateTimeRegistry>();
         }
     }
 }
