@@ -187,6 +187,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (draftApprenticeshipDetails.StartDate.Value < earliestDate)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.StartDate), "The start date must not be earlier than May 2017");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.StartDate.Value >
+                academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.StartDate),
+                    "The start date must be no later than one year after the end of the current teaching year");
+                yield break;
             }
         }
     }

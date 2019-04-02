@@ -130,6 +130,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                     nameof(_fixture.DraftApprenticeshipDetails.StartDate)
                     , passes);
         }
+
+        [TestCase("2019-04-01", null, true)]
+        [TestCase("2019-04-01", "2020-08-01", false, Description = "One day after cut off")]
+        [TestCase("2019-04-01", "2020-07-31", true, Description = "Day of cut off (last valid day)")]
+        [TestCase("2019-04-01", "2018-01-01", true, Description = "Day in the past")]
+        public void StartDate_CheckIsWithinAYearOfEndOfCurrentTeachingYear_Validation(DateTime currentDate, DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture.WithCurrentDate(currentDate)
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
+                    nameof(_fixture.DraftApprenticeshipDetails.StartDate)
+                    , passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -172,7 +188,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(), CurrentDateTime, Mock.Of<IAcademicYearDateProvider>());
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(), CurrentDateTime, AcademicYearDateProvider);
                 Assert.AreEqual(expected, true);
             }
             catch (DomainException ex)
