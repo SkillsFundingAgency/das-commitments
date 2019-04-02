@@ -47,14 +47,20 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator, ICurrentDateTime currentDateTime)
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails,
+            IUlnValidator ulnValidator,
+            ICurrentDateTime currentDateTime,
+            IAcademicYearDateProvider academicYearDateProvider)
         {
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator, currentDateTime);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator, currentDateTime, academicYearDateProvider);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator, ICurrentDateTime currentDateTime)
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails,
+            IUlnValidator ulnValidator,
+            ICurrentDateTime currentDateTime,
+            IAcademicYearDateProvider academicYearDateProvider)
         {
             var errors = new List<DomainError>();
             errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
@@ -64,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildReferenceValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
             errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, currentDateTime));
+            errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, academicYearDateProvider));
             errors.ThrowIfAny();
         }
 
@@ -167,6 +174,19 @@ namespace SFA.DAS.CommitmentsV2.Models
             else if (age >= 115)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be younger than 115 years old at the start of their training");
+            }
+        }
+
+        private IEnumerable<DomainError> BuildStartDateValidationFailures(
+            DraftApprenticeshipDetails draftApprenticeshipDetails, IAcademicYearDateProvider academicYearDateProvider)
+        {
+            if (!draftApprenticeshipDetails.StartDate.HasValue) yield break;
+
+            var earliestDate = new DateTime(2017,5,1,0,0,0,DateTimeKind.Utc);
+
+            if (draftApprenticeshipDetails.StartDate.Value < earliestDate)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.StartDate), "The start date must not be earlier than May 2017");
             }
         }
     }

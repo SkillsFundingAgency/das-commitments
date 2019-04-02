@@ -115,6 +115,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                     nameof(_fixture.DraftApprenticeshipDetails.DateOfBirth),
                     passes);
         }
+
+        [TestCase(null, true)]
+        [TestCase("2017-04-30", false)]
+        [TestCase("2017-05-01", true)]
+        public void StartDate_CheckNotBeforeMay2017_Validation(DateTime? startDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+                : default(DateTime?);
+
+            _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
+                    nameof(_fixture.DraftApprenticeshipDetails.StartDate)
+                    , passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -122,6 +137,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public DraftApprenticeshipDetails DraftApprenticeshipDetails;
         public Commitment Cohort;
         public ICurrentDateTime CurrentDateTime;
+        public IAcademicYearDateProvider AcademicYearDateProvider;
 
         public AddDraftApprenticeshipValidationTestsFixture()
         {
@@ -129,6 +145,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             SetupMinimumNameProperties();
             Cohort = new Commitment();
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
+            AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
         }
 
         public AddDraftApprenticeshipValidationTestsFixture WithProviderCohort()
@@ -155,7 +172,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(), CurrentDateTime);
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(), CurrentDateTime, Mock.Of<IAcademicYearDateProvider>());
                 Assert.AreEqual(expected, true);
             }
             catch (DomainException ex)
@@ -169,6 +186,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         {
             var utcCurrentDate = DateTime.SpecifyKind(currentDate, DateTimeKind.Utc);
             CurrentDateTime = new CurrentDateTime(utcCurrentDate);
+            AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
             return this;
         }
     }

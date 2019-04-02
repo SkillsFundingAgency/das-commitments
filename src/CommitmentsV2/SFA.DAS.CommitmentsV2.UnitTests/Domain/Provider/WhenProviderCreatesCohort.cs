@@ -115,7 +115,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
                 var result = Provider.CreateCohort(AccountLegalEntity,
                     DraftApprenticeshipDetails,
                     Mock.Of<IUlnValidator>(),
-                    Mock.Of<ICurrentDateTime>());
+                    Mock.Of<ICurrentDateTime>(),
+                    Mock.Of<IAcademicYearDateProvider>());
                 return result;
             }
         }
