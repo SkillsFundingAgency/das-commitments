@@ -18,13 +18,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 var now = _currentDateTime.UtcNow;
                 var cutoffUtc = new DateTime(now.Year, 8, 1, 0, 0, 0, DateTimeKind.Utc);
-                return now >= cutoffUtc ? cutoffUtc : new DateTime(now.Year - 1, 8, 1);
+                return now >= cutoffUtc ? cutoffUtc : new DateTime(now.Year - 1, 8, 1, 0, 0, 0, DateTimeKind.Utc);
             }
         }
 
         public DateTime CurrentAcademicYearEndDate => CurrentAcademicYearStartDate.AddYears(1).AddDays(-1);
 
-        public DateTime LastAcademicYearFundingPeriod => new DateTime(CurrentAcademicYearStartDate.Year, 10, 19, 18, 0, 0);
-
+        public DateTime LastAcademicYearFundingPeriod => new DateTime(CurrentAcademicYearStartDate.Year, 10, 19, 18, 0, 0, DateTimeKind.Utc);
     }
 }
