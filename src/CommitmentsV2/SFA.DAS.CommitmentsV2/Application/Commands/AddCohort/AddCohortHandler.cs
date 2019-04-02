@@ -22,19 +22,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
         private readonly IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly IUlnValidator _ulnValidator;
+        private readonly ICurrentDateTime _currentDateTime;
 
         public AddCohortHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext, 
             IHashingService hashingService, 
             ILogger<AddCohortHandler> logger,
             IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
-            IUlnValidator ulnValidator)
+            IUlnValidator ulnValidator, ICurrentDateTime currentDateTime)
         {
             _dbContext = dbContext;
             _hashingService = hashingService;
             _logger = logger;
             _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
             _ulnValidator = ulnValidator;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<AddCohortResponse> Handle(AddCohortCommand command, CancellationToken cancellationToken)
@@ -48,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
 
-            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _ulnValidator);
+            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _ulnValidator, _currentDateTime);
 
             db.Commitment.Add(cohort);
             await db.SaveChangesAsync(cancellationToken);
