@@ -47,14 +47,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator, ICurrentDateTime currentDateTime)
         {
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator, currentDateTime);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator, ICurrentDateTime currentDateTime)
         {
             var errors = new List<DomainError>();
             errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
@@ -63,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildReferenceValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
+            errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, currentDateTime));
             errors.ThrowIfAny();
         }
 
@@ -145,6 +146,27 @@ namespace SFA.DAS.CommitmentsV2.Models
                     default:
                         yield break;
                 }  
+            }
+        }
+
+        private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(
+            DraftApprenticeshipDetails draftApprenticeshipDetails, ICurrentDateTime currentDateTime)
+        {
+            if (!draftApprenticeshipDetails.DateOfBirth.HasValue) yield break;
+
+            var dob = draftApprenticeshipDetails.DateOfBirth.Value;
+            var now = currentDateTime.UtcNow;
+
+            var age = now.Year - dob.Year;
+            if ((dob.Month > now.Month) || (dob.Month == now.Month && dob.Day > now.Day)) age--;
+
+            if (age < 15)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be at least 15 years old at the start of their training");
+            }
+            else if (age >= 115)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be younger than 115 years old at the start of their training");
             }
         }
     }
