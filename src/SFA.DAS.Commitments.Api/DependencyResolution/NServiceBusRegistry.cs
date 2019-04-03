@@ -1,7 +1,9 @@
+using System;
 using System.Data.Common;
 using NServiceBus;
 using SFA.DAS.Commitments.Application.Configuration;
 using SFA.DAS.Commitments.Application.Interfaces;
+using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Configuration;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
@@ -30,12 +32,19 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
         private IEndpointInstance GetEndpoint(IContext ctx)
         {
+            var logger = ctx.GetInstance<ICommitmentsLogger>();
+
+            try
+            {
                 var configuration = ctx.GetInstance<INServiceBusConfiguration>();
                 var environment = ctx.GetInstance<IHostingEnvironment>();
                 var container = ctx.GetInstance<IContainer>();
 
+                logger.Info($"configuration-found?:{configuration != null} environment:{environment.EnvironmentType} nsb-transport-connection:{!string.IsNullOrWhiteSpace(configuration?.TransportConnectionString)} nsb-endpoint:{configuration.EndpointName} nsb-license:{!string.IsNullOrWhiteSpace(configuration.License)}");
+
                 var endpointConfiguration = new EndpointConfiguration(configuration.EndpointName)
-                    .UseAzureServiceBusTransport(() => configuration.TransportConnectionString, environment.IsDevelopment)
+                    .UseAzureServiceBusTransport(() => configuration.TransportConnectionString,
+                        environment.IsDevelopment)
                     .UseErrorQueue()
                     .UseInstallers()
                     .UseLicense(configuration.License)
@@ -47,6 +56,17 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
                 return endpoint;
+            }
+            catch (Exception ex)
+            {
+                while (ex != null)
+                {
+                    logger.Error(ex, "Failed to get end point");
+                    ex = ex.InnerException;
+                }
+
+                throw;
+            }
         }
     }
 }
