@@ -10,11 +10,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping
     public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>
     {
         private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
-        private readonly ITrainingProgrammeToTrainingProgrammeMapper _trainingProgrammeMapper;
+        private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
 
         public AddCohortCommandToDraftApprenticeshipDetailsMapper(
             ITrainingProgrammeApiClient trainingProgrammeApiClient,
-            ITrainingProgrammeToTrainingProgrammeMapper trainingProgrammeMapper)
+            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper)
         {
             _trainingProgrammeApiClient = trainingProgrammeApiClient;
             _trainingProgrammeMapper = trainingProgrammeMapper;

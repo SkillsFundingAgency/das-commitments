@@ -14,14 +14,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     {
         private TrainingProgramme _trainingProgramme;
-        private Mock<ITrainingProgrammeToTrainingProgrammeMapper> _trainingProgrammeMapper;
+        private Mock<IMapper<ITrainingProgramme,TrainingProgramme>> _trainingProgrammeMapper;
+        private Mock<ITrainingProgrammeApiClient> _trainingProgrammeApi;
 
         [SetUp]
         public void Arrange()
         {
             _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
-            _trainingProgrammeMapper = new Mock<ITrainingProgrammeToTrainingProgrammeMapper>();
+            _trainingProgrammeMapper = new Mock<IMapper<ITrainingProgramme, TrainingProgramme>>();
             _trainingProgrammeMapper.Setup(x => x.Map(It.IsAny<ITrainingProgramme>())).Returns(_trainingProgramme);
+
+            _trainingProgrammeApi = new Mock<ITrainingProgrammeApiClient>();
+            _trainingProgrammeApi.Setup(x => x.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(() => new Framework());
         }
 
         [Test]
@@ -83,8 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [Test]
         public async Task Map_TrainingProgramme_ShouldBeSet()
         {
-            
-            await AssertPropertySet(input => input.FirstName = "", output => output.TrainingProgramme == _trainingProgramme);
+            await AssertPropertySet(input => input.CourseCode = "TEST", output => output.TrainingProgramme == _trainingProgramme);
         }
 
         [Test]
@@ -96,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
         private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
-            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(Mock.Of<ITrainingProgrammeApiClient>(), _trainingProgrammeMapper.Object);
+            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApi.Object, _trainingProgrammeMapper.Object);
 
             var input = new AddCohortCommand();
 
