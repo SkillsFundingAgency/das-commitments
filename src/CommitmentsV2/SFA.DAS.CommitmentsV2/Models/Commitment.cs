@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -178,25 +179,50 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         private IEnumerable<DomainError> BuildStartDateValidationFailures(
-            DraftApprenticeshipDetails draftApprenticeshipDetails, IAcademicYearDateProvider academicYearDateProvider)
+            DraftApprenticeshipDetails details, IAcademicYearDateProvider academicYearDateProvider)
         {
-            if (!draftApprenticeshipDetails.StartDate.HasValue) yield break;
+            if (!details.StartDate.HasValue) yield break;
 
-            var earliestDate = new DateTime(2017,5,1,0,0,0,DateTimeKind.Utc);
+            var dasStartDate = new DateTime(2017, 5, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            if (draftApprenticeshipDetails.StartDate.Value < earliestDate)
+            var courseStartedBeforeDas = details.TrainingProgramme != null &&
+                                         (!details.TrainingProgramme.EffectiveFrom.HasValue ||
+                                          details.TrainingProgramme.EffectiveFrom.Value < dasStartDate);
+
+            if (courseStartedBeforeDas)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.StartDate), "The start date must not be earlier than May 2017");
-                yield break;
+                if (details.StartDate.Value < dasStartDate)
+                {
+                    yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
+                    yield break;
+                }
+            }
+            else
+            {
+                if (details.TrainingProgramme != null)
+                {
+                    var status = details.TrainingProgramme.GetStatusOn(details.StartDate.Value);
+                    if (status != TrainingProgrammeStatus.Active)
+                    {
+
+                        var suffix = status == TrainingProgrammeStatus.Pending
+                            ? $"after {details.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                            : $"before {details.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+
+                        var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
+
+                        yield return new DomainError(nameof(details.StartDate), errorMessage);
+                        yield break;
+                    }
+                }
             }
 
-            if (draftApprenticeshipDetails.StartDate.Value >
-                academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+            if (details.StartDate.Value > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.StartDate),
+                yield return new DomainError(nameof(details.StartDate),
                     "The start date must be no later than one year after the end of the current teaching year");
                 yield break;
             }
-        }
+       }
     }
 }

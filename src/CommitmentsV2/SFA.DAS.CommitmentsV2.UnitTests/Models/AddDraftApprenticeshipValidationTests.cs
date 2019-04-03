@@ -2,12 +2,14 @@
 using System.Linq;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
+using TrainingProgrammeStatus = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
@@ -146,6 +148,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                     nameof(_fixture.DraftApprenticeshipDetails.StartDate)
                     , passes);
         }
+
+        [TestCase(null, "2019-01-01", "2019-12-31", true,  Description ="Start date not specified")]
+        [TestCase("2019-06-01", "2019-01-01", "2019-12-31", true, Description = "Active")]
+        [TestCase("2018-06-01", "2019-01-01", "2019-12-31", false, Description ="Pending")]
+        [TestCase("2020-01-01", "2019-01-01", "2019-12-31", false, Description ="Expired")]
+        public void StartDate_CheckTrainingProgrammeActive_Validation(DateTime? startDate, DateTime courseEffectiveFromDate, DateTime courseEffectiveToDate, bool passes)
+        {
+            var utcStartDate = startDate.HasValue
+             ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
+             : default(DateTime?);
+
+            _fixture.WithTrainingProgrammeEffectiveBetween(courseEffectiveFromDate, courseEffectiveToDate)
+                .AssertValidationForProperty(()=> _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
+                    nameof(_fixture.DraftApprenticeshipDetails.StartDate),
+                    passes);
+        }
+
+        [TestCase("2015-08-01", "The start date must not be earlier than May 2017", Description = "Course effective before DAS" )]
+        [TestCase("2018-08-01", "This training course is only available to apprentices with a start date after 07 2018", Description = "Course effective after DAS")]
+        public void StartDate_CheckTrainingProgrammeActive_BeforeOrAfterDas_Validation(DateTime courseEffectiveFromDate, string expectedErrorMessage)
+        {
+            _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                StartDate = new DateTime(1950, 01, 01),
+                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
+            };
+
+            var domainException = Assert.Throws<DomainException>(() =>
+                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(),
+                    Mock.Of<ICurrentDateTime>(), Mock.Of<IAcademicYearDateProvider>()
+                ));
+
+                var startDateError = domainException.DomainErrors.Single(x =>
+                    x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
+
+                Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -157,7 +196,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
         public AddDraftApprenticeshipValidationTestsFixture()
         {
-            DraftApprenticeshipDetails = new DraftApprenticeshipDetails();
+            DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+            };
             SetupMinimumNameProperties();
             Cohort = new Commitment();
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
@@ -203,6 +245,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             var utcCurrentDate = DateTime.SpecifyKind(currentDate, DateTimeKind.Utc);
             CurrentDateTime = new CurrentDateTime(utcCurrentDate);
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithTrainingProgrammeEffectiveBetween(DateTime startDate, DateTime endDate)
+        {
+            DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+                "TEST",
+                ProgrammeType.Framework,
+                DateTime.SpecifyKind(startDate,DateTimeKind.Utc),
+                DateTime.SpecifyKind(endDate,DateTimeKind.Utc));
             return this;
         }
     }
