@@ -212,6 +212,7 @@
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommand.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandHandler.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandValidator.cs" />
+    <Compile Include="Services\V2EventsPublisher.cs" />
     <Compile Include="Services\Environment.cs" />
     <Compile Include="Services\EnvironmentType.cs" />
     <Compile Include="Services\HostingEnvironment.cs" />
