@@ -89,7 +89,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         private void ConfigureLogging()
         {
             For<ILoggingContext>().Use(x => new WebLoggingContext(new HttpContextWrapper(HttpContext.Current)));
-
+            For<ILog>().Use(c => new NLogLogger(c.ParentType, c.GetInstance<ILoggingContext>(), null)).AlwaysUnique();
             For<ICommitmentsLogger>().Use(x => GetBaseLogger(x)).AlwaysUnique();
         }
 
