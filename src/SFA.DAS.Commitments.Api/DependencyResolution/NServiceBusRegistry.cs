@@ -43,14 +43,13 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 logger.Info($"configuration-found?:{configuration != null} environment:{environment.EnvironmentType} nsb-transport-connection:{!string.IsNullOrWhiteSpace(configuration?.TransportConnectionString)} nsb-endpoint:{configuration.EndpointName} nsb-license:{!string.IsNullOrWhiteSpace(configuration.License)}");
 
                 var endpointConfiguration = new EndpointConfiguration(configuration.EndpointName)
-                    .UseAzureServiceBusTransport(() => configuration.TransportConnectionString,
-                        environment.IsDevelopment)
+                    .UseNLogFactory()
+                    .UseAzureServiceBusTransport(() => configuration.TransportConnectionString, environment.IsDevelopment)
                     .UseErrorQueue()
                     .UseInstallers()
                     .UseLicense(configuration.License)
                     .UseDasMessageConventions()
                     .UseNewtonsoftJsonSerializer()
-                    .UseNLogFactory()
                     .UseStructureMapBuilder(container);
 
                 var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
