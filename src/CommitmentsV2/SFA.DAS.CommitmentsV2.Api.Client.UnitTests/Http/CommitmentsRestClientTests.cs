@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
 using SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Fakes;
-using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.Http;
 using SFA.DAS.Testing;
 
@@ -31,13 +31,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         }
 
         [Test]
-        public Task WhenCallingGetAndHttpClientReturnsBadRequestWithCustomException_ThenShouldThrowApiException()
+        public Task WhenCallingPostAsJsonAndHttpClientReturnsBadRequestWithModelException_ThenShouldThrowApiModelException()
         {
-            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnCustomError(), 
-                f => f.CallGet(null),
-                (f, r) => r.Should().Throw<CommitmentsApiException>()
-                    .Where(ex => ex.ErrorCode == 123
-                                 && ex.Message == "This is a domain error"));
+            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnModelError(),
+                f => f.CallPostAsJson(null),
+                (f, r) => r.Should().Throw<CommitmentsApiModelException>()
+                    .Where(ex => ex.Errors.Count == f.ModelErrors.Count));
         }
     }
 
@@ -54,30 +53,25 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         public Uri RequestUri { get; set; }
         public string ResponseString { get; set; }
         public object ResponseObject { get; set; }
+        public List<ErrorDetail> ModelErrors { get; set; }
         
         public CommitmentsRestClientTestsFixture()
         {
+            ModelErrors = new List<ErrorDetail> { new ErrorDetail("field1", "Message1") };
+
             HttpMessageHandler = new FakeHttpMessageHandler();
             HttpClient = new HttpClient(HttpMessageHandler) { BaseAddress = new Uri("https://example.com") };
             RestHttpClient = new CommitmentsRestHttpClient(HttpClient);
         }
         
-        public void SetupHttpClientGetToReturnCustomError()
+        public void SetupHttpClientGetToReturnModelError()
         {
-            ResponseObject =
-                new ErrorResponse
-                {
-                    ErrorType = ErrorType.CommitmentApiException,
-                    ErrorDetails = new List<ErrorDetail>
-                    {
-                        new ErrorDetail {ErrorCode = 123, Message = "This is a domain error"}
-                    }
-                };
-                
+            ResponseObject = new ErrorResponse(ModelErrors);
+
             var stringBody = JsonConvert.SerializeObject(ResponseObject);
             HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
-                Content = new StringContent(stringBody, Encoding.Default, "application/json") 
+                Content = new StringContent(stringBody, Encoding.Default, "application/json")
             };
         }
 
@@ -95,6 +89,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         public async Task<string> CallGet(object queryData)
         {
             return await RestHttpClient.Get("https://example.com", queryData);
+        }
+        public async Task<string> CallPostAsJson(object queryData)
+        {
+            return await RestHttpClient.PostAsJson("https://example.com", queryData);
         }
     }
 }

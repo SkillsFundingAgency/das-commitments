@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Queries.GetAccountLegalEntity;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
     [TestFixture]
     public class AccountLegalEntityControllerTests
@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse {AccountName="AccountName", LegalEntityName="" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountName = "AccountName", LegalEntityName = "" });
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
             // Assert
             Assert.AreEqual(typeof(OkObjectResult), response.GetType());
 
-            var objectResult = response as OkObjectResult;
+            var objectResult = (OkObjectResult) response;
 
             Assert.AreEqual(200, objectResult.StatusCode);
         }
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
             // Assert
             Assert.AreEqual(typeof(NotFoundResult), response.GetType());
 
-            var objectResult = response as NotFoundResult;
+            var objectResult = (NotFoundResult) response;
 
             Assert.AreEqual(404, objectResult.StatusCode);
         }
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Queries.GetEmployer
         {
             MediatorMock
                 .Setup(m => m.Send(
-                                    It.Is<GetAccountLegalEntityRequest>(request => request.AccountLegalEntityId == forAccountLegalEntityId), 
+                                    It.Is<GetAccountLegalEntityRequest>(request => request.AccountLegalEntityId == forAccountLegalEntityId),
                                     It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(sendResponse));
 

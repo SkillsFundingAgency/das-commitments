@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
+using SFA.DAS.CommitmentsV2.Startup;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers
@@ -18,11 +19,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
             {
                 hostBuilder
                     .UseDasEnvironment()
-                    .MessageHandlerAppConfiguration(args)
+                    .ConfigureDasAppConfiguration(args)
                     .ConfigureServices((hostContext, services) =>
                     {
-                        services.AddMessageHandlerConfigurationSections()
-                                .ConfigureNServiceBus()
+                        services.ConfigureNServiceBus()
                                 .AddHostedService<NServiceBusHostedService>();
                     })
                     .ConfigureLogging(b => b.AddNLog())

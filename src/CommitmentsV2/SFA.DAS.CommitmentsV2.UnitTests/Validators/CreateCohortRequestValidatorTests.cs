@@ -1,0 +1,82 @@
+﻿using System;
+using System.Globalization;
+using System.Linq.Expressions;
+using FluentValidation.TestHelper;
+using NUnit.Framework;
+using NUnit.Framework.Internal;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Validators;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
+{
+    [TestFixture()]
+    public class CreateCohortRequestValidatorTests
+    {
+        [TestCase(null, false)]
+        [TestCase("", false)]
+        [TestCase("Fred Flintstone", true)]
+        public void Validate_UserId_ShouldBeValidated(string value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.UserId, value, expectedValid);
+        }
+
+        [TestCase(-1, false)]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        public void Validate_AccountLegalEntityId_ShouldBeValidated(long value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.AccountLegalEntityId, value, expectedValid);
+        }
+
+        [TestCase(-1, false)]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        public void Validate_ProviderId_ShouldBeValidated(long value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.ProviderId, value, expectedValid);
+        }
+
+
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public void Validate_ReservationId_ShouldBeValidated(bool useBlankGuid, bool expectedValid)
+        {
+            var guidToUse = useBlankGuid ? Guid.Empty : Guid.NewGuid();
+
+            AssertValidationResult(request => request.ReservationId, guidToUse, expectedValid);
+        }
+
+        private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property, T value, bool expectedValid)
+        {
+            // Arrange
+            var validator = new CreateCohortRequestValidator();
+
+            // Act
+            if (expectedValid)
+            {
+                validator.ShouldNotHaveValidationErrorFor(property, value);
+            }
+            else
+            {
+                validator.ShouldHaveValidationErrorFor(property, value);
+            }
+        }
+
+        private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, CreateCohortRequest instance, bool expectedValid)
+        {
+            // Arrange
+            var validator = new CreateCohortRequestValidator();
+
+            // Act
+            if (expectedValid)
+            {
+                validator.ShouldNotHaveValidationErrorFor(property, instance);
+            }
+            else
+            {
+                validator.ShouldHaveValidationErrorFor(property, instance);
+            }
+        }
+
+    }
+}

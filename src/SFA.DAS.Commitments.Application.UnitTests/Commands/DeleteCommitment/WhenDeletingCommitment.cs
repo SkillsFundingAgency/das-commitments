@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
@@ -28,6 +29,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
         private DeleteCommitmentCommandHandler _handler;
         private DeleteCommitmentCommand _validCommand;
         private Mock<IMessagePublisher> _mockMessagePublisher;
+        private Mock<IV2EventsPublisher> _mockV2EventsPublisher;
+
 
         [SetUp]
         public void Setup()
@@ -37,8 +40,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
             _mockHistoryRepository = new Mock<IHistoryRepository>();
             _validator = new DeleteCommitmentValidator();
             _mockMessagePublisher = new Mock<IMessagePublisher>();
+            _mockV2EventsPublisher = new Mock<IV2EventsPublisher>();
 
-            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object, _mockMessagePublisher.Object);
+            _handler = new DeleteCommitmentCommandHandler(_mockCommitmentRepository.Object, _validator, Mock.Of<ICommitmentsLogger>(), _mockApprenticeshipEvents.Object, _mockHistoryRepository.Object, _mockMessagePublisher.Object, _mockV2EventsPublisher.Object);
 
             _validCommand = new DeleteCommitmentCommand { CommitmentId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider }, UserId = "User", UserName = "Bob"};
         }
@@ -289,6 +293,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteCommitment
 
             _mockMessagePublisher.Verify(x => x.PublishAsync(
                 It.IsAny<ProviderCohortApprovalUndoneByEmployerUpdate>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ShouldPublishV2EventForEachApprenticeship()
+        {
+            var testCommitment = new Commitment
+            {
+                ProviderId = 123,
+                CommitmentStatus = CommitmentStatus.New,
+                EditStatus = EditStatus.ProviderOnly,
+                Apprenticeships = new List<Apprenticeship>
+                {
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed},
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed },
+                    new Apprenticeship { PaymentStatus = PaymentStatus.PendingApproval, AgreementStatus = AgreementStatus.NotAgreed }
+                }
+            };
+
+            _mockCommitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            await _handler.Handle(_validCommand);
+
+            _mockV2EventsPublisher.Verify(ep => ep.PublishApprenticeshipDeleted(testCommitment, testCommitment.Apprenticeships[0]), Times.Once);
+            _mockV2EventsPublisher.Verify(ep => ep.PublishApprenticeshipDeleted(testCommitment, testCommitment.Apprenticeships[1]), Times.Once);
+            _mockV2EventsPublisher.Verify(ep => ep.PublishApprenticeshipDeleted(testCommitment, testCommitment.Apprenticeships[2]), Times.Once);
         }
     }
 }

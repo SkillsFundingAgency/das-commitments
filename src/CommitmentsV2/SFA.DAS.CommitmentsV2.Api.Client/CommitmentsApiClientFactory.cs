@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Client.Configuration;
+using SFA.DAS.CommitmentsV2.Api.Client.Http;
 using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
@@ -15,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(_config);
             var httpClient = httpClientFactory.CreateHttpClient();
-            var restHttpClient = new RestHttpClient(httpClient);
+            var restHttpClient = new CommitmentsRestHttpClient(httpClient);
             return new CommitmentsApiClient(restHttpClient);
         }
     }

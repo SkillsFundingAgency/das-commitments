@@ -34,6 +34,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             return new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
+                c.AddRegistry<NServiceBusRegistry>();
                 c.Policies.Add<CurrentDatePolicy>();
                 c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
             });

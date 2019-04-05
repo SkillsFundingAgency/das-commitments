@@ -5,6 +5,7 @@ using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -16,14 +17,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.DeleteApprenticeshi
         private AbstractValidator<DeleteApprenticeshipCommand> _validator;
         private DeleteApprenticeshipCommandHandler _handler;
         private DeleteApprenticeshipCommand _validCommand;
+        private Mock<IV2EventsPublisher> _mockV2EventsPublisher;
+
 
         [SetUp]
         public void Setup()
         {
+            _mockV2EventsPublisher = new Mock<IV2EventsPublisher>();
+
             _validator = new DeleteApprenticeshipValidator();
             _handler = new DeleteApprenticeshipCommandHandler(Mock.Of<ICommitmentRepository>(),
                 Mock.Of<IApprenticeshipRepository>(), _validator, Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>());
+                Mock.Of<IApprenticeshipEvents>(), Mock.Of<IHistoryRepository>(), _mockV2EventsPublisher.Object);
 
             _validCommand = new DeleteApprenticeshipCommand() { ApprenticeshipId = 2, Caller = new Domain.Caller { Id = 123, CallerType = Domain.CallerType.Provider } };
         }

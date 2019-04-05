@@ -10,8 +10,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Configuration
         public static IServiceCollection AddApiConfigurationSections(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddOptions();
-            services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection($"{CommitmentsConfigurationKeys.CommitmentsV2Base}:AzureADApiAuthentication"));
-            services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2Base));
+            services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection($"{CommitmentsConfigurationKeys.CommitmentsV2}:AzureADApiAuthentication"));
+            services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2));
 
             return services;
         }

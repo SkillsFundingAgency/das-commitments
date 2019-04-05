@@ -1,0 +1,62 @@
+﻿using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.CommitmentsV2.Data.Configuration;
+using SFA.DAS.CommitmentsV2.Models;
+
+namespace SFA.DAS.CommitmentsV2.Data
+{
+    public class ProviderCommitmentsDbContext : DbContext
+    {
+        public virtual DbSet<Account> Accounts { get; set; }
+        public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
+        public virtual DbSet<DraftApprenticeship> DraftApprenticeships { get; set; }
+        public virtual DbSet<ConfirmedApprenticeship> ConfirmedApprenticeships { get; set; }
+        public virtual DbSet<ApprenticeshipUpdate> ApprenticeshipUpdate { get; set; }
+        public virtual DbSet<AssessmentOrganisation> AssessmentOrganisation { get; set; }
+        public virtual DbSet<BulkUpload> BulkUpload { get; set; }
+        public virtual DbSet<Commitment> Commitment { get; set; }
+        public virtual DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriority { get; set; }
+        public virtual DbSet<DataLockStatus> DataLockStatus { get; set; }
+        public virtual DbSet<History> History { get; set; }
+        public virtual DbSet<IntegrationTestIds> IntegrationTestIds { get; set; }
+        public virtual DbSet<JobProgress> JobProgress { get; set; }
+        public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<Provider> Providers { get; set; }
+        public virtual DbSet<PriceHistory> PriceHistory { get; set; }
+        public virtual DbSet<TransferRequest> TransferRequest { get; set; }
+
+        public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
+        {
+        }
+
+        protected ProviderCommitmentsDbContext()
+        {
+        }
+
+        public virtual Task ExecuteSqlCommandAsync(string sql, params object[] parameters)
+        {
+            return Database.ExecuteSqlCommandAsync(sql, parameters);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new AccountConfiguration());
+            modelBuilder.ApplyConfiguration(new AccountLegalEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new ApprenticeshipConfiguration());
+            modelBuilder.ApplyConfiguration(new ApprenticeshipUpdateConfiguration());
+            modelBuilder.ApplyConfiguration(new AssessmentOrganisationConfiguration());
+            modelBuilder.ApplyConfiguration(new BulkUploadConfiguration());
+            modelBuilder.ApplyConfiguration(new CommitmentConfiguration());
+            modelBuilder.ApplyConfiguration(new ConfirmedApprenticeshipConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomProviderPaymentPriorityConfiguration());
+            modelBuilder.ApplyConfiguration(new DataLockStatusConfiguration());
+            modelBuilder.ApplyConfiguration(new DraftApprenticeshipConfiguration());
+            modelBuilder.ApplyConfiguration(new HistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new JobProgressConfiguration());
+            modelBuilder.ApplyConfiguration(new MessageConfiguration());
+            modelBuilder.ApplyConfiguration(new PriceHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderConfiguration());
+            modelBuilder.ApplyConfiguration(new TransferRequestConfiguration());
+        }
+    }
+}

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -9,10 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
 {
     public static class AuthenticationExtensions
     {
-        public static IServiceCollection AddApiAuthentication(this IServiceCollection services)
+        public static IServiceCollection AddApiAuthentication(this IServiceCollection services, IConfiguration config)
         {
-            var azureActiveDirectoryConfiguration = services.BuildServiceProvider().GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value;
-
+            var azureActiveDirectoryConfiguration = config.GetSection(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration).Get<AzureActiveDirectoryApiConfiguration>();
             services.AddAuthentication(auth =>
             {
                 auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -25,8 +26,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
         private readonly IApprenticeshipEvents _apprenticeshipEvents;
         private readonly IHistoryRepository _historyRepository;
         private HistoryService _historyService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
-        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository)
+        public DeleteApprenticeshipCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, AbstractValidator<DeleteApprenticeshipCommand> validator, ICommitmentsLogger logger, IApprenticeshipEvents apprenticeshipEvents, IHistoryRepository historyRepository, IV2EventsPublisher v2EventsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -34,6 +36,7 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
             _logger = logger;
             _apprenticeshipEvents = apprenticeshipEvents;
             _historyRepository = historyRepository;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(DeleteApprenticeshipCommand command)
@@ -66,8 +69,9 @@ namespace SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship
 
             await Task.WhenAll(
                 ResetCommitmentTransferRejectionIfRequired(commitment),
-                 _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
+                _apprenticeshipEvents.PublishDeletionEvent(commitment, apprenticeship, "APPRENTICESHIP-DELETED"),
                 PublishApprenticeshipUpdateEvents(commitment, apprenticeship, transferRejected),
+                _v2EventsPublisher.PublishApprenticeshipDeleted(commitment, apprenticeship),
                 _historyService.Save()
             );
         }

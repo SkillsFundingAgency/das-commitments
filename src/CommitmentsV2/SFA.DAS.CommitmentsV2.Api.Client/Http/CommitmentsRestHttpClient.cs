@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
-using SFA.DAS.CommitmentsV2.Api.Types;
+using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.Http
@@ -33,14 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 
                 if (errorResponse != null)
                 {
-                    if (errorResponse.ErrorType == ErrorType.CommitmentApiException)
-                    {
-                        var errorDetail = errorResponse.ErrorDetails?.FirstOrDefault();
-                        if (errorDetail != null)
-                        {
-                            return new CommitmentsApiException(errorDetail.ErrorCode, errorDetail.Message);
-                        }
-                    }
+                    return new CommitmentsApiModelException(errorResponse.Errors);
                 }
             }
             catch (Exception)
