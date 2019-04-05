@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             {
                 scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
                 scan.ConnectImplementationsToTypesClosing(typeof(IMapper<,>));
+                scan.ConnectImplementationsToTypesClosing(typeof(IAsyncMapper<,>));
             });
         }
     }

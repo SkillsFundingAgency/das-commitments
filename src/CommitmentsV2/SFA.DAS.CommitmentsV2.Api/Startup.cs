@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Api.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using SFA.DAS.CommitmentsV2.Validators;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -31,9 +33,10 @@ namespace SFA.DAS.CommitmentsV2.Api
             services.AddApiConfigurationSections(Configuration)
                 .AddApiAuthentication(Configuration)
                 .AddApiAuthorization(_env)
-                .AddMvc()
+                .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
+                .AddMvc(options => { options.Filters.Add<ValidateModelAttribute>(); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddFluentValidation();
+                .AddFluentValidation(fv=>fv.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>());
 
             services.AddHealthChecks();
             services.AddMemoryCache();
