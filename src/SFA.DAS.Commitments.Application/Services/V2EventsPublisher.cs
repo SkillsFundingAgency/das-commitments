@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public async Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship)
         {
-            var logMessage = $"Publish IApprenticeshipDeletedEvent message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id}";
+            var logMessage = $"Publish IApprenticeshipDeletedEvent message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id} ReservationId:{apprenticeship.ReservationId}";
 
             try
             {
