@@ -10,10 +10,14 @@ namespace SFA.DAS.CommitmentsV2.Mapping
     public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>
     {
         private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
+        private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
 
-        public AddCohortCommandToDraftApprenticeshipDetailsMapper(ITrainingProgrammeApiClient trainingProgrammeApiClient)
+        public AddCohortCommandToDraftApprenticeshipDetailsMapper(
+            ITrainingProgrammeApiClient trainingProgrammeApiClient,
+            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper)
         {
             _trainingProgrammeApiClient = trainingProgrammeApiClient;
+            _trainingProgrammeMapper = trainingProgrammeMapper;
         }
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
@@ -25,9 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Uln = source.ULN,
-                TrainingType = (int?)(trainingProgram?.ProgrammeType), //todo: why is this not an enum?
-                TrainingCode = source.CourseCode,
-                TrainingName = trainingProgram?.ExtendedTitle,
+                TrainingProgramme = trainingProgram,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
@@ -36,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 ReservationId = source.ReservationId
             };
         }
-        private async Task<ITrainingProgramme> GetCourse(string courseCode)
+        private async Task<TrainingProgramme> GetCourse(string courseCode)
         {
             if (string.IsNullOrWhiteSpace(courseCode))
             {
@@ -50,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 throw new Exception($"The course code {courseCode} was not found");
             }
 
-            return course;
+            return _trainingProgrammeMapper.Map(course);
         }
     }
 }
