@@ -189,32 +189,24 @@ namespace SFA.DAS.CommitmentsV2.Models
                                          (!details.TrainingProgramme.EffectiveFrom.HasValue ||
                                           details.TrainingProgramme.EffectiveFrom.Value < dasStartDate);
 
-            if (courseStartedBeforeDas)
+            var trainingProgrammeStatus = details.TrainingProgramme?.GetStatusOn(details.StartDate.Value);
+            
+            if((details.StartDate.Value < dasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
             {
-                if (details.StartDate.Value < dasStartDate)
-                {
-                    yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
-                    yield break;
-                }
+                yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
+                yield break;
             }
-            else
+
+            if (trainingProgrammeStatus.HasValue && trainingProgrammeStatus.Value != TrainingProgrammeStatus.Active)
             {
-                if (details.TrainingProgramme != null)
-                {
-                    var status = details.TrainingProgramme.GetStatusOn(details.StartDate.Value);
-                    if (status != TrainingProgrammeStatus.Active)
-                    {
+                var suffix = trainingProgrammeStatus == TrainingProgrammeStatus.Pending
+                    ? $"after {details.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                    : $"before {details.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
-                        var suffix = status == TrainingProgrammeStatus.Pending
-                            ? $"after {details.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                            : $"before {details.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+                var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
-                        var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
-
-                        yield return new DomainError(nameof(details.StartDate), errorMessage);
-                        yield break;
-                    }
-                }
+                yield return new DomainError(nameof(details.StartDate), errorMessage);
+                yield break;
             }
 
             if (details.StartDate.Value > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))

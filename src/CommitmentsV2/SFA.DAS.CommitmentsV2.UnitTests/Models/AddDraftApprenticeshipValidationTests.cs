@@ -9,7 +9,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
-using TrainingProgrammeStatus = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
@@ -153,6 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         [TestCase("2019-06-01", "2019-01-01", "2019-12-31", true, Description = "Active")]
         [TestCase("2018-06-01", "2019-01-01", "2019-12-31", false, Description ="Pending")]
         [TestCase("2020-01-01", "2019-01-01", "2019-12-31", false, Description ="Expired")]
+        [TestCase("2020-01-01", "2000-01-01", "2019-12-31", false, Description = "Expired but course effective from before DAS")]
         public void StartDate_CheckTrainingProgrammeActive_Validation(DateTime? startDate, DateTime courseEffectiveFromDate, DateTime courseEffectiveToDate, bool passes)
         {
             var utcStartDate = startDate.HasValue

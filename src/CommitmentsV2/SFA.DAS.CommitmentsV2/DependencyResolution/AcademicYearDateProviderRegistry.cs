@@ -8,10 +8,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public AcademicYearDateProviderRegistry()
         {
-            For<IAcademicYearDateProvider>()
-                .Use<AcademicYearDateProvider>()
-                .Ctor<ICurrentDateTime>()
-                .Is(ctx => ctx.GetInstance<ICurrentDateTime>());
+            For<IAcademicYearDateProvider>().Use<AcademicYearDateProvider>();
         }
     }
 }
