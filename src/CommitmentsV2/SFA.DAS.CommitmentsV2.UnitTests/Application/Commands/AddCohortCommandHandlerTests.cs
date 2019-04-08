@@ -11,6 +11,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Validation;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
@@ -41,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
                             ale.AccountId == accountId && ale.Id == accountLegalEntityId),
                         It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
-                        It.IsAny<IUlnValidator>(), It.IsAny<ICurrentDateTime>(), It.IsAny<IAcademicYearDateProvider>()),
+                        It.IsAny<IDomainValidator>()),
                 Times.Once);
 
             Assert.AreEqual(expectedHash, response.Reference);
@@ -99,9 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Provider.Setup(
                 x => x.CreateCohort(It.IsAny<AccountLegalEntity>(),
                         It.IsAny<DraftApprenticeshipDetails>(),
-                        It.IsAny<IUlnValidator>(),
-                        It.IsAny<ICurrentDateTime>(),
-                        It.IsAny<IAcademicYearDateProvider>()
+                        It.IsAny<IDomainValidator>()
                     ))
                 .Returns(commitment);
 
@@ -159,9 +158,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 HashingService,
                 Logger,
                 DraftApprenticeshipDetailsMapperMock.Object,
-                Mock.Of<IUlnValidator>(),
-                Mock.Of<ICurrentDateTime>(),
-                Mock.Of<IAcademicYearDateProvider>());
+                Mock.Of<IDomainValidator>());
 
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();

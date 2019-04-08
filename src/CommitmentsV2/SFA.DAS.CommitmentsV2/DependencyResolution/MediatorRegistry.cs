@@ -1,12 +1,11 @@
 ﻿using MediatR;
+using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
 {
     public class MediatorRegistry : Registry
     {
-        private const string ServiceName = "SFA.DAS.CommitmentsV2";
-
         public MediatorRegistry()
         {
             For<IMediator>().Use<Mediator>();
@@ -14,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
 
             Scan(scan =>
             {
-                scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(ServiceName));
+                scan.AssembliesFromApplicationBaseDirectory(a => a.GetName().Name.StartsWith(Constants.ServiceName));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<>));
                 scan.ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>));
             });

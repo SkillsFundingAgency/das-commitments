@@ -9,6 +9,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public DateTime UtcNow => _time ?? DateTime.UtcNow;
 
+        public DateTime UtcToday => UtcNow.Date;
+
         public CurrentDateTime()
         {
         }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Validation;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -28,9 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
-            IUlnValidator ulnValidator,
-            ICurrentDateTime currentDateTime,
-            IAcademicYearDateProvider academicYearDateProvider)
+            IDomainValidator domainValidator)
         {
             var commitment = new Commitment
             {
@@ -51,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, ulnValidator, currentDateTime, academicYearDateProvider);  
+            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, domainValidator);  
 
             return commitment;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 
@@ -8,9 +9,10 @@ namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
     {
         public string CourseCode { get; private set; }
         public string Name { get; private set; }
-        public ProgrammeType ProgrammeType { get; private set; } 
+        public ProgrammeType ProgrammeType { get; private set; }
         public DateTime? EffectiveFrom { get; private set; }
         public DateTime? EffectiveTo { get; private set; }
+
 
         public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
@@ -21,9 +23,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
             EffectiveTo = effectiveTo;
         }
 
-        public bool IsActiveOn(DateTime date)
+        public bool IsActiveOn(DateTime? date)
         {
-            return GetStatusOn(date) == TrainingProgrammeStatus.Active;
+            return date.HasValue && GetStatusOn(date.Value) == TrainingProgrammeStatus.Active;
         }
 
         public TrainingProgrammeStatus GetStatusOn(DateTime date)

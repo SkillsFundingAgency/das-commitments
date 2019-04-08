@@ -18,6 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
             registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
+            registry.IncludeRegistry<ValidationRegistry>();
         }
     }
 }
