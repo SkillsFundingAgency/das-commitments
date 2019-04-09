@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             var domainValidatorMock = new Mock<IDomainValidator>();
             domainValidatorMock
-                .Setup(dv => dv.ValidateAsync(draftApprenticeship))
+                .Setup(dv => dv.ValidateAsync(
+                    It.Is<AddDraftApprenticeshipModel>(model => model.DraftApprenticeshipDetails == draftApprenticeship && model.Commitment == commitment)))
                 .ReturnsAsync(new DomainError[0])
                 .Verifiable("Draft apprenticeship was not validated");
 

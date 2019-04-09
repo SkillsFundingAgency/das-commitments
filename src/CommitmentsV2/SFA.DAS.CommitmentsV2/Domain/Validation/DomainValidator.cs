@@ -26,6 +26,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Validation
                 return ValidationOkay;
             }
 
+            //var validationContext = new ValidationContext<T>(instance);
+            //validationContext.RootContextData["additionalContext"] = additionalContext;
+
             var validationResult = await validator.ValidateAsync(instance);
 
             if (validationResult.IsValid)

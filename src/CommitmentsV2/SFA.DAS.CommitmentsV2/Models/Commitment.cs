@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Validation;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -61,8 +62,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private async Task ValidateDraftApprenticeshipDetailsAsync(DraftApprenticeshipDetails draftApprenticeshipDetails, IDomainValidator domainValidator)
         {
-            // We need account id, ALE id and provider id passing down to the validator
-            var errors = await domainValidator.ValidateAsync(draftApprenticeshipDetails);
+            var model = new AddDraftApprenticeshipModel(this, draftApprenticeshipDetails);
+            var errors = await domainValidator.ValidateAsync(model);
             errors.ThrowIfAny();
         }
     }

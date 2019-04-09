@@ -1,14 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Validators;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
-using SFA.DAS.Reservations.Api.Client;
-using SFA.DAS.Reservations.Api.Client.Types;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Validators
@@ -18,17 +13,16 @@ namespace SFA.DAS.CommitmentsV2.Validators
         public DraftApprenticeshipDetailsValidator(
             IUlnValidator ulnValidator,
             ICurrentDateTime currentDateTime,
-            IAcademicYearDateProvider academicYearDateProvider,
-            IReservationsApiClient reservationsApiClient)
+            IAcademicYearDateProvider academicYearDateProvider)
         {
             RuleFor(ctx => ctx.FirstName)
                 .NotEmpty()
                 .WithMessage("First name must be entered");
 
             RuleFor(ctx => ctx.FirstName)
-                .Must(firstName => firstName.Length <= 100)
-                .When(ctx => !string.IsNullOrWhiteSpace(ctx.FirstName))
-                .WithMessage("You must enter a first name that's no longer than 100 characters");
+                    .Must(firstName => firstName.Length <= 100)
+                    .When(ctx => !string.IsNullOrWhiteSpace(ctx.FirstName))
+                    .WithMessage("You must enter a first name that's no longer than 100 characters");
 
             RuleFor(ctx => ctx.LastName)
                 .NotEmpty()
@@ -108,42 +102,6 @@ namespace SFA.DAS.CommitmentsV2.Validators
                 .When(ctx => ctx.StartDate.HasValue)
                 .WithMessage(
                     "The start date must be no later than one year after the end of the current teaching year");
-
-            RuleFor(ctx => ctx)
-                .CustomAsync(async (ctx, customContext, cancellationToken) => await ValidateReservationId(reservationsApiClient, ctx, customContext, cancellationToken));
-        }
-
-        private static async Task<bool> ValidateReservationId(IReservationsApiClient reservationsApiClient,
-            DraftApprenticeshipDetails ctx, CustomContext customContext, CancellationToken cancellationToken)
-        {
-            if (ctx.ReservationId == Guid.Empty)
-            {
-                return true;
-            }
-
-            var reservationValidationMessage = new ValidationReservationMessage
-            {
-                AccountId = -1,
-                StartDate = ctx.StartDate,
-                ProviderId = -1,
-                CourseCode = ctx.TrainingProgramme?.CourseCode,
-                ReservationId = ctx.ReservationId ?? Guid.Empty,
-                LegalEntityAccountId = -1
-            };
-
-            var validationResult =
-                await reservationsApiClient.ValidateReservation(reservationValidationMessage,
-                    cancellationToken);
-
-            if (validationResult.HasErrors)
-            {
-                foreach (var error in validationResult.ValidationErrors)
-                {
-                    customContext.AddFailure(error.PropertyName, error.Reason);
-                }
-            }
-
-            return validationResult.IsOkay;
         }
 
         private bool ValidUln(string uln, PropertyValidatorContext ctx, IUlnValidator ulnValidator)

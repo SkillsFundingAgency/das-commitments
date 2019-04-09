@@ -8,7 +8,7 @@ namespace SFA.DAS.Reservations.Api.Client.Types
         public Guid ReservationId { get; set; }
         public DateTime? StartDate { get; set; }
         public long ProviderId { get; set; }
-        public long LegalEntityAccountId { get; set; }
+        public string AccountLegalEntityPublicHashedId { get; set; }
         public string CourseCode { get; set; }
     }
 }
