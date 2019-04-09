@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
@@ -192,16 +193,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
                 false);
         }
+
+        [TestCase("", false)]
+        [TestCase(null, false)]
+        [TestCase("   ", false)]
+        [TestCase("abc", true)]
+        public void Uln_Validation_ShouldBeCalledWhenSupplied(string uln, bool expectValidatorToBeCalled)
+        {
+            int ulnValidationCalls = 0;
+
+            var validator = _fixture
+                                .WithUlnValidationResult(uln, UlnValidationResult.Success, () => ulnValidationCalls++)
+                                .CreateValidator();
+
+            validator.TestValidate(_fixture.DraftApprenticeshipDetails);
+
+            if (expectValidatorToBeCalled)
+            {
+                Assert.IsTrue(ulnValidationCalls > 0);
+            }
+            else
+            {
+                Assert.IsTrue(ulnValidationCalls == 0);
+            }
+        }
     }
 
     public class DraftApprenticeshipValidatorTestFixtures
-
     {
         public DraftApprenticeshipDetails DraftApprenticeshipDetails;
         public Commitment Cohort;
         public ICurrentDateTime CurrentDateTime;
         public IAcademicYearDateProvider AcademicYearDateProvider;
-        public IUlnValidator UlnValidator;
+        public Mock<IUlnValidator> UlnValidatorMock;
         public Mock<IReservationsApiClient> ReservationsApiClient;
 
         public DraftApprenticeshipValidatorTestFixtures()
@@ -210,15 +234,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             {
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
+
             SetupMinimumNameProperties();
             Cohort = new Commitment();
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
-            UlnValidator = new UlnValidator(new SFA.DAS.Learners.Validators.UlnValidator());
+            UlnValidatorMock = new Mock<IUlnValidator>();
             ReservationsApiClient = new Mock<IReservationsApiClient>();
             WithSuccessfulReservationValidation();
         }
-
 
         public DraftApprenticeshipValidatorTestFixtures WithProviderCohort()
         {
@@ -229,6 +253,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public DraftApprenticeshipValidatorTestFixtures WithEmployerCohort()
         {
             Cohort = new Commitment { EditStatus = EditStatus.EmployerOnly };
+            return this;
+        }
+
+        public DraftApprenticeshipValidatorTestFixtures WithUlnValidationResult(string ulnValue, UlnValidationResult result, Action callback)
+        {
+            DraftApprenticeshipDetails.Uln = ulnValue;
+
+            UlnValidatorMock
+                .Setup(uv => uv.Validate(ulnValue))
+                .Callback(callback)
+                .Returns(result);
+
             return this;
         }
 
@@ -264,11 +300,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             return this;
         }
 
+        public DraftApprenticeshipDetailsValidator CreateValidator()
+        {
+            return new DraftApprenticeshipDetailsValidator(UlnValidatorMock.Object, CurrentDateTime, AcademicYearDateProvider);
+        }
+
         public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, bool passes)
         {
             setup();
 
-            var validator = new DraftApprenticeshipDetailsValidator(UlnValidator, CurrentDateTime, AcademicYearDateProvider);
+            var validator = CreateValidator();
 
             if (passes)
             {
