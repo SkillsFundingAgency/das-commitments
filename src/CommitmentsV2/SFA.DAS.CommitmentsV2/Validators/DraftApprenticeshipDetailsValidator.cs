@@ -109,15 +109,18 @@ namespace SFA.DAS.CommitmentsV2.Validators
                 .WithMessage(
                     "The start date must be no later than one year after the end of the current teaching year");
 
-            RuleFor(ctx => ctx.ReservationId)
-                .MustAsync(async (ctx, reservationId, cancellationToken) => await ValidateReservationId(reservationsApiClient, ctx, cancellationToken))
-                .When(ctx => ctx.ReservationId != Guid.Empty)
-                .WithMessage("The reservation id is not valid");
+            RuleFor(ctx => ctx)
+                .CustomAsync(async (ctx, customContext, cancellationToken) => await ValidateReservationId(reservationsApiClient, ctx, customContext, cancellationToken));
         }
 
         private static async Task<bool> ValidateReservationId(IReservationsApiClient reservationsApiClient,
-            DraftApprenticeshipDetails ctx, CancellationToken cancellationToken)
+            DraftApprenticeshipDetails ctx, CustomContext customContext, CancellationToken cancellationToken)
         {
+            if (ctx.ReservationId == Guid.Empty)
+            {
+                return true;
+            }
+
             var reservationValidationMessage = new ValidationReservationMessage
             {
                 AccountId = -1,
@@ -134,7 +137,10 @@ namespace SFA.DAS.CommitmentsV2.Validators
 
             if (validationResult.HasErrors)
             {
-
+                foreach (var error in validationResult.ValidationErrors)
+                {
+                    customContext.AddFailure(error.PropertyName, error.Reason);
+                }
             }
 
             return validationResult.IsOkay;

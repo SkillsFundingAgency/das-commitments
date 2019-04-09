@@ -192,6 +192,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
                 false);
         }
+
+        [Test]
+        public void ReservationId_CheckReservationIsValid_IsValid()
+        {
+            _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                ReservationId = null
+            };
+
+            _fixture.AssertValidationForProperty(() => { },
+                draftApprenticeshipDetails => draftApprenticeshipDetails.ReservationId,
+                true);
+        }
+
+        [Test]
+        public void ReservationId_CheckReservationIsValid_IsNotValid()
+        {
+            _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                ReservationId = Guid.NewGuid()
+            };
+
+            var propertyNamesToReportAsErrorsInReservations = new string[]
+            {
+                nameof(ValidationReservationMessage.ReservationId),
+                nameof(ValidationReservationMessage.AccountId),
+                nameof(ValidationReservationMessage.StartDate)
+            };
+
+            _fixture.AssertPropertiesHaveValidationErrors(
+                () => _fixture.WithUnsuccessfulReservationValidation(propertyNamesToReportAsErrorsInReservations),
+                propertyNamesToReportAsErrorsInReservations);
+        }
     }
 
     public class DraftApprenticeshipValidatorTestFixtures
@@ -241,11 +274,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             return this;
         }
 
-        public DraftApprenticeshipValidatorTestFixtures WithUnsuccessfulReservationValidation()
+        public DraftApprenticeshipValidatorTestFixtures WithUnsuccessfulReservationValidation(params string[] invalidProperties)
         {
+            var errors = invalidProperties.Select(propertyName => new ValidationError
+            {
+                Code = "ERR01",
+                PropertyName = propertyName,
+                Reason = $"{propertyName} is invalid"
+            }).ToArray();
+
             ReservationsApiClient.Setup(rac =>
                     rac.ValidateReservation(It.IsAny<ValidationReservationMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult { ValidationErrors = new ValidationError[]{new ValidationError {Code ="ERR01", PropertyName = "SomeProperty", Reason = "Is invalid"} } });
+                .ReturnsAsync(new ValidationResult { ValidationErrors = errors});
 
             return this;
         }
@@ -255,6 +295,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             DraftApprenticeshipDetails.FirstName = "Fred";
             DraftApprenticeshipDetails.LastName = "West";
             return this;
+        }
+
+        public void AssertPropertiesHaveValidationErrors(Action setup, string[] propertyNames)
+        {
+            setup();
+
+            var validator = new DraftApprenticeshipDetailsValidator(UlnValidator, CurrentDateTime, AcademicYearDateProvider, ReservationsApiClient.Object);
+
+            var validationResults = validator.TestValidate(DraftApprenticeshipDetails, null);
+
+            foreach (var propertyName in propertyNames)
+            {
+                var errorsForProperty = validationResults.Result.Errors
+                    .Where(error =>string.Equals(error.PropertyName, propertyName, StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+
+                if (errorsForProperty.Length == 0)
+                {
+                    Assert.Fail($"Did not get validation error for property {propertyName}");
+                }
+                else
+                {
+                    Console.WriteLine($"Found {errorsForProperty.Length} error(s) for property {propertyName} as expected - test passed");
+                }
+            }
         }
 
         public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, bool passes)
