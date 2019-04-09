@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using AutoFixture;
 using Moq;
@@ -26,42 +27,42 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
         [Test]
         public void TheCohortBelongsToTheProvider()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(_fixture.Provider.UkPrn, result.ProviderId);
         }
 
         [Test]
         public void TheCohortBelongsToTheGivenAccount()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(_fixture.AccountLegalEntity.AccountId, result.EmployerAccountId);
         }
 
         [Test]
         public void TheCohortBelongsToTheGivenAccountLegalEntity()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(_fixture.AccountLegalEntity.LegalEntityId, result.LegalEntityId);
         }
 
         [Test]
         public void TheCohortIsWithTheProvider()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(EditStatus.ProviderOnly, result.EditStatus);
         }
 
         [Test]
         public void TheCohortIsADraft()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(LastAction.None, result.LastAction);
         }
 
         [Test]
         public void TheCohortIsUnapproved()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             //approval is the aggregate of contained apprenticeship approvals, currently :-(
             Assert.IsTrue(result.Apprenticeship.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
         }
@@ -69,14 +70,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
         [Test]
         public void TheCohortHasOneDraftApprenticeship()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(1, result.Apprenticeship.Count);
         }
 
         [Test]
         public void TheCohortIsProviderOriginated()
         {
-            var result = _fixture.CreateCohort();
+            var result = _fixture.CreateCohortAsync();
             Assert.AreEqual(Originator.Provider, result.Originator);
         }
 
@@ -111,12 +112,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
                 };
             }
 
-            public Commitment CreateCohort()
+            public Commitment CreateCohortAsync()
             {
-                var result = Provider.CreateCohort(AccountLegalEntity,
+                var cohortTask = Provider.CreateCohortAsync(AccountLegalEntity,
                     DraftApprenticeshipDetails,
                     Mock.Of<IDomainValidator>());
-                return result;
+
+                return cohortTask.Result;
             }
         }
     }

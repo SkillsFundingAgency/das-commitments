@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Validation
@@ -15,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Validation
             _validators = validators;
         }
 
-        public DomainError[] Validate<T>(T instance) where T : class
+        public async Task<DomainError[]> ValidateAsync<T>(T instance) where T : class
         {
             var validator = GetValidator(instance);
 
@@ -24,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Validation
                 return ValidationOkay;
             }
 
-            var validationResult = validator.Validate(instance);
+            var validationResult = await validator.ValidateAsync(instance);
 
             if (validationResult.IsValid)
             {

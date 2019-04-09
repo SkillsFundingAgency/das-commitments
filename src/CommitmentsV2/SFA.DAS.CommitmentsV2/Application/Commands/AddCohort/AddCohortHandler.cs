@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
 
-            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _domainValidator);
+            var cohort = await provider.CreateCohortAsync(accountLegalEntity, draftApprenticeshipDetails, _domainValidator);
 
             db.Commitment.Add(cohort);
             await db.SaveChangesAsync(cancellationToken);

@@ -1,17 +1,25 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Validators;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.Reservations.Api.Client;
+using SFA.DAS.Reservations.Api.Client.Types;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
-namespace SFA.DAS.CommitmentsV2.Models
+namespace SFA.DAS.CommitmentsV2.Validators
 {
     public class DraftApprenticeshipDetailsValidator : AbstractValidator<DraftApprenticeshipDetails>
     {
-        public DraftApprenticeshipDetailsValidator(IUlnValidator ulnValidator, ICurrentDateTime currentDateTime, IAcademicYearDateProvider academicYearDateProvider)
+        public DraftApprenticeshipDetailsValidator(
+            IUlnValidator ulnValidator,
+            ICurrentDateTime currentDateTime,
+            IAcademicYearDateProvider academicYearDateProvider,
+            IReservationsApiClient reservationsApiClient)
         {
             RuleFor(ctx => ctx.FirstName)
                 .NotEmpty()
@@ -60,14 +68,18 @@ namespace SFA.DAS.CommitmentsV2.Models
                 .WithMessage("You must enter {rule} unique learner number");
 
             RuleFor(ctx => ctx.DateOfBirth)
-                .Must(dateOfBirth => dateOfBirth.Value.Age(currentDateTime.UtcNow) >= Constants.MinimumAgeAtApprenticeshipStart)
+                .Must(dateOfBirth =>
+                    dateOfBirth.Value.Age(currentDateTime.UtcNow) >= Constants.MinimumAgeAtApprenticeshipStart)
                 .When(ctx => ctx.DateOfBirth.HasValue)
-                .WithMessage($"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
+                .WithMessage(
+                    $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
 
             RuleFor(ctx => ctx.DateOfBirth)
-                .Must(dateOfBirth => dateOfBirth.Value.Age(currentDateTime.UtcNow) <= Constants.MaximumAgeAtApprenticeshipStart)
+                .Must(dateOfBirth =>
+                    dateOfBirth.Value.Age(currentDateTime.UtcNow) <= Constants.MaximumAgeAtApprenticeshipStart)
                 .When(ctx => ctx.DateOfBirth.HasValue)
-                .WithMessage($"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart+1} years old at the start of their training");
+                .WithMessage(
+                    $"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart + 1} years old at the start of their training");
 
             RuleFor(ctx => ctx.StartDate)
                 .GreaterThanOrEqualTo(Constants.DasStartDate)
@@ -75,22 +87,52 @@ namespace SFA.DAS.CommitmentsV2.Models
                 .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MM yyyy}");
 
             RuleFor(ctx => ctx.StartDate)
-                .Must((draftApprenticeship, startDate) => draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
+                .Must((draftApprenticeship, startDate) =>
+                    draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
                 .When(ctx => ctx.StartDate.HasValue)
                 .When(ctx => ctx.TrainingProgramme != null)
                 .WithMessage(draftApprenticeship =>
                 {
-                    var suffix = draftApprenticeship.TrainingProgramme.GetStatusOn(draftApprenticeship.StartDate.Value) == TrainingProgrammeStatus.Pending
-                        ? $"after {draftApprenticeship.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                        : $"before {draftApprenticeship.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+                    var suffix =
+                        draftApprenticeship.TrainingProgramme.GetStatusOn(draftApprenticeship.StartDate.Value) ==
+                        TrainingProgrammeStatus.Pending
+                            ? $"after {draftApprenticeship.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                            : $"before {draftApprenticeship.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
                     return $"This training course is only available to apprentices with a start date {suffix}";
                 });
 
             RuleFor(ctx => ctx.StartDate)
-                .LessThanOrEqualTo(draftApprenticeship => academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+                .LessThanOrEqualTo(draftApprenticeship =>
+                    academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
                 .When(ctx => ctx.StartDate.HasValue)
-                .WithMessage("The start date must be no later than one year after the end of the current teaching year");
+                .WithMessage(
+                    "The start date must be no later than one year after the end of the current teaching year");
+
+            RuleFor(ctx => ctx.ReservationId)
+                .MustAsync(async (ctx, reservationId, cancellationToken) => await ValidateReservationId(reservationsApiClient, ctx, cancellationToken))
+                .When(ctx => ctx.ReservationId != Guid.Empty)
+                .WithMessage("The reservation id is not valid");
+        }
+
+        private static async Task<bool> ValidateReservationId(IReservationsApiClient reservationsApiClient,
+            DraftApprenticeshipDetails ctx, CancellationToken cancellationToken)
+        {
+            var reservationValidationMessage = new ValidationReservationMessage
+            {
+                AccountId = -1,
+                StartDate = ctx.StartDate,
+                ProviderId = -1,
+                CourseCode = ctx.TrainingProgramme?.CourseCode,
+                ReservationId = ctx.ReservationId ?? Guid.Empty,
+                LegalEntityAccountId = -1
+            };
+
+            var validationResult =
+                await reservationsApiClient.ValidateReservation(reservationValidationMessage,
+                    cancellationToken);
+
+            return validationResult.IsOkay;
         }
 
         private bool ValidUln(string uln, PropertyValidatorContext ctx, IUlnValidator ulnValidator)

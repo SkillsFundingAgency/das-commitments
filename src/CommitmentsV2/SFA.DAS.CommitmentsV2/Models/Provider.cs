@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
 
-        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity,
+        public virtual async Task<Commitment> CreateCohortAsync(AccountLegalEntity accountLegalEntity,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             IDomainValidator domainValidator)
         {
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, domainValidator);  
+            await commitment.AddDraftApprenticeshipAsync(draftApprenticeshipDetails, domainValidator);  
 
             return commitment;
         }

@@ -51,16 +51,17 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, IDomainValidator domainValidator)
+        public async Task AddDraftApprenticeshipAsync(DraftApprenticeshipDetails draftApprenticeshipDetails,
+            IDomainValidator domainValidator)
         {
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, domainValidator);
+            await ValidateDraftApprenticeshipDetailsAsync(draftApprenticeshipDetails, domainValidator);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, IDomainValidator domainValidator)
+        private async Task ValidateDraftApprenticeshipDetailsAsync(DraftApprenticeshipDetails draftApprenticeshipDetails, IDomainValidator domainValidator)
         {
-            var errors = domainValidator.Validate(draftApprenticeshipDetails);
+            var errors = await domainValidator.ValidateAsync(draftApprenticeshipDetails);
             errors.ThrowIfAny();
         }
     }

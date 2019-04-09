@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -11,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
     public class CommitmentTests
     {
         [Test]
-        public void AddDraftApprenticeship_WithNonNullDetails_ShouldCallDomainValidate()
+        public async Task AddDraftApprenticeship_WithNonNullDetails_ShouldCallDomainValidate()
         {
             // Arrange
             var commitment = new Commitment();
@@ -19,12 +20,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             var domainValidatorMock = new Mock<IDomainValidator>();
             domainValidatorMock
-                .Setup(dv => dv.Validate(draftApprenticeship))
-                .Returns(new DomainError[0])
+                .Setup(dv => dv.ValidateAsync(draftApprenticeship))
+                .ReturnsAsync(new DomainError[0])
                 .Verifiable("Draft apprenticeship was not validated");
 
             // Act
-            commitment.AddDraftApprenticeship(draftApprenticeship, domainValidatorMock.Object);
+            await commitment.AddDraftApprenticeshipAsync(draftApprenticeship, domainValidatorMock.Object);
 
             // Assert
             domainValidatorMock.VerifyAll();

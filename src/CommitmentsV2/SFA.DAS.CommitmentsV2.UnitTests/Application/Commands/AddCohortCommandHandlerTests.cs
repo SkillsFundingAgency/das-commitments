@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var response = await fixtures.Handle(3, 1, "Course1");
 
             fixtures.Provider.Verify(x =>
-                    x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
+                    x.CreateCohortAsync(It.Is<AccountLegalEntity>(ale =>
                             ale.AccountId == accountId && ale.Id == accountLegalEntityId),
                         It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
                         It.IsAny<IDomainValidator>()),
@@ -98,11 +98,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Provider = new Mock<Provider>();
             Provider.Setup(
-                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(),
+                x => x.CreateCohortAsync(It.IsAny<AccountLegalEntity>(),
                         It.IsAny<DraftApprenticeshipDetails>(),
                         It.IsAny<IDomainValidator>()
                     ))
-                .Returns(commitment);
+                .ReturnsAsync(commitment);
 
             Db.Providers.Add(Provider.Object);
 
