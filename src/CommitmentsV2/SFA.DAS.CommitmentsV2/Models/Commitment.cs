@@ -61,6 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private async Task ValidateDraftApprenticeshipDetailsAsync(DraftApprenticeshipDetails draftApprenticeshipDetails, IDomainValidator domainValidator)
         {
+            // We need account id, ALE id and provider id passing down to the validator
             var errors = await domainValidator.ValidateAsync(draftApprenticeshipDetails);
             errors.ThrowIfAny();
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using FluentValidation.TestHelper;
 using Moq;
@@ -13,6 +14,9 @@ using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.Validation;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Validators;
+using SFA.DAS.Reservations.Api.Client;
+using SFA.DAS.Reservations.Api.Client.Types;
 using TrainingProgrammeStatus = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
@@ -198,6 +202,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public ICurrentDateTime CurrentDateTime;
         public IAcademicYearDateProvider AcademicYearDateProvider;
         public IUlnValidator UlnValidator;
+        public Mock<IReservationsApiClient> ReservationsApiClient;
 
         public DraftApprenticeshipValidatorTestFixtures()
         {
@@ -210,16 +215,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
             UlnValidator = new UlnValidator(new SFA.DAS.Learners.Validators.UlnValidator());
+            ReservationsApiClient = new Mock<IReservationsApiClient>();
+            WithSuccessfulReservationValidation();
         }
+
 
         public DraftApprenticeshipValidatorTestFixtures WithProviderCohort()
         {
             Cohort = new Commitment{ EditStatus = EditStatus.ProviderOnly };
             return this;
         }
+
         public DraftApprenticeshipValidatorTestFixtures WithEmployerCohort()
         {
             Cohort = new Commitment { EditStatus = EditStatus.EmployerOnly };
+            return this;
+        }
+
+        public DraftApprenticeshipValidatorTestFixtures WithSuccessfulReservationValidation()
+        {
+            ReservationsApiClient.Setup(rac =>
+                    rac.ValidateReservation(It.IsAny<ValidationReservationMessage>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult {ValidationErrors = new ValidationError[0]});
+
+            return this;
+        }
+
+        public DraftApprenticeshipValidatorTestFixtures WithUnsuccessfulReservationValidation()
+        {
+            ReservationsApiClient.Setup(rac =>
+                    rac.ValidateReservation(It.IsAny<ValidationReservationMessage>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ValidationResult { ValidationErrors = new ValidationError[]{new ValidationError {Code ="ERR01", PropertyName = "SomeProperty", Reason = "Is invalid"} } });
+
             return this;
         }
 
@@ -234,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         {
             setup();
 
-            var validator = new DraftApprenticeshipDetailsValidator(UlnValidator, CurrentDateTime, AcademicYearDateProvider);
+            var validator = new DraftApprenticeshipDetailsValidator(UlnValidator, CurrentDateTime, AcademicYearDateProvider, ReservationsApiClient.Object);
 
             if (passes)
             {

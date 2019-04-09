@@ -132,6 +132,11 @@ namespace SFA.DAS.CommitmentsV2.Validators
                 await reservationsApiClient.ValidateReservation(reservationValidationMessage,
                     cancellationToken);
 
+            if (validationResult.HasErrors)
+            {
+
+            }
+
             return validationResult.IsOkay;
         }
 
