@@ -93,15 +93,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
         }
 
-        public AddDraftApprenticeshipModelValidatorTestFixtures WithSuccessfulReservationValidation()
-        {
-            ReservationsApiClient.Setup(rac =>
-                    rac.ValidateReservation(It.IsAny<ValidationReservationMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ValidationResult {ValidationErrors = new ValidationError[0]});
-
-            return this;
-        }
-
         public AddDraftApprenticeshipModelValidatorTestFixtures WithUnsuccessfulReservationValidation(params string[] invalidProperties)
         {
             var errors = invalidProperties.Select(propertyName => new ValidationError
