@@ -2,23 +2,19 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using FluentValidation.TestHelper;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Domain.Validation;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Reservations.Api.Client;
 using SFA.DAS.Reservations.Api.Client.Types;
-using TrainingProgrammeStatus = SFA.DAS.CommitmentsV2.Domain.Entities.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
