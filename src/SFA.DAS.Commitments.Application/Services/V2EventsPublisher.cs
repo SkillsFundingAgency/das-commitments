@@ -22,16 +22,14 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public async Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship)
         {
-            var logMessage = $"Publish IApprenticeshipDeletedEvent message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id} ReservationId:{apprenticeship.ReservationId}";
+            var logMessage = $"Publish IDraftApprenticeshipDeletedEvent message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id} ReservationId:{apprenticeship.ReservationId}";
 
             try
             {
-                await _endpointInstance.Publish<IApprenticeshipDeletedEvent>(ev =>
+                await _endpointInstance.Publish<IDraftApprenticeshipDeletedEvent>(ev =>
                 {
-                    ev.CourseCode = apprenticeship.TrainingCode;
-                    ev.Apprenticeship = apprenticeship.Id;
-                    ev.CommitmentId = commitment.Id;
-                    ev.CourseStartDate = apprenticeship.StartDate;
+                    ev.DraftApprenticeshipId = apprenticeship.Id;
+                    ev.CohortId = commitment.Id;
                     ev.DeletedOn = DateTime.UtcNow;
                     ev.ReservationId = apprenticeship.ReservationId;
                     ev.Uln = apprenticeship.ULN;
