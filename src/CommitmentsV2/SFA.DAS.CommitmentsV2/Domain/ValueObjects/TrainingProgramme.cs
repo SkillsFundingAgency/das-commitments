@@ -1,6 +1,7 @@
 ﻿using System;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
 {
@@ -8,11 +9,11 @@ namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
     {
         public string CourseCode { get; private set; }
         public string Name { get; private set; }
-        public ProgrammeType ProgrammeType { get; private set; } 
+        public TrainingType ProgrammeType { get; private set; } 
         public DateTime? EffectiveFrom { get; private set; }
         public DateTime? EffectiveTo { get; private set; }
 
-        public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
+        public TrainingProgramme(string courseCode, string name, TrainingType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
             CourseCode = courseCode;
             Name = name;

@@ -174,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 StartDate = new DateTime(1950, 01, 01),
-                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
+                TrainingProgramme = new TrainingProgramme("TEST", "TEST", TrainingType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
             };
 
             var domainException = Assert.Throws<DomainException>(() =>
@@ -200,7 +200,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         {
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
-                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+                TrainingProgramme = new TrainingProgramme("TEST", "TEST", TrainingType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
             SetupMinimumNameProperties();
             Cohort = new Commitment();
@@ -254,7 +254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         {
             DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
                 "TEST",
-                ProgrammeType.Framework,
+                TrainingType.Framework,
                 DateTime.SpecifyKind(startDate,DateTimeKind.Utc),
                 DateTime.SpecifyKind(endDate,DateTimeKind.Utc));
             return this;

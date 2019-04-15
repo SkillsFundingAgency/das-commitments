@@ -7,6 +7,7 @@ using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
@@ -20,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [SetUp]
         public void Arrange()
         {
-            _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
+            _trainingProgramme = new TrainingProgramme("TEST", "TEST", TrainingType.Framework, DateTime.MinValue, DateTime.MaxValue);
             _trainingProgrammeMapper = new Mock<IMapper<ITrainingProgramme, TrainingProgramme>>();
             _trainingProgrammeMapper.Setup(x => x.Map(It.IsAny<ITrainingProgramme>())).Returns(_trainingProgramme);
 

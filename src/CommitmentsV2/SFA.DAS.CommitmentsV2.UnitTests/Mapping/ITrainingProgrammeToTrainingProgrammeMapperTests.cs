@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
@@ -35,11 +34,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             AssertPropertySet(input => input.Setup(x => x.ExtendedTitle).Returns(name), output => output.Name == name);
         }
 
-        [Test]
-        public void Map_ProgrammeType_ShouldBeSet()
+        [TestCase(ProgrammeType.Framework, TrainingType.Framework)]
+        [TestCase(ProgrammeType.Standard, TrainingType.Standard)]
+        public void Map_ProgrammeType_ShouldBeSet(ProgrammeType progType, TrainingType outputType)
         {
-            var progType = _autoFixture.Create<ProgrammeType>();
-            AssertPropertySet(input => input.Setup(x => x.ProgrammeType).Returns(progType), output => output.ProgrammeType == progType);
+            AssertPropertySet(input => input.Setup(x => x.ProgrammeType).Returns(progType), output => output.ProgrammeType == outputType);
         }
 
         [Test]
@@ -61,6 +60,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var mapper = new ITrainingProgrammeToTrainingProgrammeMapper();
 
             var input = new Mock<ITrainingProgramme>();
+            input.Setup(x=>x.ProgrammeType).Returns(ProgrammeType.Framework);
 
             setInput.Invoke(input);
 
