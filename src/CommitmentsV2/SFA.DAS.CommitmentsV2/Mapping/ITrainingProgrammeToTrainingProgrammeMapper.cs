@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Types;
@@ -22,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 case ProgrammeType.Standard:
                     return TrainingType.Standard;
                 default:
-                    throw new AmbiguousMatchException("Could not map ProgrammeType");
+                    throw new ArgumentException("Could not map ProgrammeType");
             }
         }
 
