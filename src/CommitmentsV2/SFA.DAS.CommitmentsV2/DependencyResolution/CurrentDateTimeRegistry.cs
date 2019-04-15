@@ -10,8 +10,12 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public CurrentDateTimeRegistry()
         {
+            DateTime overrideValue;
             For<ICurrentDateTime>().Use<CurrentDateTime>()
-                .Ctor<DateTime?>("value").Is(x => x.GetInstance<CommitmentsV2Configuration>().CurrentDateTime);
+                .Ctor<DateTime?>("value")
+                .Is(x => DateTime.TryParse(x.GetInstance<CommitmentsV2Configuration>().CurrentDateTime, out overrideValue)
+                    ? overrideValue
+                    : default(DateTime?));
         }
     }
 }
