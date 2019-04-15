@@ -28,6 +28,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
             return date.HasValue && GetStatusOn(date.Value) == TrainingProgrammeStatus.Active;
         }
 
+        public bool StartedPriorToDas => EffectiveFrom.HasValue && EffectiveFrom.Value < Constants.DasStartDate;
+
         public TrainingProgrammeStatus GetStatusOn(DateTime date)
         {
             var dateOnly = date.Date;
