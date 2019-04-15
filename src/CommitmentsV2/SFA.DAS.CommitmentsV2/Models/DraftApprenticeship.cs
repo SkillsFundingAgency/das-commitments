@@ -16,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             FirstName = source.FirstName;
             LastName = source.LastName;
             Uln = source.Uln;
-            TrainingType = source.TrainingType;
-            TrainingCode = source.TrainingCode;
-            TrainingName = source.TrainingName;
+            TrainingType = source.TrainingProgramme?.ProgrammeType;
+            TrainingCode = source.TrainingProgramme?.CourseCode;
+            TrainingName = source.TrainingProgramme?.Name;
             Cost = source.Cost;
             StartDate = source.StartDate;
             EndDate = source.EndDate;

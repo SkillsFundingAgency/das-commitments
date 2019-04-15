@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
-    public class CreateCohortRequest : IName
+    public class CreateCohortRequest
     {
         public string UserId { get; set; }
         public long AccountLegalEntityId { get; set; }

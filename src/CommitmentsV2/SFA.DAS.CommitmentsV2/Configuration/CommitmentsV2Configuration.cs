@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Configuration
+﻿using System;
+
+namespace SFA.DAS.CommitmentsV2.Configuration
 {
     public class CommitmentsV2Configuration
     {
@@ -10,5 +12,9 @@
         public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
 
         public AzureActiveDirectoryApiConfiguration AzureADApiAuthentication { get; set; }
+        /// <summary>
+        /// An ISO-formatted string date representation for test override, or any other non-empty value for the real current datetime
+        /// </summary>
+        public string CurrentDateTime { get; set; }
     }
 }

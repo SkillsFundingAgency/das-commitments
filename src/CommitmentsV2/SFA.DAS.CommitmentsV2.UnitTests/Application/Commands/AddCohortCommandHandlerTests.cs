@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
                             ale.AccountId == accountId && ale.Id == accountLegalEntityId),
                         It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
-                        It.IsAny<IUlnValidator>()),
+                        It.IsAny<IUlnValidator>(), It.IsAny<ICurrentDateTime>(), It.IsAny<IAcademicYearDateProvider>()),
                 Times.Once);
 
             Assert.AreEqual(expectedHash, response.Reference);
@@ -97,7 +97,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             Provider = new Mock<Provider>();
             Provider.Setup(
-                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(), It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<IUlnValidator>()))
+                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(),
+                        It.IsAny<DraftApprenticeshipDetails>(),
+                        It.IsAny<IUlnValidator>(),
+                        It.IsAny<ICurrentDateTime>(),
+                        It.IsAny<IAcademicYearDateProvider>()
+                    ))
                 .Returns(commitment);
 
             Db.Providers.Add(Provider.Object);
@@ -154,7 +159,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 HashingService,
                 Logger,
                 DraftApprenticeshipDetailsMapperMock.Object,
-                Mock.Of<IUlnValidator>());
+                Mock.Of<IUlnValidator>(),
+                Mock.Of<ICurrentDateTime>(),
+                Mock.Of<IAcademicYearDateProvider>());
 
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
