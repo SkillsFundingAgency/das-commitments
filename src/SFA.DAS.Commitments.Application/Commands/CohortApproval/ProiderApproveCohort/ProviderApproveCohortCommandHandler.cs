@@ -36,14 +36,15 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             IMediator mediator,
             IMessagePublisher messagePublisher,
             ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService)
+            IApprenticeshipInfoService apprenticeshipInfoService,
+            IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
             _logger = logger;
             _historyService = new HistoryService(historyRepository);
-            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService);
+            _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
         }
 
         protected override async Task HandleCore(ProviderApproveCohortCommand message)

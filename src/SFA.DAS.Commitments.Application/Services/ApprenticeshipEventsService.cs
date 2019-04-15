@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -15,13 +16,16 @@ namespace SFA.DAS.Commitments.Application.Services
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private ICommitmentsLogger _logger;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
-        internal ApprenticeshipEventsService(IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IApprenticeshipRepository apprenticeshipRepository, ICommitmentsLogger logger)
+        internal ApprenticeshipEventsService(IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, 
+            IApprenticeshipRepository apprenticeshipRepository, ICommitmentsLogger logger, IV2EventsPublisher v2EventsPublisher)
         {
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _apprenticeshipRepository = apprenticeshipRepository;
             _logger = logger;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         internal async Task PublishApprenticeshipAgreementUpdatedEvents(Commitment commitment)
@@ -45,7 +49,17 @@ namespace SFA.DAS.Commitments.Application.Services
             });
 
             _logger.Info($"Publishing {existingApprenticeships.Count()} apprenticeship agreement updates");
-            await _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList);
+            Task.WaitAll(
+                _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList), 
+                PublishAllFinalApprovalEventsToV2(_apprenticeshipEventsList));
+        }
+
+        private Task PublishAllFinalApprovalEventsToV2(IApprenticeshipEventsList apprenticeshipEventsList)
+        {
+            if (apprenticeshipEventsList.Events == null || !apprenticeshipEventsList.Events.Any() ) return Task.CompletedTask;
+
+            var tasks = apprenticeshipEventsList.Events.Select(x => _v2EventsPublisher.PublishApprenticeshipCreated(x));
+            return Task.WhenAll(tasks);
         }
 
         private async Task<IEnumerable<ApprenticeshipResult>> GetActiveApprenticeshipsForLearners(IList<Apprenticeship> updatedApprenticeships)
