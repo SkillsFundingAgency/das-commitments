@@ -14,13 +14,14 @@ namespace SFA.DAS.CommitmentsV2.Validators
         {
             public StartDateValidator(IAcademicYearDateProvider academicYearDateProvider)
             {
+                CascadeMode = CascadeMode.StopOnFirstFailure;
+
                 RuleFor(ctx => ctx.StartDate)
                     .GreaterThanOrEqualTo(Constants.DasStartDate)
-                    .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MM yyyy}")
-                    .DependentRules(() =>
-                    {
+                    .When(ctx => ctx.TrainingProgramme == null || ctx.TrainingProgramme.IsActiveOn(ctx.StartDate))
+                    .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MM yyyy}");
 
-                        RuleFor(ctx => ctx.StartDate)
+                  RuleFor(ctx => ctx.StartDate)
                             .Must((draftApprenticeship, startDate) =>
                                 draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
                             .When(ctx => ctx.TrainingProgramme != null)
@@ -37,12 +38,11 @@ namespace SFA.DAS.CommitmentsV2.Validators
                                     $"This training course is only available to apprentices with a start date {suffix}";
                             });
 
-                        RuleFor(ctx => ctx.StartDate)
-                            .LessThanOrEqualTo(draftApprenticeship =>
-                                academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
-                            .WithMessage(
-                                "The start date must be no later than one year after the end of the current teaching year");
-                    });
+                    RuleFor(ctx => ctx.StartDate)
+                        .LessThanOrEqualTo(draftApprenticeship =>
+                            academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+                        .WithMessage(
+                            "The start date must be no later than one year after the end of the current teaching year");
             }
         }
 
