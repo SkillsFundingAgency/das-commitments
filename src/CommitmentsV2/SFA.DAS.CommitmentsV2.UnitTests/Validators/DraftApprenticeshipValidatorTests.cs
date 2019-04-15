@@ -190,6 +190,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                         ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1));
                 },
                 draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
+                expectedErrorMessage,
                 false);
         }
 
@@ -216,6 +217,58 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 Assert.IsTrue(ulnValidationCalls == 0);
             }
         }
+
+        [Test]
+        public void StartDate_OverlapCheck_ShouldRespectResultFromOverlapService()
+        {
+            const string uln = "123";
+
+            _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                Uln = uln,
+                StartDate = new DateTime(2019, 01, 01),
+                EndDate = new DateTime(2019, 06, 01),
+                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+            };
+
+           _fixture.AssertValidationForProperty(() =>
+                {
+                    _fixture
+                        .WithUlnValidationResult(uln, UlnValidationResult.Success, () => { })
+                        .SetOverlapResult(OverlapStatus.OverlappingStartDate);
+                },
+                draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
+                OverlapErrorMessage,
+                false);
+        }
+
+        private static readonly string OverlapErrorMessage = "The date overlaps with existing dates for the same apprentice." +
+                                                      Environment.NewLine +
+                                                      "Please check the date - contact the employer for help";
+
+        [Test]
+        public void EndDate_OverlapCheck_ShouldRespectResultFromOverlapService()
+        {
+            const string uln = "123";
+
+            _fixture.DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                Uln = uln,
+                StartDate = new DateTime(2019, 01, 01),
+                EndDate = new DateTime(2019, 06, 01),
+                TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
+            };
+
+            _fixture.AssertValidationForProperty(() =>
+            {
+                    _fixture
+                        .WithUlnValidationResult(uln, UlnValidationResult.Success, () => { })
+                        .SetOverlapResult(OverlapStatus.OverlappingEndDate);
+                },
+                draftApprenticeshipDetails => draftApprenticeshipDetails.EndDate,
+                OverlapErrorMessage,
+                false);
+        }
     }
 
     public class DraftApprenticeshipValidatorTestFixtures
@@ -226,6 +279,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         public IAcademicYearDateProvider AcademicYearDateProvider;
         public Mock<IUlnValidator> UlnValidatorMock;
         public Mock<IReservationsApiClient> ReservationsApiClient;
+        public Mock<IApprenticeshipOverlapService> ApprenticeshipOverlapServiceMock;
 
         public DraftApprenticeshipValidatorTestFixtures()
         {
@@ -240,6 +294,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
             UlnValidatorMock = new Mock<IUlnValidator>();
             ReservationsApiClient = new Mock<IReservationsApiClient>();
+            ApprenticeshipOverlapServiceMock = new Mock<IApprenticeshipOverlapService>();
             WithSuccessfulReservationValidation();
         }
 
@@ -299,18 +354,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             return this;
         }
 
+        public DraftApprenticeshipValidatorTestFixtures SetOverlapResult(OverlapStatus overlapStatus)
+        {
+            ApprenticeshipOverlapServiceMock
+                .Setup(aos =>
+                    aos.CheckForOverlaps(It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(overlapStatus);
+
+            return this;
+        }
+
         public DraftApprenticeshipDetailsValidator CreateValidator()
         {
-            return new DraftApprenticeshipDetailsValidator(UlnValidatorMock.Object, CurrentDateTime, AcademicYearDateProvider);
+            return new DraftApprenticeshipDetailsValidator(UlnValidatorMock.Object, CurrentDateTime, AcademicYearDateProvider, ApprenticeshipOverlapServiceMock.Object);
         }
 
         public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, bool passes)
         {
-            var memberName = expression.Body is MemberExpression memberExpression ? memberExpression.Member.Name : null;
-            AssertValidationForProperty(setup, expression, memberName, passes);
+            AssertValidationForProperty(setup, expression, null, passes);
         }
 
-        public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, string expectedPropertyName, bool passes)
+        public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, string expectedErrorMessage, bool passes)
+        {
+            var memberName = expression.Body is MemberExpression memberExpression ? memberExpression.Member.Name : null;
+            AssertValidationForProperty(setup, expression, memberName, expectedErrorMessage, true, passes);
+        }
+
+        public void AssertValidationForProperty<TValue>(
+            Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, 
+            string expectedPropertyName, 
+            string expectedErrorMessage,
+            bool expectedErrorShouldBeOnlyError,
+            bool passes)
         {
             setup();
 
@@ -328,6 +403,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 if (expectedPropertyName != null)
                 {
                     errors.WithPropertyName(expectedPropertyName);
+                }
+
+                if (expectedErrorMessage != null)
+                {
+                    errors.WithErrorMessage(expectedErrorMessage);
+                    if (expectedErrorShouldBeOnlyError)
+                    {
+                        var unexpectedErrorsForProperty = errors.Where(error =>
+                                error.PropertyName == expectedPropertyName &&
+                                error.ErrorMessage != expectedErrorMessage)
+                            .ToArray();
+
+                        if (unexpectedErrorsForProperty.Length > 0)
+                        {
+                            Assert.Fail(
+                                $"Only expected error {expectedErrorMessage} but also received {string.Join(Environment.NewLine, unexpectedErrorsForProperty.AsEnumerable())}");
+                        }
+                    }
                 }
             }
         }

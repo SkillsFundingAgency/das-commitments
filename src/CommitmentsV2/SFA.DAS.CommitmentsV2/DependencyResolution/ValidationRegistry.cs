@@ -24,6 +24,8 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
 
                 scan.AddAllTypesOf<IValidator>();
             });
+
+            For<IApprenticeshipOverlapService>().Use<ApprenticeshipOverlapService>().Singleton();
         }
     }
 }

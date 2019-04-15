@@ -1,9 +1,19 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentValidation;
 using FluentValidation.Validators;
+using Microsoft.EntityFrameworkCore;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Validators
@@ -18,31 +28,27 @@ namespace SFA.DAS.CommitmentsV2.Validators
 
                 RuleFor(ctx => ctx.StartDate)
                     .GreaterThanOrEqualTo(Constants.DasStartDate)
-                    .When(ctx => ctx.TrainingProgramme == null || ctx.TrainingProgramme.IsActiveOn(ctx.StartDate))
-                    .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MM yyyy}");
+                    .When(ctx => ctx.TrainingProgramme == null || ctx.TrainingProgramme.StartedPriorToDas)
+                    .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MMM yyyy}")
 
-                  RuleFor(ctx => ctx.StartDate)
-                            .Must((draftApprenticeship, startDate) =>
-                                draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
-                            .When(ctx => ctx.TrainingProgramme != null)
-                            .WithMessage(draftApprenticeship =>
-                            {
-                                var suffix =
-                                    draftApprenticeship.TrainingProgramme.GetStatusOn(draftApprenticeship.StartDate
-                                        .Value) ==
-                                    TrainingProgrammeStatus.Pending
-                                        ? $"after {draftApprenticeship.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                                        : $"before {draftApprenticeship.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+                    .Must((draftApprenticeship, startDate) =>
+                              draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
+                          .When(ctx => ctx.TrainingProgramme != null)
+                          .WithMessage(draftApprenticeship =>
+                          {
+                              var suffix =
+                                  draftApprenticeship.TrainingProgramme.GetStatusOn(draftApprenticeship.StartDate.Value) ==
+                                  TrainingProgrammeStatus.Pending
+                                      ? $"after {draftApprenticeship.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                                      : $"before {draftApprenticeship.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
-                                return
-                                    $"This training course is only available to apprentices with a start date {suffix}";
-                            });
+                              return
+                                  $"This training course is only available to apprentices with a start date {suffix}";
+                          })
 
-                    RuleFor(ctx => ctx.StartDate)
-                        .LessThanOrEqualTo(draftApprenticeship =>
-                            academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
-                        .WithMessage(
-                            "The start date must be no later than one year after the end of the current teaching year");
+                    .LessThanOrEqualTo(draftApprenticeship => academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+                    .WithMessage(
+                        "The start date must be no later than one year after the end of the current teaching year");
             }
         }
 
@@ -95,10 +101,72 @@ namespace SFA.DAS.CommitmentsV2.Validators
             }
         }
 
+        private class UlnValidator : AbstractValidator<DraftApprenticeshipDetails>
+        {
+            public UlnValidator(
+                IUlnValidator ulnValidator,
+                IApprenticeshipOverlapService apprenticeshipOverlapService)
+            {
+                RuleFor(ctx => ctx.Uln)
+                    .Must((obj, uln, ctx) => ValidUln(uln, ctx, ulnValidator))
+                    .When(ctx => !string.IsNullOrWhiteSpace(ctx.Uln))
+                    .WithMessage("You must enter {rule} unique learner number")
+                    .DependentRules(() =>
+                    {
+                        RuleFor(ctx => ctx)
+                            .CustomAsync(async (ctx, customContext, cancellationToken) =>
+                                await CheckForOverlaps(apprenticeshipOverlapService, ctx, customContext, cancellationToken));
+                    });
+            }
+
+            private static readonly string ErrorMessage = "The date overlaps with existing dates for the same apprentice." +
+                                        Environment.NewLine +
+                                        "Please check the date - contact the employer for help";
+
+            private async Task<bool> CheckForOverlaps(
+                IApprenticeshipOverlapService apprenticeshipOverlapService, 
+                DraftApprenticeshipDetails draftApprenticeshipDetails,
+                CustomContext customContext,
+                CancellationToken cancellationToken)
+            {
+                var overlapStatus = await apprenticeshipOverlapService.CheckForOverlaps(draftApprenticeshipDetails, cancellationToken);
+
+                if ((overlapStatus & OverlapStatus.ProblemWithStartDate) != OverlapStatus.None)
+                {
+                    customContext.AddFailure(nameof(DraftApprenticeshipDetails.StartDate), ErrorMessage);
+                }
+
+                if ((overlapStatus & OverlapStatus.ProblemWithEndDate) != OverlapStatus.None)
+                {
+                    customContext.AddFailure(nameof(DraftApprenticeshipDetails.EndDate), ErrorMessage);
+                }
+
+                return overlapStatus != OverlapStatus.None;
+            }
+
+            private bool ValidUln(string uln, PropertyValidatorContext ctx, IUlnValidator ulnValidator)
+            {
+                var validationResult = ulnValidator.Validate(uln);
+                switch (validationResult)
+                {
+                    case UlnValidationResult.IsInValidTenDigitUlnNumber:
+                        ctx.MessageFormatter.AppendArgument("rule", "a 10-digit");
+                        return false;
+
+                    case UlnValidationResult.IsInvalidUln:
+                        ctx.MessageFormatter.AppendArgument("rule", "a valid");
+                        return false;
+                }
+
+                return true;
+            }
+        }
+
         public DraftApprenticeshipDetailsValidator(
             IUlnValidator ulnValidator,
             ICurrentDateTime currentDateTime,
-            IAcademicYearDateProvider academicYearDateProvider)
+            IAcademicYearDateProvider academicYearDateProvider,
+            IApprenticeshipOverlapService apprenticeshipOverlapService)
         {
             RuleFor(ctx => ctx.FirstName)
                 .NotEmpty()
@@ -130,10 +198,9 @@ namespace SFA.DAS.CommitmentsV2.Validators
                 .When(ctx => !string.IsNullOrEmpty(ctx.Reference))
                 .WithMessage("The Reference must be 20 characters or fewer");
 
-            RuleFor(ctx => ctx.Uln)
-                .Must((obj, uln, ctx) => ValidUln(uln, ctx, ulnValidator))
-                .When(ctx => !string.IsNullOrWhiteSpace(ctx.Uln))
-                .WithMessage("You must enter {rule} unique learner number");
+            RuleFor(ctx => ctx)
+                .SetValidator(new UlnValidator(ulnValidator, apprenticeshipOverlapService))
+                .When(ctx => !string.IsNullOrWhiteSpace(ctx.Uln));
 
             RuleFor(ctx => ctx)
                 .SetValidator(new DateOfBirthValidator(currentDateTime))
@@ -142,23 +209,6 @@ namespace SFA.DAS.CommitmentsV2.Validators
             RuleFor(ctx => ctx)
                 .SetValidator(new StartDateValidator(academicYearDateProvider))
                 .When(ctx => ctx.StartDate.HasValue);
-        }
-
-        private bool ValidUln(string uln, PropertyValidatorContext ctx, IUlnValidator ulnValidator)
-        {
-            var validationResult = ulnValidator.Validate(uln);
-            switch (validationResult)
-            {
-                case UlnValidationResult.IsInValidTenDigitUlnNumber:
-                    ctx.MessageFormatter.AppendArgument("rule", "a 10-digit");
-                    return false;
-
-                case UlnValidationResult.IsInvalidUln:
-                    ctx.MessageFormatter.AppendArgument("rule", "a valid");
-                    return false;
-            }
-
-            return true;
         }
     }
 }

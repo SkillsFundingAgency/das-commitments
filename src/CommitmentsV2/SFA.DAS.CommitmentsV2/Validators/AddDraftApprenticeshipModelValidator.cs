@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
                 .CustomAsync(async (ctx, customContext, cancellationToken) => await ValidateReservationId(reservationsApiClient, ctx, customContext, cancellationToken));
         }
 
-        private static async Task<bool> ValidateReservationId(
+        private async Task<bool> ValidateReservationId(
             IReservationsApiClient reservationsApiClient,
             AddDraftApprenticeshipModel ctx, 
             CustomContext customContext, 

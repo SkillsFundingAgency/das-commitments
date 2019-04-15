@@ -238,6 +238,7 @@
     <Compile Include="Queries\GetProviderCommitments\WhenGettingProviderCommitments.cs" />
     <Compile Include="Queries\GetProviderCommitments\WhenValidatingProviderId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rules\ApprenticeshipOverlapRules\ApprenticeshipOverlapRulesTests.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewCommmitmentStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewEditStatus.cs" />
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineNewPaymentStatus.cs" />
@@ -287,7 +288,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Queries\GetFilteredApprenticeship\" />
-    <Folder Include="Rules\ApprenticeshipOverlapRules\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
