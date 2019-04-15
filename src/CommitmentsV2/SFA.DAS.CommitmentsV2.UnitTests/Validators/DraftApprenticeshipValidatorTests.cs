@@ -138,7 +138,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
                 .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
                     draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
-                    nameof(DraftApprenticeshipDetails.StartDate),
                     passes);
         }
 
@@ -155,7 +154,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture.WithCurrentDate(currentDate)
                 .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
                     draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
-                    nameof(DraftApprenticeshipDetails.StartDate),
                     passes);
         }
 
@@ -172,7 +170,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture.WithTrainingProgrammeEffectiveBetween(courseEffectiveFromDate, courseEffectiveToDate)
                 .AssertValidationForProperty(()=> _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
                     draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
-                    nameof(DraftApprenticeshipDetails.StartDate),
                     passes);
         }
 
@@ -193,7 +190,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                         ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1));
                 },
                 draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
-                nameof(DraftApprenticeshipDetails.StartDate),
                 false);
         }
 
@@ -310,7 +306,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
         public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, bool passes)
         {
-            AssertValidationForProperty(setup, expression, null, passes);
+            var memberName = expression.Body is MemberExpression memberExpression ? memberExpression.Member.Name : null;
+            AssertValidationForProperty(setup, expression, memberName, passes);
         }
 
         public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, string expectedPropertyName, bool passes)
