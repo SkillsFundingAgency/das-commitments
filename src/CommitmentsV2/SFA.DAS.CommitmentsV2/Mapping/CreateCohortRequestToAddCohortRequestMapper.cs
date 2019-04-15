@@ -1,5 +1,4 @@
-﻿using SFA.DAS.CommitmentsV2.Api.Types;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 
 namespace SFA.DAS.CommitmentsV2.Mapping

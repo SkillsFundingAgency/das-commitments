@@ -25,7 +25,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
 
-        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails,
+            IUlnValidator ulnValidator,
+            ICurrentDateTime currentDateTime,
+            IAcademicYearDateProvider academicYearDateProvider)
         {
             var commitment = new Commitment
             {
@@ -46,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, ulnValidator);  
+            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, ulnValidator, currentDateTime, academicYearDateProvider);  
 
             return commitment;
         }

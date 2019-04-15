@@ -13,17 +13,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     [TestFixture()]
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     {
-
-        private Mock<ITrainingProgrammeApiClient> _trainingProgrammeApiClient;
-        private Mock<ITrainingProgramme> _trainingProgramme;
+        private TrainingProgramme _trainingProgramme;
+        private Mock<IMapper<ITrainingProgramme,TrainingProgramme>> _trainingProgrammeMapper;
+        private Mock<ITrainingProgrammeApiClient> _trainingProgrammeApi;
 
         [SetUp]
         public void Arrange()
         {
-            _trainingProgramme = new Mock<ITrainingProgramme>();
-            
-            _trainingProgrammeApiClient = new Mock<ITrainingProgrammeApiClient>();
-            _trainingProgrammeApiClient.Setup(x => x.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(_trainingProgramme.Object);
+            _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
+            _trainingProgrammeMapper = new Mock<IMapper<ITrainingProgramme, TrainingProgramme>>();
+            _trainingProgrammeMapper.Setup(x => x.Map(It.IsAny<ITrainingProgramme>())).Returns(_trainingProgramme);
+
+            _trainingProgrammeApi = new Mock<ITrainingProgrammeApiClient>();
+            _trainingProgrammeApi.Setup(x => x.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(() => new Framework());
         }
 
         [Test]
@@ -83,27 +85,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
-        public async Task Map_TrainingCode_ShouldBeSet()
+        public async Task Map_TrainingProgramme_ShouldBeSet()
         {
-            const string courseCode = "TestCourseCode";
-            await AssertPropertySet(input => input.CourseCode = courseCode, output => output.TrainingCode == courseCode);
-        }
-
-        [Test]
-        public async Task Map_TrainingType_ShouldBeSet()
-        {
-            const ProgrammeType programmeType = ProgrammeType.Framework;
-            _trainingProgramme.Setup(x => x.ProgrammeType).Returns(programmeType);
-
-            await AssertPropertySet(input => input.CourseCode = "test", output => output.TrainingType == (int) programmeType);
-        }
-
-        [Test]
-        public async Task Map_TrainingName_ShouldBeSet()
-        {
-            var trainingName = "TestTrainingName";
-            _trainingProgramme.Setup(x => x.ExtendedTitle).Returns(trainingName);
-            await AssertPropertySet(input => input.CourseCode = "test", output => output.TrainingName == trainingName);
+            await AssertPropertySet(input => input.CourseCode = "TEST", output => output.TrainingProgramme == _trainingProgramme);
         }
 
         [Test]
@@ -115,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
         private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
-            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApiClient.Object);
+            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApi.Object, _trainingProgrammeMapper.Object);
 
             var input = new AddCohortCommand();
 

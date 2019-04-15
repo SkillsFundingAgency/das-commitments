@@ -39,27 +39,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         }
 
         [Test]
-        public void ThenTrainingTypeIsMappedCorrectly()
-        {
-            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Employer);
-            Assert.AreEqual(_source.TrainingType, result.TrainingType);
-        }
-
-        [Test]
-        public void ThenTrainingNameIsMappedCorrectly()
-        {
-            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Employer);
-            Assert.AreEqual(_source.TrainingName, result.TrainingName);
-        }
-
-        [Test]
-        public void ThenTrainingCodeIsMappedCorrectly()
-        {
-            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Employer);
-            Assert.AreEqual(_source.TrainingCode, result.TrainingCode);
-        }
-
-        [Test]
         public void ThenCostIsMappedCorrectly()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Employer);
