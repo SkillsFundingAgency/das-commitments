@@ -1,7 +1,5 @@
 ﻿using System;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Api.Types.Types;
-using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

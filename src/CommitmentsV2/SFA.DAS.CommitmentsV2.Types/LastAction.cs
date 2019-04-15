@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.Api.Types.Types
+﻿namespace SFA.DAS.CommitmentsV2.Types
 {
     public enum LastAction
     {
