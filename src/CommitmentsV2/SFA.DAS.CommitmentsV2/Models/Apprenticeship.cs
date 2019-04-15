@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Uln { get; set; }
-        public int? TrainingType { get; set; }
+        public TrainingType? TrainingType { get; set; }
         public string TrainingCode { get; set; }
         public string TrainingName { get; set; }
         public decimal? Cost { get; set; }
