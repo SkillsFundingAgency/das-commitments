@@ -16,28 +16,33 @@ namespace SFA.DAS.CommitmentsV2.Validators
             {
                 RuleFor(ctx => ctx.StartDate)
                     .GreaterThanOrEqualTo(Constants.DasStartDate)
-                    .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MM yyyy}");
-
-                RuleFor(ctx => ctx.StartDate)
-                    .Must((draftApprenticeship, startDate) =>
-                        draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
-                    .When(ctx => ctx.TrainingProgramme != null)
-                    .WithMessage(draftApprenticeship =>
+                    .WithMessage($"The start date must not be earlier than {Constants.DasStartDate:MM yyyy}")
+                    .DependentRules(() =>
                     {
-                        var suffix =
-                            draftApprenticeship.TrainingProgramme.GetStatusOn(draftApprenticeship.StartDate.Value) ==
-                            TrainingProgrammeStatus.Pending
-                                ? $"after {draftApprenticeship.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
-                                : $"before {draftApprenticeship.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
 
-                        return $"This training course is only available to apprentices with a start date {suffix}";
+                        RuleFor(ctx => ctx.StartDate)
+                            .Must((draftApprenticeship, startDate) =>
+                                draftApprenticeship.TrainingProgramme.IsActiveOn(draftApprenticeship.StartDate))
+                            .When(ctx => ctx.TrainingProgramme != null)
+                            .WithMessage(draftApprenticeship =>
+                            {
+                                var suffix =
+                                    draftApprenticeship.TrainingProgramme.GetStatusOn(draftApprenticeship.StartDate
+                                        .Value) ==
+                                    TrainingProgrammeStatus.Pending
+                                        ? $"after {draftApprenticeship.TrainingProgramme.EffectiveFrom.Value.AddMonths(-1):MM yyyy}"
+                                        : $"before {draftApprenticeship.TrainingProgramme.EffectiveTo.Value.AddMonths(1):MM yyyy}";
+
+                                return
+                                    $"This training course is only available to apprentices with a start date {suffix}";
+                            });
+
+                        RuleFor(ctx => ctx.StartDate)
+                            .LessThanOrEqualTo(draftApprenticeship =>
+                                academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
+                            .WithMessage(
+                                "The start date must be no later than one year after the end of the current teaching year");
                     });
-
-                RuleFor(ctx => ctx.StartDate)
-                    .LessThanOrEqualTo(draftApprenticeship =>
-                        academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
-                    .WithMessage(
-                        "The start date must be no later than one year after the end of the current teaching year");
             }
         }
 

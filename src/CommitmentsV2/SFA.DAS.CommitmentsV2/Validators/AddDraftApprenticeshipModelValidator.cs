@@ -19,13 +19,17 @@ namespace SFA.DAS.CommitmentsV2.Validators
         {
             RuleFor(ctx => ctx.DraftApprenticeshipDetails).NotNull();
             RuleFor(ctx => ctx.Commitment).NotNull();
+
             RuleFor(ctx => ctx.DraftApprenticeshipDetails)
                 .SetValidator(draftApprenticeshipDetailsValidator)
+                .OverridePropertyName("")
                 .When(ctx => ctx.DraftApprenticeshipDetails != null);
+
             RuleFor(ctx => ctx.DraftApprenticeshipDetails.ReservationId)
                 .Must((ctx, reservationId) => ctx.Commitment.Apprenticeship.All(apprenticeship => apprenticeship.ReservationId != reservationId))
                 .When(ctx => ctx.DraftApprenticeshipDetails != null)
                 .WithMessage("ULN must be unique within the cohort");
+
             RuleFor(ctx => ctx)
                 .CustomAsync(async (ctx, customContext, cancellationToken) => await ValidateReservationId(reservationsApiClient, ctx, customContext, cancellationToken));
         }

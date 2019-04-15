@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
+using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using Moq;
 using NUnit.Framework;
@@ -15,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.Reservations.Api.Client;
 using SFA.DAS.Reservations.Api.Client.Types;
+using ValidationResult = SFA.DAS.Reservations.Api.Client.Types.ValidationResult;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
@@ -134,8 +137,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
                 .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
-                    draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate
-                    , passes);
+                    draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
+                    nameof(DraftApprenticeshipDetails.StartDate),
+                    passes);
         }
 
         [TestCase("2019-04-01", null, true)]
@@ -150,8 +154,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             _fixture.WithCurrentDate(currentDate)
                 .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
-                    draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate
-                    , passes);
+                    draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
+                    nameof(DraftApprenticeshipDetails.StartDate),
+                    passes);
         }
 
         [TestCase(null, "2019-01-01", "2019-12-31", true,  Description ="Start date not specified")]
@@ -167,6 +172,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture.WithTrainingProgrammeEffectiveBetween(courseEffectiveFromDate, courseEffectiveToDate)
                 .AssertValidationForProperty(()=> _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
                     draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
+                    nameof(DraftApprenticeshipDetails.StartDate),
                     passes);
         }
 
@@ -187,6 +193,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                         ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1));
                 },
                 draftApprenticeshipDetails => draftApprenticeshipDetails.StartDate,
+                nameof(DraftApprenticeshipDetails.StartDate),
                 false);
         }
 
@@ -303,6 +310,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
         public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, bool passes)
         {
+            AssertValidationForProperty(setup, expression, null, passes);
+        }
+
+        public void AssertValidationForProperty<TValue>(Action setup, Expression<Func<DraftApprenticeshipDetails, TValue>> expression, string expectedPropertyName, bool passes)
+        {
             setup();
 
             var validator = CreateValidator();
@@ -313,7 +325,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(expression, DraftApprenticeshipDetails);
+                var errors = validator
+                    .ShouldHaveValidationErrorFor(expression, DraftApprenticeshipDetails);
+
+                if (expectedPropertyName != null)
+                {
+                    errors.WithPropertyName(expectedPropertyName);
+                }
             }
         }
 
@@ -333,6 +351,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 DateTime.SpecifyKind(startDate,DateTimeKind.Utc),
                 DateTime.SpecifyKind(endDate,DateTimeKind.Utc));
             return this;
+        }
+    }
+
+    public static class ValidationTestHelpers
+    {
+        public static IEnumerable<ValidationFailure> WithPropertyName(
+            this IEnumerable<ValidationFailure> failures,
+            string expectedPropertyName)
+        {
+            return failures
+                .When(
+                    (Func<ValidationFailure, bool>)(failure => failure.PropertyName == expectedPropertyName),
+                    $"Expected a property name of '{expectedPropertyName}'. Actual property name was '{{PropertyName}}'");
         }
     }
 }
