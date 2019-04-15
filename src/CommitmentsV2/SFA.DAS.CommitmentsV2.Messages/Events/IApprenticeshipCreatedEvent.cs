@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
@@ -14,10 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         DateTime StartDate { get; set; }
         DateTime EndDate { get; set; }
         PriceEpisode[] PriceEpisodes { get; set; }
-        string StandardCode { get; set; }
-        string ProgrammeType { get; set; }
-        string FrameworkCode { get; set; }
-        string PathwayCode { get; set; }
+        TrainingType TrainingType { get; set; }
+        string TrainingCode { get; set; }
         long? TransferSenderId { get; set; }
     }
 
@@ -27,4 +26,5 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DateTime? ToDate { get; set; }
         public decimal Cost { get; set; }
     }
+
 }

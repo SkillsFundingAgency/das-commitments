@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus;
 using SFA.DAS.Commitments.Application.Interfaces;
@@ -50,13 +51,8 @@ namespace SFA.DAS.Commitments.Application.Services
 
             try
             {
-                var priceEpisodes = new PriceEpisode[1];
-                priceEpisodes[0] = new PriceEpisode
-                {
-                    FromDate = apprenticeshipEvent.EffectiveFrom.Value, // Is this correct
-                    ToDate = apprenticeshipEvent.EffectiveTo,
-                    Cost = apprenticeshipEvent.Apprenticeship.Cost.Value
-                };
+                var priceEpisodes = apprenticeshipEvent.Apprenticeship.PriceHistory
+                    .Select(x => new PriceEpisode { FromDate = x.FromDate, ToDate = x.ToDate, Cost = x.Cost}).ToArray();
 
                 await _endpointInstance.Publish<IApprenticeshipCreatedEvent>(ev =>
                 {
@@ -71,12 +67,8 @@ namespace SFA.DAS.Commitments.Application.Services
                     ev.StartDate = apprenticeshipEvent.Apprenticeship.StartDate.Value;
                     ev.EndDate = apprenticeshipEvent.Apprenticeship.EndDate.Value;
                     ev.PriceEpisodes = priceEpisodes;
-                    ev.ProgrammeType = apprenticeshipEvent.Apprenticeship.TrainingType == TrainingType.Standard
-                        ? "Standard"
-                        : "Framework";
-                    ev.StandardCode = apprenticeshipEvent.Apprenticeship.TrainingType == TrainingType.Standard ? apprenticeshipEvent.Apprenticeship.TrainingCode : null;
-                    ev.FrameworkCode = apprenticeshipEvent.Apprenticeship.TrainingType == TrainingType.Framework ? apprenticeshipEvent.Apprenticeship.TrainingCode : null;
-                    ev.PathwayCode = apprenticeshipEvent.Apprenticeship.TrainingCode.ToString(); // To string
+                    ev.TrainingType = (CommitmentsV2.Types.TrainingType)apprenticeshipEvent.Apprenticeship.TrainingType;
+                    ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
                     ev.TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId;
                 });
 
