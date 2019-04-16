@@ -19,12 +19,4 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         string TrainingCode { get; set; }
         long? TransferSenderId { get; set; }
     }
-
-    public class PriceEpisode
-    {
-        public DateTime FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-        public decimal Cost { get; set; }
-    }
-
 }

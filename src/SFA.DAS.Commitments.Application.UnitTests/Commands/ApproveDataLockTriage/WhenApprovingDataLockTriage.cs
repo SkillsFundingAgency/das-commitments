@@ -17,6 +17,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
 using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Commitments.Infrastructure.Services;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTriage
 {
@@ -29,9 +30,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<ICommitmentRepository> _commitmentRepository;
         private Mock<IApprenticeshipInfoService> _apprenticeshipTrainingService;
-
+        private Mock<IV2EventsPublisher> _v2EventsPublisher;
+        private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
         private ApproveDataLockTriageCommand _command;
-
+        private List<IApprenticeshipEvent> _eventsToPublish;
 
         [SetUp]
         public void SetUp()
@@ -56,16 +58,26 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             _validator.Setup(m => m.Validate(_command))
                 .Returns(new ValidationResult());
 
+            _v2EventsPublisher = new Mock<IV2EventsPublisher>();
+            _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
+
+            _eventsToPublish = new List<IApprenticeshipEvent>();
+
+            _apprenticeshipEventsList
+                .Setup(ael => ael.Events)
+                .Returns(_eventsToPublish);
+
             _sut = new ApproveDataLockTriageCommandHandler(
             _validator.Object, 
             _dataLockRepository.Object, 
             _apprenticeshipRepository.Object,
             Mock.Of<IApprenticeshipEventsPublisher>(),
-            Mock.Of<IApprenticeshipEventsList>(),
+            _apprenticeshipEventsList.Object,
             _commitmentRepository.Object,
             Mock.Of<ICurrentDateTime>(),
             _apprenticeshipTrainingService.Object,
-            Mock.Of<ICommitmentsLogger>());
+            Mock.Of<ICommitmentsLogger>(),
+            _v2EventsPublisher.Object);
         }
 
         [Test]
@@ -426,6 +438,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveDataLockTria
             var p1 = prices.Single(m => m.Cost == 1500);
 
             p1.ToDate.Should().Be(null);
+        }
+
+
+        [Test]
+        public async Task ShouldPublishDataLockTriageApprovedEvent()
+        {
+            var mockEvent = new Mock<IApprenticeshipEvent>();
+            mockEvent.Setup(ev => ev.Apprenticeship).Returns(new Apprenticeship {Id = _command.ApprenticeshipId});
+            mockEvent.Setup(ev => ev.Commitment).Returns(new Commitment());
+            _eventsToPublish.Add(mockEvent.Object);
+            _eventsToPublish.Add(mockEvent.Object);
+
+            _apprenticeshipEventsList
+                .Setup(ael => ael.Events)
+                .Returns(_eventsToPublish);
+
+            _dataLockRepository.Setup(m => m.GetDataLocks(_command.ApprenticeshipId, false))
+                .ReturnsAsync(new List<DataLockStatus>
+                {
+                    new DataLockStatus { ApprenticeshipId = _command.ApprenticeshipId, IsResolved = false, Status = Status.Fail, IlrTotalCost = 400, ErrorCode = DataLockErrorCode.Dlock07, IlrEffectiveFromDate = DateTime.Now, DataLockEventId = 3, TriageStatus = TriageStatus.Change}
+                });
+
+            await _sut.Handle(_command);
+
+            _v2EventsPublisher.Verify(x => x.PublishDataLockTriageApproved(It.Is<IApprenticeshipEvent>(ev => ev.Apprenticeship.Id == _command.ApprenticeshipId)), Times.Exactly(_eventsToPublish.Count));
         }
 
         private bool AssertPriceHistory(IEnumerable<PriceHistory> ph, int expectedTotal)

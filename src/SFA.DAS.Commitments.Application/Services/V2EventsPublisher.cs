@@ -14,12 +14,14 @@ namespace SFA.DAS.Commitments.Application.Services
     {
         private readonly IEndpointInstance _endpointInstance;
         private readonly ICommitmentsLogger _logger;
+        private readonly ICurrentDateTime _currentDateTime;
 
 
-        public V2EventsPublisher(IEndpointInstance endpointInstance, ICommitmentsLogger logger)
+        public V2EventsPublisher(IEndpointInstance endpointInstance, ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
         {
             _endpointInstance = endpointInstance;
             _logger = logger;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship)
@@ -70,6 +72,32 @@ namespace SFA.DAS.Commitments.Application.Services
                     ev.TrainingType = (CommitmentsV2.Types.TrainingType)apprenticeshipEvent.Apprenticeship.TrainingType;
                     ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
                     ev.TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId;
+                });
+
+                _logger.Info($"{logMessage} successful");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, $"{logMessage} failed");
+            }
+        }
+
+        public async Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent)
+        {
+            var logMessage = $"Publish {nameof(IDataLockTriageApprovedEvent)} message. Provider:{apprenticeshipEvent.Commitment.ProviderId} Commitment:{apprenticeshipEvent.Commitment.Id} Apprenticeship:{apprenticeshipEvent.Apprenticeship.Id}";
+
+            try
+            {
+                var priceEpisodes = apprenticeshipEvent.Apprenticeship.PriceHistory
+                    .Select(x => new PriceEpisode { FromDate = x.FromDate, ToDate = x.ToDate, Cost = x.Cost }).ToArray();
+
+                await _endpointInstance.Publish<IDataLockTriageApprovedEvent>(ev =>
+                {
+                    ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
+                    ev.ApprovedOn = _currentDateTime.Now;
+                    ev.PriceEpisodes = priceEpisodes;
+                    ev.TrainingType = (CommitmentsV2.Types.TrainingType)apprenticeshipEvent.Apprenticeship.TrainingType;
+                    ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
                 });
 
                 _logger.Info($"{logMessage} successful");
