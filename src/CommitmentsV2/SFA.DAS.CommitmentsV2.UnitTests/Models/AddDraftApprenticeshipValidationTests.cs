@@ -24,30 +24,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture = new AddDraftApprenticeshipValidationTestsFixture();
         }
 
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("  ", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("Fred", true)]
-        public void FirstName_CheckValidation(string firstName, bool passes)
-        {
-            _fixture.AssertValidationForProperty( () => _fixture.DraftApprenticeshipDetails.FirstName = firstName,
-             nameof(_fixture.DraftApprenticeshipDetails.FirstName), 
-             passes);
-        }
-
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("  ", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("West", true)]
-        public void LastName_CheckValidation(string lastName, bool passes)
-        {
-            _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.LastName = lastName,
-                nameof(_fixture.DraftApprenticeshipDetails.LastName),
-                passes);
-        }
-
         [TestCase(null, null, true)]
         [TestCase("2022-01-20", null, true)]
         [TestCase("2022-01-20", "2022-01-22", false)]
@@ -76,28 +52,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         {
             _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Cost = cost,
                 nameof(_fixture.DraftApprenticeshipDetails.Cost),
-                passes);
-        }
-
-        [TestCase(null, true)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
-        [TestCase("Provider", true)]
-        public void ProviderRef_CheckValidation(string @ref, bool passes)
-        {
-            _fixture.WithProviderCohort()
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Reference = @ref,
-                nameof(_fixture.DraftApprenticeshipDetails.Reference),
-                passes);
-        }
-
-        [TestCase(null, true)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
-        [TestCase("Employer", true)]
-        public void EmployerRef_CheckValidation(string @ref, bool passes)
-        {
-            _fixture.WithEmployerCohort()
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Reference = @ref,
-                nameof(_fixture.DraftApprenticeshipDetails.Reference),
                 passes);
         }
 

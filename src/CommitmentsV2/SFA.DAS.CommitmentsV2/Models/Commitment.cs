@@ -68,7 +68,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildReferenceValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
             errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, currentDateTime));
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, academicYearDateProvider));
@@ -80,12 +79,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.FirstName))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered");
-                yield break;
-            }
-
-            if (draftApprenticeshipDetails.FirstName.Length > 100)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "You must enter a first name that's no longer than 100 characters");
             }
         }
 
@@ -94,12 +87,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.LastName))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "Last name must be entered");
-                yield break;
-            }
-
-            if (draftApprenticeshipDetails.LastName.Length > 100)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.LastName), "You must enter a last name that's no longer than 100 characters");
             }
         }
 
@@ -131,13 +118,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private IEnumerable<DomainError> BuildReferenceValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
-        {
-            if (draftApprenticeshipDetails.Reference != null && draftApprenticeshipDetails.Reference.Length > 20)
-            {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.Reference), "The Reference must be 20 characters or fewer");
-            }
-        }
         private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
         {
             if (!string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
