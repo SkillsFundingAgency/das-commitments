@@ -8,6 +8,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities.AcademicYear;
 using SFA.DAS.Commitments.Domain.Entities.DataLock;
@@ -26,6 +27,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly IDataLockRepository _dataLockRepository;
         private readonly IAcademicYearValidator _academicYearValidator;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         private const DataLockErrorCode CourseChangeErrors = DataLockErrorCode.Dlock03 | DataLockErrorCode.Dlock04 | DataLockErrorCode.Dlock05 | DataLockErrorCode.Dlock06;
 
@@ -38,7 +40,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
             IDataLockRepository dataLockRepository,
-            IAcademicYearValidator academicYearValidator
+            IAcademicYearValidator academicYearValidator,
+            IV2EventsPublisher v2EventsPublisher
             )
         {
             _commitmentRepository = commitmentRepository;
@@ -50,6 +53,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _historyRepository = historyRepository;
             _dataLockRepository = dataLockRepository;
             _academicYearValidator = academicYearValidator;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(StopApprenticeshipCommand command)
@@ -74,12 +78,19 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             await CreateEvent(command, apprenticeship, commitment);
         }
 
-        private async Task CreateEvent(StopApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment)
+        private Task CreateEvent(StopApprenticeshipCommand command, Apprenticeship apprenticeship, Commitment commitment)
         {
-            await _eventsApi.PublishChangeApprenticeshipStatusEvent(
-                commitment, apprenticeship, 
-                apprenticeship.PaymentStatus, 
-                effectiveFrom: command.DateOfChange.Date);
+            var tasks = new Task[]
+            {
+                _eventsApi.PublishChangeApprenticeshipStatusEvent(
+                    commitment, apprenticeship,
+                    apprenticeship.PaymentStatus,
+                    effectiveFrom: command.DateOfChange.Date),
+
+                _v2EventsPublisher.PublishApprenticeshipStopped(commitment, apprenticeship)
+            };
+
+            return Task.WhenAll(tasks);
         }
 
         private async Task SaveChange(StopApprenticeshipCommand command, Commitment commitment, Apprenticeship apprenticeship)

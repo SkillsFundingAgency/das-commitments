@@ -82,6 +82,33 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
+        public async Task PublishApprenticeshipStopped(Commitment commitment, Apprenticeship apprenticeship)
+        {
+            if (apprenticeship.StopDate == null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot publish stopped event for apprenticeship {apprenticeship.Id} because it does not have a stop date");
+            }
+
+            var logMessage = $"Publish {nameof(IDraftApprenticeshipStoppedEvent)} message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id} ReservationId:{apprenticeship.ReservationId} StoppedDate:{apprenticeship.StopDate}";
+
+            try
+            {
+                await _endpointInstance.Publish<IDraftApprenticeshipStoppedEvent>(ev =>
+                {
+                    ev.AppliedOn = _currentDateTime.Now;
+                    ev.ApprenticeshipId = apprenticeship.Id;
+                    ev.StopDate = apprenticeship.StopDate.Value;
+                });
+
+                _logger.Info($"{logMessage} successful");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, $"{logMessage} failed");
+            }
+        }
+
         public async Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent)
         {
             var logMessage = $"Publish {nameof(IDataLockTriageApprovedEvent)} message. Provider:{apprenticeshipEvent.Commitment.ProviderId} Commitment:{apprenticeshipEvent.Commitment.Id} Apprenticeship:{apprenticeshipEvent.Apprenticeship.Id}";

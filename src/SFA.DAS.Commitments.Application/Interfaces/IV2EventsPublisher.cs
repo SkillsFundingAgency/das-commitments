@@ -10,6 +10,7 @@ namespace SFA.DAS.Commitments.Application.Interfaces
     public interface IV2EventsPublisher
     {
         Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship);
+        Task PublishApprenticeshipStopped(Commitment commitment, Apprenticeship apprenticeship);
         Task PublishApprenticeshipCreated(IApprenticeshipEvent apprenticeshipEvent);
         Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent);
     }

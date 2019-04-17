@@ -221,6 +221,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
+        public async Task ThenShouldSendAnApprenticeshipStoppedV2Event()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipStopped(It.IsAny<Commitment>(),It.IsAny<Apprenticeship>()), Times.Once);
+        }
+
+        [Test]
         public void ThenThrowsExceptionIfChangeDateIsNotTrainingStartDate()
         {
             var startDate = DateTime.UtcNow.AddMonths(2).Date;
