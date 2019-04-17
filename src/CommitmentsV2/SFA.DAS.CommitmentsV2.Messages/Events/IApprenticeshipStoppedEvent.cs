@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
-    public interface IDraftApprenticeshipStoppedEvent
+    public interface IApprenticeshipStoppedEvent
     {
         long ApprenticeshipId { get; set; }
         DateTime StopDate { get; set; }

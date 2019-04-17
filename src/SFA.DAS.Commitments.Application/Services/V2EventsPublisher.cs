@@ -90,11 +90,13 @@ namespace SFA.DAS.Commitments.Application.Services
                     $"Cannot publish stopped event for apprenticeship {apprenticeship.Id} because it does not have a stop date");
             }
 
-            var logMessage = $"Publish {nameof(IDraftApprenticeshipStoppedEvent)} message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id} ReservationId:{apprenticeship.ReservationId} StoppedDate:{apprenticeship.StopDate}";
+            _logger.Info($"AQN: {typeof(IApprenticeshipStoppedEvent).AssemblyQualifiedName}");
+
+            var logMessage = $"Publish {nameof(IApprenticeshipStoppedEvent)} message. Provider:{apprenticeship.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id} ReservationId:{apprenticeship.ReservationId} StoppedDate:{apprenticeship.StopDate}";
 
             try
             {
-                await _endpointInstance.Publish<IDraftApprenticeshipStoppedEvent>(ev =>
+                await _endpointInstance.Publish<IApprenticeshipStoppedEvent>(ev =>
                 {
                     ev.AppliedOn = _currentDateTime.Now;
                     ev.ApprenticeshipId = apprenticeship.Id;
