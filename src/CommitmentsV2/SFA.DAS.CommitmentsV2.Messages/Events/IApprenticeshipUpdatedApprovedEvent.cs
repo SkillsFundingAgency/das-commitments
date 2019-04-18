@@ -3,13 +3,10 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
-    public interface IApprenticeshipUpdatedApprovedEvent
+    public interface IDataLockTriageApprovedEvent
     {
         long ApprenticeshipId { get; set; }
         DateTime ApprovedOn { get; set; }
-        string ULN { get; set; }
-        DateTime StartDate { get; set; }
-        DateTime EndDate { get; set; }
         PriceEpisode[] PriceEpisodes { get; set; }
         TrainingType TrainingType { get; set; }
         string TrainingCode { get; set; }
