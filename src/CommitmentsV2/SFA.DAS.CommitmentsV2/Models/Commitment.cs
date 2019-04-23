@@ -5,6 +5,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Services;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -48,29 +49,26 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails,
-            IUlnValidator ulnValidator,
-            ICurrentDateTime currentDateTime,
-            IAcademicYearDateProvider academicYearDateProvider)
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+            //IUlnValidator ulnValidator,
+            //ICurrentDateTime currentDateTime,
+            //IAcademicYearDateProvider academicYearDateProvider)
         {
-            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, ulnValidator, currentDateTime, academicYearDateProvider);
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
         }
 
-        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails,
-            IUlnValidator ulnValidator,
-            ICurrentDateTime currentDateTime,
-            IAcademicYearDateProvider academicYearDateProvider)
+        private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             var errors = new List<DomainError>();
             errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
-            errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails, currentDateTime));
-            errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails, academicYearDateProvider));
+            //errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
+            errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.ThrowIfAny();
         }
 
@@ -118,48 +116,22 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails, IUlnValidator ulnValidator)
+
+        private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (!string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
-            {
-                var validationResult = ulnValidator.Validate(draftApprenticeshipDetails.Uln);
-                switch(validationResult)
-                {
-                    case UlnValidationResult.IsInValidTenDigitUlnNumber:
-                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a 10-digit unique learner number");
-                        yield break;
-                    case UlnValidationResult.IsInvalidUln:
-                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "You must enter a valid unique learner number");
-                        yield break;
-                    default:
-                        yield break;
-                }  
-            }
-        }
+            if (!draftApprenticeshipDetails.AgeOnStartDate.HasValue) yield break;
 
-        private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(
-            DraftApprenticeshipDetails draftApprenticeshipDetails, ICurrentDateTime currentDateTime)
-        {
-            if (!draftApprenticeshipDetails.DateOfBirth.HasValue) yield break;
-
-            var dob = draftApprenticeshipDetails.DateOfBirth.Value;
-            var now = currentDateTime.UtcNow;
-
-            var age = now.Year - dob.Year;
-            if ((dob.Month > now.Month) || (dob.Month == now.Month && dob.Day > now.Day)) age--;
-
-            if (age < 15)
+            if (draftApprenticeshipDetails.AgeOnStartDate < 15)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be at least 15 years old at the start of their training");
             }
-            else if (age >= 115)
+            else if (draftApprenticeshipDetails.AgeOnStartDate >= 115)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be younger than 115 years old at the start of their training");
             }
         }
 
-        private IEnumerable<DomainError> BuildStartDateValidationFailures(
-            DraftApprenticeshipDetails details, IAcademicYearDateProvider academicYearDateProvider)
+        private IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details)
         {
             if (!details.StartDate.HasValue) yield break;
 
@@ -186,13 +158,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 var errorMessage = $"This training course is only available to apprentices with a start date {suffix}";
 
                 yield return new DomainError(nameof(details.StartDate), errorMessage);
-                yield break;
-            }
-
-            if (details.StartDate.Value > academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
-            {
-                yield return new DomainError(nameof(details.StartDate),
-                    "The start date must be no later than one year after the end of the current teaching year");
                 yield break;
             }
        }

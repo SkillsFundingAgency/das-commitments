@@ -21,16 +21,15 @@ namespace SFA.DAS.CommitmentsV2.Models
             Updated = updated;
         }
 
-        public long UkPrn { get; set; }
+        public virtual long UkPrn { get; set; }
         public string Name { get; set; }
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
 
-        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity,
-            DraftApprenticeshipDetails draftApprenticeshipDetails,
-            IUlnValidator ulnValidator,
-            ICurrentDateTime currentDateTime,
-            IAcademicYearDateProvider academicYearDateProvider)
+        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails)
+            //IUlnValidator ulnValidator,
+            //ICurrentDateTime currentDateTime,
+            //IAcademicYearDateProvider academicYearDateProvider)
         {
             var commitment = new Commitment
             {
@@ -51,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            commitment.AddDraftApprenticeship(draftApprenticeshipDetails, ulnValidator, currentDateTime, academicYearDateProvider);  
+            commitment.AddDraftApprenticeship(draftApprenticeshipDetails);  
 
             return commitment;
         }

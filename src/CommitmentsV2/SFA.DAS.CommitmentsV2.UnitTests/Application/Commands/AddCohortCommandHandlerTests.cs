@@ -28,21 +28,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             const string expectedHash = "ABC123";
 
-            long accountId = 2;
-            long accountLegalEntityId = 3;
+            const long providerId = 1;
+            //const long accountId = 2;
+            const long accountLegalEntityId = 3;
 
             var fixtures = new AddCohortCommandHandlerTestFixture()
-                                .WithGeneratedHash(expectedHash)
-                                .WithAccountLegalEntity(accountId, accountLegalEntityId);
+                                .WithGeneratedHash(expectedHash);
+                                //.WithAccountLegalEntity(accountId, accountLegalEntityId);
 
-            var response = await fixtures.Handle(3, 1, "Course1");
+            var response = await fixtures.Handle(accountLegalEntityId, providerId, "Course1");
 
-            fixtures.Provider.Verify(x =>
-                    x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
-                            ale.AccountId == accountId && ale.Id == accountLegalEntityId),
-                        It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
-                        It.IsAny<IUlnValidator>(), It.IsAny<ICurrentDateTime>(), It.IsAny<IAcademicYearDateProvider>()),
-                Times.Once);
+            //fixtures.Provider.Verify(x =>
+            //        x.CreateCohort(It.Is<AccountLegalEntity>(ale =>
+            //                ale.AccountId == accountId && ale.Id == accountLegalEntityId),
+            //            It.IsAny<DraftApprenticeshipDetails>(), //todo be more specific
+            //            It.IsAny<IUlnValidator>(), It.IsAny<ICurrentDateTime>(), It.IsAny<IAcademicYearDateProvider>()),
+            //    Times.Once);
+
+            fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(It.Is<long>(p => p == providerId),
+                It.Is<long>(ale => ale == accountLegalEntityId),
+                It.IsAny<DraftApprenticeshipDetails>(),
+                It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
             
@@ -95,17 +101,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var commitment = new Commitment();
             commitment.Apprenticeship.Add(new DraftApprenticeship());
 
-            Provider = new Mock<Provider>();
-            Provider.Setup(
-                x => x.CreateCohort(It.IsAny<AccountLegalEntity>(),
-                        It.IsAny<DraftApprenticeshipDetails>(),
-                        It.IsAny<IUlnValidator>(),
-                        It.IsAny<ICurrentDateTime>(),
-                        It.IsAny<IAcademicYearDateProvider>()
-                    ))
-                .Returns(commitment);
+            //Provider = new Mock<Provider>();
+            //Provider.Setup(
+            //    x => x.CreateCohort(It.IsAny<AccountLegalEntity>(),
+            //            It.IsAny<DraftApprenticeshipDetails>(),
+            //            It.IsAny<IUlnValidator>(),
+            //            It.IsAny<ICurrentDateTime>(),
+            //            It.IsAny<IAcademicYearDateProvider>()
+            //        ))
+            //    .Returns(commitment);
 
-            Db.Providers.Add(Provider.Object);
+            //Db.Providers.Add(Provider.Object);
+
+            CohortDomainServiceMock = new Mock<ICohortDomainService>();
+            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(),
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(commitment);
 
             Logger = new TestLogger(); 
         }
@@ -114,6 +125,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public IHashingService HashingService => HashingServiceMock.Object;
 
         public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
+        public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
 
         public TestLogger Logger { get; }
@@ -127,22 +139,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public AddCohortCommandHandlerTestFixture WithAccountLegalEntity(long accountId, long accountLegalEntityId)
-        {
-            var account = new Account(accountId, $"PRI{accountId:D3}", $"PUB{accountId:D3}", "Account {accountId}",
-                DateTime.Now);
+        //public AddCohortCommandHandlerTestFixture WithAccountLegalEntity(long accountId, long accountLegalEntityId)
+        //{
+        //    var account = new Account(accountId, $"PRI{accountId:D3}", $"PUB{accountId:D3}", "Account {accountId}",
+        //        DateTime.Now);
 
-            account.AddAccountLegalEntity(accountLegalEntityId,
-                $"PUB{accountLegalEntityId:D3}",
-                $"ALE {accountLegalEntityId}",
-                $"AccountLegalEntityResponse {accountLegalEntityId:D3}",
-                OrganisationType.Charities,
-                "High Street", DateTime.Now);
+        //    account.AddAccountLegalEntity(accountLegalEntityId,
+        //        $"PUB{accountLegalEntityId:D3}",
+        //        $"ALE {accountLegalEntityId}",
+        //        $"AccountLegalEntityResponse {accountLegalEntityId:D3}",
+        //        OrganisationType.Charities,
+        //        "High Street", DateTime.Now);
 
-            Db.Accounts.Add(account);
+        //    Db.Accounts.Add(account);
 
-            return this;
-        }
+        //    return this;
+        //}
 
         public async Task<AddCohortResponse> Handle(long accountLegalEntity, long providerId, string courseCode)
         {
@@ -159,9 +171,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 HashingService,
                 Logger,
                 DraftApprenticeshipDetailsMapperMock.Object,
-                Mock.Of<IUlnValidator>(),
-                Mock.Of<ICurrentDateTime>(),
-                Mock.Of<IAcademicYearDateProvider>());
+                CohortDomainServiceMock.Object);
+                //Mock.Of<IUlnValidator>(),
+                //Mock.Of<ICurrentDateTime>(),
+                //Mock.Of<IAcademicYearDateProvider>());
 
             var response = await handler.Handle(command, CancellationToken.None);
             await Db.SaveChangesAsync();
