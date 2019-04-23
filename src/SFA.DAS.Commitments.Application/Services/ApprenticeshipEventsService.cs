@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.Services
             });
 
             _logger.Info($"Publishing {existingApprenticeships.Count()} apprenticeship agreement updates");
-            Task.WaitAll(
+            await Task.WhenAll(
                 _apprenticeshipEventsPublisher.Publish(_apprenticeshipEventsList), 
                 PublishAllFinalApprovalEventsToV2(_apprenticeshipEventsList));
         }
