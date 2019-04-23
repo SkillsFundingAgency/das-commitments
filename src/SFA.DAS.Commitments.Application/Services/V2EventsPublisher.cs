@@ -14,12 +14,14 @@ namespace SFA.DAS.Commitments.Application.Services
     {
         private readonly IEndpointInstance _endpointInstance;
         private readonly ICommitmentsLogger _logger;
+        private readonly ICurrentDateTime _currentDateTime;
 
 
-        public V2EventsPublisher(IEndpointInstance endpointInstance, ICommitmentsLogger logger)
+        public V2EventsPublisher(IEndpointInstance endpointInstance, ICommitmentsLogger logger, ICurrentDateTime currentDateTime)
         {
             _endpointInstance = endpointInstance;
             _logger = logger;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship)
@@ -57,13 +59,13 @@ namespace SFA.DAS.Commitments.Application.Services
                 await _endpointInstance.Publish<IApprenticeshipCreatedEvent>(ev =>
                 {
                     ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
-                    ev.CreatedOn = DateTime.Now; // Get this from somewhere
+                    ev.CreatedOn = _currentDateTime.Now;
                     ev.Uln = apprenticeshipEvent.Apprenticeship.ULN;
                     ev.ProviderId = apprenticeshipEvent.Apprenticeship.ProviderId;
                     ev.AccountId = apprenticeshipEvent.Apprenticeship.EmployerAccountId;
                     ev.AccountLegalEntityPublicHashedId =
                         apprenticeshipEvent.Apprenticeship.AccountLegalEntityPublicHashedId;
-                    ev.LegalEntityName = apprenticeshipEvent.Apprenticeship.LegalEntityId; // This should be the Name
+                    ev.LegalEntityName = apprenticeshipEvent.Commitment.LegalEntityName;
                     ev.StartDate = apprenticeshipEvent.Apprenticeship.StartDate.Value;
                     ev.EndDate = apprenticeshipEvent.Apprenticeship.EndDate.Value;
                     ev.PriceEpisodes = priceEpisodes;
