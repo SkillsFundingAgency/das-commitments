@@ -28,7 +28,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<IDraftApprenticeshipDeletedEvent>(ev =>
+            return PublishWithLog<IDraftApprenticeshipDeletedEvent>(ApprenticePreChecks.NotRequired, apprenticeship, ev =>
             {
                 ev.DraftApprenticeshipId = apprenticeship.Id;
                 ev.CohortId = commitment.Id;
@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipCreated(IApprenticeshipEvent apprenticeshipEvent)
         {
-            return PublishWithLog<IApprenticeshipCreatedEvent>(ApprenticePreChecks.HasStartAndEndDate, ev =>
+            return PublishWithLog<IApprenticeshipCreatedEvent>(ApprenticePreChecks.HasStartAndEndDate, apprenticeshipEvent?.Apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
                 ev.CreatedOn = _currentDateTime.Now;
@@ -61,7 +61,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipStopped(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<IApprenticeshipStoppedEvent>(ApprenticePreChecks.HasStopDate, ev =>
+            return PublishWithLog<IApprenticeshipStoppedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, ev =>
             {
                 ev.AppliedOn = _currentDateTime.Now;
                 ev.ApprenticeshipId = apprenticeship.Id;
@@ -71,7 +71,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent)
         {
-            return PublishWithLog<IDataLockTriageApprovedEvent>(ev =>
+            return PublishWithLog<IDataLockTriageApprovedEvent>(  ApprenticePreChecks.NotRequired, apprenticeshipEvent?.Apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
                 ev.ApprovedOn = _currentDateTime.Now;
@@ -83,7 +83,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipUpdatedApproved(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<IApprenticeshipUpdatedApprovedEvent>( ApprenticePreChecks.HasStartAndEndDate,ev =>
+            return PublishWithLog<IApprenticeshipUpdatedApprovedEvent>( ApprenticePreChecks.HasStartAndEndDate, apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeship.Id;
                 ev.ApprovedOn = _currentDateTime.Now;
@@ -104,9 +104,9 @@ namespace SFA.DAS.Commitments.Application.Services
             HasStartAndEndDate = HasStartDate | HasEndDate
         }
 
-        private Task PublishWithLog<TEvent>(Action<TEvent> messageConstructor, string message) where TEvent : class
+        private Task PublishWithLog<TEvent>(Action<TEvent> messageConstructor, Apprenticeship apprentice, string message) where TEvent : class
         {
-            return PublishWithLog(ApprenticePreChecks.NotRequired, messageConstructor, message);
+            return PublishWithLog(ApprenticePreChecks.NotRequired, apprentice, messageConstructor, message);
         }
 
         /// <summary>
@@ -115,13 +115,15 @@ namespace SFA.DAS.Commitments.Application.Services
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="checks">Specified properties will be checked for null value before calling the message constructor</param>
         /// <param name="messageConstructor">Sets values on an instance of the message</param>
+        /// <param name="apprenticeship"></param>
         /// <param name="message">A log message that will be recorded with the success or failure message</param>
         /// <returns></returns>
-        private async Task PublishWithLog<TEvent>(ApprenticePreChecks checks, Action<TEvent> messageConstructor, string message) where TEvent : class
+        private async Task PublishWithLog<TEvent>(ApprenticePreChecks checks, Apprenticeship apprenticeship, Action<TEvent> messageConstructor, string message) where TEvent : class
         {
             var logMessage = $"Publish {typeof(TEvent).Name} message. {message}";
             try
             {
+                DoPreChecks<TEvent>(checks, apprenticeship);
                 await _endpointInstance.Publish<TEvent>(messageConstructor);
 
                 _logger.Info($"{logMessage} successful");
