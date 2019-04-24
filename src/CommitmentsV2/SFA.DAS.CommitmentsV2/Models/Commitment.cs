@@ -50,9 +50,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
         public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
-            //IUlnValidator ulnValidator,
-            //ICurrentDateTime currentDateTime,
-            //IAcademicYearDateProvider academicYearDateProvider)
         {
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
@@ -66,7 +63,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
-            //errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails, ulnValidator));
             errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.ThrowIfAny();

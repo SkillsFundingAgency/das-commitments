@@ -1,4 +1,6 @@
-﻿using SFA.DAS.Http;
+﻿using System;
+using System.Net.Http;
+using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Client.Configuration;
 using StructureMap;
 
@@ -14,8 +16,19 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
         private IReservationsApiClient CreateClient(IContext ctx)
         {
             var config = ctx.GetInstance<ReservationsClientApiConfiguration>();
-            var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(config);
-            var httpClient = httpClientFactory.CreateHttpClient();
+
+            HttpClient httpClient;
+
+            if (config.UseStub)
+            {
+                httpClient = new HttpClient {BaseAddress = new Uri("https://sfa-stub-reservations.herokuapp.com/") };
+            }
+            else
+            {
+                var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(config);
+                httpClient = httpClientFactory.CreateHttpClient();
+            }
+
             var restHttpClient = new RestHttpClient(httpClient);
             return new ReservationsApiClient(restHttpClient);
         }

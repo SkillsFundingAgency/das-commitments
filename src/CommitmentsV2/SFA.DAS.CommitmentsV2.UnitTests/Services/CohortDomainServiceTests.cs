@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Domain.ValueObjects.Reservations;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 
@@ -64,6 +65,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyUlnException(passes);
         }
 
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public async Task Reservation_Validation(bool hasValidationError, bool passes)
+        {
+            await _fixture.WithReservationValidationResult(hasValidationError)
+                .CreateCohort();
+
+            _fixture.VerifyReservationException(passes);
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public CohortDomainService CohortDomainService { get; set; }
@@ -74,9 +85,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             public Mock<Provider> Provider { get; set; }
             public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }            
-            public Mock<ICurrentDateTime> CurrentDateTime { get; private set; }
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; private set; }
             public Mock<IUlnValidator> UlnValidator { get; private set; }
+            public Mock<IReservationValidationService> ReservationValidationService { get; private set; }
             public List<DomainError>  DomainErrors { get; private set; }
 
             public CohortDomainServiceTestFixture()
@@ -102,29 +113,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     FirstName = "Test", LastName = "Test"
                 };               
 
-                CurrentDateTime = new Mock<ICurrentDateTime>();
-                CurrentDateTime.Setup(x => x.UtcNow).Returns(new DateTime(2018, 1, 1));
-
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
                 AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
 
                 UlnValidator = new Mock<IUlnValidator>();
                 UlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(UlnValidationResult.Success);
 
+                ReservationValidationService = new Mock<IReservationValidationService>();
+                ReservationValidationService.Setup(x =>
+                        x.Validate(It.IsAny<ReservationValidationRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new ReservationValidationResult(new ReservationValidationError[0]));
+
                 DomainErrors = new List<DomainError>();
 
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
-                    CurrentDateTime.Object,
                     Mock.Of<ILogger<CohortDomainService>>(),
                     AcademicYearDateProvider.Object,
-                    UlnValidator.Object);
-            }
-
-            public CohortDomainServiceTestFixture WithCurrentDate(DateTime value)
-            {
-                var utcValue = DateTime.SpecifyKind(value, DateTimeKind.Utc);
-                CurrentDateTime.Setup(x => x.UtcNow).Returns(utcValue);
-                return this;
+                    UlnValidator.Object,
+                    ReservationValidationService.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -138,6 +144,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 DraftApprenticeshipDetails.Uln = "X";
                 UlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(value);
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
+            {
+                DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
+
+                var errors = new List<ReservationValidationError>();
+
+                if (hasReservationError)
+                {
+                    errors.Add(new ReservationValidationError("TEST", "TEST", "TEST"));
+                }
+
+                ReservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new ReservationValidationResult(errors.ToArray()));
+
                 return this;
             }
 
@@ -194,6 +217,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "Uln"));
+            }
+
+            public void VerifyReservationException(bool passes)
+            {
+                if (passes)
+                {
+                    Assert.IsFalse(EnumerableExtensions.Any(DomainErrors));
+                    return;
+                }
+
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "TEST"));
             }
         } 
     }
