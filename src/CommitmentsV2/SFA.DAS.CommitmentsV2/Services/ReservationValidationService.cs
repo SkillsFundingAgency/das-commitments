@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Domain.ValueObjects.Reservations;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.Reservations.Api.Client;
 using SFA.DAS.Reservations.Api.Client.Types;
