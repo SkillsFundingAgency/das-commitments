@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SFA.DAS.CommitmentsV2.TestSubscriber": {
+      "commandName": "Project",
+      "commandLineArgs": "-c \"Endpoint=sb://das-at-shared-ns.servicebus.windows.net/;SharedAccessKeyName=CommitmentsV2;SharedAccessKey=/ACa2jHhUuZffCPd9WuI/z5ufo5fclI82tSFAYGO6wY=\""
+    }
+  }
+}
