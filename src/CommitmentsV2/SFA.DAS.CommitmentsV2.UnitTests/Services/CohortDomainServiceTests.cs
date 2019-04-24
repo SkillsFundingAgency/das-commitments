@@ -174,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public async Task<Commitment> CreateCohort()
+            public async Task<Cohort> CreateCohort()
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();

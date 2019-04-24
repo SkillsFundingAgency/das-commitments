@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
                 };
             }
 
-            public Commitment CreateCohort()
+            public Cohort CreateCohort()
             {
                 var result = Provider.CreateCohort(AccountLegalEntity, DraftApprenticeshipDetails);
                 return result;

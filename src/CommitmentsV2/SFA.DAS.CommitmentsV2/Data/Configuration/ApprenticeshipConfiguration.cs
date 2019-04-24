@@ -32,14 +32,20 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.ProviderRef).HasMaxLength(50);
             builder.Property(e => e.StartDate).HasColumnType("datetime");
             builder.Property(e => e.StopDate).HasColumnType("date");
-            builder.Property(e => e.TrainingCode).HasMaxLength(20);
-            builder.Property(e => e.TrainingName).HasMaxLength(126);
+
+            builder.Property(e => e.CourseCode)
+                .HasColumnName("TrainingCode")
+                .HasMaxLength(20);
+
+            builder.Property(e => e.CourseName)
+                .HasColumnName("TrainingName")
+                .HasMaxLength(126);
 
             builder.Property(e => e.Uln)
                 .HasColumnName("Uln")
                 .HasMaxLength(50);
 
-            builder.HasOne(d => d.Commitment)
+            builder.HasOne(d => d.Cohort)
                 .WithMany(p => p.Apprenticeship)
                 .HasForeignKey(d => d.CommitmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull);

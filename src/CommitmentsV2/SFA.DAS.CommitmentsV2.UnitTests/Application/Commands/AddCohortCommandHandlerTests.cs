@@ -98,7 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
                 .ReturnsAsync(() => new DraftApprenticeshipDetails());
 
-            var commitment = new Commitment();
+            var commitment = new Cohort();
             commitment.Apprenticeship.Add(new DraftApprenticeship());
 
             //Provider = new Mock<Provider>();

@@ -26,12 +26,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
 
-        public virtual Commitment CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails)
-            //IUlnValidator ulnValidator,
-            //ICurrentDateTime currentDateTime,
-            //IAcademicYearDateProvider academicYearDateProvider)
+        public virtual Cohort CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            var commitment = new Commitment
+            var cohort = new Cohort
             {
                 // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
                 Reference = "",
@@ -50,9 +47,9 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            commitment.AddDraftApprenticeship(draftApprenticeshipDetails);  
+            cohort.AddDraftApprenticeship(draftApprenticeshipDetails);  
 
-            return commitment;
+            return cohort;
         }
     }
 }

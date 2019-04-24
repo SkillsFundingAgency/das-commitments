@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -14,7 +13,6 @@ using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects.Reservations;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.HashingService;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -39,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _reservationValidationService = reservationValidationService;
         }
 
-        public async Task<Commitment> CreateCohort(long providerId, long accountLegalEntityId,
+        public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
@@ -65,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var errors = new List<DomainError>();
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
-            //overlap check
+            //overlap check to go here
             errors.AddRange(await BuildReservationValidationFailures(providerId, accountId, accountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken));
             errors.ThrowIfAny();
         }
