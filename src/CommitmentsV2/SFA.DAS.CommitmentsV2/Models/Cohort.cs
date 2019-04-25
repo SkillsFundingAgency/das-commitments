@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
+using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -104,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield break;
             }
 
-            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > 100000)
+            if (draftApprenticeshipDetails.Cost.HasValue && draftApprenticeshipDetails.Cost > Constants.MaximumApprenticeshipCost)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Cost), "The total cost must be £100,000 or less");
             }
@@ -115,13 +115,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!draftApprenticeshipDetails.AgeOnStartDate.HasValue) yield break;
 
-            if (draftApprenticeshipDetails.AgeOnStartDate < 15)
+            if (draftApprenticeshipDetails.AgeOnStartDate < Constants.MinimumAgeAtApprenticeshipStart)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be at least 15 years old at the start of their training");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
             }
-            else if (draftApprenticeshipDetails.AgeOnStartDate >= 115)
+            else if (draftApprenticeshipDetails.AgeOnStartDate >= Constants.MaximumAgeAtApprenticeshipStart)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), "The apprentice must be younger than 115 years old at the start of their training");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
             }
         }
 
@@ -129,15 +129,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!details.StartDate.HasValue) yield break;
 
-            var dasStartDate = new DateTime(2017, 5, 1, 0, 0, 0, DateTimeKind.Utc);
-
             var courseStartedBeforeDas = details.TrainingProgramme != null &&
                                          (!details.TrainingProgramme.EffectiveFrom.HasValue ||
-                                          details.TrainingProgramme.EffectiveFrom.Value < dasStartDate);
+                                          details.TrainingProgramme.EffectiveFrom.Value < Constants.DasStartDate);
 
             var trainingProgrammeStatus = details.TrainingProgramme?.GetStatusOn(details.StartDate.Value);
             
-            if((details.StartDate.Value < dasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
+            if((details.StartDate.Value < Constants.DasStartDate) && (!trainingProgrammeStatus.HasValue || courseStartedBeforeDas))
             {
                 yield return new DomainError(nameof(details.StartDate), "The start date must not be earlier than May 2017");
                 yield break;
