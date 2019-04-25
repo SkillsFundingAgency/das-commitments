@@ -30,7 +30,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public async Task PublishApprenticeshipDeleted_NoDatesSet_ShouldNotThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IDraftApprenticeshipDeletedEvent>();
+            var fixtures = new V2EventsPublisherTestFixtures<DraftApprenticeshipDeletedEvent>();
 
             await fixtures.Publish(publisher => publisher.PublishApprenticeshipDeleted(fixtures.Commitment, fixtures.Apprenticeship));
        }
@@ -40,7 +40,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public async Task PublishApprenticeshipStopped_WithStartAndEndDateSet_ShouldNotThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipStoppedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>()
                 .WithStopDate();
 
             await fixtures.Publish(publisher => publisher.PublishApprenticeshipStopped(fixtures.Commitment, fixtures.Apprenticeship));
@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public void PublishApprenticeshipCreated_WithoutStopDateSet_ShouldThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipStoppedEvent>();
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipStopped(fixtures.Commitment, fixtures.Apprenticeship)));
         }
@@ -58,7 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public async Task PublishApprenticeshipUpdatedApproved_WithStartAndEndDateSet_ShouldNotThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipUpdatedApprovedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipUpdatedApprovedEvent>()
                 .WithStartDate()
                 .WithEndDate();
 
@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public void PublishApprenticeshipUpdatedApproved_WithoutStartDateSet_ShouldThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipUpdatedApprovedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipUpdatedApprovedEvent>()
                 .WithEndDate();
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipUpdatedApproved(fixtures.Commitment, fixtures.Apprenticeship)));
@@ -77,7 +77,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public void PublishApprenticeshipUpdatedApproved_WithoutEndDateSet_ShouldThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipUpdatedApprovedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipUpdatedApprovedEvent>()
                 .WithStartDate();
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipUpdatedApproved(fixtures.Commitment, fixtures.Apprenticeship)));
@@ -88,7 +88,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public async Task PublishDataLockTriageApproved_WithStartAndEndDateSet_ShouldNotThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IDataLockTriageApprovedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<DataLockTriageApprovedEvent>()
                 .WithStartDate()
                 .WithEndDate();
 
@@ -100,7 +100,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public async Task PublishApprenticeshipCreated_WithStartAndEndDateSet_ShouldNotThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipCreatedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
                 .WithStartDate()
                 .WithEndDate();
 
@@ -110,7 +110,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public void PublishApprenticeshipCreated_WithoutStartDateSet_ShouldThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipCreatedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
                 .WithEndDate();
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent)));
@@ -119,7 +119,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         [Test]
         public void PublishApprenticeshipCreated_WithoutEndDateSet_ShouldThrowException()
         {
-            var fixtures = new V2EventsPublisherTestFixtures<IApprenticeshipCreatedEvent>()
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
                 .WithStartDate();
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent)));

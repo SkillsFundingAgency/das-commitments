@@ -27,7 +27,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipDeleted(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<IDraftApprenticeshipDeletedEvent>(ApprenticePreChecks.NotRequired, apprenticeship, ev =>
+            return PublishWithLog<DraftApprenticeshipDeletedEvent>(ApprenticePreChecks.NotRequired, apprenticeship, ev =>
             {
                 ev.DraftApprenticeshipId = apprenticeship.Id;
                 ev.CohortId = commitment.Id;
@@ -47,7 +47,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipCreated(IApprenticeshipEvent apprenticeshipEvent)
         {
-            return PublishWithLog<IApprenticeshipCreatedEvent>(ApprenticePreChecks.HasStartAndEndDate, apprenticeshipEvent?.Apprenticeship, ev =>
+            return PublishWithLog<ApprenticeshipCreatedEvent>(ApprenticePreChecks.HasStartAndEndDate, apprenticeshipEvent?.Apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
                 ev.CreatedOn = _currentDateTime.Now;
@@ -68,7 +68,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipStopped(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<IApprenticeshipStoppedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, ev =>
+            return PublishWithLog<ApprenticeshipStoppedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, ev =>
             {
                 ev.AppliedOn = _currentDateTime.Now;
                 ev.ApprenticeshipId = apprenticeship.Id;
@@ -78,7 +78,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent)
         {
-            return PublishWithLog<IDataLockTriageApprovedEvent>(  ApprenticePreChecks.NotRequired, apprenticeshipEvent?.Apprenticeship, ev =>
+            return PublishWithLog<DataLockTriageApprovedEvent>(  ApprenticePreChecks.NotRequired, apprenticeshipEvent?.Apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
                 ev.ApprovedOn = _currentDateTime.Now;
@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipUpdatedApproved(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<IApprenticeshipUpdatedApprovedEvent>( ApprenticePreChecks.HasStartAndEndDate, apprenticeship, ev =>
+            return PublishWithLog<ApprenticeshipUpdatedApprovedEvent>( ApprenticePreChecks.HasStartAndEndDate, apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeship.Id;
                 ev.ApprovedOn = _currentDateTime.Now;
