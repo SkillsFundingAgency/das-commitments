@@ -42,20 +42,31 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var db = _dbContext.Value;
 
-            //get other aggregates and external data
-            var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
-            if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
-            var accountLegalEntity =
-                await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,
-                    cancellationToken);
-            if (accountLegalEntity == null)
-                throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} was not found");
+            var provider = await GetProvider(providerId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
 
             var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails);
 
             await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
             return cohort;
+        }
+
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            var accountLegalEntity =
+                await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,
+                    cancellationToken);
+            if (accountLegalEntity == null)
+                throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} was not found");
+            return accountLegalEntity;
+        }
+
+        private static async Task<Provider> GetProvider(long providerId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
+            if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");
+            return provider;
         }
 
         private async Task ValidateDraftApprenticeshipDetails(long providerId, long accountId, string accountLegalEntityPublicHashedId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
@@ -117,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var validationResult = await _reservationValidationService.Validate(validationRequest, cancellationToken);
 
-            return validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
+            return validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason));
         }
     }
 }

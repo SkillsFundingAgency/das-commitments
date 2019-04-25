@@ -2,9 +2,9 @@
 {
     public class ReservationValidationError
     {
-        public string PropertyName { get; private set; }
-        public string Reason { get; private set; }
-        public string Code { get; private set; }
+        public string PropertyName { get; }
+        public string Reason { get; }
+        public string Code { get; }
 
         public ReservationValidationError(string propertyName, string reason, string code)
         {
