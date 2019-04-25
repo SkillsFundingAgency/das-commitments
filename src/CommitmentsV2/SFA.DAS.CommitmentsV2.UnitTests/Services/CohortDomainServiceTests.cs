@@ -14,7 +14,6 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 
@@ -75,6 +74,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyReservationException(passes);
         }
 
+        [Test]
+        public async Task OverlapOnStartDate_Validation()
+        {
+            await _fixture.WithUlnOverlapOnStartDate().CreateCohort();
+            _fixture.VerifyOverlapExceptionOnStartDate();
+        }
+
+        [Test]
+        public async Task OverlapOnEndDate_Validation()
+        {
+            await _fixture.WithUlnOverlapOnEndDate().CreateCohort();
+            _fixture.VerifyOverlapExceptionOnEndDate();
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public CohortDomainService CohortDomainService { get; set; }
@@ -85,9 +98,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             
             public Mock<Provider> Provider { get; set; }
             public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }            
-            public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; private set; }
-            public Mock<IUlnValidator> UlnValidator { get; private set; }
-            public Mock<IReservationValidationService> ReservationValidationService { get; private set; }
+            public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
+            public Mock<IUlnValidator> UlnValidator { get; }
+            public Mock<IReservationValidationService> ReservationValidationService { get; }
+            private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public List<DomainError>  DomainErrors { get; private set; }
 
             public CohortDomainServiceTestFixture()
@@ -124,13 +138,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         x.Validate(It.IsAny<ReservationValidationRequest>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new ReservationValidationResult(new ReservationValidationError[0]));
 
+                OverlapCheckService = new Mock<IOverlapCheckService>();
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateTime>(),
+                    It.IsAny<DateTime>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+
                 DomainErrors = new List<DomainError>();
 
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                     Mock.Of<ILogger<CohortDomainService>>(),
                     AcademicYearDateProvider.Object,
                     UlnValidator.Object,
-                    ReservationValidationService.Object);
+                    ReservationValidationService.Object,
+                    OverlapCheckService.Object
+                    );
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -160,6 +180,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 ReservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new ReservationValidationResult(errors.ToArray()));
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithUlnOverlapOnStartDate()
+            {
+                DraftApprenticeshipDetails.Uln = "X";
+                DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+                DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+                
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateTime>(),
+                    It.IsAny<DateTime>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(true, false));
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithUlnOverlapOnEndDate()
+            {
+                DraftApprenticeshipDetails.Uln = "X";
+                DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
+                DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
+
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateTime>(),
+                        It.IsAny<DateTime>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new OverlapCheckResult(false, true));
 
                 return this;
             }
@@ -228,6 +274,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "TEST"));
+            }
+
+            public void VerifyOverlapExceptionOnStartDate()
+            {
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
+            }
+            public void VerifyOverlapExceptionOnEndDate()
+            {
+                Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
             }
         } 
     }

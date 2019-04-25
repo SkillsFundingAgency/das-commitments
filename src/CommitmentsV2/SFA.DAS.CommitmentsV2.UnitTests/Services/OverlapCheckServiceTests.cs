@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 05, 15))
                 .CheckForOverlaps();
 
-            Assert.IsTrue(result.OverlappingStartDate);
+            Assert.IsTrue(result.HasOverlappingStartDate);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .WithDateRange(new DateTime(2018, 05, 15), new DateTime(2018, 07, 15))
                 .CheckForOverlaps();
 
-            Assert.IsTrue(result.OverlappingEndDate);
+            Assert.IsTrue(result.HasOverlappingEndDate);
         }
 
         [TestCase("2018-03-01", "2018-03-31", Description = "Dates contained within existing range - single month")]
@@ -77,8 +77,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             var result = await _fixture.WithDateRange(startDate, endDate).CheckForOverlaps();
 
-            Assert.IsTrue(result.OverlappingStartDate);
-            Assert.IsTrue(result.OverlappingEndDate);
+            Assert.IsTrue(result.HasOverlappingStartDate);
+            Assert.IsTrue(result.HasOverlappingEndDate);
         }
 
         [Test]
@@ -88,8 +88,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 07, 15))
                 .CheckForOverlaps();
 
-            Assert.IsTrue(result.OverlappingStartDate);
-            Assert.IsTrue(result.OverlappingEndDate);
+            Assert.IsTrue(result.HasOverlappingStartDate);
+            Assert.IsTrue(result.HasOverlappingEndDate);
         }
 
         [Test]

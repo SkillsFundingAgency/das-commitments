@@ -2,15 +2,15 @@
 {
     public class OverlapCheckResult
     {
-        public OverlapCheckResult(bool overlappingStartDate, bool overlappingEndDate)
+        public OverlapCheckResult(bool hasOverlappingStartDate, bool hasOverlappingEndDate)
         {
-            OverlappingStartDate = overlappingStartDate;
-            OverlappingEndDate = overlappingEndDate;
+            HasOverlappingStartDate = hasOverlappingStartDate;
+            HasOverlappingEndDate = hasOverlappingEndDate;
         }
 
-        public bool OverlappingStartDate { get; private set; }
-        public bool OverlappingEndDate { get; private set; }
+        public bool HasOverlappingStartDate { get; private set; }
+        public bool HasOverlappingEndDate { get; private set; }
 
-        public bool HasOverlaps => OverlappingStartDate || OverlappingEndDate;
+        public bool HasOverlaps => HasOverlappingStartDate || HasOverlappingEndDate;
     }
 }

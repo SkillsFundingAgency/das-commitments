@@ -23,18 +23,21 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ILogger<CohortDomainService> _logger;
         private readonly IUlnValidator _ulnValidator;
         private readonly IReservationValidationService _reservationValidationService;
+        private readonly IOverlapCheckService _overlapCheckService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
             IAcademicYearDateProvider academicYearDateProvider,
             IUlnValidator ulnValidator,
-            IReservationValidationService reservationValidationService)
+            IReservationValidationService reservationValidationService,
+            IOverlapCheckService overlapCheckService)
         {
             _dbContext = dbContext;
             _logger = logger;
             _academicYearDateProvider = academicYearDateProvider;
             _ulnValidator = ulnValidator;
             _reservationValidationService = reservationValidationService;
+            _overlapCheckService = overlapCheckService;
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
@@ -74,11 +77,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             var errors = new List<DomainError>();
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
-            //overlap check to go here
+            errors.AddRange(await BuildOverlapValidationFailures(draftApprenticeshipDetails, cancellationToken));
             errors.AddRange(await BuildReservationValidationFailures(providerId, accountId, accountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken));
             errors.ThrowIfAny();
         }
-
 
         private IEnumerable<DomainError> BuildUlnValidationFailures(
             DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -120,7 +122,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (!details.ReservationId.HasValue)
             {
-                return new DomainError[0];
+                return Enumerable.Empty<DomainError>();
             }
 
             var validationRequest = new ReservationValidationRequest(providerId, accountId,
@@ -129,6 +131,34 @@ namespace SFA.DAS.CommitmentsV2.Services
             var validationResult = await _reservationValidationService.Validate(validationRequest, cancellationToken);
 
             return validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason));
+        }
+
+        private async Task<IEnumerable<DomainError>> BuildOverlapValidationFailures(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue)
+            {
+                return Enumerable.Empty<DomainError>();
+            }
+
+            var overlapResult = await _overlapCheckService.CheckForOverlaps(details.Uln, details.StartDate.Value, details.EndDate.Value, default, cancellationToken);
+
+            var errorMessage = "The date overlaps with existing dates for the same apprentice."
+                               + Environment.NewLine +
+                               "Please check the date - contact the employer for help";
+
+            var errors = new List<DomainError>();
+
+            if (overlapResult.HasOverlappingStartDate)
+            {
+                errors.Add(new DomainError(nameof(details.StartDate), errorMessage));
+            }
+
+            if (overlapResult.HasOverlappingEndDate)
+            {
+                errors.Add(new DomainError(nameof(details.EndDate), errorMessage));
+            }
+
+            return errors;
         }
     }
 }
