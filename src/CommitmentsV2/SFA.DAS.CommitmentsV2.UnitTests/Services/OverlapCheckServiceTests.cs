@@ -13,17 +13,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     [TestFixture]
     public class OverlapCheckServiceTests
     {
-        private OverlapCheckService _overlapCheckService;
-        private Mock<IUlnUtilisationService> _ulnUtilisationService;
+        private OverlapCheckServiceTestFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _ulnUtilisationService = new Mock<IUlnUtilisationService>();
-            _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(CreateTestData());
-
-            _overlapCheckService = new OverlapCheckService(_ulnUtilisationService.Object);
+            _fixture = new OverlapCheckServiceTestFixture();
         }
 
         [TestCase("2018-04-01", "2018-06-30", Description = "Start and end date both disregarded")]
@@ -32,10 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         public async Task ThenTheOverlapCheckDisregardsDatesWithinTheSameMonth(DateTime startDate, DateTime endDate)
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", startDate, endDate, null, new CancellationToken());
-
-            //Assert
+            var result = await _fixture.WithDateRange(startDate, endDate).CheckForOverlaps();
             Assert.IsFalse(result.HasOverlaps);
         }
 
@@ -43,44 +35,38 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase("2021-01-01", "2021-12-31", Description = "After any apprenticeships")]
         public async Task ThenIfDatesDoNotFallWithinRangeOfExistingApprenticeshipThenNotOverlapping(DateTime startDate, DateTime endDate)
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", startDate, endDate, null, new CancellationToken());
-
-            //Assert
+            var result = await _fixture.WithDateRange(startDate, endDate).CheckForOverlaps();
             Assert.IsFalse(result.HasOverlaps);
         }
 
         [Test]
         public async Task ThenIfNoUlnsMatchInputThenNotOverlapping()
         {
-            //Arrange
-            _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.Is<string>(u => u == "9999999999"), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new UlnUtilisation[0]);
+            var result = await _fixture
+                .WithNoMatchingUlnUtilisations()
+                .WithDateRange(new DateTime(2018, 01, 1), new DateTime(2018, 12, 31))
+                .CheckForOverlaps();
 
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("9999999999", new DateTime(2018, 01, 1), new DateTime(2018, 12, 31), null, new CancellationToken());
-
-            //Assert
             Assert.IsFalse(result.HasOverlaps);
         }
 
         [Test]
         public async Task ThenIfStartDateFallsWithinRangeOfExistingApprenticeshipThenIsOverlapping()
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", new DateTime(2018, 03, 15), new DateTime(2018, 05, 15), null, new CancellationToken());
+            var result = await _fixture
+                .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 05, 15))
+                .CheckForOverlaps();
 
-            //Assert
             Assert.IsTrue(result.OverlappingStartDate);
         }
 
         [Test]
         public async Task ThenIfEndDateFallsWithinRangeOfExistingApprenticeshipThenIsOverlapping()
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", new DateTime(2018, 05, 15), new DateTime(2018, 07, 15), null, new CancellationToken());
+            var result = await _fixture
+                .WithDateRange(new DateTime(2018, 05, 15), new DateTime(2018, 07, 15))
+                .CheckForOverlaps();
 
-            //Assert
             Assert.IsTrue(result.OverlappingEndDate);
         }
 
@@ -89,10 +75,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase("2018-02-15", "2018-04-15", Description = "Same dates as existing range")]
         public async Task ThenIfBothDatesFallWithinRangeOfSingleExistingApprenticeshipThenIsOverlapping(DateTime startDate, DateTime endDate)
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", startDate, endDate, null, new CancellationToken());
+            var result = await _fixture.WithDateRange(startDate, endDate).CheckForOverlaps();
 
-            //Assert
             Assert.IsTrue(result.OverlappingStartDate);
             Assert.IsTrue(result.OverlappingEndDate);
         }
@@ -100,10 +84,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenIfDatesFallWithinRangeOfDifferentExistingApprenticeshipThenOverlapsBoth()
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", new DateTime(2018, 03, 15), new DateTime(2018, 07, 15), null, new CancellationToken());
+            var result = await _fixture
+                .WithDateRange(new DateTime(2018, 03, 15), new DateTime(2018, 07, 15))
+                .CheckForOverlaps();
 
-            //Assert
             Assert.IsTrue(result.OverlappingStartDate);
             Assert.IsTrue(result.OverlappingEndDate);
         }
@@ -111,36 +95,79 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ThenIfDatesStraddleExistingApprenticeshipThenIsOverlapping()
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", new DateTime(2018, 01, 15), new DateTime(2018, 05, 15), null, new CancellationToken());
+            var result = await _fixture
+                .WithDateRange(new DateTime(2018, 01, 15), new DateTime(2018, 05, 15))
+                .CheckForOverlaps();
 
-            //Assert
             Assert.IsTrue(result.HasOverlaps);
         }
 
         [Test]
         public async Task ThenAnExistingApprenticeshipShouldNotBeConsideredAsOverlappingWithItself()
         {
-            //Act
-            var result = await _overlapCheckService.CheckForOverlaps("1234567890", new DateTime(2018, 02, 15), new DateTime(2018, 04, 15), 1, new CancellationToken());
+            var result = await _fixture
+                .WithDateRange(new DateTime(2018,02,15), new DateTime(2018,04,15))
+                .WithExistingApprenticeship()
+                .CheckForOverlaps();
 
-            //Assert
             Assert.IsFalse(result.HasOverlaps);
         }
 
-
-        private static UlnUtilisation[] CreateTestData()
+        private class OverlapCheckServiceTestFixture
         {
-            var mockData = new List<UlnUtilisation>
+            private readonly OverlapCheckService _overlapCheckService;
+            private readonly Mock<IUlnUtilisationService> _ulnUtilisationService;
+            private DateTime _startDate;
+            private DateTime _endDate;
+            private long? _apprenticeshipId;
+
+            public OverlapCheckServiceTestFixture()
             {
-                new UlnUtilisation(1, "1234567890", new DateTime(2018,02,15), new DateTime(2018,04,15)),
-                new UlnUtilisation(2, "1234567890", new DateTime(2018,06,15), new DateTime(2018,08,15)),
-                new UlnUtilisation(3, "1234567890", new DateTime(2020,01,15), new DateTime(2020,12,15))
-            };
+                _ulnUtilisationService = new Mock<IUlnUtilisationService>();
+                _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(CreateTestData());
 
-            return mockData.ToArray();
+                _overlapCheckService = new OverlapCheckService(_ulnUtilisationService.Object);
+            }
+
+            public OverlapCheckServiceTestFixture WithDateRange(DateTime startDate, DateTime endDate)
+            {
+                _startDate = startDate;
+                _endDate = endDate;
+                return this;
+            }
+
+            public OverlapCheckServiceTestFixture WithExistingApprenticeship()
+            {
+                _apprenticeshipId = 1;
+                return this;
+            }
+
+            public OverlapCheckServiceTestFixture WithNoMatchingUlnUtilisations()
+            {
+                _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new UlnUtilisation[0]);
+
+                return this;
+            }
+
+            public async Task<OverlapCheckResult> CheckForOverlaps()
+            {
+                return await _overlapCheckService.CheckForOverlaps("", _startDate, _endDate, _apprenticeshipId, new CancellationToken());
+            }
+
+            private static UlnUtilisation[] CreateTestData()
+            {
+                var mockData = new List<UlnUtilisation>
+                {
+                    new UlnUtilisation(1, "", new DateTime(2018,02,15), new DateTime(2018,04,15)),
+                    new UlnUtilisation(2, "", new DateTime(2018,06,15), new DateTime(2018,08,15)),
+                    new UlnUtilisation(3, "", new DateTime(2020,01,15), new DateTime(2020,12,15))
+                };
+
+                return mockData.ToArray();
+            }
         }
-
 
     }
 }
