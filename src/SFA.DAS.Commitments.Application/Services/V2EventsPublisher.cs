@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus;
-using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -36,6 +35,14 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.ReservationId = apprenticeship.ReservationId;
                 ev.Uln = apprenticeship.ULN;
             }, GetLogMessage(commitment, apprenticeship));
+        }
+
+        public Task PublishApprenticeshipStopDateChanged(Commitment commitment, Apprenticeship apprenticeship)
+        {
+            return PublishWithLog<ApprenticeshipStopDateChangedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, ev =>
+                {
+                    new ApprenticeshipStopDateChangedEvent(apprenticeship.Id, apprenticeship.StopDate.Value,_currentDateTime.Now);
+                }, GetLogMessage(commitment, apprenticeship));
         }
 
         public Task PublishApprenticeshipCreated(IApprenticeshipEvent apprenticeshipEvent)
