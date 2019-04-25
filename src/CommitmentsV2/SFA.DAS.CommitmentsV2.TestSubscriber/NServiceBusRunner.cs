@@ -2,6 +2,7 @@
 using System.Data.Common;
 using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.AzureServiceBus;
@@ -53,7 +54,11 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             endpointConfiguration
                 .UseAzureServiceBusTransport(string.IsNullOrWhiteSpace(connectionString), () => connectionString, r => { })
                 .UseNewtonsoftJsonSerializer()
+                .UseInstallers()
                 ;
+
+            var defaultFactory = LogManager.Use<DefaultFactory>();
+            defaultFactory.Level(LogLevel.Debug);
 
             var endpointInstance = await Endpoint
                 .Start(endpointConfiguration)
