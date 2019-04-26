@@ -132,5 +132,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<DateTime?>(a => a.Equals(TestApprenticeship.StartDate)),
                 null));
         }
+
+        [Test]
+        public async Task ThenShouldPublishAV2ApprenticeshipResumedEvent()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(
+                It.IsAny<Commitment>(),
+                It.IsAny<Apprenticeship>()));
+        }
+
+
     }
 }

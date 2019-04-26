@@ -4,9 +4,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
-using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
-using SFA.DAS.Commitments.Domain.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshipStatus
 {
@@ -57,13 +55,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         [TestCase(PaymentStatus.Active)]
         [TestCase(PaymentStatus.PendingApproval)]
         [TestCase(PaymentStatus.Completed)]
-        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsException(PaymentStatus initial)
+        public void ThenWhenApprenticeshipNotInValidStateRequestThrowsExceptionAndNoV2ApprenticeshipResumedEventPublished(PaymentStatus initial)
         {
             TestApprenticeship.PaymentStatus = initial;
 
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
             act.ShouldThrow<Exception>();
+
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(
+                It.IsAny<Commitment>(),
+                It.IsAny<Apprenticeship>()), Times.Never);
         }
     }
 }
