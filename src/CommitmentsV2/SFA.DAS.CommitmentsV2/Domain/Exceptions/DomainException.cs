@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Exceptions
 {
@@ -27,6 +29,11 @@ namespace SFA.DAS.CommitmentsV2.Domain.Exceptions
         public DomainException(IEnumerable<DomainError> errors)
         {
             DomainErrors = errors;
+        }
+
+        public override string ToString()
+        {
+            return $"DomainException: {JsonConvert.SerializeObject(DomainErrors)}";
         }
     }
 }
