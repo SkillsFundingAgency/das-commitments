@@ -24,7 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 var result = await db.ApprovedApprenticeships
                     .Where(ca => ca.Uln == uln)
-                    .AsNoTracking()
                     .Select(x => new UlnUtilisation(x.Id,
                         x.Uln,
                         x.StartDate.Value,

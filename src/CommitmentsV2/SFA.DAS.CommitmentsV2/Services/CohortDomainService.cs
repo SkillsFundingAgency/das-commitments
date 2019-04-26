@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -74,73 +73,59 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateDraftApprenticeshipDetails(long providerId, long accountId, string accountLegalEntityPublicHashedId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
-            var errors = new List<DomainError>();
-            errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
-            errors.AddRange(await BuildOverlapValidationFailures(draftApprenticeshipDetails, cancellationToken));
-            errors.AddRange(await BuildReservationValidationFailures(providerId, accountId, accountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken));
-            errors.ThrowIfAny();
+            ValidateStartDate(draftApprenticeshipDetails);
+            ValidateUln(draftApprenticeshipDetails);
+            await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
+            await ValidateReservation(providerId, accountId, accountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
         }
 
-        private IEnumerable<DomainError> BuildUlnValidationFailures(
-            DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private void ValidateUln(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (!string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln)) return;
+
+            switch (_ulnValidator.Validate(draftApprenticeshipDetails.Uln))
             {
-                var validationResult = _ulnValidator.Validate(draftApprenticeshipDetails.Uln);
-                switch (validationResult)
-                {
-                    case UlnValidationResult.IsInValidTenDigitUlnNumber:
-                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln),
-                            "You must enter a 10-digit unique learner number");
-                        yield break;
-                    case UlnValidationResult.IsInvalidUln:
-                        yield return new DomainError(nameof(draftApprenticeshipDetails.Uln),
-                            "You must enter a valid unique learner number");
-                        yield break;
-                    default:
-                        yield break;
-                }
+                case UlnValidationResult.IsInValidTenDigitUlnNumber:
+                    throw new DomainException(nameof(draftApprenticeshipDetails.Uln), "You must enter a 10-digit unique learner number");
+                case UlnValidationResult.IsInvalidUln:
+                    throw new DomainException(nameof(draftApprenticeshipDetails.Uln), "You must enter a valid unique learner number");
             }
         }
 
-        private IEnumerable<DomainError> BuildStartDateValidationFailures(DraftApprenticeshipDetails details)
+        private void ValidateStartDate(DraftApprenticeshipDetails details)
         {
-            if (!details.StartDate.HasValue)
-            {
-                yield break;
-            }
+            if (!details.StartDate.HasValue) return;
 
             if (details.StartDate.Value > _academicYearDateProvider.CurrentAcademicYearEndDate.AddYears(1))
             {
-                yield return new DomainError(nameof(details.StartDate),
+                throw new DomainException(nameof(details.StartDate),
                     "The start date must be no later than one year after the end of the current teaching year");
             }
         }
 
-        private async Task<IEnumerable<DomainError>> BuildReservationValidationFailures(long providerId, long accountId, string accountLegalEntityPublicHashedId, DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+        private async Task ValidateReservation(long providerId, long accountId, string accountLegalEntityPublicHashedId, DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            if (!details.ReservationId.HasValue)
-            {
-                return Enumerable.Empty<DomainError>();
-            }
+            if (!details.ReservationId.HasValue) return;
 
             var validationRequest = new ReservationValidationRequest(providerId, accountId,
                 accountLegalEntityPublicHashedId, details.ReservationId.Value, details.StartDate, details.TrainingProgramme?.CourseCode);
 
             var validationResult = await _reservationValidationService.Validate(validationRequest, cancellationToken);
 
-            return validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason));
+            var errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
+            if (errors.Any())
+            {
+                throw new DomainException(errors);
+            }
         }
 
-        private async Task<IEnumerable<DomainError>> BuildOverlapValidationFailures(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+        private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue)
-            {
-                return Enumerable.Empty<DomainError>();
-            }
+            if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
 
             var overlapResult = await _overlapCheckService.CheckForOverlaps(details.Uln, details.StartDate.Value, details.EndDate.Value, default, cancellationToken);
+
+            if (!overlapResult.HasOverlaps) return;
 
             var errorMessage = "The date overlaps with existing dates for the same apprentice."
                                + Environment.NewLine +
@@ -158,7 +143,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 errors.Add(new DomainError(nameof(details.EndDate), errorMessage));
             }
 
-            return errors;
+            throw new DomainException(errors);
         }
     }
 }
