@@ -39,7 +39,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         public Task PublishApprenticeshipStopDateChanged(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return PublishWithLog<ApprenticeshipStopDateChangedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, ev =>
+            return PublishWithLog<ApprenticeshipStopDateChangedEvent>(ApprenticePreChecks.HasStopDate, apprenticeship, _ =>
                 {
                     new ApprenticeshipStopDateChangedEvent(apprenticeship.Id, apprenticeship.StopDate.Value,_currentDateTime.Now);
                 }, GetLogMessage(commitment, apprenticeship));

@@ -204,6 +204,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
+        public async Task ThenShouldPublishV2PublishApprenticeshipStopDateChangedEvent()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockV2EventsPublisher.Verify(x =>
+                x.PublishApprenticeshipStopDateChanged(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>()), Times.Once);
+        }
+
+
+        [Test]
         public async Task ThenShouldResolveDataLocksLinkedToAppriceshipWhenStopDateEqualsStartDate()
         {
             var listOfDataLockStatuses = new List<DataLockStatus>

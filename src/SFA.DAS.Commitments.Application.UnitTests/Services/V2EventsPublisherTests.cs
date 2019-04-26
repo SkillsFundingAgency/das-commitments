@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using NServiceBus;
@@ -11,7 +8,6 @@ using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Services
@@ -54,6 +50,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipStopped(fixtures.Commitment, fixtures.Apprenticeship)));
         }
         #endregion
+
+        #region PublishApprenticeshipStopDateChangedEvent
+        [Test]
+        public async Task PublishApprenticeshipStopDateChangedEvent_WithAStopDate_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStopDateChangedEvent>()
+                .WithStopDate();
+
+            await fixtures.PublishApprenticeshipStopDateChanged();
+            
+        }
+
+        [Test]
+        public void PublishApprenticeshipStopDateChangedEvent_WithoutStopDateSet_ShouldThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStopDateChangedEvent>();
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.PublishApprenticeshipStopDateChanged());
+        }
+        #endregion
+
         #region PublishApprenticeshipUpdateApproved
         [Test]
         public async Task PublishApprenticeshipUpdatedApproved_WithStartAndEndDateSet_ShouldNotThrowException()
@@ -125,6 +142,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent)));
         }
         #endregion
+
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
@@ -194,6 +212,16 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             return this;
         }
+
+        public async Task<V2EventsPublisherTestFixtures<TEvent>> PublishApprenticeshipStopDateChanged()
+        {
+            var publisher = CreateV2EventsPublisher();
+
+            await publisher.PublishApprenticeshipStopDateChanged(Commitment, Apprenticeship);
+
+            return this;
+        }
+
 
         public async Task<V2EventsPublisherTestFixtures<TEvent>> PublishApprenticeshipStopped()
         {
