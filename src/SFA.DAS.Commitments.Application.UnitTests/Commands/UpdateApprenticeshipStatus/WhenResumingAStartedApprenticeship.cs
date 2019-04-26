@@ -107,7 +107,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 , Times.Once);
         }
 
-
         [Test]
         public async Task ThenShouldSendAnApprenticeshipEventWithDateOfChange()
         {
@@ -120,6 +119,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<DateTime?>(a => a.Equals(ExampleValidRequest.DateOfChange.Date)),
                 null));
         }
+
+        [Test]
+        public async Task ThenShouldPublishAV2ApprenticeshipResumedEvent()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(
+                It.IsAny<Commitment>(),
+                It.IsAny<Apprenticeship>()));
+        }
+
 
         [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-8-1", "2017-9-1", "2017-9-1", "2017-10-1", true, false ,"Inside Academic year, and is correct")]
         [TestCase("2017-8-1", "2018-7-31", "2017-10-19 18:00:00", "2017-8-1", "2017-9-1", "2017-10-1", "2017-10-1", false, false, "Inside Academic year and is not correct before R14 Cutoff")]

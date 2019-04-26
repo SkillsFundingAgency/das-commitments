@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -17,6 +18,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
     {
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly IAcademicYearValidator _academicYearValidator;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly ICurrentDateTime _currentDate;
@@ -34,7 +36,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICommitmentsLogger logger,
             IHistoryRepository historyRepository,
             IAcademicYearDateProvider academicYearDateProvider,
-            IAcademicYearValidator academicYearValidator)
+            IAcademicYearValidator academicYearValidator,
+            IV2EventsPublisher v2EventsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -45,6 +48,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _historyRepository = historyRepository;
             _academicYearDateProvider = academicYearDateProvider;
             _academicYearValidator = academicYearValidator;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(ResumeApprenticeshipCommand command)
@@ -70,7 +74,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             await CreateEvent(command, apprenticeship, commitment);
         }
 
-        private async Task CreateEvent(ResumeApprenticeshipCommand command, Apprenticeship apprenticeship,
+        private Task CreateEvent(ResumeApprenticeshipCommand command, Apprenticeship apprenticeship,
             Commitment commitment)
         {
             DateTime effectiveFromDate = command.DateOfChange.Date;
@@ -78,8 +82,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             if (apprenticeship.IsWaitingToStart(_currentDate))
                 effectiveFromDate = apprenticeship.StartDate.Value.Date;
 
-            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship,
-                PaymentStatus.Active, effectiveFromDate, null);
+            return Task.WhenAll(_eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship,
+                PaymentStatus.Active, effectiveFromDate, null), _v2EventsPublisher.PublishApprenticeshipResumed(commitment, apprenticeship));
         }
 
         private async Task SaveChange(ResumeApprenticeshipCommand command, Commitment commitment,

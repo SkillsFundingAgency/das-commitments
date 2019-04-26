@@ -71,6 +71,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region PublishApprenticeshipResumed
+        [Test]
+        public async Task PublishApprenticeshipResumed_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipResumedEvent>();
+
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipResumed(fixtures.Commitment, fixtures.Apprenticeship));
+        }
+
+        #endregion
+
+
         #region PublishApprenticeshipUpdateApproved
         [Test]
         public async Task PublishApprenticeshipUpdatedApproved_WithStartAndEndDateSet_ShouldNotThrowException()

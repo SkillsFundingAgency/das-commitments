@@ -104,6 +104,15 @@ namespace SFA.DAS.Commitments.Application.Services
             }, GetLogMessage(commitment, apprenticeship));
         }
 
+        public Task PublishApprenticeshipResumed(Commitment commitment, Apprenticeship apprenticeship)
+        {
+            return PublishWithLog<ApprenticeshipResumedEvent>(apprenticeship, ev =>
+            {
+                ev.ApprenticeshipId = apprenticeship.Id;
+                ev.ResumedOn = _currentDateTime.Now;
+            }, GetLogMessage(commitment, apprenticeship));
+        }
+
         private enum ApprenticePreChecks
         {
             NotRequired = 1,
@@ -113,7 +122,7 @@ namespace SFA.DAS.Commitments.Application.Services
             HasStartAndEndDate = HasStartDate | HasEndDate
         }
 
-        private Task PublishWithLog<TEvent>(Action<TEvent> messageConstructor, Apprenticeship apprentice, string message) where TEvent : class
+        private Task PublishWithLog<TEvent>(Apprenticeship apprentice, Action<TEvent> messageConstructor, string message) where TEvent : class
         {
             return PublishWithLog(ApprenticePreChecks.NotRequired, apprentice, messageConstructor, message);
         }
