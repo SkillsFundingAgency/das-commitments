@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,13 +20,16 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateTime startDate, DateTime endDate, long? existingApprenticeshipId, CancellationToken cancellationToken)
         {
-            var ulnUtilisations = await _ulnUtilisationService.GetUlnUtilisations(uln, cancellationToken);
+            async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations()
+            {
+                var utilisations  = await _ulnUtilisationService.GetUlnUtilisations(uln, cancellationToken);
+                return existingApprenticeshipId.HasValue ? utilisations.Where(x => x.ApprenticeshipId != existingApprenticeshipId.Value) : utilisations;
+            }
 
             var overlapStartDate = false;
             var overlapEndDate = false;
 
-
-            foreach (var utilisation in ulnUtilisations.Where(x =>!existingApprenticeshipId.HasValue || x.ApprenticeshipId != existingApprenticeshipId.Value))
+            foreach (var utilisation in await GetCandidateUlnUtilisations())
             {
                 var overlapStatus = utilisation.DetermineOverlap(startDate, endDate);
 

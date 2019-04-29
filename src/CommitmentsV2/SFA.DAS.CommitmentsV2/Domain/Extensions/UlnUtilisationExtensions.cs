@@ -52,9 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
         {
             if (date1.Year < date2.Year) return true;
             if (date1.Year > date2.Year) return false;
-            if (date1.Month < date2.Month) return true;
-            if (date1.Month > date2.Month) return false;
-            return false;
+            return date1.Month < date2.Month;
         }
 
         private static bool IsApprenticeshipDateAfter(DateTime date1, DateTime date2)
