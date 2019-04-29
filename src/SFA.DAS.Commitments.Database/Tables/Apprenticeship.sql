@@ -30,7 +30,7 @@
 	[PendingUpdateOriginator] TINYINT NULL,
 	[EPAOrgId] CHAR(7) NULL,
 	[CloneOf] BIGINT NULL,
-	[ReservationId] UNIQUEIDENTIFIER,
+	[ReservationId] UNIQUEIDENTIFIER NULL,
     [IsApproved] AS (CASE WHEN PaymentStatus > 0 THEN CAST(1 as bit) ELSE CAST(0 as bit) END) PERSISTED, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),
 	CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
@@ -45,4 +45,5 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_AgreedOn] ON [dbo].[Apprenticeship]
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_PaymentStatus] ON [dbo].[Apprenticeship] ([PaymentStatus], [ULN]) INCLUDE ([AgreedOn], [CommitmentId], [StartDate], [StopDate]) WITH (ONLINE = ON)
 GO
-
+CREATE UNIQUE NONCLUSTERED INDEX [UK_Apprenticeship_ReservationId] ON [dbo].[Apprenticeship] ([ReservationId] ASC) WHERE [ReservationId] IS NOT NULL
+GO
