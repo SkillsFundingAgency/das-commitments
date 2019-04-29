@@ -7,6 +7,12 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
     {
         public static OverlapStatus DetermineOverlap(this UlnUtilisation ulnUtilisation, DateTime startDate, DateTime endDate)
         {
+            //End on start date (effectively deleted) should be ignored
+            if (ulnUtilisation.StartDate.Equals(ulnUtilisation.EndDate))
+            {
+                return OverlapStatus.None;
+            }
+
             var overlapsStart = IsApprenticeshipDateBetween(startDate, ulnUtilisation.StartDate, ulnUtilisation.EndDate);
             var overlapsEnd = IsApprenticeshipDateBetween(endDate, ulnUtilisation.StartDate, ulnUtilisation.EndDate);
 

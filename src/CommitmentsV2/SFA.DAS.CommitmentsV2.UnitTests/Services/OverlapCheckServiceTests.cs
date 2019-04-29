@@ -51,6 +51,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task ThenIfUtilisationIsEffectivelyDeletedThenNotOverlapping()
+        {
+            var result = await _fixture
+                .WithUlnUtilisationEffectivelyDeleted()
+                .WithDateRange(new DateTime(2018, 01, 1), new DateTime(2019, 12, 31))
+                .CheckForOverlaps();
+            Assert.IsFalse(result.HasOverlaps);
+        }
+
+
+        [Test]
         public async Task ThenIfStartDateFallsWithinRangeOfExistingApprenticeshipThenIsOverlapping()
         {
             var result = await _fixture
@@ -147,6 +158,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new UlnUtilisation[0]);
+
+                return this;
+            }
+
+            public OverlapCheckServiceTestFixture WithUlnUtilisationEffectivelyDeleted()
+            {
+                var mockData = new List<UlnUtilisation>
+                {
+                    new UlnUtilisation(1, "", new DateTime(2018, 03, 01), new DateTime(2018, 03, 01))
+                };
+
+                _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(mockData.ToArray);
 
                 return this;
             }
