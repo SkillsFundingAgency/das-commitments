@@ -12,9 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             EndDate = endDate;
         }
 
-        public long ApprenticeshipId { get; private set; }
-        public string Uln { get; private set; }
-        public DateTime StartDate { get; private set; }
-        public DateTime EndDate { get; private set; }
+        public long ApprenticeshipId { get; }
+        public string Uln { get; }
+        public DateTime StartDate { get; }
+        public DateTime EndDate { get; }
     }
 }

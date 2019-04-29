@@ -8,8 +8,8 @@
             HasOverlappingEndDate = hasOverlappingEndDate;
         }
 
-        public bool HasOverlappingStartDate { get; private set; }
-        public bool HasOverlappingEndDate { get; private set; }
+        public bool HasOverlappingStartDate { get; }
+        public bool HasOverlappingEndDate { get; }
 
         public bool HasOverlaps => HasOverlappingStartDate || HasOverlappingEndDate;
     }
