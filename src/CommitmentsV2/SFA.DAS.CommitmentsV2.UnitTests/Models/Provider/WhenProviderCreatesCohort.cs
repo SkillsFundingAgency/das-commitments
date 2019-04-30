@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Linq;
-using NUnit.Framework;
 using AutoFixture;
 using FluentAssertions;
-using Moq;
-using MoreLinq;
+using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.UnitOfWork;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
 {
     [TestFixture]
     public class WhenProviderCreatesCohort
