@@ -22,6 +22,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenEditingTheStopDateOfAnApprenticeship : WhenUpdatingAnApprenticeshipStopDate
     {
+        Commitment _testCommitment;
+
         [SetUp]
         public override void SetUp()
         {
@@ -34,6 +36,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 ApprenticeshipId = 444L,
                 StopDate = DateTime.UtcNow.Date,
                 UserName = "Bob"
+            };
+
+            _testCommitment = new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
             };
 
             TestApprenticeship = new Apprenticeship
@@ -59,11 +67,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockDataLockRepository.Setup(x => x.GetDataLocks(ExampleValidRequest.ApprenticeshipId, false))
                 .ReturnsAsync(new List<DataLockStatus>());
 
-            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
-            {
-                Id = 123L,
-                EmployerAccountId = ExampleValidRequest.AccountId
-            });
+            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(_testCommitment);
 
             MockApprenticeshipEventsPublisher.Setup(x => x.Publish(It.IsAny<IApprenticeshipEventsList>()))
                 .Returns(Task.FromResult(new Unit()));
@@ -209,7 +213,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await Handler.Handle(ExampleValidRequest);
 
             MockV2EventsPublisher.Verify(x =>
-                x.PublishApprenticeshipStopDateChanged(It.IsAny<Commitment>(), It.IsAny<Apprenticeship>()), Times.Once);
+                x.PublishApprenticeshipStopDateChanged(It.Is<Commitment>(p=>p == _testCommitment), It.Is<Apprenticeship>(p=>p == TestApprenticeship)), Times.Once);
         }
 
 
