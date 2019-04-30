@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.Reservations.Api.Client.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.DependencyResolution
@@ -12,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<ApprenticeshipInfoServiceConfiguration>(CommitmentsConfigurationKeys.ApprenticeshipInfoService);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
             AddConfiguration<CommitmentIdHashingConfiguration>(CommitmentsConfigurationKeys.CommitmentIdHashingConfiguration);
+            AddConfiguration<ReservationsClientApiConfiguration>(CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class

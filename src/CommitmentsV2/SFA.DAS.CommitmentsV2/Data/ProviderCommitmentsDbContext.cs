@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<ApprenticeshipUpdate> ApprenticeshipUpdate { get; set; }
         public virtual DbSet<AssessmentOrganisation> AssessmentOrganisation { get; set; }
         public virtual DbSet<BulkUpload> BulkUpload { get; set; }
-        public virtual DbSet<Commitment> Commitment { get; set; }
+        public virtual DbSet<Cohort> Commitment { get; set; }
         public virtual DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriority { get; set; }
         public virtual DbSet<DataLockStatus> DataLockStatus { get; set; }
         public virtual DbSet<History> History { get; set; }
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             modelBuilder.ApplyConfiguration(new ApprenticeshipUpdateConfiguration());
             modelBuilder.ApplyConfiguration(new AssessmentOrganisationConfiguration());
             modelBuilder.ApplyConfiguration(new BulkUploadConfiguration());
-            modelBuilder.ApplyConfiguration(new CommitmentConfiguration());
+            modelBuilder.ApplyConfiguration(new CohortConfiguration());
             modelBuilder.ApplyConfiguration(new ConfirmedApprenticeshipConfiguration());
             modelBuilder.ApplyConfiguration(new CustomProviderPaymentPriorityConfiguration());
             modelBuilder.ApplyConfiguration(new DataLockStatusConfiguration());
