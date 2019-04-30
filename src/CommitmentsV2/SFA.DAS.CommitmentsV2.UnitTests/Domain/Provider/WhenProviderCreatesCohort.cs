@@ -2,11 +2,15 @@
 using System.Linq;
 using NUnit.Framework;
 using AutoFixture;
+using FluentAssertions;
 using Moq;
+using MoreLinq;
 using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.UnitOfWork;
 using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
@@ -79,16 +83,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Provider
             Assert.AreEqual(Originator.Provider, result.Originator);
         }
 
+        [Test]
+        public void TheCreatedDraftApprenticeshipEventIsPublished()
+        {
+            var result = _fixture.CreateCohort();
+
+            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
+                .And.Subject.Cast<CreatedDraftApprenticeshipEvent>().Single().Should().BeEquivalentTo(new CreatedDraftApprenticeshipEvent(
+                    draftApprenticeshipId: 0,
+                    cohortId: 0,
+                    uln: _fixture.DraftApprenticeshipDetails.Uln,
+                    reservationId: _fixture.DraftApprenticeshipDetails.ReservationId.Value,
+                    createdOn: result.CreatedOn.Value));
+        }
+
         private class ProviderCreatesCohortTestFixture
         {
+            public UnitOfWorkContext UnitOfWorkContext { get; private set; }
             public CommitmentsV2.Models.Provider Provider { get; private set; }
             public AccountLegalEntity AccountLegalEntity { get; private set; }
-            private DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
+            public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
 
             public ProviderCreatesCohortTestFixture()
             {
                 var fixture = new Fixture();
 
+                UnitOfWorkContext = new UnitOfWorkContext();
                 Provider = new CommitmentsV2.Models.Provider(fixture.Create<long>(), fixture.Create<string>(), fixture.Create<DateTime>(), fixture.Create<DateTime>());
 
                 var account = new Account(fixture.Create<long>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<DateTime>());
