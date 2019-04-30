@@ -128,10 +128,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         public async Task ThenShouldPublishAV2ApprenticeshipResumedEvent()
         {
             await Handler.Handle(ExampleValidRequest);
-
-            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(
-                It.Is<Commitment>(p =>p == _testCommitment),
-                It.Is<Apprenticeship>(p=>p == TestApprenticeship)));
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(_testCommitment, TestApprenticeship)));
         }
 
 
