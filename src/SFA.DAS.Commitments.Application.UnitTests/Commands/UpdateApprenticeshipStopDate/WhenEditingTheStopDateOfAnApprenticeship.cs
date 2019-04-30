@@ -213,7 +213,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await Handler.Handle(ExampleValidRequest);
 
             MockV2EventsPublisher.Verify(x =>
-                x.PublishApprenticeshipStopDateChanged(It.Is<Commitment>(p=>p == _testCommitment), It.Is<Apprenticeship>(p=>p == TestApprenticeship)), Times.Once);
+                x.PublishApprenticeshipStopDateChanged(_testCommitment, TestApprenticeship), Times.Once);
         }
 
 
