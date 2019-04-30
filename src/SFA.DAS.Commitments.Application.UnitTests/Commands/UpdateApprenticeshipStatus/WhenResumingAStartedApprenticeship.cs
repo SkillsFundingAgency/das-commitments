@@ -18,6 +18,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenResumingAStartedApprenticeship : WhenResumingAnApprenticeship
     {
+        private Commitment _testCommitment;
+
         [SetUp]
         public override void SetUp()
         {
@@ -45,6 +47,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 UserName = "Bob"
             };
 
+            _testCommitment = new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            };
+
             MockApprenticeshipRespository.Setup(x =>
                     x.GetApprenticeship(It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId)))
                 .ReturnsAsync(TestApprenticeship);
@@ -59,11 +67,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(
                     It.Is<long>(c => c == TestApprenticeship.CommitmentId)))
-                .ReturnsAsync(new Commitment
-                {
-                    Id = 123L,
-                    EmployerAccountId = ExampleValidRequest.AccountId
-                });
+                .ReturnsAsync(_testCommitment);
         }
 
 
@@ -126,8 +130,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await Handler.Handle(ExampleValidRequest);
 
             MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(
-                It.IsAny<Commitment>(),
-                It.IsAny<Apprenticeship>()));
+                It.Is<Commitment>(p =>p == _testCommitment),
+                It.Is<Apprenticeship>(p=>p == TestApprenticeship)));
         }
 
 
@@ -184,6 +188,5 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                         : "Invalid Date of Change. Date should be the pause date.");
             }
         }
-
     }
 }

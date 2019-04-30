@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
-using FluentValidation;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -16,8 +14,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 {
     [TestFixture]
     public sealed class WhenResumingAnAwaitingApprenticeship : WhenResumingAnApprenticeship
-
     {
+        private Commitment _testCommitment;
+
         [SetUp]
         public override void SetUp()
         {
@@ -41,6 +40,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 PauseDate = MockCurrentDateTime.Object.Now.Date.AddMonths(-3)
             };
 
+            _testCommitment = new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            };
 
             MockApprenticeshipRespository.Setup(x => x.GetApprenticeship(
                     It.Is<long>(y => y == ExampleValidRequest.ApprenticeshipId)
@@ -57,11 +61,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(
                     It.Is<long>(c => c == TestApprenticeship.CommitmentId)))
-                .ReturnsAsync(new Commitment
-                {
-                    Id = 123L,
-                    EmployerAccountId = ExampleValidRequest.AccountId
-                });
+                .ReturnsAsync(_testCommitment);
         }
 
         [Test]
@@ -139,10 +139,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             await Handler.Handle(ExampleValidRequest);
 
             MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipResumed(
-                It.IsAny<Commitment>(),
-                It.IsAny<Apprenticeship>()));
+                It.Is<Commitment>(p=>p == _testCommitment),
+                It.Is<Apprenticeship>(p=>p == TestApprenticeship)));
         }
-
-
     }
 }
