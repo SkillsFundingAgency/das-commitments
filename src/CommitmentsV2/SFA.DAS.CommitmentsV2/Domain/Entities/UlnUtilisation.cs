@@ -8,13 +8,11 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         {
             ApprenticeshipId = apprenticeshipId;
             Uln = uln;
-            StartDate = startDate;
-            EndDate = endDate;
+            DateRange = new DateRange(startDate, endDate);
         }
 
         public long ApprenticeshipId { get; }
         public string Uln { get; }
-        public DateTime StartDate { get; }
-        public DateTime EndDate { get; }
+        public DateRange DateRange { get; }
     }
 }

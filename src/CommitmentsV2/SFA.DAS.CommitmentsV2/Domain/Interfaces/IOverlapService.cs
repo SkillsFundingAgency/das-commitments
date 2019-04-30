@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
 {
     public interface IOverlapCheckService
     {
-        Task<OverlapCheckResult> CheckForOverlaps(string uln, DateTime startDate, DateTime endDate,
+        Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range,
             long? existingApprenticeshipId, CancellationToken cancellationToken);
     }
 }

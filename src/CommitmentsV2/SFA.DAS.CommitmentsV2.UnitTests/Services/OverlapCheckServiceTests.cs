@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 
@@ -177,7 +178,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public async Task<OverlapCheckResult> CheckForOverlaps()
             {
-                return await _overlapCheckService.CheckForOverlaps("", _startDate, _endDate, _apprenticeshipId, new CancellationToken());
+                return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate), _apprenticeshipId, new CancellationToken());
             }
 
             private static UlnUtilisation[] CreateTestData()

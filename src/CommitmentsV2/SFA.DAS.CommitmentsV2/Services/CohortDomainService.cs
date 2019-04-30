@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
@@ -123,7 +124,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (string.IsNullOrWhiteSpace(details.Uln) || !details.StartDate.HasValue || !details.EndDate.HasValue) return;
 
-            var overlapResult = await _overlapCheckService.CheckForOverlaps(details.Uln, details.StartDate.Value, details.EndDate.Value, default, cancellationToken);
+            var overlapResult = await _overlapCheckService.CheckForOverlaps(details.Uln, details.StartDate.Value.To(details.EndDate.Value), default, cancellationToken);
 
             if (!overlapResult.HasOverlaps) return;
 

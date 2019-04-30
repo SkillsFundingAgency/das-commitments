@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _ulnUtilisationService = ulnUtilisationService;
         }
 
-        public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateTime startDate, DateTime endDate, long? existingApprenticeshipId, CancellationToken cancellationToken)
+        public async Task<OverlapCheckResult> CheckForOverlaps(string uln, DateRange range, long? existingApprenticeshipId, CancellationToken cancellationToken)
         {
             async Task<IEnumerable<UlnUtilisation>> GetCandidateUlnUtilisations()
             {
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             foreach (var utilisation in await GetCandidateUlnUtilisations())
             {
-                var overlapStatus = utilisation.DetermineOverlap(startDate, endDate);
+                var overlapStatus = utilisation.DetermineOverlap(range);
 
                 switch (overlapStatus)
                 {

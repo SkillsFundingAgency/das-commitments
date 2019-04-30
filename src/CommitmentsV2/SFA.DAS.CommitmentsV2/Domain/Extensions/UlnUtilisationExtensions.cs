@@ -5,16 +5,16 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
 {
     public static class UlnUtilisationExtensions
     {
-        public static OverlapStatus DetermineOverlap(this UlnUtilisation ulnUtilisation, DateTime startDate, DateTime endDate)
+        public static OverlapStatus DetermineOverlap(this UlnUtilisation ulnUtilisation, DateRange range)
         {
             //End on start date (effectively deleted) should be ignored
-            if (ulnUtilisation.StartDate.Equals(ulnUtilisation.EndDate))
+            if (ulnUtilisation.DateRange.IsZeroDays)
             {
                 return OverlapStatus.None;
             }
 
-            var overlapsStart = IsApprenticeshipDateBetween(startDate, ulnUtilisation.StartDate, ulnUtilisation.EndDate);
-            var overlapsEnd = IsApprenticeshipDateBetween(endDate, ulnUtilisation.StartDate, ulnUtilisation.EndDate);
+            var overlapsStart = ulnUtilisation.DateRange.Contains(range.From);
+            var overlapsEnd = ulnUtilisation.DateRange.Contains(range.To);
 
             //Contained
             if (overlapsStart && overlapsEnd)
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             }
 
             //Straddle
-            if (IsApprenticeshipDateStraddle(startDate, endDate, ulnUtilisation.StartDate, ulnUtilisation.EndDate))
+            if (IsApprenticeshipDateStraddle(range, ulnUtilisation.DateRange))
             {
                 return OverlapStatus.DateEmbrace;
             }
@@ -43,79 +43,42 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
             return OverlapStatus.None;
         }
 
-        private static bool IsApprenticeshipDateBetween(DateTime dateToCheck, DateTime dateFrom, DateTime dateTo)
-        {
-            return IsApprenticeshipDateAfter(dateToCheck, dateFrom) && IsDateBefore(dateToCheck, dateTo);
-        }
-
-        private static bool IsDateBefore(DateTime date1, DateTime date2)
-        {
-            if (date1.Year < date2.Year) return true;
-            if (date1.Year > date2.Year) return false;
-            return date1.Month < date2.Month;
-        }
-
-        private static bool IsApprenticeshipDateAfter(DateTime date1, DateTime date2)
-        {
-            return IsDateBefore(date2, date1);
-        }
-
-        private static bool IsApprenticeshipDateStraddle(DateTime date1Start, DateTime date1End, DateTime date2Start, DateTime date2End)
+        private static bool IsApprenticeshipDateStraddle(DateRange candidate, DateRange target)
         {
             //straightforward case - clear straddle
-            if (IsDateBefore(date1Start, date2Start) && IsApprenticeshipDateAfter(date1End, date2End))
+            if(candidate.From.IsBeforeMonth(target.From) && candidate.To.IsAfterMonth(target.To))           
             {
                 return true;
             }
 
-            //Case where active apprenticeship is single-month, cannot overlap
-            if (IsSameMonthAndYear(date2Start, date2End))
+            //Case where active apprenticeship is single-month and not a clear straddle, cannot overlap
+            if(target.IsZeroDays)
             {
                 return false;
             }
 
             //Case where timespans are identical
-            if (IsSameMonthAndYear(date1Start, date2Start) && IsSameMonthAndYear(date1End, date2End))
+            if (candidate.From.IsSameMonthAndYear(target.From) && candidate.To.IsSameMonthAndYear(target.To))
             {
                 //Then single month apprenticeships do not overlap
-                if (IsSameMonthAndYear(date1Start, date1End))
-                {
-                    return false;
-                }
-
-                return true;
+                return !candidate.IsZeroDays;
             }
 
             //If the apprenticeships share a start date
-            if (IsSameMonthAndYear(date1Start, date2Start))
+            if (candidate.From.IsSameMonthAndYear(target.From))
             {
                 //The if is a single month then do not overlap
-                if (IsSameMonthAndYear(date1Start, date1End))
-                {
-                    return false;
-                }
-
-                return true;
+                return !candidate.IsZeroDays;
             }
 
             //If they share an end date
-            if (IsSameMonthAndYear(date1End, date2End))
+            if (candidate.To.IsSameMonthAndYear(target.To))
             {
                 //Then if is a single month then do not overlap
-                if (IsSameMonthAndYear(date1Start, date1End))
-                {
-                    return false;
-                }
-
-                return true;
+                return !candidate.IsZeroDays;
             }
 
             return false;
-        }
-
-        private static bool IsSameMonthAndYear(DateTime date1, DateTime date2)
-        {
-            return date1.Month == date2.Month && date1.Year == date2.Year;
         }
     }
 }

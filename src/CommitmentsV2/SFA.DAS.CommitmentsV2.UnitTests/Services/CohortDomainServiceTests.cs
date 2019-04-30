@@ -139,8 +139,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .ReturnsAsync(() => new ReservationValidationResult(new ReservationValidationError[0]));
 
                 OverlapCheckService = new Mock<IOverlapCheckService>();
-                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateTime>(),
-                    It.IsAny<DateTime>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
                 DomainErrors = new List<DomainError>();
 
@@ -190,8 +189,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
                 DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
                 
-                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateTime>(),
-                    It.IsAny<DateTime>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new OverlapCheckResult(true, false));
 
                 return this;
@@ -203,8 +201,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
                 DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
 
-                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateTime>(),
-                        It.IsAny<DateTime>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
+                OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new OverlapCheckResult(false, true));
 
                 return this;
