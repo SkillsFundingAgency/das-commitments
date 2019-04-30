@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
-    public class CreatedDraftApprenticeshipEvent
+    public class DraftApprenticeshipCreatedEvent
     {
         public long DraftApprenticeshipId { get; }
         public long CohortId { get; }
@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public Guid ReservationId { get; }
         public DateTime CreatedOn { get; }
 
-        public CreatedDraftApprenticeshipEvent(long draftApprenticeshipId, long cohortId, string uln, Guid reservationId, DateTime createdOn)
+        public DraftApprenticeshipCreatedEvent(long draftApprenticeshipId, long cohortId, string uln, Guid reservationId, DateTime createdOn)
         {
             DraftApprenticeshipId = draftApprenticeshipId;
             CohortId = cohortId;

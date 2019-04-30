@@ -81,12 +81,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         }
 
         [Test]
-        public void TheCreatedDraftApprenticeshipEventIsPublished()
+        public void TheDraftApprenticeshipCreatedEventIsPublished()
         {
             var result = _fixture.CreateCohort();
 
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Cast<CreatedDraftApprenticeshipEvent>().Single().Should().BeEquivalentTo(new CreatedDraftApprenticeshipEvent(
+                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(new DraftApprenticeshipCreatedEvent(
                     draftApprenticeshipId: 0,
                     cohortId: 0,
                     uln: _fixture.DraftApprenticeshipDetails.Uln,

@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
-            Publish(() => new CreatedDraftApprenticeshipEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId.Value, CreatedOn.Value));
+            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId.Value, CreatedOn.Value));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
