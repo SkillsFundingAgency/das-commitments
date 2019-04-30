@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             foreach (var utilisation in await GetCandidateUlnUtilisations())
             {
-                var overlapStatus = utilisation.DetermineOverlap(range);
+                var overlapStatus = utilisation.DateRange.DetermineOverlap(range);
 
                 switch (overlapStatus)
                 {
