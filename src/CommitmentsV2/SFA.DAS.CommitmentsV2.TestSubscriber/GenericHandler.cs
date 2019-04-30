@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
     {
         public Task Log(object message, IMessageHandlerContext context)
         {
-            Console.WriteLine($"Received message type {message.GetType().FullName} : Content: {JsonConvert.SerializeObject(message)}");
+            Console.WriteLine($"Received message id:{context.MessageId} type:{message.GetType().FullName} received:{DateTime.Now:T} Content: {JsonConvert.SerializeObject(message)}");
             return Task.CompletedTask;
         }
     }
