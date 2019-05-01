@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         DateTime StartDate { get; set; }
         DateTime EndDate { get; set; }
         PriceEpisode[] PriceEpisodes { get; set; }
-        TrainingType TrainingType { get; set; }
+        ProgrammeType ProgrammeType { get; set; }
         string TrainingCode { get; set; }
         long? TransferSenderId { get; set; }
     }

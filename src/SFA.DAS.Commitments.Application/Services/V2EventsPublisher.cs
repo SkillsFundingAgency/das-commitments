@@ -69,7 +69,7 @@ namespace SFA.DAS.Commitments.Application.Services
                     ev.StartDate = apprenticeshipEvent.Apprenticeship.StartDate.Value;
                     ev.EndDate = apprenticeshipEvent.Apprenticeship.EndDate.Value;
                     ev.PriceEpisodes = priceEpisodes;
-                    ev.TrainingType = (CommitmentsV2.Types.TrainingType)apprenticeshipEvent.Apprenticeship.TrainingType;
+                    ev.ProgrammeType = (CommitmentsV2.Types.ProgrammeType)apprenticeshipEvent.Apprenticeship.TrainingType;
                     ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
                     ev.TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId;
                 });

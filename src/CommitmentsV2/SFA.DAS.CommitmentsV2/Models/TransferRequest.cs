@@ -15,6 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime CreatedOn { get; set; }
         public decimal? FundingCap { get; set; }
 
-        public virtual Commitment Commitment { get; set; }
+        public virtual Cohort Cohort { get; set; }
     }
 }

@@ -120,6 +120,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificate
 		Certificates\localhost.pfx = Certificates\localhost.pfx
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.Api.Client\SFA.DAS.Reservations.Api.Client.csproj", "{1C575645-72A6-4912-AB53-A58F0D28D5CD}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.Types", "CommitmentsV2\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj", "{3C2B457C-FBD1-494D-91D8-E0F614BBA99F}"
 EndProject
 Global
@@ -301,6 +303,10 @@ Global
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A8F1D77-1AE6-4E0E-8DF4-12145D512B3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C575645-72A6-4912-AB53-A58F0D28D5CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C575645-72A6-4912-AB53-A58F0D28D5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C575645-72A6-4912-AB53-A58F0D28D5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C575645-72A6-4912-AB53-A58F0D28D5CD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C2B457C-FBD1-494D-91D8-E0F614BBA99F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C2B457C-FBD1-494D-91D8-E0F614BBA99F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C2B457C-FBD1-494D-91D8-E0F614BBA99F}.Release|Any CPU.ActiveCfg = Release|Any CPU

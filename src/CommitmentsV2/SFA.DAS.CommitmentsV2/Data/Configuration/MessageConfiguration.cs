@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.Text)
                 .IsRequired();
 
-            builder.HasOne(d => d.Commitment)
+            builder.HasOne(d => d.Cohort)
                 .WithMany(p => p.Message)
                 .HasForeignKey(d => d.CommitmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull);

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
@@ -11,20 +12,23 @@ namespace SFA.DAS.CommitmentsV2.Mapping
     {
         private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
         private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
+        private readonly ICurrentDateTime _currentDateTime;
 
         public AddCohortCommandToDraftApprenticeshipDetailsMapper(
             ITrainingProgrammeApiClient trainingProgrammeApiClient,
-            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper)
+            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper,
+            ICurrentDateTime currentDateTime)
         {
             _trainingProgrammeApiClient = trainingProgrammeApiClient;
             _trainingProgrammeMapper = trainingProgrammeMapper;
+            _currentDateTime = currentDateTime;
         }
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
         {
             var trainingProgram = await GetCourse(source.CourseCode);
 
-            return new DraftApprenticeshipDetails
+            var result = new DraftApprenticeshipDetails
             {
                 FirstName = source.FirstName,
                 LastName = source.LastName,
@@ -35,8 +39,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.OriginatorReference,
-                ReservationId = source.ReservationId
+                ReservationId = source.ReservationId,
             };
+
+            return result;
         }
         private async Task<TrainingProgramme> GetCourse(string courseCode)
         {

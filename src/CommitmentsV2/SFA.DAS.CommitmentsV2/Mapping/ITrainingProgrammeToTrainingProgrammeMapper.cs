@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Reflection;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Types;
+using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
@@ -12,18 +14,19 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             return new TrainingProgramme(source.Id, source.ExtendedTitle, MapProgrameTypesToV2ProgrammeTypes(source.ProgrammeType), source.EffectiveFrom, source.EffectiveTo);
         }
 
-        private static TrainingType MapProgrameTypesToV2ProgrammeTypes(ProgrammeType programmeType)
+        private static ProgrammeType MapProgrameTypesToV2ProgrammeTypes(Apprenticeships.Api.Types.ProgrammeType programmeType)
         {
             switch (programmeType)
             {
-                case ProgrammeType.Framework:
-                    return TrainingType.Framework;
-                case ProgrammeType.Standard:
-                    return TrainingType.Standard;
+                case Apprenticeships.Api.Types.ProgrammeType.Framework:
+                    return ProgrammeType.Framework;
+                case Apprenticeships.Api.Types.ProgrammeType.Standard:
+                    return ProgrammeType.Standard;
                 default:
-                    throw new ArgumentException("Could not map ProgrammeType");
+                    throw new AmbiguousMatchException("Could not map ProgrammeType");
             }
         }
 
     }
 }
+
