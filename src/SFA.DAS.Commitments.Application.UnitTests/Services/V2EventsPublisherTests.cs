@@ -157,19 +157,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
-
         #region PublishPaymentOrderChanged
         [Test]
         public async Task PublishPaymentOrderChanged_ShouldNotThrowException()
         {
             var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipResumedEvent>();
-            var list = new List<ProviderPaymentOrder>
-            {
-                new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
-                new ProviderPaymentOrder {Priority = 2, ProviderId = 200}
-            };
 
-            await fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, list));
+            await fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, fixtures.PriorityList));
         }
 
         [Test]
@@ -177,7 +171,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         {
             var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(0, fixtures.ValidPriorityList)));
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(0, fixtures.PriorityList)));
         }
 
         [Test]
@@ -188,16 +182,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, null)));
         }
 
-        [Test]
-        public void PublishPaymentOrderChanged_WithInValidList_ShouldThrowException()
-        {
-            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
-
-            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, fixtures.ValidPriorityList)));
-        }
-
         #endregion
-
 
     }
 
@@ -217,22 +202,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             apprenticeship.Setup(a => a.Commitment).Returns(Commitment);
             ApprenticeshipEvent = apprenticeship.Object;
 
-            ValidPriorityList = new List<ProviderPaymentOrder>
+            PriorityList = new List<ProviderPaymentOrder>
             {
                 new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
                 new ProviderPaymentOrder {Priority = 2, ProviderId = 200}
             };
-
-            InValidPriorityList = new List<ProviderPaymentOrder>
-            {
-                new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
-                new ProviderPaymentOrder {Priority = 1, ProviderId = 200}
-            };
-
         }
 
-        public List<ProviderPaymentOrder> ValidPriorityList { get; }
-        public List<ProviderPaymentOrder> InValidPriorityList { get; }
+        public List<ProviderPaymentOrder> PriorityList { get; }
 
         public Mock<IEndpointInstance> EndpointInstanceMock { get; }
 
