@@ -28,7 +28,7 @@ insert into Accounts (Id, HashedId, PublicHashedId, Name, Created, Updated) valu
 insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name], [Address],[OrganisationType],[LegalEntityId], Created, Updated) values (2817, 'YZWX27', 8194, 'Mega Corp Pharmaceuticals', '1 MegaCorp Way', 1, '736281', GETDATE(), GETDATE())
 insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address],[OrganisationType],[LegalEntityId], Created, Updated) values (2818, '7N3MEY', 8194, 'Mega Corp Bank', '2 MegaCorp Way', 1, '372628', GETDATE(), GETDATE())
 insert into Accounts (Id, HashedId, PublicHashedId, Name, Created, Updated) values (30060, 'R5W6WZ', '4NMEMR', 'Rapid Logistics Co Ltd', GETDATE(), GETDATE())
-insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address],[OrganisationType],[LegalEntityId],Created, Updated) values (645, '7N3MEY', 30060, 'Rapid Logistics Co Ltd', '1 High Street', 1, '06344082', GETDATE(), GETDATE())
+insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address],[OrganisationType],[LegalEntityId],Created, Updated) values (645, '7EKPG7', 30060, 'Rapid Logistics Co Ltd', '1 High Street', 1, '06344082', GETDATE(), GETDATE())
 insert into Providers(Ukprn, [Name], [Created]) values (10005077,'Train-U-Good Corporation', GETDATE())
 
 

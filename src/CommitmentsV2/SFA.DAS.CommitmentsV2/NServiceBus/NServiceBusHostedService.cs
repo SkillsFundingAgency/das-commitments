@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.NServiceBus
 {
     public class NServiceBusHostedService : IHostedService
     {
