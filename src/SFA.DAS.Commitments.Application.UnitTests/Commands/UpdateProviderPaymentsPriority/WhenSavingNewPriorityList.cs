@@ -2,7 +2,6 @@
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
-using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Data;
@@ -13,7 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Commitments.Application.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPaymentsPriority
 {
@@ -28,6 +28,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
         private Mock<IApprenticeshipRepository> _mockApprenticeshipRepository;
         private Mock<IApprenticeshipEventsPublisher> _mockApprenticeshipEventsPublisher;
         private Mock<ICommitmentsLogger> _mockLogger;
+        private Mock<IV2EventsPublisher> _mockV2EventsPublisher;
 
         [SetUp]
         public void Setup()
@@ -39,7 +40,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             Container container = InitialiseDependencies();
             var validator = new UpdateProviderPaymentsPriorityCommandValidator();
 
-            _handler = new UpdateProviderPaymentsPriorityCommandHandler(validator, _mockProviderPaymentRepository.Object, container.GetInstance<IMediator>());
+            _handler = new UpdateProviderPaymentsPriorityCommandHandler(validator, _mockProviderPaymentRepository.Object, container.GetInstance<IMediator>(), _mockV2EventsPublisher.Object);
         }
 
         [Test]
@@ -65,6 +66,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
 
             _mockApprenticeshipEventsPublisher.Verify(x => x.Publish(It.Is<IApprenticeshipEventsList>(y => y.Events.Count == 2)));
         }
+
+        [Test]
+        public async Task ShouldPublishPaymentOrderChangedEvent()
+        {
+            await _handler.Handle(_validCommand);
+
+            _mockV2EventsPublisher.Verify(x => x.PublishPaymentOrderChanged(_validCommand.EmployerAccountId, It.Is<IEnumerable<ProviderPaymentOrder>>(p=>p.Count() == 3)));
+        }
+
 
         private void SetUpMocksForApprenticeshipsretreivalBeforeAndAfterReOrder()
         {
@@ -134,6 +144,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             _mockCommitmentRepository = new Mock<ICommitmentRepository>();
             _mockApprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _mockApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
+            _mockV2EventsPublisher = new Mock<IV2EventsPublisher>();
             _mockLogger = new Mock<ICommitmentsLogger>();
         }
 

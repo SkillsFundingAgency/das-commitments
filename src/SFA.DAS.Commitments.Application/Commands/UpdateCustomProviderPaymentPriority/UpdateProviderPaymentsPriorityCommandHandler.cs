@@ -1,13 +1,15 @@
-﻿using FluentValidation;
-using MediatR;
-using SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.Commitments.Domain.Data;
+using FluentValidation;
+using MediatR;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
 using SFA.DAS.Commitments.Application.Interfaces;
+using SFA.DAS.Commitments.Domain.Data;
+using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
+namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPriority
 {
     public sealed class UpdateProviderPaymentsPriorityCommandHandler : AsyncRequestHandler<UpdateProviderPaymentsPriorityCommand>
     {
@@ -36,15 +38,21 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
         protected override async Task HandleCore(UpdateProviderPaymentsPriorityCommand message)
         {
+            IEnumerable<ProviderPaymentOrder> ProviderPaymentOrdersForV2Event()
+            {
+                var providerPaymentOrders = message.ProviderPriorities.Select(x => new ProviderPaymentOrder
+                    {Priority = x.PriorityOrder, ProviderId = x.ProviderId}).AsEnumerable();
+                return providerPaymentOrders;
+            }
+
             _validator.ValidateAndThrow(message);
 
             // Save new order to the database
             await _providerPaymentRepository.UpdateProviderPaymentPriority(message.EmployerAccountId, message.ProviderPriorities);
 
-            //_v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, message.ProviderPriorities);
-
             // Re-prioritise the apprenticeships & Send update events to Events Api
-            await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = message.EmployerAccountId });
+            await Task.WhenAll(_mediator.SendAsync(new SetPaymentOrderCommand { AccountId = message.EmployerAccountId }),
+                _v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, ProviderPaymentOrdersForV2Event()));
         }
     }
 }
