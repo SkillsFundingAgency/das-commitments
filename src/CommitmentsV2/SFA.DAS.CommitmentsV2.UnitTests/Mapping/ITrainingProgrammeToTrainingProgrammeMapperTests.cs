@@ -6,6 +6,7 @@ using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types;
+using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
@@ -34,9 +35,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             AssertPropertySet(input => input.Setup(x => x.ExtendedTitle).Returns(name), output => output.Name == name);
         }
 
-        [TestCase(ProgrammeType.Framework, TrainingType.Framework)]
-        [TestCase(ProgrammeType.Standard, TrainingType.Standard)]
-        public void Map_ProgrammeType_ShouldBeSet(ProgrammeType progType, TrainingType outputType)
+        [TestCase(Apprenticeships.Api.Types.ProgrammeType.Framework, ProgrammeType.Framework)]
+        [TestCase(Apprenticeships.Api.Types.ProgrammeType.Standard, ProgrammeType.Standard)]
+        public void Map_ProgrammeType_ShouldBeSet(Apprenticeships.Api.Types.ProgrammeType progType, ProgrammeType outputType)
         {
             AssertPropertySet(input => input.Setup(x => x.ProgrammeType).Returns(progType), output => output.ProgrammeType == outputType);
         }
@@ -60,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var mapper = new ITrainingProgrammeToTrainingProgrammeMapper();
 
             var input = new Mock<ITrainingProgramme>();
-            input.Setup(x=>x.ProgrammeType).Returns(ProgrammeType.Framework);
+            input.Setup(x=>x.ProgrammeType).Returns(Apprenticeships.Api.Types.ProgrammeType.Framework);
 
             setInput.Invoke(input);
 

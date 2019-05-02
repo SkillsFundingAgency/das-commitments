@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class AccountLegalEntity 
     {
-        public long Id { get; private set; }
+        public virtual long Id { get; private set; }
         public string LegalEntityId { get; private set; }
         public string PublicHashedId { get; private set; }
         public Account Account { get; private set; }
@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Created = created;
         }
 
-        private AccountLegalEntity()
+        public AccountLegalEntity()
         {
         }
 

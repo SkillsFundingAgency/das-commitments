@@ -11,6 +11,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string Author { get; set; }
         public byte CreatedBy { get; set; }
 
-        public virtual Commitment Commitment { get; set; }
+        public virtual Cohort Cohort { get; set; }
     }
 }

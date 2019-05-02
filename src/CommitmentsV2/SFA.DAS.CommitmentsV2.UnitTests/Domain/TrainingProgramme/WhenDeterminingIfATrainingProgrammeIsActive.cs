@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.TrainingProgramme
             DateTime effectiveDate, bool expectIsActive)
         {
             //Arrange
-            var course = new CommitmentsV2.Domain.ValueObjects.TrainingProgramme("TEST", "TEST", TrainingType.Framework, courseStart, courseEnd);
+            var course = new CommitmentsV2.Domain.ValueObjects.TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseStart, courseEnd);
 
             //Act
             var result = course.IsActiveOn(effectiveDate);
