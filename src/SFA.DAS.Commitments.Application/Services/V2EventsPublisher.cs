@@ -43,7 +43,7 @@ namespace SFA.DAS.Commitments.Application.Services
             return PublishWithLog<ApprenticeshipCreatedEvent>(ApprenticePreChecks.HasStartAndEndDate, apprenticeshipEvent?.Apprenticeship, ev =>
             {
                 ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
-                ev.CreatedOn = _currentDateTime.Now;
+                ev.CreatedOn = apprenticeshipEvent.Apprenticeship.AgreedOn.Value;
                 ev.Uln = apprenticeshipEvent.Apprenticeship.ULN;
                 ev.ProviderId = apprenticeshipEvent.Apprenticeship.ProviderId;
                 ev.AccountId = apprenticeshipEvent.Apprenticeship.EmployerAccountId;
