@@ -210,6 +210,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             CurrentDateTimeMock = new Mock<ICurrentDateTime>();
 
             Apprenticeship = new Apprenticeship();
+            Apprenticeship.AgreedOn = DateTime.Now;
             Commitment = new Commitment();
             var apprenticeship = new Mock<IApprenticeshipEvent>();
             apprenticeship.Setup(a => a.Apprenticeship).Returns(Apprenticeship);

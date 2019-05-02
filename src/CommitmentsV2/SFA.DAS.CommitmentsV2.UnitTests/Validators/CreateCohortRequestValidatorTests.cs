@@ -46,6 +46,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ReservationId, guidToUse, expectedValid);
         }
 
+        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
+        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
+        [TestCase("", true)]
+        public void Validate_FirstName_ShouldBeValidated(string value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.FirstName, value, expectedValid);
+        }
+
+        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
+        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
+        [TestCase("", true)]
+        public void Validate_LastName_ShouldBeValidated(string value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.LastName, value, expectedValid);
+        }
+
+        [TestCase(null, true)]
+        [TestCase("", true)]
+        [TestCase("X", true)]
+        [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
+        public void Validate_Ref_ShouldBeValidated(string value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.OriginatorReference, value, expectedValid);
+        }
+
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property, T value, bool expectedValid)
         {
             // Arrange

@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.TransferApprovalActionedByEmployerEmail).HasMaxLength(255);
             builder.Property(e => e.TransferApprovalActionedByEmployerName).HasMaxLength(255);
 
-            builder.HasOne(d => d.Commitment)
+            builder.HasOne(d => d.Cohort)
                 .WithMany(p => p.TransferRequest)
                 .HasForeignKey(d => d.CommitmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull);

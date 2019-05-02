@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public long ApprenticeshipId { get; set; }
         public DateTime ApprovedOn { get; set; }
         public PriceEpisode[] PriceEpisodes { get; set; }
-        public TrainingType TrainingType { get; set; }
+        public ProgrammeType TrainingType { get; set; }
         public string TrainingCode { get; set; }
     }
 }

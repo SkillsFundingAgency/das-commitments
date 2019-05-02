@@ -14,5 +14,25 @@ namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
+
+        public int? AgeOnStartDate
+        {
+            get
+            {
+                if (StartDate.HasValue && DateOfBirth.HasValue)
+                {
+                    var age = StartDate.Value.Year - DateOfBirth.Value.Year;
+
+                    if ((DateOfBirth.Value.Month > StartDate.Value.Month) ||
+                        (DateOfBirth.Value.Month == StartDate.Value.Month &&
+                         DateOfBirth.Value.Day > StartDate.Value.Day))
+                        age--;
+
+                    return age;
+                }
+
+                return default;
+            }
+        }
     }
 }
