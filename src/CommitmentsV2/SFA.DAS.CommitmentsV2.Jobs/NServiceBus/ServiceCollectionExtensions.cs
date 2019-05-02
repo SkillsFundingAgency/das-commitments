@@ -10,10 +10,9 @@ using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.NLog;
 using SFA.DAS.NServiceBus.SqlServer;
 using SFA.DAS.NServiceBus.StructureMap;
-using SFA.DAS.UnitOfWork.NServiceBus;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.Jobs.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
@@ -27,22 +26,23 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                     var configuration = s.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
-                    var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.MessageHandlers")
+                    var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.Jobs")
                         .UseAzureServiceBusTransport(() => configuration.ServiceBusConnectionString, isDevelopment)
+                        .UseErrorQueue()
                         .UseInstallers()
                         .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
                         .UseNewtonsoftJsonSerializer()
                         .UseNLogFactory()
-                        .UseOutbox()
                         .UseSqlServerPersistence(() => container.GetInstance<DbConnection>())
                         .UseStructureMapBuilder(container)
-                        .UseUnitOfWork();
+                        .UseSendOnly();
 
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
                     return endpoint;
                 })
+                .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
                 .AddHostedService<NServiceBusHostedService>();
         }
     }

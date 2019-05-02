@@ -10,7 +10,6 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public DataRegistry()
         {
-            For<IDbContextFactory>().Use<DbContextFactory>();
             For<DbConnection>().Use(c => new SqlConnection(c.GetInstance<CommitmentsV2Configuration>().DatabaseConnectionString));
             For<ProviderCommitmentsDbContext>().Use(c => c.GetInstance<IDbContextFactory>().CreateAccountsDbContext());
         }
