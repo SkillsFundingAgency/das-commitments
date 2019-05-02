@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -7,6 +8,7 @@ using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Services
@@ -111,6 +113,30 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.ApprenticeshipId = apprenticeship.Id;
                 ev.ResumedOn = _currentDateTime.Now;
             }, GetLogMessage(commitment, apprenticeship));
+        }
+
+        public async Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<ProviderPaymentOrder> priorityList)
+        {
+            var logMessage = $"Publish {typeof(PaymentOrderChangedEvent).Name} message. For EmployerAccountId : {employerAccountId}";
+
+            try
+            {
+                if (employerAccountId == 0) throw new InvalidOperationException("EmployerAccountId cannot be 0");
+                if (priorityList == null) throw new InvalidOperationException("Priorities are expected");
+
+                await _endpointInstance.Publish(new PaymentOrderChangedEvent
+                {
+                    EmployerAccountId = employerAccountId,
+                    ProviderPaymentOrder = priorityList.ToArray()
+                } );
+
+                _logger.Info($"{logMessage} successful");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, $"{logMessage} failed");
+                throw;
+            }
         }
 
         private enum ApprenticePreChecks

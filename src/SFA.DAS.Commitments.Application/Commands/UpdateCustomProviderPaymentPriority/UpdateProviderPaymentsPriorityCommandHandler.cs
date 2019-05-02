@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Application.Commands.SetPaymentOrder;
+using SFA.DAS.Commitments.Application.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 {
@@ -13,8 +14,12 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly AbstractValidator<UpdateProviderPaymentsPriorityCommand> _validator;
         private readonly IProviderPaymentRepository _providerPaymentRepository;
         private readonly IMediator _mediator;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
-        public UpdateProviderPaymentsPriorityCommandHandler(AbstractValidator<UpdateProviderPaymentsPriorityCommand> validator, IProviderPaymentRepository providerPaymentRepository, IMediator mediator)
+        public UpdateProviderPaymentsPriorityCommandHandler(AbstractValidator<UpdateProviderPaymentsPriorityCommand> validator, 
+            IProviderPaymentRepository providerPaymentRepository, 
+            IMediator mediator,
+            IV2EventsPublisher v2EventsPublisher = null)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
@@ -26,6 +31,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _validator = validator;
             _providerPaymentRepository = providerPaymentRepository;
             _mediator = mediator;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(UpdateProviderPaymentsPriorityCommand message)
@@ -34,6 +40,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
 
             // Save new order to the database
             await _providerPaymentRepository.UpdateProviderPaymentPriority(message.EmployerAccountId, message.ProviderPriorities);
+
+            //_v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, message.ProviderPriorities);
 
             // Re-prioritise the apprenticeships & Send update events to Events Api
             await _mediator.SendAsync(new SetPaymentOrderCommand { AccountId = message.EmployerAccountId });

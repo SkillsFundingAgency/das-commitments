@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.Interfaces
 {
@@ -16,5 +18,9 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent);
         Task PublishApprenticeshipUpdatedApproved(Commitment commitment, Apprenticeship apprenticeship);
         Task PublishApprenticeshipResumed(Commitment commitment, Apprenticeship apprenticeship);
+        Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<ProviderPaymentOrder> list);
     }
 }
+
+
+

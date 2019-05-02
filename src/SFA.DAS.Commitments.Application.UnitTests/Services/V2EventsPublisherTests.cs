@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NServiceBus;
@@ -9,6 +10,7 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Services
 {
@@ -155,6 +157,48 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+
+        #region PublishPaymentOrderChanged
+        [Test]
+        public async Task PublishPaymentOrderChanged_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipResumedEvent>();
+            var list = new List<ProviderPaymentOrder>
+            {
+                new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
+                new ProviderPaymentOrder {Priority = 2, ProviderId = 200}
+            };
+
+            await fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, list));
+        }
+
+        [Test]
+        public void PublishPaymentOrderChanged_WithZeroEmployerAccountId_ShouldThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(0, fixtures.ValidPriorityList)));
+        }
+
+        [Test]
+        public void PublishPaymentOrderChanged_WithNullList_ShouldThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, null)));
+        }
+
+        [Test]
+        public void PublishPaymentOrderChanged_WithInValidList_ShouldThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, fixtures.ValidPriorityList)));
+        }
+
+        #endregion
+
+
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
@@ -171,7 +215,23 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             apprenticeship.Setup(a => a.Apprenticeship).Returns(Apprenticeship);
             apprenticeship.Setup(a => a.Commitment).Returns(Commitment);
             ApprenticeshipEvent = apprenticeship.Object;
+
+            ValidPriorityList = new List<ProviderPaymentOrder>
+            {
+                new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
+                new ProviderPaymentOrder {Priority = 2, ProviderId = 200}
+            };
+
+            InValidPriorityList = new List<ProviderPaymentOrder>
+            {
+                new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
+                new ProviderPaymentOrder {Priority = 1, ProviderId = 200}
+            };
+
         }
+
+        public List<ProviderPaymentOrder> ValidPriorityList { get; }
+        public List<ProviderPaymentOrder> InValidPriorityList { get; }
 
         public Mock<IEndpointInstance> EndpointInstanceMock { get; }
 
