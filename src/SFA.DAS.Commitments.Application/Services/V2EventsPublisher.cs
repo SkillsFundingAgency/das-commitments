@@ -53,7 +53,7 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.StartDate = apprenticeshipEvent.Apprenticeship.StartDate.Value;
                 ev.EndDate = apprenticeshipEvent.Apprenticeship.EndDate.Value;
                 ev.PriceEpisodes = GetPriceEpisodes(apprenticeshipEvent.Apprenticeship);
-                ev.TrainingType = (CommitmentsV2.Types.TrainingType) apprenticeshipEvent.Apprenticeship.TrainingType;
+                ev.TrainingType = (CommitmentsV2.Types.ProgrammeType) apprenticeshipEvent.Apprenticeship.TrainingType;
                 ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
                 ev.TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId;
             }, GetLogMessage(apprenticeshipEvent));
@@ -76,7 +76,7 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.ApprenticeshipId = apprenticeshipEvent.Apprenticeship.Id;
                 ev.ApprovedOn = _currentDateTime.Now;
                 ev.PriceEpisodes = GetPriceEpisodes(apprenticeshipEvent.Apprenticeship);
-                ev.TrainingType = (CommitmentsV2.Types.TrainingType) apprenticeshipEvent.Apprenticeship.TrainingType;
+                ev.TrainingType = (CommitmentsV2.Types.ProgrammeType) apprenticeshipEvent.Apprenticeship.TrainingType;
                 ev.TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode;
             }, GetLogMessage(apprenticeshipEvent));
         }
@@ -90,7 +90,7 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.StartDate = apprenticeship.StartDate.Value;
                 ev.EndDate = apprenticeship.EndDate.Value;
                 ev.PriceEpisodes = GetPriceEpisodes(apprenticeship);
-                ev.TrainingType = (CommitmentsV2.Types.TrainingType)apprenticeship.TrainingType;
+                ev.TrainingType = (CommitmentsV2.Types.ProgrammeType)apprenticeship.TrainingType;
                 ev.TrainingCode = apprenticeship.TrainingCode;
             }, GetLogMessage(commitment, apprenticeship));
         }

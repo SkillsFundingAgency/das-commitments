@@ -4,10 +4,12 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data.Configuration
 {
-    public class CommitmentConfiguration : IEntityTypeConfiguration<Commitment>
+    public class CohortConfiguration : IEntityTypeConfiguration<Cohort>
     {
-        public void Configure(EntityTypeBuilder<Commitment> builder)
+        public void Configure(EntityTypeBuilder<Cohort> builder)
         {
+            builder.ToTable("Commitment");
+
             builder.Property(e => e.AccountLegalEntityPublicHashedId)
                 .HasMaxLength(6)
                 .IsUnicode(false);

@@ -1,19 +1,19 @@
 ﻿using System;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Types;
+using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
 {
     public class TrainingProgramme
     {
-        public string CourseCode { get; private set; }
-        public string Name { get; private set; }
-        public TrainingType ProgrammeType { get; private set; } 
-        public DateTime? EffectiveFrom { get; private set; }
-        public DateTime? EffectiveTo { get; private set; }
+        public string CourseCode { get;  }
+        public string Name { get; }
+        public ProgrammeType ProgrammeType { get; } 
+        public DateTime? EffectiveFrom { get; }
+        public DateTime? EffectiveTo { get; }
 
-        public TrainingProgramme(string courseCode, string name, TrainingType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
+        public TrainingProgramme(string courseCode, string name, ProgrammeType programmeType, DateTime? effectiveFrom, DateTime? effectiveTo)
         {
             CourseCode = courseCode;
             Name = name;
