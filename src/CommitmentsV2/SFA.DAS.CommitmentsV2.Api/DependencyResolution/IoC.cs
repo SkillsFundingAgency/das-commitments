@@ -1,4 +1,5 @@
 ﻿using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
@@ -12,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<MappingRegistry>();
             registry.IncludeRegistry<MediatorRegistry>();
+            registry.IncludeRegistry<ReservationsApiClientRegistry>();
             registry.IncludeRegistry<TrainingProgrammeRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
