@@ -21,7 +21,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPr
         public UpdateProviderPaymentsPriorityCommandHandler(AbstractValidator<UpdateProviderPaymentsPriorityCommand> validator, 
             IProviderPaymentRepository providerPaymentRepository, 
             IMediator mediator,
-            IV2EventsPublisher v2EventsPublisher = null)
+            IV2EventsPublisher v2EventsPublisher)
         {
             if (validator == null)
                 throw new ArgumentNullException(nameof(validator));
@@ -38,7 +38,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPr
 
         protected override async Task HandleCore(UpdateProviderPaymentsPriorityCommand message)
         {
-            IEnumerable<ProviderPaymentOrder> ProviderPaymentOrdersForV2Event()
+            IEnumerable<ProviderPaymentOrder> MapToPaymentOrderForV2Event()
             {
                 var providerPaymentOrders = message.ProviderPriorities.Select(x => new ProviderPaymentOrder
                     {Priority = x.PriorityOrder, ProviderId = x.ProviderId}).AsEnumerable();
@@ -52,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPr
 
             // Re-prioritise the apprenticeships & Send update events to Events Api
             await Task.WhenAll(_mediator.SendAsync(new SetPaymentOrderCommand { AccountId = message.EmployerAccountId }),
-                _v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, ProviderPaymentOrdersForV2Event()));
+                _v2EventsPublisher.PublishPaymentOrderChanged(message.EmployerAccountId, MapToPaymentOrderForV2Event()));
         }
     }
 }
