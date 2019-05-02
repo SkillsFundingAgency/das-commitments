@@ -6,5 +6,6 @@
         public static string ApprenticeshipInfoService => $"{CommitmentsV2}:ApprenticeshipInfoService";
         public static string AzureActiveDirectoryApiConfiguration => $"{CommitmentsV2}:AzureADApiAuthentication";
         public static string CommitmentIdHashingConfiguration => $"{CommitmentsV2}:CommitmentIdHashing";
+        public static string ReservationsClientApiConfiguration => $"{CommitmentsV2}:ReservationsClientApi";
     }
 }
