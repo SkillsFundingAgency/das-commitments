@@ -24,30 +24,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             _fixture = new AddDraftApprenticeshipValidationTestsFixture();
         }
 
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("  ", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("Fred", true)]
-        public void FirstName_CheckValidation(string firstName, bool passes)
-        {
-            _fixture.AssertValidationForProperty( () => _fixture.DraftApprenticeshipDetails.FirstName = firstName,
-             nameof(_fixture.DraftApprenticeshipDetails.FirstName), 
-             passes);
-        }
-
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("  ", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("West", true)]
-        public void LastName_CheckValidation(string lastName, bool passes)
-        {
-            _fixture.AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.LastName = lastName,
-                nameof(_fixture.DraftApprenticeshipDetails.LastName),
-                passes);
-        }
-
         [TestCase(null, null, true)]
         [TestCase("2022-01-20", null, true)]
         [TestCase("2022-01-20", "2022-01-22", false)]
@@ -79,42 +55,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 passes);
         }
 
-        [TestCase(null, true)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
-        [TestCase("Provider", true)]
-        public void ProviderRef_CheckValidation(string @ref, bool passes)
-        {
-            _fixture.WithProviderCohort()
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Reference = @ref,
-                nameof(_fixture.DraftApprenticeshipDetails.Reference),
-                passes);
-        }
-
-        [TestCase(null, true)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX20", false)]
-        [TestCase("Employer", true)]
-        public void EmployerRef_CheckValidation(string @ref, bool passes)
-        {
-            _fixture.WithEmployerCohort()
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.Reference = @ref,
-                nameof(_fixture.DraftApprenticeshipDetails.Reference),
-                passes);
-        }
-
         [TestCase("2019-04-01", null, true, Description = "DoB not specified")]
         [TestCase("2019-04-01", "2004-04-01", true, Description = "Exactly 15 years old")]
         [TestCase("2019-04-01", "2004-04-02", false, Description = "One day prior to 15 years old")]
         [TestCase("2019-04-01", "1904-04-01", false, Description = "Exactly 115 years old")]
         [TestCase("2019-04-01", "1904-04-02", true, Description = "One day prior to 115 years old")]
-
-        public void DateOfBirth_CheckValidation(DateTime currentDate, DateTime? dateOfBirth, bool passes)
+        public void DateOfBirth_CheckValidation(DateTime courseStartDate, DateTime? dateOfBirth, bool passes)
         {
             var utcDateOfBirth = dateOfBirth.HasValue ? DateTime.SpecifyKind(dateOfBirth.Value, DateTimeKind.Utc) : default(DateTime?);
 
-            _fixture.WithCurrentDate(currentDate)
-                    .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.DateOfBirth = utcDateOfBirth,
-                    nameof(_fixture.DraftApprenticeshipDetails.DateOfBirth),
-                    passes);
+            _fixture.WithStartDate(courseStartDate)
+                .WithCurrentDate(courseStartDate.AddMonths(1))
+                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.DateOfBirth = utcDateOfBirth,
+                nameof(_fixture.DraftApprenticeshipDetails.DateOfBirth),
+                passes);
         }
 
         [TestCase(null, true)]
@@ -127,22 +81,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 : default(DateTime?);
 
             _fixture.WithCurrentDate(new DateTime(2017, 5, 1))
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
-                    nameof(_fixture.DraftApprenticeshipDetails.StartDate)
-                    , passes);
-        }
-
-        [TestCase("2019-04-01", null, true)]
-        [TestCase("2019-04-01", "2020-08-01", false, Description = "One day after cut off")]
-        [TestCase("2019-04-01", "2020-07-31", true, Description = "Day of cut off (last valid day)")]
-        [TestCase("2019-04-01", "2018-01-01", true, Description = "Day in the past")]
-        public void StartDate_CheckIsWithinAYearOfEndOfCurrentTeachingYear_Validation(DateTime currentDate, DateTime? startDate, bool passes)
-        {
-            var utcStartDate = startDate.HasValue
-                ? DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc)
-                : default(DateTime?);
-
-            _fixture.WithCurrentDate(currentDate)
                 .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.StartDate = utcStartDate,
                     nameof(_fixture.DraftApprenticeshipDetails.StartDate)
                     , passes);
@@ -175,10 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
             };
 
-            var domainException = Assert.Throws<DomainException>(() =>
-                _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(),
-                    Mock.Of<ICurrentDateTime>(), Mock.Of<IAcademicYearDateProvider>()
-                ));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails));
 
                 var startDateError = domainException.DomainErrors.Single(x =>
                     x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
@@ -190,7 +125,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
     public class AddDraftApprenticeshipValidationTestsFixture
     {
         public DraftApprenticeshipDetails DraftApprenticeshipDetails;
-        public Commitment Cohort;
+        public Cohort Cohort;
         public ICurrentDateTime CurrentDateTime;
         public IAcademicYearDateProvider AcademicYearDateProvider;
 
@@ -201,26 +136,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
             SetupMinimumNameProperties();
-            Cohort = new Commitment();
+            Cohort = new Cohort();
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
         }
 
         public AddDraftApprenticeshipValidationTestsFixture WithProviderCohort()
         {
-            Cohort = new Commitment{ EditStatus = EditStatus.ProviderOnly };
+            Cohort = new Cohort{ EditStatus = EditStatus.ProviderOnly };
             return this;
         }
         public AddDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
         {
-            Cohort = new Commitment { EditStatus = EditStatus.EmployerOnly };
+            Cohort = new Cohort { EditStatus = EditStatus.EmployerOnly };
             return this;
         }
 
         public AddDraftApprenticeshipValidationTestsFixture SetupMinimumNameProperties()
         {
-            DraftApprenticeshipDetails.FirstName = "Fred";
-            DraftApprenticeshipDetails.LastName = "West";
+            DraftApprenticeshipDetails.FirstName = "TestFirstName";
+            DraftApprenticeshipDetails.LastName = "TestLastName";
             return this;
         }
 
@@ -230,7 +165,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Mock.Of<IUlnValidator>(), CurrentDateTime, AcademicYearDateProvider);
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails);
                 Assert.AreEqual(expected, true);
             }
             catch (DomainException ex)
@@ -245,6 +180,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             var utcCurrentDate = DateTime.SpecifyKind(currentDate, DateTimeKind.Utc);
             CurrentDateTime = new CurrentDateTime(utcCurrentDate);
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithStartDate(DateTime startDate)
+        {
+            DraftApprenticeshipDetails.StartDate = startDate;
             return this;
         }
 

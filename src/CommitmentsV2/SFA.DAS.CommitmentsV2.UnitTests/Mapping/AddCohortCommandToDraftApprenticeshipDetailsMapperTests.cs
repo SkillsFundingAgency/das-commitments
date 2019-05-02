@@ -5,6 +5,7 @@ using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
 using SFA.DAS.CommitmentsV2.Mapping;
 
@@ -99,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
         private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
-            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApi.Object, _trainingProgrammeMapper.Object);
+            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApi.Object, _trainingProgrammeMapper.Object, Mock.Of<ICurrentDateTime>());
 
             var input = new AddCohortCommand();
 

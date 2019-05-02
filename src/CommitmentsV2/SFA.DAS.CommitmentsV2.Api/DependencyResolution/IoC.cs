@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.ClientOutbox;
@@ -22,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<NServiceBusClientUnitOfWorkRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            registry.IncludeRegistry<ReservationsApiClientRegistry>();
             registry.IncludeRegistry<TrainingProgrammeRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }

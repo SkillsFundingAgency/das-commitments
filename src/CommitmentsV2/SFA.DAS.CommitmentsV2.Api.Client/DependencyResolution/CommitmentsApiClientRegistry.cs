@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.DependencyResolution
         public CommitmentsApiClientRegistry()
         {
             For<ICommitmentsApiClient>().Use(c => c.GetInstance<ICommitmentsApiClientFactory>().CreateClient()).Singleton();
+            For<ICommitmentsApiClientFactory>().Use<CommitmentsApiClientFactory>();
         }
     }
 }

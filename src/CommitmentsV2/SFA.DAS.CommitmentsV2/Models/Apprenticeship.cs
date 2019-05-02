@@ -16,8 +16,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastName { get; set; }
         public string Uln { get; set; }
         public ProgrammeType? TrainingType { get; set; }
-        public string TrainingCode { get; set; }
-        public string TrainingName { get; set; }
+        public string CourseCode { get; set; }
+        public string CourseName { get; set; }
         public decimal? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public Guid? ReservationId { get; set; }
 
-        public virtual Commitment Commitment { get; set; }
+        public virtual Cohort Cohort { get; set; }
         public virtual AssessmentOrganisation EpaOrg { get; set; }
     }
 }
