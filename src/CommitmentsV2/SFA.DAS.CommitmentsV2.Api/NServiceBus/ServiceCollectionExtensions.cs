@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Extensions;
@@ -13,7 +13,7 @@ using SFA.DAS.NServiceBus.StructureMap;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using StructureMap;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
@@ -27,8 +27,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                     var configuration = s.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
                     var isDevelopment = hostingEnvironment.IsDevelopment();
 
-                    var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.MessageHandlers")
+                    var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.Api")
                         .UseAzureServiceBusTransport(() => configuration.ServiceBusConnectionString, isDevelopment)
+                        .UseErrorQueue()
                         .UseInstallers()
                         .UseLicense(configuration.NServiceBusLicense)
                         .UseMessageConventions()
@@ -43,6 +44,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
 
                     return endpoint;
                 })
+                .AddSingleton<IMessageSession>(s => s.GetService<IEndpointInstance>())
                 .AddHostedService<NServiceBusHostedService>();
         }
     }

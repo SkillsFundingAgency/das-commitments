@@ -1,61 +1,44 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NServiceBus;
-using SFA.DAS.CommitmentsV2.Messages.Events;
+using CommandLine;
+using SFA.DAS.CommitmentsV2.TestSubscriber.CommandLines;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.TestSubscriber
 {
     class Program
     {
-        private static readonly string AppName = $"{typeof(Program).Namespace}";
+        private readonly IContainer _container;
 
-        static Task Main(string[] args)
+        private static Task Main(string[] args)
         {
-            return new Program().Run(args);
+            Task task = null;
+
+            Parser.Default.ParseArguments<StartSubscriberCommandLineArgs>(args)
+                .WithParsed(commandLineArguments => task = new Program().StartSubscriber(commandLineArguments))
+                .WithNotParsed(parserResult =>
+                {
+                    Console.WriteLine("The command line is incorrect:");
+                    foreach (Error error in parserResult)
+                    {
+                        Console.WriteLine((object)error.Tag);
+                    }
+                });
+
+            return task ?? Task.CompletedTask;
         }
 
-        private async Task Run(string[] args)
+        public Program()
         {
-            Console.Title = AppName;
-            Console.WriteLine("Starting...");
-            var endpointInstance = await StartNServiceBus();
-
-            Console.WriteLine("Press escape to exit...");
-
-            while (Console.ReadKey(true).Key != ConsoleKey.Escape)
-            {
-            }
-
-            await StopNServiceBus(endpointInstance);
+            Console.Title = Constants.AppName;
+            _container = IoC.InitializeIoC();
         }
 
-        private async Task<IEndpointInstance> StartNServiceBus()
+        private Task StartSubscriber(StartSubscriberCommandLineArgs args)
         {
-            var endpointConfiguration = new EndpointConfiguration(AppName);
+            var runner = _container.GetInstance<INServiceBusRunner>();
 
-            UseDasMessageConventions(endpointConfiguration);
-
-            endpointConfiguration.UseTransport<LearningTransport>();
-            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
-
-            var endpointInstance = await Endpoint
-                                            .Start(endpointConfiguration)
-                                            .ConfigureAwait(false);
-
-            return endpointInstance;
-        }
-
-        private Task StopNServiceBus(IEndpointInstance endpointInstance)
-        {
-            return endpointInstance.Stop();
-        }
-
-        public static EndpointConfiguration UseDasMessageConventions(EndpointConfiguration config)
-        {
-            var conventions = config.Conventions();
-            conventions.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Commands"));
-            conventions.DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Events"));
-            return config;
+            return runner.StartNServiceBusBackgroundTask(args.ConnectionString);
         }
     }
 }

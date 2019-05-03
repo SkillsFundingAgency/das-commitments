@@ -10,6 +10,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types.Providers;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
 using SFA.DAS.Providers.Api.Client;
 using SFA.DAS.Testing;
 
@@ -19,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
     [Parallelizable]
     public class ImportProvidersJobTests : FluentTest<ImportProvidersJobTestsFixture>
     {
-
         [Test]
         public Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProvidersInBatchesOf1000()
         {
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
     {
         public DateTime Now { get; set; }
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
-        public Functions Functions { get; set; }
+        public ImportProvidersJobs ImportProvidersJob { get; set; }
         public Mock<IProviderApiClient> ProviderApiClient { get; set; }
         public List<ProviderSummary> Providers { get; set; }
         public List<ProviderSummary> ImportedProviders { get; set; }
@@ -66,12 +66,12 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                     }));
                 });
 
-            Functions = new Functions((new Mock<ILogger<Functions>>()).Object, ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
+            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object, ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
         }
 
         public Task Run()
         {
-            return Functions.ImportProvidersJob(null);
+            return ImportProvidersJob.ImportProvidersJob(null);
         }
 
         public ImportProvidersJobTestsFixture SetProviders(int count)

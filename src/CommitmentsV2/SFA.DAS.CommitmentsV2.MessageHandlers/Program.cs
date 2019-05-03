@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
@@ -20,14 +19,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                 hostBuilder
                     .UseDasEnvironment()
                     .ConfigureDasAppConfiguration(args)
-                    .ConfigureServices((hostContext, services) =>
-                    {
-                        services.ConfigureNServiceBus()
-                                .AddHostedService<NServiceBusHostedService>();
-                    })
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
                     .UseStructureMap()
+                    .ConfigureServices(s => s.AddNServiceBus())
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
                 using (var host = hostBuilder.Build())
@@ -40,7 +35,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                 Console.WriteLine(e.Message);
                 throw;
             }
-
         }
     }
 }
