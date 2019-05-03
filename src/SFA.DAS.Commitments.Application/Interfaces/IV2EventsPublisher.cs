@@ -21,6 +21,3 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<int> paymentOrder);
     }
 }
-
-
-
