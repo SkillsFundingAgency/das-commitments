@@ -72,7 +72,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
         {
             await _handler.Handle(_validCommand);
 
-            _mockV2EventsPublisher.Verify(x => x.PublishPaymentOrderChanged(_validCommand.EmployerAccountId, It.Is<IEnumerable<long>>(p=>p.Count() == 3)));
+            _mockV2EventsPublisher.Verify(x => x.PublishPaymentOrderChanged(_validCommand.EmployerAccountId, It.Is<IEnumerable<int>>(p=>p.Count() == 3)));
         }
 
 

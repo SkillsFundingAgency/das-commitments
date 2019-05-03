@@ -163,7 +163,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         {
             var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipResumedEvent>();
 
-            await fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, fixtures.PriorityList));
+            await fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, fixtures.PaymentOrder));
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         {
             var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(0, fixtures.PriorityList)));
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(0, fixtures.PaymentOrder)));
         }
 
         [Test]
@@ -202,10 +202,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             apprenticeship.Setup(a => a.Commitment).Returns(Commitment);
             ApprenticeshipEvent = apprenticeship.Object;
 
-            PriorityList = new List<long> { 100, 200 };
+            PaymentOrder = new List<int> { 100, 200 };
         }
 
-        public List<long> PriorityList { get; }
+        public List<int> PaymentOrder { get; }
 
         public Mock<IEndpointInstance> EndpointInstanceMock { get; }
 

@@ -115,7 +115,7 @@ namespace SFA.DAS.Commitments.Application.Services
             }, GetLogMessage(commitment, apprenticeship));
         }
 
-        public async Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<long> paymentOrder)
+        public async Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<int> paymentOrder)
         {
             var logMessage = $"Publish {typeof(PaymentOrderChangedEvent).Name} message. For EmployerAccountId : {employerAccountId}";
 
