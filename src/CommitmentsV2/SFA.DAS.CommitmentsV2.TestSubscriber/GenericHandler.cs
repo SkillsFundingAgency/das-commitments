@@ -70,4 +70,13 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             return Log(message, context);
         }
     }
+
+    class PaymentOrderChangedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.PaymentOrderChangedEvent>
+    {
+        public Task Handle(PaymentOrderChangedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
+
 }
