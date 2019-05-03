@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NServiceBus;
@@ -17,33 +15,57 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class ApprenticeshipCreatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.IApprenticeshipCreatedEvent>
+    class ApprenticeshipCreatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipCreatedEvent>
     {
-        public Task Handle(IApprenticeshipCreatedEvent message, IMessageHandlerContext context)
+        public Task Handle(ApprenticeshipCreatedEvent message, IMessageHandlerContext context)
         {
             return Log(message, context);
         }
     }
 
-    class DataLockTriageApprovedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.IDataLockTriageApprovedEvent>
+    class ApprenticeshipResumedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipResumedEvent>
     {
-        public Task Handle(IDataLockTriageApprovedEvent message, IMessageHandlerContext context)
+        public Task Handle(ApprenticeshipResumedEvent message, IMessageHandlerContext context)
         {
             return Log(message, context);
         }
     }
 
-    class ApprenticeshipStoppedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.IApprenticeshipStoppedEvent>
+    class ApprenticeshipStoppedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipStoppedEvent>
     {
-        public Task Handle(IApprenticeshipStoppedEvent message, IMessageHandlerContext context)
+        public Task Handle(ApprenticeshipStoppedEvent message, IMessageHandlerContext context)
         {
             return Log(message, context);
         }
     }
 
-    class DraftApprenticeshipDeletedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.IDraftApprenticeshipDeletedEvent>
+    class ApprenticeshipStopDateChangedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipStopDateChangedEvent>
     {
-        public Task Handle(IDraftApprenticeshipDeletedEvent message, IMessageHandlerContext context)
+        public Task Handle(ApprenticeshipStopDateChangedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
+
+    class ApprenticeshipUpdatedApprovedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipUpdatedApprovedEvent>
+    {
+        public Task Handle(ApprenticeshipUpdatedApprovedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
+
+    class DataLockTriageApprovedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DataLockTriageApprovedEvent>
+    {
+        public Task Handle(DataLockTriageApprovedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
+
+    class DraftApprenticeshipDeletedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipDeletedEvent>
+    {
+        public Task Handle(DraftApprenticeshipDeletedEvent message, IMessageHandlerContext context)
         {
             return Log(message, context);
         }
