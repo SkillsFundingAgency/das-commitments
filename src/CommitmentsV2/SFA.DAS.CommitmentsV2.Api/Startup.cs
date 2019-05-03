@@ -11,7 +11,9 @@ using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Validators;
+using SFA.DAS.UnitOfWork.Mvc;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api
@@ -36,10 +38,11 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
                 .AddMvc(options => { options.Filters.Add<ValidateModelAttribute>(); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddFluentValidation(fv=>fv.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>());
+                .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>());
 
             services.AddHealthChecks();
             services.AddMemoryCache();
+            services.AddNServiceBus();
         }
 
         public void ConfigureContainer(Registry registry)
@@ -61,9 +64,9 @@ namespace SFA.DAS.CommitmentsV2.Api
             app.UseHttpsRedirection()
                 .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
                 .UseAuthentication()
-                .UseMvc()
-                .UseHealthChecks("/api/health-check");
-                
+                .UseHealthChecks("/api/health-check")
+                .UseUnitOfWork()
+                .UseMvc();
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class ConfirmedApprenticeship : Apprenticeship
+    public class ApprovedApprenticeship : Apprenticeship
     {
         public DateTime AgreedOn { get; set; }
 

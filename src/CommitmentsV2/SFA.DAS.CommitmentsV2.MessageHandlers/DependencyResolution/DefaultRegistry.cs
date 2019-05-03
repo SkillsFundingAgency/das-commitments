@@ -1,5 +1,4 @@
-﻿using MediatR;
-using SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
@@ -8,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
     {
         public DefaultRegistry()
         {
+            For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
         }
     }
 }

@@ -4,9 +4,9 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data.Configuration
 {
-    public class ConfirmedApprenticeshipConfiguration : IEntityTypeConfiguration<ConfirmedApprenticeship>
+    public class ConfirmedApprenticeshipConfiguration : IEntityTypeConfiguration<ApprovedApprenticeship>
     {
-        public void Configure(EntityTypeBuilder<ConfirmedApprenticeship> builder)
+        public void Configure(EntityTypeBuilder<ApprovedApprenticeship> builder)
         {
             builder.HasBaseType<Apprenticeship>();
         }

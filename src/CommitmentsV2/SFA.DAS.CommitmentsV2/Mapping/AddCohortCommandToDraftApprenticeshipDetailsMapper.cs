@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {

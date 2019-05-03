@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Jobs.DependencyResolution;
+using SFA.DAS.CommitmentsV2.Jobs.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
 using StructureMap;
 
@@ -22,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
                     .UseStructureMap()
+                    .ConfigureServices(s => s.AddNServiceBus())
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
                 using (var host = hostBuilder.Build())

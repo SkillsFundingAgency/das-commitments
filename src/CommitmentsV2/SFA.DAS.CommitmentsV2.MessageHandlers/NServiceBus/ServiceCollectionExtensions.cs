@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Extensions;
+using SFA.DAS.CommitmentsV2.NServiceBus;
 using SFA.DAS.NServiceBus;
 using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
 using SFA.DAS.NServiceBus.NLog;
@@ -15,10 +17,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection ConfigureNServiceBus(this IServiceCollection services)
+        public static IServiceCollection AddNServiceBus(this IServiceCollection services)
         {
             return services
-                .AddSingleton<IEndpointInstance>(s =>
+                .AddSingleton(s =>
                 {
                     var container = s.GetService<IContainer>();
                     var hostingEnvironment = s.GetService<IHostingEnvironment>();
@@ -40,7 +42,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
                     var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
                     return endpoint;
-                });
+                })
+                .AddHostedService<NServiceBusHostedService>();
         }
     }
 }
