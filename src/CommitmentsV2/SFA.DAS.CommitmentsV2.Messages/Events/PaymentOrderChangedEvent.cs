@@ -6,6 +6,5 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         public long AccountId { get; set; }
         public int[] PaymentOrder { get; set; }
-
     }
 }
