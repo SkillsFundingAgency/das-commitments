@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public bool IsExpired { get; set; }
         public DateTime? Expired { get; set; }
 
-        public virtual ConfirmedApprenticeship ConfirmedApprenticeship { get; set; }
+        public virtual ApprovedApprenticeship ApprovedApprenticeship { get; set; }
         public virtual ApprenticeshipUpdate ApprenticeshipUpdate { get; set; }
     }
 }

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using SFA.DAS.Apprenticeships.Api.Types;
-using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
-using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.Mapping

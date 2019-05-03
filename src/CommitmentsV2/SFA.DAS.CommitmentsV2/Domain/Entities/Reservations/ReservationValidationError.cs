@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects.Reservations
+﻿namespace SFA.DAS.CommitmentsV2.Domain.Entities.Reservations
 {
     public class ReservationValidationError
     {
