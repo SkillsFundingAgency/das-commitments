@@ -75,7 +75,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             _mockV2EventsPublisher.Verify(x => x.PublishPaymentOrderChanged(_validCommand.EmployerAccountId, It.Is<IEnumerable<int>>(p=>p.Count() == 3)));
         }
 
-
         private void SetUpMocksForApprenticeshipsretreivalBeforeAndAfterReOrder()
         {
             var intialApprenticeships = new List<Apprenticeship>
