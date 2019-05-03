@@ -18,6 +18,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             var conventions = config.Conventions();
             conventions.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Commands"));
             conventions.DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Events"));
+            conventions.DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.Commitments.Events"));
             return config;
         }
     }

@@ -212,6 +212,11 @@
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommand.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandHandler.cs" />
     <Compile Include="Commands\TriageDataLock\TriageDataLockCommandValidator.cs" />
+    <Compile Include="Interfaces\IEventConsumer.cs" />
+    <Compile Include="Services\EventUpgradeHandler.cs" />
+    <Compile Include="Interfaces\IEventUpgradeHandler.cs" />
+    <Compile Include="Services\EventConsumer.cs" />
+    <Compile Include="Services\MessagePublisherWithV2Upgrade.cs" />
     <Compile Include="Services\V2EventsPublisher.cs" />
     <Compile Include="Services\Environment.cs" />
     <Compile Include="Services\EnvironmentType.cs" />
