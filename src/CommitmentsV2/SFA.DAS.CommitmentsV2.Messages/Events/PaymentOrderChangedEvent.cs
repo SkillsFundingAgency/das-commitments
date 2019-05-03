@@ -4,8 +4,8 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
     public class PaymentOrderChangedEvent
     {
-        public long EmployerAccountId { get; set; }
-        public ProviderPaymentOrder[] ProviderPaymentOrder { get; set; }
+        public long AccountId { get; set; }
+        public long[] PaymentOrder { get; set; }
 
     }
 }

@@ -115,19 +115,19 @@ namespace SFA.DAS.Commitments.Application.Services
             }, GetLogMessage(commitment, apprenticeship));
         }
 
-        public async Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<ProviderPaymentOrder> priorityList)
+        public async Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<long> paymentOrder)
         {
             var logMessage = $"Publish {typeof(PaymentOrderChangedEvent).Name} message. For EmployerAccountId : {employerAccountId}";
 
             try
             {
                 if (employerAccountId == 0) throw new InvalidOperationException("EmployerAccountId cannot be 0");
-                if (priorityList == null) throw new InvalidOperationException("Priorities are expected");
+                if (paymentOrder == null) throw new InvalidOperationException("Priorities are expected");
 
                 await _endpointInstance.Publish(new PaymentOrderChangedEvent
                 {
-                    EmployerAccountId = employerAccountId,
-                    ProviderPaymentOrder = priorityList.ToArray()
+                    AccountId = employerAccountId,
+                    PaymentOrder = paymentOrder.ToArray()
                 } );
 
                 _logger.Info($"{logMessage} successful");

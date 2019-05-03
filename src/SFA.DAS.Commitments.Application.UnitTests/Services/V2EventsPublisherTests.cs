@@ -202,14 +202,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             apprenticeship.Setup(a => a.Commitment).Returns(Commitment);
             ApprenticeshipEvent = apprenticeship.Object;
 
-            PriorityList = new List<ProviderPaymentOrder>
-            {
-                new ProviderPaymentOrder {Priority = 1, ProviderId = 100},
-                new ProviderPaymentOrder {Priority = 2, ProviderId = 200}
-            };
+            PriorityList = new List<long> { 100, 200 };
         }
 
-        public List<ProviderPaymentOrder> PriorityList { get; }
+        public List<long> PriorityList { get; }
 
         public Mock<IEndpointInstance> EndpointInstanceMock { get; }
 

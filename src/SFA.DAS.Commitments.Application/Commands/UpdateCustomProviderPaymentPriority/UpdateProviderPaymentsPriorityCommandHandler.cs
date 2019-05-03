@@ -38,11 +38,9 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCustomProviderPaymentPr
 
         protected override async Task HandleCore(UpdateProviderPaymentsPriorityCommand message)
         {
-            IEnumerable<ProviderPaymentOrder> MapToPaymentOrderForV2Event()
+            IEnumerable<long> MapToPaymentOrderForV2Event()
             {
-                var providerPaymentOrders = message.ProviderPriorities.Select(x => new ProviderPaymentOrder
-                    {Priority = x.PriorityOrder, ProviderId = x.ProviderId}).AsEnumerable();
-                return providerPaymentOrders;
+                return message.ProviderPriorities.OrderBy(x=>x.PriorityOrder).Select(x => x.ProviderId);
             }
 
             _validator.ValidateAndThrow(message);
