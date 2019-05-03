@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.FromDate).HasColumnType("datetime");
             builder.Property(e => e.ToDate).HasColumnType("datetime");
 
-            builder.HasOne(d => d.ConfirmedApprenticeship)
+            builder.HasOne(d => d.ApprovedApprenticeship)
                 .WithMany(p => p.PriceHistory)
                 .HasForeignKey(d => d.ApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
