@@ -78,5 +78,4 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             return Log(message, context);
         }
     }
-
 }
