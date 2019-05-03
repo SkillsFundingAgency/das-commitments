@@ -5,7 +5,8 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
-using SFA.DAS.CommitmentsV2.Domain.ValueObjects;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+
 using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping

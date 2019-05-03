@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.CommitmentsV2.Domain.ValueObjects
+namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
     public class DraftApprenticeshipDetails
     {
