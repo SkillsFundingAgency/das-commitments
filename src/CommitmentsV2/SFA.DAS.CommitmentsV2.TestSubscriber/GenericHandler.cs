@@ -23,6 +23,14 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
+    class ApprenticeshipPausedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipPausedEvent>
+    {
+        public Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
+
     class ApprenticeshipResumedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipResumedEvent>
     {
         public Task Handle(ApprenticeshipResumedEvent message, IMessageHandlerContext context)
