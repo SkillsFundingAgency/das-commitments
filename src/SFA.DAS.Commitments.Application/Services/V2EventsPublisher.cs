@@ -106,6 +106,15 @@ namespace SFA.DAS.Commitments.Application.Services
             }, GetLogMessage(commitment, apprenticeship));
         }
 
+        public Task PublishApprenticeshipPaused(Commitment commitment, Apprenticeship apprenticeship)
+        {
+            return PublishWithLog<ApprenticeshipPausedEvent>(ApprenticePreChecks.HasPauseDate, apprenticeship, ev =>
+            {
+                ev.ApprenticeshipId = apprenticeship.Id;
+                ev.PausedOn = apprenticeship.PauseDate.Value;
+            }, GetLogMessage(commitment, apprenticeship));
+        }
+
         public Task PublishApprenticeshipResumed(Commitment commitment, Apprenticeship apprenticeship)
         {
             return PublishWithLog<ApprenticeshipResumedEvent>(apprenticeship, ev =>
@@ -145,6 +154,7 @@ namespace SFA.DAS.Commitments.Application.Services
             HasStartDate = 2,
             HasEndDate = 4,
             HasStopDate = 8,
+            HasPauseDate = 16,
             HasStartAndEndDate = HasStartDate | HasEndDate
         }
 
@@ -199,6 +209,7 @@ namespace SFA.DAS.Commitments.Application.Services
             DoCheckIf(ApprenticePreChecks.HasStartDate, () => EnsureHasStartDate<TEvent>(apprenticeship));
             DoCheckIf(ApprenticePreChecks.HasEndDate, () => EnsureHasEndDate<TEvent>(apprenticeship));
             DoCheckIf(ApprenticePreChecks.HasStopDate, () => EnsureHasStopDate<TEvent>(apprenticeship));
+            DoCheckIf(ApprenticePreChecks.HasPauseDate, () => EnsureHasPauseDate<TEvent>(apprenticeship));
         }
 
         private PriceEpisode[] GetPriceEpisodes(Apprenticeship apprenticeship)
@@ -228,6 +239,15 @@ namespace SFA.DAS.Commitments.Application.Services
             {
                 throw new InvalidOperationException(
                     $"Cannot publish {typeof(TEvent)} event for apprenticeship {apprenticeship.Id} because it does not have a stop date");
+            }
+        }
+
+        private void EnsureHasPauseDate<TEvent>(Apprenticeship apprenticeship) where TEvent : class
+        {
+            if (apprenticeship.PauseDate == null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot publish {typeof(TEvent)} event for apprenticeship {apprenticeship.Id} because it does not have a pause date");
             }
         }
 

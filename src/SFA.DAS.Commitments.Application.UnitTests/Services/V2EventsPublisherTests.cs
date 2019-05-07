@@ -53,6 +53,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
+        #region PublishApprenticeshipPaused
+        [Test]
+        public async Task PublishApprenticeshipPaused_WithPAuseDateSet_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>()
+                .WithPauseDate();
+
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipPaused(fixtures.Commitment, fixtures.Apprenticeship));
+        }
+
+        [Test]
+        public void PublishApprenticeshipCreated_WithoutPauseDateSet_ShouldThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>();
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipPaused(fixtures.Commitment, fixtures.Apprenticeship)));
+        }
+        #endregion
+
+
+
         #region PublishApprenticeshipStopDateChangedEvent
         [Test]
         public async Task PublishApprenticeshipStopDateChangedEvent_WithAStopDate_ShouldNotThrowException()
@@ -241,6 +262,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Apprenticeship.StopDate = DateTime.Now;
             return this;
         }
+
+        public V2EventsPublisherTestFixtures<TEvent> WithPauseDate()
+        {
+            Apprenticeship.PauseDate = DateTime.Now;
+            return this;
+        }
+
 
         public Apprenticeship Apprenticeship { get; }
 

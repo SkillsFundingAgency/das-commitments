@@ -1,6 +1,7 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
@@ -16,6 +17,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         protected Mock<ICommitmentsLogger> MockCommitmentsLogger;
         protected Mock<ICurrentDateTime> MockCurrentDateTime;
         protected Mock<IApprenticeshipEvents> MockEventsApi;
+        protected Mock<IV2EventsPublisher> MockV2EventsPublisher;
         protected Mock<IHistoryRepository> MockHistoryRepository;
         protected Apprenticeship TestApprenticeship;
 
@@ -28,6 +30,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             MockHistoryRepository = new Mock<IHistoryRepository>();
             MockCurrentDateTime = new Mock<ICurrentDateTime>();
             MockCommitmentsLogger = new Mock<ICommitmentsLogger>();
+            MockV2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             Handler = new PauseApprenticeshipCommandHandler(
                 MockCommitmentRespository.Object,
@@ -36,7 +39,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 MockCurrentDateTime.Object,
                 MockEventsApi.Object,
                 MockCommitmentsLogger.Object,
-                MockHistoryRepository.Object);
+                MockHistoryRepository.Object,
+                MockV2EventsPublisher.Object);
         }
     }
 }

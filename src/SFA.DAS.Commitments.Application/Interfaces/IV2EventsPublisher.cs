@@ -17,6 +17,7 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishApprenticeshipCreated(IApprenticeshipEvent apprenticeshipEvent);
         Task PublishDataLockTriageApproved(IApprenticeshipEvent apprenticeshipEvent);
         Task PublishApprenticeshipUpdatedApproved(Commitment commitment, Apprenticeship apprenticeship);
+        Task PublishApprenticeshipPaused(Commitment commitment, Apprenticeship apprenticeship);
         Task PublishApprenticeshipResumed(Commitment commitment, Apprenticeship apprenticeship);
         Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<int> paymentOrder);
     }

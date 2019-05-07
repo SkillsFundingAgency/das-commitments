@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -19,6 +20,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
         private readonly ICurrentDateTime _currentDate;
         private readonly IApprenticeshipEvents _eventsApi;
         private readonly IHistoryRepository _historyRepository;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
         private readonly ICommitmentsLogger _logger;
         private readonly ApprenticeshipStatusChangeCommandValidator _validator;
 
@@ -29,7 +31,8 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             ICurrentDateTime currentDate,
             IApprenticeshipEvents eventsApi,
             ICommitmentsLogger logger,
-            IHistoryRepository historyRepository
+            IHistoryRepository historyRepository,
+            IV2EventsPublisher v2EventsPublisher
         )
         {
             _commitmentRepository = commitmentRepository;
@@ -39,6 +42,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             _eventsApi = eventsApi;
             _logger = logger;
             _historyRepository = historyRepository;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(PauseApprenticeshipCommand command)
@@ -65,11 +69,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             await CreateEvent(command, apprenticeship, commitment);
         }
 
-        private async Task CreateEvent(PauseApprenticeshipCommand command, Apprenticeship apprenticeship,
+        private Task CreateEvent(PauseApprenticeshipCommand command, Apprenticeship apprenticeship,
             Commitment commitment)
         {
-            await _eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, PaymentStatus.Paused,
-                command.DateOfChange.Date);
+            return Task.WhenAll(_eventsApi.PublishChangeApprenticeshipStatusEvent(commitment, apprenticeship, PaymentStatus.Paused,
+                command.DateOfChange.Date), _v2EventsPublisher.PublishApprenticeshipPaused(commitment, apprenticeship));
         }
 
         private async Task SaveChange(PauseApprenticeshipCommand command, Commitment commitment,

@@ -17,6 +17,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenPausingAnAwaitingApprenticeship : WhenPausingAnApprenticeshipBase
     {
+        private Commitment _testCommitment;
+
         [SetUp]
         public override void SetUp()
         {
@@ -37,6 +39,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 StartDate = DateTime.UtcNow.Date.AddMonths(6)
             };
 
+            _testCommitment = new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
+            };
+
             MockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
             MockApprenticeshipRespository
@@ -51,11 +59,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
 
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(
                     It.Is<long>(c => c == TestApprenticeship.CommitmentId)))
-                .ReturnsAsync(new Commitment
-                {
-                    Id = 123L,
-                    EmployerAccountId = ExampleValidRequest.AccountId
-                });
+                .ReturnsAsync(_testCommitment);
         }
 
         [Test]
@@ -99,7 +103,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 , Times.Once);
         }
 
-
         [Test]
         public async Task ThenShouldCallTheRepositoryToUpdateTheStatus()
         {
@@ -123,6 +126,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<PaymentStatus>(a => a == PaymentStatus.Paused),
                 It.Is<DateTime?>(a => a.Equals(ExampleValidRequest.DateOfChange)),
                 null));
+        }
+
+        [Test]
+        public async Task ThenShouldSendAnApprenticeshipPausedV2Event()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipPaused(_testCommitment, TestApprenticeship), Times.Once);
         }
 
         [Test]

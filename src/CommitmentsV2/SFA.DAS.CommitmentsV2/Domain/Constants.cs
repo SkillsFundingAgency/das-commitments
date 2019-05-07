@@ -9,5 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Domain
         public const int MaximumAgeAtApprenticeshipStart = 115;
         public const int MaximumApprenticeshipCost = 100000;
         public const string ServiceName = "SFA.DAS.CommitmentsV2";
+        public const string IntegrationTestEnvironment = "IntegrationTest";
     }
 }
