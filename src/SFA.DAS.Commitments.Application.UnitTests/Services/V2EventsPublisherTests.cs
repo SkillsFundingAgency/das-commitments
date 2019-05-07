@@ -10,7 +10,6 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Services
 {
@@ -55,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
         #region PublishApprenticeshipPaused
         [Test]
-        public async Task PublishApprenticeshipPaused_WithPAuseDateSet_ShouldNotThrowException()
+        public async Task PublishApprenticeshipPaused_WithPauseDateSet_ShouldNotThrowException()
         {
             var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipStoppedEvent>()
                 .WithPauseDate();
