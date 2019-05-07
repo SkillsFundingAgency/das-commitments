@@ -31,9 +31,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
         private void RegisterMessagePublisher()
         {
-            // The choice of publisher is here in place of the TopicMessagePublisherPolicy.  
-            // That had to be removed because it prevents the publisher from being decorated.
-            // Also according to the developers of StructureMap it is not considered good practice.
             var environmentName = GetEnvironmentName();
             var messageQueueConnectionString = GetMessageQueueConnectionString(environmentName);
             if (string.IsNullOrEmpty(messageQueueConnectionString))
