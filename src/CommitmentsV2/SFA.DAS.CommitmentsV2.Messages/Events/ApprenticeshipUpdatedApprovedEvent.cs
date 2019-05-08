@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
     {
         public long ApprenticeshipId { get; set; }
         public DateTime ApprovedOn { get; set; }
-        public string ULN { get; set; }
+        public string Uln { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public PriceEpisode[] PriceEpisodes { get; set; }
