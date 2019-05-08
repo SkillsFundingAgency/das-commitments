@@ -203,8 +203,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         }
         #endregion
 
-
-
         #region PublishPaymentOrderChanged
         [Test]
         public async Task PublishPaymentOrderChanged_ShouldNotThrowException()
@@ -229,9 +227,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, null)));
         }
-
         #endregion
-
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
@@ -305,7 +301,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             return this;
         }
 
-
         public Apprenticeship Apprenticeship { get; }
 
         public Commitment Commitment { get; }
@@ -331,7 +326,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             return this;
         }
-
 
         public async Task<V2EventsPublisherTestFixtures<TEvent>> PublishApprenticeshipStopped()
         {
