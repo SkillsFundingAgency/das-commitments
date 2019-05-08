@@ -134,9 +134,10 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
 
-            await _eventsApi.Publish(_apprenticeshipEventsList);
             var tasks = _apprenticeshipEventsList.Events.Select(x => _v2EventsPublisher.PublishDataLockTriageApproved(x));
             await Task.WhenAll(tasks);
+
+            await _eventsApi.Publish(_apprenticeshipEventsList);
         }
     }
 }
