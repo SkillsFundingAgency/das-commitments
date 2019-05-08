@@ -103,6 +103,7 @@ namespace SFA.DAS.Commitments.Application.Services
                 ev.PriceEpisodes = GetPriceEpisodes(apprenticeship);
                 ev.TrainingType = (CommitmentsV2.Types.ProgrammeType)apprenticeship.TrainingType;
                 ev.TrainingCode = apprenticeship.TrainingCode;
+                ev.Uln = apprenticeship.ULN;
             }, GetLogMessage(commitment, apprenticeship));
         }
 
