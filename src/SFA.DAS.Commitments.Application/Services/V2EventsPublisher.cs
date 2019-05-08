@@ -252,7 +252,7 @@ namespace SFA.DAS.Commitments.Application.Services
 
         private string GetLogMessage(Commitment commitment, Apprenticeship apprenticeship)
         {
-            return "Provider:{commitment.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id}";
+            return $"Provider:{commitment.ProviderId} Commitment:{commitment.Id} Apprenticeship:{apprenticeship.Id}";
         }
 
         private string GetLogMessage(IApprenticeshipEvent apprenticeshipEvent)
