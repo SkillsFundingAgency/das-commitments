@@ -87,6 +87,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
             await _apprenticeshipRepository.PauseApprenticeship(commitment.Id, command.ApprenticeshipId, command.DateOfChange);
 
             apprenticeship.PaymentStatus = PaymentStatus.Paused;
+            apprenticeship.PauseDate = command.DateOfChange;
 
             await historyService.Save();
         }
