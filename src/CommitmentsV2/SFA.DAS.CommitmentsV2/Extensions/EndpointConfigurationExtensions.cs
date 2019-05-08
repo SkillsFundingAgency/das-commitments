@@ -2,7 +2,7 @@
 using NServiceBus;
 using SFA.DAS.NServiceBus.AzureServiceBus;
 
-namespace SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus
+namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class EndpointConfigurationExtensions
     {

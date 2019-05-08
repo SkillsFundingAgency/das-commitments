@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.ToTable("Apprenticeship")
                 .HasDiscriminator<bool>(nameof(Apprenticeship.IsApproved))
                 .HasValue<DraftApprenticeship>(false)
-                .HasValue<ConfirmedApprenticeship>(true);
+                .HasValue<ApprovedApprenticeship>(true);
 
             builder.Property(p => p.IsApproved)
                 .HasComputedColumnSql("CASE WHEN PaymentStatus > 0 THEN 1 ELSE 0 END");

@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using SFA.DAS.CommitmentsV2.Domain.ValueObjects.Reservations;
+using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.Reservations.Api.Client.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
