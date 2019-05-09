@@ -29,7 +29,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services.EventUpgradeHandler
             await _sut.Execute(testMessage);
 
             // assert
-            _mockEndpointInstance.Verify(m => m.Publish(testMessage, It.IsAny<PublishOptions>()), Times.Once);
+            _mockEndpointInstance.Verify(m => m.Publish(
+                It.Is<CommitmentsV2.Messages.Events.CohortApprovalRequestedByProvider>(a => 
+                a.AccountId.Equals(testMessage.AccountId) && 
+                a.ProviderId.Equals(testMessage.ProviderId) &&
+                a.CommitmentId.Equals(testMessage.CommitmentId))
+                , It.IsAny<PublishOptions>())
+                , Times.Once);
         }
     }
 }

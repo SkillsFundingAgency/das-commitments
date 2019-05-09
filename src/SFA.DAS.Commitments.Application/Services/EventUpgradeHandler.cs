@@ -1,12 +1,11 @@
 ﻿using NServiceBus;
 using SFA.DAS.Commitments.Application.Interfaces;
-using SFA.DAS.Commitments.Events;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.Commitments.Application.Services
 {
     public class EventUpgradeHandler :
-        IEventUpgradeHandler<CohortApprovalRequestedByProvider>
+        IEventUpgradeHandler<Events.CohortApprovalRequestedByProvider>
     {
         private readonly IEndpointInstance _endpointInstance;
 
@@ -15,9 +14,14 @@ namespace SFA.DAS.Commitments.Application.Services
             _endpointInstance = endpointInstance;
         }
 
-        public Task Execute(CohortApprovalRequestedByProvider @event)
+        public Task Execute(Events.CohortApprovalRequestedByProvider @event)
         {
-            return _endpointInstance.Publish(@event);
+            return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovalRequestedByProvider()
+            {
+                AccountId = @event.AccountId,
+                ProviderId = @event.ProviderId,
+                CommitmentId = @event.CommitmentId
+            });
         }
     }
 }
