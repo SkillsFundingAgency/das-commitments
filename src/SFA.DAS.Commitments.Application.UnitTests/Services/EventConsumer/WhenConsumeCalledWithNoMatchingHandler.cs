@@ -20,7 +20,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services.EventConsumer
         public async Task ThenTheHandlerIsNotCalled()
         {
             // arrange
-            var testMessage = new TestClass1();
             bool isCalled = false;
 
             _sut.RegisterHandler<TestClass1>((message) =>
