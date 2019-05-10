@@ -31,7 +31,7 @@
 	[EPAOrgId] CHAR(7) NULL,
 	[CloneOf] BIGINT NULL,
 	[ReservationId] UNIQUEIDENTIFIER,
-    [IsApproved] AS (CASE WHEN PaymentStatus > 0 THEN CAST(1 as bit) ELSE CAST(0 as bit) END) PERSISTED, 
+    [IsApproved] AS (case when [PaymentStatus]>(0) then CONVERT([bit],(1)) else CONVERT([bit],(0)) end) PERSISTED, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),
 	CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
