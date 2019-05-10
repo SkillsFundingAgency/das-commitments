@@ -88,6 +88,9 @@
       <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NServiceBus.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NServiceBus.7.0.1\lib\net452\NServiceBus.Core.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
@@ -120,9 +123,12 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.6\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Http, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.6\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
@@ -244,6 +250,7 @@
     <Compile Include="Rules\ApprenticeshipUpdateRules\WhenDetermineWhetherChangeRequireAgreement.cs" />
     <Compile Include="Rules\CommitmentRules\WhenDetermineAgreementStatus.cs" />
     <Compile Include="Services\CohortApprovalService\WhenCreatingTransferRequest.cs" />
+    <Compile Include="Services\V2EventsPublisherTests.cs" />
     <Compile Include="StubCurrentDateTime.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
@@ -259,6 +266,10 @@
     <ProjectReference Include="..\CommitmentsV2\SFA.DAS.CommitmentsV2.Messages\SFA.DAS.CommitmentsV2.Messages.csproj">
       <Project>{9383c55b-196a-4c76-a546-2c190cdfb088}</Project>
       <Name>SFA.DAS.CommitmentsV2.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommitmentsV2\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj">
+      <Project>{3c2b457c-fbd1-494d-91d8-e0f614bba99f}</Project>
+      <Name>SFA.DAS.CommitmentsV2.Types</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj">
       <Project>{AA3B3870-F97A-443B-8429-663DE064A8AD}</Project>

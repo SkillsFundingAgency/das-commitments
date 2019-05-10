@@ -25,6 +25,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
         private readonly IApprenticeshipEventsPublisher _eventsApi;
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IApprenticeshipInfoService _apprenticeshipTrainingService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         private readonly ICommitmentsLogger _logger;
 
@@ -36,7 +37,8 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             ICommitmentRepository commitmentRepository, 
             ICurrentDateTime currentDateTime,
             IApprenticeshipInfoService apprenticeshipTrainingService,
-            ICommitmentsLogger logger)
+            ICommitmentsLogger logger,
+            IV2EventsPublisher v2EventsPublisher)
         {
             _validator = validator;
             _dataLockRepository = dataLockRepository;
@@ -46,6 +48,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
             _commitmentRepository = commitmentRepository;
             _currentDateTime = currentDateTime;
             _apprenticeshipTrainingService = apprenticeshipTrainingService;
+            _v2EventsPublisher = v2EventsPublisher;
             _logger = logger;
         }
 
@@ -131,8 +134,10 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveDataLockTriage
 
             _apprenticeshipEventsList.Add(commitment, apprenticeship, "APPRENTICESHIP-UPDATED", _currentDateTime.Now);
 
-            await _eventsApi.Publish(_apprenticeshipEventsList);
+            var tasks = _apprenticeshipEventsList.Events.Select(x => _v2EventsPublisher.PublishDataLockTriageApproved(x));
+            await Task.WhenAll(tasks);
 
+            await _eventsApi.Publish(_apprenticeshipEventsList);
         }
     }
 }

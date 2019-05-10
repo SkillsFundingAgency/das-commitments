@@ -1,8 +1,5 @@
 ﻿using System;
-using SFA.DAS.Apprenticeships.Api.Types;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Api.Types.Types;
-using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -15,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Uln { get; set; }
-        public ProgrammeType? TrainingType { get; set; }
+        public ProgrammeType? ProgrammeType { get; set; }
         public string CourseCode { get; set; }
         public string CourseName { get; set; }
         public decimal? Cost { get; set; }

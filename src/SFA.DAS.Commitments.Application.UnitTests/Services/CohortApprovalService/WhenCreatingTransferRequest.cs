@@ -58,7 +58,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services.CohortApprovalServi
                     Mock.Of<IApprenticeshipEventsPublisher>(),
                     Mock.Of<IMediator>(),
                     Mock.Of<ICommitmentsLogger>(),
-                    _apprenticeshipInfoService.Object
+                    _apprenticeshipInfoService.Object,
+                    Mock.Of<IV2EventsPublisher>()
                 );
 
             _commitment = new Commitment

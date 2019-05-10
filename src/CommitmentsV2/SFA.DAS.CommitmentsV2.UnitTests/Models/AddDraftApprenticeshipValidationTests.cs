@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types;
-using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
+using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 using SFA.DAS.UnitOfWork;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models

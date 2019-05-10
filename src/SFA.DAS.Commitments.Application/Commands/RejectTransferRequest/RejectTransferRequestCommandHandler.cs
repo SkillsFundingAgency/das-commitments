@@ -49,7 +49,7 @@ namespace SFA.DAS.Commitments.Application.Commands.RejectTransferRequest
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService);
+                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, null);
         }
 
         protected override async Task HandleCore(RejectTransferRequestCommand command)

@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Test");
+            builder.UseEnvironment(SFA.DAS.CommitmentsV2.Domain.Constants.IntegrationTestEnvironment);
         }
     }
 }

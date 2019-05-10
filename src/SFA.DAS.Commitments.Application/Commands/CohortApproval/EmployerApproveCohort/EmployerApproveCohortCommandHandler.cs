@@ -36,7 +36,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             IMediator mediator,
             IMessagePublisher messagePublisher,
             ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService)
+            IApprenticeshipInfoService apprenticeshipInfoService,
+            IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -52,7 +53,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
                 apprenticeshipEventsPublisher,
                 mediator,
                 _logger,
-                apprenticeshipInfoService);
+                apprenticeshipInfoService, 
+                v2EventsPublisher);
         }
 
         protected override async Task HandleCore(EmployerApproveCohortCommand message)

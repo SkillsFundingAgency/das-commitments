@@ -34,7 +34,8 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             IMessagePublisher messagePublisher,
             IHistoryRepository historyRepository,
             ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService)
+            IApprenticeshipInfoService apprenticeshipInfoService,
+            IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
@@ -43,7 +44,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
-                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService);
+                commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
 
         }
 

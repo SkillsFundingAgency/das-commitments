@@ -17,6 +17,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
     [TestFixture]
     public sealed class WhenPausingAStartedApprenticeship : WhenPausingAnApprenticeshipBase
     {
+
+        private Commitment _testCommitment;
+
         [SetUp]
         public override void SetUp()
         {
@@ -28,6 +31,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 ApprenticeshipId = 444L,
                 DateOfChange = DateTime.Now.Date,
                 UserName = "Bob"
+            };
+
+            _testCommitment = new Commitment
+            {
+                Id = 123L,
+                EmployerAccountId = ExampleValidRequest.AccountId
             };
 
             TestApprenticeship = new Apprenticeship
@@ -52,11 +61,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 .Returns(Task.FromResult(new object()));
             MockCommitmentRespository.Setup(x => x.GetCommitmentById(
                     It.Is<long>(c => c == TestApprenticeship.CommitmentId)))
-                .ReturnsAsync(new Commitment
-                {
-                    Id = 123L,
-                    EmployerAccountId = ExampleValidRequest.AccountId
-                });
+                .ReturnsAsync(_testCommitment);
         }
 
         [Test]
@@ -123,6 +128,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
                 It.Is<PaymentStatus>(a => a == PaymentStatus.Paused),
                 It.Is<DateTime?>(a => a.Equals(ExampleValidRequest.DateOfChange)),
                 null));
+        }
+
+        [Test]
+        public async Task ThenShouldSendAnApprenticeshipPausedV2Event()
+        {
+            await Handler.Handle(ExampleValidRequest);
+
+            MockV2EventsPublisher.Verify(x => x.PublishApprenticeshipPaused(_testCommitment, TestApprenticeship), Times.Once);
         }
 
         [Test]

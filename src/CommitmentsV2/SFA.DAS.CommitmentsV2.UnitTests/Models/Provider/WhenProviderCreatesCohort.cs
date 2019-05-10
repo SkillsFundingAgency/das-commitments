@@ -3,12 +3,11 @@ using System.Linq;
 using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.UnitOfWork;
-using AgreementStatus = SFA.DAS.Commitments.Api.Types.AgreementStatus;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
 {
