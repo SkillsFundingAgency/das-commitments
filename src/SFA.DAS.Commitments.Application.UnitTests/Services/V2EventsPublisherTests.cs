@@ -175,6 +175,32 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent)));
         }
+
+        [Test]
+        public async Task PublishApprenticeshipCreated_WithoutATransferSender_ShouldSetAgreedOnSameAsCreatedOn()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
+                .WithStartDate()
+                .WithEndDate();
+
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
+
+            fixtures.EndpointInstanceMock.Verify(x=>x.Publish(It.Is<ApprenticeshipCreatedEvent>(p=>p.AgreedOn == p.CreatedOn), It.IsAny<PublishOptions>()));
+
+        }
+
+        [Test]
+        public async Task PublishApprenticeshipCreated_WithATransferSender_ShouldSetAgreedOnDifferentToCreatedOn()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
+                .WithStartDate()
+                .WithEndDate()
+                .WithTransferApprovalData();
+
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
+
+            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ApprenticeshipCreatedEvent>(p => p.AgreedOn != p.CreatedOn), It.IsAny<PublishOptions>()));
+        }
         #endregion
 
         #region PublishPaymentOrderChanged
@@ -201,9 +227,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, null)));
         }
-
         #endregion
-
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
@@ -215,8 +239,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             CurrentDateTimeMock = new Mock<ICurrentDateTime>();
 
             Apprenticeship = new Apprenticeship();
-            Apprenticeship.AgreedOn = DateTime.Now;
+            Apprenticeship.AgreedOn = DateTime.Today.AddDays(-1);
             Commitment = new Commitment();
+            
             var apprenticeship = new Mock<IApprenticeshipEvent>();
             apprenticeship.Setup(a => a.Apprenticeship).Returns(Apprenticeship);
             apprenticeship.Setup(a => a.Commitment).Returns(Commitment);
@@ -268,6 +293,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             return this;
         }
 
+        public V2EventsPublisherTestFixtures<TEvent> WithTransferApprovalData()
+        {
+            Commitment.TransferApprovalActionedOn = DateTime.Today;
+            Commitment.TransferSenderId = 12344;
+            Commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
+            return this;
+        }
 
         public Apprenticeship Apprenticeship { get; }
 
@@ -294,7 +326,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             return this;
         }
-
 
         public async Task<V2EventsPublisherTestFixtures<TEvent>> PublishApprenticeshipStopped()
         {
