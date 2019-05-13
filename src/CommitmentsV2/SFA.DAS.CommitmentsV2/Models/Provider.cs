@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
-using SFA.DAS.CommitmentsV2.Api.Types.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {

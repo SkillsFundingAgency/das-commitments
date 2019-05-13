@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SFA.DAS.Commitments.Application.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPaymentsPriority
 {
@@ -36,7 +37,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateProviderPayme
             _handler = new UpdateProviderPaymentsPriorityCommandHandler(
                 new UpdateProviderPaymentsPriorityCommandValidator(), 
                 Mock.Of<IProviderPaymentRepository>(), 
-                Mock.Of<IMediator>());
+                Mock.Of<IMediator>(),
+                Mock.Of<IV2EventsPublisher>());
         }
 
         [Test]

@@ -39,7 +39,8 @@ namespace SFA.DAS.Commitments.Application.Services
             IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
             IMediator mediator,
             ICommitmentsLogger logger,
-            IApprenticeshipInfoService apprenticeshipInfoService)
+            IApprenticeshipInfoService apprenticeshipInfoService,
+            IV2EventsPublisher v2EventsPublisher)
         {
             _apprenticeshipRepository = apprenticeshipRepository;
             _currentDateTime = currentDateTime;
@@ -51,7 +52,7 @@ namespace SFA.DAS.Commitments.Application.Services
             _apprenticeshipEventsService = new ApprenticeshipEventsService(apprenticeshipEventsList,
                 apprenticeshipEventsPublisher,
                 apprenticeshipRepository,
-                logger);
+                logger, v2EventsPublisher);
         }
 
         internal void CheckCommitmentStatus(Commitment commitment)

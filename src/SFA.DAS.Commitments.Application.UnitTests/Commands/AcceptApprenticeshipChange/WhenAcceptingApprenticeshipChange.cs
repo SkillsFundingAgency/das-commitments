@@ -12,6 +12,7 @@ using NUnit.Framework;
 
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -36,6 +37,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private Mock<ICommitmentRepository> _commitment;
         private Mock<IHistoryRepository> _historyRepository;
         private Mock<IMessagePublisher> _messagePublisher;
+        private Mock<IV2EventsPublisher> _v2EventsPublisher;
 
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
@@ -54,6 +56,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             _commitment = new Mock<ICommitmentRepository>();
             _historyRepository = new Mock<IHistoryRepository>();
             _messagePublisher = new Mock<IMessagePublisher>();
+            _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             _updateCreadtedOn = DateTime.Now.AddDays(-2);
             _effectiveDate = DateTime.Now.AddDays(-2);
@@ -87,7 +90,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 _apprenticeshipEvents.Object,
                 _commitment.Object,
                 _historyRepository.Object,
-                _messagePublisher.Object
+                _messagePublisher.Object,
+                _v2EventsPublisher.Object
                 );
         }
 
@@ -372,6 +376,27 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                     x.PublishAsync(
                         It.Is<ApprenticeshipUpdateAccepted>(
                             m => m.AccountId == testCommitment.EmployerAccountId && m.ProviderId == testCommitment.ProviderId.Value && m.ApprenticeshipId == command.ApprenticeshipId)), Times.Once);
+        }
+
+
+        [Test]
+        public async Task ThenTheUpdateV2ApprenticeshipUpdatedApprovedEventIsPublished()
+        {
+            var testCommitment = new Commitment { ProviderId = 1234, Id = 9874, EmployerAccountId = 8457 };
+            _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(testCommitment);
+
+            var command = new AcceptApprenticeshipChangeCommand
+            {
+                ApprenticeshipId = _apprenticeship.Id,
+                UserId = "ABC123",
+                Caller = new Caller(555, CallerType.Employer)
+            };
+            await _sut.Handle(command);
+
+            _v2EventsPublisher.Verify(
+                x =>
+                    x.PublishApprenticeshipUpdatedApproved(
+                        It.Is<Commitment>(m => m.Id == testCommitment.Id), It.Is<Apprenticeship>(m => m.Id == _apprenticeship.Id)), Times.Once);
         }
     }
 }

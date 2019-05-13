@@ -18,6 +18,7 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.Messaging.Interfaces;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequest
@@ -32,8 +33,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         private Mock<IApprenticeshipRepository> _apprenticeshipRepository;
         private Mock<IApprenticeshipOverlapRules> _overlapRules;
         private Mock<ICurrentDateTime> _currentDateTime;
-        private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
+        private IApprenticeshipEventsList _apprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
+        private Mock<IV2EventsPublisher> _v2EventsPublisher;
         private Mock<IMediator> _mediator;
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IHistoryRepository> _historyRepository;
@@ -47,11 +49,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             _apprenticeshipRepository = new Mock<IApprenticeshipRepository>();
             _overlapRules = new Mock<IApprenticeshipOverlapRules>();
             _currentDateTime = new Mock<ICurrentDateTime>();
-            _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
+            _apprenticeshipEventsList = new ApprenticeshipEventsList();
             _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             _mediator = new Mock<IMediator>();
             _messagePublisher = new Mock<IMessagePublisher>();
             _historyRepository = new Mock<IHistoryRepository>();
+            _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             var fixture = new Fixture();
             _command = fixture.Build<ApproveTransferRequestCommand>().Create();
@@ -66,9 +69,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
 
             _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
-                _apprenticeshipEventsList.Object, _apprenticeshipEventsPublisher.Object, _mediator.Object,
+                _apprenticeshipEventsList, _apprenticeshipEventsPublisher.Object, _mediator.Object,
                 _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>());
+                Mock.Of<IApprenticeshipInfoService>(), _v2EventsPublisher.Object);
         }
 
         [Test]
@@ -177,5 +180,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             Assert.ThrowsAsync<InvalidOperationException>(() => _sut.Handle(_command));
         }
 
+        [Test]
+        public async Task ThenIfTheTransferSenderApprovesCohortEnsureCreateApprenticeshipEventsAreSentToV2Publisher()
+        {
+            await _sut.Handle(_command);
+            _v2EventsPublisher.Verify(x => x.PublishApprenticeshipCreated(It.IsAny<IApprenticeshipEvent>()), Times.Exactly(3));
+        }
     }
 }

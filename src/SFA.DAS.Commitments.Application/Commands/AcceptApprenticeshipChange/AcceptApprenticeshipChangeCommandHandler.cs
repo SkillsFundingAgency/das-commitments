@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -27,6 +28,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IHistoryRepository _historyRepository;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
 
         public AcceptApprenticeshipChangeCommandHandler(
             AbstractValidator<AcceptApprenticeshipChangeCommand> validator,
@@ -37,7 +39,8 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
             IApprenticeshipEvents eventsApi,
             ICommitmentRepository commitmentRepository,
             IHistoryRepository historyRepository,
-            IMessagePublisher messagePublisher)
+            IMessagePublisher messagePublisher,
+            IV2EventsPublisher v2EventsPublisher)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -48,6 +51,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
             _commitmentRepository = commitmentRepository;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(AcceptApprenticeshipChangeCommand command)
@@ -75,7 +79,8 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
                 _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate, apprenticeship, command.Caller),
                 CreateEvents(commitment, originalApprenticeship, apprenticeship, pendingUpdate),
                 historyService.Save(),
-                _messagePublisher.PublishAsync(new ApprenticeshipUpdateAccepted(commitment.EmployerAccountId, commitment.ProviderId.Value, command.ApprenticeshipId))
+                _messagePublisher.PublishAsync(new ApprenticeshipUpdateAccepted(commitment.EmployerAccountId, commitment.ProviderId.Value, command.ApprenticeshipId)),
+                _v2EventsPublisher.PublishApprenticeshipUpdatedApproved(commitment, apprenticeship)
             );
         }
 

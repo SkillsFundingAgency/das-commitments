@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Types;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.TrainingProgramme
 {

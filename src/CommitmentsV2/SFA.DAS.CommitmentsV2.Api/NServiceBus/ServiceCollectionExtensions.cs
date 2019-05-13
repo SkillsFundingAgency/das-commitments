@@ -1,5 +1,7 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.WebSockets.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
@@ -25,10 +27,10 @@ namespace SFA.DAS.CommitmentsV2.Api.NServiceBus
                     var container = s.GetService<IContainer>();
                     var hostingEnvironment = s.GetService<IHostingEnvironment>();
                     var configuration = s.GetService<CommitmentsV2Configuration>().NServiceBusConfiguration;
-                    var isDevelopment = hostingEnvironment.IsDevelopment();
+                    var runInDevelopmentMode = hostingEnvironment.IsDevelopment() || hostingEnvironment.EnvironmentName == Domain.Constants.IntegrationTestEnvironment;
 
                     var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.Api")
-                        .UseAzureServiceBusTransport(() => configuration.ServiceBusConnectionString, isDevelopment)
+                        .UseAzureServiceBusTransport(() => configuration.ServiceBusConnectionString, runInDevelopmentMode)
                         .UseErrorQueue()
                         .UseInstallers()
                         .UseLicense(configuration.NServiceBusLicense)

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace SFA.DAS.CommitmentsV2.Api.Types.Types
+namespace SFA.DAS.CommitmentsV2.Types
 {
     /// <summary>
     /// For unapproved apprenticeships, indicates which party the commitment currently sits with for editing.

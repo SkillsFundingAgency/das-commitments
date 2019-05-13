@@ -30,9 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SFA.DAS.Commitments.Api.Types\SFA.DAS.Commitments.Api.Types.csproj" />
     <ProjectReference Include="..\..\SFA.DAS.Reservations.Api.Client\SFA.DAS.Reservations.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api.Types\SFA.DAS.CommitmentsV2.Api.Types.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj" />
   </ItemGroup>
 
 </Project>
