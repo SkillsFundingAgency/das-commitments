@@ -3,7 +3,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class CreateCohortRequestToAddCohortRequestMapper : IMapper<CreateCohortRequest, AddCohortCommand>
+    public class CreateCohortRequestToAddCohortCommandMapper : IMapper<CreateCohortRequest, AddCohortCommand>
     {
         public AddCohortCommand Map(CreateCohortRequest source)
         {

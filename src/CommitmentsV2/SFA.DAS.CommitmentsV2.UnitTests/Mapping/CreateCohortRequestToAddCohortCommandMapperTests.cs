@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Mapping;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture()]
-    public class CreateCohortRequestToAddCohortRequestMapperTests
+    public class CreateCohortRequestToAddCohortCommandMapperTests
     {
         [Test]
         public void Map_AccountLegalEntityId_ShouldBeSet()
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
         private void AssertPropertySet(Action<CreateCohortRequest> setInput, Func<AddCohortCommand, bool> expectOutput)
         {
-            var mapper = new CreateCohortRequestToAddCohortRequestMapper();
+            var mapper = new CreateCohortRequestToAddCohortCommandMapper();
 
             var input = new CreateCohortRequest();
 

@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
@@ -9,13 +8,13 @@ using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/[controller]")]
-    public class CohortController : ControllerBase
+    [Route("api/cohorts")]
+    public class CohortsController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
 
-        public CohortController(
+        public CohortsController(
             IMediator mediator,
             IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper)
         {
@@ -26,11 +25,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.CreateErrorResponse());
-            }
-
             var result = await _mediator.Send(_addCohortMapper.Map(request));
 
             return Ok(new CreateCohortResponse
