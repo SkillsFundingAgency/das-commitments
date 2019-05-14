@@ -54,6 +54,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .WithMany(p => p.Apprenticeship)
                 .HasPrincipalKey(p => p.EpaOrgId)
                 .HasForeignKey(d => d.EpaOrgId);
+            
+            builder.Property(e => e.ProgrammeType).HasColumnName("TrainingType");
         }
 
         private void SetTablePerHierarchy(EntityTypeBuilder<Apprenticeship> builder)
