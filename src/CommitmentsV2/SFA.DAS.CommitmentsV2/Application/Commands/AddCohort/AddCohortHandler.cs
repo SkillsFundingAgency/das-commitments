@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.Encoding;
 using SFA.DAS.HashingService;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
@@ -18,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IHashingService _hashingService;
         private readonly ILogger<AddCohortHandler> _logger;
+        private readonly IEncodingService _encodingService;
 
         private readonly IMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
@@ -27,13 +29,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             IHashingService hashingService,
             ILogger<AddCohortHandler> logger,
             IMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
-            ICohortDomainService cohortDomainService)
+            ICohortDomainService cohortDomainService,
+            IEncodingService encodingService)
         {
             _dbContext = dbContext;
             _hashingService = hashingService;
             _logger = logger;
             _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;
+            _encodingService = encodingService;
         }
 
         public async Task<AddCohortResponse> Handle(AddCohortCommand command, CancellationToken cancellationToken)
@@ -48,6 +52,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             await db.SaveChangesAsync(cancellationToken);
 
             //this encoding and re-save could be removed and put elsewhere
+
+            var cohortReference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
+
             cohort.Reference = _hashingService.HashValue(cohort.Id);
             await db.SaveChangesAsync(cancellationToken);
 

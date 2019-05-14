@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Api.Configuration
 {
@@ -12,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Configuration
             services.AddOptions();
             services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection($"{CommitmentsConfigurationKeys.CommitmentsV2}:AzureADApiAuthentication"));
             services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2));
-
+            services.Configure<EncodingConfig>(configuration.GetSection("SFA.DAS.Encoding"));
             return services;
         }
     }

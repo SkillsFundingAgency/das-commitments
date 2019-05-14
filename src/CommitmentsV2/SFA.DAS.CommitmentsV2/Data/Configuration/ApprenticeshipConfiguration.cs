@@ -40,6 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasColumnName("TrainingCode")
                 .HasMaxLength(20);
 
+            builder.Property(e => e.ProgrammeType).HasColumnName("TrainingType");
+
             builder.Property(e => e.CourseName)
                 .HasColumnName("TrainingName")
                 .HasMaxLength(126);
