@@ -15,7 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.HashingService;
+using SFA.DAS.Encoding;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                                                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                                     .Options);
 
-            HashingServiceMock = new Mock<IHashingService>();
+            EncodingServiceMock = new Mock<IEncodingService>();
 
             DraftApprenticeshipDetailsMapperMock =
                 new Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
@@ -101,8 +101,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Logger = new TestLogger(); 
         }
 
-        public Mock<IHashingService> HashingServiceMock { get; }
-        public IHashingService HashingService => HashingServiceMock.Object;
+        public Mock<IEncodingService> EncodingServiceMock { get; }
+        public IEncodingService EncodingService => EncodingServiceMock.Object;
 
         public Mock<IMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
@@ -112,8 +112,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
         {
-            HashingServiceMock
-                .Setup(hs => hs.HashValue(It.IsAny<long>()))
+            EncodingServiceMock
+                .Setup(hs => hs.Encode(It.IsAny<long>(), It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
                 .Returns(hash);
 
             return this;
@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             };
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
-                HashingService,
+                EncodingService,
                 Logger,
                 DraftApprenticeshipDetailsMapperMock.Object,
                 CohortDomainServiceMock.Object);
