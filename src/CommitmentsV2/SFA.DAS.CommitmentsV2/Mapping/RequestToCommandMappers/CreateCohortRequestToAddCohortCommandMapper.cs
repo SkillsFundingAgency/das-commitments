@@ -1,9 +1,9 @@
 ﻿using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 
-namespace SFA.DAS.CommitmentsV2.Mapping
+namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
 {
-    public class CreateCohortRequestToAddCohortRequestMapper : IMapper<CreateCohortRequest, AddCohortCommand>
+    public class CreateCohortRequestToAddCohortCommandMapper : IMapper<CreateCohortRequest, AddCohortCommand>
     {
         public AddCohortCommand Map(CreateCohortRequest source)
         {

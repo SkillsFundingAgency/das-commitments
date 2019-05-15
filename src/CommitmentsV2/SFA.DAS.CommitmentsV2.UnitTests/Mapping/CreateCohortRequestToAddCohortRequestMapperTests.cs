@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
-using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
         private void AssertPropertySet(Action<CreateCohortRequest> setInput, Func<AddCohortCommand, bool> expectOutput)
         {
-            var mapper = new CreateCohortRequestToAddCohortRequestMapper();
+            var mapper = new CreateCohortRequestToAddCohortCommandMapper();
 
             var input = new CreateCohortRequest();
 

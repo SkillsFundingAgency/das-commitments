@@ -1,0 +1,20 @@
+﻿using System;
+using MediatR;
+
+namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
+{
+    public class UpdateDraftApprenticeshipCommand : IRequest<UpdateDraftApprenticeshipResponse>
+    {
+        public long ApprenticeshipId { get; set; }
+        public string CourseCode { get; set; }
+        public int? Cost { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string ProviderReference { get; set; }
+        public Guid? ReservationId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string Uln { get; set; }
+    }
+}

@@ -10,5 +10,17 @@ namespace SFA.DAS.CommitmentsV2.Domain
         public const int MaximumApprenticeshipCost = 100000;
         public const string ServiceName = "SFA.DAS.CommitmentsV2";
         public const string IntegrationTestEnvironment = "IntegrationTest";
+
+        /// <summary>
+        ///     The maximum lengths of various fields (as defined in the database).
+        /// </summary>
+        public static class FieldLengths
+        {
+            public const int FirstName = 100;
+            public const int LastName = 100;
+            public const int CourseCode = 20;
+            public const int ProviderReference = 50;
+            public const int Uln = 50;
+        }
     }
 }
