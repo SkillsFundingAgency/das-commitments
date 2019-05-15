@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Types.Models;
 
@@ -67,6 +68,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new RemovedLegalEntityEvent { AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now, AccountId = accountId, OrganisationName = "OName", LegalEntityId = 75263, AgreementId = 9898, UserName = "Tester", UserRef = Guid.NewGuid() });
                             Console.WriteLine();
                             Console.WriteLine($"Published RemovedLegalEntityEvent");
+                            break;
+                        case "f":
+                            await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111", Guid.NewGuid(), DateTime.UtcNow));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;
                     }
                 }

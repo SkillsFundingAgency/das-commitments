@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
+using SFA.DAS.UnitOfWork;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
@@ -123,6 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
     public class AddDraftApprenticeshipValidationTestsFixture
     {
+        public UnitOfWorkContext UnitOfWorkContext;
         public DraftApprenticeshipDetails DraftApprenticeshipDetails;
         public Cohort Cohort;
         public ICurrentDateTime CurrentDateTime;
@@ -130,6 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
         public AddDraftApprenticeshipValidationTestsFixture()
         {
+            UnitOfWorkContext = new UnitOfWorkContext();
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
             {
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)

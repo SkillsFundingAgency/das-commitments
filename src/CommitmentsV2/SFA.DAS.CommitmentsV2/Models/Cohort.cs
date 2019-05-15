@@ -4,11 +4,12 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class Cohort
+    public class Cohort : Entity
     {
         public Cohort()
         {
@@ -52,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeship.Add(draftApprenticeship);
+            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId.Value, CreatedOn.Value));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
