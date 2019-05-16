@@ -55,6 +55,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
+        public Task AddDraftApprenticeship(long providerId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, in CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
