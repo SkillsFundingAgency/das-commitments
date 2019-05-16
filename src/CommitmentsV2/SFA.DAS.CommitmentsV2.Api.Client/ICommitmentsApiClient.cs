@@ -17,5 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<string> SecureEmployerCheck();
         Task<string> SecureProviderCheck();
         Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
+        Task<AddDraftApprenticeshipResponse> AddDraftApprenticeship(AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
     }
 }
