@@ -13,17 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public DraftApprenticeship(DraftApprenticeshipDetails source, Originator originator) : this()
         {
-            FirstName = source.FirstName;
-            LastName = source.LastName;
-            Uln = source.Uln;
-            ProgrammeType = source.TrainingProgramme?.ProgrammeType;
-            CourseCode = source.TrainingProgramme?.CourseCode;
-            CourseName = source.TrainingProgramme?.Name;
-            Cost = source.Cost;
-            StartDate = source.StartDate;
-            EndDate = source.EndDate;
-            DateOfBirth = source.DateOfBirth;
-            ReservationId = source.ReservationId;
+            Merge(source);
 
             switch (originator)
             {
@@ -36,6 +26,21 @@ namespace SFA.DAS.CommitmentsV2.Models
                 default:
                     throw new ArgumentOutOfRangeException(nameof(originator), originator, null);
             }
+        }
+
+        public void Merge(DraftApprenticeshipDetails source)
+        {
+            FirstName = source.FirstName;
+            LastName = source.LastName;
+            Uln = source.Uln;
+            ProgrammeType = source.TrainingProgramme?.ProgrammeType;
+            CourseCode = source.TrainingProgramme?.CourseCode;
+            CourseName = source.TrainingProgramme?.Name;
+            Cost = source.Cost;
+            StartDate = source.StartDate;
+            EndDate = source.EndDate;
+            DateOfBirth = source.DateOfBirth;
+            ReservationId = source.ReservationId;
         }
     }
 }

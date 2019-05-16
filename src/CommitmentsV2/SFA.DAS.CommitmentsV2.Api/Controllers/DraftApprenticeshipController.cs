@@ -8,7 +8,7 @@ using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Respon
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/cohorts/{cohortId}/draft-apprenticeships")]
     public class DraftApprenticeshipController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -24,9 +24,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpPatch]
         [Route("{apprenticeshipId}")]
-        public async Task<IActionResult> Update(long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
+        public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
         {
             var command = _updateDraftApprenticeshipMapper.Map(request);
+            command.CohortId = cohortId;
             command.ApprenticeshipId = apprenticeshipId;
 
             await _mediator.Send(command);

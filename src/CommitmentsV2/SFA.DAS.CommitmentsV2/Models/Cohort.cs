@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -13,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public Cohort()
         {
-            Apprenticeship = new HashSet<Apprenticeship>();
-            Message = new HashSet<Message>();
-            TransferRequest = new HashSet<TransferRequest>();
+            Apprenticeships = new HashSet<Apprenticeship>();
+            Messages = new HashSet<Message>();
+            TransferRequests = new HashSet<TransferRequest>();
         }
 
         public long Id { get; set; }
@@ -44,16 +46,32 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
 
-        public virtual ICollection<Apprenticeship> Apprenticeship { get; set; }
-        public virtual ICollection<Message> Message { get; set; }
-        public virtual ICollection<TransferRequest> TransferRequest { get; set; }
+        public virtual ICollection<Apprenticeship> Apprenticeships { get; set; }
+        public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<TransferRequest> TransferRequests { get; set; }
+
+        [NotMapped]
+        public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
         public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
-            Apprenticeship.Add(draftApprenticeship);
+            Apprenticeships.Add(draftApprenticeship);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId.Value, CreatedOn.Value));
+        }
+
+        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipDetails.Id);
+
+            if (existingDraftApprenticeship == null)
+            {
+                throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipDetails.Id} in cohort {Id}");
+            }
+            
+            existingDraftApprenticeship.Merge(draftApprenticeshipDetails);
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)

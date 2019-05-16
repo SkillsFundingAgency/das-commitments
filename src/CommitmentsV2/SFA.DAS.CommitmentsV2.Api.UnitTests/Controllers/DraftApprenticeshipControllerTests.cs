@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping;
+using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.UpdateDraftApprenticeshipResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -23,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var fixture = new DraftApprenticeshipControllerTestFixtures().WithCommandResponse();
 
             //Act
-            var response = await fixture.Update(1, new UpdateDraftApprenticeshipRequest());
+            var response = await fixture.Update(1,1, new UpdateDraftApprenticeshipRequest());
 
             //Assert
             Assert.IsTrue(response is OkObjectResult);
@@ -36,10 +37,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var fixture = new DraftApprenticeshipControllerTestFixtures().WithCommandResponse();
 
             //Act
-            var response = await fixture.Update(1, new UpdateDraftApprenticeshipRequest());
+            var response = await fixture.Update(1, 1, new UpdateDraftApprenticeshipRequest());
 
             //Assert
-            Assert.IsTrue(((OkObjectResult)response).Value is CreateCohortResponse);
+            Assert.IsTrue(((OkObjectResult)response).Value is UpdateDraftApprenticeshipResponse);
         }
      }
 
@@ -53,6 +54,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             MediatorMock = new Mock<IMediator>();
             MapperMock = new Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>>();
+
+            MapperMock
+                .Setup(m => m.Map(It.IsAny<UpdateDraftApprenticeshipRequest>()))
+                .Returns((UpdateDraftApprenticeshipRequest request) => new UpdateDraftApprenticeshipCommand());
         }
 
         private Mock<IMediator> MediatorMock { get; }
@@ -85,11 +90,11 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
-        public Task<IActionResult> Update(long apprenticeshipId, UpdateDraftApprenticeshipRequest request)
+        public Task<IActionResult> Update(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request)
         {
             var controller = CreateController();
 
-            return controller.Update(apprenticeshipId, request);
+            return controller.Update(cohortId, apprenticeshipId, request);
         }
     }
 }

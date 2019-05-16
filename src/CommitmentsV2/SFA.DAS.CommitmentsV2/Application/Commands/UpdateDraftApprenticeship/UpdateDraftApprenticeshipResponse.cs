@@ -3,6 +3,6 @@
     public class UpdateDraftApprenticeshipResponse
     {
         public long Id { get; set; }
-        public string Reference { get; set; }
+        public long ApprenticeshipId { get; set; }
     }
 }

@@ -26,15 +26,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return false;
         }
 
-        public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default)
+        public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohort", request, cancellationToken);
+            return _client.PostAsJson<long, GetCohortResponse>("api/cohorts", cohortId, cancellationToken);
         }
 
-        public Task<UpdateDraftApprenticeshipResponse> UpdateDraftApprenticeship(long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohorts", request, cancellationToken);
+        }
+
+        public Task<UpdateDraftApprenticeshipResponse> UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>(
-                $"api/draftApprenticeship/{apprenticeshipId}", request, cancellationToken);
+                $"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", request, cancellationToken);
         }
 
         public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)

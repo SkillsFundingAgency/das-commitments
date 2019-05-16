@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .ReturnsAsync(() => new DraftApprenticeshipDetails());
 
             var commitment = new Cohort();
-            commitment.Apprenticeship.Add(new DraftApprenticeship());
+            commitment.Apprenticeships.Add(new DraftApprenticeship());
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
             CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(),

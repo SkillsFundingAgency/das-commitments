@@ -62,14 +62,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         {
             var result = _fixture.CreateCohort();
             //approval is the aggregate of contained apprenticeship approvals, currently :-(
-            Assert.IsTrue(result.Apprenticeship.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+            Assert.IsTrue(result.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
         }
 
         [Test]
         public void TheCohortHasOneDraftApprenticeship()
         {
             var result = _fixture.CreateCohort();
-            Assert.AreEqual(1, result.Apprenticeship.Count);
+            Assert.AreEqual(1, result.Apprenticeships.Count);
         }
 
         [Test]

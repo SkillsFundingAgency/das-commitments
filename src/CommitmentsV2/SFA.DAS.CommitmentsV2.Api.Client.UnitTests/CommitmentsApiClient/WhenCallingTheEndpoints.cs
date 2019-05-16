@@ -46,9 +46,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         [Test]
         public async Task UpdateDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
+            const long cohortId = 67890;
             const long apprenticeshipId = 13456;
-            await _fixture.CommitmentsApiClient.UpdateDraftApprenticeship(apprenticeshipId, _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>($"api/draftApprenticeship/{apprenticeshipId}", _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None));
+            await _fixture.CommitmentsApiClient.UpdateDraftApprenticeship(cohortId, apprenticeshipId, _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None));
         }
     }
 

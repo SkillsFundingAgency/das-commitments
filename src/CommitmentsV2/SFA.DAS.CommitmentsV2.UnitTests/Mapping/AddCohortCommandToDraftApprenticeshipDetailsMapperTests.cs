@@ -2,14 +2,10 @@
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Mapping;
-using SFA.DAS.CommitmentsV2.Types;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
@@ -18,18 +14,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     {
         private TrainingProgramme _trainingProgramme;
-        private Mock<IMapper<ITrainingProgramme,TrainingProgramme>> _trainingProgrammeMapper;
-        private Mock<ITrainingProgrammeApiClient> _trainingProgrammeApi;
+        private Mock<ITrainingProgrammeLookup> _trainingProgrammeLookup;
 
         [SetUp]
         public void Arrange()
         {
             _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
-            _trainingProgrammeMapper = new Mock<IMapper<ITrainingProgramme, TrainingProgramme>>();
-            _trainingProgrammeMapper.Setup(x => x.Map(It.IsAny<ITrainingProgramme>())).Returns(_trainingProgramme);
-
-            _trainingProgrammeApi = new Mock<ITrainingProgrammeApiClient>();
-            _trainingProgrammeApi.Setup(x => x.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(() => new Framework());
+            _trainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
+            _trainingProgrammeLookup
+                .Setup(x => x.GetTrainingProgramme(It.IsAny<string>()))
+                .ReturnsAsync(_trainingProgramme);
         }
 
         [Test]
@@ -103,11 +97,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
         private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
-            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeApi.Object, _trainingProgrammeMapper.Object, Mock.Of<ICurrentDateTime>());
+            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeLookup.Object);
 
             var input = new AddCohortCommand();
 
-            setInput.Invoke(input);
+            setInput(input);
 
             var output = await mapper.Map(input);
 

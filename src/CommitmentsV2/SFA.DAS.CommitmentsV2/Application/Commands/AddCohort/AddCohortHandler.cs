@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             cohort.Reference = _hashingService.HashValue(cohort.Id);
             await db.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation($"Saved cohort. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{cohort?.Id} Apprenticeship:{cohort?.Apprenticeship?.First()?.Id}");
+            _logger.LogInformation($"Saved cohort. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{cohort?.Id} Apprenticeship:{cohort?.Apprenticeships?.First()?.Id}");
 
             var response = new AddCohortResponse
             {

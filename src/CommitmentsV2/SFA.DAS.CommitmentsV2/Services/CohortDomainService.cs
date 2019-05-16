@@ -55,6 +55,40 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
+        public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        {
+            var db = _dbContext.Value;
+
+            var cohort = await db.Commitment
+                                .Include(c => c.Apprenticeships)
+                                .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
+
+            AssertHasProvider(cohortId, cohort.ProviderId);
+            AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
+
+            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails);
+
+            await ValidateDraftApprenticeshipDetails(cohort.ProviderId.Value, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+
+            return cohort;
+        }
+
+        private void AssertHasProvider(long cohortId, long? providerId)
+        {
+            if (providerId == null)
+            {
+                throw new InvalidOperationException($"Cannot update cohort {cohortId} because it is not linked to a provider");
+            }
+        }
+
+        private void AssertHasApprenticeshipId(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.Id < 1)
+            {
+                throw new InvalidOperationException($"Cannot update cohort {cohortId} because the supplied draft apprenticeship does not have an id");
+            }
+        }
+
         private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
