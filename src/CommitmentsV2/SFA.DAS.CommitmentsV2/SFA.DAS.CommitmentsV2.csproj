@@ -20,7 +20,7 @@
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.174" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.174" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="4.3.1" />
-    <PackageReference Include="SFA.DAS.Encoding" Version="1.0.11" />
+    <PackageReference Include="SFA.DAS.Encoding" Version="1.1.1" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="10.0.1" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="10.0.1" />
