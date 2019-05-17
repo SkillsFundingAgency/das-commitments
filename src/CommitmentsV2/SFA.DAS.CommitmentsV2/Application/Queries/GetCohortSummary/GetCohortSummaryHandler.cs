@@ -18,18 +18,27 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
             _dbContext = dbContext;
         }
 
-        public Task<GetCohortSummaryResponse> Handle(GetCohortSummaryRequest request, CancellationToken cancellationToken)
+        public async Task<GetCohortSummaryResponse> Handle(GetCohortSummaryRequest request, CancellationToken cancellationToken)
         {
-            return _dbContext.Value
+            var result = await _dbContext.Value
                 .Commitment
                 .Where(c => c.Id == request.CohortId)
-                .Select(c => new GetCohortSummaryResponse
+                // need an intermediate result so we can convert the varchar account legal entity
+                // id (which is actually called legal entity id) to a long
+                .Select(c => new 
                 {
-                    AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
-                    CohortId = c.Id,
-                    LegalEntityName = c.LegalEntityName
+                    c.LegalEntityId,
+                    c.Id,
+                    c.LegalEntityName
                 })
                 .FirstOrDefaultAsync(cancellationToken);
+
+            return new GetCohortSummaryResponse
+            {
+                AccountLegalEntityId = long.Parse(result.LegalEntityId),
+                LegalEntityName = result.LegalEntityName,
+                CohortId = result.Id
+            };
         }
     }
 }

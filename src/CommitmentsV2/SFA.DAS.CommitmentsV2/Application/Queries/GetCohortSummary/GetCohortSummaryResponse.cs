@@ -3,7 +3,7 @@
     public class GetCohortSummaryResponse
     {
         public long CohortId { get; set; }
-        public string AccountLegalEntityPublicHashedId { get; set; }
+        public long AccountLegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
     }
 }
