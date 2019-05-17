@@ -7,7 +7,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
     {
         public long CohortId { get; }
         public string UserId { get; }
-        public long AccountLegalEntityId { get; }
         public long ProviderId { get; }
         public string CourseCode { get; }
         public int? Cost { get; }
@@ -20,11 +19,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public DateTime? DateOfBirth { get; }
         public string Uln { get; }
 
-        public AddDraftApprenticeshipCommand(long cohortId, string userId, long accountLegalEntityId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, string originatorReference, Guid reservationId, string firstName, string lastName, DateTime? dateOfBirth, string uln)
+        public AddDraftApprenticeshipCommand(long cohortId, string userId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, string originatorReference, Guid reservationId, string firstName, string lastName, DateTime? dateOfBirth, string uln)
         {
             CohortId = cohortId;
             UserId = userId;
-            AccountLegalEntityId = accountLegalEntityId;
             ProviderId = providerId;
             CourseCode = courseCode;
             Cost = cost;

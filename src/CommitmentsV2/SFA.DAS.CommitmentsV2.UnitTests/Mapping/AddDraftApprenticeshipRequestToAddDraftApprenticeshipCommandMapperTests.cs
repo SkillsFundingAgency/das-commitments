@@ -15,13 +15,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             const long cohortId = 123;
             AssertPropertySet(input => input.CohortId = cohortId, output => output.CohortId == cohortId);
         }
-        
-        [Test]
-        public void Map_AccountLegalEntityId_ShouldBeSet()
-        {
-            const long accountLegalEntityIdId = 123;
-            AssertPropertySet(input => input.AccountLegalEntityId = accountLegalEntityIdId, output => output.AccountLegalEntityId == accountLegalEntityIdId);
-        }
 
         [Test]
         public void Map_ProviderId_ShouldBeSet()

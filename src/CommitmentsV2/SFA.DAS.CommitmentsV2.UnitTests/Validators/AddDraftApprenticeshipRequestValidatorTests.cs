@@ -31,14 +31,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(-1, false)]
         [TestCase(0, false)]
         [TestCase(1, true)]
-        public void Validate_AccountLegalEntityId_ShouldBeValidated(long value, bool expectedValid)
-        {
-            AssertValidationResult(request => request.AccountLegalEntityId, value, expectedValid);
-        }
-
-        [TestCase(-1, false)]
-        [TestCase(0, false)]
-        [TestCase(1, true)]
         public void Validate_ProviderId_ShouldBeValidated(long value, bool expectedValid)
         {
             AssertValidationResult(request => request.ProviderId, value, expectedValid);

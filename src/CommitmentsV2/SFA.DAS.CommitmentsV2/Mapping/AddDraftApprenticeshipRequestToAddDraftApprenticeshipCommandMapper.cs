@@ -10,7 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             return new AddDraftApprenticeshipCommand(
                 source.CohortId,
                 source.UserId,
-                source.AccountLegalEntityId,
                 source.ProviderId,
                 source.CourseCode,
                 source.Cost,

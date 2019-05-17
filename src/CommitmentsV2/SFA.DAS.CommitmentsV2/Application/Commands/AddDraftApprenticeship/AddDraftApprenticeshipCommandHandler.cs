@@ -12,7 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         private readonly IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
 
-        public AddDraftApprenticeshipCommandHandler(IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper, ICohortDomainService cohortDomainService)
+        public AddDraftApprenticeshipCommandHandler(
+            IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+            ICohortDomainService cohortDomainService)
         {
             _draftApprenticeshipDetailsMapper = draftApprenticeshipDetailsMapper;
             _cohortDomainService = cohortDomainService;
@@ -22,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         {
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(request);
             
-            await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.AccountLegalEntityId, draftApprenticeshipDetails, cancellationToken);
+            await _cohortDomainService.AddDraftApprenticeship(request.ProviderId, request.CohortId, draftApprenticeshipDetails, cancellationToken);
         }
     }
 }

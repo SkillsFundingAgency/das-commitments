@@ -37,6 +37,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyProviderCohortCreation();
         }
 
+        [Test]
+        public async Task OnAddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
+        {
+            await _fixture.AddDraftApprenticeship();
+            _fixture.VerifyProviderDraftApprenticeshipAdded();
+        }
+
         [TestCase("2019-07-31", null, true)]
         [TestCase("2019-07-31", "2020-08-01", false, Description = "One day after cut off")]
         [TestCase("2019-07-31", "2020-07-31", true, Description = "Day of cut off (last valid day)")]
@@ -94,10 +101,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public ProviderCommitmentsDbContext Db { get; set; }
             public long ProviderId { get; }
             public long AccountLegalEntityId { get; }
+            public long CohortId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
             
             public Mock<Provider> Provider { get; set; }
-            public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }            
+            public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
+            public Mock<Cohort> Cohort { get; set; }
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
@@ -113,6 +122,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 ProviderId = 1;
                 AccountLegalEntityId = 2;
+                CohortId = 3;
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
@@ -121,6 +131,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
+                
+                Cohort = new Mock<Cohort>();
+                Cohort.Setup(x => x.Id).Returns(CohortId);
+                Db.Commitment.Add(Cohort.Object);
                 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
@@ -235,9 +249,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public async Task AddDraftApprenticeship()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                }
+            }
+
             public void VerifyProviderCohortCreation()
             {
                 Provider.Verify(x => x.CreateCohort(It.Is<AccountLegalEntity>(ale => ale == AccountLegalEntity.Object), It.IsAny<DraftApprenticeshipDetails>()));
+            }
+
+            public void VerifyProviderDraftApprenticeshipAdded()
+            {
+                Cohort.Verify(x => x.AddDraftApprenticeship(DraftApprenticeshipDetails));
             }
 
             public void VerifyStartDateException(bool passes)

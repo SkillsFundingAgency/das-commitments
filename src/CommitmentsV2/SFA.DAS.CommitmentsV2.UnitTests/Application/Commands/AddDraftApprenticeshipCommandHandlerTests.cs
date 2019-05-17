@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
-                f => f.CohortDomainServiceMock.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId, f.Command.AccountLegalEntityId, f.DraftApprenticeshipDetails, f.CancellationToken)));
+                f => f.CohortDomainServiceMock.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId, f.Command.CohortId, f.DraftApprenticeshipDetails, f.CancellationToken)));
         }
     }
 

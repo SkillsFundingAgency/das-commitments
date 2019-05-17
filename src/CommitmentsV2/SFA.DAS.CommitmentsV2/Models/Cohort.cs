@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequest = new HashSet<TransferRequest>();
         }
 
-        public long Id { get; set; }
+        public virtual long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
         public string LegalEntityId { get; set; }
