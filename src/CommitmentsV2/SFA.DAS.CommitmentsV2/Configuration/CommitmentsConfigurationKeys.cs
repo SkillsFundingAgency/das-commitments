@@ -8,6 +8,6 @@
         public static string CommitmentIdHashingConfiguration => $"{CommitmentsV2}:CommitmentIdHashing";
         public static string Features => $"{CommitmentsV2}:Features";
         public static string ReservationsClientApiConfiguration => $"{CommitmentsV2}:ReservationsClientApi";
-        public static string EncodingConfiguration => $"SFA.DAS.Encoding";
+        public static string EncodingConfiguration => "SFA.DAS.Encoding";
     }
 }

@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
     {
         public EncodingRegistry()
         {
-            For<IEncodingService>().Use<EncodingService>();
+            For<IEncodingService>().Use<EncodingService>().Singleton();
         }
     }
 }
