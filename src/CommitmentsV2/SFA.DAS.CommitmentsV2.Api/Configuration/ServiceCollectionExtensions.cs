@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Configuration
             services.AddOptions();
             services.Configure<AzureActiveDirectoryApiConfiguration>(configuration.GetSection($"{CommitmentsConfigurationKeys.CommitmentsV2}:AzureADApiAuthentication"));
             services.Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2));
-            services.Configure<EncodingConfig>(configuration.GetSection("SFA.DAS.Encoding"));
+            services.Configure<EncodingConfig>(configuration.GetSection(CommitmentsConfigurationKeys.EncodingConfiguration));
             return services;
         }
     }
