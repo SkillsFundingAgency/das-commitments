@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Api.Types;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
@@ -48,15 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task AddDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.AddDraftApprenticeship(_fixture.AddDraftApprenticeshipRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest, AddDraftApprenticeshipResponse>($"api/cohorts/{_fixture.AddDraftApprenticeshipRequest.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
-        }
-        
-        [Test]
-        public async Task AddDraftApprenticeship_VerifyResponseWasReturned()
-        {
-            _fixture.SetupResponseForAddDraftApprenticeship();
-            var result = await _fixture.CommitmentsApiClient.AddDraftApprenticeship(_fixture.AddDraftApprenticeshipRequest, CancellationToken.None);
-            Assert.IsNotNull(result);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest>($"api/cohorts/{_fixture.AddDraftApprenticeshipRequest.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
         }
     }
 
@@ -84,8 +75,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
         public WhenCallingEndpointsFixture SetupResponseForAddDraftApprenticeship()
         {
-            MockRestHttpClient.Setup(x => x.PostAsJson<AddDraftApprenticeshipRequest, AddDraftApprenticeshipResponse>(It.IsAny<string>(), It.IsAny<AddDraftApprenticeshipRequest>(), CancellationToken.None))
-                .ReturnsAsync(new AddDraftApprenticeshipResponse());
+            MockRestHttpClient.Setup(x => x.PostAsJson(It.IsAny<string>(), It.IsAny<AddDraftApprenticeshipRequest>(), CancellationToken.None))
+                .ReturnsAsync("");
             return this;
         }
     }

@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping;
 
@@ -25,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             await _mediator.Send(_addDraftApprenticeshipMapper.Map(request));
             
-            return Ok(new AddDraftApprenticeshipResponse());
+            return Ok();
         }
     }
 }

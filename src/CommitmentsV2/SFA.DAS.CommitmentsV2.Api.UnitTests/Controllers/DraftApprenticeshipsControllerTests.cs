@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping;
 
@@ -26,20 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.AddDraftApprenticeship();
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult);
-        }
-
-        [Test]
-        public async Task AddDraftApprenticeship_ValidRequest_ShouldReturnExpectedExpectedResponseObject()
-        {
-            //Arrange
-            var fixture = new DraftApprenticeshipsControllerTestsFixture().WithAddDraftApprenticeshipCommandResponse();
-
-            //Act
-            var response = await fixture.AddDraftApprenticeship();
-
-            //Assert
-            Assert.IsTrue(((OkObjectResult)response).Value is AddDraftApprenticeshipResponse);
+            Assert.IsTrue(response is OkResult);
         }
     }
 
