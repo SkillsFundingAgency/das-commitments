@@ -26,7 +26,7 @@ Run the following sql against the database in order to create some test data.
 ```sql
 
 insert into Accounts (Id, HashedId, PublicHashedId, Name, Created, Updated) values (8194, 'VN48RP', '7YRV9B', 'MegaCorp Inc', GETDATE(), GETDATE())
-insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name], [Address],[OrganisationType],[LegalEntityId], Created, Updated) values (2817, 'X9JE72', 8194, 'Mega Corp Pharmaceuticals', '1 MegaCorp Way', 1, '736281', GETDATE(), GETDATE())
+insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name], [Address],[OrganisationType],[LegalEntityId], Created, Updated) values (2817, 'XEGE5X', 8194, 'Mega Corp Pharmaceuticals', '1 MegaCorp Way', 1, '736281', GETDATE(), GETDATE())
 insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address],[OrganisationType],[LegalEntityId], Created, Updated) values (2818, 'XJGZ72', 8194, 'Mega Corp Bank', '2 MegaCorp Way', 1, '372628', GETDATE(), GETDATE())
 insert into Accounts (Id, HashedId, PublicHashedId, Name, Created, Updated) values (30060, 'VNR6P9', '7Y94BK', 'Rapid Logistics Co Ltd', GETDATE(), GETDATE())
 insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address],[OrganisationType],[LegalEntityId],Created, Updated) values (645, 'X9JE72', 30060, 'Rapid Logistics Co Ltd', '1 High Street', 1, '06344082', GETDATE(), GETDATE())
