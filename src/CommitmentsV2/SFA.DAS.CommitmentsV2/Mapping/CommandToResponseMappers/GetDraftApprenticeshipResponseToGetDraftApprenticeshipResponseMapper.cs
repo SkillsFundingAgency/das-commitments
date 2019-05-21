@@ -7,21 +7,19 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
     {
         public HttpResponse.GetDraftApprenticeshipResponse Map(CommandResponse.GetDraftApprenticeResponse source)
         {
-            var draft = source.DraftApprenticeshipDetails;
-
             return new HttpResponse.GetDraftApprenticeshipResponse
             {
-                Id = draft.Id,
-                FirstName = draft.FirstName,
-                LastName = draft.LastName,
-                DateOfBirth = draft.DateOfBirth,
-                Uln = draft.Uln,
-                CourseCode = draft.TrainingProgramme?.CourseCode,
-                Cost = draft.Cost,
-                StartDate = draft.StartDate,
-                EndDate = draft.EndDate,
-                Reference = draft.Reference,
-                ReservationId = draft.ReservationId
+                Id = source.Id,
+                FirstName = source.FirstName,
+                LastName = source.LastName,
+                DateOfBirth = source.DateOfBirth,
+                Uln = source.Uln,
+                CourseCode = source.CourseCode,
+                Cost = source.Cost,
+                StartDate = source.StartDate,
+                EndDate = source.EndDate,
+                Reference = source.Reference,
+                ReservationId = source.ReservationId
             };
         }
     }

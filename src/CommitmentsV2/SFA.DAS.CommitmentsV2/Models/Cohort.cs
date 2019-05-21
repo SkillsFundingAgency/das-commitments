@@ -53,16 +53,19 @@ namespace SFA.DAS.CommitmentsV2.Models
         [NotMapped]
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
         {
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
             Apprenticeships.Add(draftApprenticeship);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId.Value, CreatedOn.Value));
         }
 
-        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
         {
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
+
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipDetails.Id);
 
@@ -72,13 +75,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails);
-            //Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
+            Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             var errors = new List<DomainError>();
-            errors.AddRange(BuildModifierValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
@@ -88,11 +90,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.ThrowIfAny();
         }
 
-        private IEnumerable<DomainError> BuildModifierValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Originator modifyingParty)
         {
-            if (!ModifierIsAllowedToEdit(draftApprenticeshipDetails.ModificationParty))
+            if (!ModifierIsAllowedToEdit(modifyingParty))
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.ModificationParty), "The cohort may not be modified by the current role");
+                throw new DomainException(nameof(modifyingParty), "The cohort may not be modified by the current role");
             }
         }
 
@@ -184,19 +186,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private bool ModifierIsAllowedToEdit(Originator modifier)
+        private bool ModifierIsAllowedToEdit(Originator modifyingParty)
         {
-            if (EditStatus == EditStatus.Both)
+            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Originator.Employer)
             {
                 return true;
             }
 
-            if (EditStatus == EditStatus.EmployerOnly && modifier == Originator.Employer)
-            {
-                return true;
-            }
-
-            if (EditStatus == EditStatus.ProviderOnly && modifier == Originator.Provider)
+            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Originator.Provider)
             {
                 return true;
             }

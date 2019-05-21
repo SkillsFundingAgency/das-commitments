@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
-        public Originator ModificationParty { get; set; }
         public int? AgeOnStartDate
         {
             get

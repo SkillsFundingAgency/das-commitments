@@ -9,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 {
@@ -29,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            c.UpdateDraftApprenticeship(modifiedDraftDetails);
+            c.UpdateDraftApprenticeship(modifiedDraftDetails, Originator.Provider);
 
             // Assert
             var savedDraft = c.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
@@ -51,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails));
+            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Originator.Provider));
         }
     }
 
@@ -59,7 +60,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
     {
         public CohortTestFixtures()
         {
-            
+            // We need this to allow the UoW to initialise it's internal static events collection.
+            var uow = new UnitOfWorkContext();
         }
 
         public DraftApprenticeship Create()
@@ -80,7 +82,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             return new DraftApprenticeship(new DraftApprenticeshipDetails
             {
                 Id = draftApprenticeship.Id,
-                ModificationParty = Originator.Provider,
                 FirstName = SafeUpdate(draftApprenticeship.FirstName),
                 LastName = SafeUpdate(draftApprenticeship.LastName),
                 StartDate = SafeUpdate(draftApprenticeship.StartDate),
@@ -104,8 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 EndDate = draftApprenticeship.EndDate,
                 DateOfBirth = draftApprenticeship.DateOfBirth,
                 Reference = draftApprenticeship.ProviderRef,
-                ReservationId = draftApprenticeship.ReservationId,
-                ModificationParty = modificationParty
+                ReservationId = draftApprenticeship.ReservationId
             };
         }
 

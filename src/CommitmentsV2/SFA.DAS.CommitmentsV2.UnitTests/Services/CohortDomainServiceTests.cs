@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
@@ -16,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -102,6 +104,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
+            public Mock<IAuthenticationService> AuthenticationService { get; }
             public List<DomainError>  DomainErrors { get; private set; }
 
             public CohortDomainServiceTestFixture()
@@ -141,6 +144,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
+                AuthenticationService = new Mock<IAuthenticationService>();
+                AuthenticationService.Setup(x => x.GetUserRole()).Returns(Originator.Provider);
+
                 DomainErrors = new List<DomainError>();
 
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -148,7 +154,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     AcademicYearDateProvider.Object,
                     UlnValidator.Object,
                     ReservationValidationService.Object,
-                    OverlapCheckService.Object
+                    OverlapCheckService.Object,
+                    AuthenticationService.Object
                     );
             }
 
@@ -237,7 +244,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyProviderCohortCreation()
             {
-                Provider.Verify(x => x.CreateCohort(It.Is<AccountLegalEntity>(ale => ale == AccountLegalEntity.Object), It.IsAny<DraftApprenticeshipDetails>()));
+                Provider.Verify(x => x.CreateCohort(It.Is<AccountLegalEntity>(ale => ale == AccountLegalEntity.Object), It.IsAny<DraftApprenticeshipDetails>(), Originator.Provider));
             }
 
             public void VerifyStartDateException(bool passes)

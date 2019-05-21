@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
@@ -13,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -24,13 +26,15 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IUlnValidator _ulnValidator;
         private readonly IReservationValidationService _reservationValidationService;
         private readonly IOverlapCheckService _overlapCheckService;
+        private readonly IAuthenticationService _authenticationService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
             IAcademicYearDateProvider academicYearDateProvider,
             IUlnValidator ulnValidator,
             IReservationValidationService reservationValidationService,
-            IOverlapCheckService overlapCheckService)
+            IOverlapCheckService overlapCheckService,
+            IAuthenticationService authenticationService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -38,6 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _ulnValidator = ulnValidator;
             _reservationValidationService = reservationValidationService;
             _overlapCheckService = overlapCheckService;
+            _authenticationService = authenticationService;
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
@@ -48,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
 
-            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails);
+            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _authenticationService.GetUserRole());
 
             await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
@@ -66,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
-            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails);
+            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserRole());
 
             await ValidateDraftApprenticeshipDetails(cohort.ProviderId.Value, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
@@ -77,6 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             if (providerId == null)
             {
+                // We need a provider id to validate the apprenticeship with reservations, so a provider id is mandatory.
                 throw new InvalidOperationException($"Cannot update cohort {cohortId} because it is not linked to a provider");
             }
         }
