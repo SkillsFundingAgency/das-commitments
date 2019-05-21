@@ -14,14 +14,13 @@ Commitments Api V2 is one of a number of commitments products. You will probably
 
 #### Configuration Requirements
 
-* SFA.DAS.CommitmentsV2_v1.0
-
-
+* SFA.DAS.CommitmentsV2_1.0
+* SFA.DAS.Encoding_1.0
 
 
 #### Seeded data
 
-Run the following sql against the database in order to create some test data.
+Run the following sql against the database in order to create some basic startup data.
 
 ```sql
 
