@@ -11,6 +11,8 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping;
 using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.UpdateDraftApprenticeshipResponse;
+using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
+using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -53,22 +55,31 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public DraftApprenticeshipControllerTestFixtures()
         {
             MediatorMock = new Mock<IMediator>();
-            MapperMock = new Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>>();
+            UpdateMapperMock = new Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>>();
 
-            MapperMock
+            UpdateMapperMock
                 .Setup(m => m.Map(It.IsAny<UpdateDraftApprenticeshipRequest>()))
                 .Returns((UpdateDraftApprenticeshipRequest request) => new UpdateDraftApprenticeshipCommand());
+
+            GetMapperMock = new Mock<IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse>>();
+
+            GetMapperMock
+                .Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipCommandResponse>()))
+                .Returns((GetDraftApprenticeshipResponse request) => new GetDraftApprenticeshipResponse());
         }
 
         private Mock<IMediator> MediatorMock { get; }
         private IMediator Mediator => MediatorMock.Object;
 
-        private Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>> MapperMock { get; }
-        private IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> Mapper => MapperMock.Object;
+        private Mock<IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand>> UpdateMapperMock { get; }
+        private IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> UpdateMapper => UpdateMapperMock.Object;
+
+        private Mock<IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse>> GetMapperMock { get; }
+        private IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> GetMapper => GetMapperMock.Object;
 
         public DraftApprenticeshipController CreateController()
         {
-            return new DraftApprenticeshipController(Mediator, Mapper);
+            return new DraftApprenticeshipController(Mediator, UpdateMapper, GetMapper);
         }
 
         public DraftApprenticeshipControllerTestFixtures WithCommandResponse(long id, string reference, long draftApprenticeshipId)

@@ -1,10 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
 using SFA.DAS.CommitmentsV2.Mapping;
 using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.UpdateDraftApprenticeshipResponse;
+using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
+using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -14,12 +19,27 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         private readonly IMediator _mediator;
         private readonly IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
 
+        private readonly IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
+
         public DraftApprenticeshipController(
             IMediator mediator,
-            IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper)
+            IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
+            IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper)
         {
             _mediator = mediator;
             _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
+            _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
+        }
+
+        [HttpGet]
+        [Route("{apprenticeshipId}")]
+        public async Task<IActionResult> Get(long cohortId, long apprenticeshipId)
+        {
+            var command = new GetDraftApprenticeRequest(cohortId, apprenticeshipId);
+
+            var response = await _mediator.Send(command);
+
+            return Ok(_getDraftApprenticeshipMapper.Map(response));
         }
 
         [HttpPatch]

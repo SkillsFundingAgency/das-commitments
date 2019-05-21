@@ -28,6 +28,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetCohort_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetCohort(123);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetCohortResponse>("api/cohorts/123", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetDraftApprenticeship(123, 456);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetDraftApprenticeshipResponse>("api/cohorts/123/draft-Apprenticeships/456", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task CreateCohort_VerifyUrlAndDataIsCorrectPassedIn()
         {
 

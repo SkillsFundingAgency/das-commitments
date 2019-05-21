@@ -26,25 +26,31 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return false;
         }
 
-        public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
-        {
-            return _client.PostAsJson<long, GetCohortResponse>("api/cohorts", cohortId, cancellationToken);
-        }
-
         public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohorts", request, cancellationToken);
+        }
+
+        public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetCohortResponse>($"api/cohorts/{cohortId}", null, cancellationToken);
+        }
+
+        public Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId,
+            CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", null, cancellationToken);
+        }
+
+        public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<AccountLegalEntityResponse>($"api/accountlegalentity/{accountLegalEntityId}", null, cancellationToken);
         }
 
         public Task<UpdateDraftApprenticeshipResponse> UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>(
                 $"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", request, cancellationToken);
-        }
-
-        public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)
-        {
-            return _client.Get<AccountLegalEntityResponse>($"api/accountlegalentity/{accountLegalEntityId}", null, cancellationToken);
         }
 
         public Task<string> SecureCheck()
