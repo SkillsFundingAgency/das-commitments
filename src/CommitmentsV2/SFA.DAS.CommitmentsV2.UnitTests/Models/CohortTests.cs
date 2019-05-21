@@ -21,19 +21,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             var fixtures = new CohortTestFixtures();
 
             // arrange
-            var existingDraft = fixtures.Create();
-            var newDraft = fixtures.Update(existingDraft);
-            var newDraftDetails = fixtures.ToApprenticeshipDetails(newDraft);
+            var originalDraft = fixtures.Create();
+            var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
+            var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Originator.Provider);
 
-            var c = new Cohort();    
-            c.Apprenticeships.Add(existingDraft);
+            var c = new Cohort {EditStatus = EditStatus.ProviderOnly};    
+            c.Apprenticeships.Add(originalDraft);
 
             // Act
-            c.UpdateDraftApprenticeship(newDraftDetails);
+            c.UpdateDraftApprenticeship(modifiedDraftDetails);
 
             // Assert
-            var updatedDraft = c.DraftApprenticeships.Single(a => a.Id == newDraft.Id);
-            fixtures.AssertSameProperties(newDraft, updatedDraft);
+            var savedDraft = c.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
+            fixtures.AssertSameProperties(modifiedDraft, savedDraft);
         }
 
         [Test]
@@ -42,16 +42,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             var fixtures = new CohortTestFixtures();
 
             // arrange
-            var existingDraft = fixtures.Create();
-            var newDraft = fixtures.Update(existingDraft);
-            var newDraftDetails = fixtures.ToApprenticeshipDetails(newDraft);
-            newDraftDetails.StartDate = newDraftDetails.EndDate.Value.AddMonths(1);
+            var originalDraft = fixtures.Create();
+            var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
+            var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Originator.Provider);
+            modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
 
-            var c = new Cohort();
-            c.Apprenticeships.Add(existingDraft);
+            var c = new Cohort { EditStatus = EditStatus.ProviderOnly };
+            c.Apprenticeships.Add(originalDraft);
 
             // Act
-            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(newDraftDetails));
+            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails));
         }
     }
 
@@ -75,11 +75,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 }, Originator.Provider);
         }
 
-        public DraftApprenticeship Update(DraftApprenticeship draftApprenticeship)
+        public DraftApprenticeship UpdatePropertiesWithNewValues(DraftApprenticeship draftApprenticeship)
         {
             return new DraftApprenticeship(new DraftApprenticeshipDetails
             {
                 Id = draftApprenticeship.Id,
+                ModificationParty = Originator.Provider,
                 FirstName = SafeUpdate(draftApprenticeship.FirstName),
                 LastName = SafeUpdate(draftApprenticeship.LastName),
                 StartDate = SafeUpdate(draftApprenticeship.StartDate),
@@ -88,7 +89,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             }, Originator.Provider);
         }
 
-        public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship)
+        public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Originator modificationParty)
         {
             return new DraftApprenticeshipDetails
             {
@@ -103,7 +104,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 EndDate = draftApprenticeship.EndDate,
                 DateOfBirth = draftApprenticeship.DateOfBirth,
                 Reference = draftApprenticeship.ProviderRef,
-                ReservationId = draftApprenticeship.ReservationId
+                ReservationId = draftApprenticeship.ReservationId,
+                ModificationParty = modificationParty
             };
         }
 

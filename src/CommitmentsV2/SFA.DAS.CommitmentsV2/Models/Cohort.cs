@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails);
-            Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
+            //Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             if (!ModifierIsAllowedToEdit(draftApprenticeshipDetails.ModificationParty))
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered");
+                yield return new DomainError(nameof(draftApprenticeshipDetails.ModificationParty), "The cohort may not be modified by the current role");
             }
         }
 

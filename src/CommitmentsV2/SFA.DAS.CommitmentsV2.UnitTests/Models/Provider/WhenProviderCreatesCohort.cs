@@ -122,7 +122,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                 {
                     FirstName = fixture.Create<string>(),
                     LastName = fixture.Create<string>(),
-                    ReservationId = Guid.NewGuid()
+                    ReservationId = Guid.NewGuid(),
+                    ModificationParty = Originator.Provider
                 };
             }
 
