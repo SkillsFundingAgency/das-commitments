@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 using SFA.DAS.HashingService;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
@@ -18,27 +19,15 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
             _dbContext = dbContext;
         }
 
-        public async Task<GetCohortSummaryResponse> Handle(GetCohortSummaryRequest request, CancellationToken cancellationToken)
+        public Task<GetCohortSummaryResponse> Handle(GetCohortSummaryRequest request, CancellationToken cancellationToken)
         {
-            var result = await _dbContext.Value
+            return _dbContext.Value
                 .Commitment
-                .Where(c => c.Id == request.CohortId)
-                // need an intermediate result so we can convert the varchar account legal entity
-                // id (which is actually called legal entity id) to a long
-                .Select(c => new 
+                .GetById(request.CohortId, c => new GetCohortSummaryResponse
                 {
-                    c.LegalEntityId,
-                    c.Id,
-                    c.LegalEntityName
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            return new GetCohortSummaryResponse
-            {
-                AccountLegalEntityId = long.Parse(result.LegalEntityId),
-                LegalEntityName = result.LegalEntityName,
-                CohortId = result.Id
-            };
+                    LegalEntityName = c.LegalEntityName,
+                    CohortId = c.Id
+                }, cancellationToken);
         }
     }
 }

@@ -43,6 +43,23 @@ namespace SFA.DAS.CommitmentsV2.Data.QueryExtensions
             return query.GetById<DraftApprenticeship, TResponse>(draft => draft.CommitmentId == cohortId && draft.Id == draftApprenticeshipId, select, cancellationToken);
         }
 
+
+        /// <summary>
+        ///     Returns an instance of <see cref="TResponse"/> for the specified cohort.
+        /// </summary>
+        /// <typeparam name="TResponse">The type required as a response</typeparam>
+        /// <remarks>
+        ///     The returned instance will not be tracked (i.e. the object is expected to be read-only).
+        /// </remarks>
+        public static Task<TResponse> GetById<TResponse>(
+            this DbSet<Cohort> query,
+            long cohortId,
+            Expression<Func<Cohort, TResponse>> select,
+            CancellationToken cancellationToken)
+        {
+            return query.GetById<Cohort, TResponse>(cohort => cohort.Id == cohortId, select, cancellationToken);
+        }
+
         public static Task<TResponse> GetById<TEntity, TResponse>(
             this DbSet<TEntity> query,
             Expression<Func<TEntity, bool>> where,
