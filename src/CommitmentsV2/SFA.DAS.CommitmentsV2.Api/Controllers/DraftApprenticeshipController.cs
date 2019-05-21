@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
 using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.UpdateDraftApprenticeshipResponse;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
@@ -49,6 +50,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var command = _updateDraftApprenticeshipMapper.Map(request);
             command.CohortId = cohortId;
             command.ApprenticeshipId = apprenticeshipId;
+
+            // this should come from the claims ideally
+            command.ModificationParty = Originator.Provider;
 
             await _mediator.Send(command);
 

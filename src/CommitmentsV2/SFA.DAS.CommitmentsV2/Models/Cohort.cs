@@ -72,11 +72,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails);
+            Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             var errors = new List<DomainError>();
+            errors.AddRange(BuildModifierValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildFirstNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildLastNameValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildEndDateValidationFailures(draftApprenticeshipDetails));
@@ -84,6 +86,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.ThrowIfAny();
+        }
+
+        private IEnumerable<DomainError> BuildModifierValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (!ModifierIsAllowedToEdit(draftApprenticeshipDetails.ModificationParty))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.FirstName), "First name must be entered");
+            }
         }
 
         private IEnumerable<DomainError> BuildFirstNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -172,6 +182,26 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield return new DomainError(nameof(details.StartDate), errorMessage);
                 yield break;
             }
-       }
+        }
+
+        private bool ModifierIsAllowedToEdit(Originator modifier)
+        {
+            if (EditStatus == EditStatus.Both)
+            {
+                return true;
+            }
+
+            if (EditStatus == EditStatus.EmployerOnly && modifier == Originator.Employer)
+            {
+                return true;
+            }
+
+            if (EditStatus == EditStatus.ProviderOnly && modifier == Originator.Provider)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

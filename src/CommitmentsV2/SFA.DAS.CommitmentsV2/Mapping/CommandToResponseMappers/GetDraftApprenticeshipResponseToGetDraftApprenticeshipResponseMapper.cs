@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
 
             return new HttpResponse.GetDraftApprenticeshipResponse
             {
+                Id = draft.Id,
                 FirstName = draft.FirstName,
                 LastName = draft.LastName,
                 DateOfBirth = draft.DateOfBirth,
