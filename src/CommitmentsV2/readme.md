@@ -31,7 +31,8 @@ insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address
 insert into Accounts (Id, HashedId, PublicHashedId, Name, Created, Updated) values (30060, 'VNR6P9', '7Y94BK', 'Rapid Logistics Co Ltd', GETDATE(), GETDATE())
 insert into AccountLegalEntities (Id, PublicHashedId, AccountId, [Name],[Address],[OrganisationType],[LegalEntityId],Created, Updated) values (645, 'X9JE72', 30060, 'Rapid Logistics Co Ltd', '1 High Street', 1, '06344082', GETDATE(), GETDATE())
 insert into Providers(Ukprn, [Name], [Created]) values (10005077,'Train-U-Good Corporation', GETDATE())
-
+insert into Providers(Ukprn, [Name], [Created]) values (10038368,'Amazing Training Ltd', GETDATE())
+insert into Providers(Ukprn, [Name], [Created]) values (10000896,'Like a Pro Education Inc.', GETDATE())
 
 ````
 
