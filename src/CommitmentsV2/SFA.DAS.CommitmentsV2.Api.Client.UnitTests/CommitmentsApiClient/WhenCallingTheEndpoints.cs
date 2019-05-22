@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             const long cohortId = 67890;
             const long apprenticeshipId = 13456;
             await _fixture.CommitmentsApiClient.UpdateDraftApprenticeship(cohortId, apprenticeshipId, _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PutAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None));
         }
     }
 

@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<UpdateDraftApprenticeshipResponse> UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>(
+            return _client.PutAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>(
                 $"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", request, cancellationToken);
         }
 

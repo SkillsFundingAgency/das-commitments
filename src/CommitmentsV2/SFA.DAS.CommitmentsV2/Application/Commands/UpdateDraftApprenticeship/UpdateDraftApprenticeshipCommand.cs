@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
         public int? Cost { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string ProviderReference { get; set; }
+        public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

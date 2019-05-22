@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(null, true)]
         public void Validate_ProviderReference_ShouldBeValidated(string value, bool expectedValid)
         {
-            AssertValidationResult(request => request.ProviderReference, value, expectedValid);
+            AssertValidationResult(request => request.Reference, value, expectedValid);
         }
 
         private void AssertValidationResult<T>(Expression<Func<UpdateDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)

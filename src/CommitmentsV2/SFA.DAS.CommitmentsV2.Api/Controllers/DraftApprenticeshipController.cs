@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(_getDraftApprenticeshipMapper.Map(response));
         }
 
-        [HttpPatch]
+        [HttpPut]
         [Route("{apprenticeshipId}")]
         public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
         {

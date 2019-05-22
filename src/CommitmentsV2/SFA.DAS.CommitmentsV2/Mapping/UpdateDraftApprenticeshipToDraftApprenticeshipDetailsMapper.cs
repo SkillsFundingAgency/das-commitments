@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
-                Reference = source.ProviderReference,
+                Reference = source.Reference,
                 ReservationId = source.ReservationId
             };
         }
