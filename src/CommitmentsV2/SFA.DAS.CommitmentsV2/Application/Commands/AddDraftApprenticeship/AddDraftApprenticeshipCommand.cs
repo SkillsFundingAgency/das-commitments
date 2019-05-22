@@ -13,13 +13,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public DateTime? StartDate { get; }
         public DateTime? EndDate { get; }
         public string OriginatorReference { get; }
-        public Guid ReservationId { get; }
+        public Guid? ReservationId { get; }
         public string FirstName { get; }
         public string LastName { get; }
         public DateTime? DateOfBirth { get; }
         public string Uln { get; }
 
-        public AddDraftApprenticeshipCommand(long cohortId, string userId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, string originatorReference, Guid reservationId, string firstName, string lastName, DateTime? dateOfBirth, string uln)
+        public AddDraftApprenticeshipCommand(long cohortId, string userId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, string originatorReference, Guid? reservationId, string firstName, string lastName, DateTime? dateOfBirth, string uln)
         {
             CohortId = cohortId;
             UserId = userId;

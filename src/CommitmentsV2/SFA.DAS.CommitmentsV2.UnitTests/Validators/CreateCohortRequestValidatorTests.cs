@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest,T>> property, T value, bool expectedValid)
         {
             // Arrange
-            var validator = new CreateCohortRequestValidator();
+            var validator = (CreateCohortRequestValidator)null;//new CreateCohortRequestValidator();
 
             // Act
             if (expectedValid)
@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, CreateCohortRequest instance, bool expectedValid)
         {
             // Arrange
-            var validator = new CreateCohortRequestValidator();
+            var validator = (CreateCohortRequestValidator)null;//new CreateCohortRequestValidator();
 
             // Act
             if (expectedValid)

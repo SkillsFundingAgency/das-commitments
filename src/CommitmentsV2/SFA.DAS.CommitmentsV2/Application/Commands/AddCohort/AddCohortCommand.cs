@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string OriginatorReference { get; set; }
-        public Guid ReservationId { get; set; }
+        public Guid? ReservationId { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -1,4 +1,6 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.Authorization;
+using SFA.DAS.Authorization.Features;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
 using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore;
@@ -13,11 +15,13 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
+            registry.IncludeRegistry<AuthorizationRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
             registry.IncludeRegistry<DataRegistry>();
             registry.IncludeRegistry<DomainServiceRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
+            registry.IncludeRegistry<FeaturesAuthorizationRegistry>();
             registry.IncludeRegistry<HashingRegistry>();
             registry.IncludeRegistry<MappingRegistry>();
             registry.IncludeRegistry<MediatorRegistry>();

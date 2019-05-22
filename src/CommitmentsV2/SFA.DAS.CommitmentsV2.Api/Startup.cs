@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Authorization.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
@@ -36,7 +37,11 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddApiAuthentication(Configuration)
                 .AddApiAuthorization(_env)
                 .Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; })
-                .AddMvc(options => { options.Filters.Add<ValidateModelAttribute>(); })
+                .AddMvc(o =>
+                {
+                    o.AddAuthorization();
+                    o.Filters.Add<ValidateModelAttribute>();
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>());
 
@@ -63,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Api
 
             app.UseHttpsRedirection()
                 .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
+                .UseUnauthorizedAccessExceptionHandler()
                 .UseAuthentication()
                 .UseHealthChecks("/api/health-check")
                 .UseUnitOfWork()
