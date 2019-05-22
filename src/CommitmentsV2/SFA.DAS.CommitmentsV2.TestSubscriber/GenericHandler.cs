@@ -86,4 +86,12 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             return Log(message, context);
         }
     }
+
+    class DraftApprenticeshipCreatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipCreatedEvent>
+    {
+        public Task Handle(DraftApprenticeshipCreatedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
 }
