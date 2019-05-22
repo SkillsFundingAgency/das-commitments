@@ -13,13 +13,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
     [TestFixture]
     [Parallelizable]
-    public class DraftApprenticeshipsControllerTests
+    public class DraftApprenticeshipControllerTests
     {
         [Test]
         public async Task AddDraftApprenticeship_ValidRequest_ShouldReturnAnOkResult()
         {
             //Arrange
-            var fixture = new DraftApprenticeshipsControllerTestsFixture().WithAddDraftApprenticeshipCommandResponse();
+            var fixture = new DraftApprenticeshipControllerTestsFixture().WithAddDraftApprenticeshipCommandResponse();
 
             //Act
             var response = await fixture.AddDraftApprenticeship();
@@ -29,13 +29,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
     }
 
-    public class DraftApprenticeshipsControllerTestsFixture
+    public class DraftApprenticeshipControllerTestsFixture
     {
         public const long CohortId = 123;
         public const string CohortReference = "ABC123";
         public const long DraftApprenticeshipId = 456;
 
-        public DraftApprenticeshipsControllerTestsFixture()
+        public DraftApprenticeshipControllerTestsFixture()
         {
             MediatorMock = new Mock<IMediator>();
             AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperMock = new Mock<IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>>();
@@ -46,12 +46,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         private Mock<IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>> AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperMock { get; }
         private IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper => AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperMock.Object;
 
-        public DraftApprenticeshipsController CreateController()
+        public DraftApprenticeshipController CreateController()
         {
-            return new DraftApprenticeshipsController(Mediator, AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper);
+            return new DraftApprenticeshipController(Mediator, AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper);
         }
 
-        public DraftApprenticeshipsControllerTestsFixture WithAddDraftApprenticeshipCommandResponse(long id, string reference, long draftApprenticeshipId)
+        public DraftApprenticeshipControllerTestsFixture WithAddDraftApprenticeshipCommandResponse(long id, string reference, long draftApprenticeshipId)
         {
             MediatorMock
                 .Setup(m => m.Send(It.IsAny<AddDraftApprenticeshipCommand>(), CancellationToken.None))
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
-        public DraftApprenticeshipsControllerTestsFixture WithAddDraftApprenticeshipCommandResponse()
+        public DraftApprenticeshipControllerTestsFixture WithAddDraftApprenticeshipCommandResponse()
         {
             return WithAddDraftApprenticeshipCommandResponse(CohortId, CohortReference, DraftApprenticeshipId);
         }

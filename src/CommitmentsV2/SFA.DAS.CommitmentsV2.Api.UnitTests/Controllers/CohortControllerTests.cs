@@ -14,13 +14,13 @@ using SFA.DAS.CommitmentsV2.Mapping;
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
     [TestFixture]
-    public class CohortsControllerTests
+    public class CohortControllerTests
     {
         [Test]
         public async Task CreateCohort_ValidRequest_ShouldReturnAnOkResult()
         {
             //Arrange
-            var fixture = new CohortsControllerTestFixtures().WithAddCohortCommandResponse();
+            var fixture = new CohortControllerTestFixtures().WithAddCohortCommandResponse();
 
             //Act
             var response = await fixture.CreateCohort();
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public async Task CreateCohort_ValidRequest_ShouldReturnExpectedExpectedResponseObject()
         {
             //Arrange
-            var fixture = new CohortsControllerTestFixtures().WithAddCohortCommandResponse();
+            var fixture = new CohortControllerTestFixtures().WithAddCohortCommandResponse();
 
             //Act
             var response = await fixture.CreateCohort();
@@ -46,38 +46,38 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public async Task CreateCohort_ValidRequest_ShouldReturnExpectedCohortId()
         {
             //Arrange
-            var fixture = new CohortsControllerTestFixtures().WithAddCohortCommandResponse();
+            var fixture = new CohortControllerTestFixtures().WithAddCohortCommandResponse();
 
             //Act
             var response = await fixture.CreateCohort();
             var addCohortResponse = ((OkObjectResult)response).Value as CreateCohortResponse;
 
             //Assert
-            Assert.AreEqual(CohortsControllerTestFixtures.CohortId, addCohortResponse.CohortId);
+            Assert.AreEqual(CohortControllerTestFixtures.CohortId, addCohortResponse.CohortId);
         }
 
         [Test]
         public async Task CreateCohort_ValidRequest_ShouldReturnExpectedReference()
         {
             //Arrange
-            var fixture = new CohortsControllerTestFixtures().WithAddCohortCommandResponse();
+            var fixture = new CohortControllerTestFixtures().WithAddCohortCommandResponse();
 
             //Act
             var response = await fixture.CreateCohort();
             var addCohortResponse = ((OkObjectResult)response).Value as CreateCohortResponse;
 
             //Assert
-            Assert.AreEqual(CohortsControllerTestFixtures.CohortReference, addCohortResponse.CohortReference);
+            Assert.AreEqual(CohortControllerTestFixtures.CohortReference, addCohortResponse.CohortReference);
         }
     }
 
-    public class CohortsControllerTestFixtures
+    public class CohortControllerTestFixtures
     {
         public const long CohortId = 123;
         public const string CohortReference = "ABC123";
         public const long DraftApprenticeshipId = 456;
 
-        public CohortsControllerTestFixtures()
+        public CohortControllerTestFixtures()
         {
             MediatorMock = new Mock<IMediator>();
             CreateCohortRequestToAddCohortCommandMapperMock = new Mock<IMapper<CreateCohortRequest, AddCohortCommand>>();
@@ -88,12 +88,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         private Mock<IMapper<CreateCohortRequest, AddCohortCommand>> CreateCohortRequestToAddCohortCommandMapperMock { get; }
         private IMapper<CreateCohortRequest, AddCohortCommand> CreateCohortRequestToAddCohortCommandMapper => CreateCohortRequestToAddCohortCommandMapperMock.Object;
 
-        public CohortsController CreateController()
+        public CohortController CreateController()
         {
-            return new CohortsController(Mediator, CreateCohortRequestToAddCohortCommandMapper);
+            return new CohortController(Mediator, CreateCohortRequestToAddCohortCommandMapper);
         }
 
-        public CohortsControllerTestFixtures WithAddCohortCommandResponse(long id, string reference, long draftApprenticeshipId)
+        public CohortControllerTestFixtures WithAddCohortCommandResponse(long id, string reference, long draftApprenticeshipId)
         {
             MediatorMock
                 .Setup(m => m.Send(It.IsAny<AddCohortCommand>(), CancellationToken.None))
@@ -106,12 +106,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
-        public CohortsControllerTestFixtures WithAddCohortCommandResponse()
+        public CohortControllerTestFixtures WithAddCohortCommandResponse()
         {
             return WithAddCohortCommandResponse(CohortId, CohortReference, DraftApprenticeshipId);
         }
 
-        public CohortsControllerTestFixtures WithAddDraftApprenticeshipCommandResponse(long id, string reference, long draftApprenticeshipId)
+        public CohortControllerTestFixtures WithAddDraftApprenticeshipCommandResponse(long id, string reference, long draftApprenticeshipId)
         {
             MediatorMock
                 .Setup(m => m.Send(It.IsAny<AddDraftApprenticeshipCommand>(), CancellationToken.None))
@@ -120,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return this;
         }
 
-        public CohortsControllerTestFixtures WithAddDraftApprenticeshipCommandResponse()
+        public CohortControllerTestFixtures WithAddDraftApprenticeshipCommandResponse()
         {
             return WithAddDraftApprenticeshipCommandResponse(CohortId, CohortReference, DraftApprenticeshipId);
         }

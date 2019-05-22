@@ -9,12 +9,12 @@ using SFA.DAS.CommitmentsV2.Mapping;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/cohorts")]
-    public class CohortsController : ControllerBase
+    public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
 
-        public CohortsController(
+        public CohortController(
             IMediator mediator,
             IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper)
         {

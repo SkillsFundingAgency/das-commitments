@@ -8,12 +8,12 @@ using SFA.DAS.CommitmentsV2.Mapping;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/cohorts/{cohortId}/draft-apprenticeships")]
-    public class DraftApprenticeshipsController : Controller
+    public class DraftApprenticeshipController : Controller
     {
         private readonly IMediator _mediator;
         private readonly IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
 
-        public DraftApprenticeshipsController(IMediator mediator, IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper)
+        public DraftApprenticeshipController(IMediator mediator, IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper)
         {
             _mediator = mediator;
             _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
