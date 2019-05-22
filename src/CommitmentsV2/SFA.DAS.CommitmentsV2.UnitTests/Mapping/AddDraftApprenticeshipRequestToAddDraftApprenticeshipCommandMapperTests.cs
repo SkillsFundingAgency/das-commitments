@@ -10,13 +10,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests
     {
         [Test]
-        public void Map_CohortId_ShouldBeSet()
-        {
-            const long cohortId = 123;
-            AssertPropertySet(input => input.CohortId = cohortId, output => output.CohortId == cohortId);
-        }
-
-        [Test]
         public void Map_ProviderId_ShouldBeSet()
         {
             const long providerId = 123;

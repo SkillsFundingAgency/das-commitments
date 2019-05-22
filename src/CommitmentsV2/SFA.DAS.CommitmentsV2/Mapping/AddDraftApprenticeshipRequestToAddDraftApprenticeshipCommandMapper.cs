@@ -7,20 +7,21 @@ namespace SFA.DAS.CommitmentsV2.Mapping
     {
         public AddDraftApprenticeshipCommand Map(AddDraftApprenticeshipRequest source)
         {
-            return new AddDraftApprenticeshipCommand(
-                source.CohortId,
-                source.UserId,
-                source.ProviderId,
-                source.CourseCode,
-                source.Cost,
-                source.StartDate,
-                source.EndDate,
-                source.OriginatorReference,
-                source.ReservationId,
-                source.FirstName,
-                source.LastName,
-                source.DateOfBirth,
-                source.Uln);
+            return new AddDraftApprenticeshipCommand
+            {
+                UserId = source.UserId,
+                ProviderId = source.ProviderId,
+                CourseCode = source.CourseCode,
+                Cost = source.Cost,
+                StartDate = source.StartDate,
+                EndDate = source.EndDate,
+                OriginatorReference = source.OriginatorReference,
+                ReservationId = source.ReservationId,
+                FirstName = source.FirstName,
+                LastName = source.LastName,
+                DateOfBirth = source.DateOfBirth,
+                Uln = source.Uln
+            };
         }
     }
 }
