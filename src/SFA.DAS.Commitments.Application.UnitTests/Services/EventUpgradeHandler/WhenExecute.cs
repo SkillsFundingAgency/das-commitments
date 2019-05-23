@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services.EventUpgradeHandler
         {
             _mockEndpointInstance = new Mock<IEndpointInstance>();
 
-            _sut = new Application.Services.EventUpgradeHandler(_mockEndpointInstance.Object);
+            _sut = new Application.Services.EventUpgradeHandler(_mockEndpointInstance.Object, Mock.Of<NLog.Logger.ILog>());
         }
 
         [Test]
