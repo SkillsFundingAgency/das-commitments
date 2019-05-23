@@ -30,5 +30,6 @@ namespace SFA.DAS.Commitments.Api.Types.Commitment
         public LastUpdateInfo EmployerLastUpdateInfo { get; set; }
         public LastUpdateInfo ProviderLastUpdateInfo { get; set; }
         public List<MessageView> Messages { get; set; }
+        public string AccountLegalEntityPublicHashedId { get; set; }
     }
 }
