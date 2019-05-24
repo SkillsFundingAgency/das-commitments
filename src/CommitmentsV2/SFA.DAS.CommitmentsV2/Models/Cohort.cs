@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new InvalidOperationException($"There is not a draft apprenticeship with id {draftApprenticeshipDetails.Id} in cohort {Id}");
             }
             
-            existingDraftApprenticeship.Merge(draftApprenticeshipDetails);
+            existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
