@@ -36,9 +36,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
 
             await _cohortDomainService.UpdateDraftApprenticeship(command.CohortId, draftApprenticeshipDetails, cancellationToken);
 
-            var db = _dbContext.Value;
-            await db.SaveChangesAsync(cancellationToken);
-
             _logger.LogInformation($"Saved cohort. Reservation-Id:{command.ReservationId} Commitment-Id:{command.CohortId} Apprenticeship:{command.ApprenticeshipId}");
 
             var response = new UpdateDraftApprenticeshipResponse

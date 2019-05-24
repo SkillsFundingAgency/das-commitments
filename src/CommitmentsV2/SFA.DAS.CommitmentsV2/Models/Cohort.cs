@@ -50,7 +50,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Messages { get; set; }
         public virtual ICollection<TransferRequest> TransferRequests { get; set; }
 
-        [NotMapped]
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
         public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
