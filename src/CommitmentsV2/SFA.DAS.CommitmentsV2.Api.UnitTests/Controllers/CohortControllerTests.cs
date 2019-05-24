@@ -8,7 +8,6 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -109,20 +108,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public CohortControllerTestFixtures WithAddCohortCommandResponse()
         {
             return WithAddCohortCommandResponse(CohortId, CohortReference, DraftApprenticeshipId);
-        }
-
-        public CohortControllerTestFixtures WithAddDraftApprenticeshipCommandResponse(long id, string reference, long draftApprenticeshipId)
-        {
-            MediatorMock
-                .Setup(m => m.Send(It.IsAny<AddDraftApprenticeshipCommand>(), CancellationToken.None))
-                .ReturnsAsync(Unit.Value);
-
-            return this;
-        }
-
-        public CohortControllerTestFixtures WithAddDraftApprenticeshipCommandResponse()
-        {
-            return WithAddDraftApprenticeshipCommandResponse(CohortId, CohortReference, DraftApprenticeshipId);
         }
 
         public Task<IActionResult> CreateCohort()

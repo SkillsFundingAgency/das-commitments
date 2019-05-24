@@ -3,7 +3,7 @@ using MediatR;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
 {
-    public class AddDraftApprenticeshipCommand : IRequest
+    public class AddDraftApprenticeshipCommand : IRequest<AddDraftApprenticeshipResult>
     {
         public long CohortId { get; set; }
         public string UserId { get; set; }

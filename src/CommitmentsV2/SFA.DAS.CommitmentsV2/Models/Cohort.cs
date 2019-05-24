@@ -48,12 +48,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<Message> Message { get; set; }
         public virtual ICollection<TransferRequest> TransferRequest { get; set; }
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator party)
         {
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(party);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
-            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, party);
             Apprenticeship.Add(draftApprenticeship);
-            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, CreatedOn.Value));
+            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
+            return draftApprenticeship;
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -66,6 +68,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.ThrowIfAny();
+        }
+        
+        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Originator modifyingParty)
+        {
+            if (!ModifierIsAllowedToEdit(modifyingParty))
+            {
+                throw new DomainException(nameof(modifyingParty), "The cohort may not be modified by the current role");
+            }
         }
 
         private IEnumerable<DomainError> BuildFirstNameValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -155,5 +165,20 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield break;
             }
        }
+
+        private bool ModifierIsAllowedToEdit(Originator modifyingParty)
+        {
+            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Originator.Employer)
+            {
+                return true;
+            }
+
+            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Originator.Provider)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

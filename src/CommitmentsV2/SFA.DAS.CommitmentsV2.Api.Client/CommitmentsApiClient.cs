@@ -51,9 +51,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get("api/test/provider");  
         }
 
-        public Task AddDraftApprenticeship(AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PostAsJson($"api/cohorts/{request.CohortId}/draft-apprenticeships", request, cancellationToken);
+            return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
         }
     }
 }

@@ -9,7 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Validators
     {
         public AddDraftApprenticeshipRequestValidator(IAuthorizationService authorizationService)
         {
-            RuleFor(r => r.CohortId).Must(c => c > 0).WithMessage("The cohort id must be supplied");
             RuleFor(r => r.UserId).NotEmpty().WithMessage("The user id must be supplied"); 
             RuleFor(r => r.ProviderId).Must(p => p > 0).WithMessage("The provider id must be positive");
             RuleFor(r => r.FirstName).MaximumLength(100).WithMessage("You must enter a first name that's no longer than 100 characters");

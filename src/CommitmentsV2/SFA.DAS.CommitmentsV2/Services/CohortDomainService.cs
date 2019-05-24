@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
@@ -24,13 +25,15 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IUlnValidator _ulnValidator;
         private readonly IReservationValidationService _reservationValidationService;
         private readonly IOverlapCheckService _overlapCheckService;
+        private readonly IAuthenticationService _authenticationService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
             IAcademicYearDateProvider academicYearDateProvider,
             IUlnValidator ulnValidator,
             IReservationValidationService reservationValidationService,
-            IOverlapCheckService overlapCheckService)
+            IOverlapCheckService overlapCheckService,
+            IAuthenticationService authenticationService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -38,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _ulnValidator = ulnValidator;
             _reservationValidationService = reservationValidationService;
             _overlapCheckService = overlapCheckService;
+            _authenticationService = authenticationService;
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
@@ -48,22 +52,23 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
 
-            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails);
+            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _authenticationService.GetUserRole());
 
             await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
             return cohort;
         }
         
-        public async Task AddDraftApprenticeship(long providerId, long cohortId,
+        public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
             var cohort = await GetCohort(cohortId, db, cancellationToken);
-            
-            cohort.AddDraftApprenticeship(draftApprenticeshipDetails);
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserRole());
 
             await ValidateDraftApprenticeshipDetails(providerId, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+
+            return draftApprenticeship;
         }
 
         private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)

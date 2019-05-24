@@ -1,14 +1,22 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.Testing;
+using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
@@ -21,7 +29,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
-                f => f.CohortDomainServiceMock.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId, f.Command.CohortId, f.DraftApprenticeshipDetails, f.CancellationToken)));
+                f => f.CohortDomainService.Verify(c => c.AddDraftApprenticeship(f.Command.ProviderId, f.Command.CohortId, f.DraftApprenticeshipDetails, f.CancellationToken)));
+        }
+        
+        [Test]
+        public Task Handle_WhenCommandIsHandled_ThenShouldReturnAddDraftApprenticeshipResult()
+        {
+            return TestAsync(
+                f => f.AddDraftApprenticeship(),
+                (f, r) => r.Should().NotBeNull().And.Subject.Should().Match<AddDraftApprenticeshipResult>(r2 => r2.Id == f.DraftApprenticeship.Id));
         }
     }
 
@@ -30,25 +46,40 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Fixture Fixture { get; set; }
         public AddDraftApprenticeshipCommand Command { get; set; }
         public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
+        public DraftApprenticeship DraftApprenticeship { get; set; }
         public CancellationToken CancellationToken { get; set; }
-        public Mock<ICohortDomainService> CohortDomainServiceMock { get; set; }
-        public Mock<IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; set; }
-        public IRequestHandler<AddDraftApprenticeshipCommand> Handler { get; set; }
+        public ProviderCommitmentsDbContext Db { get; set; }
+        public Mock<IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
+        public Mock<ICohortDomainService> CohortDomainService { get; set; }
+        public IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult> Handler { get; set; }
 
         public AddDraftApprenticeshipCommandHandlerTestsFixture()
         {
             Fixture = new Fixture();
             Command = Fixture.Create<AddDraftApprenticeshipCommand>();
-            DraftApprenticeshipDetails = new DraftApprenticeshipDetails();
+            DraftApprenticeshipDetails = Fixture.Create<DraftApprenticeshipDetails>();
+            DraftApprenticeship = new DraftApprenticeship().Set(a => a.Id, 123);
             CancellationToken = new CancellationToken();
-            CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            DraftApprenticeshipDetailsMapperMock = new Mock<IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
-            Handler = new AddDraftApprenticeshipCommandHandler(DraftApprenticeshipDetailsMapperMock.Object, CohortDomainServiceMock.Object);
+            
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                .Options);
+            
+            CohortDomainService = new Mock<ICohortDomainService>();
+            DraftApprenticeshipDetailsMapper = new Mock<IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
+            
+            Handler = new AddDraftApprenticeshipCommandHandler(
+                new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                Mock.Of<ILogger<AddDraftApprenticeshipCommandHandler>>(),
+                DraftApprenticeshipDetailsMapper.Object,
+                CohortDomainService.Object);
 
-            DraftApprenticeshipDetailsMapperMock.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
+            CohortDomainService.Setup(s => s.AddDraftApprenticeship(Command.ProviderId, Command.CohortId,DraftApprenticeshipDetails, CancellationToken)).ReturnsAsync(DraftApprenticeship);
+            DraftApprenticeshipDetailsMapper.Setup(m => m.Map(Command)).ReturnsAsync(DraftApprenticeshipDetails);
         }
 
-        public Task AddDraftApprenticeship()
+        public Task<AddDraftApprenticeshipResult> AddDraftApprenticeship()
         {
             return Handler.Handle(Command, CancellationToken);
         }

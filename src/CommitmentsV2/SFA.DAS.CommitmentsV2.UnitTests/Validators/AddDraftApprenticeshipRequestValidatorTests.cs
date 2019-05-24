@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
+using Moq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
+using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
@@ -12,14 +14,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
     [TestFixture]
     public class AddDraftApprenticeshipRequestValidatorTests
     {
-        [TestCase(-1, false)]
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        public void Validate_CohortId_ShouldBeValidated(long value, bool expectedValid)
-        {
-            AssertValidationResult(request => request.CohortId, value, expectedValid);
-        }
-        
         [TestCase(null, false)]
         [TestCase("", false)]
         [TestCase("Fred Flintstone", true)]
@@ -36,13 +30,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ProviderId, value, expectedValid);
         }
 
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        public void Validate_ReservationId_ShouldBeValidated(bool useBlankGuid, bool expectedValid)
+        [TestCase(false, false, true)]
+        [TestCase(false, true, false)]
+        [TestCase(true, false, false)]
+        [TestCase(true, true, true)]
+        public void Validate_ReservationId_ShouldBeValidated(bool isFeatureEnabled, bool hasValue, bool expectedValid)
         {
-            var guidToUse = useBlankGuid ? Guid.Empty : Guid.NewGuid();
-
-            AssertValidationResult(request => request.ReservationId, guidToUse, expectedValid);
+            AssertValidationResult(request => request.ReservationId, s => s == Feature.Reservations && isFeatureEnabled, hasValue ? Guid.NewGuid() : (Guid?)null, expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
@@ -70,10 +64,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.OriginatorReference, value, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest,T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
-            var validator = (AddDraftApprenticeshipRequestValidator)null;//new AddDraftApprenticeshipRequestValidator();
+            var validator = new AddDraftApprenticeshipRequestValidator(Mock.Of<IAuthorizationService>());
 
             // Act
             if (expectedValid)
@@ -86,19 +80,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             }
         }
 
-        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, AddDraftApprenticeshipRequest instance, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
         {
             // Arrange
-            var validator = (AddDraftApprenticeshipRequestValidator)null;//new AddDraftApprenticeshipRequestValidator();
+            var authorizationService = new Mock<IAuthorizationService>();
+            
+            authorizationService.Setup(a => a.IsAuthorized(It.IsAny<string[]>()))
+                .Returns<string[]>(o => feature(o.SingleOrDefault()));
+            
+            var validator = new AddDraftApprenticeshipRequestValidator(authorizationService.Object);
 
             // Act
             if (expectedValid)
             {
-                validator.ShouldNotHaveValidationErrorFor(property, instance);
+                validator.ShouldNotHaveValidationErrorFor(property, value);
             }
             else
             {
-                validator.ShouldHaveValidationErrorFor(property, instance);
+                validator.ShouldHaveValidationErrorFor(property, value);
             }
         }
     }
