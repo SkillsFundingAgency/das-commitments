@@ -6,11 +6,9 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping;
-using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.UpdateDraftApprenticeshipResponse;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
 
@@ -29,20 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Update(1,1, new UpdateDraftApprenticeshipRequest());
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult);
-        }
-
-        [Test]
-        public async Task Update_ValidRequest_ShouldReturnExpectedExpectedResponseObject()
-        {
-            //Arrange
-            var fixture = new DraftApprenticeshipControllerTestFixtures().WithCommandResponse();
-
-            //Act
-            var response = await fixture.Update(1, 1, new UpdateDraftApprenticeshipRequest());
-
-            //Assert
-            Assert.IsTrue(((OkObjectResult)response).Value is UpdateDraftApprenticeshipResponse);
+            Assert.IsTrue(response is OkResult);
         }
      }
 
@@ -59,13 +44,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             UpdateMapperMock
                 .Setup(m => m.Map(It.IsAny<UpdateDraftApprenticeshipRequest>()))
-                .Returns((UpdateDraftApprenticeshipRequest request) => new UpdateDraftApprenticeshipCommand());
+                .ReturnsAsync((UpdateDraftApprenticeshipRequest request) => new UpdateDraftApprenticeshipCommand());
 
             GetMapperMock = new Mock<IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse>>();
 
             GetMapperMock
                 .Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipCommandResponse>()))
-                .Returns((GetDraftApprenticeshipResponse request) => new GetDraftApprenticeshipResponse());
+                .ReturnsAsync((GetDraftApprenticeshipResponse request) => new GetDraftApprenticeshipResponse());
         }
 
         private Mock<IMediator> MediatorMock { get; }

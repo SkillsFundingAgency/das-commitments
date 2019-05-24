@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>
+    public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IMapper<AddCohortCommand, DraftApprenticeshipDetails>
     {
         private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
 

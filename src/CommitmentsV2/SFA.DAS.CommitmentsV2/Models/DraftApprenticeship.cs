@@ -15,6 +15,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             Merge(source);
 
+            ReservationId = source.ReservationId;
+
             switch (originator)
             {
                 case Originator.Employer:
@@ -40,7 +42,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartDate = source.StartDate;
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
-            ReservationId = source.ReservationId;
         }
     }
 }

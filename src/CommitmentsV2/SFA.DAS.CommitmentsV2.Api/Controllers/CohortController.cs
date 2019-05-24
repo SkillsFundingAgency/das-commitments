@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/Cohorts")]
+    [Route("api/cohorts")]
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -50,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 return BadRequest(ModelState.CreateErrorResponse());
             }
 
-            var result = await _mediator.Send(_addCohortMapper.Map(request));
+            var command = await _addCohortMapper.Map(request);
+            var result = await _mediator.Send(command);
 
             return Ok(new CreateCohortResponse
             {

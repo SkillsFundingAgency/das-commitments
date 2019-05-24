@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId,
             CancellationToken cancellationToken = default)
         {
-            return _client.Get<GetDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", null, cancellationToken);
+            return _client.Get<GetDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", null, cancellationToken);
         }
 
         public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)
@@ -47,10 +47,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<AccountLegalEntityResponse>($"api/accountlegalentity/{accountLegalEntityId}", null, cancellationToken);
         }
 
-        public Task<UpdateDraftApprenticeshipResponse> UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
+        public Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
-            return _client.PutAsJson<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipResponse>(
-                $"api/cohorts/{cohortId}/draft-Apprenticeships/{apprenticeshipId}", request, cancellationToken);
+            return _client.PutAsJson<UpdateDraftApprenticeshipRequest>(
+                $"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", request, cancellationToken);
         }
 
         public Task<string> SecureCheck()

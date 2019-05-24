@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
         Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
-        Task<UpdateDraftApprenticeshipResponse> UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
 
     }
 }

@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 throw new Exception($"The course code {courseCode} was not found");
             }
 
-            return _trainingProgrammeMapper.Map(course);
+            return await _trainingProgrammeMapper.Map(course);
         }
     }
 }

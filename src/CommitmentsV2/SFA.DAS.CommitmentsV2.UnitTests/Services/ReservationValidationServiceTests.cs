@@ -36,10 +36,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _requestMapper = new Mock<IMapper<ReservationValidationRequest, ValidationReservationMessage>>();
             _requestMapper.Setup(x => x.Map(It.Is<ReservationValidationRequest>(r => r == _validationRequest)))
-                .Returns(() => _apiRequest);
+                .ReturnsAsync(() => _apiRequest);
 
             _resultMapper = new Mock<IMapper<ValidationResult, ReservationValidationResult>>();
-            _resultMapper.Setup(x => x.Map(It.IsAny<ValidationResult>())).Returns(_validationResult);
+            _resultMapper.Setup(x => x.Map(It.IsAny<ValidationResult>())).ReturnsAsync(_validationResult);
 
             _apiClient = new Mock<IReservationsApiClient>();
             _apiClient.Setup(x =>

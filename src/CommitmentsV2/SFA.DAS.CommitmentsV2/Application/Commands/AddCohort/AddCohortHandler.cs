@@ -19,14 +19,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly IHashingService _hashingService;
         private readonly ILogger<AddCohortHandler> _logger;
 
-        private readonly IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
+        private readonly IMapper<AddCohortCommand, DraftApprenticeshipDetails> _draftApprenticeshipDetailsMapper;
         private readonly ICohortDomainService _cohortDomainService;
 
         public AddCohortHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IHashingService hashingService,
             ILogger<AddCohortHandler> logger,
-            IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
+            IMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService)
         {
             _dbContext = dbContext;

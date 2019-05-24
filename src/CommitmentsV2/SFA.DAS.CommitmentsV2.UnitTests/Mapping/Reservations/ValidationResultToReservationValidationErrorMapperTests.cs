@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoFixture;
 using Castle.Core.Internal;
 using NUnit.Framework;
@@ -24,9 +25,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
         }
 
         [Test]
-        public void Map_Errors_ShouldBeSet()
+        public async Task Map_Errors_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
 
             Assert.AreEqual(_source.ValidationErrors.Length, result.ValidationErrors.Length);
             foreach (var error in result.ValidationErrors)

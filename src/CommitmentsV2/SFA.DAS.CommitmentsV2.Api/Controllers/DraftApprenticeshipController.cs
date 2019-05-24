@@ -4,10 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
-using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Mapping;
-using SFA.DAS.CommitmentsV2.Types;
-using UpdateDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.UpdateDraftApprenticeshipResponse;
+
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
 
@@ -46,13 +44,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}")]
         public async Task<IActionResult> Update(long cohortId, long apprenticeshipId, [FromBody]UpdateDraftApprenticeshipRequest request)
         {
-            var command = _updateDraftApprenticeshipMapper.Map(request);
+            var command = await _updateDraftApprenticeshipMapper.Map(request);
             command.CohortId = cohortId;
             command.ApprenticeshipId = apprenticeshipId;
 
             await _mediator.Send(command);
 
-            return Ok(new UpdateDraftApprenticeshipResponse());
+            return Ok();
         }
     }
 }
