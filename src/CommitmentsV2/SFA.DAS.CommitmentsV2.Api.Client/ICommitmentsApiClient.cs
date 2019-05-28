@@ -8,13 +8,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     public interface ICommitmentsApiClient
     {
         Task<bool> HealthCheck();
-
+        Task<bool> CanAccessCohort(CohortAccessRequest request, CancellationToken cancellationToken = default);
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
 
         // To be removed latter
         Task<string> SecureCheck();
         Task<string> SecureEmployerCheck();
         Task<string> SecureProviderCheck();
+
         Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
         Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);

@@ -42,6 +42,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task CanAccessCohort_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.CanAccessCohort(_fixture.CohortAccessRequest);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<bool>($"api/authorization/access-cohort", _fixture.CohortAccessRequest, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task CanAccessCohort_VerifyResponseWasReturned()
+        {
+            _fixture.SetupResponseForCohortAccessCheck();
+            var result = await _fixture.CommitmentsApiClient.CanAccessCohort(_fixture.CohortAccessRequest, CancellationToken.None);
+            Assert.IsTrue(true);
+        }
+
+        [Test]
         public async Task CreateCohort_VerifyUrlAndDataIsCorrectPassedIn()
         {
 
@@ -72,6 +87,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
         public Mock<IRestHttpClient> MockRestHttpClient { get; }
         public CreateCohortRequest CreateCohortRequest { get; }
+        public CohortAccessRequest CohortAccessRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
 
         public WhenCallingTheEndpointsFixture()
@@ -79,6 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             MockRestHttpClient = new Mock<IRestHttpClient>();
             CommitmentsApiClient = new Client.CommitmentsApiClient(MockRestHttpClient.Object);
             CreateCohortRequest = new CreateCohortRequest();
+            CohortAccessRequest = new CohortAccessRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
         }
 
@@ -86,6 +103,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             MockRestHttpClient.Setup(x => x.PostAsJson<CreateCohortRequest, CreateCohortResponse>(It.IsAny<string>(), It.IsAny<CreateCohortRequest>(), CancellationToken.None))
                 .ReturnsAsync(new CreateCohortResponse());
+            return this;
+        }
+
+        public WhenCallingTheEndpointsFixture SetupResponseForCohortAccessCheck()
+        {
+            MockRestHttpClient.Setup(x => x.Get<bool>(It.IsAny<string>(), It.IsAny<CohortAccessRequest>(), CancellationToken.None))
+                .ReturnsAsync(true);
             return this;
         }
     }
