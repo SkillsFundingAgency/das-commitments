@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
 
-        public virtual Cohort CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        public virtual Cohort CreateCohort(AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
         {
             var cohort = new Cohort
             {
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 Originator = Originator.Provider
             };
 
-            cohort.AddDraftApprenticeship(draftApprenticeshipDetails);  
+            cohort.AddDraftApprenticeship(draftApprenticeshipDetails, modifyingParty);  
 
             return cohort;
         }

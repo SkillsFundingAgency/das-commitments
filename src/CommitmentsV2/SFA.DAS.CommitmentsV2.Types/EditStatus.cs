@@ -5,7 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Types
     /// <summary>
     /// For unapproved apprenticeships, indicates which party the commitment currently sits with for editing.
     /// </summary>
-    public enum EditStatus
+    public enum EditStatus : short
     {
         [Description("Indicates approval by both employer (receiving employer if transfer) and provider")]
         Both = 0,

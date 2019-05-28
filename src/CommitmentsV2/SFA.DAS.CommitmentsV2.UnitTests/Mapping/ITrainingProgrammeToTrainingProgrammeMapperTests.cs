@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
@@ -21,41 +22,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         }
 
         [Test]
-        public void Map_CourseCode_ShouldBeSet()
+        public Task Map_CourseCode_ShouldBeSet()
         {
             var courseCode = _autoFixture.Create<string>();
-            AssertPropertySet(input => input.Setup(x => x.Id).Returns(courseCode), output => output.CourseCode == courseCode);
+            return AssertPropertySet(input => input.Setup(x => x.Id).Returns(courseCode), output => output.CourseCode == courseCode);
         }
 
         [Test]
-        public void Map_Name_ShouldBeSet()
+        public Task Map_Name_ShouldBeSet()
         {
             var name = _autoFixture.Create<string>();
-            AssertPropertySet(input => input.Setup(x => x.ExtendedTitle).Returns(name), output => output.Name == name);
+            return AssertPropertySet(input => input.Setup(x => x.ExtendedTitle).Returns(name), output => output.Name == name);
         }
 
         [TestCase(Apprenticeships.Api.Types.ProgrammeType.Framework, ProgrammeType.Framework)]
         [TestCase(Apprenticeships.Api.Types.ProgrammeType.Standard, ProgrammeType.Standard)]
-        public void Map_ProgrammeType_ShouldBeSet(Apprenticeships.Api.Types.ProgrammeType progType, ProgrammeType outputType)
+        public Task Map_ProgrammeType_ShouldBeSet(Apprenticeships.Api.Types.ProgrammeType progType, ProgrammeType outputType)
         {
-            AssertPropertySet(input => input.Setup(x => x.ProgrammeType).Returns(progType), output => output.ProgrammeType == outputType);
+            return AssertPropertySet(input => input.Setup(x => x.ProgrammeType).Returns(progType), output => output.ProgrammeType == outputType);
         }
 
         [Test]
-        public void Map_EffectiveFrom_ShouldBeSet()
+        public Task Map_EffectiveFrom_ShouldBeSet()
         {
             var effectiveFromDate = _autoFixture.Create<DateTime?>();
-            AssertPropertySet(input => input.Setup(x => x.EffectiveFrom).Returns(effectiveFromDate), output => output.EffectiveFrom == effectiveFromDate);
+            return AssertPropertySet(input => input.Setup(x => x.EffectiveFrom).Returns(effectiveFromDate), output => output.EffectiveFrom == effectiveFromDate);
         }
 
         [Test]
-        public void Map_EffectiveTo_ShouldBeSet()
+        public Task Map_EffectiveTo_ShouldBeSet()
         {
             var effectiveToDate = _autoFixture.Create<DateTime?>();
-            AssertPropertySet(input => input.Setup(x => x.EffectiveTo).Returns(effectiveToDate), output => output.EffectiveTo == effectiveToDate);
+            return AssertPropertySet(input => input.Setup(x => x.EffectiveTo).Returns(effectiveToDate), output => output.EffectiveTo == effectiveToDate);
         }
 
-        private void AssertPropertySet(Action<Mock<ITrainingProgramme>> setInput, Func<TrainingProgramme, bool> expectOutput)
+        private async Task AssertPropertySet(Action<Mock<ITrainingProgramme>> setInput, Func<TrainingProgramme, bool> expectOutput)
         {
             var mapper = new ITrainingProgrammeToTrainingProgrammeMapper();
 
@@ -64,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
             setInput.Invoke(input);
 
-            var output = mapper.Map(input.Object);
+            var output = await mapper.Map(input.Object);
 
             Assert.IsTrue(expectOutput(output));
         }
