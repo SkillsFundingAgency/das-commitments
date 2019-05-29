@@ -13,8 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
                 AccountId = source.AccountId,
                 ReservationId = source.ReservationId,
                 StartDate = source.StartDate,
-                ProviderId = source.ProviderId,
-                AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
                 CourseCode = source.CourseCode
             });
         }

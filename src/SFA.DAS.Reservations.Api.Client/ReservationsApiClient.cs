@@ -16,7 +16,14 @@ namespace SFA.DAS.Reservations.Api.Client
 
         public Task<ValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
         {
-            return _client.PutAsJson<ValidationReservationMessage, ValidationResult>($"api/accounts/{request.AccountId}/reservations/{request.ReservationId}", request, cancellationToken);
+            var uri = $"api/accounts/{request.AccountId}/reservations/{request.ReservationId}";
+            return _client.Get<ValidationResult>(uri,
+                new
+                {
+                    StartDate = request.StartDate.ToString("yyyy-MM-dd"),
+                    request.CourseCode
+                },
+                cancellationToken);
         }
     }
 }

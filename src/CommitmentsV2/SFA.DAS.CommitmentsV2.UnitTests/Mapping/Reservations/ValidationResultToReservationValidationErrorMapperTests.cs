@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
             foreach (var error in result.ValidationErrors)
             {
                 Assert.IsTrue(result.ValidationErrors.Any(x =>
-                    x.Code == error.Code && x.PropertyName == error.PropertyName && x.Reason == error.Reason));
+                    x.PropertyName == error.PropertyName && x.Reason == error.Reason));
             }
         }
     }
