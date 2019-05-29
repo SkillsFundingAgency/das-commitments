@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
@@ -8,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Types;
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/authorization")]
+    [Authorize]
     public class AuthorizationController : ControllerBase
     {
         private readonly IMediator _mediator;
