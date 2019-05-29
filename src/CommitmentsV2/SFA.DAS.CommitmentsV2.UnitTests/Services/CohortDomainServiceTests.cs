@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
@@ -33,17 +34,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task OnCreateCohort_Provider_Creates_Cohort()
+        public async Task CreateCohort_Provider_Creates_Cohort()
         {
             await _fixture.CreateCohort();
             _fixture.VerifyProviderCohortCreation();
         }
 
         [Test]
-        public async Task OnAddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
+        public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
         {
+            _fixture.SetCohort();
             await _fixture.AddDraftApprenticeship();
             _fixture.VerifyProviderDraftApprenticeshipAdded();
+        }
+
+        [Test]
+        public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
+        {
+            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship, $"Cohort {_fixture.CohortId} was not found");
         }
 
         [TestCase("2019-07-31", null, true)]
@@ -135,10 +143,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
-                
-                Cohort = new Mock<Cohort>();
-                Cohort.Setup(x => x.Id).Returns(CohortId);
-                Db.Commitment.Add(Cohort.Object);
                 
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
@@ -240,6 +244,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture SetCohort()
+            {
+                Cohort = new Mock<Cohort>();
+                Cohort.Setup(x => x.Id).Returns(CohortId);
+                Db.Commitment.Add(Cohort.Object);
+
+                return this;
+            }
+            
             public async Task<Cohort> CreateCohort()
             {
                 Db.SaveChanges();
