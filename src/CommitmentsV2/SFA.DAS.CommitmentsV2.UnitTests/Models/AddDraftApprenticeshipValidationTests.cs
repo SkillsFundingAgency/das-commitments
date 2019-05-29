@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         [SetUp]
         public void Arrange()
         {
-            _fixture = new AddDraftApprenticeshipValidationTestsFixture();
+            _fixture = new AddDraftApprenticeshipValidationTestsFixture().WithProviderCohort();
         }
 
         [TestCase(null, null, true)]
@@ -113,7 +113,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
             };
 
-            var domainException = Assert.Throws<DomainException>(() => _fixture.WithProviderCohort().Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Originator.Provider));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Originator.Provider));
 
             var startDateError = domainException.DomainErrors.Single(x =>
                 x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));

@@ -59,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             TrainingProgrammeApiClient = new Mock<ITrainingProgrammeApiClient>();
             Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeApiClient.Object, TrainingProgrammeMapper.Object);
             
-            TrainingProgrammeMapper.Setup(m => m.Map(It.IsAny<ITrainingProgramme>())).Returns(TrainingProgramme);
+            TrainingProgrammeMapper.Setup(m => m.Map(It.IsAny<ITrainingProgramme>())).ReturnsAsync(TrainingProgramme);
             TrainingProgrammeApiClient.Setup(c => c.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(() => new Framework());
         }
 

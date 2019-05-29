@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public DraftApprenticeship DraftApprenticeship { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
-        public Mock<IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
+        public Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
         public IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult> Handler { get; set; }
 
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
             
             CohortDomainService = new Mock<ICohortDomainService>();
-            DraftApprenticeshipDetailsMapper = new Mock<IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
+            DraftApprenticeshipDetailsMapper = new Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
             
             Handler = new AddDraftApprenticeshipCommandHandler(
                 new Lazy<ProviderCommitmentsDbContext>(() => Db),

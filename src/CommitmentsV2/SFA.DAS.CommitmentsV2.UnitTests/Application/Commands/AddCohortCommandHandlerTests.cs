@@ -86,12 +86,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             HashingServiceMock = new Mock<IHashingService>();
 
             DraftApprenticeshipDetailsMapperMock =
-                new Mock<IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
+                new Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>>();
             DraftApprenticeshipDetailsMapperMock.Setup(x => x.Map(It.IsAny<AddCohortCommand>()))
                 .ReturnsAsync(() => new DraftApprenticeshipDetails());
 
             var commitment = new Cohort();
-            commitment.Apprenticeship.Add(new DraftApprenticeship());
+            commitment.Apprenticeships.Add(new DraftApprenticeship());
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
             CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(),
@@ -104,9 +104,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IHashingService> HashingServiceMock { get; }
         public IHashingService HashingService => HashingServiceMock.Object;
 
-        public Mock<IAsyncMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
-        public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
+        public Mock<IMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
+        public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
         public TestLogger Logger { get; }
 

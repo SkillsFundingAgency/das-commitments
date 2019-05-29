@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public interface IMapper<in TFrom, out TTo> where TFrom: class where TTo: class
+    public interface IMapper<in TFrom, TTo> where TFrom: class where TTo: class
     {
-        TTo Map(TFrom source);
+        Task<TTo> Map(TFrom source);
     }
 }

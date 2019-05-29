@@ -1,4 +1,4 @@
-namespace SFA.DAS.CommitmentsV2.Authentication
+﻿namespace SFA.DAS.CommitmentsV2.Authentication
 {
     public static class Role
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using SFA.DAS.Apprenticeships.Api.Types;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
@@ -8,12 +9,12 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 {
     public class ITrainingProgrammeToTrainingProgrammeMapper : IMapper<ITrainingProgramme, TrainingProgramme>
     {
-        public TrainingProgramme Map(ITrainingProgramme source)
+        public Task<TrainingProgramme> Map(ITrainingProgramme source)
         {
-            return new TrainingProgramme(source.Id, source.ExtendedTitle, MapProgrameTypesToV2ProgrammeTypes(source.ProgrammeType), source.EffectiveFrom, source.EffectiveTo);
+            return Task.FromResult(new TrainingProgramme(source.Id, source.ExtendedTitle, MapProgrammeTypesToV2ProgrammeTypes(source.ProgrammeType), source.EffectiveFrom, source.EffectiveTo));
         }
 
-        private static ProgrammeType MapProgrameTypesToV2ProgrammeTypes(Apprenticeships.Api.Types.ProgrammeType programmeType)
+        private static ProgrammeType MapProgrammeTypesToV2ProgrammeTypes(Apprenticeships.Api.Types.ProgrammeType programmeType)
         {
             switch (programmeType)
             {

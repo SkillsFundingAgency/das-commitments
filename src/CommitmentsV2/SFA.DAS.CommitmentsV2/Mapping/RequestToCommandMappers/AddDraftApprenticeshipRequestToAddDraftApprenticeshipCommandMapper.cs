@@ -1,13 +1,14 @@
+using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 
-namespace SFA.DAS.CommitmentsV2.Mapping
+namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
 {
     public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper : IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>
     {
-        public AddDraftApprenticeshipCommand Map(AddDraftApprenticeshipRequest source)
+        public Task<AddDraftApprenticeshipCommand> Map(AddDraftApprenticeshipRequest source)
         {
-            return new AddDraftApprenticeshipCommand
+            return Task.FromResult(new AddDraftApprenticeshipCommand
             {
                 UserId = source.UserId,
                 ProviderId = source.ProviderId,
@@ -21,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 LastName = source.LastName,
                 DateOfBirth = source.DateOfBirth,
                 Uln = source.Uln
-            };
+            });
         }
     }
 }

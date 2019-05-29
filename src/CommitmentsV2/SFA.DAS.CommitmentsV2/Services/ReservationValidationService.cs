@@ -26,9 +26,9 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<ReservationValidationResult> Validate(ReservationValidationRequest request, CancellationToken cancellationToken)
         {
-            var mappedRequest = _requestMapper.Map(request);
+            var mappedRequest = await _requestMapper.Map(request);
             var result = await _apiClient.ValidateReservation(mappedRequest, cancellationToken);
-            return _resultMapper.Map(result);
+            return await _resultMapper.Map(result);
         }
     }
 }

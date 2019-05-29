@@ -62,14 +62,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         {
             var result = _fixture.CreateCohort();
             //approval is the aggregate of contained apprenticeship approvals, currently :-(
-            Assert.IsTrue(result.Apprenticeship.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+            Assert.IsTrue(result.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
         }
 
         [Test]
         public void TheCohortHasOneDraftApprenticeship()
         {
             var result = _fixture.CreateCohort();
-            Assert.AreEqual(1, result.Apprenticeship.Count);
+            Assert.AreEqual(1, result.Apprenticeships.Count);
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         public void TheDraftApprenticeshipCreatedEventIsPublished()
         {
             var cohort = _fixture.CreateCohort();
-            var draftApprenticeship = cohort.Apprenticeship.Single();
+            var draftApprenticeship = cohort.Apprenticeships.Single();
 
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
                 .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(new DraftApprenticeshipCreatedEvent(

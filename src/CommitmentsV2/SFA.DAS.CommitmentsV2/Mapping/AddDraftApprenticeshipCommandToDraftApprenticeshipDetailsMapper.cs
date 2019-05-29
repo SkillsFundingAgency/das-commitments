@@ -7,7 +7,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IAsyncMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>
+    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>
     {
         private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
         private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 throw new Exception($"The course code {courseCode} was not found");
             }
 
-            return _trainingProgrammeMapper.Map(course);
+            return await _trainingProgrammeMapper.Map(course);
         }
     }
 }

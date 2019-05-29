@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         {
             var draftApprenticeship = _fixture.AddDraftApprenticeship();
 
-            draftApprenticeship.Should().BeSameAs(_fixture.Cohort.Apprenticeship.SingleOrDefault());
+            draftApprenticeship.Should().BeSameAs(_fixture.Cohort.Apprenticeships.SingleOrDefault());
         }
 
         [Test]

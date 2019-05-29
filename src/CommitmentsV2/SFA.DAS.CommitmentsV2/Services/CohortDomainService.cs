@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -69,6 +70,41 @@ namespace SFA.DAS.CommitmentsV2.Services
             await ValidateDraftApprenticeshipDetails(providerId, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
             return draftApprenticeship;
+        }
+
+        public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        {
+            var db = _dbContext.Value;
+
+            var cohort = await db.Commitment
+                                .Include(c => c.Apprenticeships)
+                                .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
+
+            AssertHasProvider(cohortId, cohort.ProviderId);
+            AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
+
+            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserRole());
+
+            await ValidateDraftApprenticeshipDetails(cohort.ProviderId.Value, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+
+            return cohort;
+        }
+
+        private void AssertHasProvider(long cohortId, long? providerId)
+        {
+            if (providerId == null)
+            {
+                // We need a provider id to validate the apprenticeship with reservations, so a provider id is mandatory.
+                throw new InvalidOperationException($"Cannot update cohort {cohortId} because it is not linked to a provider");
+            }
+        }
+
+        private void AssertHasApprenticeshipId(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (draftApprenticeshipDetails.Id < 1)
+            {
+                throw new InvalidOperationException($"Cannot update cohort {cohortId} because the supplied draft apprenticeship does not have an id");
+            }
         }
 
         private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)

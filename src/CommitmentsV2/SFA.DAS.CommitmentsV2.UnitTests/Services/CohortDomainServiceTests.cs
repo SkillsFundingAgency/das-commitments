@@ -289,7 +289,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyProviderCohortCreation()
             {
-                Provider.Verify(x => x.CreateCohort(It.Is<AccountLegalEntity>(ale => ale == AccountLegalEntity.Object), It.IsAny<DraftApprenticeshipDetails>(), Party));
+                Provider.Verify(x => x.CreateCohort(AccountLegalEntity.Object, DraftApprenticeshipDetails, Party));
             }
 
             public void VerifyProviderDraftApprenticeshipAdded()
