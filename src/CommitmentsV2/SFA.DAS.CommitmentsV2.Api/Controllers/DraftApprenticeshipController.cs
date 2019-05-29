@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddDraftApprenticeship(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
+        public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
         {
             var command = await _addDraftApprenticeshipMapper.Map(request);
 

@@ -35,13 +35,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
         
         [Test]
-        public async Task AddDraftApprenticeship_ValidRequest_ShouldReturnAnOkObjectResult()
+        public async Task Add_ValidRequest_ShouldReturnAnOkObjectResult()
         {
             //Arrange
             var fixture = new DraftApprenticeshipControllerTestsFixture().WithAddDraftApprenticeshipCommandResponse();
 
             //Act
-            var response = await fixture.AddDraftApprenticeship();
+            var response = await fixture.Add();
             var okObjectResult = response as OkObjectResult;
             var addDraftApprenticeshipResponse = okObjectResult?.Value as AddDraftApprenticeshipResponse;
             
@@ -104,9 +104,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return Controller.Update(CohortId, DraftApprenticeshipId, UpdateDraftApprenticeshipRequest);
         }
 
-        public Task<IActionResult> AddDraftApprenticeship()
+        public Task<IActionResult> Add()
         {
-            return Controller.AddDraftApprenticeship(CohortId, AddDraftApprenticeshipRequest);
+            return Controller.Add(CohortId, AddDraftApprenticeshipRequest);
         }
     }
 }
