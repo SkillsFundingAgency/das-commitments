@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
+namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture]
     public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests : 

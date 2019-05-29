@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        public long Id { get; set; }
+        public virtual long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
         public string LegalEntityId { get; set; }
@@ -52,13 +52,14 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public virtual void AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
+        public virtual DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator party)
         {
-            EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(party);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
-            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Originator);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, party);
             Apprenticeships.Add(draftApprenticeship);
-            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId.Value, CreatedOn.Value));
+            Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
+            return draftApprenticeship;
         }
 
         public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
@@ -88,6 +89,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
             errors.ThrowIfAny();
         }
+        
 
         private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Originator modifyingParty)
         {

@@ -12,7 +12,7 @@ using SFA.DAS.CommitmentsV2.Validators;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 {
     [TestFixture]
-    public class CreateCohortRequestValidatorTests
+    public class AddDraftApprenticeshipRequestValidatorTests
     {
         [TestCase(null, false)]
         [TestCase("", false)]
@@ -20,14 +20,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         public void Validate_UserId_ShouldBeValidated(string value, bool expectedValid)
         {
             AssertValidationResult(request => request.UserId, value, expectedValid);
-        }
-
-        [TestCase(-1, false)]
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        public void Validate_AccountLegalEntityId_ShouldBeValidated(long value, bool expectedValid)
-        {
-            AssertValidationResult(request => request.AccountLegalEntityId, value, expectedValid);
         }
 
         [TestCase(-1, false)]
@@ -72,10 +64,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.OriginatorReference, value, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
-            var validator = new CreateCohortRequestValidator(Mock.Of<IAuthorizationService>());
+            var validator = new AddDraftApprenticeshipRequestValidator(Mock.Of<IAuthorizationService>());
 
             // Act
             if (expectedValid)
@@ -88,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             }
         }
 
-        private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
         {
             // Arrange
             var authorizationService = new Mock<IAuthorizationService>();
@@ -96,7 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             authorizationService.Setup(a => a.IsAuthorized(It.IsAny<string[]>()))
                 .Returns<string[]>(o => feature(o.SingleOrDefault()));
             
-            var validator = new CreateCohortRequestValidator(authorizationService.Object);
+            var validator = new AddDraftApprenticeshipRequestValidator(authorizationService.Object);
 
             // Act
             if (expectedValid)

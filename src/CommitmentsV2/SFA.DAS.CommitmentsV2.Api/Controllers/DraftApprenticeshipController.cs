@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -12,21 +14,23 @@ using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/cohorts/{cohortId}/draft-apprenticeships")]
-    public class DraftApprenticeshipController : ControllerBase
+    public class DraftApprenticeshipController : Controller
     {
         private readonly IMediator _mediator;
         private readonly IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
-
         private readonly IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
+        private readonly IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
 
         public DraftApprenticeshipController(
             IMediator mediator,
             IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
-            IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper)
+            IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
+            IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper)
         {
             _mediator = mediator;
             _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
             _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
+            _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
         }
 
         [HttpGet]
@@ -51,6 +55,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command);
 
             return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add(long cohortId, [FromBody]AddDraftApprenticeshipRequest request)
+        {
+            var command = await _addDraftApprenticeshipMapper.Map(request);
+
+            command.CohortId = cohortId;
+            
+            var result = await _mediator.Send(command);
+            
+            return Ok(new AddDraftApprenticeshipResponse
+            {
+                DraftApprenticeshipId = result.Id
+            });
         }
     }
 }

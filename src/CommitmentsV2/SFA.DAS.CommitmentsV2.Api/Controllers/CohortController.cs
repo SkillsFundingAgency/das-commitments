@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
@@ -45,11 +44,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.CreateErrorResponse());
-            }
-
             var command = await _addCohortMapper.Map(request);
             var result = await _mediator.Send(command);
 

@@ -59,6 +59,18 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             return cohort;
         }
+        
+        public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
+            DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        {
+            var db = _dbContext.Value;
+            var cohort = await GetCohort(cohortId, db, cancellationToken);
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserRole());
+
+            await ValidateDraftApprenticeshipDetails(providerId, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+
+            return draftApprenticeship;
+        }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
@@ -103,6 +115,13 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (accountLegalEntity == null)
                 throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} was not found");
             return accountLegalEntity;
+        }
+        
+        private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            var cohort = await db.Commitment.SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
+            if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
+            return cohort;
         }
 
         private static async Task<Provider> GetProvider(long providerId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
