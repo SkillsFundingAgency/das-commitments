@@ -3,10 +3,9 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
+namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture]
     public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests : MapperTester<AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper, AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>
