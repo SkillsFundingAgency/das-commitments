@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture()]
-    public class CreateCohortRequestToAddCohortRequestMapperTests : MapperTester<CreateCohortRequestToAddCohortCommandMapper, CreateCohortRequest, AddCohortCommand>
+    public class CreateCohortRequestToAddCohortCommandMapperTests : MapperTester<CreateCohortRequestToAddCohortCommandMapper, CreateCohortRequest, AddCohortCommand>
     {
         [Test]
         public Task Map_AccountLegalEntityId_ShouldBeSet()
