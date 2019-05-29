@@ -29,6 +29,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         private bool PartyCanAccessCohort(PartyType partyType, string partyId, GetCohortSummaryResponse cohort)
         {
+            if (cohort == null) return false;
+
             switch (partyType)
             {
                 case PartyType.Employer when long.TryParse(partyId, out long accountId):
