@@ -8,7 +8,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     public interface ICommitmentsApiClient
     {
         Task<bool> HealthCheck();
-        Task<bool> CanAccessCohort(CohortAccessRequest request, CancellationToken cancellationToken = default);
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
 
         // To be removed latter

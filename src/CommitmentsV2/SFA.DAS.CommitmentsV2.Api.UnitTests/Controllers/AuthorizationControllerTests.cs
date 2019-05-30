@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using AutoFixture;
 using SFA.DAS.CommitmentsV2.Types;
@@ -26,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [Test]
         public async Task AuthorizationController_AccessCohortRequest_ShouldReturnAnOkResultWithFalseWhenNoCohortFound()
         {
-            var response = await _fixture.AuthorizationController.CanAccessCohort(_fixture.CohortAccessRequest);
+            var response = await _fixture.AuthorizationController.CanAccessCohort(_fixture.PartyType, _fixture.PartyId, _fixture.CohortId);
 
             Assert.IsFalse((bool)((OkObjectResult)response).Value);
         }
@@ -35,10 +34,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [TestCase(PartyType.Employer)]
         public async Task AuthorizationController_AccessCohortRequest_ShouldReturnAnOkResultWithTrueWhenCohortFoundAndPartyTypeAndPartyIdMatches(PartyType partyType)
         {
-            _fixture.SetGetCohortAccessRequestTo(partyType, _fixture.PartyId)
-                .SetGetCohortSummaryResponseTo(partyType, _fixture.PartyId);
+            _fixture.SetGetCohortSummaryResponseTo(partyType, _fixture.PartyId);
 
-            var response = await _fixture.AuthorizationController.CanAccessCohort(_fixture.CohortAccessRequest);
+            var response = await _fixture.AuthorizationController.CanAccessCohort(partyType, _fixture.PartyId, _fixture.CohortId);
 
             Assert.IsTrue((bool)((OkObjectResult)response).Value);
         }
@@ -49,10 +47,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [TestCase(PartyType.Employer, "NotANumber")]
         public async Task AuthorizationController_AccessCohortRequest_ShouldReturnAnOkResultWithFalseWhenCohortFoundAndPartyTypeAndPartyIdDoesNotMatch(PartyType partyType, string nonMatchingPartyId)
         {
-            _fixture.SetGetCohortAccessRequestTo(partyType, nonMatchingPartyId)
-                .SetGetCohortSummaryResponseTo(partyType, _fixture.PartyId);
+            _fixture.SetGetCohortSummaryResponseTo(partyType, _fixture.PartyId);
 
-            var response = await _fixture.AuthorizationController.CanAccessCohort(_fixture.CohortAccessRequest);
+            var response = await _fixture.AuthorizationController.CanAccessCohort(partyType, nonMatchingPartyId, _fixture.CohortId);
 
             Assert.IsFalse((bool)((OkObjectResult)response).Value);
         }
@@ -65,7 +62,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var fixture = new Fixture();
             MediatorMock = new Mock<IMediator>();
             PartyId = "876876";
-            CohortAccessRequest = fixture.Build<CohortAccessRequest>().Create();
+            PartyType = fixture.Create<PartyType>();
+            CohortId = fixture.Create<long>();
             GetCohortSummaryResponse = fixture.Build<GetCohortSummaryResponse>().Create();
 
             MediatorMock
@@ -76,8 +74,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             AuthorizationController = new AuthorizationController(MediatorMock.Object);
         }
 
-        public string PartyId { get; }
-        public CohortAccessRequest CohortAccessRequest { get; }
+        public string PartyId { get; set; }
+        public PartyType PartyType { get; set; }
+        public long CohortId { get; set; }
         public GetCohortSummaryResponse GetCohortSummaryResponse { get; set; }
         public Mock<IMediator> MediatorMock { get; }
 
@@ -85,8 +84,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public AuthorizationControllerTestFixture SetGetCohortAccessRequestTo(PartyType partyType, string partyId)
         {
-            CohortAccessRequest.PartyType = partyType;
-            CohortAccessRequest.PartyId = partyId;
+            PartyType = partyType;
+            PartyId = partyId;
 
             return this;
         }

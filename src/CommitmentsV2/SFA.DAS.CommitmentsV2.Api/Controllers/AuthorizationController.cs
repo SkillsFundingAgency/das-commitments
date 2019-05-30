@@ -22,11 +22,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("access-cohort")]
-        public async Task<IActionResult> CanAccessCohort(CohortAccessRequest request)
+        public async Task<IActionResult> CanAccessCohort(PartyType partyType, string partyId, long cohortId)
         {
-            var cohort = await _mediator.Send(new GetCohortSummaryRequest{CohortId = request.CohortId});
+            var cohort = await _mediator.Send(new GetCohortSummaryRequest{CohortId = cohortId});
 
-            return Ok(PartyCanAccessCohort(request.PartyType, request.PartyId, cohort));
+            return Ok(PartyCanAccessCohort(partyType, partyId, cohort));
         }
 
         private bool PartyCanAccessCohort(PartyType partyType, string partyId, GetCohortSummaryResponse cohort)
