@@ -94,6 +94,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                     LegalEntityId = commitment.LegalEntityId,
                     LegalEntityName = commitment.LegalEntityName,
                     LegalEntityAddress = commitment.LegalEntityAddress,
+                    AccountLegalEntityPublicHashedId = commitment.AccountLegalEntityPublicHashedId,
                     EditStatus = (Types.Commitment.Types.EditStatus)commitment.EditStatus,
                     AgreementStatus = (AgreementStatus)_commitmentRules.DetermineAgreementStatus(commitment.Apprenticeships),
                     LastAction = (Types.Commitment.Types.LastAction)commitment.LastAction,

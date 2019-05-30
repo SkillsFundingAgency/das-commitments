@@ -345,6 +345,7 @@
     <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\ValidationController.cs" />
+    <Compile Include="DependencyResolution\EventsUpgradeRegistry.cs" />
     <Compile Include="DependencyResolution\EndpointConfigurationExtensions.cs" />
     <Compile Include="DependencyResolution\NServiceBusRegistry.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
@@ -410,6 +411,10 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Domain\SFA.DAS.Commitments.Domain.csproj">
       <Project>{C4C803AF-747E-4747-A23B-DA43219009A4}</Project>
       <Name>SFA.DAS.Commitments.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Commitments.Events\SFA.DAS.Commitments.Events.csproj">
+      <Project>{7B636FB3-F4A9-479B-A371-0E82A67B4FD2}</Project>
+      <Name>SFA.DAS.Commitments.Events</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
       <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>

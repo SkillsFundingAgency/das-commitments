@@ -15,28 +15,24 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
 using StructureMap;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
-using SFA.DAS.Messaging.AzureServiceBus;
-using SFA.DAS.Messaging.AzureServiceBus.StructureMap;
-using SFA.DAS.NLog.Logger;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
     public static class IoC
     {
-        private const string ServiceName = "SFA.DAS.Commitments";
-        private const string ServiceVersion = "1.0";
+        public const string ServiceName = "SFA.DAS.Commitments";
+        public const string ServiceVersion = "1.0";
 
         public static IContainer Initialize()
         {
             return new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
-                c.AddRegistry<NServiceBusRegistry>();
+                c.AddRegistry<NServiceBusRegistry>();                
                 c.Policies.Add<CurrentDatePolicy>();
-                c.Policies.Add(new TopicMessagePublisherPolicy<CommitmentsApiConfiguration>(ServiceName, ServiceVersion, new NLogLogger(typeof(TopicMessagePublisher))));
+                c.AddRegistry<EventsUpgradeRegistry>();                
             });
         }
     }
