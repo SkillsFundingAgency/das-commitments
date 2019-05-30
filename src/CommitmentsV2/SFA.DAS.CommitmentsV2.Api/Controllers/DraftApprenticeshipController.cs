@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             var response = await _mediator.Send(command);
 
-            return Ok(_getDraftApprenticeshipMapper.Map(response));
+            return Ok(await _getDraftApprenticeshipMapper.Map(response));
         }
 
         [HttpPut]
