@@ -39,6 +39,43 @@ namespace SFA.DAS.Commitments.Api.UnitTests.Orchestrators.Mappers
         }
 
         [Test]
+        public void FromCommitmentToCommitmentViewThenCommitmentViewIsCorrectlyMapped()
+        {
+            const string accountLegalEntityPublicHashedId = "123456";
+
+            var from = new Commitment
+            {
+                Reference = "Reference",
+                EmployerAccountId = 1,
+                TransferSenderId = 2,
+                TransferSenderName = "TransferSenderName",
+                LegalEntityId = "LegalEntityId",
+                LegalEntityName = "LegalEntityName",
+                LegalEntityAddress = "LegalEntityAddress",
+                LegalEntityOrganisationType = OrganisationType.Charities,
+                ProviderId = 3,
+                ProviderName = "ProviderName",
+                CommitmentStatus = CommitmentStatus.Active,
+                EditStatus = EditStatus.Both,
+                AccountLegalEntityPublicHashedId = accountLegalEntityPublicHashedId,
+            };
+
+            var result = _mapper.MapFrom(from, CallerType.Provider);
+
+            Assert.AreEqual("Reference", result.Reference);
+            Assert.AreEqual(1, result.EmployerAccountId);
+            Assert.AreEqual(2, result.TransferSender.Id);
+            Assert.AreEqual("TransferSenderName", result.TransferSender.Name);
+            Assert.AreEqual("LegalEntityId", result.LegalEntityId);
+            Assert.AreEqual("LegalEntityName", result.LegalEntityName);
+            Assert.AreEqual("LegalEntityAddress", result.LegalEntityAddress);
+            Assert.AreEqual(3, result.ProviderId);
+            Assert.AreEqual("ProviderName", result.ProviderName);
+            Assert.AreEqual(Types.Commitment.Types.EditStatus.Both, result.EditStatus);
+            Assert.AreEqual(accountLegalEntityPublicHashedId, result.AccountLegalEntityPublicHashedId);
+        }
+
+        [Test]
         public void ThenCommitmentIsCorrectlyMapped()
         {
             const string accountLegalEntityPublicHashedId = "123456";
