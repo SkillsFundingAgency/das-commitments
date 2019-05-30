@@ -2,8 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
+using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
@@ -14,8 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     {
         private readonly IMediator _mediator;
 
-        public AuthorizationController(
-            IMediator mediator)
+        public AuthorizationController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -24,27 +22,34 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("access-cohort")]
         public async Task<IActionResult> CanAccessCohort(PartyType partyType, string partyId, long cohortId)
         {
-            var cohort = await _mediator.Send(new GetCohortSummaryRequest{CohortId = cohortId});
+            var query = MapToCanAccessCohortQuery(partyType, partyId, cohortId);
 
-            return Ok(PartyCanAccessCohort(partyType, partyId, cohort));
+            return Ok(await _mediator.Send(query));
         }
 
-        private bool PartyCanAccessCohort(PartyType partyType, string partyId, GetCohortSummaryResponse cohort)
+        private CanAccessCohortQuery MapToCanAccessCohortQuery(PartyType partyType, string partyId, long cohortId)
         {
-            if (cohort == null) return false;
+            var query = new CanAccessCohortQuery
+            {
+                PartyType = partyType,
+                CohortId = cohortId
+            };
 
             switch (partyType)
             {
                 case PartyType.Employer when long.TryParse(partyId, out long accountId):
                 {
-                    return accountId == cohort.AccountId;
+                    query.AccountId = accountId;
+                    break;
                 }
                 case PartyType.Provider when long.TryParse(partyId, out long providerId):
                 {
-                    return providerId == cohort.ProviderId;
+                    query.ProviderId = providerId;
+                    break;
                 }
             }
-            return false;
+
+            return query;
         }
     }
 }
