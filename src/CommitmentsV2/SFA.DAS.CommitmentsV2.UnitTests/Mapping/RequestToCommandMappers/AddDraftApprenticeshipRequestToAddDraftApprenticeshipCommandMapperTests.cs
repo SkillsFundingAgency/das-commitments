@@ -1,22 +1,15 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
+namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
-    [TestFixture()]
-    public class CreateCohortRequestToAddCohortRequestMapperTests : MapperTester<CreateCohortRequestToAddCohortCommandMapper, CreateCohortRequest, AddCohortCommand>
+    [TestFixture]
+    public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests : MapperTester<AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper, AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>
     {
-        [Test]
-        public Task Map_AccountLegalEntityId_ShouldBeSet()
-        {
-            const long accountLegalEntityIdId = 123;
-            return AssertPropertySet(input => input.AccountLegalEntityId = accountLegalEntityIdId, output => output.AccountLegalEntityId == accountLegalEntityIdId);
-        }
-
         [Test]
         public Task Map_ProviderId_ShouldBeSet()
         {

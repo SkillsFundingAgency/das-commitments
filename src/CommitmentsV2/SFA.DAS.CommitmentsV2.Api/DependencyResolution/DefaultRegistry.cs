@@ -1,7 +1,7 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
-using StructureMap;
-using SFA.DAS.CommitmentsV2.Api.Authentication;
+﻿using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Data;
+using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
 {

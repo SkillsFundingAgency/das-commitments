@@ -12,5 +12,8 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
             DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken);
 
         Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken);
+
+        Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
+            DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken);
     }
 }

@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
@@ -33,10 +34,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task OnCreateCohort_Provider_Creates_Cohort()
+        public async Task CreateCohort_Provider_Creates_Cohort()
         {
             await _fixture.CreateCohort();
             _fixture.VerifyProviderCohortCreation();
+        }
+
+        [Test]
+        public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
+        {
+            _fixture.SetCohort();
+            await _fixture.AddDraftApprenticeship();
+            _fixture.VerifyProviderDraftApprenticeshipAdded();
+        }
+
+        [Test]
+        public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
+        {
+            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship, $"Cohort {_fixture.CohortId} was not found");
         }
 
         [TestCase("2019-07-31", null, true)]
@@ -96,15 +111,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public ProviderCommitmentsDbContext Db { get; set; }
             public long ProviderId { get; }
             public long AccountLegalEntityId { get; }
+            public long CohortId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
             
             public Mock<Provider> Provider { get; set; }
-            public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }            
+            public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
+            public Mock<Cohort> Cohort { get; set; }
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
-            public Mock<IAuthenticationService> AuthenticationService { get; }
+            public Originator Party { get; set; }
+            private Mock<IAuthenticationService> AuthenticationService { get; }
             public List<DomainError>  DomainErrors { get; private set; }
 
             public CohortDomainServiceTestFixture()
@@ -116,6 +134,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 ProviderId = 1;
                 AccountLegalEntityId = 2;
+                CohortId = 3;
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
@@ -144,9 +163,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
+                Party = Originator.Unknown;
                 AuthenticationService = new Mock<IAuthenticationService>();
-                AuthenticationService.Setup(x => x.GetUserRole()).Returns(Originator.Provider);
-
+                AuthenticationService.Setup(x => x.GetUserRole()).Returns(Party);
+                
                 DomainErrors = new List<DomainError>();
 
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
@@ -224,6 +244,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture SetCohort()
+            {
+                Cohort = new Mock<Cohort>();
+                Cohort.Setup(x => x.Id).Returns(CohortId);
+                Db.Commitment.Add(Cohort.Object);
+
+                return this;
+            }
+            
             public async Task<Cohort> CreateCohort()
             {
                 Db.SaveChanges();
@@ -242,9 +271,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public async Task AddDraftApprenticeship()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                }
+            }
+
             public void VerifyProviderCohortCreation()
             {
-                Provider.Verify(x => x.CreateCohort(AccountLegalEntity.Object, DraftApprenticeshipDetails, Originator.Provider));
+                Provider.Verify(x => x.CreateCohort(AccountLegalEntity.Object, DraftApprenticeshipDetails, Party));
+            }
+
+            public void VerifyProviderDraftApprenticeshipAdded()
+            {
+                Cohort.Verify(x => x.AddDraftApprenticeship(DraftApprenticeshipDetails, Party));
             }
 
             public void VerifyStartDateException(bool passes)

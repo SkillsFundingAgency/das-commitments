@@ -1,8 +1,13 @@
-﻿namespace SFA.DAS.CommitmentsV2.Types
+﻿using System;
+
+namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum PartyType
+    [Flags]
+    public enum PartyType : short
     {
-        Employer,
-        Provider
+        None = 0,
+        Employer = 1,
+        Provider = 2,
+        TransferSender = 4
     }
 }

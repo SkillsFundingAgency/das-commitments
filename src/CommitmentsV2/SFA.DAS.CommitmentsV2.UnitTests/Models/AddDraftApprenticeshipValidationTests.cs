@@ -115,10 +115,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Originator.Provider));
 
-                var startDateError = domainException.DomainErrors.Single(x =>
-                    x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
+            var startDateError = domainException.DomainErrors.Single(x =>
+                x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
 
-                Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+            Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
+        }
+
+        [TestCase(EditStatus.EmployerOnly, Originator.Unknown)]
+        [TestCase(EditStatus.EmployerOnly, Originator.Provider)]
+        [TestCase(EditStatus.ProviderOnly, Originator.Unknown)]
+        [TestCase(EditStatus.ProviderOnly, Originator.Employer)]
+        public void Party_CheckValidation(EditStatus editStatus, Originator modifyingParty)
+        {
+            _fixture.Cohort.EditStatus = editStatus;
+            
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty));
+            var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(modifyingParty));
+
+            Assert.AreEqual("The cohort may not be modified by the current role", domainError?.ErrorMessage);
         }
     }
 
@@ -138,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
             SetupMinimumNameProperties();
-            Cohort = new Cohort();
+            Cohort = new Cohort { EditStatus = EditStatus.ProviderOnly };
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
         }
