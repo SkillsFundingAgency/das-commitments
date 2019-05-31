@@ -7,8 +7,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort
     {
         public long CohortId { get; set; }
         public PartyType PartyType { get; set; }
-        public long? AccountId { get; set; }
-        public long? ProviderId { get; set; }
-
+        public long PartyId { get; set; }
     }
 }

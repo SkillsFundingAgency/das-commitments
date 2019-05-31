@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using AutoFixture;
+using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -21,23 +22,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             _fixture = new AuthorizationControllerTestFixture();
         }
 
-        [TestCase(PartyType.Provider, "123", 1, null, 123L)]
-        [TestCase(PartyType.Employer, "123", 1, 123L, null)]
-        [TestCase(PartyType.Provider, "NotANumber", 2, null, null)]
-        [TestCase(PartyType.Employer, "NotANumber", 2, null, null)]
+        [TestCase(PartyType.Provider, 124, 1)]
+        [TestCase(PartyType.Employer, 123, 2)]
         public async Task AuthorizationController_AccessCohortRequest_ShouldCallCommandWithCorrectQueryValues(
-            PartyType partyType, string partyId, long cohortId, long? expectedAccountId, long? expectedProviderId)
+            PartyType partyType, long partyId, long cohortId)
         {
-            await _fixture.AuthorizationController.CanAccessCohort(partyType, partyId, cohortId);
+            var request = new CohortAccessRequest {CohortId = cohortId, PartyType = partyType, PartyId = partyId};
+
+            await _fixture.AuthorizationController.CanAccessCohort(request);
 
             _fixture.MediatorMock.Verify(x => x.Send(It.Is<CanAccessCohortQuery>(p => p.CohortId == cohortId &&
                                                                                       p.PartyType == partyType &&
-                                                                                      p.AccountId ==
-                                                                                      expectedAccountId &&
-                                                                                      p.ProviderId ==
-                                                                                      expectedProviderId),
+                                                                                      p.PartyId == partyId),
                 CancellationToken.None), Times.Once);
-
         }
     }
 
