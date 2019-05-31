@@ -22,17 +22,17 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             _fixture = new AuthorizationControllerTestFixture();
         }
 
-        [TestCase(PartyType.Provider, 124, 1)]
-        [TestCase(PartyType.Employer, 123, 2)]
+        [TestCase(Party.Provider, 124, 1)]
+        [TestCase(Party.Employer, 123, 2)]
         public async Task AuthorizationController_AccessCohortRequest_ShouldCallCommandWithCorrectQueryValues(
-            PartyType partyType, long partyId, long cohortId)
+            Party party, long partyId, long cohortId)
         {
-            var request = new CohortAccessRequest {CohortId = cohortId, PartyType = partyType, PartyId = partyId};
+            var request = new CohortAccessRequest {CohortId = cohortId, Party = party, PartyId = partyId};
 
             await _fixture.AuthorizationController.CanAccessCohort(request);
 
             _fixture.MediatorMock.Verify(x => x.Send(It.Is<CanAccessCohortQuery>(p => p.CohortId == cohortId &&
-                                                                                      p.PartyType == partyType &&
+                                                                                      p.Party == party &&
                                                                                       p.PartyId == partyId),
                 CancellationToken.None), Times.Once);
         }

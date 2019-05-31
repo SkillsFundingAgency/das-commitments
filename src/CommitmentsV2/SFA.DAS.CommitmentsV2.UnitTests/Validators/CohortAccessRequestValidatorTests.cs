@@ -19,13 +19,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.CohortId, value, expectedValid);
         }
 
-        [TestCase(PartyType.None, false)]
-        [TestCase(PartyType.TransferSender, false)]
-        [TestCase(PartyType.Provider, true)]
-        [TestCase(PartyType.Employer, true)]
-        public void Validate_PartyType_ShouldBeValidated(PartyType value, bool expectedValid)
+        [TestCase(Party.None, false)]
+        [TestCase(Party.TransferSender, false)]
+        [TestCase(Party.Provider, true)]
+        [TestCase(Party.Employer, true)]
+        public void Validate_PartyType_ShouldBeValidated(Party value, bool expectedValid)
         {
-            AssertValidationResult(request => request.PartyType, value, expectedValid);
+            AssertValidationResult(request => request.Party, value, expectedValid);
         }
 
         [TestCase(0, false)]

@@ -6,7 +6,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort
     public class CanAccessCohortQuery : IRequest<bool>
     {
         public long CohortId { get; set; }
-        public PartyType PartyType { get; set; }
+        public Party Party { get; set; }
         public long PartyId { get; set; }
     }
 }

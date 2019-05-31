@@ -3,7 +3,7 @@
 namespace SFA.DAS.CommitmentsV2.Types
 {
     [Flags]
-    public enum PartyType : short
+    public enum Party : short
     {
         None = 0,
         Employer = 1,

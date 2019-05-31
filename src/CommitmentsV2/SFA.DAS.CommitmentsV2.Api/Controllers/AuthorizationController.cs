@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var query = new CanAccessCohortQuery
             {
                 CohortId = request.CohortId,
-                PartyType = request.PartyType,
+                Party = request.Party,
                 PartyId = request.PartyId
             };
 

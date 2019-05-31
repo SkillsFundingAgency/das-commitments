@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class CohortAccessRequest
     {
-        public PartyType PartyType { get; set; }
+        public Party Party { get; set; }
         public long PartyId { get; set; }
         public long CohortId { get; set; }
     }

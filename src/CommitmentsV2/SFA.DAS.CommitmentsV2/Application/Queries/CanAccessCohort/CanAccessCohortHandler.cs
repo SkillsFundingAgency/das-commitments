@@ -21,8 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort
         {
             return _dbContext.Value.Commitment.AnyAsync(
                 c => c.Id == request.CohortId &&
-                     (request.PartyType == PartyType.Employer && c.EmployerAccountId == request.PartyId ||
-                      request.PartyType == PartyType.Provider && c.ProviderId == request.PartyId),
+                     (request.Party == Party.Employer && c.EmployerAccountId == request.PartyId ||
+                      request.Party == Party.Provider && c.ProviderId == request.PartyId),
                 cancellationToken: cancellationToken);
         }
     }
