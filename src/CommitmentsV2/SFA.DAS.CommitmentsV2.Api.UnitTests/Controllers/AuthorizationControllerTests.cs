@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using AutoFixture;
+using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
 using SFA.DAS.CommitmentsV2.Types;
@@ -36,6 +37,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                                                                                       p.PartyId == partyId),
                 CancellationToken.None), Times.Once);
         }
+
+        [Test]
+        public async Task AuthorizationController_AccessCohortRequest_ShouldReturnOkAndBoolResult()
+        {
+            var request = new CohortAccessRequest { CohortId = 1, Party = Party.Employer, PartyId = 2 };
+
+            var retVal = await _fixture.SetFixtureToReturnTrue().AuthorizationController.CanAccessCohort(request);
+
+            Assert.IsInstanceOf<OkObjectResult>(retVal);
+            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
+
+        }
     }
 
     public class AuthorizationControllerTestFixture
@@ -51,5 +64,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public Mock<IMediator> MediatorMock { get; }
 
         public AuthorizationController AuthorizationController { get; }
+
+        public AuthorizationControllerTestFixture SetFixtureToReturnTrue()
+        {
+            MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessCohortQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+            return this;
+        }
     }
 }
