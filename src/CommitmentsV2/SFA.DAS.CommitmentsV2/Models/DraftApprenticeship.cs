@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -11,7 +12,26 @@ namespace SFA.DAS.CommitmentsV2.Models
             CreatedOn = DateTime.UtcNow;
         }
 
-        public DraftApprenticeship(DraftApprenticeshipDetails source, Originator originator) : this()
+        public DraftApprenticeship(DraftApprenticeshipDetails source, Originator party) : this()
+        {
+            Merge(source, party);
+
+            ReservationId = source.ReservationId;
+
+            switch (party)
+            {
+                case Originator.Employer:
+                    EmployerRef = source.Reference;
+                    break;
+                case Originator.Provider:
+                    ProviderRef = source.Reference;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(party), party, null);
+            }
+        }
+
+        public void Merge(DraftApprenticeshipDetails source, Originator modifyingParty)
         {
             FirstName = source.FirstName;
             LastName = source.LastName;
@@ -23,18 +43,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             StartDate = source.StartDate;
             EndDate = source.EndDate;
             DateOfBirth = source.DateOfBirth;
-            ReservationId = source.ReservationId;
 
-            switch (originator)
+            switch (modifyingParty)
             {
                 case Originator.Employer:
                     EmployerRef = source.Reference;
                     break;
+
                 case Originator.Provider:
                     ProviderRef = source.Reference;
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(originator), originator, null);
             }
         }
     }

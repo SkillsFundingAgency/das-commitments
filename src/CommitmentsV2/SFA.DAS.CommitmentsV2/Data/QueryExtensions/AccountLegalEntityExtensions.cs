@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,11 +22,8 @@ namespace SFA.DAS.CommitmentsV2.Data.QueryExtensions
             Expression<Func<AccountLegalEntity, TResponse>> select,
             CancellationToken cancellationToken)
         {
-            return query
-                .AsNoTracking()
-                .Where(ale => ale.Id == accountLegalEntityId)
-                .Select(select)
-                .SingleOrDefaultAsync(cancellationToken);
+            return query.GetById<AccountLegalEntity, TResponse>(ale => ale.Id == accountLegalEntityId, select,
+                cancellationToken);
         }
     }
 }

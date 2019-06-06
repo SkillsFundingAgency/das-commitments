@@ -16,6 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string OriginatorReference { get; set; }
-        public Guid ReservationId { get; set; }
+        public Guid? ReservationId { get; set; }
     }
 }

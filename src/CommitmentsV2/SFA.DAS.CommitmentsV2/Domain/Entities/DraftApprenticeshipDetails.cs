@@ -1,9 +1,11 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Domain.Entities
 {
     public class DraftApprenticeshipDetails
     {
+        public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Uln { get; set; }
@@ -14,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
         public DateTime? DateOfBirth { get; set; }
         public string Reference { get; set; }
         public Guid? ReservationId { get; set; }
-
         public int? AgeOnStartDate
         {
             get

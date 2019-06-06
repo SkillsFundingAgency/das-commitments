@@ -62,35 +62,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         {
             var result = _fixture.CreateCohort();
             //approval is the aggregate of contained apprenticeship approvals, currently :-(
-            Assert.IsTrue(result.Apprenticeship.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+            Assert.IsTrue(result.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
         }
 
         [Test]
         public void TheCohortHasOneDraftApprenticeship()
         {
             var result = _fixture.CreateCohort();
-            Assert.AreEqual(1, result.Apprenticeship.Count);
+            Assert.AreEqual(1, result.Apprenticeships.Count);
         }
 
         [Test]
-        public void TheCohortIsProviderOriginated()
+        public void TheCohortIsPartyOriginated()
         {
             var result = _fixture.CreateCohort();
-            Assert.AreEqual(Originator.Provider, result.Originator);
+            Assert.AreEqual(_fixture.Party, result.Originator);
         }
 
         [Test]
         public void TheDraftApprenticeshipCreatedEventIsPublished()
         {
-            var result = _fixture.CreateCohort();
+            var cohort = _fixture.CreateCohort();
+            var draftApprenticeship = cohort.Apprenticeships.Single();
 
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
                 .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(new DraftApprenticeshipCreatedEvent(
-                    draftApprenticeshipId: 0,
-                    cohortId: 0,
-                    uln: _fixture.DraftApprenticeshipDetails.Uln,
-                    reservationId: _fixture.DraftApprenticeshipDetails.ReservationId.Value,
-                    createdOn: result.CreatedOn.Value));
+                    cohortId: cohort.Id,
+                    draftApprenticeshipId: draftApprenticeship.Id,
+                    uln: draftApprenticeship.Uln,
+                    reservationId: draftApprenticeship.ReservationId.Value,
+                    createdOn: draftApprenticeship.CreatedOn.Value));
         }
 
         private class ProviderCreatesCohortTestFixture
@@ -99,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
             public CommitmentsV2.Models.Provider Provider { get; private set; }
             public AccountLegalEntity AccountLegalEntity { get; private set; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
+            public Originator Party { get; set; }
 
             public ProviderCreatesCohortTestFixture()
             {
@@ -124,11 +126,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                     LastName = fixture.Create<string>(),
                     ReservationId = Guid.NewGuid()
                 };
+
+                Party = Originator.Provider;
             }
 
             public Cohort CreateCohort()
             {
-                var result = Provider.CreateCohort(AccountLegalEntity, DraftApprenticeshipDetails);
+                var result = Provider.CreateCohort(AccountLegalEntity, DraftApprenticeshipDetails, Party);
                 return result;
             }
         }

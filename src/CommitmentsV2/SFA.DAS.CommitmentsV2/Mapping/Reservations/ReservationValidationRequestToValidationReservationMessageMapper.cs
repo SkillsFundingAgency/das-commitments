@@ -1,13 +1,14 @@
-﻿using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
+﻿using System.Threading.Tasks;
+using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.Reservations.Api.Client.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
 {
     public class ReservationValidationRequestToValidationReservationMessageMapper : IMapper<ReservationValidationRequest, ValidationReservationMessage>
     {
-        public ValidationReservationMessage Map(ReservationValidationRequest source)
+        public Task<ValidationReservationMessage> Map(ReservationValidationRequest source)
         {
-            return new ValidationReservationMessage
+            return Task.FromResult(new ValidationReservationMessage
             {
                 AccountId = source.AccountId,
                 ReservationId = source.ReservationId,
@@ -15,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
                 ProviderId = source.ProviderId,
                 AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
                 CourseCode = source.CourseCode
-            };
+            });
         }
     }
 }

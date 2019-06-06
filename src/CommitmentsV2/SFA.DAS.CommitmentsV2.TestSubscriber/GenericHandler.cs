@@ -94,4 +94,11 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             return Log(message, context);
         }
     }
+    class DraftApprenticeshipUpdatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipUpdatedEvent>
+    {
+        public Task Handle(DraftApprenticeshipUpdatedEvent message, IMessageHandlerContext context)
+        {
+            return Log(message, context);
+        }
+    }
 }

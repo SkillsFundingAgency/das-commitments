@@ -9,20 +9,13 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
-    public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IAsyncMapper<AddCohortCommand, DraftApprenticeshipDetails>
+    public class AddCohortCommandToDraftApprenticeshipDetailsMapper : IMapper<AddCohortCommand, DraftApprenticeshipDetails>
     {
-        private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
-        private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
-        private readonly ICurrentDateTime _currentDateTime;
+        private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
 
-        public AddCohortCommandToDraftApprenticeshipDetailsMapper(
-            ITrainingProgrammeApiClient trainingProgrammeApiClient,
-            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper,
-            ICurrentDateTime currentDateTime)
+        public AddCohortCommandToDraftApprenticeshipDetailsMapper(ITrainingProgrammeLookup trainingProgrammeLookup)
         {
-            _trainingProgrammeApiClient = trainingProgrammeApiClient;
-            _trainingProgrammeMapper = trainingProgrammeMapper;
-            _currentDateTime = currentDateTime;
+            _trainingProgrammeLookup = trainingProgrammeLookup;
         }
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
@@ -45,21 +38,10 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 
             return result;
         }
-        private async Task<TrainingProgramme> GetCourse(string courseCode)
+
+        private Task<TrainingProgramme> GetCourse(string courseCode)
         {
-            if (string.IsNullOrWhiteSpace(courseCode))
-            {
-                return null;
-            }
-
-            var course = await _trainingProgrammeApiClient.GetTrainingProgramme(courseCode);
-
-            if (course == null)
-            {
-                throw new Exception($"The course code {courseCode} was not found");
-            }
-
-            return _trainingProgrammeMapper.Map(course);
+            return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
     }
 }

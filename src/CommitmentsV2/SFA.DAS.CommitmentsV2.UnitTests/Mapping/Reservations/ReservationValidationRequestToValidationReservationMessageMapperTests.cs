@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using System.Threading.Tasks;
+using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Mapping.Reservations;
@@ -22,44 +23,44 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
         }
 
         [Test]
-        public void Map_StartDate_ShouldBeSet()
+        public async Task Map_StartDate_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
             Assert.AreEqual(_source.StartDate, result.StartDate);
         }
 
         [Test]
-        public void Map_CourseCode_ShouldBeSet()
+        public async Task Map_CourseCode_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
             Assert.AreEqual(_source.CourseCode, result.CourseCode);
         }
 
         [Test]
-        public void Map_AccountId_ShouldBeSet()
+        public async Task Map_AccountId_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
             Assert.AreEqual(_source.AccountId, result.AccountId);
         }
 
         [Test]
-        public void Map_AccountLegalEntityPublicHashedId_ShouldBeSet()
+        public async Task Map_AccountLegalEntityPublicHashedId_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
             Assert.AreEqual(_source.AccountLegalEntityPublicHashedId, result.AccountLegalEntityPublicHashedId);
         }
 
         [Test]
-        public void Map_ProviderId_ShouldBeSet()
+        public async Task Map_ProviderId_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
             Assert.AreEqual(_source.ProviderId, result.ProviderId);
         }
 
         [Test]
-        public void Map_ReservationId_ShouldBeSet()
+        public async Task Map_ReservationId_ShouldBeSet()
         {
-            var result = _mapper.Map(_source);
+            var result = await _mapper.Map(_source);
             Assert.AreEqual(_source.ReservationId, result.ReservationId);
         }
     }
