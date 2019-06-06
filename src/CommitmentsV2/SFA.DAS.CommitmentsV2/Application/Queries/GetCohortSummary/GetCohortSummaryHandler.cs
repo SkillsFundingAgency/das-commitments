@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.HashingService;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
