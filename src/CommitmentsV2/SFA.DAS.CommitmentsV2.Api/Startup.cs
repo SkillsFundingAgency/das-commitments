@@ -51,8 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 c.SwaggerDoc("v1", new Info
                 {
                     Version = "v1",
-                    Title = "Commitments v2 API",
-                    TermsOfService = "None"
+                    Title = "Commitments v2 API"
                 });
             });
             services.AddHealthChecks();
