@@ -37,7 +37,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(new GetCohortResponse
             {
                 CohortId = result.CohortId,
-                LegalEntityName = result.LegalEntityName
+                LegalEntityName = result.LegalEntityName,
+                IsFundedByTransfer = result.IsFundedByTransfer
             });
         }
 
