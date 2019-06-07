@@ -16,6 +16,7 @@ using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc;
 using StructureMap;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
@@ -45,6 +46,15 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>())
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "Commitments v2 API",
+                    TermsOfService = "None"
+                });
+            });
             services.AddHealthChecks();
             services.AddMemoryCache();
             services.AddNServiceBus();
@@ -72,7 +82,14 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseAuthentication()
                 .UseHealthChecks("/api/health-check")
                 .UseUnitOfWork()
-                .UseMvc();
+                .UseMvc()
+                .UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Commitments v2 API");
+                c.RoutePrefix = string.Empty;
+            });
         }
     }
 }
