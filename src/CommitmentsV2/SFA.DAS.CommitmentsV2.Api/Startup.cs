@@ -1,4 +1,7 @@
-﻿using FluentValidation.AspNetCore;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +56,12 @@ namespace SFA.DAS.CommitmentsV2.Api
                     Version = "v1",
                     Title = "Commitments v2 API"
                 });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
+
             services.AddHealthChecks();
             services.AddMemoryCache();
             services.AddNServiceBus();
