@@ -57,6 +57,8 @@ namespace SFA.DAS.CommitmentsV2.Api
                     Title = "Commitments v2 API"
                 });
 
+                c.DescribeAllEnumsAsStrings();
+
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
@@ -90,13 +92,17 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseHealthChecks("/api/health-check")
                 .UseUnitOfWork()
                 .UseMvc()
-                .UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Commitments v2 API");
-                c.RoutePrefix = string.Empty;
-            });
+                .UseStaticFiles()
+                .UseSwagger(c =>
+                {
+                    c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
+                })
+                .UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Commitments v2 API");
+                    c.RoutePrefix = string.Empty;
+                })
+                ;
         }
     }
 }
