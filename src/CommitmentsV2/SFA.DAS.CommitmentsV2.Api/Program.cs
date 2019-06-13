@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using System.IO;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using NLog.Web;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
@@ -23,6 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseStructureMap()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
-                .UseNLog();
+                .UseNLog()
+        ;
     }
 }
