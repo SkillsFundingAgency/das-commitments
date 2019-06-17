@@ -76,9 +76,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
 
     public class WhenCallingTheEndpointsFixture
     {
-        public Client.CommitmentsApiClient CommitmentsApiClient;
-        public Mock<IRestHttpClient> MockRestHttpClient;
-        public CreateCohortRequest CreateCohortRequest;
+        public Client.CommitmentsApiClient CommitmentsApiClient { get; }
+        public Mock<IRestHttpClient> MockRestHttpClient { get; }
+        public CreateCohortRequest CreateCohortRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
         public long CohortId { get; set; }
         public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }

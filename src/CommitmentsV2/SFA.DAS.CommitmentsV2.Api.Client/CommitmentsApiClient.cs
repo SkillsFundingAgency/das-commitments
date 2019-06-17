@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
             return false;
         }
-        
+
         public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohorts", request, cancellationToken);
