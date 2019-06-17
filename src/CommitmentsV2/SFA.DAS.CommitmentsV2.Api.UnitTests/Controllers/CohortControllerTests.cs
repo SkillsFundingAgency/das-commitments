@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -8,11 +9,13 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
     [TestFixture]
+    [Parallelizable(ParallelScope.All)]
     public class CohortControllerTests
     {
         [Test]
@@ -68,6 +71,45 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             //Assert
             Assert.AreEqual(CohortControllerTestFixtures.CohortReference, addCohortResponse.CohortReference);
         }
+
+
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnCohortId()
+        {
+            const long cohortId = 1234;
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryResponse {CohortId = cohortId},
+                    response => Assert.AreEqual(cohortId, response.CohortId));
+        }
+
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnLegalEntityName()
+        {
+            const long cohortId = 1234;
+            const string name = "ACME Fireworks";
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryResponse { LegalEntityName = name},
+                    response => Assert.AreEqual(name, response.LegalEntityName));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public Task GetCohort_ValidRequest_ShouldReturnIsTransferFunded(bool expectedIsTransferFunded)
+        {
+            const long cohortId = 1234;
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryResponse { IsFundedByTransfer = expectedIsTransferFunded},
+                    response => Assert.AreEqual(expectedIsTransferFunded, response.IsFundedByTransfer));
+        }
     }
 
     public class CohortControllerTestFixtures
@@ -115,6 +157,20 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var controller = CreateController();
 
             return controller.CreateCohort(new CreateCohortRequest());
+        }
+
+        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryResponse queryResponse, Action<GetCohortResponse> checkHttpResponse)
+        {
+            var controller = CreateController();
+
+            MediatorMock
+                .Setup(m => m.Send(It.Is<GetCohortSummaryRequest>(r => r.CohortId == cohortId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => queryResponse);
+                    
+            var http = await controller.GetCohort(cohortId);
+            var getCohortResponse = ((OkObjectResult)http).Value as GetCohortResponse;
+
+            checkHttpResponse(getCohortResponse);
         }
     }
 }

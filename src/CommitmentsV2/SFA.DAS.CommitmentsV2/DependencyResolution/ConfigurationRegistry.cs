@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using SFA.DAS.Authorization.Features;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.Encoding;
 using SFA.DAS.Reservations.Api.Client.Configuration;
 using StructureMap;
 
@@ -16,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<CommitmentIdHashingConfiguration>(CommitmentsConfigurationKeys.CommitmentIdHashingConfiguration);
             AddConfiguration<FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
             AddConfiguration<ReservationsClientApiConfiguration>(CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
+            AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
         }
 
         private void AddConfiguration<T>(string name) where T : class
