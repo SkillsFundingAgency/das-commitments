@@ -1,4 +1,7 @@
-﻿using FluentValidation.AspNetCore;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc;
 using StructureMap;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace SFA.DAS.CommitmentsV2.Api
 {
@@ -45,6 +49,21 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>())
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "Commitments v2 API"
+                });
+
+                c.DescribeAllEnumsAsStrings();
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
+
             services.AddHealthChecks();
             services.AddMemoryCache();
             services.AddNServiceBus();
@@ -72,7 +91,18 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .UseAuthentication()
                 .UseHealthChecks("/api/health-check")
                 .UseUnitOfWork()
-                .UseMvc();
+                .UseMvc()
+                .UseStaticFiles()
+                .UseSwagger(c =>
+                {
+                    c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
+                })
+                .UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Commitments v2 API");
+                    c.RoutePrefix = string.Empty;
+                })
+                ;
         }
     }
 }

@@ -24,9 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 {
                     LegalEntityName = c.LegalEntityName,
                     CohortId = c.Id,
-                    AccountId = c.EmployerAccountId,
-                    ProviderId = c.ProviderId,
-                    TransferSenderAccountId = c.TransferSenderId
+                    IsFundedByTransfer = c.TransferSenderId != null
                 }, cancellationToken);
         }
     }

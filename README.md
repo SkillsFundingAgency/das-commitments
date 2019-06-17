@@ -4,6 +4,18 @@ Commitments API for the Digital Apprenticeship Service
 
 For Commitments V2, see: https://github.com/SkillsFundingAgency/das-commitments/tree/master/src/CommitmentsV2
 
+
+## Getting started Api (covering v1 and v2) ##
+* Clone das-commitments repo
+* Open das-commitments solution - build fails. This is due to a Slow Cheetah issue. To workaround, change build configuration to Release and build, then back to Debug and build. Solution will then build ok.
+* Set Startup projects as Multiple - SFA.DAS.CloudService, SFA.DAS.CommitmentsV2.Api (this is for Commitments v1 and v2 respectively)
+* Publish the database project to local db server (use default db name "SFA.DAS.Commitments.Database")
+* Execute sql to seed data - see https://github.com/SkillsFundingAgency/das-commitments/tree/master/src/CommitmentsV2 
+* Obtain cloud config
+* Run Storage Emulator (for v2)
+* Start
+
+
 **Build status**
 
 ![Build Status](https://sfa-gov-uk.visualstudio.com/_apis/public/build/definitions/c39e0c0b-7aff-4606-b160-3566f3bbce23/134/badge)

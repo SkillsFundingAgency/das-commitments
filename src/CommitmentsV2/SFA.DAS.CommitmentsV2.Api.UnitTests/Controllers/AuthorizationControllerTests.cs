@@ -4,7 +4,6 @@ using MediatR;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using AutoFixture;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort;
@@ -55,7 +54,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     {
         public AuthorizationControllerTestFixture()
         {
-            var fixture = new Fixture();
             MediatorMock = new Mock<IMediator>();
 
             AuthorizationController = new AuthorizationController(MediatorMock.Object);
