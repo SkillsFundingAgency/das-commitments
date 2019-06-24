@@ -60,15 +60,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         [TestCase("2019-04-01", "2004-04-02", false, Description = "One day prior to 15 years old")]
         [TestCase("2019-04-01", "1904-04-01", false, Description = "Exactly 115 years old")]
         [TestCase("2019-04-01", "1904-04-02", true, Description = "One day prior to 115 years old")]
-        public void DateOfBirth_CheckValidation(DateTime courseStartDate, DateTime? dateOfBirth, bool passes)
+        [TestCase(null, "1899-12-31", false, Description = "Date earlier than minimum acceptable")]
+        public void DateOfBirth_Validation(DateTime? courseStartDate, DateTime? dateOfBirth, bool passes)
         {
             var utcDateOfBirth = dateOfBirth.HasValue ? DateTime.SpecifyKind(dateOfBirth.Value, DateTimeKind.Utc) : default(DateTime?);
 
             _fixture.WithStartDate(courseStartDate)
-                .WithCurrentDate(courseStartDate.AddMonths(1))
-                .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.DateOfBirth = utcDateOfBirth,
-                nameof(_fixture.DraftApprenticeshipDetails.DateOfBirth),
-                passes);
+                    .AssertValidationForProperty(() => _fixture.DraftApprenticeshipDetails.DateOfBirth = utcDateOfBirth,
+                        nameof(_fixture.DraftApprenticeshipDetails.DateOfBirth),
+                        passes);
         }
 
         [TestCase(null, true)]
@@ -199,7 +199,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             return this;
         }
 
-        public AddDraftApprenticeshipValidationTestsFixture WithStartDate(DateTime startDate)
+        public AddDraftApprenticeshipValidationTestsFixture WithStartDate(DateTime? startDate)
         {
             DraftApprenticeshipDetails.StartDate = startDate;
             return this;
