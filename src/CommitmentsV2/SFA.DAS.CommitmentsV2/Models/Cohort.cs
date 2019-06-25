@@ -21,28 +21,40 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party withParty, Party creator): this()
+        private void CheckCreatorIsValid(Party creator)
         {
             if (creator != Party.Employer && creator != Party.Provider)
             {
                 throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {creator} is not valid");
             }
+        }
 
+        private void CheckDraftApprenticeshipIsValid(Party creator, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
             if (creator == Party.Provider && draftApprenticeshipDetails == null)
             {
                 throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
             }
+        }
 
-            //todo: invariants:
-            //1. withParty - only Employer or Provider
-            //2. creator - only Employer or Provider
+        private void CheckInitialPartyIsValid(Party creator, Party initialParty)
+        {
+            if (initialParty != Party.Employer && initialParty != Party.Provider)
+            {
+                throw new DomainException("InitialParty", $"Cohorts can be with Employer or Provider; {initialParty} is not valid");
+            }
 
-            // 1. if withParty = Provider, cannot have draftApprenticeshipDetails
-            // 2. if withParty = Employer, must have draftApprenticeshipDetails
+            if (creator == Party.Provider && initialParty == Party.Employer)
+            {
+                throw new DomainException("InitialParty", $"Provider-created Cohorts cannot initially be with Employer");
+            }
+        }
 
-            // 1. for provider, apprenticeship details cannot be null
-            // 2. for provider, must be with provider (cannot be with employer)
-
+        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party creator): this()
+        {
+            CheckCreatorIsValid(creator);
+            CheckDraftApprenticeshipIsValid(creator, draftApprenticeshipDetails);
+            CheckInitialPartyIsValid(creator, initialParty);
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
@@ -52,7 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
             ProviderId = provider.UkPrn;
             ProviderName = provider.Name;
-            EditStatus = withParty.ToEditStatus();
+            EditStatus = initialParty.ToEditStatus();
             Originator = creator.ToOriginator();
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
@@ -243,6 +255,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Provider)
+            {
+                return true;
+            }
+
+            //Employers can modify Provider-assigned Cohorts during their initial creation
+            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Employer && LastAction == LastAction.None)
             {
                 return true;
             }
