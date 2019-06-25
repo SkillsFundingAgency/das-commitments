@@ -1,8 +1,11 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class AccountLegalEntity 
+    public class AccountLegalEntity : ICohortCreator
     {
         public virtual long Id { get; private set; }
         public string LegalEntityId { get; private set; }
@@ -68,5 +71,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             return name != Name;
         }
+
+        public virtual Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails, Party withParty)
+        {
+            return new Cohort(provider, this, draftApprenticeshipDetails, withParty, Party.Employer);
+       }
     }
 }

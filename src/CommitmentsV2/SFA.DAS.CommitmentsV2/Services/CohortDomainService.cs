@@ -48,14 +48,22 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
+            //***********************
+            //TODO: these should be parameters; however, this matches the current implementation, where only the Provider is doing any creation!
+            //***********************
+            Party creatingParty = Party.Provider;
+            Party withParty = Party.Provider;
+            //***********************
+
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
-
-            var cohort = provider.CreateCohort(accountLegalEntity, draftApprenticeshipDetails, _authenticationService.GetUserRole());
+            var creator = GetCohortCreator(creatingParty, provider, accountLegalEntity);
 
             await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
+
+            var cohort = creator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, withParty);
 
             return cohort;
         }
@@ -65,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var db = _dbContext.Value;
             var cohort = await GetCohort(cohortId, db, cancellationToken);
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserRole());
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty());
 
             await ValidateDraftApprenticeshipDetails(providerId, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
@@ -83,11 +91,25 @@ namespace SFA.DAS.CommitmentsV2.Services
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
-            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserRole());
+            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty());
 
             await ValidateDraftApprenticeshipDetails(cohort.ProviderId.Value, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
             return cohort;
+        }
+
+        private ICohortCreator GetCohortCreator(Party creatingParty, Provider provider,
+            AccountLegalEntity accountLegalEntity)
+        {
+            switch (creatingParty)
+            {
+                case Party.Employer:
+                    return accountLegalEntity;
+                case Party.Provider:
+                    return provider;
+                default:
+                    throw new ArgumentException($"Unable to get Cohort Creator from Party of type {creatingParty}");
+            }
         }
 
         private void AssertHasProvider(long cohortId, long? providerId)

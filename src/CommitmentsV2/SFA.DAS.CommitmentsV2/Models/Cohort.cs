@@ -6,6 +6,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
@@ -18,6 +19,42 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<Apprenticeship>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
+        }
+
+        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party withParty, Party creator): this()
+        {
+            //todo: invariants:
+            //1. withParty - only Employer or Provider
+            //2. creator - only Employer or Provider
+
+            // 1. if withParty = Provider, cannot have draftApprenticeshipDetails
+            // 2. if withParty = Employer, must have draftApprenticeshipDetails
+
+            // 1. for provider, apprenticeship details cannot be null
+            // 2. for provider, must be with provider (cannot be with employer)
+
+
+            EmployerAccountId = accountLegalEntity.AccountId;
+            LegalEntityId = accountLegalEntity.LegalEntityId;
+            LegalEntityName = accountLegalEntity.Name;
+            LegalEntityAddress = accountLegalEntity.Address;
+            LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
+            AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
+            ProviderId = provider.UkPrn;
+            ProviderName = provider.Name;
+            EditStatus = withParty.ToEditStatus();
+            Originator = creator.ToOriginator();
+
+            // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
+            Reference = "";
+            CommitmentStatus = CommitmentStatus.New;
+            CreatedOn = DateTime.UtcNow;
+            LastAction = LastAction.None;
+
+            if (draftApprenticeshipDetails != null)
+            {
+                AddDraftApprenticeship(draftApprenticeshipDetails, creator);
+            }
         }
 
         public virtual long Id { get; set; }
@@ -52,17 +89,17 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public virtual DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator party)
+        public virtual DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator)
         {
-            EnsureModifierIsAllowedToModifyDraftApprenticeship(party);
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
-            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, party);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
         }
 
-        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
+        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
 
@@ -91,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
         
 
-        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Originator modifyingParty)
+        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Party modifyingParty)
         {
             if (!ModifierIsAllowedToEdit(modifyingParty))
             {
@@ -187,14 +224,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private bool ModifierIsAllowedToEdit(Originator modifyingParty)
+        private bool ModifierIsAllowedToEdit(Party modifyingParty)
         {
-            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Originator.Employer)
+            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Party.Employer)
             {
                 return true;
             }
 
-            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Originator.Provider)
+            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Provider)
             {
                 return true;
             }
