@@ -98,8 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
-        private ICohortCreator GetCohortCreator(Party creatingParty, Provider provider,
-            AccountLegalEntity accountLegalEntity)
+        private ICohortCreator GetCohortCreator(Party creatingParty, Provider provider,  AccountLegalEntity accountLegalEntity)
         {
             switch (creatingParty)
             {

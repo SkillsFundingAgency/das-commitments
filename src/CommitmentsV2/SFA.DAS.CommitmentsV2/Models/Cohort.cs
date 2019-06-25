@@ -23,6 +23,16 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party withParty, Party creator): this()
         {
+            if (creator != Party.Employer && creator != Party.Provider)
+            {
+                throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {creator} is not valid");
+            }
+
+            if (creator == Party.Provider && draftApprenticeshipDetails == null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
+            }
+
             //todo: invariants:
             //1. withParty - only Employer or Provider
             //2. creator - only Employer or Provider
@@ -53,6 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails != null)
             {
+                //todo: can this method be made non-virtual?
                 AddDraftApprenticeship(draftApprenticeshipDetails, creator);
             }
         }

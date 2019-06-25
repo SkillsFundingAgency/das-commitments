@@ -92,7 +92,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         {
             public DateTime Now { get; set; }
             public Fixture Fixture { get; set; }
-            public Cohort Cohort { get; set; }
+            public CommitmentsV2.Models.Cohort Cohort { get; set; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
             public Party Party { get; set; }
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                 Now = DateTime.UtcNow;
                 Fixture = new Fixture();
 
-                Cohort = Fixture.Build<Cohort>()
+                Cohort = Fixture.Build<CommitmentsV2.Models.Cohort>()
                     .OmitAutoProperties()
                     .With(c => c.Id)
                     .With(c => c.EditStatus, EditStatus.ProviderOnly)
