@@ -61,7 +61,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
             var creator = GetCohortCreator(creatingParty, provider, accountLegalEntity);
 
-            await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
+            if (draftApprenticeshipDetails != null)
+            {
+                await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
+            }
 
             var cohort = creator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, withParty);
 

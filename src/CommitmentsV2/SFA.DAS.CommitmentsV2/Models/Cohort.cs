@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
@@ -19,35 +18,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<Apprenticeship>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
-        }
-
-        private void CheckCreatorIsValid(Party creator)
-        {
-            if (creator != Party.Employer && creator != Party.Provider)
-            {
-                throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {creator} is not valid");
-            }
-        }
-
-        private void CheckDraftApprenticeshipIsValid(Party creator, DraftApprenticeshipDetails draftApprenticeshipDetails)
-        {
-            if (creator == Party.Provider && draftApprenticeshipDetails == null)
-            {
-                throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
-            }
-        }
-
-        private void CheckInitialPartyIsValid(Party creator, Party initialParty)
-        {
-            if (initialParty != Party.Employer && initialParty != Party.Provider)
-            {
-                throw new DomainException("InitialParty", $"Cohorts can be with Employer or Provider; {initialParty} is not valid");
-            }
-
-            if (creator == Party.Provider && initialParty == Party.Employer)
-            {
-                throw new DomainException("InitialParty", $"Provider-created Cohorts cannot initially be with Employer");
-            }
         }
 
         public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party creator): this()
@@ -75,7 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails != null)
             {
-                //todo: can this method be made non-virtual?
                 AddDraftApprenticeship(draftApprenticeshipDetails, creator);
             }
         }
@@ -112,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public virtual DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator)
+        public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
@@ -122,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             return draftApprenticeship;
         }
 
-        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty)
+        public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
 
@@ -244,6 +213,35 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 yield return new DomainError(nameof(details.StartDate), errorMessage);
                 yield break;
+            }
+        }
+
+        private void CheckCreatorIsValid(Party creator)
+        {
+            if (creator != Party.Employer && creator != Party.Provider)
+            {
+                throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {creator} is not valid");
+            }
+        }
+
+        private void CheckDraftApprenticeshipIsValid(Party creator, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (creator == Party.Provider && draftApprenticeshipDetails == null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
+            }
+        }
+
+        private void CheckInitialPartyIsValid(Party creator, Party initialParty)
+        {
+            if (initialParty != Party.Employer && initialParty != Party.Provider)
+            {
+                throw new DomainException("InitialParty", $"Cohorts can be with Employer or Provider; {initialParty} is not valid");
+            }
+
+            if (creator == Party.Provider && initialParty == Party.Employer)
+            {
+                throw new DomainException("InitialParty", $"Provider-created Cohorts cannot initially be with Employer");
             }
         }
 
