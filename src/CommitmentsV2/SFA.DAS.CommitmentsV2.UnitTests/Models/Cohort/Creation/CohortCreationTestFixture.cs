@@ -111,6 +111,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.IsInstanceOf<T>(Exception);
         }
 
+        public void VerifyNoException()
+        {
+            Assert.IsNull(Exception);
+        }
+
         public void VerifyCohortIsDraft()
         {
             Assert.AreEqual(LastAction.None, Cohort.LastAction);
