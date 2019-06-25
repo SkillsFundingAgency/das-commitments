@@ -19,6 +19,7 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -128,12 +129,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
-            public Originator Party { get; set; }
+            public Party Party { get; set; }
             private Mock<IAuthenticationService> AuthenticationService { get; }
             public List<DomainError>  DomainErrors { get; private set; }
 
             public CohortDomainServiceTestFixture()
             {
+                // We need this to allow the UoW to initialise it's internal static events collection.
+                var uow = new UnitOfWorkContext();
+
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
@@ -170,9 +174,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
-                Party = Originator.Unknown;
+                Party = Party.Provider;
                 AuthenticationService = new Mock<IAuthenticationService>();
-                AuthenticationService.Setup(x => x.GetUserRole()).Returns(Party);
+                AuthenticationService.Setup(x => x.GetUserParty()).Returns(Party);
                 
                 DomainErrors = new List<DomainError>();
 
@@ -302,7 +306,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyProviderCohortCreation()
             {
-                Provider.Verify(x => x.CreateCohort(AccountLegalEntity.Object, DraftApprenticeshipDetails, Party));
+                Provider.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object, DraftApprenticeshipDetails, Party));
             }
 
             public void VerifyProviderDraftApprenticeshipAdded()
