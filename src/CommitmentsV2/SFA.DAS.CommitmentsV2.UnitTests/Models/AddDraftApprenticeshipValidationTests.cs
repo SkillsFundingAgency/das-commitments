@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
@@ -124,7 +123,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
         [TestCase(EditStatus.EmployerOnly, Party.None)]
         [TestCase(EditStatus.EmployerOnly, Party.Provider)]
         [TestCase(EditStatus.ProviderOnly, Party.None)]
-        [TestCase(EditStatus.ProviderOnly, Party.Employer)]
         public void Party_CheckValidation(EditStatus editStatus, Party modifyingParty)
         {
             _fixture.Cohort.EditStatus = editStatus;
