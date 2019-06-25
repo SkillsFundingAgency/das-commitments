@@ -44,20 +44,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
         }
 
         [Test]
-        public async Task Map_AccountLegalEntityPublicHashedId_ShouldBeSet()
-        {
-            var result = await _mapper.Map(_source);
-            Assert.AreEqual(_source.AccountLegalEntityPublicHashedId, result.AccountLegalEntityPublicHashedId);
-        }
-
-        [Test]
-        public async Task Map_ProviderId_ShouldBeSet()
-        {
-            var result = await _mapper.Map(_source);
-            Assert.AreEqual(_source.ProviderId, result.ProviderId);
-        }
-
-        [Test]
         public async Task Map_ReservationId_ShouldBeSet()
         {
             var result = await _mapper.Map(_source);
