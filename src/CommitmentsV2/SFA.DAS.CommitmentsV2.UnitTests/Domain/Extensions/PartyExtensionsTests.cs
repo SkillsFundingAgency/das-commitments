@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
@@ -31,9 +30,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.Extensions
             Assert.IsTrue(result == expectedResult);
         }
 
+        [TestCase(Party.TransferSender)]
+        [TestCase(Party.None)]
         public void TestInvalidOriginatorMapping(Party party)
         {
             Assert.Throws<ArgumentException>(() => party.ToOriginator());
+        }
+
+        [TestCase(Party.Employer, Party.Provider)]
+        [TestCase(Party.Provider, Party.Employer)]
+        public void TestValidGetOtherParty(Party party, Party expectedResult)
+        {
+            var result = party.GetOtherParty();
+            Assert.AreEqual(expectedResult, result);
+        }
+
+        [TestCase(Party.TransferSender)]
+        [TestCase(Party.None)]
+        public void TestValidGetOtherParty(Party party)
+        {
+            Assert.Throws<ArgumentException>(() => party.GetOtherParty());
         }
     }
 }
