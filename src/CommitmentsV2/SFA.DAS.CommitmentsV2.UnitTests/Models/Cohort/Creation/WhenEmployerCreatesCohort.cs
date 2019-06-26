@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
@@ -14,17 +15,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture = new CohortCreationTestFixture();
         }
 
-        [TestCase(Party.Provider)]
-        [TestCase(Party.Employer)]
-        public void ThenCohortCanBeWithEitherParty(Party initialParty)
+        [Test]
+        public void ThenCohortMustBeEmptyIfInitialPartyIsProvider()
         {
             _fixture
                 .WithCreatingParty(Party.Employer)
-                .WithInitialParty(initialParty)
+                .WithInitialParty(Party.Provider)
                 .WithDraftApprenticeship()
                 .CreateCohort();
 
-            _fixture.VerifyNoException();
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [Test]
+        public void ThenCohortCannotBeEmptyIfInitialPartyIsEmployer()
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .WithInitialParty(Party.Employer)
+                .CreateCohort();
+
+            _fixture.VerifyException<DomainException>();
         }
     }
 }

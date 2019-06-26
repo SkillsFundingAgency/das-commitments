@@ -23,8 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Models
         public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party creator): this()
         {
             CheckCreatorIsValid(creator);
-            CheckDraftApprenticeshipIsValid(creator, draftApprenticeshipDetails);
             CheckInitialPartyIsValid(creator, initialParty);
+            CheckDraftApprenticeshipIsValid(creator, initialParty, draftApprenticeshipDetails);
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
@@ -224,11 +224,21 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckDraftApprenticeshipIsValid(Party creator, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        private void CheckDraftApprenticeshipIsValid(Party creator, Party initialParty, DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
             if (creator == Party.Provider && draftApprenticeshipDetails == null)
             {
                 throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
+            }
+
+            if (creator == Party.Employer && initialParty == Party.Employer && draftApprenticeshipDetails == null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts cannot be empty if Employer is initial party");
+            }
+
+            if (creator == Party.Employer && initialParty == Party.Provider && draftApprenticeshipDetails != null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts must be empty if Provider is initial party");
             }
         }
 
