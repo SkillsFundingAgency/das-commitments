@@ -160,7 +160,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             ValidateStartDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
-            await ValidateReservation(providerId, accountId, accountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+            await ValidateReservation(accountId, draftApprenticeshipDetails, cancellationToken);
         }
 
         private void ValidateUln(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -187,20 +187,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private async Task ValidateReservation(long providerId, long accountId, string accountLegalEntityPublicHashedId, DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+        private async Task ValidateReservation(long accountId, DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
-            if (!details.ReservationId.HasValue) return;
+            if (!details.ReservationId.HasValue || !details.StartDate.HasValue || details.TrainingProgramme == null)
+                return;
 
-            var validationRequest = new ReservationValidationRequest(providerId, accountId,
-                accountLegalEntityPublicHashedId, details.ReservationId.Value, details.StartDate, details.TrainingProgramme?.CourseCode);
+            var validationRequest = new ReservationValidationRequest(accountId, details.ReservationId.Value, details.StartDate.Value, details.TrainingProgramme.CourseCode);
 
             var validationResult = await _reservationValidationService.Validate(validationRequest, cancellationToken);
 
             var errors = validationResult.ValidationErrors.Select(error => new DomainError(error.PropertyName, error.Reason)).ToList();
-            if (errors.Any())
-            {
-                throw new DomainException(errors);
-            }
+            errors.ThrowIfAny();
         }
 
         private async Task ValidateOverlaps(DraftApprenticeshipDetails details, CancellationToken cancellationToken)

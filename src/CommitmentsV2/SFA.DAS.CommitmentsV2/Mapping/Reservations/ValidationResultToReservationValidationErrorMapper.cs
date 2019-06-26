@@ -10,9 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
         public Task<ReservationValidationResult> Map(ValidationResult source)
         {
             return Task.FromResult(new ReservationValidationResult(source.ValidationErrors.Select(sourceError =>
-                    new ReservationValidationError(sourceError.PropertyName,
-                        sourceError.Reason,
-                        sourceError.Code))
+                    new ReservationValidationError(sourceError.PropertyName, sourceError.Reason))
                 .ToArray()));
         }
     }
