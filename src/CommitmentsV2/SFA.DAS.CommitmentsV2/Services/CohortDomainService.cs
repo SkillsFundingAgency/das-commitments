@@ -46,15 +46,11 @@ namespace SFA.DAS.CommitmentsV2.Services
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, CancellationToken cancellationToken)
         {
-            //***********************
-            //TODO: these should be parameters; however, this matches the current implementation, where only the Provider is doing any creation!
-            //***********************
-            Party creatingParty = Party.Provider;
-            Party withParty = Party.Provider;
-            //***********************
-
+            var creatingParty = _authenticationService.GetUserParty();
+            var initialParty = assignToOtherParty ? creatingParty.GetOtherParty() : creatingParty;
+            
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
@@ -66,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
             }
 
-            var cohort = creator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, withParty);
+            var cohort = creator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty);
 
             return cohort;
         }

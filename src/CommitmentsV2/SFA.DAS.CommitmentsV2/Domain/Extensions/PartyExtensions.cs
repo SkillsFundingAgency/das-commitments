@@ -30,5 +30,18 @@ namespace SFA.DAS.CommitmentsV2.Domain.Extensions
                     throw new ArgumentException($"Unable to map Party {party} to Originator");
             }
         }
+
+        public static Party GetOtherParty(this Party party)
+        {
+            switch (party)
+            {
+                case Party.Employer:
+                    return Party.Provider;
+                case Party.Provider:
+                    return Party.Employer;
+                default:
+                    throw new ArgumentException($"Unable to obtain Other Party from type {party}");
+            }
+        }
     }
 }
