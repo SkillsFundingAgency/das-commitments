@@ -12,13 +12,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             CreatedOn = DateTime.UtcNow;
         }
 
-        public DraftApprenticeship(DraftApprenticeshipDetails source, Party creator) : this()
+        public DraftApprenticeship(DraftApprenticeshipDetails source, Party originator) : this()
         {
-            Merge(source, creator);
+            Merge(source, originator);
 
             ReservationId = source.ReservationId;
 
-            switch (creator)
+            switch (originator)
             {
                 case Party.Employer:
                     EmployerRef = source.Reference;
@@ -27,7 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ProviderRef = source.Reference;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(creator), creator, null);
+                    throw new ArgumentOutOfRangeException(nameof(originator), originator, null);
             }
         }
 
