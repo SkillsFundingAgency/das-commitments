@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -14,6 +15,8 @@ using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/cohorts/{cohortId}/draft-apprenticeships")]
+    [ApiController]
+    [Authorize]
     public class DraftApprenticeshipController : Controller
     {
         private readonly IMediator _mediator;
