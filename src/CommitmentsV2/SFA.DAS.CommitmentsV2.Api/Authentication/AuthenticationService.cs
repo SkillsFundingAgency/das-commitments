@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
@@ -32,10 +31,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
                 return isEmployer ? Party.Employer : Party.Provider;
             }
 
-            //This method will need to be modified to deal with Transfer Sender in future. This is because the Transfer Sender will have the Employer role.
-            //In this case, this method will need to be provided with some sort of flag indicating how to treat users in the Employer role.
-            //Specific endpoints will be provided for the Transfer Sender functionality, so this will be possible.
-            //One possibility is to add an alternative implementation for this for transfer senders??
+            //This method may need revisiting in future, as it does not support TransferSenders, who are in the Employer role. Specific endpoints will be
+            //made available for TransferSender functionality, so perhaps it doesn't matter - in this case, we would just need to assert that the user is
+            //in the Employer role and thereby infer that they must be the TransferSender in that context. Alternatively, could another implementation of this
+            //be created for use within the TransferSender functionality? This would assert that the user is in the Employer role, and return TransferSender
+            //as the Party, or otherwise throw an exception.
 
             throw new ArgumentException($"Unable to map User Role (IsEmployer:{isEmployer}, IsProvider:{isProvider}) to Party");
         }
