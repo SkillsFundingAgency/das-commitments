@@ -20,11 +20,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party creator): this()
+        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party originator): this()
         {
-            CheckCreatorIsValid(creator);
-            CheckInitialPartyIsValid(creator, initialParty);
-            CheckDraftApprenticeshipIsValid(creator, initialParty, draftApprenticeshipDetails);
+            CheckOriginatorIsValid(originator);
+            CheckInitialPartyIsValid(originator, initialParty);
+            CheckDraftApprenticeshipIsValid(originator, initialParty, draftApprenticeshipDetails);
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ProviderId = provider.UkPrn;
             ProviderName = provider.Name;
             EditStatus = initialParty.ToEditStatus();
-            Originator = creator.ToOriginator();
+            Originator = originator.ToOriginator();
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails != null)
             {
-                AddDraftApprenticeship(draftApprenticeshipDetails, creator);
+                AddDraftApprenticeship(draftApprenticeshipDetails, originator);
             }
         }
 
@@ -222,11 +222,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckCreatorIsValid(Party creator)
+        private void CheckOriginatorIsValid(Party originator)
         {
-            if (creator != Party.Employer && creator != Party.Provider)
+            if (originator != Party.Employer && originator != Party.Provider)
             {
-                throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {creator} is not valid");
+                throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {originator} is not valid");
             }
         }
 

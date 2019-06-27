@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class AccountLegalEntity : ICohortCreator
+    public class AccountLegalEntity : ICohortOriginator
     {
         public virtual long Id { get; private set; }
         public string LegalEntityId { get; private set; }
@@ -73,9 +73,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         public virtual Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, Party withParty)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty)
         {
-            return new Cohort(provider, this, draftApprenticeshipDetails, withParty, Party.Employer);
+            return new Cohort(provider, this, draftApprenticeshipDetails, initialParty, Party.Employer);
        }
     }
 }

@@ -48,23 +48,21 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, CancellationToken cancellationToken)
         {
-            var creatingParty = _authenticationService.GetUserParty();
-            var initialParty = assignToOtherParty ? creatingParty.GetOtherParty() : creatingParty;
+            var originatingParty = _authenticationService.GetUserParty();
+            var initialParty = assignToOtherParty ? originatingParty.GetOtherParty() : originatingParty;
             
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
-            var creator = GetCohortCreator(creatingParty, provider, accountLegalEntity);
+            var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
             if (draftApprenticeshipDetails != null)
             {
                 await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
             }
 
-            var cohort = creator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty);
-
-            return cohort;
+            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty);
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
@@ -97,16 +95,16 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
-        private ICohortCreator GetCohortCreator(Party creatingParty, Provider provider,  AccountLegalEntity accountLegalEntity)
+        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider,  AccountLegalEntity accountLegalEntity)
         {
-            switch (creatingParty)
+            switch (originatingParty)
             {
                 case Party.Employer:
                     return accountLegalEntity;
                 case Party.Provider:
                     return provider;
                 default:
-                    throw new ArgumentException($"Unable to get Cohort Creator from Party of type {creatingParty}");
+                    throw new ArgumentException($"Unable to get ICohortOriginator from Party of type {originatingParty}");
             }
         }
 
