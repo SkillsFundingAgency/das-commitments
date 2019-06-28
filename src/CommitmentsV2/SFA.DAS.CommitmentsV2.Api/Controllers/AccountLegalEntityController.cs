@@ -12,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AccountLegalEntityController : ControllerBase
     {
         private readonly ILogger<AccountLegalEntityController> _logger;

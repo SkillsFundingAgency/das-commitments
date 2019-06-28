@@ -146,15 +146,21 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildDateOfBirthValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (!draftApprenticeshipDetails.AgeOnStartDate.HasValue) yield break;
-
-            if (draftApprenticeshipDetails.AgeOnStartDate < Constants.MinimumAgeAtApprenticeshipStart)
+            if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate.Value < Constants.MinimumAgeAtApprenticeshipStart)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be at least {Constants.MinimumAgeAtApprenticeshipStart} years old at the start of their training");
+                yield break;
             }
-            else if (draftApprenticeshipDetails.AgeOnStartDate >= Constants.MaximumAgeAtApprenticeshipStart)
+
+            if (draftApprenticeshipDetails.AgeOnStartDate.HasValue && draftApprenticeshipDetails.AgeOnStartDate >= Constants.MaximumAgeAtApprenticeshipStart)
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The apprentice must be younger than {Constants.MaximumAgeAtApprenticeshipStart} years old at the start of their training");
+                yield break;
+            }
+
+            if (draftApprenticeshipDetails.DateOfBirth.HasValue &&  draftApprenticeshipDetails.DateOfBirth < Constants.MinimumDateOfBirth)
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.DateOfBirth), $"The Date of birth is not valid");
             }
         }
 

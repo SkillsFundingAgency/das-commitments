@@ -4,13 +4,11 @@
     {
         public string PropertyName { get; }
         public string Reason { get; }
-        public string Code { get; }
 
-        public ReservationValidationError(string propertyName, string reason, string code)
+        public ReservationValidationError(string propertyName, string reason)
         {
             PropertyName = propertyName;
             Reason = reason;
-            Code = code;
         }
     }
 }

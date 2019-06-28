@@ -92,6 +92,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task Reservation_Validation_Skipped()
+        {
+            await _fixture.CreateCohort();
+            _fixture.VerifyReservationValidationNotPerformed();
+        }
+
+        [Test]
         public async Task OverlapOnStartDate_Validation()
         {
             await _fixture.WithUlnOverlapOnStartDate().CreateCohort();
@@ -196,12 +203,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
             {
                 DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
+                DraftApprenticeshipDetails.StartDate = new DateTime(2019, 01, 01);
+                DraftApprenticeshipDetails.TrainingProgramme = new TrainingProgramme("TEST",
+                    "TEST",
+                    ProgrammeType.Standard,
+                    new DateTime(2016, 1, 1),
+                    null);
 
                 var errors = new List<ReservationValidationError>();
 
                 if (hasReservationError)
                 {
-                    errors.Add(new ReservationValidationError("TEST", "TEST", "TEST"));
+                    errors.Add(new ReservationValidationError("TEST", "TEST"));
                 }
 
                 ReservationValidationService.Setup(x => x.Validate(It.IsAny<ReservationValidationRequest>(), It.IsAny<CancellationToken>()))
@@ -328,6 +341,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
 
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "TEST"));
+            }
+
+            public void VerifyReservationValidationNotPerformed()
+            {
+               ReservationValidationService.Verify(x => x.Validate(It.IsAny<ReservationValidationRequest>(),
+                       It.IsAny<CancellationToken>()),
+                   Times.Never);
             }
 
             public void VerifyOverlapExceptionOnStartDate()
