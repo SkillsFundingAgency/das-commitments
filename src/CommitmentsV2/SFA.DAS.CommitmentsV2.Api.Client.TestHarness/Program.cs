@@ -25,7 +25,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
                 .AddSingleton<ICommitmentsApiClientFactory>(x=>
                 {
                     var config = x.GetService<IOptions<CommitmentsClientApiConfiguration>>().Value;
-                    return new CommitmentsApiClientFactory(config);
+                    var loggerFactory = x.GetService<ILoggerFactory>();
+                    return new CommitmentsApiClientFactory(config, loggerFactory);
                 })
                 .AddTransient<ICommitmentsApiClient>(x => x.GetService<ICommitmentsApiClientFactory>().CreateClient())
                 .AddTransient<TestHarness>()
