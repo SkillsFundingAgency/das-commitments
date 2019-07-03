@@ -1,0 +1,24 @@
+using System;
+using System.Linq;
+using System.Net.Http;
+
+namespace SFA.DAS.CommitmentsV2.Api.Types.Http
+{
+    public static class HttpResponseMessageExtensions
+    {
+        public static HttpSubStatusCode GetSubStatusCode(this HttpResponseMessage httpResponseMessage)
+        {
+            var httpSubStatusCode = HttpSubStatusCode.None;
+            
+            if (httpResponseMessage.Headers.TryGetValues(HttpHeaderNames.SubStatusCode, out var values))
+            {
+                if (values.Count() != 1 || !Enum.TryParse(values.Single(), out httpSubStatusCode))
+                {
+                    throw new InvalidOperationException($"HTTP response header {HttpHeaderNames.SubStatusCode} is invalid");
+                }
+            }
+
+            return httpSubStatusCode;
+        }
+    }
+}
