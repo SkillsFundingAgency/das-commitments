@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Client.Http;
 using SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Fakes;
+using SFA.DAS.CommitmentsV2.Api.Types.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.Http;
 using SFA.DAS.Testing;
@@ -20,79 +21,101 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
     public class CommitmentsRestClientTests : FluentTest<CommitmentsRestClientTestsFixture>
     {
         [Test]
-        public Task WhenCallingGetAndHttpClientReturnsNonSuccess_ThenShouldThrowRestClientException()
+        public Task CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsDomainException_ThenShouldThrowApiModelException()
         {
-            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnInternalServerErrorWithStringResponseBody(), f => f.CallGet(null),
-                (f, r) => r.Should().Throw<RestHttpClientException>()
-                    .Where(ex => ex.StatusCode == HttpStatusCode.InternalServerError
-                                 && ex.ReasonPhrase == "Internal Server Error"
-                                 && Equals(ex.RequestUri, f.RequestUri)
-                                 && ex.ErrorResponse.Contains(f.ResponseString)));
+            return TestExceptionAsync(
+                f => f.SetBadRequestResponseStatus().SetDomainExceptionResponseSubStatus(),
+                f => f.Get(),
+                (f, r) => r.Should().Throw<CommitmentsApiModelException>().Where(ex =>
+                    ex.Errors.Count == f.ModelErrors.Count));
         }
-
+        
         [Test]
-        public Task WhenCallingPostAsJsonAndHttpClientReturnsBadRequestWithModelException_ThenShouldThrowApiModelException()
+        public Task CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsNone_ThenShouldThrowRestHttpClientException()
         {
-            return TestExceptionAsync(f => f.SetupHttpClientGetToReturnModelError(),
-                f => f.CallPostAsJson(null),
-                (f, r) => r.Should().Throw<CommitmentsApiModelException>()
-                    .Where(ex => ex.Errors.Count == f.ModelErrors.Count));
+            return TestExceptionAsync(
+                f => f.SetBadRequestResponseStatus(),
+                f => f.Get(),
+                (f, r) => r.Should().Throw<RestHttpClientException>().Where(ex => 
+                    ex.StatusCode == HttpStatusCode.BadRequest &&
+                    ex.ReasonPhrase == "Bad Request" &&
+                    ex.RequestUri == f.RequestUri &&
+                    ex.ErrorResponse == f.ResponseString));
+        }
+        
+        [Test]
+        public Task CreateClientException_WhenResponseStatusIsInternalServerError_ThenShouldThrowRestHttpClientException()
+        {
+            return TestExceptionAsync(
+                f => f.SetInternalServerErrorResponseStatus(),
+                f => f.Get(),
+                (f, r) => r.Should().Throw<RestHttpClientException>().Where(ex => 
+                    ex.StatusCode == HttpStatusCode.InternalServerError &&
+                    ex.ReasonPhrase == "Internal Server Error" &&
+                    ex.RequestUri == f.RequestUri &&
+                    ex.ErrorResponse == f.ResponseString));
         }
     }
 
     public class CommitmentsRestClientTestsFixture
     {
-        public class ExampleResponseObject
-        {
-            public string StringProperty { get; set; }
-        }
-        
         public FakeHttpMessageHandler HttpMessageHandler { get; set; }
         public HttpClient HttpClient { get; set; }
         public IRestHttpClient RestHttpClient { get; set; }
         public Uri RequestUri { get; set; }
-        public string ResponseString { get; set; }
         public object ResponseObject { get; set; }
+        public string ResponseString { get; set; }
         public List<ErrorDetail> ModelErrors { get; set; }
         
         public CommitmentsRestClientTestsFixture()
         {
-            ModelErrors = new List<ErrorDetail> { new ErrorDetail("field1", "Message1") };
-
+            ModelErrors = new List<ErrorDetail> { new ErrorDetail("Field1", "Message1") };
             HttpMessageHandler = new FakeHttpMessageHandler();
             HttpClient = new HttpClient(HttpMessageHandler) { BaseAddress = new Uri("https://example.com") };
             RestHttpClient = new CommitmentsRestHttpClient(HttpClient);
         }
-        
-        public void SetupHttpClientGetToReturnModelError()
-        {
-            ResponseObject = new ErrorResponse(ModelErrors);
 
-            var stringBody = JsonConvert.SerializeObject(ResponseObject);
+        public CommitmentsRestClientTestsFixture SetBadRequestResponseStatus()
+        {
+            RequestUri = new Uri($"{HttpClient.BaseAddress}/request", UriKind.Absolute);
+            ResponseString = "Foobar";
+            
             HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
-                Content = new StringContent(stringBody, Encoding.Default, "application/json")
+                RequestMessage = new HttpRequestMessage(HttpMethod.Get, RequestUri),
+                Content = new StringContent(ResponseString, Encoding.Default, "text/plain")
             };
+
+            return this;
         }
 
-        public void SetupHttpClientGetToReturnInternalServerErrorWithStringResponseBody()
+        public CommitmentsRestClientTestsFixture SetDomainExceptionResponseSubStatus()
         {
-            ResponseString = "Some sort of error description";
+            ResponseObject = new ErrorResponse(ModelErrors);
+            ResponseString = JsonConvert.SerializeObject(ResponseObject);
+            HttpMessageHandler.HttpResponseMessage.Headers.Add(HttpHeaderNames.SubStatusCode, ((int)HttpSubStatusCode.DomainException).ToString());
+            HttpMessageHandler.HttpResponseMessage.Content = new StringContent(ResponseString, Encoding.Default, "application/json");
+
+            return this;
+        }
+
+        public CommitmentsRestClientTestsFixture SetInternalServerErrorResponseStatus()
+        {
             RequestUri = new Uri($"{HttpClient.BaseAddress}/request", UriKind.Absolute);
+            ResponseString = "Foobar";
+            
             HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
-                Content = new StringContent(ResponseString, Encoding.Default, "text/plain"),
-                RequestMessage = new HttpRequestMessage(HttpMethod.Get, RequestUri)
+                RequestMessage = new HttpRequestMessage(HttpMethod.Get, RequestUri),
+                Content = new StringContent(ResponseString, Encoding.Default, "text/plain")
             };
+            
+            return this;
         }
 
-        public async Task<string> CallGet(object queryData)
+        public Task<string> Get()
         {
-            return await RestHttpClient.Get("https://example.com", queryData);
-        }
-        public async Task<string> CallPostAsJson(object queryData)
-        {
-            return await RestHttpClient.PostAsJson("https://example.com", queryData);
+            return RestHttpClient.Get("https://example.com");
         }
     }
 }

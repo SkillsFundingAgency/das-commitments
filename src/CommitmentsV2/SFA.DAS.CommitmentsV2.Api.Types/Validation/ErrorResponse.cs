@@ -7,7 +7,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Validation
     [Serializable]
     public class ErrorResponse
     {
-        public List<ErrorDetail> Errors { get; set;  }
+        [JsonProperty(Required = Required.Always)]
+        public List<ErrorDetail> Errors { get; }
 
         [JsonConstructor]
         public ErrorResponse(List<ErrorDetail> errors)

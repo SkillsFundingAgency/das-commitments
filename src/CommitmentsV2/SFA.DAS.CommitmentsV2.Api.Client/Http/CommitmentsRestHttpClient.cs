@@ -1,7 +1,8 @@
 using System;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
+using SFA.DAS.CommitmentsV2.Api.Types.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Validation;
 using SFA.DAS.Http;
 
@@ -15,33 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 
         protected override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
         {
-            var apiException = ConvertContentToApiException(content);
-
-            if (apiException != null)
-            {
-                return apiException;
-            }
-
-            return base.CreateClientException(httpResponseMessage, content);
-        }
-
-        private Exception ConvertContentToApiException(string content)
-        {
-            try
-            {
-                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(content);
-
-                if (errorResponse != null)
-                {
-                    return new CommitmentsApiModelException(errorResponse.Errors);
-                }
-            }
-            catch (Exception)
-            {
-                // Consume the exception and do nothing
-            }
-
-            return null;
+            return httpResponseMessage.StatusCode == HttpStatusCode.BadRequest && httpResponseMessage.GetSubStatusCode() == HttpSubStatusCode.DomainException
+                ? new CommitmentsApiModelException(JsonConvert.DeserializeObject<ErrorResponse>(content).Errors)
+                : base.CreateClientException(httpResponseMessage, content);
         }
     }
 }
