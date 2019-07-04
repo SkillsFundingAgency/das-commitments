@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Api.Types.Http;
@@ -15,15 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.Http
 
         protected override Exception CreateClientException(HttpResponseMessage httpResponseMessage, string content)
         {
-            switch (httpResponseMessage.GetSubStatusCode())
-            {
-                case HttpSubStatusCode.None:
-                    return base.CreateClientException(httpResponseMessage, content);
-                case HttpSubStatusCode.DomainException:
-                    return new CommitmentsApiModelException(JsonConvert.DeserializeObject<ErrorResponse>(content).Errors);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return httpResponseMessage.StatusCode == HttpStatusCode.BadRequest && httpResponseMessage.GetSubStatusCode() == HttpSubStatusCode.DomainException
+                ? new CommitmentsApiModelException(JsonConvert.DeserializeObject<ErrorResponse>(content).Errors)
+                : base.CreateClientException(httpResponseMessage, content);
         }
     }
 }

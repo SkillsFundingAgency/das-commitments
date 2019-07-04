@@ -21,7 +21,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
     public class CommitmentsRestClientTests : FluentTest<CommitmentsRestClientTestsFixture>
     {
         [Test]
-        public Task CreateClientException_WhenResponseStatusIsNonSuccess_ThenShouldThrowRestHttpClientException()
+        public Task CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsDomainException_ThenShouldThrowApiModelException()
+        {
+            return TestExceptionAsync(
+                f => f.SetBadRequestResponseStatus().SetDomainExceptionResponseSubStatus(),
+                f => f.Get(),
+                (f, r) => r.Should().Throw<CommitmentsApiModelException>().Where(ex =>
+                    ex.Errors.Count == f.ModelErrors.Count));
+        }
+        
+        [Test]
+        public Task CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsNone_ThenShouldThrowRestHttpClientException()
         {
             return TestExceptionAsync(
                 f => f.SetBadRequestResponseStatus(),
@@ -32,15 +42,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
                     ex.RequestUri == f.RequestUri &&
                     ex.ErrorResponse == f.ResponseString));
         }
-
+        
         [Test]
-        public Task CreateClientException_WhenResponseStatusIsNonSuccessAndResponseSubStatusIsDomainException_ThenShouldThrowApiModelException()
+        public Task CreateClientException_WhenResponseStatusIsInternalServerError_ThenShouldThrowRestHttpClientException()
         {
             return TestExceptionAsync(
-                f => f.SetBadRequestResponseStatus().SetDomainExceptionResponseSubStatus(),
+                f => f.SetInternalServerErrorResponseStatus(),
                 f => f.Get(),
-                (f, r) => r.Should().Throw<CommitmentsApiModelException>().Where(ex =>
-                    ex.Errors.Count == f.ModelErrors.Count));
+                (f, r) => r.Should().Throw<RestHttpClientException>().Where(ex => 
+                    ex.StatusCode == HttpStatusCode.InternalServerError &&
+                    ex.ReasonPhrase == "Internal Server Error" &&
+                    ex.RequestUri == f.RequestUri &&
+                    ex.ErrorResponse == f.ResponseString));
         }
     }
 
@@ -83,6 +96,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
             HttpMessageHandler.HttpResponseMessage.Headers.Add(HttpHeaderNames.SubStatusCode, ((int)HttpSubStatusCode.DomainException).ToString());
             HttpMessageHandler.HttpResponseMessage.Content = new StringContent(ResponseString, Encoding.Default, "application/json");
 
+            return this;
+        }
+
+        public CommitmentsRestClientTestsFixture SetInternalServerErrorResponseStatus()
+        {
+            RequestUri = new Uri($"{HttpClient.BaseAddress}/request", UriKind.Absolute);
+            ResponseString = "Foobar";
+            
+            HttpMessageHandler.HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                RequestMessage = new HttpRequestMessage(HttpMethod.Get, RequestUri),
+                Content = new StringContent(ResponseString, Encoding.Default, "text/plain")
+            };
+            
             return this;
         }
 
