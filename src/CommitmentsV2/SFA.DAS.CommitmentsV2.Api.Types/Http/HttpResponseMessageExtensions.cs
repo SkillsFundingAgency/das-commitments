@@ -12,7 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Http
             
             if (httpResponseMessage.Headers.TryGetValues(HttpHeaderNames.SubStatusCode, out var values))
             {
-                if (values.Count() != 1 || !Enum.TryParse(values.Single(), out httpSubStatusCode))
+                var subStatusCodes = values.ToList();
+                
+                if (subStatusCodes.Count != 1 || !Enum.TryParse(subStatusCodes.Single(), out httpSubStatusCode))
                 {
                     throw new InvalidOperationException($"HTTP response header {HttpHeaderNames.SubStatusCode} is invalid");
                 }
