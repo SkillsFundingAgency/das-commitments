@@ -13,6 +13,9 @@ using SFA.DAS.Commitments.Domain.Entities.TrainingProgramme;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Commitments.Infrastructure.Services;
+using SFA.DAS.CommitmentsV2.Types;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.ProviderApproveCohort
 {
@@ -27,14 +30,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             Validator = new ProviderApproveCohortCommandValidator();
             Command = new ProviderApproveCohortCommand { Caller = new Caller(213, CallerType.Provider), CommitmentId = 123, LastUpdatedByName = "Test", LastUpdatedByEmail = "test@email.com", Message = "Some text" };
             SetUpCommonMocks();
-
             Commitment = CreateCommitment(Command.CommitmentId, 11234, Command.Caller.Id, 1000, "Nice Company");
             Commitment.EditStatus = EditStatus.ProviderOnly;
             Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.EmployerAgreed);
+            Account = CreateAccount(Commitment.EmployerAccountId, ApprenticeshipEmployerType.Levy);
+            CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
             CommitmentRepository.Setup(x => x.StartTransferRequestApproval(It.IsAny<long>(), It.IsAny<decimal>(), It.IsAny<int>(),
                 It.IsAny<List<TrainingCourseSummary>>())).ReturnsAsync(_transferRequestId);
-
-            CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
+            EmployerAccountsService.Setup(x => x.GetAccount(Commitment.EmployerAccountId)).ReturnsAsync(Account);
+            
             SetupSuccessfulOverlapCheck();
 
             ApprenticeshipInfoService = new Mock<IApprenticeshipInfoService>();
@@ -58,7 +62,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                 Mediator.Object,
                 MessagePublisher.Object,
                 Mock.Of<ICommitmentsLogger>(),
-                ApprenticeshipInfoService.Object);
+                ApprenticeshipInfoService.Object,
+                FeatureToggleService.Object,
+                EmployerAccountsService.Object);
         }
 
         [Test]
@@ -79,6 +85,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             await Target.Handle(Command);
 
             Mediator.Verify(x => x.SendAsync(It.IsAny<SetPaymentOrderCommand>()), Times.Never);
+        }
+        
+        [Test]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentApprenticeshipEmployerTypeIsNotSet()
+        {
+            await Target.Handle(Command);
+            
+            Assert.IsNull(Commitment.ApprenticeshipEmployerTypeOnApproval);
         }
 
         [Test]

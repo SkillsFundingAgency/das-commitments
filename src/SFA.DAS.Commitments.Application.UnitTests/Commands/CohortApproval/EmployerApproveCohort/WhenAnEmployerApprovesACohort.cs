@@ -14,6 +14,12 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Types;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
 {
@@ -27,7 +33,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Command = new EmployerApproveCohortCommand { Caller = new Caller(213, CallerType.Employer), CommitmentId = 123, LastUpdatedByName = "Test", LastUpdatedByEmail = "test@email.com", Message = "Some text" };
             SetUpCommonMocks();
             Commitment = CreateCommitment(Command.CommitmentId, Command.Caller.Id, 234587);
+            Account = CreateAccount(Commitment.EmployerAccountId, ApprenticeshipEmployerType.Levy);
             CommitmentRepository.Setup(x => x.GetCommitmentById(Command.CommitmentId)).ReturnsAsync(Commitment);
+            EmployerAccountsService.Setup(x => x.GetAccount(Commitment.EmployerAccountId)).ReturnsAsync(Account);
             SetupSuccessfulOverlapCheck();
 
             Target = new EmployerApproveCohortCommandHandler(Validator,
@@ -41,7 +49,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
                 Mediator.Object,
                 MessagePublisher.Object,
                 Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>());
+                Mock.Of<IApprenticeshipInfoService>(),
+                FeatureToggleService.Object,
+                EmployerAccountsService.Object);
         }
 
         [Test]
@@ -148,6 +158,20 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             Assert.AreEqual(Command.LastUpdatedByName, Commitment.LastUpdatedByEmployerName);
             CommitmentRepository.Verify(x => x.UpdateCommitment(Commitment), Times.Once);
             HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.FinalApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Employer))), Times.Once);
+        }
+
+        [TestCase(false, null)]
+        [TestCase(true, ApprenticeshipEmployerType.NonLevy)]
+        [TestCase(true, ApprenticeshipEmployerType.Levy)]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentApprenticeshipEmployerTypeIsSet(bool isManageReservationsEnabled, ApprenticeshipEmployerType? apprenticeshipEmployerType)
+        {
+            Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            FeatureToggleService.Setup(s => s.IsEnabled("ManageReservations")).Returns(isManageReservationsEnabled);
+            Account.ApprenticeshipEmployerType = apprenticeshipEmployerType.GetValueOrDefault();
+            
+            await Target.Handle(Command);
+            
+            Assert.AreEqual(apprenticeshipEmployerType, Commitment.ApprenticeshipEmployerTypeOnApproval);
         }
 
         [Test]

@@ -7,7 +7,8 @@
 	@lastUpdatedByEmployerName NVARCHAR(255),
 	@lastUpdatedByEmployerEmail NVARCHAR(255),
 	@lastUpdatedByProviderName NVARCHAR(255),
-	@lastUpdatedByProviderEmail NVARCHAR(255)
+	@lastUpdatedByProviderEmail NVARCHAR(255),
+	@apprenticeshipEmployerTypeOnApproval TINYINT = NULL
 AS
 BEGIN
 
@@ -19,7 +20,8 @@ BEGIN
 			LastUpdatedByEmployerName = @lastUpdatedByEmployerName, 
 			LastUpdatedByEmployerEmail = @lastUpdatedByEmployerEmail,
 			LastUpdatedByProviderName = @lastUpdatedByProviderName,
-			LastUpdatedByProviderEmail = @lastUpdatedByProviderEmail
+			LastUpdatedByProviderEmail = @lastUpdatedByProviderEmail,
+			ApprenticeshipEmployerTypeOnApproval = @apprenticeshipEmployerTypeOnApproval
 	WHERE Id = @id
 	AND EditStatus <> 0;
 

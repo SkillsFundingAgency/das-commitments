@@ -23,6 +23,8 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
+        private readonly IFeatureToggleService _featureToggleService;
+        private readonly IEmployerAccountsService _employerAccountsService;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -35,12 +37,16 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             IHistoryRepository historyRepository,
             ICommitmentsLogger logger,
             IApprenticeshipInfoService apprenticeshipInfoService,
+            IFeatureToggleService featureToggleService,
+            IEmployerAccountsService employerAccountsService,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
             _logger = logger;
+            _featureToggleService = featureToggleService;
+            _employerAccountsService = employerAccountsService;
             _historyService = new HistoryService(historyRepository);
 
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime,
@@ -63,8 +69,18 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
 
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
-            await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
-                TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName);
+            if (_featureToggleService.IsEnabled("ManageReservations"))
+            {
+                var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
+                
+                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                    TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName, account.ApprenticeshipEmployerType);
+            }
+            else
+            {
+                await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
+                    TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName, null);
+            }
 
             await UpdateCommitmentObjectWithNewValues(commitment);
 
@@ -85,6 +101,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             commitment.TransferApprovalActionedByEmployerEmail = updatedCommitment.TransferApprovalActionedByEmployerEmail;
             commitment.TransferApprovalActionedByEmployerName = updatedCommitment.TransferApprovalActionedByEmployerName;
             commitment.TransferApprovalActionedOn = updatedCommitment.TransferApprovalActionedOn;
+            commitment.ApprenticeshipEmployerTypeOnApproval = updatedCommitment.ApprenticeshipEmployerTypeOnApproval;
         }
 
     private static void CheckAuthorization(ApproveTransferRequestCommand message, Commitment commitment)

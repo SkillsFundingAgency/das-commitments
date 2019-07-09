@@ -1,8 +1,8 @@
 ﻿using SFA.DAS.EAS.Account.Api.Client;
 
-namespace SFA.DAS.Commitments.Notification.WebJob.Configuration
+namespace SFA.DAS.Commitments.Infrastructure.Configuration
 {
-    public class AccountApiConfiguration : IAccountApiConfiguration
+    public class EmployerAccountsApiClientConfiguration : IAccountApiConfiguration
     {
         public string ApiBaseUrl { get; set; }
 

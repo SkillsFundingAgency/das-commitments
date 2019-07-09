@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Domain.Data
 {
@@ -16,7 +17,7 @@ namespace SFA.DAS.Commitments.Domain.Data
         Task UpdateCommitment(Commitment commitment);
         Task UpdateCommitmentReference(long commitmentId, string hashValue);
         Task SetPaymentOrder(long accountId);
-        Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName);
+        Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userId, string userName, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval = null);
         Task<TransferRequest> GetTransferRequest(long transferRequestId);
         Task<IList<TransferRequestSummary>> GetTransferRequestsForSender(long transferSenderAccountId);
         Task<IList<TransferRequestSummary>> GetPendingTransferRequests();

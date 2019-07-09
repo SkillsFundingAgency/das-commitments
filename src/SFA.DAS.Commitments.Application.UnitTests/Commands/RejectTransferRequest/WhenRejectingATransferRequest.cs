@@ -81,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.RejectTransferReque
         {
             await _sut.Handle(_command);
 
-            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferRejected, _command.UserEmail, _command.UserName));
+            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferRejected, _command.UserEmail, _command.UserName, null));
         }
 
         [Test]
