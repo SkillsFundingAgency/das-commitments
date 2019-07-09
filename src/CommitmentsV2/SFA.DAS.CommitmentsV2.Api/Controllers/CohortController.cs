@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 CohortId = result.CohortId,
                 LegalEntityName = result.LegalEntityName,
+                ProviderName = result.ProviderName,
                 IsFundedByTransfer = result.IsFundedByTransfer
             });
         }

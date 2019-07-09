@@ -4,6 +4,7 @@
     {
         public long CohortId { get; set; }
         public string LegalEntityName { get; set; }
+        public string ProviderName { get; set; }
         public bool IsFundedByTransfer { get; set; }
     }
 }

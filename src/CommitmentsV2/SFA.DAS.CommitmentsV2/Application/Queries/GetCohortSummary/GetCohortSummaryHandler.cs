@@ -23,6 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 .GetById(request.CohortId, c => new GetCohortSummaryResponse
                 {
                     LegalEntityName = c.LegalEntityName,
+                    ProviderName = c.ProviderName,
                     CohortId = c.Id,
                     IsFundedByTransfer = c.TransferSenderId != null
                 }, cancellationToken);

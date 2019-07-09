@@ -5,6 +5,8 @@
         public long CohortId { get; set; }
         public string LegalEntityName { get; set; }
 
+        public string ProviderName { get; set; }
+
         /// <summary>
         ///     Indicates whether the cohort is funding by a transfer. Transfer funded cohorts cannot
         ///     use framework courses.

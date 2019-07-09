@@ -98,6 +98,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                     response => Assert.AreEqual(name, response.LegalEntityName));
         }
 
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnProviderName()
+        {
+            const long cohortId = 1234;
+            const string name = "ACME Training";
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryResponse { ProviderName = name },
+                    response => Assert.AreEqual(name, response.ProviderName));
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public Task GetCohort_ValidRequest_ShouldReturnIsTransferFunded(bool expectedIsTransferFunded)
