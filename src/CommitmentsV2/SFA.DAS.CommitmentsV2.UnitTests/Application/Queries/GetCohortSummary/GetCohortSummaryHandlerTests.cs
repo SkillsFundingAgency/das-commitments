@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             dbContext.Database.EnsureDeleted();
-            dbContext.Commitment.AddRange(SeedCohorts);
+            dbContext.Cohorts.AddRange(SeedCohorts);
             dbContext.SaveChanges(true);
         }
 

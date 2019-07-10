@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public Task<GetCohortSummaryResponse> Handle(GetCohortSummaryRequest request, CancellationToken cancellationToken)
         {
             return _dbContext.Value
-                .Commitment
+                .Cohorts
                 .GetById(request.CohortId, c => new GetCohortSummaryResponse
                 {
                     LegalEntityName = c.LegalEntityName,

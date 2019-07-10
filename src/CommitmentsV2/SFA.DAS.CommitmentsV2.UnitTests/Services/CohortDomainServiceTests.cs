@@ -261,7 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Cohort = new Mock<Cohort>();
                 Cohort.Setup(x => x.Id).Returns(CohortId);
-                Db.Commitment.Add(Cohort.Object);
+                Db.Cohorts.Add(Cohort.Object);
 
                 return this;
             }

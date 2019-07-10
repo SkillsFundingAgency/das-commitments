@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var db = _dbContext.Value;
 
-            var cohort = await db.Commitment
+            var cohort = await db.Cohorts
                                 .Include(c => c.Apprenticeships)
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
 
@@ -119,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         
         private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
-            var cohort = await db.Commitment.SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
+            var cohort = await db.Cohorts.SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
             return cohort;
         }
