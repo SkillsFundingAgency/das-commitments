@@ -50,7 +50,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Attributes" />
     <Folder Include="Requests\" />
   </ItemGroup>
 
