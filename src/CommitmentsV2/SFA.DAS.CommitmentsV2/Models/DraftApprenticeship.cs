@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml.Serialization;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -35,7 +34,10 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             FirstName = source.FirstName;
             LastName = source.LastName;
-            Uln = source.Uln;
+            if (modifyingParty == Originator.Provider)
+            {
+                Uln = source.Uln;
+            }
             ProgrammeType = source.TrainingProgramme?.ProgrammeType;
             CourseCode = source.TrainingProgramme?.CourseCode;
             CourseName = source.TrainingProgramme?.Name;

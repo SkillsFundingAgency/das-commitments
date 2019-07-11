@@ -32,10 +32,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         }
 
         [Test]
-        public void ThenUlnIsMappedCorrectly()
+        public void ThenUlnIsMappedCorrectlyWhenOriginatorIsProvider()
+        {
+            var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Provider);
+            Assert.AreEqual(_source.Uln, result.Uln);
+        }
+
+        [Test]
+        public void ThenUlnIsNotMappedWhenOriginatorIsEmployer()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Employer);
-            Assert.AreEqual(_source.Uln, result.Uln);
+            Assert.AreNotEqual(_source.Uln, result.Uln);
         }
 
         [Test]
