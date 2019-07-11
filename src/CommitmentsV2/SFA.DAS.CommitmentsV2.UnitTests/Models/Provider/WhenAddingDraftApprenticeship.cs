@@ -112,6 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                     .Without(d => d.StartDate)
                     .Without(d => d.EndDate)
                     .Without(d => d.DateOfBirth)
+                    .Without(d => d.Uln)
                     .Create();
 
                 Party = Originator.Provider;
