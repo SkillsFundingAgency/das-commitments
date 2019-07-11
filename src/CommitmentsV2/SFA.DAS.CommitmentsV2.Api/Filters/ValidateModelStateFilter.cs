@@ -4,9 +4,9 @@ using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Http;
 
-namespace SFA.DAS.CommitmentsV2.Api.Attributes
+namespace SFA.DAS.CommitmentsV2.Api.Filters
 {
-    public class ValidateModelAttribute : ActionFilterAttribute
+    public class ValidateModelStateFilter : ActionFilterAttribute
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
