@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
+using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
@@ -25,7 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     LegalEntityName = c.LegalEntityName,
                     ProviderName = c.ProviderName,
                     CohortId = c.Id,
-                    IsFundedByTransfer = c.TransferSenderId != null
+                    IsFundedByTransfer = c.TransferSenderId != null,
+                    WithParty = c.EditStatus.ToParty()
                 }, cancellationToken);
         }
     }

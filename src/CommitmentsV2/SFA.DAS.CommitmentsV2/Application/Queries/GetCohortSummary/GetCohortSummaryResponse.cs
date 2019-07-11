@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
+﻿using SFA.DAS.CommitmentsV2.Types;
+
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
     public class GetCohortSummaryResponse
     {
@@ -12,5 +14,8 @@
         ///     use framework courses.
         /// </summary>
         public bool IsFundedByTransfer { get; set; }
+
+        public Party WithParty { get; set; }
+
     }
 }

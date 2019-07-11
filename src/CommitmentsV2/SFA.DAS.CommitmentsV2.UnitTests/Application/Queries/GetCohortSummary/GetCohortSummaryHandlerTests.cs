@@ -22,6 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         const long CohortId = 456;
         const string LegalEntityName = "ACME Fireworks";
         const string ProviderName = "ACME Training";
+        public EditStatus EditStatus = EditStatus.Both; 
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -47,11 +48,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return CheckCommandResponse(response => Assert.AreEqual(LegalEntityName, response.LegalEntityName, "Did not return expected legal entity name"));
         }
 
+        [TestCase(EditStatus.EmployerOnly, Party.Employer)]
+        [TestCase(EditStatus.ProviderOnly, Party.Provider)]
+        [TestCase(EditStatus.Neither, Party.None)]
+        [TestCase(EditStatus.Both, Party.None)]
+        public Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus, Party expectedParty)
+        {
+            EditStatus = editStatus;
+            return CheckCommandResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
+        }
+
         private async Task CheckCommandResponse(Action<GetCohortSummaryResponse> assert)
         {
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, LegalEntityName, ProviderName);
+                .AddCommitment(CohortId, LegalEntityName, ProviderName, EditStatus);
 
             // act
             var response = await fixtures.GetResponse(new GetCohortSummaryRequest { CohortId = CohortId });
@@ -60,7 +71,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             assert(response);
         }
     }
-
 
     public class GetCohortSummaryHandlerTestFixtures
     {
@@ -80,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName, EditStatus editStatus)
         {
             var cohort = new Cohort
             {
@@ -89,7 +99,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 LegalEntityAddress = "An Address",
                 LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
                 CommitmentStatus = CommitmentStatus.New,
-                EditStatus = EditStatus.Both,
+                EditStatus = editStatus,
                 LastAction = LastAction.None,
                 Originator = Originator.Unknown,
                 ProviderName = providerName,
