@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
@@ -10,6 +11,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
     [TestFixture]
     public class DraftApprenticeshipConstructorMergeTests
     {
+        private Fixture _fixture;
+        private DraftApprenticeshipDetails _original;
+        private CommitmentsV2.Models.DraftApprenticeship _draftApprenticeship;
+
+        [SetUp]
+        public void Arrange()
+        {
+            _fixture = new Fixture();
+            _original = _fixture.Create<DraftApprenticeshipDetails>();
+            _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(_original, Originator.Provider);
+        }
+
         [Test]
         public void ThenFirstNameIsMappedCorrectly()
         {
@@ -23,9 +36,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         }
 
         [Test]
-        public void ThenUlnIsMappedCorrectly()
+        public void ThenUlnIsMappedCorrectlyForProvider()
         {
-            CheckPropertyAfterMerge(update => update.Uln, result => result.Uln);
+            CheckPropertyAfterMerge(update => update.Uln, result => result.Uln, Originator.Provider);
+        }
+
+        [Test]
+        public void ThenUlnIsNeMappedForEmployer()
+        {
+            CheckPropertyAfterMerge(update => update.Uln, result => result.Uln, Originator.Employer);
+        }
+
+        [Test]
+        public void ThenExceptionIsThrownIfUlnIsChangedByEmployer()
+        {
+            DraftApprenticeshipDetails update = _fixture.Create<DraftApprenticeshipDetails>();
+            Assert.Throws<DomainException>(() => _draftApprenticeship.Merge(update, Originator.Employer));
         }
 
         [Test]
@@ -85,20 +111,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         private void CheckPropertyAfterMerge<TValue>(Func<DraftApprenticeshipDetails, TValue> expected,
             Func<CommitmentsV2.Models.DraftApprenticeship, TValue> actual, Originator modifyingParty = Originator.Provider)
         {
-            var fixture = new Fixture();
-            var original = fixture.Create<DraftApprenticeshipDetails>();
-            var draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(original, Originator.Employer);
-            var update = fixture.Create<DraftApprenticeshipDetails>();
+            DraftApprenticeshipDetails update = CreateApprenticeshipUpdateDetails(modifyingParty);
 
-            draftApprenticeship.Merge(update, modifyingParty);
+            _draftApprenticeship.Merge(update, modifyingParty);
 
             var expectedValue = expected(update);
-            var actualValue = actual(draftApprenticeship);
+            var actualValue = actual(_draftApprenticeship);
 
             IEqualityComparer<TValue> comparer = EqualityComparer<TValue>.Default;
 
             Assert.IsTrue(comparer.Equals(expectedValue, actualValue),
                 $"Expected value: {expectedValue} Actual value: {actualValue}");
+        }
+
+        private DraftApprenticeshipDetails CreateApprenticeshipUpdateDetails(Originator modifyingParty)
+        {
+            if (modifyingParty == Originator.Provider)
+            {
+                return _fixture.Create<DraftApprenticeshipDetails>();
+            }
+            return _fixture.Build<DraftApprenticeshipDetails>().With(x => x.Uln, _original.Uln).Create();
         }
     }
 }

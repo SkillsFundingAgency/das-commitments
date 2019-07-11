@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
@@ -14,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void Arrange()
         {
             var fixture = new Fixture();
-            _source = fixture.Create<DraftApprenticeshipDetails>();
+            _source = fixture.Build<DraftApprenticeshipDetails>().With(x=>x.Uln, null).Create();
         }
 
         [Test]
@@ -42,7 +43,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         public void ThenUlnIsNotMappedWhenOriginatorIsEmployer()
         {
             var result = new CommitmentsV2.Models.DraftApprenticeship(TestHelper.Clone(_source), Originator.Employer);
-            Assert.AreNotEqual(_source.Uln, result.Uln);
+            Assert.AreEqual(_source.Uln, result.Uln);
+            Assert.IsNull(result.Uln);
+        }
+
+        [Test]
+        public void ThenThrowsDomainExceptionWhenUlnIsHackedWhenOriginatorIsEmployer()
+        {
+            var hackedSource = TestHelper.Clone(_source);
+            hackedSource.Uln = "123456";
+            Assert.Throws<DomainException>(() => new CommitmentsV2.Models.DraftApprenticeship(hackedSource, Originator.Employer));
         }
 
         [Test]
