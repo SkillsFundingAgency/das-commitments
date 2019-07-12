@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -71,6 +72,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
+        }
+
+        public Task<Party> GetRoleConfiguredForCurrentApp()
+        {
+            return _client.Get<Party>($"api/status/clientrole");
         }
     }
 }
