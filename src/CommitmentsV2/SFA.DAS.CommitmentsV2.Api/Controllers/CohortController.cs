@@ -40,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(new GetCohortResponse
             {
                 CohortId = result.CohortId,
+                LegalEntityId = result.LegalEntityId,
                 LegalEntityName = result.LegalEntityName,
                 ProviderName = result.ProviderName,
                 IsFundedByTransfer = result.IsFundedByTransfer,

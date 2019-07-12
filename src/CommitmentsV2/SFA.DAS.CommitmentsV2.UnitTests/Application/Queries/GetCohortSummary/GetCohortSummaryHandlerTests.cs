@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
     public class GetCohortSummaryHandlerTests
     {
         const long CohortId = 456;
+        const string LegalEntityId = "333455";
         const string LegalEntityName = "ACME Fireworks";
         const string ProviderName = "ACME Training";
         public EditStatus EditStatus = EditStatus.Both; 
@@ -29,11 +30,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             return CheckCommandResponse(response => Assert.IsNotNull(response, "Did not return response"));
         }
-
+        
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortId()
         {
             return CheckCommandResponse(response => Assert.AreEqual(CohortId, response.CohortId, "Did not return expected cohort id"));
+        }
+
+        [Test]
+        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityId()
+        {
+            return CheckCommandResponse(response => Assert.AreEqual(LegalEntityId, response.LegalEntityId, "Did not return expected Legal Entity id"));
         }
 
         [Test]
@@ -43,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityNameName()
+        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityName()
         {
             return CheckCommandResponse(response => Assert.AreEqual(LegalEntityName, response.LegalEntityName, "Did not return expected legal entity name"));
         }
@@ -62,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, LegalEntityName, ProviderName, EditStatus);
+                .AddCommitment(CohortId, LegalEntityId, LegalEntityName, ProviderName, EditStatus);
 
             // act
             var response = await fixtures.GetResponse(new GetCohortSummaryRequest { CohortId = CohortId });
@@ -90,11 +97,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName, EditStatus editStatus)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityId, string legalEntityName, string providerName, EditStatus editStatus)
         {
             var cohort = new Cohort
             {
-                LegalEntityId = legalEntityName,
+                LegalEntityId = legalEntityId,
                 LegalEntityName = legalEntityName,
                 LegalEntityAddress = "An Address",
                 LegalEntityOrganisationType = OrganisationType.CompaniesHouse,
