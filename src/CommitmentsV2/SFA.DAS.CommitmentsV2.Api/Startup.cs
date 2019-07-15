@@ -9,12 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Authorization.Mvc;
-using SFA.DAS.CommitmentsV2.Api.Attributes;
 using SFA.DAS.CommitmentsV2.Api.Authentication;
 using SFA.DAS.CommitmentsV2.Api.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
+using SFA.DAS.CommitmentsV2.Api.Filters;
 using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc;
@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 .AddMvc(o =>
                 {
                     o.AddAuthorization();
-                    o.Filters.Add<ValidateModelAttribute>();
+                    o.Filters.Add<ValidateModelStateFilter>();
                 })
                 .AddFluentValidation(c => c.RegisterValidatorsFromAssemblyContaining<CreateCohortRequestValidator>())
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
