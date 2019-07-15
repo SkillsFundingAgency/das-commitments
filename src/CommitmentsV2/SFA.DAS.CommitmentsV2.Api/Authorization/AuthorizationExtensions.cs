@@ -44,6 +44,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Authorization
                         }
                     });
 
+                    x.AddPolicy("Reservations", policy =>
+                    {
+                        if (isDevelopment)
+                            policy.AllowAnonymousUser();
+                        else
+                        {
+                            policy.RequireAuthenticatedUser();
+                            policy.RequireRole("Reservations");
+                        }
+                    });
+
                     x.DefaultPolicy = x.GetPolicy("default");
                 }
             });

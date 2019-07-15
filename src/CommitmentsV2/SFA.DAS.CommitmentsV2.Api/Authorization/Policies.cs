@@ -4,5 +4,6 @@
     {
         public const string Provider = "Provider";
         public const string Employer = "Employer";
+        public const string Reservations = "Reservations";
     }
 }
