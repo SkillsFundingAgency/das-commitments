@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
@@ -18,6 +18,35 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<Apprenticeship>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
+        }
+
+        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party originatingParty): this()
+        {
+            CheckOriginatorIsValid(originatingParty);
+            CheckInitialPartyIsValid(originatingParty, initialParty);
+            CheckDraftApprenticeshipIsValid(originatingParty, initialParty, draftApprenticeshipDetails);
+
+            EmployerAccountId = accountLegalEntity.AccountId;
+            LegalEntityId = accountLegalEntity.LegalEntityId;
+            LegalEntityName = accountLegalEntity.Name;
+            LegalEntityAddress = accountLegalEntity.Address;
+            LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
+            AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
+            ProviderId = provider.UkPrn;
+            ProviderName = provider.Name;
+            EditStatus = initialParty.ToEditStatus();
+            Originator = originatingParty.ToOriginator();
+
+            // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
+            Reference = "";
+            CommitmentStatus = CommitmentStatus.New;
+            CreatedOn = DateTime.UtcNow;
+            LastAction = LastAction.None;
+
+            if (draftApprenticeshipDetails != null)
+            {
+                AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty);
+            }
         }
 
         public virtual long Id { get; set; }
@@ -52,17 +81,17 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public virtual DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator party)
+        public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator)
         {
-            EnsureModifierIsAllowedToModifyDraftApprenticeship(party);
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
-            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, party);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
         }
 
-        public virtual void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Originator modifyingParty)
+        public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
 
@@ -91,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
         
 
-        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Originator modifyingParty)
+        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Party modifyingParty)
         {
             if (!ModifierIsAllowedToEdit(modifyingParty))
             {
@@ -193,14 +222,59 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private bool ModifierIsAllowedToEdit(Originator modifyingParty)
+        private void CheckOriginatorIsValid(Party originator)
         {
-            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Originator.Employer)
+            if (originator != Party.Employer && originator != Party.Provider)
+            {
+                throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {originator} is not valid");
+            }
+        }
+
+        private void CheckDraftApprenticeshipIsValid(Party originator, Party initialParty, DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (originator == Party.Provider && draftApprenticeshipDetails == null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
+            }
+
+            if (originator == Party.Employer && initialParty == Party.Employer && draftApprenticeshipDetails == null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts cannot be empty if Employer is initial party");
+            }
+
+            if (originator == Party.Employer && initialParty == Party.Provider && draftApprenticeshipDetails != null)
+            {
+                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts must be empty if Provider is initial party");
+            }
+        }
+
+        private void CheckInitialPartyIsValid(Party originator, Party initialParty)
+        {
+            if (initialParty != Party.Employer && initialParty != Party.Provider)
+            {
+                throw new DomainException("InitialParty", $"Cohorts can be with Employer or Provider; {initialParty} is not valid");
+            }
+
+            if (originator == Party.Provider && initialParty == Party.Employer)
+            {
+                throw new DomainException("InitialParty", $"Provider-originated Cohorts cannot initially be with Employer");
+            }
+        }
+
+        private bool ModifierIsAllowedToEdit(Party modifyingParty)
+        {
+            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Party.Employer)
             {
                 return true;
             }
 
-            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Originator.Provider)
+            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Provider)
+            {
+                return true;
+            }
+
+            //Employers can modify Provider-assigned Cohorts during their initial creation
+            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Employer && LastAction == LastAction.None)
             {
                 return true;
             }
