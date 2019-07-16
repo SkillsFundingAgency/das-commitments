@@ -4,7 +4,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
@@ -113,7 +112,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, courseEffectiveFromDate, courseEffectiveFromDate.AddYears(1))
             };
 
-            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Originator.Provider));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, Party.Provider));
 
             var startDateError = domainException.DomainErrors.Single(x =>
                 x.PropertyName == nameof(_fixture.DraftApprenticeshipDetails.StartDate));
@@ -121,11 +120,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             Assert.AreEqual(expectedErrorMessage, startDateError.ErrorMessage);
         }
 
-        [TestCase(EditStatus.EmployerOnly, Originator.Unknown)]
-        [TestCase(EditStatus.EmployerOnly, Originator.Provider)]
-        [TestCase(EditStatus.ProviderOnly, Originator.Unknown)]
-        [TestCase(EditStatus.ProviderOnly, Originator.Employer)]
-        public void Party_CheckValidation(EditStatus editStatus, Originator modifyingParty)
+        [TestCase(EditStatus.EmployerOnly, Party.None)]
+        [TestCase(EditStatus.EmployerOnly, Party.Provider)]
+        [TestCase(EditStatus.ProviderOnly, Party.None)]
+        public void Party_CheckValidation(EditStatus editStatus, Party modifyingParty)
         {
             _fixture.Cohort.EditStatus = editStatus;
             
@@ -140,7 +138,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
     {
         public UnitOfWorkContext UnitOfWorkContext;
         public DraftApprenticeshipDetails DraftApprenticeshipDetails;
-        public Cohort Cohort;
+        public CommitmentsV2.Models.Cohort Cohort;
         public ICurrentDateTime CurrentDateTime;
         public IAcademicYearDateProvider AcademicYearDateProvider;
 
@@ -152,19 +150,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
             SetupMinimumNameProperties();
-            Cohort = new Cohort { EditStatus = EditStatus.ProviderOnly };
+            Cohort = new CommitmentsV2.Models.Cohort { EditStatus = EditStatus.ProviderOnly };
             CurrentDateTime = new CurrentDateTime(new DateTime(2019,04,01,0,0,0, DateTimeKind.Utc));
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
         }
 
         public AddDraftApprenticeshipValidationTestsFixture WithProviderCohort()
         {
-            Cohort = new Cohort{ EditStatus = EditStatus.ProviderOnly };
+            Cohort = new CommitmentsV2.Models.Cohort{ EditStatus = EditStatus.ProviderOnly };
             return this;
         }
         public AddDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
         {
-            Cohort = new Cohort { EditStatus = EditStatus.EmployerOnly };
+            Cohort = new CommitmentsV2.Models.Cohort { EditStatus = EditStatus.EmployerOnly };
             return this;
         }
 
@@ -181,7 +179,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             try
             {
-                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Originator.Provider);
+                Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party.Provider);
                 Assert.AreEqual(expected, true);
             }
             catch (DomainException ex)

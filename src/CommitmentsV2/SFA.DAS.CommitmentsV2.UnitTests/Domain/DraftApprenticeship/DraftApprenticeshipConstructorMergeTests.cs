@@ -73,21 +73,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         [Test]
         public void ThenProviderReferenceIsMappedCorrectly()
         {
-            CheckPropertyAfterMerge(update => update.Reference, result => result.ProviderRef, modifyingParty:Originator.Provider);
+            CheckPropertyAfterMerge(update => update.Reference, result => result.ProviderRef, modifyingParty: Party.Provider);
         }
 
         [Test]
         public void ThenEmployerReferenceIsMappedCorrectly()
         {
-            CheckPropertyAfterMerge(update => update.Reference, result => result.EmployerRef, modifyingParty: Originator.Employer);
+            CheckPropertyAfterMerge(update => update.Reference, result => result.EmployerRef, modifyingParty: Party.Employer);
         }
 
         private void CheckPropertyAfterMerge<TValue>(Func<DraftApprenticeshipDetails, TValue> expected,
-            Func<CommitmentsV2.Models.DraftApprenticeship, TValue> actual, Originator modifyingParty = Originator.Provider)
+            Func<CommitmentsV2.Models.DraftApprenticeship, TValue> actual, Party modifyingParty = Party.Provider)
         {
             var fixture = new Fixture();
             var original = fixture.Create<DraftApprenticeshipDetails>();
-            var draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(original, Originator.Employer);
+            var draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(original, Party.Employer);
             var update = fixture.Create<DraftApprenticeshipDetails>();
 
             draftApprenticeship.Merge(update, modifyingParty);

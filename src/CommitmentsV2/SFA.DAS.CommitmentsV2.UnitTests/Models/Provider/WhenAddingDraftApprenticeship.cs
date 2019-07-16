@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         public void AndEditStatusIsProviderOnlyAndPartyIsProviderThenShouldReturnDraftApprenticeship()
         {
             var draftApprenticeship = _fixture.SetEditStatus(EditStatus.ProviderOnly)
-                .SetParty(Originator.Provider)
+                .SetParty(Party.Provider)
                 .AddDraftApprenticeship();
 
             draftApprenticeship.Should().NotBeNull().And.Match<DraftApprenticeship>(d =>
@@ -80,7 +80,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         public void AndEditStatusIsEmployerOnlyAndPartyIsEmployerThenShouldReturnDraftApprenticeship()
         {
             var draftApprenticeship = _fixture.SetEditStatus(EditStatus.EmployerOnly)
-                .SetParty(Originator.Employer)
+                .SetParty(Party.Employer)
                 .AddDraftApprenticeship();
 
             draftApprenticeship.Should().NotBeNull().And.Match<DraftApprenticeship>(d =>
@@ -92,9 +92,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
         {
             public DateTime Now { get; set; }
             public Fixture Fixture { get; set; }
-            public Cohort Cohort { get; set; }
+            public CommitmentsV2.Models.Cohort Cohort { get; set; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
-            public Originator Party { get; set; }
+            public Party Party { get; set; }
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
             
             public AddDraftApprenticeshipTestFixture()
@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                 Now = DateTime.UtcNow;
                 Fixture = new Fixture();
 
-                Cohort = Fixture.Build<Cohort>()
+                Cohort = Fixture.Build<CommitmentsV2.Models.Cohort>()
                     .OmitAutoProperties()
                     .With(c => c.Id)
                     .With(c => c.EditStatus, EditStatus.ProviderOnly)
@@ -114,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                     .Without(d => d.DateOfBirth)
                     .Create();
 
-                Party = Originator.Provider;
+                Party = Party.Provider;
                 UnitOfWorkContext = new UnitOfWorkContext();
             }
 
@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
                 return this;
             }
 
-            public AddDraftApprenticeshipTestFixture SetParty(Originator party)
+            public AddDraftApprenticeshipTestFixture SetParty(Party party)
             {
                 Party = party;
 
