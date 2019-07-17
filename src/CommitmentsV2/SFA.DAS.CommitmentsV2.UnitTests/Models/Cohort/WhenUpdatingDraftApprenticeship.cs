@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -11,10 +9,10 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
     [TestFixture]
-    public class CohortTests
+    public class WhenUpdatingDraftApprenticeship
     {
         [Test]
         public void UpdateDraftApprenticeship_WithValidInput_ShouldUpdateExistingDraftApprenticeship()

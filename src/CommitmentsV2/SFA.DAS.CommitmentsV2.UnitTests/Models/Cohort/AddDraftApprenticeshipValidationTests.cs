@@ -2,14 +2,16 @@
 using System.Linq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
-using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork;
+using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
     [TestFixture]
     [Parallelizable]
@@ -132,6 +134,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
 
             Assert.AreEqual("The cohort may not be modified by the current role", domainError?.ErrorMessage);
         }
+
+        [TestCase(1, "AAA111", "AAA111", false)]
+        [TestCase(1, "AAA111", "BBB222", true)]
+        public void Uln_CheckNoDuplicates_Validation(long existingId, string existingUln, string uln, bool passes)
+        {
+            _fixture.AssertValidationForProperty(
+                () => _fixture.WithApprenticeship(existingId, existingUln).WithUln(uln),
+                nameof(_fixture.DraftApprenticeshipDetails.Uln),
+                passes);
+        }
     }
 
     public class AddDraftApprenticeshipValidationTestsFixture
@@ -210,6 +222,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 ProgrammeType.Framework,
                 DateTime.SpecifyKind(startDate,DateTimeKind.Utc),
                 DateTime.SpecifyKind(endDate,DateTimeKind.Utc));
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithApprenticeship(long id, string uln)
+        {
+            var draftApprenticeshipDetails = new DraftApprenticeshipDetails().Set(d => d.Uln, uln);
+            var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, Party.Provider).Set(d => d.Id, id);
+            
+            Cohort.Apprenticeships.Add(draftApprenticeship);
+            
+            return this;
+        }
+
+        public AddDraftApprenticeshipValidationTestsFixture WithUln(string uln)
+        {
+            DraftApprenticeshipDetails.Uln = uln;
+            
             return this;
         }
     }
