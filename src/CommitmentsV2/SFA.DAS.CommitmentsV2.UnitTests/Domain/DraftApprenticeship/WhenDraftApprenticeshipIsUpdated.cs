@@ -47,8 +47,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.Throws<DomainException>(() => _fixture.WithModifyingParty(Party.Employer).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate());
         }
 
-
-
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void ThenCostIsMappedCorrectly(Party modifyingParty)
