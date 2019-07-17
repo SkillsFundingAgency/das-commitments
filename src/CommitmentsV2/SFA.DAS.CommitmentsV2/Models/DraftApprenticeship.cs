@@ -12,27 +12,20 @@ namespace SFA.DAS.CommitmentsV2.Models
             CreatedOn = DateTime.UtcNow;
         }
 
-        public DraftApprenticeship(DraftApprenticeshipDetails source, Party originator) : this()
+        public DraftApprenticeship(DraftApprenticeshipDetails source, Party modifyingParty) : this()
         {
-            Merge(source, originator);
+            Merge(source, modifyingParty);
 
             ReservationId = source.ReservationId;
-
-            switch (originator)
-            {
-                case Party.Employer:
-                    EmployerRef = source.Reference;
-                    break;
-                case Party.Provider:
-                    ProviderRef = source.Reference;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(originator), originator, null);
-            }
         }
 
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
         {
+            if (IsOtherPartyApprovalRequired(source))
+            {
+                AgreementStatus = AgreementStatus.NotAgreed;
+            }
+
             FirstName = source.FirstName;
             LastName = source.LastName;
             if (modifyingParty == Party.Provider)
@@ -61,6 +54,27 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ProviderRef = source.Reference;
                     break;
             }
+        }
+
+        private bool IsOtherPartyApprovalRequired(DraftApprenticeshipDetails update)
+        {
+            if (FirstName != update.FirstName) return true;
+            if (LastName != update.LastName) return true;
+            if (Cost != update.Cost) return true;
+            if (StartDate != update.StartDate) return true;
+            if (EndDate != update.EndDate) return true;
+            if (DateOfBirth != update.DateOfBirth) return true;
+
+            if (string.IsNullOrWhiteSpace(CourseCode))
+            {
+                if (update.TrainingProgramme != null) return true;
+            }
+            else
+            {
+                if (update.TrainingProgramme.CourseCode != CourseCode) return true;
+            }
+
+            return false;
         }
     }
 }
