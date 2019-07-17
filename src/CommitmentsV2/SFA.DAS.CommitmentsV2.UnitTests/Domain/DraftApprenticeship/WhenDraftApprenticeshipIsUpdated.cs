@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         }
 
         [Test]
-        public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate(Party modifyingParty)
+        public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate()
         {
             var result = _fixture.WithModifyingParty(Party.Provider).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate();
             Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
