@@ -47,5 +47,3 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_PaymentStatus] ON [dbo].[Appren
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [UK_Apprenticeship_ReservationId] ON [dbo].[Apprenticeship] ([ReservationId] ASC) WHERE [ReservationId] IS NOT NULL
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [UK_Apprenticeship_CommitmentId_ULN] ON [dbo].[Apprenticeship] ([CommitmentId] ASC, [ULN] ASC) WHERE [ULN] IS NOT NULL
-GO
