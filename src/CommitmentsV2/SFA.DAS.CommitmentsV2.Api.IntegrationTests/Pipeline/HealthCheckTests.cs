@@ -15,20 +15,23 @@ namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
         [Test]
         public Task CallHealthCheckEndpoint_ThenShouldReturnOkResponse()
         {
-            return TestAsync(f => f.Client.GetAsync("/api/health-check"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
+            return TestAsync(f => f.Client.GetAsync("/api/health-check"),
+                (f, r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
         }
 
         [Test]
         public Task CallUnknownEndpoint_ThenShouldReturnNotFoundResponse()
         {
-            return TestAsync(f => f.Client.GetAsync("/no-such-page"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.NotFound));
+            return TestAsync(f => f.Client.GetAsync("/no-such-page"),
+                (f, r) => r.StatusCode.Should().Be(HttpStatusCode.NotFound));
         }
 
 
         [Test]
         public Task CallSecureEndpoint_ThenShouldReturnUnauthorisedResponse()
         {
-            return TestAsync(f => f.Client.GetAsync("/api/test"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.Unauthorized));
+            return TestAsync(f => f.Client.GetAsync("/api/test"),
+                (f, r) => r.StatusCode.Should().Be(HttpStatusCode.Unauthorized));
         }
     }
 

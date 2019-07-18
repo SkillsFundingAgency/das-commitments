@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountName = "AccountName", LegalEntityName = "" });
+                .SetQueryResponse(accountLegalEntityId,
+                    new GetAccountLegalEntityResponse {AccountName = "AccountName", LegalEntityName = ""});
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -69,12 +70,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public Mock<ILogger<AccountLegalEntityController>> LoggerMock { get; set; }
         public ILogger<AccountLegalEntityController> Logger => LoggerMock.Object;
 
-        public AccountLegalEntityControllerTestFixtures SetQueryResponse(long forAccountLegalEntityId, GetAccountLegalEntityResponse sendResponse)
+        public AccountLegalEntityControllerTestFixtures SetQueryResponse(long forAccountLegalEntityId,
+            GetAccountLegalEntityResponse sendResponse)
         {
             MediatorMock
                 .Setup(m => m.Send(
-                                    It.Is<GetAccountLegalEntityRequest>(request => request.AccountLegalEntityId == forAccountLegalEntityId),
-                                    It.IsAny<CancellationToken>()))
+                    It.Is<GetAccountLegalEntityRequest>(request =>
+                        request.AccountLegalEntityId == forAccountLegalEntityId),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(sendResponse));
 
             return this;

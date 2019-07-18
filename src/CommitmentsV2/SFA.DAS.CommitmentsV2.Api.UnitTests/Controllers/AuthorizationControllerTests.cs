@@ -40,13 +40,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         [Test]
         public async Task AuthorizationController_AccessCohortRequest_ShouldReturnOkAndBoolResult()
         {
-            var request = new CohortAccessRequest { CohortId = 1, Party = Party.Employer, PartyId = 2 };
+            var request = new CohortAccessRequest {CohortId = 1, Party = Party.Employer, PartyId = 2};
 
             var retVal = await _fixture.SetFixtureToReturnTrue().AuthorizationController.CanAccessCohort(request);
 
             Assert.IsInstanceOf<OkObjectResult>(retVal);
-            Assert.IsTrue((bool)((OkObjectResult)retVal).Value);
-
+            Assert.IsTrue((bool) ((OkObjectResult) retVal).Value);
         }
     }
 
@@ -65,7 +64,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public AuthorizationControllerTestFixture SetFixtureToReturnTrue()
         {
-            MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessCohortQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            MediatorMock.Setup(x => x.Send(It.IsAny<CanAccessCohortQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
 
             return this;
         }

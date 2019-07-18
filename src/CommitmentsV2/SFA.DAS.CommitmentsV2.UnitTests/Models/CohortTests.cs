@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
+using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -26,11 +25,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
             var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
 
-            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};    
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider);
+            c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo);
 
             // Assert
             var savedDraft = c.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
@@ -48,11 +47,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
             modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
 
-            var c = new CommitmentsV2.Models.Cohort { EditStatus = EditStatus.ProviderOnly };
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider));
+            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo));
         }
     }
 
@@ -60,21 +59,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
     {
         public CohortTestFixtures()
         {
+            var autoFixture = new Fixture();
+
             // We need this to allow the UoW to initialise it's internal static events collection.
             var uow = new UnitOfWorkContext();
+            UserInfo = autoFixture.Create<UserInfo>();
         }
+
+        public UserInfo UserInfo { get;  }
 
         public DraftApprenticeship Create()
         {
             return new DraftApprenticeship(new DraftApprenticeshipDetails
-                {
-                    Id = new Random().Next(100, 200),
-                    FirstName = "ABC",
-                    LastName = "EFG",
-                    StartDate = DateTime.Today.AddMonths(-6),
-                    EndDate = DateTime.Today.AddMonths(6),
-                    DateOfBirth = DateTime.Today.AddYears(-18)
-                }, Party.Provider);
+            {
+                Id = new Random().Next(100, 200),
+                FirstName = "ABC",
+                LastName = "EFG",
+                StartDate = DateTime.Today.AddMonths(-6),
+                EndDate = DateTime.Today.AddMonths(6),
+                DateOfBirth = DateTime.Today.AddYears(-18)
+            }, Party.Provider);
         }
 
         public DraftApprenticeship UpdatePropertiesWithNewValues(DraftApprenticeship draftApprenticeship)
@@ -90,7 +94,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             }, Party.Provider);
         }
 
-        public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Party modificationParty)
+        public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship,
+            Party modificationParty)
         {
             return new DraftApprenticeshipDetails
             {
@@ -109,7 +114,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             };
         }
 
-
         public void AssertSameProperties(DraftApprenticeship expected, DraftApprenticeship actual)
         {
             AssertSameProperty(expected, actual, da => da.StartDate);
@@ -124,7 +128,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             AssertSameProperty(expected, actual, da => da.LastName);
         }
 
-        private void AssertSameProperty<P>(DraftApprenticeship expected, DraftApprenticeship actual, Expression<Func<DraftApprenticeship, P>> action)
+        private void AssertSameProperty<P>(DraftApprenticeship expected, DraftApprenticeship actual,
+            Expression<Func<DraftApprenticeship, P>> action)
         {
             var expression = (MemberExpression) action.Body;
             string name = expression.Member.Name;

@@ -44,7 +44,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         [Test]
         public void ThenEmployerUlnUpdateIsNotAllowed()
         {
-            Assert.Throws<DomainException>(() => _fixture.WithModifyingParty(Party.Employer).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate());
+            Assert.Throws<DomainException>(() =>
+                _fixture.WithModifyingParty(Party.Employer).WithPriorApprovalByOtherParty().WithUlnUpdateOnly()
+                    .ApplyUpdate());
         }
 
         [TestCase(Party.Provider)]
@@ -120,7 +122,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         {
             var result = _fixture.WithModifyingParty(Party.Employer).ApplyUpdate();
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Reference, result.EmployerRef);
-
         }
 
         [TestCase(Party.Provider)]
@@ -134,7 +135,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         [Test]
         public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate()
         {
-            var result = _fixture.WithModifyingParty(Party.Provider).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate();
+            var result = _fixture.WithModifyingParty(Party.Provider).WithPriorApprovalByOtherParty().WithUlnUpdateOnly()
+                .ApplyUpdate();
             Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
         }
 
@@ -143,7 +145,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         [TestCase(Party.Employer)]
         public void ThenPriorApprovalByOtherPartyIsNotResetByReferenceUpdate(Party modifyingParty)
         {
-            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty().WithReferenceUpdateOnly().ApplyUpdate();
+            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty()
+                .WithReferenceUpdateOnly().ApplyUpdate();
             Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
         }
 
@@ -158,8 +161,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             public DraftApprenticeshipUpdateTestFixture()
             {
                 _autoFixture = new Fixture();
-                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(_autoFixture.Build<DraftApprenticeshipDetails>().Without(o=>o.Uln).Create(), Party.Provider);
-                DraftApprenticeshipDetails = _autoFixture.Build<DraftApprenticeshipDetails>().Without(o => o.Uln).Create();
+                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(
+                    _autoFixture.Build<DraftApprenticeshipDetails>().Without(o => o.Uln).Create(), Party.Provider);
+                DraftApprenticeshipDetails =
+                    _autoFixture.Build<DraftApprenticeshipDetails>().Without(o => o.Uln).Create();
             }
 
             public DraftApprenticeshipUpdateTestFixture WithUlnUpdateOnly()
@@ -201,7 +206,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
 
             public CommitmentsV2.Models.DraftApprenticeship ApplyUpdate()
             {
-                _result  = TestHelper.Clone(_draftApprenticeship);
+                _result = TestHelper.Clone(_draftApprenticeship);
                 _result.Merge(DraftApprenticeshipDetails, _modifyingParty);
                 return _result;
             }
@@ -213,7 +218,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                     Uln = _draftApprenticeship.Uln,
                     FirstName = _draftApprenticeship.FirstName,
                     LastName = _draftApprenticeship.LastName,
-                    Cost = (int?)_draftApprenticeship.Cost,
+                    Cost = (int?) _draftApprenticeship.Cost,
                     TrainingProgramme = new CommitmentsV2.Domain.Entities.TrainingProgramme(
                         _draftApprenticeship.CourseCode,
                         _draftApprenticeship.CourseName,
@@ -224,10 +229,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
                     StartDate = _draftApprenticeship.StartDate,
                     EndDate = _draftApprenticeship.EndDate,
                     Id = _draftApprenticeship.Id,
-                    Reference = _modifyingParty == Party.Employer ? _draftApprenticeship.EmployerRef : _draftApprenticeship.ProviderRef
+                    Reference = _modifyingParty == Party.Employer
+                        ? _draftApprenticeship.EmployerRef
+                        : _draftApprenticeship.ProviderRef
                 };
             }
         }
-
     }
 }

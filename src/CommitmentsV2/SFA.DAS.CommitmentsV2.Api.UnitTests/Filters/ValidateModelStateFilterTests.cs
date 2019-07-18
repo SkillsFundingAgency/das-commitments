@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
         public void OnActionExecuting_WhenModelStateIsValid_ThenShouldNotSetResult()
         {
             _fixture.OnActionExecuting();
-            
+
             Assert.IsNull(_fixture.ActionExecutingContext.Result);
         }
 
@@ -41,8 +41,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
         public void OnActionExecuting_WhenModelStateIsNotValid_ThenShouldSetSubStatusCodeHeader()
         {
             _fixture.SetInvalidModelState().OnActionExecuting();
-            
-            Assert.AreEqual(_fixture.DomainExceptionHttpSubStatusCodeHeaderValue, _fixture.Headers[HttpHeaderNames.SubStatusCode]);
+
+            Assert.AreEqual(_fixture.DomainExceptionHttpSubStatusCodeHeaderValue,
+                _fixture.Headers[HttpHeaderNames.SubStatusCode]);
         }
 
         [Test]
@@ -52,10 +53,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
 
             var badRequestObjectResult = _fixture.ActionExecutingContext.Result as BadRequestObjectResult;
             var errorResponse = badRequestObjectResult?.Value as ErrorResponse;
-            
+
             Assert.IsNotNull(_fixture.ActionExecutingContext.Result);
             Assert.IsNotNull(badRequestObjectResult);
-            Assert.AreEqual((int)HttpStatusCode.BadRequest, badRequestObjectResult.StatusCode);
+            Assert.AreEqual((int) HttpStatusCode.BadRequest, badRequestObjectResult.StatusCode);
             Assert.IsNotNull(errorResponse);
             Assert.IsTrue(errorResponse.Errors.Exists(e => e.Field == "Foo" && e.Message == "Bar"));
         }
@@ -81,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
             HttpContext = new Mock<HttpContext>();
             ControllerTypeInfo = new Mock<TypeInfo>();
             MethodInfo = new Mock<MethodInfo>();
-            
+
             ActionDescriptor = new ControllerActionDescriptor
             {
                 ControllerName = Guid.NewGuid().ToString(),
@@ -91,11 +92,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
             };
 
             ModelState = new ModelStateDictionary();
-            ActionContext = new ActionContext(HttpContext.Object, new RouteData(),  ActionDescriptor, ModelState);
-            ActionExecutingContext = new ActionExecutingContext(ActionContext, new List<IFilterMetadata>(), new Dictionary<string, object>(), null);
+            ActionContext = new ActionContext(HttpContext.Object, new RouteData(), ActionDescriptor, ModelState);
+            ActionExecutingContext = new ActionExecutingContext(ActionContext, new List<IFilterMetadata>(),
+                new Dictionary<string, object>(), null);
             ValidateModelStateFilter = new ValidateModelStateFilter();
             DomainExceptionHttpSubStatusCode = HttpSubStatusCode.DomainException;
-            DomainExceptionHttpSubStatusCodeHeaderValue = ((int)DomainExceptionHttpSubStatusCode).ToString();
+            DomainExceptionHttpSubStatusCodeHeaderValue = ((int) DomainExceptionHttpSubStatusCode).ToString();
 
             HttpContext.Setup(c => c.Response.Headers).Returns(Headers);
         }

@@ -15,11 +15,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public Task Handle_WhenHandlingRemoveLegalEntityEvent_ThenShouldSendRemoveAccountLegalEntityCommand()
         {
             return TestAsync(f => f.Handle(), f => f.VerifySend<RemoveAccountLegalEntityCommand>((c, m) =>
-                c.AccountId == m.AccountId && c.AccountLegalEntityId == m.AccountLegalEntityId && c.Removed == m.Created));
+                c.AccountId == m.AccountId && c.AccountLegalEntityId == m.AccountLegalEntityId &&
+                c.Removed == m.Created));
         }
     }
 
-    public class RemovedLegalEntityEventHandlerTestsFixture : EventHandlerTestsFixture<RemovedLegalEntityEvent, RemovedLegalEntityEventHandler>
+    public class
+        RemovedLegalEntityEventHandlerTestsFixture : EventHandlerTestsFixture<RemovedLegalEntityEvent,
+            RemovedLegalEntityEventHandler>
     {
     }
 }

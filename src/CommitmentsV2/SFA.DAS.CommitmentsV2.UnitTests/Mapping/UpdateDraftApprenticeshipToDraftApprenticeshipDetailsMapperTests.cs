@@ -10,12 +10,15 @@ using SFA.DAS.CommitmentsV2.Mapping;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture]
-    public class UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests : MapperTester<UpdateDraftApprenticeshipCommand, DraftApprenticeshipDetails>
+    public class
+        UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapperTests : MapperTester<UpdateDraftApprenticeshipCommand
+            , DraftApprenticeshipDetails>
     {
         [SetUp]
         public void SetMapper()
         {
-            MapperCreator = () => new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(Mock.Of<ITrainingProgrammeLookup>());
+            MapperCreator = () =>
+                new UpdateDraftApprenticeshipToDraftApprenticeshipDetailsMapper(Mock.Of<ITrainingProgrammeLookup>());
         }
 
         [Test]
@@ -45,50 +48,50 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [Test]
         public Task Map_CostWithoutValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.Cost, (int?)null);
+            return AssertPropertySet(from => from.Cost, (int?) null);
         }
 
         [Test]
         public Task Map_CostWithValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.Cost, (int?)1234);
+            return AssertPropertySet(from => from.Cost, (int?) 1234);
         }
 
         [Test]
         public Task Map_StartDateWithoutValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.StartDate, (DateTime?)null);
+            return AssertPropertySet(from => from.StartDate, (DateTime?) null);
         }
 
         [Test]
         public Task Map_StartDateWithValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.StartDate, (DateTime?)DateTime.Now);
+            return AssertPropertySet(from => from.StartDate, (DateTime?) DateTime.Now);
         }
 
         [Test]
         public Task Map_EndDateWithoutValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.EndDate, (DateTime?)null);
+            return AssertPropertySet(from => from.EndDate, (DateTime?) null);
         }
 
         [Test]
         public Task Map_EndDateWithValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.EndDate, (DateTime?)DateTime.Now);
+            return AssertPropertySet(from => from.EndDate, (DateTime?) DateTime.Now);
         }
 
 
         [Test]
         public Task Map_DateOfBirthWithoutValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.DateOfBirth, (DateTime?)null);
+            return AssertPropertySet(from => from.DateOfBirth, (DateTime?) null);
         }
 
         [Test]
         public Task Map_DateOfBirthWithValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.DateOfBirth, (DateTime?)DateTime.Now);
+            return AssertPropertySet(from => from.DateOfBirth, (DateTime?) DateTime.Now);
         }
 
         [Test]
@@ -100,19 +103,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [Test]
         public Task Map_ReferenceWithoutValue_ShouldNotBeSet()
         {
-            return AssertPropertySet(from => from.Reference, (string)null);
+            return AssertPropertySet(from => from.Reference, (string) null);
         }
 
         [Test]
         public Task Map_ReservationIdWithValue_ShouldBeSet()
         {
-            return AssertPropertySet(from => from.ReservationId, (Guid?)Guid.NewGuid());
+            return AssertPropertySet(from => from.ReservationId, (Guid?) Guid.NewGuid());
         }
 
         [Test]
         public Task Map_ReservationIdWithoutValue_ShouldNotBeSet()
         {
-            return AssertPropertySet(from => from.ReservationId, (Guid?)null);
+            return AssertPropertySet(from => from.ReservationId, (Guid?) null);
         }
     }
 }

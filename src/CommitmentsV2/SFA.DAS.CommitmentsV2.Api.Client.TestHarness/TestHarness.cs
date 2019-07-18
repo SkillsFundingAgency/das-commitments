@@ -17,7 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 
         public async Task Run()
         {
-
             var key = "";
 
             while (key != "x")

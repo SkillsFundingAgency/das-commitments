@@ -24,8 +24,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 .WithInitialParty(initialParty)
                 .WithDraftApprenticeship()
                 .CreateCohort();
-            
-            if(expectThrow) _fixture.VerifyException<DomainException>();
+
+            if (expectThrow) _fixture.VerifyException<DomainException>();
         }
 
         [Test]

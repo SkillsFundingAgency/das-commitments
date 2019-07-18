@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         {
             foreach (var innerException in exception.InnerExceptions)
             {
-                innerException.DumpException();                
+                innerException.DumpException();
             }
         }
 

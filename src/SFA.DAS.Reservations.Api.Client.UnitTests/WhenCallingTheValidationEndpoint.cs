@@ -19,7 +19,7 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
         [SetUp]
         public void Setup()
         {
-            _fixture = new ReservationsClientTestFixture();   
+            _fixture = new ReservationsClientTestFixture();
         }
 
         [Test]

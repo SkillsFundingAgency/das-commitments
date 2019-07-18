@@ -43,11 +43,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _apiClient = new Mock<IReservationsApiClient>();
             _apiClient.Setup(x =>
-                    x.ValidateReservation(It.Is<ValidationReservationMessage>(r => r == _apiRequest), It.IsAny<CancellationToken>()))
+                    x.ValidateReservation(It.Is<ValidationReservationMessage>(r => r == _apiRequest),
+                        It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ValidationResult());
 
-                _reservationValidationService =
-                    new ReservationValidationService(_apiClient.Object, _requestMapper.Object, _resultMapper.Object);
+            _reservationValidationService =
+                new ReservationValidationService(_apiClient.Object, _requestMapper.Object, _resultMapper.Object);
         }
 
         [Test]

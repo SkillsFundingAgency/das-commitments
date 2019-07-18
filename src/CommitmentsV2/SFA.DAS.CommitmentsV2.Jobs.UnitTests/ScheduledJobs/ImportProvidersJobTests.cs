@@ -26,13 +26,14 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             return TestAsync(f => f.SetProviders(1500), f => f.Run(), f => f.Db.Verify(d => d.ExecuteSqlCommandAsync(
                 "EXEC ImportProviders @providers, @now",
                 It.Is<SqlParameter>(p => p.ParameterName == "providers"),
-            It.Is<SqlParameter>(p => p.ParameterName == "now" && (DateTime)p.Value >= f.Now)), Times.Exactly(2)));
+                It.Is<SqlParameter>(p => p.ParameterName == "now" && (DateTime) p.Value >= f.Now)), Times.Exactly(2)));
         }
 
         [Test]
         public Task ImportProvidersJob_WhenRunningImportProvidersJob_ThenShouldImportProviders()
         {
-            return TestAsync(f => f.SetProviders(1500), f => f.Run(), f => f.ImportedProviders.Should().BeEquivalentTo(f.Providers));
+            return TestAsync(f => f.SetProviders(1500), f => f.Run(),
+                f => f.ImportedProviders.Should().BeEquivalentTo(f.Providers));
         }
     }
 
@@ -52,21 +53,23 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
             ProviderApiClient = new Mock<IProviderApiClient>();
             ImportedProviders = new List<ProviderSummary>();
 
-            Db.Setup(d => d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<SqlParameter>(), It.IsAny<SqlParameter>()))
+            Db.Setup(d =>
+                    d.ExecuteSqlCommandAsync(It.IsAny<string>(), It.IsAny<SqlParameter>(), It.IsAny<SqlParameter>()))
                 .Returns(Task.CompletedTask)
                 .Callback<string, object[]>((s, p) =>
                 {
-                    var sqlParameter = (SqlParameter)p[0];
-                    var dataTable = (DataTable)sqlParameter.Value;
+                    var sqlParameter = (SqlParameter) p[0];
+                    var dataTable = (DataTable) sqlParameter.Value;
 
                     ImportedProviders.AddRange(dataTable.AsEnumerable().Select(r => new ProviderSummary
                     {
-                        Ukprn = (long)r[0],
-                        ProviderName = (string)r[1]
+                        Ukprn = (long) r[0],
+                        ProviderName = (string) r[1]
                     }));
                 });
 
-            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object, ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
+            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object,
+                ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
         }
 
         public Task Run()

@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         const long CohortId = 456;
         const string LegalEntityName = "ACME Fireworks";
         const string ProviderName = "ACME Training";
-        public EditStatus EditStatus = EditStatus.Both; 
+        public EditStatus EditStatus = EditStatus.Both;
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -33,29 +33,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortId()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(CohortId, response.CohortId, "Did not return expected cohort id"));
+            return CheckCommandResponse(response =>
+                Assert.AreEqual(CohortId, response.CohortId, "Did not return expected cohort id"));
         }
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnExpectedProviderName()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(ProviderName, response.ProviderName, "Did not return expected provider name"));
+            return CheckCommandResponse(response =>
+                Assert.AreEqual(ProviderName, response.ProviderName, "Did not return expected provider name"));
         }
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityNameName()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(LegalEntityName, response.LegalEntityName, "Did not return expected legal entity name"));
+            return CheckCommandResponse(response => Assert.AreEqual(LegalEntityName, response.LegalEntityName,
+                "Did not return expected legal entity name"));
         }
 
         [TestCase(EditStatus.EmployerOnly, Party.Employer)]
         [TestCase(EditStatus.ProviderOnly, Party.Provider)]
         [TestCase(EditStatus.Neither, Party.None)]
         [TestCase(EditStatus.Both, Party.None)]
-        public Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus, Party expectedParty)
+        public Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus,
+            Party expectedParty)
         {
             EditStatus = editStatus;
-            return CheckCommandResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
+            return CheckCommandResponse(response =>
+                Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
         }
 
         private async Task CheckCommandResponse(Action<GetCohortSummaryResponse> assert)
@@ -65,7 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 .AddCommitment(CohortId, LegalEntityName, ProviderName, EditStatus);
 
             // act
-            var response = await fixtures.GetResponse(new GetCohortSummaryRequest { CohortId = CohortId });
+            var response = await fixtures.GetResponse(new GetCohortSummaryRequest {CohortId = CohortId});
 
             // Assert
             assert(response);
@@ -76,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
     {
         public GetCohortSummaryHandlerTestFixtures()
         {
-            HandlerMock = new Mock<IRequestHandler<GetCohortSummaryRequest, GetCohortSummaryResponse>>();    
+            HandlerMock = new Mock<IRequestHandler<GetCohortSummaryRequest, GetCohortSummaryResponse>>();
             ValidatorMock = new Mock<IValidator<GetCohortSummaryRequest>>();
             SeedCohorts = new List<Cohort>();
         }
@@ -90,7 +95,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName, EditStatus editStatus)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName,
+            string providerName, EditStatus editStatus)
         {
             var cohort = new Cohort
             {

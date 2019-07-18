@@ -11,16 +11,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
     [TestFixture()]
     public class UpdateDraftApprenticeshipRequestValidatorTests
     {
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100",
+            false)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX",
+            true)]
         [TestCase("", true)]
         public void Validate_FirstName_ShouldBeValidated(string value, bool expectedValid)
         {
             AssertValidationResult(request => request.FirstName, value, expectedValid);
         }
 
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100",
+            false)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX",
+            true)]
         [TestCase("", true)]
         public void Validate_LastName_ShouldBeValidated(string value, bool expectedValid)
         {
@@ -35,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
                 ? (DateTime?) null
                 : DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-            AssertValidationResult(request => request.DateOfBirth, dateOfBirth,  expectedValid);
+            AssertValidationResult(request => request.DateOfBirth, dateOfBirth, expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX50", false)]
@@ -74,7 +82,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.Reference, value, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<UpdateDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<UpdateDraftApprenticeshipRequest, T>> property, T value,
+            bool expectedValid)
         {
             // Arrange
             var validator = new UpdateDraftApprenticeshipRequestValidator();

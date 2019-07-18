@@ -24,7 +24,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 
             var provider = new ServiceCollection()
                 .AddOptions()
-                .Configure<CommitmentsV2Configuration>(configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2)).BuildServiceProvider();
+                .Configure<CommitmentsV2Configuration>(
+                    configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2)).BuildServiceProvider();
 
             var config = provider.GetService<IOptions<CommitmentsV2Configuration>>().Value.NServiceBusConfiguration;
             var isDevelopment = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName) == "LOCAL";

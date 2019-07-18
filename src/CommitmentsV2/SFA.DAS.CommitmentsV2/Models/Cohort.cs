@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party originatingParty): this()
+        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party originatingParty, UserInfo userInfo) : this()
         {
             CheckOriginatorIsValid(originatingParty);
             CheckInitialPartyIsValid(originatingParty, initialParty);
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (draftApprenticeshipDetails != null)
             {
-                AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty);
+                AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty, userInfo);
             }
         }
 
@@ -81,17 +81,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator)
+        public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
+            UpdatedBy(userInfo, creator);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
         }
 
-        public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty)
+        public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
 
@@ -104,6 +105,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
+            UpdatedBy(userInfo, modifyingParty);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
@@ -280,6 +282,24 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             return false;
+        }
+
+        private void UpdatedBy(UserInfo userInfo, Party modifyingParty)
+        {
+            if (userInfo == null)
+                return;
+
+            switch (modifyingParty)
+            {
+                case Party.Employer:
+                    LastUpdatedByEmployerName = userInfo.UserDisplayName;
+                    LastUpdatedByEmployerEmail = userInfo.UserEmail;
+                    break;
+                case Party.Provider:
+                    LastUpdatedByProviderName = userInfo.UserDisplayName;
+                    LastUpdatedByProviderEmail = userInfo.UserEmail;
+                    break;
+            }
         }
     }
 }

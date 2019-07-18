@@ -19,7 +19,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [SetUp]
         public void Arrange()
         {
-            _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
+            _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue,
+                DateTime.MaxValue);
             _trainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
             _trainingProgrammeLookup
                 .Setup(x => x.GetTrainingProgramme(It.IsAny<string>()))
@@ -44,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public async Task Map_Uln_ShouldBeSet()
         {
             const string xxx = "TestULN";
-            await AssertPropertySet(input => input.ULN = xxx, output => output.Uln == xxx);
+            await AssertPropertySet(input => input.Uln = xxx, output => output.Uln == xxx);
         }
 
         [Test]
@@ -57,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [Test]
         public async Task Map_StartDate_ShouldBeSet()
         {
-            var startDate = new DateTime(2020,10,15);
+            var startDate = new DateTime(2020, 10, 15);
             await AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
         }
 
@@ -72,30 +73,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public async Task Map_DateOfBirth_ShouldBeSet()
         {
             var dateOfBirth = new DateTime(2004, 1, 2);
-            await AssertPropertySet(input => input.DateOfBirth = dateOfBirth, output => output.DateOfBirth == dateOfBirth);
+            await AssertPropertySet(input => input.DateOfBirth = dateOfBirth,
+                output => output.DateOfBirth == dateOfBirth);
         }
 
         [Test]
         public async Task Map_ProviderRef_ShouldBeSet()
         {
             const string providerRef = "TestProviderRef";
-            await AssertPropertySet(input => input.OriginatorReference = providerRef, output => output.Reference == providerRef);
+            await AssertPropertySet(input => input.OriginatorReference = providerRef,
+                output => output.Reference == providerRef);
         }
 
         [Test]
         public async Task Map_TrainingProgramme_ShouldBeSet()
         {
-            await AssertPropertySet(input => input.CourseCode = "TEST", output => output.TrainingProgramme == _trainingProgramme);
+            await AssertPropertySet(input => input.CourseCode = "TEST",
+                output => output.TrainingProgramme == _trainingProgramme);
         }
 
         [Test]
         public async Task Map_ReservationId_ShouldBeSet()
         {
             var reservationId = Guid.NewGuid();
-            await AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == reservationId);
+            await AssertPropertySet(input => input.ReservationId = reservationId,
+                output => output.ReservationId == reservationId);
         }
 
-        private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
+        private async Task AssertPropertySet(Action<AddCohortCommand> setInput,
+            Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
             var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeLookup.Object);
 

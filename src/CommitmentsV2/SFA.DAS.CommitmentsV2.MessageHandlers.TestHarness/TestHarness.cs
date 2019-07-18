@@ -42,35 +42,59 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                     switch (key)
                     {
                         case "a":
-                            await _publisher.Publish(new CreatedAccountEvent { AccountId = accountId, Created = DateTime.Now, HashedId = "HPRIV", PublicHashedId = "PUBH", Name = "My Test", UserName = "Tester", UserRef = Guid.NewGuid() });
+                            await _publisher.Publish(new CreatedAccountEvent
+                            {
+                                AccountId = accountId, Created = DateTime.Now, HashedId = "HPRIV",
+                                PublicHashedId = "PUBH", Name = "My Test", UserName = "Tester", UserRef = Guid.NewGuid()
+                            });
                             Console.WriteLine();
                             Console.WriteLine($"Published CreatedAccountEvent");
                             break;
                         case "b":
-                            await _publisher.Publish(new ChangedAccountNameEvent { AccountId = accountId, Created = DateTime.Now, CurrentName = "My Test new", PreviousName = "My Test", HashedAccountId = "PUBH", UserName = "Tester", UserRef = Guid.NewGuid() });
+                            await _publisher.Publish(new ChangedAccountNameEvent
+                            {
+                                AccountId = accountId, Created = DateTime.Now, CurrentName = "My Test new",
+                                PreviousName = "My Test", HashedAccountId = "PUBH", UserName = "Tester",
+                                UserRef = Guid.NewGuid()
+                            });
                             Console.WriteLine();
                             Console.WriteLine($"Published ChangedAccountNameEvent");
                             break;
                         case "c":
-                            await _publisher.Publish(new AddedLegalEntityEvent { AccountId = accountId, Created = DateTime.Now, AccountLegalEntityId = accountLegalEntityId,
-                                OrganisationType = OrganisationType.Charities, OrganisationReferenceNumber = "MyLegalEntityId", OrganisationAddress = "My Address",
+                            await _publisher.Publish(new AddedLegalEntityEvent
+                            {
+                                AccountId = accountId, Created = DateTime.Now,
+                                AccountLegalEntityId = accountLegalEntityId,
+                                OrganisationType = OrganisationType.Charities,
+                                OrganisationReferenceNumber = "MyLegalEntityId", OrganisationAddress = "My Address",
                                 AccountLegalEntityPublicHashedId = "ABCD", AgreementId = 9898, LegalEntityId = 75263,
-                                OrganisationName = "My Legal Entity",  UserName = "Tester", UserRef = Guid.NewGuid() });
+                                OrganisationName = "My Legal Entity", UserName = "Tester", UserRef = Guid.NewGuid()
+                            });
                             Console.WriteLine();
                             Console.WriteLine($"Published AddedLegalEntityEvent");
                             break;
                         case "d":
-                            await _publisher.Publish(new UpdatedLegalEntityEvent { AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now, Name = "TEST", OrganisationName = "OName", UserName = "Tester", UserRef = Guid.NewGuid() });
+                            await _publisher.Publish(new UpdatedLegalEntityEvent
+                            {
+                                AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now, Name = "TEST",
+                                OrganisationName = "OName", UserName = "Tester", UserRef = Guid.NewGuid()
+                            });
                             Console.WriteLine();
                             Console.WriteLine($"Published UpdatedLegalEntityEvent");
                             break;
                         case "e":
-                            await _publisher.Publish(new RemovedLegalEntityEvent { AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now, AccountId = accountId, OrganisationName = "OName", LegalEntityId = 75263, AgreementId = 9898, UserName = "Tester", UserRef = Guid.NewGuid() });
+                            await _publisher.Publish(new RemovedLegalEntityEvent
+                            {
+                                AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now,
+                                AccountId = accountId, OrganisationName = "OName", LegalEntityId = 75263,
+                                AgreementId = 9898, UserName = "Tester", UserRef = Guid.NewGuid()
+                            });
                             Console.WriteLine();
                             Console.WriteLine($"Published RemovedLegalEntityEvent");
                             break;
                         case "f":
-                            await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111", Guid.NewGuid(), DateTime.UtcNow));
+                            await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111",
+                                Guid.NewGuid(), DateTime.UtcNow));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;

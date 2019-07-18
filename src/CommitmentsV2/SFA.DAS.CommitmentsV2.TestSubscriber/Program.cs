@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
                     Console.WriteLine("The command line is incorrect:");
                     foreach (Error error in parserResult)
                     {
-                        Console.WriteLine((object)error.Tag);
+                        Console.WriteLine((object) error.Tag);
                     }
                 });
 

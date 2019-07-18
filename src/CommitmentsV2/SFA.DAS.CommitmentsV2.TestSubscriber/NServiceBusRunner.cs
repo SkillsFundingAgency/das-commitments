@@ -16,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         public Task StartNServiceBusBackgroundTask(string connectionString)
         {
             return StartNServiceBus(connectionString)
-
                 .ContinueWith(task =>
                 {
                     if (!task.IsCompletedSuccessfully)
@@ -34,7 +33,6 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
 
                     return task.Result;
                 })
-
                 .ContinueWith(task =>
                 {
                     if (task.IsCompletedSuccessfully)
@@ -52,7 +50,8 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             UseDasMessageConventions(endpointConfiguration);
 
             endpointConfiguration
-                .UseAzureServiceBusTransport(string.IsNullOrWhiteSpace(connectionString), () => connectionString, r => { })
+                .UseAzureServiceBusTransport(string.IsNullOrWhiteSpace(connectionString), () => connectionString,
+                    r => { })
                 .UseNewtonsoftJsonSerializer()
                 .UseInstallers()
                 ;
@@ -75,8 +74,10 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         private EndpointConfiguration UseDasMessageConventions(EndpointConfiguration config)
         {
             var conventions = config.Conventions();
-            conventions.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Commands"));
-            conventions.DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Events"));
+            conventions.DefiningCommandsAs(t =>
+                t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Commands"));
+            conventions.DefiningEventsAs(t =>
+                t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Events"));
             return config;
         }
     }

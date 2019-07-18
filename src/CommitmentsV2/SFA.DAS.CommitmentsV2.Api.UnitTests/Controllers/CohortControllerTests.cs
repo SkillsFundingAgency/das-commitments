@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.CreateCohort();
 
             //Assert
-            Assert.IsTrue(((OkObjectResult)response).Value is CreateCohortResponse);
+            Assert.IsTrue(((OkObjectResult) response).Value is CreateCohortResponse);
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             //Act
             var response = await fixture.CreateCohort();
-            var addCohortResponse = ((OkObjectResult)response).Value as CreateCohortResponse;
+            var addCohortResponse = ((OkObjectResult) response).Value as CreateCohortResponse;
 
             //Assert
             Assert.AreEqual(CohortControllerTestFixtures.CohortId, addCohortResponse.CohortId);
@@ -67,7 +67,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             //Act
             var response = await fixture.CreateCohort();
-            var addCohortResponse = ((OkObjectResult)response).Value as CreateCohortResponse;
+            var addCohortResponse = ((OkObjectResult) response).Value as CreateCohortResponse;
 
             //Assert
             Assert.AreEqual(CohortControllerTestFixtures.CohortReference, addCohortResponse.CohortReference);
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { LegalEntityName = name},
+                    new GetCohortSummaryResponse {LegalEntityName = name},
                     response => Assert.AreEqual(name, response.LegalEntityName));
         }
 
@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { ProviderName = name },
+                    new GetCohortSummaryResponse {ProviderName = name},
                     response => Assert.AreEqual(name, response.ProviderName));
         }
 
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { IsFundedByTransfer = expectedIsTransferFunded},
+                    new GetCohortSummaryResponse {IsFundedByTransfer = expectedIsTransferFunded},
                     response => Assert.AreEqual(expectedIsTransferFunded, response.IsFundedByTransfer));
         }
 
@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { WithParty = Party.Employer },
+                    new GetCohortSummaryResponse {WithParty = Party.Employer},
                     response => Assert.AreEqual(Party.Employer, response.WithParty));
         }
     }
@@ -147,20 +147,28 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public CohortControllerTestFixtures()
         {
             MediatorMock = new Mock<IMediator>();
-            CreateCohortRequestToAddCohortCommandMapperMock = new Mock<IMapper<CreateCohortRequest, AddCohortCommand>>();
+            CreateCohortRequestToAddCohortCommandMapperMock =
+                new Mock<IMapper<CreateCohortRequest, AddCohortCommand>>();
         }
 
         private Mock<IMediator> MediatorMock { get; }
         private IMediator Mediator => MediatorMock.Object;
-        private Mock<IMapper<CreateCohortRequest, AddCohortCommand>> CreateCohortRequestToAddCohortCommandMapperMock { get; }
-        private IMapper<CreateCohortRequest, AddCohortCommand> CreateCohortRequestToAddCohortCommandMapper => CreateCohortRequestToAddCohortCommandMapperMock.Object;
+
+        private Mock<IMapper<CreateCohortRequest, AddCohortCommand>> CreateCohortRequestToAddCohortCommandMapperMock
+        {
+            get;
+        }
+
+        private IMapper<CreateCohortRequest, AddCohortCommand> CreateCohortRequestToAddCohortCommandMapper =>
+            CreateCohortRequestToAddCohortCommandMapperMock.Object;
 
         public CohortController CreateController()
         {
             return new CohortController(Mediator, CreateCohortRequestToAddCohortCommandMapper);
         }
 
-        public CohortControllerTestFixtures WithAddCohortCommandResponse(long id, string reference, long draftApprenticeshipId)
+        public CohortControllerTestFixtures WithAddCohortCommandResponse(long id, string reference,
+            long draftApprenticeshipId)
         {
             MediatorMock
                 .Setup(m => m.Send(It.IsAny<AddCohortCommand>(), CancellationToken.None))
@@ -185,16 +193,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return controller.CreateCohort(new CreateCohortRequest());
         }
 
-        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryResponse queryResponse, Action<GetCohortResponse> checkHttpResponse)
+        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryResponse queryResponse,
+            Action<GetCohortResponse> checkHttpResponse)
         {
             var controller = CreateController();
 
             MediatorMock
-                .Setup(m => m.Send(It.Is<GetCohortSummaryRequest>(r => r.CohortId == cohortId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(It.Is<GetCohortSummaryRequest>(r => r.CohortId == cohortId),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => queryResponse);
-                    
+
             var http = await controller.GetCohort(cohortId);
-            var getCohortResponse = ((OkObjectResult)http).Value as GetCohortResponse;
+            var getCohortResponse = ((OkObjectResult) http).Value as GetCohortResponse;
 
             checkHttpResponse(getCohortResponse);
         }

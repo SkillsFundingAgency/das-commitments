@@ -2,7 +2,7 @@ using System;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
-    public class AddDraftApprenticeshipRequest
+    public class AddDraftApprenticeshipRequest : CommandRequest
     {
         public string UserId { get; set; }
         public long ProviderId { get; set; }

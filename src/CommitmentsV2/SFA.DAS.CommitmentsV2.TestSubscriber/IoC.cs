@@ -6,10 +6,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
     {
         public static IContainer InitializeIoC()
         {
-            return new Container(c =>
-            {
-                c.AddRegistry<DefaultRegistry>();
-            });
+            return new Container(c => { c.AddRegistry<DefaultRegistry>(); });
         }
     }
 }

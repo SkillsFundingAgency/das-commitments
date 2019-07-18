@@ -38,12 +38,13 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
 
         private TEventHandler ConstructHandler()
         {
-            return (TEventHandler)Activator.CreateInstance(typeof(TEventHandler), Mediator.Object);
+            return (TEventHandler) Activator.CreateInstance(typeof(TEventHandler), Mediator.Object);
         }
 
         public void VerifySend<TCommand>(Func<TCommand, TEvent, bool> verifyCommand) where TCommand : IRequest
         {
-            Mediator.Verify(m => m.Send(It.Is<TCommand>(c => verifyCommand(c, Message)), CancellationToken.None), Times.Once);
+            Mediator.Verify(m => m.Send(It.Is<TCommand>(c => verifyCommand(c, Message)), CancellationToken.None),
+                Times.Once);
         }
     }
 }

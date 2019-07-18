@@ -10,7 +10,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing;
@@ -20,7 +19,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
     [TestFixture]
     [Parallelizable]
-    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTests : FluentTest<AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture>
+    public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTests : FluentTest<
+        AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture>
     {
         [Test]
         public Task Map_WhenMapping_ThenShouldSetProperties()
@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Fixture Fixture { get; set; }
         public AddDraftApprenticeshipCommand Command { get; set; }
         public TrainingProgramme TrainingProgramme { get; set; }
-        public Mock<IMapper<ITrainingProgramme,TrainingProgramme>> TrainingProgrammeMapper { get; set; }
+        public Mock<IMapper<ITrainingProgramme, TrainingProgramme>> TrainingProgrammeMapper { get; set; }
         public Mock<ITrainingProgrammeApiClient> TrainingProgrammeApiClient { get; set; }
         public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper Mapper { get; set; }
 
@@ -54,13 +54,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         {
             Fixture = new Fixture();
             Command = Fixture.Create<AddDraftApprenticeshipCommand>();
-            TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
+            TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue,
+                DateTime.MaxValue);
             TrainingProgrammeMapper = new Mock<IMapper<ITrainingProgramme, TrainingProgramme>>();
             TrainingProgrammeApiClient = new Mock<ITrainingProgrammeApiClient>();
-            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(TrainingProgrammeApiClient.Object, TrainingProgrammeMapper.Object);
-            
+            Mapper = new AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(
+                TrainingProgrammeApiClient.Object, TrainingProgrammeMapper.Object);
+
             TrainingProgrammeMapper.Setup(m => m.Map(It.IsAny<ITrainingProgramme>())).ReturnsAsync(TrainingProgramme);
-            TrainingProgrammeApiClient.Setup(c => c.GetTrainingProgramme(It.IsAny<string>())).ReturnsAsync(() => new Framework());
+            TrainingProgrammeApiClient.Setup(c => c.GetTrainingProgramme(It.IsAny<string>()))
+                .ReturnsAsync(() => new Framework());
         }
 
         public Task<DraftApprenticeshipDetails> Map()

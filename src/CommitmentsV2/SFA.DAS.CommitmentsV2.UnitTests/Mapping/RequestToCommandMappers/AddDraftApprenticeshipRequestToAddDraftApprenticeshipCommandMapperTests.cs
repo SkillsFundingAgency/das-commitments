@@ -4,11 +4,14 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture]
-    public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests : MapperTester<AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper, AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand>
+    public class AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapperTests : MapperTester<
+        AddDraftApprenticeshipRequestToAddDraftApprenticeshipCommandMapper, AddDraftApprenticeshipRequest,
+        AddDraftApprenticeshipCommand>
     {
         [Test]
         public Task Map_ProviderId_ShouldBeSet()
@@ -42,14 +45,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         public Task Map_OriginatorReference_ShouldBeSet()
         {
             const string originatorReference = "Foo379";
-            return AssertPropertySet(input => input.OriginatorReference = originatorReference, output => output.OriginatorReference == originatorReference);
+            return AssertPropertySet(input => input.OriginatorReference = originatorReference,
+                output => output.OriginatorReference == originatorReference);
         }
 
         [Test]
         public Task Map_ReservationId_ShouldBeSet()
         {
             Guid reservationId = Guid.NewGuid();
-            return AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == reservationId);
+            return AssertPropertySet(input => input.ReservationId = reservationId,
+                output => output.ReservationId == reservationId);
         }
 
         [Test]
@@ -57,6 +62,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
         {
             DateTime startDate = DateTime.Now;
             return AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
+        }
+
+        [Test]
+        public Task Map_UserInfo_ShouldBeSet()
+        {
+            UserInfo userInfo = new UserInfo();
+            return AssertPropertySet(input => input.UserInfo = userInfo, output => output.UserInfo == userInfo);
         }
     }
 }

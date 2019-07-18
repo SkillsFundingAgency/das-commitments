@@ -22,7 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         [Test]
         public Task Handle_WhenHandlingAddAccountLegalEntityCommand_ThenShouldAddAccountLegalEntity()
         {
-            return TestAsync(f => f.Handle(), f => f.Db.AccountLegalEntities.SingleOrDefault(ale => ale.Id == f.Command.AccountLegalEntityId).Should().NotBeNull()
+            return TestAsync(f => f.Handle(), f => f.Db.AccountLegalEntities
+                .SingleOrDefault(ale => ale.Id == f.Command.AccountLegalEntityId).Should().NotBeNull()
                 .And.Match<AccountLegalEntity>(a =>
                     a.Id == f.Command.AccountLegalEntityId &&
                     a.PublicHashedId == f.Command.AccountLegalEntityPublicHashedId &&
@@ -45,14 +46,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public AddAccountLegalEntityCommandHandlerTestsFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings =>
+                    warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
 
             Account = ObjectActivator.CreateInstance<Account>().Set(a => a.Id, 1);
 
             Db.Accounts.Add(Account);
             Db.SaveChanges();
 
-            Command = new AddAccountLegalEntityCommand(Account.Id, 2,  "ALE123", "Foo",
+            Command = new AddAccountLegalEntityCommand(Account.Id, 2, "ALE123", "Foo",
                 OrganisationType.CompaniesHouse, "REFNo", "Address", DateTime.UtcNow);
 
             Handler = new AddAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));

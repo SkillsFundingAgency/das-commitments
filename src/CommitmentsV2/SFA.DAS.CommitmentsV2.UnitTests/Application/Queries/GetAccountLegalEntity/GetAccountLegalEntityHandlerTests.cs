@@ -31,7 +31,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
                 .AddAccountWithLegalEntities(123, "Account123", accountLegalEntityId, "LegalEntity456");
 
             // act
-            var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest {AccountLegalEntityId = accountLegalEntityId });
+            var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest
+                {AccountLegalEntityId = accountLegalEntityId});
 
             // Assert
             Assert.IsNotNull(response);
@@ -43,14 +44,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
     {
         public GetEmployerHandlerTestFixtures()
         {
-            HandlerMock = new Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>>();    
+            HandlerMock = new Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>>();
             ValidatorMock = new Mock<IValidator<GetAccountLegalEntityRequest>>();
             SeedAccounts = new List<Account>();
         }
 
-        public Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>> HandlerMock { get; set; }
+        public Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>> HandlerMock
+        {
+            get;
+            set;
+        }
 
-        public IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse> Handler => HandlerMock.Object;
+        public IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse> Handler =>
+            HandlerMock.Object;
 
         public Mock<IValidator<GetAccountLegalEntityRequest>> ValidatorMock { get; set; }
         public IValidator<GetAccountLegalEntityRequest> Validator => ValidatorMock.Object;
@@ -62,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         {
             var account = new Account(accountId, "PRI123", "PUB123", accountName, DateTime.Now);
 
-            account.AddAccountLegalEntity(accountLegalEntityId, "ABC456", "PUB456", 
+            account.AddAccountLegalEntity(accountLegalEntityId, "ABC456", "PUB456",
                 name, OrganisationType.Charities, "My address", DateTime.Now);
 
             SeedAccounts.Add(account);

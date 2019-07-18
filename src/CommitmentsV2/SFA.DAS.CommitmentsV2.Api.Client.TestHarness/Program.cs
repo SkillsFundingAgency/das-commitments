@@ -9,7 +9,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
 {
     class Program
     {
-
         public static async Task Main(string[] args)
 
         {
@@ -22,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
                 .AddOptions()
                 .Configure<CommitmentsClientApiConfiguration>(configuration.GetSection("AzureADClientAuthentication"))
                 .AddLogging(configure => configure.AddConsole())
-                .AddSingleton<ICommitmentsApiClientFactory>(x=>
+                .AddSingleton<ICommitmentsApiClientFactory>(x =>
                 {
                     var config = x.GetService<IOptions<CommitmentsClientApiConfiguration>>().Value;
                     var loggerFactory = x.GetService<ILoggerFactory>();
@@ -35,7 +34,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
             var testHarness = provider.GetService<TestHarness>();
 
             await testHarness.Run();
-
         }
     }
 }

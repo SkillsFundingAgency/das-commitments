@@ -24,7 +24,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         {
             if (MapperCreator == null)
             {
-                throw new InvalidOperationException($"Cannot create a mapper because the {nameof(MapperCreator)} property has not been set");
+                throw new InvalidOperationException(
+                    $"Cannot create a mapper because the {nameof(MapperCreator)} property has not been set");
             }
 
             return MapperCreator();
@@ -50,14 +51,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return AssertPropertySet(fromProperty, toProperty, fromValue);
         }
 
-        protected Task AssertPropertySet<TProp, TValue>(Expression<Func<TFrom, TProp>> from, Expression<Func<TTo, TProp>> to, TValue fromValue)
+        protected Task AssertPropertySet<TProp, TValue>(Expression<Func<TFrom, TProp>> from,
+            Expression<Func<TTo, TProp>> to, TValue fromValue)
         {
             var (fromProperty, toProperty) = GetDifferentProperties(from, to, fromValue);
 
             return AssertPropertySet(fromProperty, toProperty, fromValue);
         }
 
-        protected async Task AssertPropertySet<TValue>(PropertyInfo fromProperty, PropertyInfo toProperty, TValue fromValue)
+        protected async Task AssertPropertySet<TValue>(PropertyInfo fromProperty, PropertyInfo toProperty,
+            TValue fromValue)
         {
             var from = new Mock<TFrom>();
 
@@ -70,13 +73,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var toValue = toProperty.GetValue(output);
 
             IEqualityComparer comparer = EqualityComparer<TValue>.Default;
-                
+
             var areTheSameValue = comparer.Equals(fromValue, toValue);
 
-            Assert.IsTrue(areTheSameValue, $"Values not mapped across. Property:{fromProperty.Name} FromValue:{fromValue} ToValue:{toValue}");
+            Assert.IsTrue(areTheSameValue,
+                $"Values not mapped across. Property:{fromProperty.Name} FromValue:{fromValue} ToValue:{toValue}");
         }
 
-        private PropertyInfo GetPropertyInfo<TType,TProp>(Expression<Func<TType, TProp>> property)
+        private PropertyInfo GetPropertyInfo<TType, TProp>(Expression<Func<TType, TProp>> property)
         {
             var memberExpression = property.Body as MemberExpression;
 
@@ -88,7 +92,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             return memberExpression.Member as PropertyInfo;
         }
 
-        private (PropertyInfo fromProperty, PropertyInfo toProperty) GetSameProperties<TProp, TValue>(Expression<Func<TFrom, TProp>> property, TValue fromValue)
+        private (PropertyInfo fromProperty, PropertyInfo toProperty) GetSameProperties<TProp, TValue>(
+            Expression<Func<TFrom, TProp>> property, TValue fromValue)
         {
             var fromProperty = GetPropertyInfo(property);
 
@@ -98,7 +103,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 
             if (toProperty == null)
             {
-                throw new InvalidOperationException($"The mapped-to type ({typeof(TTo).Name}) does not have a property named '{fromProperty.Name}'");
+                throw new InvalidOperationException(
+                    $"The mapped-to type ({typeof(TTo).Name}) does not have a property named '{fromProperty.Name}'");
             }
 
             return (fromProperty, toProperty);

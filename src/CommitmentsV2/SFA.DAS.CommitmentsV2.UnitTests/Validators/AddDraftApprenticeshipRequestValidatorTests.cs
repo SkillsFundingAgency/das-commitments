@@ -36,19 +36,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         [TestCase(true, true, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool isFeatureEnabled, bool hasValue, bool expectedValid)
         {
-            AssertValidationResult(request => request.ReservationId, s => s == Feature.Reservations && isFeatureEnabled, hasValue ? Guid.NewGuid() : (Guid?)null, expectedValid);
+            AssertValidationResult(request => request.ReservationId, s => s == Feature.Reservations && isFeatureEnabled,
+                hasValue ? Guid.NewGuid() : (Guid?) null, expectedValid);
         }
 
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100",
+            false)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX",
+            true)]
         [TestCase("", true)]
         public void Validate_FirstName_ShouldBeValidated(string value, bool expectedValid)
         {
             AssertValidationResult(request => request.FirstName, value, expectedValid);
         }
 
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
-        [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX", true)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100",
+            false)]
+        [TestCase(
+            "XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXXX",
+            true)]
         [TestCase("", true)]
         public void Validate_LastName_ShouldBeValidated(string value, bool expectedValid)
         {
@@ -64,7 +73,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.OriginatorReference, value, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, T value,
+            bool expectedValid)
         {
             // Arrange
             var validator = new AddDraftApprenticeshipRequestValidator(Mock.Of<IAuthorizationService>());
@@ -80,14 +90,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             }
         }
 
-        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<AddDraftApprenticeshipRequest, T>> property,
+            Func<string, bool> feature, T value, bool expectedValid)
         {
             // Arrange
             var authorizationService = new Mock<IAuthorizationService>();
-            
+
             authorizationService.Setup(a => a.IsAuthorized(It.IsAny<string[]>()))
                 .Returns<string[]>(o => feature(o.SingleOrDefault()));
-            
+
             var validator = new AddDraftApprenticeshipRequestValidator(authorizationService.Object);
 
             // Act

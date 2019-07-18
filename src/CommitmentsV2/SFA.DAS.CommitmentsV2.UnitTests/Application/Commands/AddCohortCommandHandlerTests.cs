@@ -12,9 +12,9 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing;
 
@@ -33,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             const long accountLegalEntityId = 3;
 
             var fixtures = new AddCohortCommandHandlerTestFixture()
-                                .WithGeneratedHash(expectedHash);
+                .WithGeneratedHash(expectedHash);
 
             var response = await fixtures.Handle(accountLegalEntityId, providerId, "Course1");
 
@@ -41,20 +41,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 It.Is<long>(ale => ale == accountLegalEntityId),
                 It.IsAny<DraftApprenticeshipDetails>(),
                 false,
+                It.IsAny<UserInfo>(),
                 It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
-  
         }
     }
 
     public class TestLogger : ILogger<AddCohortHandler>
     {
-        private readonly List<(LogLevel logLevel, Exception exception, string message)> _logMessages = new List<(LogLevel logLevel, Exception exception, string message)>();
+        private readonly List<(LogLevel logLevel, Exception exception, string message)> _logMessages =
+            new List<(LogLevel logLevel, Exception exception, string message)>();
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+            Func<TState, Exception, string> formatter)
         {
-            _logMessages.Add((logLevel, exception, formatter(state, exception)));    
+            _logMessages.Add((logLevel, exception, formatter(state, exception)));
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -80,9 +82,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddCohortCommandHandlerTestFixture()
         {
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
-                                                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                                                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
-                                                    .Options);
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                .Options);
 
             EncodingServiceMock = new Mock<IEncodingService>();
 
@@ -95,17 +97,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             commitment.Apprenticeships.Add(new DraftApprenticeship());
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), 
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(),
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<bool>(), It.IsAny<UserInfo>(),
+                    It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
-            Logger = new TestLogger(); 
+            Logger = new TestLogger();
         }
 
         public Mock<IEncodingService> EncodingServiceMock { get; }
         public IEncodingService EncodingService => EncodingServiceMock.Object;
 
-        public Mock<IMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
+        public Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
         public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
@@ -114,7 +117,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
         {
             EncodingServiceMock
-                .Setup(hs => hs.Encode(It.IsAny<long>(), It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
+                .Setup(hs => hs.Encode(It.IsAny<long>(),
+                    It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
                 .Returns(hash);
 
             return this;

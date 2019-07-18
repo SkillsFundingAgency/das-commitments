@@ -25,7 +25,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase("2018-04-01", "2018-06-30", Description = "Start and end date both disregarded")]
         [TestCase("2018-04-01", "2018-05-15", Description = "Start date disregarded")]
         [TestCase("2018-05-15", "2018-06-01", Description = "End date disregarded")]
-
         public async Task ThenTheOverlapCheckDisregardsDatesWithinTheSameMonth(DateTime startDate, DateTime endDate)
         {
             var result = await _fixture
@@ -40,10 +39,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [TestCase("2018-03-01", "2018-03-01", Description = "Zero-length candidate")]
         [TestCase("2018-02-01", "2018-02-14", Description = "Same month but not overlapping (before)")]
         [TestCase("2018-04-16", "2018-04-30", Description = "Same month but not overlapping (after)")]
-        public async Task ThenIfDatesDoNotFallWithinRangeOfExistingApprenticeshipThenNotOverlapping(DateTime startDate, DateTime endDate)
+        public async Task ThenIfDatesDoNotFallWithinRangeOfExistingApprenticeshipThenNotOverlapping(DateTime startDate,
+            DateTime endDate)
         {
-            var result = await _fixture.
-                WithDateRange(startDate, endDate)
+            var result = await _fixture.WithDateRange(startDate, endDate)
                 .CheckForOverlaps();
 
             Assert.IsFalse(result.HasOverlaps);
@@ -92,13 +91,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [TestCase("2018-03-01", "2018-03-31", Description = "Dates contained within existing range - single month")]
-        [TestCase("2018-03-15", "2020-09-15", Description = "Start date contained within existing range but later end date")]
-        [TestCase("2018-01-15", "2020-03-15", Description = "End date contained within existing range but earlier start date")]
+        [TestCase("2018-03-15", "2020-09-15", Description =
+            "Start date contained within existing range but later end date")]
+        [TestCase("2018-01-15", "2020-03-15", Description =
+            "End date contained within existing range but earlier start date")]
         [TestCase("2018-02-15", "2018-04-15", Description = "Same dates as existing range")]
         [TestCase("2018-02-15", "2018-05-15", Description = "Same start date but later end date")]
         [TestCase("2018-01-15", "2018-04-15", Description = "Same end date but earlier start date")]
         [TestCase("2018-03-01", "2018-03-15", Description = "Start/end within same month within existing range")]
-        public async Task ThenIfBothDatesFallWithinRangeOfSingleExistingApprenticeshipThenIsOverlapping(DateTime startDate, DateTime endDate)
+        public async Task ThenIfBothDatesFallWithinRangeOfSingleExistingApprenticeshipThenIsOverlapping(
+            DateTime startDate, DateTime endDate)
         {
             var result = await _fixture
                 .WithDateRange(startDate, endDate)
@@ -133,7 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task ThenAnExistingApprenticeshipShouldNotBeConsideredAsOverlappingWithItself()
         {
             var result = await _fixture
-                .WithDateRange(new DateTime(2018,02,15), new DateTime(2018,04,15))
+                .WithDateRange(new DateTime(2018, 02, 15), new DateTime(2018, 04, 15))
                 .WithExistingApprenticeship()
                 .CheckForOverlaps();
 
@@ -151,7 +153,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public OverlapCheckServiceTestFixture()
             {
                 _ulnUtilisationService = new Mock<IUlnUtilisationService>();
-                _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                _ulnUtilisationService
+                    .Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(CreateTestData());
 
                 _overlapCheckService = new OverlapCheckService(_ulnUtilisationService.Object);
@@ -172,7 +175,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public OverlapCheckServiceTestFixture WithNoMatchingUlnUtilisations()
             {
-                _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                _ulnUtilisationService
+                    .Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new UlnUtilisation[0]);
 
                 return this;
@@ -185,7 +189,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     new UlnUtilisation(1, "", new DateTime(2018, 03, 01), new DateTime(2018, 03, 01))
                 };
 
-                _ulnUtilisationService.Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                _ulnUtilisationService
+                    .Setup(x => x.GetUlnUtilisations(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(mockData.ToArray);
 
                 return this;
@@ -193,21 +198,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public async Task<OverlapCheckResult> CheckForOverlaps()
             {
-                return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate), _apprenticeshipId, new CancellationToken());
+                return await _overlapCheckService.CheckForOverlaps("", _startDate.To(_endDate), _apprenticeshipId,
+                    new CancellationToken());
             }
 
             private static UlnUtilisation[] CreateTestData()
             {
                 var mockData = new List<UlnUtilisation>
                 {
-                    new UlnUtilisation(1, "", new DateTime(2018,02,15), new DateTime(2018,04,15)),
-                    new UlnUtilisation(2, "", new DateTime(2018,06,15), new DateTime(2018,08,15)),
-                    new UlnUtilisation(3, "", new DateTime(2020,01,15), new DateTime(2020,12,15))
+                    new UlnUtilisation(1, "", new DateTime(2018, 02, 15), new DateTime(2018, 04, 15)),
+                    new UlnUtilisation(2, "", new DateTime(2018, 06, 15), new DateTime(2018, 08, 15)),
+                    new UlnUtilisation(3, "", new DateTime(2020, 01, 15), new DateTime(2020, 12, 15))
                 };
 
                 return mockData.ToArray();
             }
         }
-
     }
 }

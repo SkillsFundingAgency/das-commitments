@@ -7,8 +7,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
     public class GetAccountLegalEntityValidationTests
     {
         [TestCase(-1, false)]
-        [TestCase( 0, false)]
-        [TestCase( 1, true)]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(int id, bool expectedIsValid)
         {
             // arrange

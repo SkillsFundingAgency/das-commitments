@@ -36,7 +36,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.PartyId, value, expectedValid);
         }
 
-        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property, T value,
+            bool expectedValid)
         {
             // Arrange
             var validator = new CohortAccessRequestValidator();
@@ -52,7 +53,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             }
         }
 
-        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property, Func<string, bool> feature, T value, bool expectedValid)
+        private void AssertValidationResult<T>(Expression<Func<CohortAccessRequest, T>> property,
+            Func<string, bool> feature, T value, bool expectedValid)
         {
             // Arrange
             var validator = new CohortAccessRequestValidator();

@@ -8,7 +8,9 @@ using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftAppren
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
 {
     [TestFixture]
-    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapperTests : MapperTester<GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper, CommandResponse.GetDraftApprenticeResponse, HttpResponse.GetDraftApprenticeshipResponse>
+    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapperTests : MapperTester<
+        GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper, CommandResponse.GetDraftApprenticeResponse
+        , HttpResponse.GetDraftApprenticeshipResponse>
     {
         [Test]
         public Task Map_FirstName_ShouldBeSet()
@@ -43,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.CommandToResponseMappers
         [Test]
         public Task Map_Cost_ShouldBeSet()
         {
-            return AssertPropertySet(input => input.Cost, (int?)123);
+            return AssertPropertySet(input => input.Cost, (int?) 123);
         }
 
         [Test]

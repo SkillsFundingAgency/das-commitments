@@ -23,7 +23,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         }
     }
 
-    public class CreatedAccountEventHandlerTestsFixture : EventHandlerTestsFixture<CreatedAccountEvent, CreatedAccountEventHandler>
+    public class
+        CreatedAccountEventHandlerTestsFixture : EventHandlerTestsFixture<CreatedAccountEvent,
+            CreatedAccountEventHandler>
     {
     }
 }

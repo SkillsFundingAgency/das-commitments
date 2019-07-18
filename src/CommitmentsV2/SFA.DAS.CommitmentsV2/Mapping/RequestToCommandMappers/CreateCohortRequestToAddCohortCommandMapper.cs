@@ -18,11 +18,11 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 OriginatorReference = source.OriginatorReference,
                 ReservationId = source.ReservationId,
                 StartDate = source.StartDate,
-                UserId = source.UserId,
                 DateOfBirth = source.DateOfBirth,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
-                ULN = source.Uln
+                Uln = source.Uln,
+                UserInfo = source.UserInfo
             });
         }
     }
