@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
+﻿using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -26,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
             {
                 FirstName = source.FirstName,
                 LastName = source.LastName,
-                Uln = source.ULN,
+                Uln = source.Uln,
                 TrainingProgramme = trainingProgram,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
