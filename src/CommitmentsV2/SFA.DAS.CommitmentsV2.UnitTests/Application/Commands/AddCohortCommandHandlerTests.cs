@@ -98,8 +98,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
             CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(),
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<bool>(), It.IsAny<UserInfo>(),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<bool>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
             Logger = new TestLogger();
@@ -117,8 +116,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
         {
             EncodingServiceMock
-                .Setup(hs => hs.Encode(It.IsAny<long>(),
-                    It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
+                .Setup(hs => hs.Encode(It.IsAny<long>(), It.Is<EncodingType>(encoding => encoding == EncodingType.CohortReference)))
                 .Returns(hash);
 
             return this;

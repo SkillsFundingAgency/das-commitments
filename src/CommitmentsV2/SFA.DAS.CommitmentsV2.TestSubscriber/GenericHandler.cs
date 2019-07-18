@@ -10,14 +10,12 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
     {
         public Task Log(object message, IMessageHandlerContext context)
         {
-            Console.WriteLine(
-                $"Received message id:{context.MessageId} type:{message.GetType().FullName} received:{DateTime.Now:T} Content: {JsonConvert.SerializeObject(message)}");
+            Console.WriteLine($"Received message id:{context.MessageId} type:{message.GetType().FullName} received:{DateTime.Now:T} Content: {JsonConvert.SerializeObject(message)}");
             return Task.CompletedTask;
         }
     }
 
-    class ApprenticeshipCreatedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipCreatedEvent>
+    class ApprenticeshipCreatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipCreatedEvent>
     {
         public Task Handle(ApprenticeshipCreatedEvent message, IMessageHandlerContext context)
         {
@@ -25,8 +23,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class ApprenticeshipPausedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipPausedEvent>
+    class ApprenticeshipPausedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipPausedEvent>
     {
         public Task Handle(ApprenticeshipPausedEvent message, IMessageHandlerContext context)
         {
@@ -34,8 +31,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class ApprenticeshipResumedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipResumedEvent>
+    class ApprenticeshipResumedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipResumedEvent>
     {
         public Task Handle(ApprenticeshipResumedEvent message, IMessageHandlerContext context)
         {
@@ -43,8 +39,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class ApprenticeshipStoppedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipStoppedEvent>
+    class ApprenticeshipStoppedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipStoppedEvent>
     {
         public Task Handle(ApprenticeshipStoppedEvent message, IMessageHandlerContext context)
         {
@@ -52,8 +47,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class ApprenticeshipStopDateChangedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipStopDateChangedEvent>
+    class ApprenticeshipStopDateChangedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipStopDateChangedEvent>
     {
         public Task Handle(ApprenticeshipStopDateChangedEvent message, IMessageHandlerContext context)
         {
@@ -61,8 +55,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class ApprenticeshipUpdatedApprovedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipUpdatedApprovedEvent>
+    class ApprenticeshipUpdatedApprovedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.ApprenticeshipUpdatedApprovedEvent>
     {
         public Task Handle(ApprenticeshipUpdatedApprovedEvent message, IMessageHandlerContext context)
         {
@@ -70,8 +63,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class DataLockTriageApprovedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DataLockTriageApprovedEvent>
+    class DataLockTriageApprovedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DataLockTriageApprovedEvent>
     {
         public Task Handle(DataLockTriageApprovedEvent message, IMessageHandlerContext context)
         {
@@ -79,8 +71,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class DraftApprenticeshipDeletedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipDeletedEvent>
+    class DraftApprenticeshipDeletedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipDeletedEvent>
     {
         public Task Handle(DraftApprenticeshipDeletedEvent message, IMessageHandlerContext context)
         {
@@ -88,8 +79,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class PaymentOrderChangedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.PaymentOrderChangedEvent>
+    class PaymentOrderChangedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.PaymentOrderChangedEvent>
     {
         public Task Handle(PaymentOrderChangedEvent message, IMessageHandlerContext context)
         {
@@ -97,8 +87,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class DraftApprenticeshipCreatedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipCreatedEvent>
+    class DraftApprenticeshipCreatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipCreatedEvent>
     {
         public Task Handle(DraftApprenticeshipCreatedEvent message, IMessageHandlerContext context)
         {
@@ -106,8 +95,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         }
     }
 
-    class DraftApprenticeshipUpdatedEventHandler : GenericHandler,
-        IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipUpdatedEvent>
+    class DraftApprenticeshipUpdatedEventHandler : GenericHandler, IHandleMessages<SFA.DAS.CommitmentsV2.Messages.Events.DraftApprenticeshipUpdatedEvent>
     {
         public Task Handle(DraftApprenticeshipUpdatedEvent message, IMessageHandlerContext context)
         {

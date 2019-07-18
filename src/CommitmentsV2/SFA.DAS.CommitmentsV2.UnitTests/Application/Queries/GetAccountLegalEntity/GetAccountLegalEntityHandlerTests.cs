@@ -31,8 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
                 .AddAccountWithLegalEntities(123, "Account123", accountLegalEntityId, "LegalEntity456");
 
             // act
-            var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest
-                {AccountLegalEntityId = accountLegalEntityId});
+            var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest {AccountLegalEntityId = accountLegalEntityId});
 
             // Assert
             Assert.IsNotNull(response);
@@ -49,14 +48,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             SeedAccounts = new List<Account>();
         }
 
-        public Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>> HandlerMock
-        {
-            get;
-            set;
-        }
+        public Mock<IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>> HandlerMock { get; set; }
 
-        public IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse> Handler =>
-            HandlerMock.Object;
+        public IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse> Handler => HandlerMock.Object;
 
         public Mock<IValidator<GetAccountLegalEntityRequest>> ValidatorMock { get; set; }
         public IValidator<GetAccountLegalEntityRequest> Validator => ValidatorMock.Object;

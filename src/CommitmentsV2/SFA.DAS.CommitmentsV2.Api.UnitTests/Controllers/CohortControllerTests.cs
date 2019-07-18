@@ -147,28 +147,22 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         public CohortControllerTestFixtures()
         {
             MediatorMock = new Mock<IMediator>();
-            CreateCohortRequestToAddCohortCommandMapperMock =
-                new Mock<IMapper<CreateCohortRequest, AddCohortCommand>>();
+            CreateCohortRequestToAddCohortCommandMapperMock = new Mock<IMapper<CreateCohortRequest, AddCohortCommand>>();
         }
 
         private Mock<IMediator> MediatorMock { get; }
         private IMediator Mediator => MediatorMock.Object;
 
-        private Mock<IMapper<CreateCohortRequest, AddCohortCommand>> CreateCohortRequestToAddCohortCommandMapperMock
-        {
-            get;
-        }
+        private Mock<IMapper<CreateCohortRequest, AddCohortCommand>> CreateCohortRequestToAddCohortCommandMapperMock { get; }
 
-        private IMapper<CreateCohortRequest, AddCohortCommand> CreateCohortRequestToAddCohortCommandMapper =>
-            CreateCohortRequestToAddCohortCommandMapperMock.Object;
+        private IMapper<CreateCohortRequest, AddCohortCommand> CreateCohortRequestToAddCohortCommandMapper => CreateCohortRequestToAddCohortCommandMapperMock.Object;
 
         public CohortController CreateController()
         {
             return new CohortController(Mediator, CreateCohortRequestToAddCohortCommandMapper);
         }
 
-        public CohortControllerTestFixtures WithAddCohortCommandResponse(long id, string reference,
-            long draftApprenticeshipId)
+        public CohortControllerTestFixtures WithAddCohortCommandResponse(long id, string reference, long draftApprenticeshipId)
         {
             MediatorMock
                 .Setup(m => m.Send(It.IsAny<AddCohortCommand>(), CancellationToken.None))
@@ -193,8 +187,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return controller.CreateCohort(new CreateCohortRequest());
         }
 
-        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryResponse queryResponse,
-            Action<GetCohortResponse> checkHttpResponse)
+        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryResponse queryResponse, Action<GetCohortResponse> checkHttpResponse)
         {
             var controller = CreateController();
 

@@ -21,8 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
     public class CommitmentsRestClientTests : FluentTest<CommitmentsRestClientTestsFixture>
     {
         [Test]
-        public Task
-            CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsDomainException_ThenShouldThrowApiModelException()
+        public Task CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsDomainException_ThenShouldThrowApiModelException()
         {
             return TestExceptionAsync(
                 f => f.SetBadRequestResponseStatus().SetDomainExceptionResponseSubStatus(),
@@ -32,8 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         }
 
         [Test]
-        public Task
-            CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsNone_ThenShouldThrowRestHttpClientException()
+        public Task CreateClientException_WhenResponseStatusIsBadRequestAndResponseSubStatusIsNone_ThenShouldThrowRestHttpClientException()
         {
             return TestExceptionAsync(
                 f => f.SetBadRequestResponseStatus(),
@@ -46,8 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         }
 
         [Test]
-        public Task
-            CreateClientException_WhenResponseStatusIsInternalServerError_ThenShouldThrowRestHttpClientException()
+        public Task CreateClientException_WhenResponseStatusIsInternalServerError_ThenShouldThrowRestHttpClientException()
         {
             return TestExceptionAsync(
                 f => f.SetInternalServerErrorResponseStatus(),
@@ -96,10 +93,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Http
         {
             ResponseObject = new ErrorResponse(ModelErrors);
             ResponseString = JsonConvert.SerializeObject(ResponseObject);
-            HttpMessageHandler.HttpResponseMessage.Headers.Add(HttpHeaderNames.SubStatusCode,
-                ((int) HttpSubStatusCode.DomainException).ToString());
-            HttpMessageHandler.HttpResponseMessage.Content =
-                new StringContent(ResponseString, Encoding.Default, "application/json");
+            HttpMessageHandler.HttpResponseMessage.Headers.Add(HttpHeaderNames.SubStatusCode, ((int) HttpSubStatusCode.DomainException).ToString());
+            HttpMessageHandler.HttpResponseMessage.Content = new StringContent(ResponseString, Encoding.Default, "application/json");
 
             return this;
         }

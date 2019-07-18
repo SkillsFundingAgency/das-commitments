@@ -11,13 +11,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.Fakes
         public HttpResponseMessage HttpResponseMessage { get; set; }
         public HttpRequestMessage HttpRequestMessage { get; private set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             HttpRequestMessage = request;
-            return Task.FromResult(HttpResponseMessage ??
-                                   throw new InvalidOperationException(
-                                       $"Value for {nameof(HttpResponseMessage)} cannot be null"));
+            return Task.FromResult(HttpResponseMessage ?? throw new InvalidOperationException($"Value for {nameof(HttpResponseMessage)} cannot be null"));
         }
     }
 }

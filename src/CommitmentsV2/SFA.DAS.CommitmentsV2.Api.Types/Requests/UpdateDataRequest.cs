@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
-    public abstract class CommandRequest
+    public abstract class UpdateDataRequest
     {
         public UserInfo UserInfo { get; set; }
     }

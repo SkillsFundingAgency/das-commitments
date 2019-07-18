@@ -23,8 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 {
     [TestFixture]
     [Parallelizable]
-    public class
-        AddDraftApprenticeshipCommandHandlerTests : FluentTest<AddDraftApprenticeshipCommandHandlerTestsFixture>
+    public class AddDraftApprenticeshipCommandHandlerTests : FluentTest<AddDraftApprenticeshipCommandHandlerTestsFixture>
     {
         [Test]
         public Task Handle_WhenCommandIsHandled_ThenShouldAddDraftApprenticeship()
@@ -40,8 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             return TestAsync(
                 f => f.AddDraftApprenticeship(),
-                (f, r) => r.Should().NotBeNull().And.Subject.Should()
-                    .Match<AddDraftApprenticeshipResult>(r2 => r2.Id == f.DraftApprenticeship.Id));
+                (f, r) => r.Should().NotBeNull().And.Subject.Should().Match<AddDraftApprenticeshipResult>(r2 => r2.Id == f.DraftApprenticeship.Id));
         }
     }
 
@@ -54,11 +52,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public CancellationToken CancellationToken { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
 
-        public Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper
-        {
-            get;
-            set;
-        }
+        public Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
 
         public Mock<ICohortDomainService> CohortDomainService { get; set; }
         public IRequestHandler<AddDraftApprenticeshipCommand, AddDraftApprenticeshipResult> Handler { get; set; }
@@ -77,8 +71,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .Options);
 
             CohortDomainService = new Mock<ICohortDomainService>();
-            DraftApprenticeshipDetailsMapper =
-                new Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
+            DraftApprenticeshipDetailsMapper = new Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>>();
             UserInfo = Fixture.Create<UserInfo>();
             Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Create();
 

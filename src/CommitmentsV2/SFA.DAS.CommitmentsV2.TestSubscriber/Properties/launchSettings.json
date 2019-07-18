@@ -2,8 +2,7 @@
   "profiles": {
     "SFA.DAS.CommitmentsV2.TestSubscriber": {
       "commandName": "Project",
-      "commandLineArgs":
-        "-c \"Endpoint=sb://das-test-shared-ns.servicebus.windows.net/;SharedAccessKeyName=IanGledhill;SharedAccessKey=enjhiQeFwseo6u0ysPeveZWxPSjG6tKHqM8RdZ508T4=\""
+      "commandLineArgs": "-c \"Endpoint=sb://das-test-shared-ns.servicebus.windows.net/;SharedAccessKeyName=IanGledhill;SharedAccessKey=enjhiQeFwseo6u0ysPeveZWxPSjG6tKHqM8RdZ508T4=\""
     }
   }
 }

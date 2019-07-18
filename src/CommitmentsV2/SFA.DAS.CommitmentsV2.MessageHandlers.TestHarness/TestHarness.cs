@@ -42,8 +42,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                     switch (key)
                     {
                         case "a":
-                            await _publisher.Publish(new CreatedAccountEvent
-                            {
+                            await _publisher.Publish(new CreatedAccountEvent { 
                                 AccountId = accountId, Created = DateTime.Now, HashedId = "HPRIV",
                                 PublicHashedId = "PUBH", Name = "My Test", UserName = "Tester", UserRef = Guid.NewGuid()
                             });
@@ -93,8 +92,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published RemovedLegalEntityEvent");
                             break;
                         case "f":
-                            await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111",
-                                Guid.NewGuid(), DateTime.UtcNow));
+                            await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111", Guid.NewGuid(), DateTime.UtcNow));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;

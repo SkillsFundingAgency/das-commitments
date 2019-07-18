@@ -50,8 +50,7 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
             UseDasMessageConventions(endpointConfiguration);
 
             endpointConfiguration
-                .UseAzureServiceBusTransport(string.IsNullOrWhiteSpace(connectionString), () => connectionString,
-                    r => { })
+                .UseAzureServiceBusTransport(string.IsNullOrWhiteSpace(connectionString), () => connectionString, r => { })
                 .UseNewtonsoftJsonSerializer()
                 .UseInstallers()
                 ;

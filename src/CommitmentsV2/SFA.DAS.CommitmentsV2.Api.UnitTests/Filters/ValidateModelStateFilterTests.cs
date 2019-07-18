@@ -42,8 +42,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
         {
             _fixture.SetInvalidModelState().OnActionExecuting();
 
-            Assert.AreEqual(_fixture.DomainExceptionHttpSubStatusCodeHeaderValue,
-                _fixture.Headers[HttpHeaderNames.SubStatusCode]);
+            Assert.AreEqual(_fixture.DomainExceptionHttpSubStatusCodeHeaderValue, _fixture.Headers[HttpHeaderNames.SubStatusCode]);
         }
 
         [Test]
@@ -93,8 +92,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Filters
 
             ModelState = new ModelStateDictionary();
             ActionContext = new ActionContext(HttpContext.Object, new RouteData(), ActionDescriptor, ModelState);
-            ActionExecutingContext = new ActionExecutingContext(ActionContext, new List<IFilterMetadata>(),
-                new Dictionary<string, object>(), null);
+            ActionExecutingContext = new ActionExecutingContext(ActionContext, new List<IFilterMetadata>(), new Dictionary<string, object>(), null);
             ValidateModelStateFilter = new ValidateModelStateFilter();
             DomainExceptionHttpSubStatusCode = HttpSubStatusCode.DomainException;
             DomainExceptionHttpSubStatusCodeHeaderValue = ((int) DomainExceptionHttpSubStatusCode).ToString();

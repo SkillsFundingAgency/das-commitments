@@ -43,8 +43,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
 
         public void VerifySend<TCommand>(Func<TCommand, TEvent, bool> verifyCommand) where TCommand : IRequest
         {
-            Mediator.Verify(m => m.Send(It.Is<TCommand>(c => verifyCommand(c, Message)), CancellationToken.None),
-                Times.Once);
+            Mediator.Verify(m => m.Send(It.Is<TCommand>(c => verifyCommand(c, Message)), CancellationToken.None), Times.Once);
         }
     }
 }
