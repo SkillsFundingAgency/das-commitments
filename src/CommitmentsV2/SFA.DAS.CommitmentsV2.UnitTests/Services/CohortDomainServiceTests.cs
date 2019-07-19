@@ -126,16 +126,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
-        public async Task UpdateDraftApprenticeship_IsSuccessful_ThenDraftApprenticeshipIsUpdatedAndLastUpdatedFieldsAreSet(Party withParty)
+        public async Task UpdateDraftApprenticeship_IsSuccessful_ThenDraftApprenticeshipIsUpdated(Party withParty)
         {
             _fixture.WithParty(withParty).WithExistingCohort(withParty).WithExistingDraftApprenticeship();
             await _fixture.UpdateDraftApprenticeship();
             _fixture.VerifyDraftApprenticeshipUpdated();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task UpdateDraftApprenticeship_WhenUserInfoDoesExist_ThenLastUpdatedFieldsAreSet(Party withParty)
+        {
+            _fixture.WithParty(withParty).WithExistingCohort(withParty).WithExistingDraftApprenticeship();
+            await _fixture.UpdateDraftApprenticeship();
             _fixture.VerifyLastUpdatedFieldsAreSet(withParty);
         }
 
         [Test]
-        public async Task UpdateDraftApprenticeship_IsSuccessful_ThenLastUpdatedFieldsAreNotSet()
+        public async Task UpdateDraftApprenticeship_WhenUserInfoDoesNotExist_ThenLastUpdatedFieldsAreNotSet()
         {
             _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer).WithExistingDraftApprenticeship().WithNoUserInfo();
             await _fixture.UpdateDraftApprenticeship();

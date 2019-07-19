@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 It.Is<long>(ale => ale == accountLegalEntityId),
                 It.IsAny<DraftApprenticeshipDetails>(),
                 false,
-                It.IsAny<UserInfo>(),
+                fixtures.UserInfo,
                 It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
@@ -100,6 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .ReturnsAsync(commitment);
 
             Logger = new TestLogger();
+            UserInfo = new UserInfo();
         }
 
         public Mock<IEncodingService> EncodingServiceMock { get; }
@@ -110,6 +111,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
         public TestLogger Logger { get; }
+        public UserInfo UserInfo { get; }
 
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
         {
@@ -128,7 +130,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 AccountLegalEntityId = accountLegalEntity,
                 ProviderId = providerId,
                 ReservationId = Guid.NewGuid(),
-                CourseCode = courseCode
+                CourseCode = courseCode,
+                UserInfo = UserInfo
             };
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
