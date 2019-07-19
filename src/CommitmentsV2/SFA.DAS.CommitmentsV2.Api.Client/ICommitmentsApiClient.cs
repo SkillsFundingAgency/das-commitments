@@ -20,5 +20,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
         Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default);
     }
 }
