@@ -14,6 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
             RuleFor(model => model.LastName).MaximumLength(Constants.FieldLengths.LastName).WithMessage("Last Name must not be more than {MaxLength} characters");
             RuleFor(model => model.Reference).MaximumLength(Constants.FieldLengths.ProviderReference).WithMessage("Reference must not be more than {MaxLength} characters");
             RuleFor(model => model.Uln).MaximumLength(Constants.FieldLengths.Uln).WithMessage("ULN must not be more than {MaxLength} characters");
+            RuleFor(r => r.UserInfo).SetValidator(new UserInfoValidator()).When(r => r.UserInfo != null);
         }
     }
 }
