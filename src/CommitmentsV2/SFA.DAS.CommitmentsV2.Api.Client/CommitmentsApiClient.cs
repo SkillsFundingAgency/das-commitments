@@ -72,5 +72,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
         }
+
+        public Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetProviderResponse>($"api/providers/{providerId}", null, cancellationToken);
+        }
     }
 }
