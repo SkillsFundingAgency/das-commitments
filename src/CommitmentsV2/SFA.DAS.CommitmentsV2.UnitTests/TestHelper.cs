@@ -6,8 +6,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests
     {
         public static T Clone<T>(T source)
         {
-            var serialized = JsonConvert.SerializeObject(source);
-            return JsonConvert.DeserializeObject<T>(serialized);
+            var settings = new JsonSerializerSettings()
+            {
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+            };
+
+            var serialized = JsonConvert.SerializeObject(source, settings);
+            return JsonConvert.DeserializeObject<T>(serialized, settings);
         }
     }
 }
