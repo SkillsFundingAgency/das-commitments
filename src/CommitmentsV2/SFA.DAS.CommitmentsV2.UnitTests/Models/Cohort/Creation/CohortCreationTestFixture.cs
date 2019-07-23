@@ -145,6 +145,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.AreEqual(LastAction.None, Cohort.LastAction);
         }
 
+        public void VerifyCohortIsNotDraft()
+        {
+            Assert.AreEqual(LastAction.Amend, Cohort.LastAction);
+        }
+
         public void VerifyCohortBelongsToLegalEntity()
         {
             Assert.AreEqual(AccountLegalEntity.LegalEntityId, Cohort.LegalEntityId);

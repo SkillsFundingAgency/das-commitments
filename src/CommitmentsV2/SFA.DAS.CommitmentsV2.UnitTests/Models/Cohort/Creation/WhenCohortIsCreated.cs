@@ -127,6 +127,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyLastUpdatedFieldsAreSetForParty(creatingParty);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenCohortIsADraftIfAssignedToCreator(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortIsDraft();
+        }
+
+        [Test]
+        public void ThenCohortIsNotADraftIfAssignedToOtherParty()
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .WithInitialParty(Party.Provider)
+                .CreateCohort();
+
+            _fixture.VerifyCohortIsNotDraft();
+        }
+
         [Test]
         public void ThenMessageMustBeSetCorrectly()
         {
