@@ -117,7 +117,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         public void VerifyMessageIsAdded()
         {
-            Assert.IsTrue(Cohort.Messages.Any(x => x.Text == Message));
+            var createdBy = CreatingParty == Party.Employer ? 0 : 1;
+
+            Assert.IsTrue(Cohort.Messages.Any(x =>
+                x.Text == Message && x.Author == UserInfo.UserDisplayName && x.CreatedBy == createdBy));
         }
 
         public void VerifyNoMessageIsAdded()

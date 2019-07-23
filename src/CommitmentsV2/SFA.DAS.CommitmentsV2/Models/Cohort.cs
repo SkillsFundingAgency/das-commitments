@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             if (!string.IsNullOrWhiteSpace(message))
             {
-                AddMessage(message, originatingParty);
+                AddMessage(message, originatingParty, userInfo);
             }
 
             if (draftApprenticeshipDetails != null)
@@ -121,10 +121,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
-        private void AddMessage(string text, Party sendingParty)
+        private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
         {
-            var message = new Message(this, sendingParty, "test", text); //todo: pass in author
-            Messages.Add(message);
+            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
