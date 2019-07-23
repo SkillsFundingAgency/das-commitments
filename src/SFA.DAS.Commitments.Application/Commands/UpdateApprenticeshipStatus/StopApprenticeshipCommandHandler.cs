@@ -161,16 +161,7 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus
                     throw new ValidationException("Invalid Date of Change. Date cannot be in the future.");
 
                 if ( dateOfChange.Date < apprenticeship.StartDate.Value.Date)
-                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");
-
-                if (apprenticeship.PaymentStatus != PaymentStatus.Withdrawn)
-                {
-                    if (apprenticeship.PaymentStatus != PaymentStatus.PendingApproval &&
-                        _academicYearValidator.Validate(dateOfChange.Date) == AcademicYearValidationResult.NotWithinFundingPeriod)
-                    {
-                        throw new ValidationException("Invalid Date of Change. Date cannot be before the academic year start date.");
-                    }
-                }  
+                    throw new ValidationException("Invalid Date of Change. Date cannot be before the training start date.");                
             }
         }
 
