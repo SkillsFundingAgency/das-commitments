@@ -18,12 +18,25 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<Apprenticeship>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
+
+            // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
+            Reference = "";
+            CommitmentStatus = CommitmentStatus.New;
+            CreatedOn = DateTime.UtcNow;
+            LastAction = LastAction.None;
         }
 
-        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party originatingParty, UserInfo userInfo) : this()
+        public Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails,
+            Party initialParty,
+            Party originatingParty,
+            string message,
+            UserInfo userInfo) : this()
         {
             CheckOriginatorIsValid(originatingParty);
             CheckInitialPartyIsValid(originatingParty, initialParty);
+            CheckMessageIsValid(originatingParty, initialParty, message);
             CheckDraftApprenticeshipIsValid(originatingParty, initialParty, draftApprenticeshipDetails);
 
             EmployerAccountId = accountLegalEntity.AccountId;
@@ -37,11 +50,10 @@ namespace SFA.DAS.CommitmentsV2.Models
             EditStatus = initialParty.ToEditStatus();
             Originator = originatingParty.ToOriginator();
 
-            // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
-            Reference = "";
-            CommitmentStatus = CommitmentStatus.New;
-            CreatedOn = DateTime.UtcNow;
-            LastAction = LastAction.None;
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                AddMessage(message, originatingParty);
+            }
 
             if (draftApprenticeshipDetails != null)
             {
@@ -107,6 +119,12 @@ namespace SFA.DAS.CommitmentsV2.Models
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
             UpdatedBy(userInfo, modifyingParty);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
+        }
+
+        private void AddMessage(string text, Party sendingParty)
+        {
+            var message = new Message(this, sendingParty, "test", text); //todo: pass in author
+            Messages.Add(message);
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -260,6 +278,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (originator == Party.Provider && initialParty == Party.Employer)
             {
                 throw new DomainException("InitialParty", $"Provider-originated Cohorts cannot initially be with Employer");
+            }
+        }
+
+        private void CheckMessageIsValid(Party originatingParty, Party initialParty, string message)
+        {
+            if (!string.IsNullOrWhiteSpace(message) && originatingParty == initialParty)
+            {
+                throw new DomainException("", "Messages can only be supplied when assigning to the other party");
             }
         }
 

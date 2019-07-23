@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, UserInfo userInfo, CancellationToken cancellationToken)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var initialParty = assignToOtherParty ? originatingParty.GetOtherParty() : originatingParty;
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
             }
 
-            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty, userInfo);
+            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty, message, userInfo);
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,

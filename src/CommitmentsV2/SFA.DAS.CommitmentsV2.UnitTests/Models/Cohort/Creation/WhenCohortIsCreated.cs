@@ -126,5 +126,41 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
             _fixture.VerifyLastUpdatedFieldsAreSetForParty(creatingParty);
         }
+
+        [Test]
+        public void ThenMessageMustBeSetCorrectly()
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .WithInitialParty(Party.Provider)
+                .WithMessage("test")
+                .CreateCohort();
+
+            _fixture.VerifyMessageIsAdded();
+        }
+
+        [Test]
+        public void ThenNoMessageIsAddedIfNotSupplied()
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .WithInitialParty(Party.Provider)
+                .CreateCohort();
+
+            _fixture.VerifyNoMessageIsAdded();
+        }
+
+        [TestCase("", false)]
+        [TestCase("Message to self", true)]
+        public void ThenMessageMustBeEmptyIfAssignedToCreator(string message, bool expectThrows)
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .WithInitialParty(Party.Employer)
+                .WithMessage("Test")
+                .CreateCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
     }
 }

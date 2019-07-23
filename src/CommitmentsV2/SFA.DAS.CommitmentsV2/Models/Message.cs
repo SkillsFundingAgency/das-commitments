@@ -1,8 +1,9 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class Message
+    public class Message
     {
         public long Id { get; set; }
         public long CommitmentId { get; set; }
@@ -12,5 +13,18 @@ namespace SFA.DAS.CommitmentsV2.Models
         public byte CreatedBy { get; set; }
 
         public virtual Cohort Cohort { get; set; }
+
+        public Message()
+        {
+
+        }
+
+        public Message(Cohort cohort, Party sendingParty, string author, string text)
+        {
+            Author = author;
+            CreatedBy = sendingParty == Party.Employer ? (byte)0 : (byte)1; //todo: make this nicer
+            CreatedDateTime = DateTime.UtcNow;
+            Text = text;
+        }
     }
 }

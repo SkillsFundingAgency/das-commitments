@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     public interface ICohortDomainService
     {
         Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, UserInfo userInfo, CancellationToken cancellationToken);
+            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, string message, UserInfo userInfo, CancellationToken cancellationToken);
 
         Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken);
 

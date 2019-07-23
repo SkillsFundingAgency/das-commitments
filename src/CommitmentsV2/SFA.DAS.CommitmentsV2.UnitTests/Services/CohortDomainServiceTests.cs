@@ -171,7 +171,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
             public List<DomainError> DomainErrors { get; }
-
+            public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
 
             public CohortDomainServiceTestFixture()
@@ -189,6 +189,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 ProviderId = 1;
                 AccountLegalEntityId = 2;
                 CohortId = 3;
+                Message = fixture.Create<string>();
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
@@ -348,7 +349,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, AccountLegalEntityId,
-                        DraftApprenticeshipDetails, false, UserInfo, new CancellationToken());
+                        DraftApprenticeshipDetails, false, Message, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
@@ -399,13 +400,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 if (party == Party.Provider)
                 {
                     Provider.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object,
-                        DraftApprenticeshipDetails, party, UserInfo));
+                        DraftApprenticeshipDetails, party, Message, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object,
-                        DraftApprenticeshipDetails, party, UserInfo));
+                        DraftApprenticeshipDetails, party, Message, UserInfo));
                 }
             }
 

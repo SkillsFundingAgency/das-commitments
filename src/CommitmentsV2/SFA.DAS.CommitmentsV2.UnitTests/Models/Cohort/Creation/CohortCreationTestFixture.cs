@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         private readonly Fixture _autoFixture = new Fixture();
         public Party CreatingParty { get; private set; }
         public Party? InitialParty { get; private set; }
+        public string Message { get; private set; }
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
         public CommitmentsV2.Models.Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
@@ -56,6 +57,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             return this;
         }
 
+        public CohortCreationTestFixture WithMessage(string message)
+        {
+            Message = message;
+            return this;
+        }
+
         public CohortCreationTestFixture WithDraftApprenticeship()
         {
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
@@ -79,6 +86,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                     DraftApprenticeshipDetails,
                     InitialParty ?? CreatingParty,
                     CreatingParty,
+                    Message,
                     UserInfo);
             }
             catch (ArgumentException ex)
@@ -106,6 +114,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             Assert.IsTrue(Cohort.Apprenticeships.Any());
         }
+
+        public void VerifyMessageIsAdded()
+        {
+            Assert.IsTrue(Cohort.Messages.Any(x => x.Text == Message));
+        }
+
+        public void VerifyNoMessageIsAdded()
+        {
+            Assert.IsFalse(Cohort.Messages.Any());
+        }
+
 
         public void VerifyException<T>()
         {
