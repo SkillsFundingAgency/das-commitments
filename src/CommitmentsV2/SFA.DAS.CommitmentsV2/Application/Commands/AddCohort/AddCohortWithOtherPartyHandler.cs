@@ -24,7 +24,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IEncodingService encodingService,
             ILogger<AddCohortWithOtherPartyHandler> logger,
-            IMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,
             ICohortDomainService cohortDomainService)
         {
             _dbContext = dbContext;
