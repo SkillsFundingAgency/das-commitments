@@ -64,6 +64,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
+        [Route("with-other-party")]
         public async Task<IActionResult> CreateCohortWithOtherParty([FromBody]CreateCohortWithOtherPartyRequest request)
         {
             var command = await _addCohortWithOtherPartyMapper.Map(request);

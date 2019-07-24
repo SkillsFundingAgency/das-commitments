@@ -58,6 +58,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task CreateCohortWithOtherParty_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+
+            await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/with-other-party", _fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task CreateCohortWithOtherParty_VerifyResponseWasReturned()
+        {
+            _fixture.SetupResponseForCreateCohortWithOtherParty();
+            var result = await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None);
+            Assert.IsNotNull(result);
+        }
+
+        [Test]
         public async Task UpdateDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             const long cohortId = 67890;
@@ -86,6 +102,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
         public Mock<IRestHttpClient> MockRestHttpClient { get; }
         public CreateCohortRequest CreateCohortRequest { get; }
+        public CreateCohortWithOtherPartyRequest CreateCohortWithOtherPartyRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
         public long CohortId { get; set; }
         public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
@@ -96,6 +113,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             MockRestHttpClient = new Mock<IRestHttpClient>();
             CommitmentsApiClient = new Client.CommitmentsApiClient(MockRestHttpClient.Object);
             CreateCohortRequest = new CreateCohortRequest();
+            CreateCohortWithOtherPartyRequest = new CreateCohortWithOtherPartyRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
             CohortId = 123;
             AddDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
@@ -104,6 +122,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public WhenCallingTheEndpointsFixture SetupResponseForCreateCohort()
         {
             MockRestHttpClient.Setup(x => x.PostAsJson<CreateCohortRequest, CreateCohortResponse>(It.IsAny<string>(), It.IsAny<CreateCohortRequest>(), CancellationToken.None))
+                .ReturnsAsync(new CreateCohortResponse());
+            return this;
+        }
+
+        public WhenCallingTheEndpointsFixture SetupResponseForCreateCohortWithOtherParty()
+        {
+            MockRestHttpClient.Setup(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>(It.IsAny<string>(), It.IsAny<CreateCohortWithOtherPartyRequest>(), CancellationToken.None))
                 .ReturnsAsync(new CreateCohortResponse());
             return this;
         }
