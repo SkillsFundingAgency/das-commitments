@@ -17,13 +17,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
+        private readonly IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> _addCohortWithOtherPartyMapper;
 
         public CohortController(
             IMediator mediator,
-            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper)
+            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper,
+            IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> addCohortWithOtherPartyMapper)
         {
             _mediator = mediator;
             _addCohortMapper = addCohortMapper;
+            _addCohortWithOtherPartyMapper = addCohortWithOtherPartyMapper;
         }
 
         [HttpGet]
@@ -51,6 +54,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
         {
             var command = await _addCohortMapper.Map(request);
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCohortWithOtherParty([FromBody]CreateCohortWithOtherPartyRequest request)
+        {
+            var command = await _addCohortWithOtherPartyMapper.Map(request);
             var result = await _mediator.Send(command);
 
             return Ok(new CreateCohortResponse
