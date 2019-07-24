@@ -16,15 +16,25 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public Message()
         {
-
         }
 
         public Message(Cohort cohort, Party sendingParty, string author, string text)
         {
             Author = author;
-            CreatedBy = sendingParty == Party.Employer ? (byte)0 : (byte)1; //todo: make this nicer
+            CreatedBy = ConvertSendingPartyToCreatedBy(sendingParty);
             CreatedDateTime = DateTime.UtcNow;
             Text = text;
+        }
+
+        private byte ConvertSendingPartyToCreatedBy(Party sendingParty)
+        {
+            switch (sendingParty)
+            {
+                case Party.Employer: return 0;
+                case Party.Provider: return 1;
+                default:
+                    throw new ArgumentException($"Cannot create message from {sendingParty}");
+            }
         }
     }
 }
