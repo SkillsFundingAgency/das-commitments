@@ -37,10 +37,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         {
             var db = _dbContext.Value;
 
-            var cohort = await _cohortDomainService.CreateCohort(command.ProviderId,
+            var cohort = await _cohortDomainService.CreateCohortWithOtherParty(command.ProviderId,
                 command.AccountLegalEntityId,
-                false,
-                string.Empty,
+                command.Message,
                 command.UserInfo,
                 cancellationToken);
 
@@ -51,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await db.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation($"Saved cohort. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{cohort?.Id} Apprenticeship:{cohort?.Apprenticeships?.FirstOrDefault()?.Id}");
+            _logger.LogInformation($"Saved cohort with other party. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Commitment-Id:{cohort?.Id}");
 
             var response = new AddCohortResponse
             {
