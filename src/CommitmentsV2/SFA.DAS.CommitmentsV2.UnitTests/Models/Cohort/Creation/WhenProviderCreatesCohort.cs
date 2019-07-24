@@ -29,17 +29,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         }
 
         [Test]
-        public void ThenCohortIsADraft()
-        {
-            _fixture
-                .WithCreatingParty(Party.Provider)
-                .WithDraftApprenticeship()
-                .CreateCohort();
-
-            _fixture.VerifyCohortIsDraft();
-        }
-
-        [Test]
         public void ThenCohortCannotBeEmpty()
         {
             _fixture

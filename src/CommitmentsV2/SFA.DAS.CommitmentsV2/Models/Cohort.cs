@@ -49,6 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ProviderName = provider.Name;
             EditStatus = initialParty.ToEditStatus();
             Originator = originatingParty.ToOriginator();
+            if (originatingParty != initialParty) LastAction = LastAction.Amend;
 
             if (!string.IsNullOrWhiteSpace(message))
             {
