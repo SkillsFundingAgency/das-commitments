@@ -67,6 +67,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public void ThenCohortMustBeWithCreator(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortIsWithCreator();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenCohortCannotBeEmpty(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .CreateCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public void ThenCohortIsUnapproved(Party creatingParty)
         {
             _fixture
@@ -105,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
-        public void ThenCohortContainsDraftApprenticeshipIfIncluded(Party creatingParty)
+        public void ThenCohortContainsDraftApprenticeship(Party creatingParty)
         {
             _fixture
                 .WithCreatingParty(creatingParty)
@@ -139,51 +162,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyCohortIsDraft();
         }
 
-        [Test]
-        public void ThenCohortIsNotADraftIfAssignedToOtherParty()
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenNoMessageIsAdded(Party creatingParty)
         {
             _fixture
-                .WithCreatingParty(Party.Employer)
-                .WithInitialParty(Party.Provider)
-                .CreateCohort();
-
-            _fixture.VerifyCohortIsNotDraft();
-        }
-
-        [Test]
-        public void ThenMessageMustBeSetCorrectly()
-        {
-            _fixture
-                .WithCreatingParty(Party.Employer)
-                .WithInitialParty(Party.Provider)
-                .WithMessage("test")
-                .CreateCohort();
-
-            _fixture.VerifyMessageIsAdded();
-        }
-
-        [Test]
-        public void ThenNoMessageIsAddedIfNotSupplied()
-        {
-            _fixture
-                .WithCreatingParty(Party.Employer)
-                .WithInitialParty(Party.Provider)
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
                 .CreateCohort();
 
             _fixture.VerifyNoMessageIsAdded();
         }
 
-        [TestCase("", false)]
-        [TestCase("Message to self", true)]
-        public void ThenMessageMustBeEmptyIfAssignedToCreator(string message, bool expectThrows)
-        {
-            _fixture
-                .WithCreatingParty(Party.Employer)
-                .WithInitialParty(Party.Employer)
-                .WithMessage("Test")
-                .CreateCohort();
 
-            _fixture.VerifyException<DomainException>();
-        }
     }
 }

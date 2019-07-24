@@ -10,8 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         Cohort CreateCohort(Provider provider,
             AccountLegalEntity accountLegalEntity,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
-            Party initialParty,
-            string message,
             UserInfo userInfo);
     }
 }

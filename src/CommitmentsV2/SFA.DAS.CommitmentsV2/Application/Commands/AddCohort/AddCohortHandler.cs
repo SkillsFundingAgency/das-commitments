@@ -45,8 +45,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             var cohort = await _cohortDomainService.CreateCohort(command.ProviderId,
                 command.AccountLegalEntityId,
                 draftApprenticeshipDetails,
-                false,
-                string.Empty,
                 command.UserInfo,
                 cancellationToken);
 

@@ -1,30 +1,27 @@
 ﻿using System;
 using System.Linq;
+using AutoFixture;
+using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork;
-using AutoFixture;
-using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 {
-    public class CohortCreationTestFixture
+    public class CohortCreationWithOtherPartyTestFixture
     {
         private readonly Fixture _autoFixture = new Fixture();
         public Party CreatingParty { get; private set; }
+        public string Message { get; private set; }
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
         public CommitmentsV2.Models.Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
-        public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; private set; }
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
         public UserInfo UserInfo { get; }
 
-        public CohortCreationTestFixture()
+        public CohortCreationWithOtherPartyTestFixture()
         {
             UnitOfWorkContext = new UnitOfWorkContext();
             Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
@@ -44,23 +41,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 _autoFixture.Create<DateTime>());
         }
 
-        public CohortCreationTestFixture WithCreatingParty(Party creatingParty)
+        public CohortCreationWithOtherPartyTestFixture WithCreatingParty(Party creatingParty)
         {
             CreatingParty = creatingParty;
             return this;
         }
-
-        public CohortCreationTestFixture WithDraftApprenticeship()
+        public CohortCreationWithOtherPartyTestFixture WithMessage(string message)
         {
-            DraftApprenticeshipDetails = new DraftApprenticeshipDetails
-            {
-                FirstName = _autoFixture.Create<string>(),
-                LastName = _autoFixture.Create<string>(),
-                ReservationId = Guid.NewGuid()
-            };
-
+            Message = message;
             return this;
         }
+
 
         public void CreateCohort()
         {
@@ -70,8 +61,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             {
                 Cohort = new CommitmentsV2.Models.Cohort(Provider,
                     AccountLegalEntity,
-                    DraftApprenticeshipDetails,
                     CreatingParty,
+                    Message,
                     UserInfo);
             }
             catch (ArgumentException ex)
@@ -95,16 +86,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
         }
 
-        public void VerifyCohortContainsDraftApprenticeship()
+        public void VerifyCohortContainsNoDraftApprenticeships()
         {
-            Assert.IsTrue(Cohort.Apprenticeships.Any());
+            Assert.IsFalse(Cohort.Apprenticeships.Any());
         }
 
+        public void VerifyMessageIsAdded()
+        {
+            var createdBy = CreatingParty == Party.Employer ? 0 : 1;
+
+            Assert.IsTrue(Cohort.Messages.Any(x =>
+                x.Text == Message && x.Author == UserInfo.UserDisplayName && x.CreatedBy == createdBy));
+        }
 
         public void VerifyNoMessageIsAdded()
         {
             Assert.IsFalse(Cohort.Messages.Any());
         }
+
 
         public void VerifyException<T>()
         {
@@ -117,9 +116,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.IsNull(Exception);
         }
 
-        public void VerifyCohortIsDraft()
+
+        public void VerifyCohortIsNotDraft()
         {
-            Assert.AreEqual(LastAction.None, Cohort.LastAction);
+            Assert.AreEqual(LastAction.Amend, Cohort.LastAction);
         }
 
         public void VerifyCohortBelongsToLegalEntity()
@@ -152,23 +152,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             }
         }
 
-        public void VerifyDraftApprenticeshipCreatedEventIsPublished()
+        public void VerifyCohortIsWithOtherParty()
         {
-            var draftApprenticeship = Cohort.Apprenticeships.Single();
-
-            UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(
-                    new DraftApprenticeshipCreatedEvent(
-                        cohortId: Cohort.Id,
-                        draftApprenticeshipId: draftApprenticeship.Id,
-                        uln: draftApprenticeship.Uln,
-                        reservationId: draftApprenticeship.ReservationId.Value,
-                        createdOn: draftApprenticeship.CreatedOn.Value));
-        }
-
-        public void VerifyCohortIsWithCreator()
-        {
-            Assert.AreEqual(CreatingParty.ToEditStatus(), Cohort.EditStatus);
+            Assert.AreEqual(CreatingParty.GetOtherParty().ToEditStatus(), Cohort.EditStatus);
         }
     }
 }

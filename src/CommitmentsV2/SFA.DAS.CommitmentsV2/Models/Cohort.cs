@@ -18,26 +18,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships = new HashSet<Apprenticeship>();
             Messages = new HashSet<Message>();
             TransferRequests = new HashSet<TransferRequest>();
-
-            // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
-            Reference = "";
-            CommitmentStatus = CommitmentStatus.New;
-            CreatedOn = DateTime.UtcNow;
-            LastAction = LastAction.None;
         }
 
-        public Cohort(Provider provider,
-            AccountLegalEntity accountLegalEntity,
-            DraftApprenticeshipDetails draftApprenticeshipDetails,
-            Party initialParty,
-            Party originatingParty,
-            string message,
-            UserInfo userInfo) : this()
+        internal Cohort(Provider provider, AccountLegalEntity accountLegalEntity, Party originatingParty) : this()
         {
-            CheckOriginatorIsValid(originatingParty);
-            CheckInitialPartyIsValid(originatingParty, initialParty);
-            CheckMessageIsValid(originatingParty, initialParty, message);
-            CheckDraftApprenticeshipIsValid(originatingParty, initialParty, draftApprenticeshipDetails);
+            CheckOriginatorIsEmployerOrProvider(originatingParty);
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
@@ -47,19 +32,41 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
             ProviderId = provider.UkPrn;
             ProviderName = provider.Name;
-            EditStatus = initialParty.ToEditStatus();
+
+            // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
+            Reference = "";
             Originator = originatingParty.ToOriginator();
-            if (originatingParty != initialParty) LastAction = LastAction.Amend;
+            CommitmentStatus = CommitmentStatus.New;
+            CreatedOn = DateTime.UtcNow;
+        }
 
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                AddMessage(message, originatingParty, userInfo);
-            }
+        //constructor for creating cohort with self
+        internal Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails,
+            Party originatingParty,
+            UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty)
+        {
+            CheckOriginatorIsEmployerOrProvider(originatingParty);
+            CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
 
-            if (draftApprenticeshipDetails != null)
-            {
-                AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty, userInfo);
-            }
+            EditStatus = originatingParty.ToEditStatus();
+            LastAction = LastAction.None;
+            AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty, userInfo);
+        }
+
+        //constructor for creating cohort with other party
+        internal Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            Party originatingParty,
+            string message,
+            UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty)
+        {
+            CheckOriginatorIsEmployer(originatingParty);
+
+            EditStatus = originatingParty.GetOtherParty().ToEditStatus();
+            LastAction = LastAction.Amend;
+            AddMessage(message, originatingParty, userInfo);
         }
 
         public virtual long Id { get; set; }
@@ -242,7 +249,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckOriginatorIsValid(Party originator)
+        private void CheckOriginatorIsEmployerOrProvider(Party originator)
         {
             if (originator != Party.Employer && originator != Party.Provider)
             {
@@ -250,42 +257,20 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckDraftApprenticeshipIsValid(Party originator, Party initialParty, DraftApprenticeshipDetails draftApprenticeshipDetails)
+
+        private void CheckOriginatorIsEmployer(Party originator)
         {
-            if (originator == Party.Provider && draftApprenticeshipDetails == null)
+            if (originator != Party.Employer)
             {
-                throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
-            }
-
-            if (originator == Party.Employer && initialParty == Party.Employer && draftApprenticeshipDetails == null)
-            {
-                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts cannot be empty if Employer is initial party");
-            }
-
-            if (originator == Party.Employer && initialParty == Party.Provider && draftApprenticeshipDetails != null)
-            {
-                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts must be empty if Provider is initial party");
+                throw new DomainException("Creator", $"Cohorts can only be created with the other party by the Employer; {originator} is not valid");
             }
         }
 
-        private void CheckInitialPartyIsValid(Party originator, Party initialParty)
+        private void CheckDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (initialParty != Party.Employer && initialParty != Party.Provider)
+            if (draftApprenticeshipDetails == null)
             {
-                throw new DomainException("InitialParty", $"Cohorts can be with Employer or Provider; {initialParty} is not valid");
-            }
-
-            if (originator == Party.Provider && initialParty == Party.Employer)
-            {
-                throw new DomainException("InitialParty", $"Provider-originated Cohorts cannot initially be with Employer");
-            }
-        }
-
-        private void CheckMessageIsValid(Party originatingParty, Party initialParty, string message)
-        {
-            if (!string.IsNullOrWhiteSpace(message) && originatingParty == initialParty)
-            {
-                throw new DomainException("", "Messages can only be supplied when assigning to the other party");
+                throw new DomainException("DraftApprenticeshipDetails", "DraftApprenticeshipDetails must be supplied");
             }
         }
 
