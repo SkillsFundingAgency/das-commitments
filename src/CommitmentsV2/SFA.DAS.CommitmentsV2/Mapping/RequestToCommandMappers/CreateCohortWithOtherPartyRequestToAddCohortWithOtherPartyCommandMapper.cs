@@ -12,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
             {
                 AccountLegalEntityId = source.AccountLegalEntityId,
                 ProviderId = source.ProviderId,
+                Message = source.Message,
                 UserInfo = source.UserInfo
             });
         }

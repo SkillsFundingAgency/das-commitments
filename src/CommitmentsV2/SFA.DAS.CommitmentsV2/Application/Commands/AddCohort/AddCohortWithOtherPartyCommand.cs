@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
     {
         public long AccountLegalEntityId { get; set; }
         public long ProviderId { get; set; }
+        public string Message { get; set; }
         public UserInfo UserInfo { get; set; }
     }
 }

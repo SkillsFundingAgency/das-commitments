@@ -23,5 +23,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
             const long providerId = 123;
             return AssertPropertySet(input => input.ProviderId = providerId, output => output.ProviderId == providerId);
         }
+
+        [Test]
+        public Task Map_Message_ShouldBeSet()
+        {
+            const string message = "hello";
+            return AssertPropertySet(input => input.Message = message, output => output.Message == message);
+        }
     }
 }
