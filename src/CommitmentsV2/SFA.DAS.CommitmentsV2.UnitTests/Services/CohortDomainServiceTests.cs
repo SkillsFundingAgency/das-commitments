@@ -47,6 +47,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task CreateCohortWithOtherParty_Creates_Cohort()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohortWithOtherParty();
+
+            _fixture.VerifyCohortCreationWithOtherParty();
+        }
+
+        [TestCase(Party.Employer, false)]
+        [TestCase(Party.Provider, true)]
+        [TestCase(Party.TransferSender, true)]
+        public async Task CreateCohortWithOtherParty_Throws_If_Not_Employer(Party creatingParty, bool expectThrows)
+        {
+            await _fixture
+                .WithParty(creatingParty)
+                .CreateCohortWithOtherParty();
+
+            if (expectThrows)
+            {
+                _fixture.VerifyException<InvalidOperationException>();
+            }
+            else
+            {
+                _fixture.VerifyNoException();
+            }
+        }
+
+        [Test]
         public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
         {
             _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer);
@@ -170,6 +199,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
+            public Exception Exception { get; private set; }
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
@@ -224,6 +254,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 AuthenticationService = new Mock<IAuthenticationService>();
 
+                Exception = null;
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
 
@@ -349,13 +380,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 try
                 {
                     var result = await CohortDomainService.CreateCohort(ProviderId, AccountLegalEntityId,
-                        DraftApprenticeshipDetails, false, Message, UserInfo, new CancellationToken());
+                        DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
                 catch (DomainException ex)
                 {
                     DomainErrors.AddRange(ex.DomainErrors);
+                    return null;
+                }
+            }
+
+            public async Task<Cohort> CreateCohortWithOtherParty()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountLegalEntityId, Message, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                    return result;
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Exception = ex;
                     return null;
                 }
             }
@@ -393,21 +447,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-
-
             public void VerifyCohortCreation(Party party)
             {
                 if (party == Party.Provider)
                 {
                     Provider.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object,
-                        DraftApprenticeshipDetails, party, Message, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object,
-                        DraftApprenticeshipDetails, party, Message, UserInfo));
+                        DraftApprenticeshipDetails, UserInfo));
                 }
+            }
+
+            public void VerifyCohortCreationWithOtherParty()
+            {
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object, Message, UserInfo));
             }
 
             public void VerifyProviderDraftApprenticeshipAdded()
@@ -497,6 +554,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyOverlapExceptionOnEndDate()
             {
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
+            }
+
+            public void VerifyException<T>()
+            {
+                Assert.IsNotNull(Exception);
+                Assert.IsInstanceOf<T>(Exception);
+            }
+
+            public void VerifyNoException()
+            {
+                Assert.IsNull(Exception);
             }
         }
     }
