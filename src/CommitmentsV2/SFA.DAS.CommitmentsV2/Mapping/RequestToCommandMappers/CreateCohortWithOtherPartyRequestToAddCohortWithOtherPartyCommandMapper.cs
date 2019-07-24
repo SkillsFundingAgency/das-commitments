@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
 {
-    public class CreateCohortWithOtherPartyRequestToAddCohortCommandMapper : IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand>
+    public class CreateCohortWithOtherPartyRequestToAddCohortWithOtherPartyCommandMapper : IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand>
     {
         public Task<AddCohortWithOtherPartyCommand> Map(CreateCohortWithOtherPartyRequest source)
         {
