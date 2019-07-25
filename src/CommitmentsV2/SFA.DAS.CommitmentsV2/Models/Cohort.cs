@@ -133,7 +133,9 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
         {
-            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text));
+            //TODO : Remove this once we have branch CV-320 merged into master
+            var name = userInfo?.UserDisplayName ?? "Unknown";
+            Messages.Add(new Message(this, sendingParty, name, text));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
