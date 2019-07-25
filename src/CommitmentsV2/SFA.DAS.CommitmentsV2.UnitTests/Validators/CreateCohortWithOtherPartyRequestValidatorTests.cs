@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using Moq;
+using MoreLinq;
 using NUnit.Framework;
 using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -28,6 +29,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         {
             AssertValidationResult(request => request.ProviderId, value, expectedValid);
         }
+
+        [TestCase("", true)]
+        [TestCase(null, true)]
+        [TestCase("XXXX! XXXXX XXXXX", true)]
+        public void Validate_Message_ShouldBeValidated(string value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.Message, value, expectedValid);
+        }
+
+        [Test]
+        public void Validate_MessageTooLong_ShouldBeInValid()
+        {
+            var value = new string('X',501);
+
+            AssertValidationResult(request => request.Message, value, false);
+        }
+
 
         [Test]
         public void Validate_UserInfoIsNull_ShouldBeValid()
