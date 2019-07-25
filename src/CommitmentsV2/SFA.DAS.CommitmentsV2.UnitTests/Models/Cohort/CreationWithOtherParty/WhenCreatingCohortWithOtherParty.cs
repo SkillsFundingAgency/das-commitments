@@ -19,8 +19,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             _fixture = new CohortCreationWithOtherPartyTestFixture();
         }
 
-
-
         [TestCase(Party.Employer, false)]
         [TestCase(Party.Provider, true)]
         [TestCase(Party.TransferSender, true)]
@@ -38,7 +36,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             {
                 _fixture.VerifyNoException();
             }
-            
         }
 
         [Test]
