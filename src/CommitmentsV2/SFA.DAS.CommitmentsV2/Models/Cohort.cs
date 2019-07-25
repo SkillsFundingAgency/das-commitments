@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        internal Cohort(Provider provider, AccountLegalEntity accountLegalEntity, Party originatingParty) : this()
+        private Cohort(Provider provider, AccountLegalEntity accountLegalEntity, Party originatingParty) : this()
         {
             CheckOriginatorIsEmployerOrProvider(originatingParty);
 
@@ -38,24 +38,26 @@ namespace SFA.DAS.CommitmentsV2.Models
             Originator = originatingParty.ToOriginator();
             CommitmentStatus = CommitmentStatus.New;
             CreatedOn = DateTime.UtcNow;
+            LastAction = LastAction.None;
         }
 
-        //constructor for creating cohort with self
+        /// <summary>
+        /// Creates a cohort with a draft apprenticeship
+        /// </summary>
         internal Cohort(Provider provider,
             AccountLegalEntity accountLegalEntity,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             Party originatingParty,
             UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty)
         {
-            CheckOriginatorIsEmployerOrProvider(originatingParty);
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
-
             EditStatus = originatingParty.ToEditStatus();
-            LastAction = LastAction.None;
             AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty, userInfo);
         }
 
-        //constructor for creating cohort with other party
+        /// <summary>
+        /// Creates an empty cohort with other party
+        /// </summary>
         internal Cohort(Provider provider,
             AccountLegalEntity accountLegalEntity,
             Party originatingParty,
