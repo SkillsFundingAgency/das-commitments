@@ -8,6 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     public interface ICommitmentsApiClient
     {
         Task Ping();
+        Task<WhoAmIResponse> WhoAmI();
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
 
         // To be removed latter

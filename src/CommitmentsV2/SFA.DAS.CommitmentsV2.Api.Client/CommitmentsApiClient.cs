@@ -20,6 +20,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get("api/ping");
         }
 
+        public Task<WhoAmIResponse> WhoAmI()
+        {
+            return _client.Get<WhoAmIResponse>("api/whoami");
+        }
+
         public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohorts", request, cancellationToken);
