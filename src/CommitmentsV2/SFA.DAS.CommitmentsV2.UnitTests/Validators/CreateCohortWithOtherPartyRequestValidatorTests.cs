@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using Moq;
-using MoreLinq;
 using NUnit.Framework;
 using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
@@ -45,7 +44,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
 
             AssertValidationResult(request => request.Message, value, false);
         }
-
 
         [Test]
         public void Validate_UserInfoIsNull_ShouldBeValid()
