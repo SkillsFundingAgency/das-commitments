@@ -17,6 +17,7 @@
 
 using StructureMap;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
+using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -30,7 +31,8 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             return new Container(c =>
             {
                 c.AddRegistry<DefaultRegistry>();
-                c.AddRegistry<NServiceBusRegistry>();                
+                c.AddRegistry<NServiceBusRegistry>();    
+                c.AddRegistry<ReservationsApiClientRegistry>();
                 c.Policies.Add<CurrentDatePolicy>();
                 c.AddRegistry<EventsUpgradeRegistry>();                
             });

@@ -35,6 +35,7 @@ using StructureMap.Graph;
 using SFA.DAS.Learners.Validators;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.HashingService;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {
@@ -93,6 +94,15 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<ILoggingContext>().Use(x => new WebLoggingContext(new HttpContextWrapper(HttpContext.Current)));
             For<ILog>().Use(c => new NLogLogger(c.ParentType, c.GetInstance<ILoggingContext>(), null)).AlwaysUnique();
             For<ICommitmentsLogger>().Use(x => GetBaseLogger(x)).AlwaysUnique();
+
+            For<ILoggerFactory>().Use(ctx => CreateLoggerFactory()).Singleton();
+        }
+
+        private ILoggerFactory CreateLoggerFactory()
+        {
+            var loggerFactory = new LoggerFactory();
+
+            return loggerFactory;
         }
 
         private ICommitmentsLogger GetBaseLogger(IContext x)

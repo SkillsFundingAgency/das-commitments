@@ -39,6 +39,14 @@ namespace SFA.DAS.Commitments.Api.Client
             return await GetValidation(url, requests);
         }
 
+        public async Task<ReservationValidationResult> ValidateReservation(ReservationValidationRequest request)
+        {
+            var url = $"{_configuration.BaseUrl}api/validation/apprenticeships/reservation";
+            var data = JsonConvert.SerializeObject(request);
+            var result = await PostAsync(url, data);
+            return JsonConvert.DeserializeObject<ReservationValidationResult>(result);
+        }
+
         private async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> GetValidation(string url, IEnumerable<ApprenticeshipOverlapValidationRequest> requests)
         {
             var data = JsonConvert.SerializeObject(requests);

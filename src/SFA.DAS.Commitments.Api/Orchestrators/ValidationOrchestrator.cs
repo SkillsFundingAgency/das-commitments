@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.Commitments.Api.Types.Validation;
+using SFA.DAS.Commitments.Application.Commands.ValidateReservation;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 
@@ -21,6 +22,20 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         {
             _mediator = mediator;
             _logger = logger;
+        }
+
+        public async Task<ReservationValidationResult> ValidateReservation(ReservationValidationRequest request)
+        {
+            var command = new ValidateReservationRequest
+            {
+                ApprenticeshipId = request.ApprenticeshipId,
+                StartDate = request.ProposedStartDate,
+                CourseCode = request.ProposedCourseCode
+            };
+
+            var result = await _mediator.SendAsync(command);
+
+            return new ReservationValidationResult(result.ReservationValidationResult.Errors);
         }
 
         public async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlappingApprenticeships(

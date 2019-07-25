@@ -9,10 +9,13 @@ using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -37,6 +40,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IApprenticeshipEventsList> _apprenticeshipEventsList;
         private Mock<IApprenticeshipEventsPublisher> _apprenticeshipEventsPublisher;
+        private Mock<IReservationValidationService> _reservationsValidationService;
 
         private CreateApprenticeshipUpdateCommandHandler _handler;
         private Apprenticeship _existingApprenticeship;
@@ -54,6 +58,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _messagePublisher = new Mock<IMessagePublisher>();
             _apprenticeshipEventsList = new Mock<IApprenticeshipEventsList>();
             _apprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
+            _reservationsValidationService = new Mock<IReservationValidationService>();
 
             _validator.Setup(x => x.Validate(It.IsAny<CreateApprenticeshipUpdateCommand>()))
                 .Returns(() => new ValidationResult());
@@ -87,6 +92,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _commitmentRepository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment());
             _mockCurrentDateTime.SetupGet(x => x.Now).Returns(DateTime.UtcNow);
 
+            _reservationsValidationService
+                .Setup(rvs => rvs.CheckReservation(It.IsAny<ReservationValidationServiceRequest>()))
+                .ReturnsAsync(new ReservationValidationResult(new ReservationValidationError[0]));
+
             _handler = new CreateApprenticeshipUpdateCommandHandler(
                 _validator.Object, 
                 _apprenticeshipUpdateRepository.Object, 
@@ -98,7 +107,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 _mockCurrentDateTime.Object,
                 _messagePublisher.Object,
                 _apprenticeshipEventsList.Object,
-                _apprenticeshipEventsPublisher.Object);
+                _apprenticeshipEventsPublisher.Object,
+                _reservationsValidationService.Object);
         }
 
         [Test]
@@ -568,5 +578,63 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
                 It.Is<DateTime?>(p=>p == _mockCurrentDateTime.Object.Now), null));
             _apprenticeshipEventsPublisher.Verify(x=>x.Publish(_apprenticeshipEventsList.Object));
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ThenTheReservationIsValidatedIfItHasAValue(bool setReservationId)
+        {
+            _existingApprenticeship.ReservationId = setReservationId ? Guid.NewGuid() : (Guid?)null;
+
+            _reservationsValidationService
+                .Setup(rc => rc.CheckReservation(
+                        It.Is<ReservationValidationServiceRequest>(msg => msg.ReservationId == _existingApprenticeship.ReservationId)))
+                .ReturnsAsync(new ReservationValidationResult(new ReservationValidationError[0]));
+
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
+            };
+
+            await _handler.Handle(command);
+
+            _reservationsValidationService
+                .Verify(rc => rc.CheckReservation(
+                        It.Is<ReservationValidationServiceRequest>(msg => msg.ReservationId == _existingApprenticeship.ReservationId)),
+                    Times.Once());
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task ThenAnExceptionIsThrownIfReservationExistsAndFailsValidation(bool failValidation)
+        {
+            _existingApprenticeship.ReservationId = Guid.NewGuid();
+
+            var failures = failValidation ? new[] { new ReservationValidationError("Property", "Reason") } : new ReservationValidationError[0];
+
+            var validationFailures = new ReservationValidationResult(failures);
+
+            _reservationsValidationService
+                .Setup(rc => rc.CheckReservation(
+                    It.Is<ReservationValidationServiceRequest>(msg => msg.ReservationId == _existingApprenticeship.ReservationId)))
+                .ReturnsAsync(validationFailures);
+
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate()
+            };
+
+            if (failValidation)
+            {
+                Assert.ThrowsAsync<ValidationException>(() =>
+                    _handler.Handle(command));
+            }
+            else
+            {
+                await _handler.Handle(command);
+            }
+        }
+
     }
 }
