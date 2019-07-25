@@ -6,8 +6,9 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
+    [ApiController]
     [Route("api/providers")]
-    public class ProviderController : Controller
+    public class ProviderController : ControllerBase
     {
         private readonly IMediator _mediator;
 
