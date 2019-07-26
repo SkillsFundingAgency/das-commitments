@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
-    public class GetCohortSummaryRequest : IRequest<GetCohortSummaryResponse>
+    public class GetCohortSummaryQuery : IRequest<GetCohortSummaryQueryResult>
     {
         public long CohortId { get; set; }
     }

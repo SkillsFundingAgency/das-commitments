@@ -13,16 +13,19 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 {
     [TestFixture]
-    public class GetCohortSummaryHandlerTests
+    public class GetCohortSummaryQueryHandlerTests
     {
         const long CohortId = 456;
         const string LegalEntityName = "ACME Fireworks";
         const string ProviderName = "ACME Training";
-        public EditStatus EditStatus = EditStatus.Both; 
+        public EditStatus EditStatus = EditStatus.Both;
+        public string LatestMessageCreatedByEmployer = "ohayou";
+        public string LatestMessageCreatedByProvider = "konbanwa";
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -58,14 +61,26 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return CheckCommandResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
         }
 
-        private async Task CheckCommandResponse(Action<GetCohortSummaryResponse> assert)
+        [Test]
+        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByEmployer()
+        {
+            return CheckCommandResponse(response => Assert.AreEqual(LatestMessageCreatedByEmployer, response.LatestMessageCreatedByEmployer, "Did not return expected latest message created by employer"));
+        }
+
+        [Test]
+        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByProvider()
+        {
+            return CheckCommandResponse(response => Assert.AreEqual(LatestMessageCreatedByProvider, response.LatestMessageCreatedByProvider, "Did not return expected latest message created by provider"));
+        }
+
+        private async Task CheckCommandResponse(Action<GetCohortSummaryQueryResult> assert)
         {
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, LegalEntityName, ProviderName, EditStatus);
+                .AddCommitment(CohortId, LegalEntityName, ProviderName, EditStatus, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider);
 
             // act
-            var response = await fixtures.GetResponse(new GetCohortSummaryRequest { CohortId = CohortId });
+            var response = await fixtures.GetResult(new GetCohortSummaryQuery { CohortId = CohortId });
 
             // Assert
             assert(response);
@@ -76,21 +91,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
     {
         public GetCohortSummaryHandlerTestFixtures()
         {
-            HandlerMock = new Mock<IRequestHandler<GetCohortSummaryRequest, GetCohortSummaryResponse>>();    
-            ValidatorMock = new Mock<IValidator<GetCohortSummaryRequest>>();
+            HandlerMock = new Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>>();    
+            ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();
             SeedCohorts = new List<Cohort>();
         }
 
-        public Mock<IRequestHandler<GetCohortSummaryRequest, GetCohortSummaryResponse>> HandlerMock { get; set; }
+        public Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>> HandlerMock { get; set; }
 
-        public IRequestHandler<GetCohortSummaryRequest, GetCohortSummaryResponse> Handler => HandlerMock.Object;
+        public IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult> Handler => HandlerMock.Object;
 
-        public Mock<IValidator<GetCohortSummaryRequest>> ValidatorMock { get; set; }
-        public IValidator<GetCohortSummaryRequest> Validator => ValidatorMock.Object;
+        public Mock<IValidator<GetCohortSummaryQuery>> ValidatorMock { get; set; }
+        public IValidator<GetCohortSummaryQuery> Validator => ValidatorMock.Object;
 
         public List<Cohort> SeedCohorts { get; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName, EditStatus editStatus)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider)
         {
             var cohort = new Cohort
             {
@@ -107,19 +122,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 Reference = string.Empty
             };
 
+            cohort.Messages.Add(new Message
+            {
+                CreatedBy = 0,
+                CreatedDateTime = DateTime.UtcNow.AddDays(-1),
+                Text = "Foo"
+            });
+            
+            cohort.Messages.Add(new Message
+            {
+                CreatedBy = 0,
+                CreatedDateTime = DateTime.UtcNow,
+                Text = latestMessageCreatedByEmployer
+            });
+            
+            cohort.Messages.Add(new Message
+            {
+                CreatedBy = 1,
+                CreatedDateTime = DateTime.UtcNow.AddDays(-1),
+                Text = "Bar"
+            });
+            
+            cohort.Messages.Add(new Message
+            {
+                CreatedBy = 1,
+                CreatedDateTime = DateTime.UtcNow,
+                Text = latestMessageCreatedByProvider
+            });
+
             SeedCohorts.Add(cohort);
 
             return this;
         }
 
-        public Task<GetCohortSummaryResponse> GetResponse(GetCohortSummaryRequest request)
+        public Task<GetCohortSummaryQueryResult> GetResult(GetCohortSummaryQuery query)
         {
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortSummaryHandler(lazy);
+                var handler = new GetCohortSummaryQueryHandler(lazy);
 
-                return handler.Handle(request, CancellationToken.None);
+                return handler.Handle(query, CancellationToken.None);
             });
         }
 
