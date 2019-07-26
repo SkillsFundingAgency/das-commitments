@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
@@ -48,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await db.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation($"Saved cohort with other party. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Commitment-Id:{cohort?.Id}");
+            _logger.LogInformation($"Saved cohort with other party. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Commitment-Id:{cohort.Id}");
 
             var response = new AddCohortResponse
             {

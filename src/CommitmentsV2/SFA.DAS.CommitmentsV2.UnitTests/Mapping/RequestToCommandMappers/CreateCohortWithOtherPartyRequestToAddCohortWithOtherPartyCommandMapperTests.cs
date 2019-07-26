@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers;
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
 {
     [TestFixture()]
+    [Parallelizable(ParallelScope.Children)]
     public class CreateCohortWithOtherPartyRequestToAddCohortWithOtherPartyCommandMapperTests : MapperTester<CreateCohortWithOtherPartyRequestToAddCohortWithOtherPartyCommandMapper, CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand>
     {
         [Test]

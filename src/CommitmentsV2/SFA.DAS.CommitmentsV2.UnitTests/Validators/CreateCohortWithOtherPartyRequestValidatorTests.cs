@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         private void AssertValidationResult<T>(Expression<Func<CreateCohortWithOtherPartyRequest, T>> property, T value, bool expectedValid)
         {
             // Arrange
-            var validator = new CreateCohortWithOtherPartyRequestValidator(Mock.Of<IAuthorizationService>());
+            var validator = new CreateCohortWithOtherPartyRequestValidator();
 
             // Act
             if (expectedValid)

@@ -52,7 +52,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             return this;
         }
 
-
         public void CreateCohort()
         {
             Exception = null;
@@ -80,17 +79,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             Assert.AreEqual(expectedOriginator, Cohort.Originator);
         }
 
-        public void VerifyCohortIsUnapproved()
-        {
-            //approval is the aggregate of contained apprenticeship approvals, currently :-(
-            Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
-        }
-
-        public void VerifyCohortContainsNoDraftApprenticeships()
-        {
-            Assert.IsFalse(Cohort.Apprenticeships.Any());
-        }
-
         public void VerifyMessageIsAdded()
         {
             var createdBy = CreatingParty == Party.Employer ? 0 : 1;
@@ -104,7 +92,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             Assert.IsFalse(Cohort.Messages.Any());
         }
 
-
         public void VerifyException<T>()
         {
             Assert.IsNotNull(Exception);
@@ -116,40 +103,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             Assert.IsNull(Exception);
         }
 
-
         public void VerifyCohortIsNotDraft()
         {
             Assert.AreEqual(LastAction.Amend, Cohort.LastAction);
-        }
-
-        public void VerifyCohortBelongsToLegalEntity()
-        {
-            Assert.AreEqual(AccountLegalEntity.LegalEntityId, Cohort.LegalEntityId);
-        }
-
-        public void VerifyCohortBelongsToAccount()
-        {
-            Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
-        }
-
-        public void VerifyCohortBelongsToProvider()
-        {
-            Assert.AreEqual(Provider.UkPrn, Cohort.ProviderId);
-        }
-
-        public void VerifyLastUpdatedFieldsAreSetForParty(Party modifyingParty)
-        {
-            switch (modifyingParty)
-            {
-                case Party.Employer:
-                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByEmployerName);
-                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByEmployerEmail);
-                    break;
-                case Party.Provider:
-                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByProviderName);
-                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByProviderEmail);
-                    break;
-            }
         }
 
         public void VerifyCohortIsWithOtherParty()
