@@ -68,7 +68,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             EditStatus = originatingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
-            AddMessage(message, originatingParty, userInfo);
+            if (message != null)
+            {
+                AddMessage(message, originatingParty, userInfo);
+            }
         }
 
         public virtual long Id { get; set; }

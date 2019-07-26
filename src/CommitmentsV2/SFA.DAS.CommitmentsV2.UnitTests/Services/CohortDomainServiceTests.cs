@@ -56,6 +56,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreationWithOtherParty();
         }
 
+        [Test]
+        public async Task CreateCohortWithOtherParty_Creates_CohortWithoutAMessage()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .WithNoMessage()
+                .CreateCohortWithOtherParty();
+
+            _fixture.VerifyCohortCreationWithOtherParty();
+        }
+
+
         [TestCase(Party.Employer, false)]
         [TestCase(Party.Provider, true)]
         [TestCase(Party.TransferSender, true)]
@@ -281,6 +293,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 UlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(value);
                 return this;
             }
+
+            public CohortDomainServiceTestFixture WithNoMessage()
+            {
+                Message = null;
+                return this;
+            }
+
 
             public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
             {
