@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _authenticationService = authenticationService;
         }
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
-            var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
             await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
@@ -61,7 +61,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
 
@@ -73,7 +73,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
-            var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
 
             return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
         }
@@ -139,13 +139,16 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
                 await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,
                     cancellationToken);
             if (accountLegalEntity == null)
                 throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} was not found");
+            if(accountLegalEntity.AccountId != accountId)
+                throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} does not belong to {accountId} was not found")
+
             return accountLegalEntity;
         }
         
