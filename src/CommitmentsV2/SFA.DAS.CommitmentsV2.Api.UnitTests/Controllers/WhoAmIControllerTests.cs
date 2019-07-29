@@ -1,4 +1,3 @@
-using System;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -16,32 +15,16 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
     {
         [TestCase(Role.Employer)]
         [TestCase(Role.Provider)]
-        public void WhoAmI_WhenUserIsInRole_ThenShouldSendResponse(string role)
+        [TestCase(new object[] { Role.Employer, Role.Provider })]
+        public void WhoAmI_WhenRequestReceived_ThenShouldSendResponse(params string[] roles)
         {
             Test(
-                f => f.SetRoles(role),
+                f => f.SetRoles(roles),
                 f => f.WhoAmI(),
                 (f, r) => r.Should().NotBeNull()
                     .And.BeOfType<OkObjectResult>()
                     .Which.Value.Should().BeOfType<WhoAmIResponse>()
-                    .Which.Role.Should().Be(role));
-        }
-
-        [Test]
-        public void WhoAmI_WhenUserIsNotInAnyRole_ThenShouldThrowException()
-        {
-            TestException(
-                f => f.WhoAmI(),
-                (f, a) => a.Should().Throw<InvalidOperationException>().WithMessage("Client is authenticated with an unknown role"));
-        }
-        
-        [Test]
-        public void WhoAmI_WhenUserIsInMultipleRoles_ThenShouldThrowException()
-        {
-            TestException(
-                f => f.SetRoles(Role.Employer, Role.Provider), 
-                f => f.WhoAmI(),
-                (f, a) => a.Should().Throw<InvalidOperationException>().WithMessage("Client is authenticated with multiple roles"));
+                    .Which.Roles.Should().BeEquivalentTo(roles));
         }
     }
 
@@ -65,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             foreach (var role in roles)
             {
-                AuthenticationService.Setup(s => s.IsUserInRole(role)).Returns(true);
+                AuthenticationService.Setup(s => s.GetAllUserRoles()).Returns(roles);
             }
             
             return this;

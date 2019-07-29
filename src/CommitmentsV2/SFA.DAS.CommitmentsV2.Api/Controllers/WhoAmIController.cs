@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Authorization.Mvc;
@@ -23,31 +21,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [HttpGet]
         public IActionResult WhoAmI()
         {
-            var roles = new List<string>();
-            
-            if (_authenticationService.IsUserInRole(Role.Employer))
-            {
-                roles.Add(Role.Employer);
-            }
-            
-            if (_authenticationService.IsUserInRole(Role.Provider))
-            {
-                roles.Add(Role.Provider);
-            }
-
-            if (roles.Count == 0)
-            {
-                throw new InvalidOperationException("Client is authenticated with an unknown role");
-            }
-
-            if (roles.Count > 1)
-            {
-                throw new InvalidOperationException("Client is authenticated with multiple roles");
-            }
+            var roles = _authenticationService.GetAllUserRoles().ToList();
             
             return Ok(new WhoAmIResponse
             {
-                Role = roles.Single()
+                Roles = roles
             });
         }
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
@@ -13,6 +15,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Authentication
         public AuthenticationService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        public IEnumerable<string> GetAllUserRoles()
+        {
+            return _httpContextAccessor.HttpContext.User.Identities.SelectMany(i => i.FindAll(i.RoleClaimType).Select(c => c.Value));
         }
 
         public bool IsUserInRole(string role)
