@@ -146,8 +146,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                     cancellationToken);
             if (accountLegalEntity == null)
                 throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} was not found");
-            if(accountLegalEntity.AccountId != accountId)
-                throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} does not belong to {accountId} was not found")
+            if (accountLegalEntity.AccountId != accountId)
+                throw new BadRequestException($"AccountLegalEntity {accountLegalEntityId} does not belong to the Account {accountId}");
 
             return accountLegalEntity;
         }
