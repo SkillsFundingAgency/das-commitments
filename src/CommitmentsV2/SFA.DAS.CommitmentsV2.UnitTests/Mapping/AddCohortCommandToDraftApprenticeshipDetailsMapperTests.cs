@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public async Task Map_Uln_ShouldBeSet()
         {
             const string xxx = "TestULN";
-            await AssertPropertySet(input => input.ULN = xxx, output => output.Uln == xxx);
+            await AssertPropertySet(input => input.Uln = xxx, output => output.Uln == xxx);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         [Test]
         public async Task Map_StartDate_ShouldBeSet()
         {
-            var startDate = new DateTime(2020,10,15);
+            var startDate = new DateTime(2020, 10, 15);
             await AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
         }
 
@@ -95,7 +95,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             await AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == reservationId);
         }
 
-        private async Task AssertPropertySet(Action<AddCohortCommand> setInput, Func<DraftApprenticeshipDetails, bool> expectOutput)
+        private async Task AssertPropertySet(Action<AddCohortCommand> setInput,
+            Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
             var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeLookup.Object);
 

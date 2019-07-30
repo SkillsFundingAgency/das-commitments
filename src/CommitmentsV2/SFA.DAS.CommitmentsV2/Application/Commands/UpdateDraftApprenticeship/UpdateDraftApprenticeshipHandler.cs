@@ -34,7 +34,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
         {
             var draftApprenticeshipDetails = await _draftApprenticeshipDetailsMapper.Map(command);
 
-            await _cohortDomainService.UpdateDraftApprenticeship(command.CohortId, draftApprenticeshipDetails, cancellationToken);
+            await _cohortDomainService.UpdateDraftApprenticeship(command.CohortId, draftApprenticeshipDetails, command.UserInfo,  cancellationToken);
 
             _logger.LogInformation($"Saved cohort. Reservation-Id:{command.ReservationId} Commitment-Id:{command.CohortId} Apprenticeship:{command.ApprenticeshipId}");
 

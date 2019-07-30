@@ -7,6 +7,7 @@ using NUnit.Framework;
 using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Features;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
@@ -70,6 +71,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         public void Validate_Ref_ShouldBeValidated(string value, bool expectedValid)
         {
             AssertValidationResult(request => request.OriginatorReference, value, expectedValid);
+        }
+
+        [Test]
+        public void Validate_UserInfoIsNull_ShouldBeValid()
+        {
+            AssertValidationResult(request => request.UserInfo, null, true);
+        }
+
+        [Test]
+        public void Validate_UserInfoIsNotNullAndHasGoodData_ShouldBeValid()
+        {
+            var userInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com" };
+            AssertValidationResult(request => request.UserInfo, userInfo, true);
         }
 
         private void AssertValidationResult<T>(Expression<Func<CreateCohortRequest, T>> property, T value, bool expectedValid)

@@ -73,9 +73,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         public virtual Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, UserInfo userInfo)
         {
-            return new Cohort(provider, this, draftApprenticeshipDetails, initialParty, Party.Employer);
+            return new Cohort(provider, this, draftApprenticeshipDetails, initialParty, Party.Employer, userInfo);
        }
     }
 }

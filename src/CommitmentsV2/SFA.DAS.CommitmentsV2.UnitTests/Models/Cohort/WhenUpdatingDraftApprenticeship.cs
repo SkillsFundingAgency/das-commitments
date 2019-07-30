@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -24,11 +25,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
             var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
 
-            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};    
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider);
+            c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo);
 
             // Assert
             var savedDraft = c.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
@@ -46,11 +47,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
             modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
 
-            var c = new CommitmentsV2.Models.Cohort { EditStatus = EditStatus.ProviderOnly };
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider));
+            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider, fixtures.UserInfo));
         }
     }
 
@@ -58,34 +59,39 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
     {
         public CohortTestFixtures()
         {
+            var autoFixture = new Fixture();
+
             // We need this to allow the UoW to initialise it's internal static events collection.
             var uow = new UnitOfWorkContext();
+            UserInfo = autoFixture.Create<UserInfo>();
         }
+
+        public UserInfo UserInfo { get;  }
 
         public DraftApprenticeship Create()
         {
             return new DraftApprenticeship(new DraftApprenticeshipDetails
-                {
-                    Id = new Random().Next(100, 200),
-                    FirstName = "ABC",
-                    LastName = "EFG",
-                    StartDate = DateTime.Today.AddMonths(-6),
-                    EndDate = DateTime.Today.AddMonths(6),
-                    DateOfBirth = DateTime.Today.AddYears(-18)
-                }, Party.Provider);
+            {
+                Id = new Random().Next(100, 200),
+                FirstName = "ABC",
+                LastName = "EFG",
+                StartDate = DateTime.Today.AddMonths(-6),
+                EndDate = DateTime.Today.AddMonths(6),
+                DateOfBirth = DateTime.Today.AddYears(-18)
+            }, Party.Provider);
         }
 
         public DraftApprenticeship UpdatePropertiesWithNewValues(DraftApprenticeship draftApprenticeship)
         {
             return new DraftApprenticeship(new DraftApprenticeshipDetails
-            {
-                Id = draftApprenticeship.Id,
-                FirstName = SafeUpdate(draftApprenticeship.FirstName),
-                LastName = SafeUpdate(draftApprenticeship.LastName),
-                StartDate = SafeUpdate(draftApprenticeship.StartDate),
-                EndDate = SafeUpdate(draftApprenticeship.EndDate),
-                DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth)
-            }, Party.Provider);
+                {
+                    Id = draftApprenticeship.Id,
+                    FirstName = SafeUpdate(draftApprenticeship.FirstName),
+                    LastName = SafeUpdate(draftApprenticeship.LastName),
+                    StartDate = SafeUpdate(draftApprenticeship.StartDate),
+                    EndDate = SafeUpdate(draftApprenticeship.EndDate),
+                    DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth)
+                }, Party.Provider);
         }
 
         public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Party modificationParty)
@@ -106,7 +112,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 ReservationId = draftApprenticeship.ReservationId
             };
         }
-
 
         public void AssertSameProperties(DraftApprenticeship expected, DraftApprenticeship actual)
         {

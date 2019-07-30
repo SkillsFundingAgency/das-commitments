@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
     public class WhenAddingDraftApprenticeship
     {
         private AddDraftApprenticeshipTestFixture _fixture;
-        
+
         [SetUp]
         public void Arrange()
         {
@@ -38,12 +38,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var draftApprenticeship = _fixture.AddDraftApprenticeship();
 
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(new DraftApprenticeshipCreatedEvent(
-                    cohortId: _fixture.Cohort.Id,
-                    draftApprenticeshipId: draftApprenticeship.Id,
-                    uln: _fixture.DraftApprenticeshipDetails.Uln,
-                    reservationId: draftApprenticeship.ReservationId.Value,
-                    createdOn: draftApprenticeship.CreatedOn.Value));
+                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(
+                    new DraftApprenticeshipCreatedEvent(
+                        cohortId: _fixture.Cohort.Id,
+                        draftApprenticeshipId: draftApprenticeship.Id,
+                        uln: _fixture.DraftApprenticeshipDetails.Uln,
+                        reservationId: draftApprenticeship.ReservationId.Value,
+                        createdOn: draftApprenticeship.CreatedOn.Value));
         }
 
         [Test]
@@ -96,7 +97,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
             public Party Party { get; set; }
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
-            
+
+            public UserInfo UserInfo { get; }
+
             public AddDraftApprenticeshipTestFixture()
             {
                 Now = DateTime.UtcNow;
@@ -107,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     .With(c => c.Id)
                     .With(c => c.EditStatus, EditStatus.ProviderOnly)
                     .Create();
-                
+
                 DraftApprenticeshipDetails = Fixture.Build<DraftApprenticeshipDetails>()
                     .Without(d => d.StartDate)
                     .Without(d => d.EndDate)
@@ -117,11 +120,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
                 Party = Party.Provider;
                 UnitOfWorkContext = new UnitOfWorkContext();
+                UserInfo = Fixture.Create<UserInfo>();
             }
 
             public DraftApprenticeship AddDraftApprenticeship()
             {
-                return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party);
+                return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo);
             }
 
             public AddDraftApprenticeshipTestFixture SetEditStatus(EditStatus editStatus)
