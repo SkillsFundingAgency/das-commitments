@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Provider
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
     [TestFixture]
     [Parallelizable]

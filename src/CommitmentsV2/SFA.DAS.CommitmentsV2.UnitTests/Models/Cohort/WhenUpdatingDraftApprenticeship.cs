@@ -10,10 +10,10 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
     [TestFixture]
-    public class CohortTests
+    public class WhenUpdatingDraftApprenticeship
     {
         [Test]
         public void UpdateDraftApprenticeship_WithValidInput_ShouldUpdateExistingDraftApprenticeship()
