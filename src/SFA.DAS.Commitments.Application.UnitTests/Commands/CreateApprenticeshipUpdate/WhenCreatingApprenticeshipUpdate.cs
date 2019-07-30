@@ -23,6 +23,8 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
+using SFA.DAS.Reservations.Api.Client.Types;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshipUpdate
 {
@@ -94,7 +96,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
 
             _reservationsValidationService
                 .Setup(rvs => rvs.CheckReservation(It.IsAny<ReservationValidationServiceRequest>()))
-                .ReturnsAsync(new ReservationValidationResult(new ReservationValidationError[0]));
+                .ReturnsAsync(new ReservationValidationResult());
 
             _handler = new CreateApprenticeshipUpdateCommandHandler(
                 _validator.Object, 
@@ -588,7 +590,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             _reservationsValidationService
                 .Setup(rc => rc.CheckReservation(
                         It.Is<ReservationValidationServiceRequest>(msg => msg.ReservationId == _existingApprenticeship.ReservationId)))
-                .ReturnsAsync(new ReservationValidationResult(new ReservationValidationError[0]));
+                .ReturnsAsync(new ReservationValidationResult());
 
             var command = new CreateApprenticeshipUpdateCommand
             {

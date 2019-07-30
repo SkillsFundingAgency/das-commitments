@@ -24,20 +24,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger = logger;
         }
 
-        public async Task<ReservationValidationResult> ValidateReservation(ReservationValidationRequest request)
-        {
-            var command = new ValidateReservationRequest
-            {
-                ApprenticeshipId = request.ApprenticeshipId,
-                StartDate = request.ProposedStartDate,
-                CourseCode = request.ProposedCourseCode
-            };
-
-            var result = await _mediator.SendAsync(command);
-
-            return new ReservationValidationResult(result.ReservationValidationResult.Errors);
-        }
-
         public async Task<IEnumerable<ApprenticeshipOverlapValidationResult>> ValidateOverlappingApprenticeships(
             IEnumerable<ApprenticeshipOverlapValidationRequest> apprenticeshipOverlapValidationRequests)
         {

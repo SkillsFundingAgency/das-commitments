@@ -2,6 +2,7 @@
 using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Services;
+using SFA.DAS.Reservations.Api.Client.Types;
 
 namespace SFA.DAS.Commitments.Application.Interfaces
 {

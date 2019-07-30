@@ -259,9 +259,6 @@
     <Reference Include="SFA.DAS.NServiceBus, Version=10.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NServiceBus.10.0.1\lib\net462\SFA.DAS.NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.Reservations.Api.Client, Version=3.0.61.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SFA.DAS.Reservations.Api.Client.3.0.61\lib\netstandard2.0\SFA.DAS.Reservations.Api.Client.dll</HintPath>
-    </Reference>
     <Reference Include="SFA.DAS.Sql.Client, Version=1.0.0.32930, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.Sql.Client.1.0.0.32930\lib\net45\SFA.DAS.Sql.Client.dll</HintPath>
     </Reference>
@@ -478,6 +475,10 @@
     <ProjectReference Include="..\SFA.DAS.Commitments.Infrastructure\SFA.DAS.Commitments.Infrastructure.csproj">
       <Project>{7c2c2688-abf9-4a08-9fc3-ba169a5888c4}</Project>
       <Name>SFA.DAS.Commitments.Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SFA.DAS.Reservations.Api.Client\SFA.DAS.Reservations.Api.Client.csproj">
+      <Project>{1c575645-72a6-4912-ab53-a58f0d28d5cd}</Project>
+      <Name>SFA.DAS.Reservations.Api.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

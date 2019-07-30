@@ -46,10 +46,10 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
             public ReservationsClientTestFixture()
             {
                 _restHttpClient = new Mock<IRestHttpClient>();
-                _restHttpClient.Setup(x => x.Get<ValidationResult>(It.IsAny<string>(),
+                _restHttpClient.Setup(x => x.Get<ReservationValidationResult>(It.IsAny<string>(),
                         It.IsAny<object>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new ValidationResult());
+                    .ReturnsAsync(new ReservationValidationResult());
 
                 _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object);
 
@@ -72,7 +72,7 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
             {
                 var expectedUrl = $"api/reservations/validate/{_request.ReservationId}";
 
-                _restHttpClient.Verify(x => x.Get<ValidationResult>(It.Is<string>(s => s == expectedUrl),
+                _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.Is<string>(s => s == expectedUrl),
                     It.IsAny<object>(),
                     It.IsAny<CancellationToken>()));
             }
@@ -85,7 +85,7 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
                     _request.CourseCode
                 };
 
-                _restHttpClient.Verify(x => x.Get<ValidationResult>(It.IsAny<string>(),
+                _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.IsAny<string>(),
                     It.Is<object>(o => CompareHelper.AreEqualIgnoringTypes(expectedPayload, o)),
                     It.IsAny<CancellationToken>()));
             }

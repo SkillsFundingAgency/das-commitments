@@ -1,4 +1,5 @@
 using SFA.DAS.Commitments.Api.Types.Validation;
+using SFA.DAS.Reservations.Api.Client.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.ValidateReservation
 {

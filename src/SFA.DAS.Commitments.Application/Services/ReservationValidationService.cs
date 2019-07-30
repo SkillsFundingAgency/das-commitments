@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Reservations.Api.Client;
@@ -53,7 +51,7 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             if (request.ReservationId == null)
             {
-                _logger.Info($"Commitment:{request.CommitmentId} Apprenticeship: {request.ApprenticeshipId} Reservation id - no reservation ID");
+                _logger.Info($"Commitment:{request.CommitmentId} Apprenticeship: {request.ApprenticeshipId} Reservation-id:null - no reservation validation required");
                 return NoValidationRequiredResponse;
             }
 
@@ -74,10 +72,7 @@ namespace SFA.DAS.Commitments.Application.Services
             var validationResult =
                 await _reservationsApiClient.ValidateReservation(validationReservationMessage, CancellationToken.None);
 
-            var validationFailures = validationResult.ValidationErrors
-                .Select(error => new ReservationValidationError(error.PropertyName, error.Reason));
-
-            return new ReservationValidationResult(validationFailures);
+            return validationResult;
         }
     }
 }

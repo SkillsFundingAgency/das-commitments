@@ -14,10 +14,10 @@ namespace SFA.DAS.Reservations.Api.Client
             _client = client;
         }
 
-        public Task<ValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
+        public Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
         {
             var uri = $"api/reservations/validate/{request.ReservationId}";
-            return _client.Get<ValidationResult>(uri,
+            return _client.Get<ReservationValidationResult>(uri,
                 new
                 {
                     StartDate = request.StartDate.ToString("yyyy-MM-dd"),

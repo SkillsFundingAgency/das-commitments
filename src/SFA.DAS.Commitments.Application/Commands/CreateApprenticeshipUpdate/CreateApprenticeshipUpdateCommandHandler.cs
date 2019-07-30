@@ -248,7 +248,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             if (validationResult.HasErrors)
             {
                 var validationFailures =
-                    validationResult.Errors.Select(e => new ValidationFailure(e.PropertyName, e.Reason));
+                    validationResult.ValidationErrors.Select(e => new ValidationFailure(e.PropertyName, e.Reason));
 
                 throw new ValidationException(validationFailures);
             }

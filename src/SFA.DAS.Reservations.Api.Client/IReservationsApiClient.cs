@@ -6,6 +6,6 @@ namespace SFA.DAS.Reservations.Api.Client
 {
     public interface IReservationsApiClient
     {
-        Task<ValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken);
+        Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken);
     }
 }

@@ -107,9 +107,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             // Act + Assert
             await fixtures.CheckReservation(result =>
             {
-                Assert.AreEqual(expectedNumberOfErrors, result.Errors.Length);
-                AssertContains(result.Errors, "startdate", "some date error");
-                AssertContains(result.Errors, "coursecode", "some course error");
+                Assert.AreEqual(expectedNumberOfErrors, result.ValidationErrors.Length);
+                AssertContains(result.ValidationErrors, "startdate", "some date error");
+                AssertContains(result.ValidationErrors, "coursecode", "some course error");
             });
         }
     }
@@ -125,7 +125,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             ReservationsApiClientMock = new Mock<IReservationsApiClient>();    
             CommitmentsLoggerMock = new Mock<ICommitmentsLogger>();
 
-            ReservationClientValidationResult = new ValidationResult {ValidationErrors = new ValidationError[0]};
+            ReservationClientValidationResult = new ReservationValidationResult();
 
             ReservationsApiClientMock
                 .Setup(rac =>
@@ -139,7 +139,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
         public Mock<ICommitmentsLogger> CommitmentsLoggerMock { get; }
         public ICommitmentsLogger CommitmentsLogger => CommitmentsLoggerMock.Object;
 
-        public ValidationResult ReservationClientValidationResult { get; }
+        public ReservationValidationResult ReservationClientValidationResult { get; }
 
         public ReservationValidationService CreateService()
         {
@@ -167,7 +167,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             var errors = ReservationClientValidationResult.ValidationErrors;
             var newSize = errors.Length + 1;
             Array.Resize(ref errors, newSize);
-            errors[newSize-1] = new ValidationError {PropertyName = propertyName, Reason = reason};
+            errors[newSize-1] = new ReservationValidationError { PropertyName = propertyName, Reason = reason};
             ReservationClientValidationResult.ValidationErrors = errors;
 
             return this;

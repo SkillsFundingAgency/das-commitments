@@ -12,14 +12,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
     public class ValidationResultToReservationValidationErrorMapperTests
     {
         private Fixture _autoFixture;
-        private ValidationResult _source;
+        private ReservationValidationResult _source;
         private ValidationResultToReservationValidationErrorMapper _mapper;
 
         [SetUp]
         public void SetUp()
         {
             _autoFixture = new Fixture();
-            _source = _autoFixture.Create<ValidationResult>();
+            _source = _autoFixture.Create<ReservationValidationResult>();
 
             _mapper = new ValidationResultToReservationValidationErrorMapper();
         }
