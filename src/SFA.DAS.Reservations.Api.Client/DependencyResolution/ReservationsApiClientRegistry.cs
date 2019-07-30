@@ -41,11 +41,11 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
             }
 
             return environment;
-        }
+        } 
 
         private IReservationsApiClient CreateClient(IContext ctx)
         {
-            var config = ctx.GetInstance<ReservationsClientApiConfiguration>();
+            var config = GetConfig(ctx);
 
             HttpClient httpClient;
 
@@ -70,6 +70,13 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
             var helper = ctx.GetInstance<IReservationHelper>();
             var log = ctx.GetInstance<ILog>();
             return new ReservationsApiClient(httpClient, helper, log);
+        }
+        
+        private static ReservationsClientApiConfiguration GetConfig(IContext context)
+        {
+            var configuration = context.GetInstance<IConfiguration>();
+            var configSection = configuration.GetSection(ConfigurationKeys.ReservationsClientApiConfiguration);
+            return configSection.Get<ReservationsClientApiConfiguration>();
         }
     }
 }
