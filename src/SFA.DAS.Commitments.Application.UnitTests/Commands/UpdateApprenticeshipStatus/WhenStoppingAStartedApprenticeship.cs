@@ -74,50 +74,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
             act.ShouldNotThrow<InvalidRequestException>();
         }
 
-
-        [TestCase(AcademicYearValidationResult.NotWithinFundingPeriod, false, Description =
-            "Validation fails if date of change is in the previous academic year and the R14 date has passed")]
-        [TestCase(AcademicYearValidationResult.Success, true, Description =
-            "Validation passes if date of change is in the previous academic year and the R14 date has not passed")]
-        public void ShouldThrowValidationErrorAfterR14Close(AcademicYearValidationResult academicYearValidationResult,
-            bool expectedPassValidation)
-        {
-            TestApprenticeship.StartDate = new DateTime(2016, 3, 1); //early last academic year
-            ExampleValidRequest.DateOfChange = new DateTime(2016, 5, 1); //last academic year
-            MockCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2016, 10, 19)); //after cut-off
-
-            MockAcademicYearValidator.Setup(x => x.Validate(It.IsAny<DateTime>()))
-                .Returns(academicYearValidationResult);
-
-            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
-
-            if (expectedPassValidation)
-                act.ShouldNotThrow<ValidationException>();
-            else
-                act.ShouldThrow<ValidationException>()
-                    .WithMessage("Invalid Date of Change. Date cannot be before the academic year start date.");
-        }
-
-        [Test(Description =
-            "Validation fails for both R14 having passed and change date before Start Date - Start Date error takes precedence")]
-        public void ShouldThrowStartDateValidationErrorAfterR14CloseAndStopDateBeforeStartDate()
-        {
-            MockCommitmentRespository.Setup(x => x.GetCommitmentById(123L)).ReturnsAsync(new Commitment
-            {
-                Id = 123L,
-                EmployerAccountId = ExampleValidRequest.AccountId
-            });
-
-            TestApprenticeship.StartDate = new DateTime(2016, 3, 1);
-            ExampleValidRequest.DateOfChange = new DateTime(2016, 1, 1); //last academic year
-            MockCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2016, 10, 19)); //after cut-off
-
-            Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
-
-            act.ShouldThrow<ValidationException>()
-                .WithMessage("Invalid Date of Change. Date cannot be before the training start date.");
-        }
-
         [Test]
         public async Task ThenACourseDataLocksThatHaveBeenTriagedAsResetAreResolved()
         {

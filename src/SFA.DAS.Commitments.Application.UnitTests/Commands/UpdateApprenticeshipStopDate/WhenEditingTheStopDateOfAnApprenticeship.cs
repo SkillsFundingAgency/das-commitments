@@ -165,13 +165,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.UpdateApprenticeshi
         }
 
         [Test]
-        public void ThenThrowsExceptionIfNewStopDateIsAfterCurrentStopDate()
+        public void ThenDoesNotThrowsExceptionIfNewStopDateIsAfterCurrentStopDate()
         {
             TestApprenticeship.StopDate = ExampleValidRequest.StopDate.AddDays(-1);
 
             Func<Task> act = async () => await Handler.Handle(ExampleValidRequest);
 
-            act.ShouldThrow<ValidationException>().Which.Message.Equals("Invalid Date of Change. Date must be before current stop date.");
+            act.ShouldNotThrow<ValidationException>();
         }
 
         [Test]
