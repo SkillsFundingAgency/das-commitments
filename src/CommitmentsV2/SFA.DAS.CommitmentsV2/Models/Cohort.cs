@@ -150,9 +150,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.AddRange(BuildCostValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildDateOfBirthValidationFailures(draftApprenticeshipDetails));
             errors.AddRange(BuildStartDateValidationFailures(draftApprenticeshipDetails));
+            errors.AddRange(BuildUlnValidationFailures(draftApprenticeshipDetails));
             errors.ThrowIfAny();
         }
-        
 
         private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Party modifyingParty)
         {
@@ -253,6 +253,14 @@ namespace SFA.DAS.CommitmentsV2.Models
 
                 yield return new DomainError(nameof(details.StartDate), errorMessage);
                 yield break;
+            }
+        }
+
+        private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
+        {
+            if (Apprenticeships.Any(a => a.Id != draftApprenticeshipDetails.Id && a.Uln == draftApprenticeshipDetails.Uln))
+            {
+                yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "The unique learner number has already been used for an apprentice in this cohort");
             }
         }
 
