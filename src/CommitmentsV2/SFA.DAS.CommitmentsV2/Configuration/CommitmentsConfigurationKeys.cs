@@ -8,7 +8,6 @@
         public static string DatabaseConnectionString => $"{CommitmentsV2}:DatabaseConnectionString";
         public static string Features => $"{CommitmentsV2}:Features";
         public static string RedisConnectionString => $"{CommitmentsV2}:RedisConnectionString";
-        public static string ReservationsClientApiConfiguration => $"{CommitmentsV2}:ReservationsClientApi";
         public static string EncodingConfiguration => "SFA.DAS.Encoding";
     }
 }

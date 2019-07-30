@@ -30,13 +30,5 @@ namespace SFA.DAS.Commitments.Api.Controllers
             var result = await _validationOrchestrator.ValidateOverlappingApprenticeships(request);
             return Ok(result);
         }
-
-        [Route("apprenticeships/reservation")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> ValidateReservation([FromBody]ReservationValidationRequest request)
-        {
-            var result = await _validationOrchestrator.ValidateReservation(request);
-            return Ok(result);
-        }
     }
 }

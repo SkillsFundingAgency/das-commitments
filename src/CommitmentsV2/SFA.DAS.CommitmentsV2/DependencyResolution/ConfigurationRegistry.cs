@@ -15,7 +15,6 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             AddConfiguration<ApprenticeshipInfoServiceConfiguration>(CommitmentsConfigurationKeys.ApprenticeshipInfoService);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
             AddConfiguration<FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);
-            AddConfiguration<ReservationsClientApiConfiguration>(CommitmentsConfigurationKeys.ReservationsClientApiConfiguration);
             AddConfiguration<EncodingConfig>(CommitmentsConfigurationKeys.EncodingConfiguration);
         }
 
