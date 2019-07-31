@@ -21,6 +21,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task Ping_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.Ping();
+            _fixture.MockRestHttpClient.Verify(x => x.Get("api/ping", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetLegalEntity_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetLegalEntity(123);

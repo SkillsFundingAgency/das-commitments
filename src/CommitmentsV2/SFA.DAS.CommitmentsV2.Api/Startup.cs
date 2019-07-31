@@ -15,7 +15,9 @@ using SFA.DAS.CommitmentsV2.Api.Configuration;
 using SFA.DAS.CommitmentsV2.Api.DependencyResolution;
 using SFA.DAS.CommitmentsV2.Api.ErrorHandler;
 using SFA.DAS.CommitmentsV2.Api.Filters;
+using SFA.DAS.CommitmentsV2.Api.HealthChecks;
 using SFA.DAS.CommitmentsV2.Api.NServiceBus;
+using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc;
 using StructureMap;
@@ -64,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddHealthChecks();
+            services.AddDasHealthChecks(Configuration);
             services.AddMemoryCache();
             services.AddNServiceBus();
         }
@@ -88,11 +90,11 @@ namespace SFA.DAS.CommitmentsV2.Api
             app.UseHttpsRedirection()
                 .UseApiGlobalExceptionHandler(loggerFactory.CreateLogger("Startup"))
                 .UseUnauthorizedAccessExceptionHandler()
+                .UseStaticFiles()
+                .UseDasHealthChecks()
                 .UseAuthentication()
-                .UseHealthChecks("/api/health-check")
                 .UseUnitOfWork()
                 .UseMvc()
-                .UseStaticFiles()
                 .UseSwagger(c =>
                 {
                     c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
@@ -101,8 +103,7 @@ namespace SFA.DAS.CommitmentsV2.Api
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Commitments v2 API");
                     c.RoutePrefix = string.Empty;
-                })
-                ;
+                });
         }
     }
 }
