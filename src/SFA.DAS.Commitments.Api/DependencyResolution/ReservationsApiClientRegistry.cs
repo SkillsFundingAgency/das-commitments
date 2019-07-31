@@ -3,7 +3,7 @@ using Microsoft.Azure;
 using Newtonsoft.Json.Linq;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.Reservations.Api.Client.Configuration;
+using SFA.DAS.Reservations.Api.Types.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         public ReservationsApiClientRegistry()
         {
             For<ReservationsClientApiConfiguration>().Use(ctx => RegisterConfig(ctx));
-            IncludeRegistry<SFA.DAS.Reservations.Api.Client.DependencyResolution.ReservationsApiClientRegistry>();
+            IncludeRegistry<SFA.DAS.Reservation.Api.Client.DependencyResolution.ReservationsApiClientRegistry>();
         }
 
         private ReservationsClientApiConfiguration RegisterConfig(IContext context)

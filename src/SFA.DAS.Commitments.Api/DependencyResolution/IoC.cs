@@ -17,7 +17,6 @@
 
 using StructureMap;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
-using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
 {

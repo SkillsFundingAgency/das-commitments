@@ -6,7 +6,9 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types;
+using SFA.DAS.Reservations.Api.Types.Types;
+using SFA.DAS.ReservationsV2.Api.Client;
 
 namespace SFA.DAS.Reservations.Api.Client.UnitTests
 {
@@ -51,7 +53,7 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new ReservationValidationResult());
 
-                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object);
+                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationsHelper());
 
                 var autoFixture = new Fixture();
                 _request = new ValidationReservationMessage

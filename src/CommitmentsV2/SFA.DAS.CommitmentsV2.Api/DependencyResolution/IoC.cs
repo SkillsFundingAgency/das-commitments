@@ -2,7 +2,7 @@
 using SFA.DAS.Authorization.Features;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
-using SFA.DAS.Reservations.Api.Client.DependencyResolution;
+using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using SFA.DAS.UnitOfWork.NServiceBus.ClientOutbox;

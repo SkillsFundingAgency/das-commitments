@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SFA.DAS.Reservations.Api.Client.Types
+namespace SFA.DAS.Reservations.Api.Types.Types
 {
     public class ReservationValidationResult
     {

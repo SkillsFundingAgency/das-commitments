@@ -1,8 +1,6 @@
-﻿using SFA.DAS.Http.Configuration;
-
-namespace SFA.DAS.Reservations.Api.Client.Configuration
+﻿namespace SFA.DAS.Reservations.Api.Types.Configuration
 {
-    public class ReservationsClientApiConfiguration : IAzureActiveDirectoryClientConfiguration
+    public class ReservationsClientApiConfiguration //: IAzureActiveDirectoryClientConfiguration
     {
         public string ApiBaseUrl { get; set; }
         public string Tenant { get; set; }

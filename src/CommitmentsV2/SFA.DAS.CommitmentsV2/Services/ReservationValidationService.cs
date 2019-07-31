@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mapping;
-using SFA.DAS.Reservations.Api.Client;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types;
+using SFA.DAS.Reservations.Api.Types.Types;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -13,11 +13,11 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly IReservationsApiClient _apiClient;
         private readonly IMapper<ReservationValidationRequest, ValidationReservationMessage> _requestMapper;
-        private readonly IMapper<Reservations.Api.Client.Types.ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> _resultMapper;
+        private readonly IMapper<Reservations.Api.Types.Types.ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> _resultMapper;
 
         public ReservationValidationService(IReservationsApiClient apiClient,
             IMapper<ReservationValidationRequest, ValidationReservationMessage> requestMapper,
-            IMapper<Reservations.Api.Client.Types.ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> resultMapper)
+            IMapper<Reservations.Api.Types.Types.ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> resultMapper)
         {
             _apiClient = apiClient;
             _requestMapper = requestMapper;

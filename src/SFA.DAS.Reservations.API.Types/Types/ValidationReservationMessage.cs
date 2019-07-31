@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.Reservations.Api.Client.Types
+namespace SFA.DAS.Reservations.Api.Types.Types
 {
     public class ValidationReservationMessage
     {

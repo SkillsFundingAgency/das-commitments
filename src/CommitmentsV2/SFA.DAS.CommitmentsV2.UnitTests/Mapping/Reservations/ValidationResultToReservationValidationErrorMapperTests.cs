@@ -1,10 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
-using Castle.Core.Internal;
+﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.Reservations;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types.Types;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
 {

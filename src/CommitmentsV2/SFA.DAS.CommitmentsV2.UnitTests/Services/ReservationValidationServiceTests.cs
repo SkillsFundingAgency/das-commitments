@@ -1,14 +1,13 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Services;
-using SFA.DAS.Reservations.Api.Client;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types;
+using SFA.DAS.Reservations.Api.Types.Types;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -17,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     {
         private Fixture _fixture;
         private ReservationValidationService _reservationValidationService;
-        private Mock<IMapper<Reservations.Api.Client.Types.ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>> _resultMapper;
+        private Mock<IMapper<Reservations.Api.Types.Types.ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>> _resultMapper;
         private Mock<IMapper<ReservationValidationRequest, ValidationReservationMessage>> _requestMapper;
         private CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult _validationResult;
         private ReservationValidationRequest _validationRequest;
@@ -38,13 +37,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _requestMapper.Setup(x => x.Map(It.Is<ReservationValidationRequest>(r => r == _validationRequest)))
                 .ReturnsAsync(() => _apiRequest);
 
-            _resultMapper = new Mock<IMapper<Reservations.Api.Client.Types.ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>>();
-            _resultMapper.Setup(x => x.Map(It.IsAny<Reservations.Api.Client.Types.ReservationValidationResult>())).ReturnsAsync(_validationResult);
+            _resultMapper = new Mock<IMapper<Reservations.Api.Types.Types.ReservationValidationResult, CommitmentsV2.Domain.Entities.Reservations.ReservationValidationResult>>();
+            _resultMapper.Setup(x => x.Map(It.IsAny<Reservations.Api.Types.Types.ReservationValidationResult>())).ReturnsAsync(_validationResult);
 
             _apiClient = new Mock<IReservationsApiClient>();
             _apiClient.Setup(x =>
                     x.ValidateReservation(It.Is<ValidationReservationMessage>(r => r == _apiRequest), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Reservations.Api.Client.Types.ReservationValidationResult());
+                .ReturnsAsync(new Reservations.Api.Types.Types.ReservationValidationResult());
 
                 _reservationValidationService =
                     new ReservationValidationService(_apiClient.Object, _requestMapper.Object, _resultMapper.Object);

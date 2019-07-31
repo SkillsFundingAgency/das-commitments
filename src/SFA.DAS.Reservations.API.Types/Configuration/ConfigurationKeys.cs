@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Reservations.Api.Client.Configuration
+﻿namespace SFA.DAS.Reservations.Api.Types.Configuration
 {
     public static class ConfigurationKeys
     {

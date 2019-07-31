@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using FluentValidation;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Reservations.Api.Client;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types;
+using SFA.DAS.Reservations.Api.Types.Types;
 
 namespace SFA.DAS.Commitments.Application.Services
 {

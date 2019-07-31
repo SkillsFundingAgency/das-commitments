@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types.Types;
 
-namespace SFA.DAS.Reservations.Api.Client
+namespace SFA.DAS.Reservations.Api.Types
 {
     public interface IReservationsApiClient
     {
