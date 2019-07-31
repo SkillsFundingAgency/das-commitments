@@ -1,0 +1,152 @@
+﻿using System;
+using System.Linq;
+using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork;
+using AutoFixture;
+using FluentAssertions;
+using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
+{
+    public class CohortCreationTestFixture
+    {
+        private readonly Fixture _autoFixture = new Fixture();
+        public Party CreatingParty { get; private set; }
+        public Party? InitialParty { get; private set; }
+        public CommitmentsV2.Models.Cohort Cohort { get; private set; }
+        public CommitmentsV2.Models.Provider Provider { get; private set; }
+        public AccountLegalEntity AccountLegalEntity { get; private set; }
+        public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; private set; }
+        public Exception Exception { get; private set; }
+        public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+
+        public CohortCreationTestFixture()
+        {
+
+            UnitOfWorkContext = new UnitOfWorkContext();
+            Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(), _autoFixture.Create<DateTime>(), _autoFixture.Create<DateTime>());
+
+            var account = new Account(_autoFixture.Create<long>(), _autoFixture.Create<string>(), _autoFixture.Create<string>(), _autoFixture.Create<string>(), _autoFixture.Create<DateTime>());
+
+            AccountLegalEntity = new AccountLegalEntity(account,
+                _autoFixture.Create<long>(),
+                _autoFixture.Create<string>(),
+                _autoFixture.Create<string>(),
+                _autoFixture.Create<string>(),
+                _autoFixture.Create<OrganisationType>(),
+                _autoFixture.Create<string>(),
+                _autoFixture.Create<DateTime>());
+
+            
+        }
+
+        public CohortCreationTestFixture WithCreatingParty(Party creatingParty) 
+        {
+            CreatingParty = creatingParty;
+            return this;
+        }
+
+        public CohortCreationTestFixture WithInitialParty(Party initialParty)
+        {
+            InitialParty = initialParty;
+            return this;
+        }
+
+        public CohortCreationTestFixture WithDraftApprenticeship()
+        {
+            DraftApprenticeshipDetails = new DraftApprenticeshipDetails
+            {
+                FirstName = _autoFixture.Create<string>(),
+                LastName = _autoFixture.Create<string>(),
+                ReservationId = Guid.NewGuid()
+            };
+
+            return this;
+        }
+
+        public void CreateCohort()
+        {
+            Exception = null;
+
+            try
+            {
+                Cohort = new CommitmentsV2.Models.Cohort(Provider,
+                    AccountLegalEntity,
+                    DraftApprenticeshipDetails,
+                    InitialParty ?? CreatingParty,
+                    CreatingParty);
+            }
+            catch (ArgumentException ex)
+            {
+                Exception = ex;
+            }
+            catch (Exception ex)
+            {
+                Exception = ex;
+            }
+        }
+
+        public void VerifyOriginator(Originator expectedOriginator)
+        {
+            Assert.AreEqual(expectedOriginator, Cohort.Originator);
+        }
+
+        public void VerifyCohortIsUnapproved()
+        {
+            //approval is the aggregate of contained apprenticeship approvals, currently :-(
+            Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+        }
+
+        public void VerifyCohortContainsDraftApprenticeship()
+        {
+            Assert.IsTrue(Cohort.Apprenticeships.Any());
+        }
+
+        public void VerifyException<T>()
+        {
+            Assert.IsNotNull(Exception);
+            Assert.IsInstanceOf<T>(Exception);
+        }
+
+        public void VerifyNoException()
+        {
+            Assert.IsNull(Exception);
+        }
+
+        public void VerifyCohortIsDraft()
+        {
+            Assert.AreEqual(LastAction.None, Cohort.LastAction);
+        }
+
+        public void VerifyCohortBelongsToLegalEntity()
+        {
+            Assert.AreEqual(AccountLegalEntity.LegalEntityId, Cohort.LegalEntityId);
+        }
+
+        public void VerifyCohortBelongsToAccount()
+        {
+            Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
+        }
+
+        public void VerifyCohortBelongsToProvider()
+        {
+            Assert.AreEqual(Provider.UkPrn, Cohort.ProviderId);
+        }
+
+        public void VerifyDraftApprenticeshipCreatedEventIsPublished()
+        {
+            var draftApprenticeship = Cohort.Apprenticeships.Single();
+
+            UnitOfWorkContext.GetEvents().Should().HaveCount(1)
+                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(new DraftApprenticeshipCreatedEvent(
+                    cohortId: Cohort.Id,
+                    draftApprenticeshipId: draftApprenticeship.Id,
+                    uln: draftApprenticeship.Uln,
+                    reservationId: draftApprenticeship.ReservationId.Value,
+                    createdOn: draftApprenticeship.CreatedOn.Value));
+        }
+    }
+}

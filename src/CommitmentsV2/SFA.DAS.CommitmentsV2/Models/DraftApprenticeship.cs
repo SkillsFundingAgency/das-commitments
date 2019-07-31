@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml.Serialization;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -12,27 +11,20 @@ namespace SFA.DAS.CommitmentsV2.Models
             CreatedOn = DateTime.UtcNow;
         }
 
-        public DraftApprenticeship(DraftApprenticeshipDetails source, Originator party) : this()
+        public DraftApprenticeship(DraftApprenticeshipDetails source, Party modifyingParty) : this()
         {
-            Merge(source, party);
+            Merge(source, modifyingParty);
 
             ReservationId = source.ReservationId;
-
-            switch (party)
-            {
-                case Originator.Employer:
-                    EmployerRef = source.Reference;
-                    break;
-                case Originator.Provider:
-                    ProviderRef = source.Reference;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(party), party, null);
-            }
         }
 
-        public void Merge(DraftApprenticeshipDetails source, Originator modifyingParty)
+        public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
         {
+            if (IsOtherPartyApprovalRequired(source))
+            {
+                AgreementStatus = AgreementStatus.NotAgreed;
+            }
+
             FirstName = source.FirstName;
             LastName = source.LastName;
             Uln = source.Uln;
@@ -46,14 +38,35 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             switch (modifyingParty)
             {
-                case Originator.Employer:
+                case Party.Employer:
                     EmployerRef = source.Reference;
                     break;
 
-                case Originator.Provider:
+                case Party.Provider:
                     ProviderRef = source.Reference;
                     break;
             }
+        }
+
+        private bool IsOtherPartyApprovalRequired(DraftApprenticeshipDetails update)
+        {
+            if (FirstName != update.FirstName) return true;
+            if (LastName != update.LastName) return true;
+            if (Cost != update.Cost) return true;
+            if (StartDate != update.StartDate) return true;
+            if (EndDate != update.EndDate) return true;
+            if (DateOfBirth != update.DateOfBirth) return true;
+
+            if (string.IsNullOrWhiteSpace(CourseCode))
+            {
+                if (update.TrainingProgramme != null) return true;
+            }
+            else
+            {
+                if (update.TrainingProgramme.CourseCode != CourseCode) return true;
+            }
+
+            return false;
         }
     }
 }

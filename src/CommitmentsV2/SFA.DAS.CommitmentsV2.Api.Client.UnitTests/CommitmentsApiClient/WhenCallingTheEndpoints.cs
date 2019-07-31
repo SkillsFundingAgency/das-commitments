@@ -72,6 +72,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.AddDraftApprenticeship(_fixture.CohortId, _fixture.AddDraftApprenticeshipRequest, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest>($"api/cohorts/{_fixture.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetProvider_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetProvider(123);
+            _fixture.MockRestHttpClient.Verify(c => c.Get<GetProviderResponse>("api/providers/123", null, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture

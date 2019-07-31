@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
@@ -11,10 +9,10 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models
+namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
     [TestFixture]
-    public class CohortTests
+    public class WhenUpdatingDraftApprenticeship
     {
         [Test]
         public void UpdateDraftApprenticeship_WithValidInput_ShouldUpdateExistingDraftApprenticeship()
@@ -24,13 +22,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             // arrange
             var originalDraft = fixtures.Create();
             var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
-            var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Originator.Provider);
+            var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
 
-            var c = new Cohort {EditStatus = EditStatus.ProviderOnly};    
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};    
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            c.UpdateDraftApprenticeship(modifiedDraftDetails, Originator.Provider);
+            c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider);
 
             // Assert
             var savedDraft = c.DraftApprenticeships.Single(a => a.Id == modifiedDraft.Id);
@@ -45,14 +43,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             // arrange
             var originalDraft = fixtures.Create();
             var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
-            var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Originator.Provider);
+            var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
             modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
 
-            var c = new Cohort { EditStatus = EditStatus.ProviderOnly };
+            var c = new CommitmentsV2.Models.Cohort { EditStatus = EditStatus.ProviderOnly };
             c.Apprenticeships.Add(originalDraft);
 
             // Act
-            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Originator.Provider));
+            Assert.Throws<DomainException>(() => c.UpdateDraftApprenticeship(modifiedDraftDetails, Party.Provider));
         }
     }
 
@@ -74,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                     StartDate = DateTime.Today.AddMonths(-6),
                     EndDate = DateTime.Today.AddMonths(6),
                     DateOfBirth = DateTime.Today.AddYears(-18)
-                }, Originator.Provider);
+                }, Party.Provider);
         }
 
         public DraftApprenticeship UpdatePropertiesWithNewValues(DraftApprenticeship draftApprenticeship)
@@ -87,10 +85,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
                 StartDate = SafeUpdate(draftApprenticeship.StartDate),
                 EndDate = SafeUpdate(draftApprenticeship.EndDate),
                 DateOfBirth = SafeUpdate(draftApprenticeship.DateOfBirth)
-            }, Originator.Provider);
+            }, Party.Provider);
         }
 
-        public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Originator modificationParty)
+        public DraftApprenticeshipDetails ToApprenticeshipDetails(DraftApprenticeship draftApprenticeship, Party modificationParty)
         {
             return new DraftApprenticeshipDetails
             {
