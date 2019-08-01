@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.Reservations.Api.Types.Types
+﻿namespace SFA.DAS.Reservations.Api.Types
 {
     public class ReservationValidationError
     {

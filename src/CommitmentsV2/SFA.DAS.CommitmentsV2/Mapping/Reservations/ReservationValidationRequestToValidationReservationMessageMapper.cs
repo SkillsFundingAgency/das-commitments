@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Domain.Entities.Reservations;
-using SFA.DAS.Reservations.Api.Types.Types;
 using System.Threading.Tasks;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
 {

@@ -7,7 +7,6 @@ using SFA.DAS.Http;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.Reservations.Api.Types.Configuration;
-using SFA.DAS.Reservations.Api.Types.Types;
 
 namespace SFA.DAS.Reservations.Api.Client
 {

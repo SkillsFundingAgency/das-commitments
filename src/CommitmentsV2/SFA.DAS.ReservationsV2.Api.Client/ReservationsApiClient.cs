@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.Reservations.Api.Types.Types;
 
 namespace SFA.DAS.ReservationsV2.Api.Client
 {

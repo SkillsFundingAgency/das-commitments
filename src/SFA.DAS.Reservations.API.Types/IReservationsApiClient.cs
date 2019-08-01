@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.Reservations.Api.Types.Types;
 
 namespace SFA.DAS.Reservations.Api.Types
 {

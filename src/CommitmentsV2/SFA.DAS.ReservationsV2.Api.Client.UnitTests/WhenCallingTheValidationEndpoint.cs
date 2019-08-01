@@ -7,7 +7,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.Reservations.Api.Types.Types;
 using SFA.DAS.ReservationsV2.Api.Client;
 
 namespace SFA.DAS.Reservations.Api.Client.UnitTests

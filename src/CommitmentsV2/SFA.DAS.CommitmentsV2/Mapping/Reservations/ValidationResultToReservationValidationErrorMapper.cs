@@ -1,11 +1,12 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
 {
-    public class ValidationResultToReservationValidationErrorMapper : IMapper<DAS.Reservations.Api.Types.Types.ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult>
+    public class ValidationResultToReservationValidationErrorMapper : IMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult>
     {
-        public Task<Domain.Entities.Reservations.ReservationValidationResult> Map(DAS.Reservations.Api.Types.Types.ReservationValidationResult source)
+        public Task<Domain.Entities.Reservations.ReservationValidationResult> Map(ReservationValidationResult source)
         {
             var errors = source.ValidationErrors.Select(sourceError =>
                     new Domain.Entities.Reservations.ReservationValidationError(sourceError.PropertyName,

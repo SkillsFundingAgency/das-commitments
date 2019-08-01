@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Services;
-using SFA.DAS.Reservations.Api.Types.Types;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Interfaces
 {
