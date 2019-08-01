@@ -1,5 +1,6 @@
 ﻿using System;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.NServiceBus.AzureServiceBus;
 
 namespace SFA.DAS.CommitmentsV2.Extensions
@@ -8,7 +9,10 @@ namespace SFA.DAS.CommitmentsV2.Extensions
     {
         public static EndpointConfiguration UseAzureServiceBusTransport(this EndpointConfiguration config, Func<string> connectionStringBuilder, bool isDevelopment)
         {
-            config.UseAzureServiceBusTransport(isDevelopment, connectionStringBuilder, r => { });
+            config.UseAzureServiceBusTransport(isDevelopment, connectionStringBuilder, r =>
+            {
+                r.RouteToEndpoint(typeof(RunHealthCheckCommand), "SFA.DAS.CommitmentsV2.MessageHandlers");
+            });
 
             return config;
         }
