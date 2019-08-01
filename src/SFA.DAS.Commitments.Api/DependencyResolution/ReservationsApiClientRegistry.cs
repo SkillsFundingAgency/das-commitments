@@ -16,7 +16,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         public ReservationsApiClientRegistry()
         {
             For<ReservationsClientApiConfiguration>().Use(ctx => RegisterConfig(ctx));
-            IncludeRegistry<SFA.DAS.Reservation.Api.Client.DependencyResolution.ReservationsApiClientRegistry>();
+            IncludeRegistry<Reservations.Api.Client.DependencyResolution.ReservationsApiClientRegistry>();
         }
 
         private ReservationsClientApiConfiguration RegisterConfig(IContext context)

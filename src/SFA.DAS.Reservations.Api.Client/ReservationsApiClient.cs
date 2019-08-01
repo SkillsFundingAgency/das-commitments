@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using SFA.DAS.Http;
 using SFA.DAS.NLog.Logger;
@@ -10,7 +9,7 @@ using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 using SFA.DAS.Reservations.Api.Types.Types;
 
-namespace SFA.DAS.Reservation.Api.Client
+namespace SFA.DAS.Reservations.Api.Client
 {
     public class ReservationsApiClient : ApiClientBase, IReservationsApiClient
     {

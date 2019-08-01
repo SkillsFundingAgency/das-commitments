@@ -3,21 +3,12 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Http;
-using SFA.DAS.Http.Configuration;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
 {
-    /// <summary>
-    ///     Presents the reservation configuration as an IReservationHelper
-    /// </summary>
-    public class ReservationsClientApiConfiguration : Reservations.Api.Types.Configuration.ReservationsClientApiConfiguration,
-        IAzureActiveDirectoryClientConfiguration
-    {
-    }
-
     public class ReservationsApiClientRegistry : Registry
     {
         public ReservationsApiClientRegistry()
