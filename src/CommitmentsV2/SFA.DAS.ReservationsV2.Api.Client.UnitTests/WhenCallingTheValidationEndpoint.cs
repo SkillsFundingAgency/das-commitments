@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.ReservationsV2.Api.Client;
+using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
 
 namespace SFA.DAS.Reservations.Api.Client.UnitTests
 {
@@ -52,7 +53,12 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new ReservationValidationResult());
 
-                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationsHelper());
+                var config = new ReservationsClientApiConfiguration
+                {
+                    ApiBaseUrl = ""
+                };
+
+                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationsHelper(config));
 
                 var autoFixture = new Fixture();
                 _request = new ValidationReservationMessage

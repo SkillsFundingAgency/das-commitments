@@ -13,13 +13,14 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
     {
         public ReservationsApiClientRegistry()
         {
+            For<ReservationsClientApiConfiguration>().Use(ctx => GetConfig(ctx)).Singleton();
             For<IReservationsApiClient>().Use(ctx => CreateClient(ctx)).Singleton();
             For<IReservationHelper>().Use<ReservationsHelper>().Singleton();
         } 
 
         private IReservationsApiClient CreateClient(IContext ctx)
         {
-            var config = GetConfig(ctx);
+            var config = ctx.GetInstance<ReservationsClientApiConfiguration>();
             var loggerFactory = ctx.GetInstance<ILoggerFactory>();
             var reservationHelper = ctx.GetInstance<IReservationHelper>();
 
