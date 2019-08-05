@@ -18,5 +18,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Uln { get; set; }
+        public UserInfo UserInfo { get; set; }
     }
 }

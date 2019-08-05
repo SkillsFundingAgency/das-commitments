@@ -1,5 +1,6 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -27,7 +28,14 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             FirstName = source.FirstName;
             LastName = source.LastName;
-            Uln = source.Uln;
+            if (modifyingParty == Party.Provider)
+            {
+                Uln = source.Uln;
+            }
+            else if(Uln != source.Uln)
+            {
+                throw new DomainException(nameof(Uln), "Only providers are allowed to update the Uln");
+            }
             ProgrammeType = source.TrainingProgramme?.ProgrammeType;
             CourseCode = source.TrainingProgramme?.CourseCode;
             CourseName = source.TrainingProgramme?.Name;

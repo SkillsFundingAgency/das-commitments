@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort
 
         public Task<bool> Handle(CanAccessCohortQuery request, CancellationToken cancellationToken)
         {
-            return _dbContext.Value.Commitment.AnyAsync(
+            return _dbContext.Value.Cohorts.AnyAsync(
                 c => c.Id == request.CohortId &&
                      (request.Party == Party.Employer && c.EmployerAccountId == request.PartyId ||
                       request.Party == Party.Provider && c.ProviderId == request.PartyId),

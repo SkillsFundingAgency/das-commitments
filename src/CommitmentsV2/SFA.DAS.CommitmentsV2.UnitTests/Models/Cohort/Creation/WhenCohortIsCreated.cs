@@ -114,5 +114,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
             _fixture.VerifyCohortContainsDraftApprenticeship();
         }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenCohortHasLastedUpdatedBy(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyLastUpdatedFieldsAreSetForParty(creatingParty);
+        }
     }
 }

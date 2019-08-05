@@ -11,19 +11,19 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
         public virtual DbSet<DraftApprenticeship> DraftApprenticeships { get; set; }
         public virtual DbSet<ApprovedApprenticeship> ApprovedApprenticeships { get; set; }
-        public virtual DbSet<ApprenticeshipUpdate> ApprenticeshipUpdate { get; set; }
-        public virtual DbSet<AssessmentOrganisation> AssessmentOrganisation { get; set; }
-        public virtual DbSet<BulkUpload> BulkUpload { get; set; }
-        public virtual DbSet<Cohort> Commitment { get; set; }
-        public virtual DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriority { get; set; }
-        public virtual DbSet<DataLockStatus> DataLockStatus { get; set; }
+        public virtual DbSet<ApprenticeshipUpdate> ApprenticeshipUpdates { get; set; }
+        public virtual DbSet<AssessmentOrganisation> AssessmentOrganisations { get; set; }
+        public virtual DbSet<BulkUpload> BulkUploads { get; set; }
+        public virtual DbSet<Cohort> Cohorts { get; set; }
+        public virtual DbSet<CustomProviderPaymentPriority> CustomProviderPaymentPriorities { get; set; }
+        public virtual DbSet<DataLockStatus> DataLocks { get; set; }
         public virtual DbSet<History> History { get; set; }
         public virtual DbSet<IntegrationTestIds> IntegrationTestIds { get; set; }
         public virtual DbSet<JobProgress> JobProgress { get; set; }
-        public virtual DbSet<Message> Message { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<Provider> Providers { get; set; }
         public virtual DbSet<PriceHistory> PriceHistory { get; set; }
-        public virtual DbSet<TransferRequest> TransferRequest { get; set; }
+        public virtual DbSet<TransferRequest> TransferRequests { get; set; }
 
         public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
         {

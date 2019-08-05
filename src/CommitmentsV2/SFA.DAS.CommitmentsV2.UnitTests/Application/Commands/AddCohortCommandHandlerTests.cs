@@ -12,9 +12,9 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing;
 
@@ -41,10 +41,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 It.Is<long>(ale => ale == accountLegalEntityId),
                 It.IsAny<DraftApprenticeshipDetails>(),
                 false,
+                fixtures.UserInfo,
                 It.IsAny<CancellationToken>()));
 
             Assert.AreEqual(expectedHash, response.Reference);
-  
         }
     }
 
@@ -54,7 +54,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            _logMessages.Add((logLevel, exception, formatter(state, exception)));    
+            _logMessages.Add((logLevel, exception, formatter(state, exception)));
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -96,20 +96,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
             CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), 
-                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<bool>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
-            Logger = new TestLogger(); 
+            Logger = new TestLogger();
+            UserInfo = new UserInfo();
         }
 
         public Mock<IEncodingService> EncodingServiceMock { get; }
         public IEncodingService EncodingService => EncodingServiceMock.Object;
 
-        public Mock<IMapper<AddCohortCommand,DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
+        public Mock<IMapper<AddCohortCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapperMock { get; }
 
         public Mock<ICohortDomainService> CohortDomainServiceMock { get; }
 
         public TestLogger Logger { get; }
+        public UserInfo UserInfo { get; }
 
         public AddCohortCommandHandlerTestFixture WithGeneratedHash(string hash)
         {
@@ -128,7 +130,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 AccountLegalEntityId = accountLegalEntity,
                 ProviderId = providerId,
                 ReservationId = Guid.NewGuid(),
-                CourseCode = courseCode
+                CourseCode = courseCode,
+                UserInfo = UserInfo
             };
 
             var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),

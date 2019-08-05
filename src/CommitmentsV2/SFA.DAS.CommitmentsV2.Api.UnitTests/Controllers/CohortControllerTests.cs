@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 {
@@ -98,6 +99,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                     response => Assert.AreEqual(name, response.LegalEntityName));
         }
 
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnProviderName()
+        {
+            const long cohortId = 1234;
+            const string name = "ACME Training";
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryResponse { ProviderName = name },
+                    response => Assert.AreEqual(name, response.ProviderName));
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public Task GetCohort_ValidRequest_ShouldReturnIsTransferFunded(bool expectedIsTransferFunded)
@@ -109,6 +123,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                     cohortId,
                     new GetCohortSummaryResponse { IsFundedByTransfer = expectedIsTransferFunded},
                     response => Assert.AreEqual(expectedIsTransferFunded, response.IsFundedByTransfer));
+        }
+
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnWithParty()
+        {
+            const long cohortId = 1234;
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryResponse { WithParty = Party.Employer },
+                    response => Assert.AreEqual(Party.Employer, response.WithParty));
         }
     }
 

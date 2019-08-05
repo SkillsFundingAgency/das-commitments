@@ -46,9 +46,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
                 command.AccountLegalEntityId,
                 draftApprenticeshipDetails,
                 false,
+                command.UserInfo,
                 cancellationToken);
 
-            db.Commitment.Add(cohort);
+            db.Cohorts.Add(cohort);
             await db.SaveChangesAsync(cancellationToken);
 
             //this encoding and re-save could be removed and put elsewhere

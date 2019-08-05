@@ -22,14 +22,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; private set; }
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
+        public UserInfo UserInfo { get; }
 
         public CohortCreationTestFixture()
         {
-
             UnitOfWorkContext = new UnitOfWorkContext();
-            Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(), _autoFixture.Create<DateTime>(), _autoFixture.Create<DateTime>());
+            Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
+                _autoFixture.Create<DateTime>(), _autoFixture.Create<DateTime>());
 
-            var account = new Account(_autoFixture.Create<long>(), _autoFixture.Create<string>(), _autoFixture.Create<string>(), _autoFixture.Create<string>(), _autoFixture.Create<DateTime>());
+            var account = new Account(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
+                _autoFixture.Create<string>(), _autoFixture.Create<string>(), _autoFixture.Create<DateTime>());
+            UserInfo = _autoFixture.Create<UserInfo>();
 
             AccountLegalEntity = new AccountLegalEntity(account,
                 _autoFixture.Create<long>(),
@@ -39,11 +42,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 _autoFixture.Create<OrganisationType>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>());
-
-            
         }
 
-        public CohortCreationTestFixture WithCreatingParty(Party creatingParty) 
+        public CohortCreationTestFixture WithCreatingParty(Party creatingParty)
         {
             CreatingParty = creatingParty;
             return this;
@@ -77,7 +78,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                     AccountLegalEntity,
                     DraftApprenticeshipDetails,
                     InitialParty ?? CreatingParty,
-                    CreatingParty);
+                    CreatingParty,
+                    UserInfo);
             }
             catch (ArgumentException ex)
             {
@@ -136,17 +138,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.AreEqual(Provider.UkPrn, Cohort.ProviderId);
         }
 
+        public void VerifyLastUpdatedFieldsAreSetForParty(Party modifyingParty)
+        {
+            switch (modifyingParty)
+            {
+                case Party.Employer:
+                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByEmployerName);
+                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByEmployerEmail);
+                    break;
+                case Party.Provider:
+                    Assert.AreEqual(UserInfo.UserDisplayName, Cohort.LastUpdatedByProviderName);
+                    Assert.AreEqual(UserInfo.UserEmail, Cohort.LastUpdatedByProviderEmail);
+                    break;
+            }
+        }
+
         public void VerifyDraftApprenticeshipCreatedEventIsPublished()
         {
             var draftApprenticeship = Cohort.Apprenticeships.Single();
 
             UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(new DraftApprenticeshipCreatedEvent(
-                    cohortId: Cohort.Id,
-                    draftApprenticeshipId: draftApprenticeship.Id,
-                    uln: draftApprenticeship.Uln,
-                    reservationId: draftApprenticeship.ReservationId.Value,
-                    createdOn: draftApprenticeship.CreatedOn.Value));
+                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(
+                    new DraftApprenticeshipCreatedEvent(
+                        cohortId: Cohort.Id,
+                        draftApprenticeshipId: draftApprenticeship.Id,
+                        uln: draftApprenticeship.Uln,
+                        reservationId: draftApprenticeship.ReservationId.Value,
+                        createdOn: draftApprenticeship.CreatedOn.Value));
         }
     }
 }

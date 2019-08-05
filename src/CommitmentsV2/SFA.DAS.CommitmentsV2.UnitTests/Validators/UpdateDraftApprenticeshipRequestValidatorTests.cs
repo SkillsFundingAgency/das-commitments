@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validators;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
@@ -72,6 +73,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         public void Validate_ProviderReference_ShouldBeValidated(string value, bool expectedValid)
         {
             AssertValidationResult(request => request.Reference, value, expectedValid);
+        }
+
+        [Test]
+        public void Validate_UserInfoIsNull_ShouldBeValidate()
+        {
+            AssertValidationResult(request => request.UserInfo, null, true);
+        }
+
+        [Test]
+        public void Validate_UserInfoIsNull_ShouldBeValid()
+        {
+            AssertValidationResult(request => request.UserInfo, null, true);
+        }
+
+        [Test]
+        public void Validate_UserInfoIsNotNullAndHasGoodData_ShouldBeValid()
+        {
+            var userInfo = new UserInfo { UserId = "EE", UserDisplayName = "Name", UserEmail = "a@a.com"};
+            AssertValidationResult(request => request.UserInfo, userInfo, true);
         }
 
         private void AssertValidationResult<T>(Expression<Func<UpdateDraftApprenticeshipRequest, T>> property, T value, bool expectedValid)
