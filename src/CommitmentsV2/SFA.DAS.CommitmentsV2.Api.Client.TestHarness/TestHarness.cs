@@ -40,9 +40,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.TestHarness
                     switch (key)
                     {
                         case "a":
-                            var value = await _client.HealthCheck();
+                            await _client.Ping();
                             Console.WriteLine();
-                            Console.WriteLine($"Calling HeaithCheck endpoint - Result {value}");
+                            Console.WriteLine($"Calling Ping endpoint - Result OK");
                             break;
                         case "b":
                             result = await _client.SecureCheck();
