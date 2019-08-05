@@ -226,6 +226,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
+            {
+                yield break;
+            }
+            
             if (Apprenticeships.Any(a => a.Id != draftApprenticeshipDetails.Id && a.Uln == draftApprenticeshipDetails.Uln))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "The unique learner number has already been used for an apprentice in this cohort");
