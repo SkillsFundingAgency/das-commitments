@@ -16,7 +16,7 @@ namespace SFA.DAS.Reservations.Api.Client
 
         public Task<ValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
         {
-            var uri = $"api/accounts/{request.AccountId}/reservations/{request.ReservationId}";
+            var uri = $"api/reservations/validate/{request.ReservationId}";
             return _client.Get<ValidationResult>(uri,
                 new
                 {
