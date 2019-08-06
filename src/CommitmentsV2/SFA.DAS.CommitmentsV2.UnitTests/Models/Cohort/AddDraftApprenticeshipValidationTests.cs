@@ -144,6 +144,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Assert.AreEqual("The cohort may not be modified by the current role", domainError?.ErrorMessage);
         }
 
+        [TestCase(1, "", "", true)]
         [TestCase(1, "AAA111", "AAA111", false)]
         [TestCase(1, "AAA111", "BBB222", true)]
         public void Uln_CheckNoDuplicates_Validation(long existingId, string existingUln, string uln, bool passes)
