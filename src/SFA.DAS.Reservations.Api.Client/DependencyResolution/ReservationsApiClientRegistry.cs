@@ -9,7 +9,7 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
         public ReservationsApiClientRegistry()
         {
             For<IReservationsApiClient>().Use<ReservationsApiClient>().Singleton();
-            For<IReservationHelper>().Use<ReservationsHelper>().Singleton();
+            For<IReservationHelper>().Use<ReservationHelper>().Singleton();
         }
     }
 }

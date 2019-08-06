@@ -4,18 +4,18 @@ using SFA.DAS.Reservations.Api.Types.Configuration;
 
 namespace SFA.DAS.Reservations.Api.Types
 {
-    public class ReservationsHelper : IReservationHelper
+    public class ReservationHelper : IReservationHelper
     {
         private readonly ReservationsClientApiConfiguration _config;
 
-        public ReservationsHelper(ReservationsClientApiConfiguration config)
+        public ReservationHelper(ReservationsClientApiConfiguration config)
         {
             _config = config;
         }
 
         public Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, Func<string, object, Task<ReservationValidationResult>> call)
         {
-            var url = $"{_config.ApiBaseUrl}/api/accounts/{request.AccountId}/reservations/{request.ReservationId}";
+            var url = $"{_config.ApiBaseUrl}/api/reservations/validate/{request.ReservationId}?courseCode={request.CourseCode}&startDate={request.StartDate}";
 
             var data = new
             {

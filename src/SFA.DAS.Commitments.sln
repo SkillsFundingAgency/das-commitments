@@ -134,6 +134,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Ty
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.API.Client\SFA.DAS.Reservations.Api.Client.csproj", "{BFA13EE6-7663-4682-97CC-9F37090CB516}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types.UnitTests", "SFA.DAS.Reservations.Api.Types.UnitTests\SFA.DAS.Reservations.Api.Types.UnitTests.csproj", "{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -341,6 +343,10 @@ Global
 		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -388,6 +394,7 @@ Global
 		{4E922C46-4CF5-4457-BDA2-E0F2852C425A} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{CE74291A-975F-470E-BBFC-884D5215DEB2} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}

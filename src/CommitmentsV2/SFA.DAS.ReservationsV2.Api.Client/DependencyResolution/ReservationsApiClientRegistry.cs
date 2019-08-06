@@ -15,7 +15,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
         {
             For<ReservationsClientApiConfiguration>().Use(ctx => GetConfig(ctx)).Singleton();
             For<IReservationsApiClient>().Use(ctx => CreateClient(ctx)).Singleton();
-            For<IReservationHelper>().Use<ReservationsHelper>().Singleton();
+            For<IReservationHelper>().Use<ReservationHelper>().Singleton();
         } 
 
         private IReservationsApiClient CreateClient(IContext ctx)

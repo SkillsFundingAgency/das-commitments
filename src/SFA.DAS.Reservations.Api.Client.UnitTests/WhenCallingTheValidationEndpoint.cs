@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.TestHelpers;
+using SFA.DAS.Commitments.TestHelpers;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
+using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 
-namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
+namespace SFA.DAS.Reservations.Api.Client.UnitTests
 {
     [TestFixture]
     [Parallelizable]
@@ -63,6 +63,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                 var autoFixture = new Fixture();
                 _request = new ValidationReservationMessage
                 {
+                    AccountId = autoFixture.Create<long>(),
                     CourseCode = autoFixture.Create<string>(),
                     ReservationId = autoFixture.Create<Guid>(),
                     StartDate = autoFixture.Create<DateTime>()
@@ -77,9 +78,9 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 
             public void AssertUriCorrectlyFormed()
             {
-                var expectedUrl = $"{_config.ApiBaseUrl}/api/reservations/validate/{_request.ReservationId}";
+                var expectedUrl = $"{_config.ApiBaseUrl}/api/accounts/{_request.AccountId}/reservations/{_request.ReservationId}";
 
-                  _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
+                  _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.Is<string>(s => s == expectedUrl),
                     It.IsAny<object>(),
                     It.IsAny<CancellationToken>()));
             }
@@ -95,18 +96,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                 _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.IsAny<string>(),
                     It.Is<object>(o => CompareHelper.AreEqualIgnoringTypes(expectedPayload, o)),
                     It.IsAny<CancellationToken>()));
-            }
-
-            private bool IsSameUri(string expected, string actual)
-            {
-                var expectedUri = new Uri(expected, UriKind.Absolute);
-                var actualUri = new Uri(actual, UriKind.Absolute);
-
-                Assert.AreEqual(expectedUri.Host, actualUri.Host, "Host is wrong");
-                Assert.AreEqual(expectedUri.AbsolutePath, actualUri.AbsolutePath, "Path is wrong");
-                Assert.AreEqual(expectedUri.Scheme, actualUri.Scheme, "Scheme is wrong");
-
-                return true;
             }
         }
     }

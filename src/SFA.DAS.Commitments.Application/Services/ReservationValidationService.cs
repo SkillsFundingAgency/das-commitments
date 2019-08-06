@@ -63,7 +63,6 @@ namespace SFA.DAS.Commitments.Application.Services
             var validationReservationMessage = new ValidationReservationMessage
             {
                 ReservationId = request.ReservationId.Value,
-                AccountId = request.AccountId,
                 CourseCode = request.TrainingCode,
                 StartDate = request.StartDate.Value
             };
