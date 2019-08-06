@@ -1,61 +1,50 @@
-using System;
 using System.Threading.Tasks;
-using SFA.DAS.Apprenticeships.Api.Client;
-using SFA.DAS.Apprenticeships.Api.Types;
+using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Features;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
     public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper : IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>
     {
-        private readonly ITrainingProgrammeApiClient _trainingProgrammeApiClient;
-        private readonly IMapper<ITrainingProgramme, TrainingProgramme> _trainingProgrammeMapper;
-        
-        public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(
-            ITrainingProgrammeApiClient trainingProgrammeApiClient,
-            IMapper<ITrainingProgramme, TrainingProgramme> trainingProgrammeMapper)
+        private readonly IAuthorizationService _authorizationService;
+        private readonly ITrainingProgrammeLookup _trainingProgrammeLookup;
+
+        public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapper(IAuthorizationService authorizationService, ITrainingProgrammeLookup trainingProgrammeLookup)
         {
-            _trainingProgrammeApiClient = trainingProgrammeApiClient;
-            _trainingProgrammeMapper = trainingProgrammeMapper;
+            _authorizationService = authorizationService;
+            _trainingProgrammeLookup = trainingProgrammeLookup;
         }
 
         public async Task<DraftApprenticeshipDetails> Map(AddDraftApprenticeshipCommand source)
         {
-            var trainingProgram = await GetCourse(source.CourseCode);
-
+            var isReservationsEnabledTask = _authorizationService.IsAuthorizedAsync(Feature.Reservations);
+            var trainingProgrammeTask = GetCourse(source.CourseCode);
+            var isReservationsEnabled = await isReservationsEnabledTask;
+            var trainingProgramme = await trainingProgrammeTask;
+            
             var result = new DraftApprenticeshipDetails
             {
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 Uln = source.Uln,
-                TrainingProgramme = trainingProgram,
+                TrainingProgramme = trainingProgramme,
                 Cost = source.Cost,
                 StartDate = source.StartDate,
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.OriginatorReference,
-                ReservationId = source.ReservationId,
+                ReservationId = isReservationsEnabled ? source.ReservationId : null
             };
 
             return result;
         }
-        
-        private async Task<TrainingProgramme> GetCourse(string courseCode)
+
+        private Task<TrainingProgramme> GetCourse(string courseCode)
         {
-            if (string.IsNullOrWhiteSpace(courseCode))
-            {
-                return null;
-            }
-
-            var course = await _trainingProgrammeApiClient.GetTrainingProgramme(courseCode);
-
-            if (course == null)
-            {
-                throw new Exception($"The course code {courseCode} was not found");
-            }
-
-            return await _trainingProgrammeMapper.Map(course);
+            return _trainingProgrammeLookup.GetTrainingProgramme(courseCode);
         }
     }
 }
