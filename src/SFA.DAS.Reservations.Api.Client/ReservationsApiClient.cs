@@ -27,9 +27,11 @@ namespace SFA.DAS.Reservations.Api.Client
             _log = log;
         }
 
-        public Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
+        public async Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
         {
-            return _reservationHelper.ValidateReservation(request, GetAsync<ReservationValidationResult>);
+            var validationResult = await _reservationHelper.ValidateReservation(request, GetAsync<ReservationValidationResult>);
+            _log.Info($"reservation id:{request.ReservationId} course:{request.CourseCode} start-date:{request.StartDate} validation-result:{validationResult.IsOkay}");
+            return validationResult;
         }
 
         private async Task<T> GetAsync<T>(string url, object data)

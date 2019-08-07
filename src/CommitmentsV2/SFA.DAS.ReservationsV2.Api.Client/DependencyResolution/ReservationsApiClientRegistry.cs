@@ -37,7 +37,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
             }
 
             var restHttpClient = new RestHttpClient(httpClient);
-            return new ReservationsApiClient(restHttpClient, reservationHelper);
+            return new ReservationsApiClient(restHttpClient, reservationHelper, loggerFactory.CreateLogger<ReservationsApiClient>());
         }
 
         private static ReservationsClientApiConfiguration GetConfig(IContext context)

@@ -8,6 +8,7 @@ using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
+using Microsoft.Extensions.Logging;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
@@ -58,7 +59,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                     ApiBaseUrl = "https://somehost"
                 };
 
-                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationHelper(_config));
+                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationHelper(_config), Mock.Of<ILogger<ReservationsApiClient>>());
 
                 var autoFixture = new Fixture();
                 _request = new ValidationReservationMessage
