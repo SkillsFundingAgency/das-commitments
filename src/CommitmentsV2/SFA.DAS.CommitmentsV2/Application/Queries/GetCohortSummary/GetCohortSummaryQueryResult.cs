@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
-    public class GetCohortSummaryResponse
+    public class GetCohortSummaryQueryResult
     {
         public long CohortId { get; set; }
         public string LegalEntityName { get; set; }
@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public bool IsFundedByTransfer { get; set; }
 
         public Party WithParty { get; set; }
-
+        public string LatestMessageCreatedByEmployer { get; set; }
+        public string LatestMessageCreatedByProvider { get; set; }
     }
 }

@@ -17,33 +17,38 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
+        private readonly IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> _addCohortWithOtherPartyMapper;
 
         public CohortController(
             IMediator mediator,
-            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper)
+            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper,
+            IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> addCohortWithOtherPartyMapper)
         {
             _mediator = mediator;
             _addCohortMapper = addCohortMapper;
+            _addCohortWithOtherPartyMapper = addCohortWithOtherPartyMapper;
         }
 
         [HttpGet]
         [Route("{cohortId}")]
         public async Task<IActionResult> GetCohort(long cohortId)
         {
-            var result = await _mediator.Send(new GetCohortSummaryRequest{CohortId = cohortId});
+            var result = await _mediator.Send(new GetCohortSummaryQuery{CohortId = cohortId});
 
             if (result == null)
             {
                 return NotFound();
             }
-
+            
             return Ok(new GetCohortResponse
             {
                 CohortId = result.CohortId,
                 LegalEntityName = result.LegalEntityName,
                 ProviderName = result.ProviderName,
                 IsFundedByTransfer = result.IsFundedByTransfer,
-                WithParty = result.WithParty
+                WithParty = result.WithParty,
+                LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
+                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
             });
         }
 
@@ -51,6 +56,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
         {
             var command = await _addCohortMapper.Map(request);
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
+        }
+
+        [HttpPost]
+        [Route("with-other-party")]
+        public async Task<IActionResult> CreateCohortWithOtherParty([FromBody]CreateCohortWithOtherPartyRequest request)
+        {
+            var command = await _addCohortWithOtherPartyMapper.Map(request);
             var result = await _mediator.Send(command);
 
             return Ok(new CreateCohortResponse

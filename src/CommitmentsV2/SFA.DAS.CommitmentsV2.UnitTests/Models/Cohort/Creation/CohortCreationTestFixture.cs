@@ -7,6 +7,7 @@ using AutoFixture;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
@@ -15,7 +16,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
     {
         private readonly Fixture _autoFixture = new Fixture();
         public Party CreatingParty { get; private set; }
-        public Party? InitialParty { get; private set; }
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
         public CommitmentsV2.Models.Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
@@ -50,12 +50,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             return this;
         }
 
-        public CohortCreationTestFixture WithInitialParty(Party initialParty)
-        {
-            InitialParty = initialParty;
-            return this;
-        }
-
         public CohortCreationTestFixture WithDraftApprenticeship()
         {
             DraftApprenticeshipDetails = new DraftApprenticeshipDetails
@@ -77,7 +71,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 Cohort = new CommitmentsV2.Models.Cohort(Provider,
                     AccountLegalEntity,
                     DraftApprenticeshipDetails,
-                    InitialParty ?? CreatingParty,
                     CreatingParty,
                     UserInfo);
             }
@@ -105,6 +98,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public void VerifyCohortContainsDraftApprenticeship()
         {
             Assert.IsTrue(Cohort.Apprenticeships.Any());
+        }
+
+
+        public void VerifyNoMessageIsAdded()
+        {
+            Assert.IsFalse(Cohort.Messages.Any());
         }
 
         public void VerifyException<T>()
@@ -165,6 +164,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                         uln: draftApprenticeship.Uln,
                         reservationId: draftApprenticeship.ReservationId.Value,
                         createdOn: draftApprenticeship.CreatedOn.Value));
+        }
+
+        public void VerifyCohortIsWithCreator()
+        {
+            Assert.AreEqual(CreatingParty.ToEditStatus(), Cohort.EditStatus);
         }
     }
 }

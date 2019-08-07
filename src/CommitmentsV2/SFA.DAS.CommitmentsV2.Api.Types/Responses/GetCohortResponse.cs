@@ -9,5 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string ProviderName { get; set; }
         public bool IsFundedByTransfer { get; set; }
         public Party WithParty { get; set; }
+        public string LatestMessageCreatedByEmployer { get; set; }
+        public string LatestMessageCreatedByProvider { get; set; }
     }
 }
