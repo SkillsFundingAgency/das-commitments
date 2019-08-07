@@ -8,6 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Message> builder)
         {
+            builder.ToTable("Message");
+
             builder.Property(e => e.Author)
                 .IsRequired()
                 .HasMaxLength(255);
