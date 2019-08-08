@@ -2,9 +2,11 @@
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Mapping;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
@@ -15,12 +17,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     {
         private TrainingProgramme _trainingProgramme;
         private Mock<ITrainingProgrammeLookup> _trainingProgrammeLookup;
+        private Mock<IAuthorizationService> _authorizationService;
 
         [SetUp]
         public void Arrange()
         {
             _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
             _trainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
+            _authorizationService = new Mock<IAuthorizationService>();
+            
             _trainingProgrammeLookup
                 .Setup(x => x.GetTrainingProgramme(It.IsAny<string>()))
                 .ReturnsAsync(_trainingProgramme);
@@ -88,17 +93,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             await AssertPropertySet(input => input.CourseCode = "TEST", output => output.TrainingProgramme == _trainingProgramme);
         }
 
-        [Test]
-        public async Task Map_ReservationId_ShouldBeSet()
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public async Task Map_ReservationId_ShouldBeSet(bool isReservationsEnabled, bool expectReservationIdSet)
         {
             var reservationId = Guid.NewGuid();
-            await AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == reservationId);
+            var expectedReservationId = expectReservationIdSet ? reservationId : (Guid?)null;
+            _authorizationService.Setup(a => a.IsAuthorizedAsync(Feature.Reservations)).ReturnsAsync(isReservationsEnabled);
+            await AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == expectedReservationId);
         }
 
         private async Task AssertPropertySet(Action<AddCohortCommand> setInput,
             Func<DraftApprenticeshipDetails, bool> expectOutput)
         {
-            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_trainingProgrammeLookup.Object);
+            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_authorizationService.Object, _trainingProgrammeLookup.Object);
 
             var input = new AddCohortCommand();
 

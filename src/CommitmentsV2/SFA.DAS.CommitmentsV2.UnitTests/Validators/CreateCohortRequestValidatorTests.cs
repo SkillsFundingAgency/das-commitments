@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
         }
 
         [TestCase(false, false, true)]
-        [TestCase(false, true, false)]
+        [TestCase(false, true, true)]
         [TestCase(true, false, false)]
         [TestCase(true, true, true)]
         public void Validate_ReservationId_ShouldBeValidated(bool isFeatureEnabled, bool hasValue, bool expectedValid)
