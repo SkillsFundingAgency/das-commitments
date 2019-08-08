@@ -28,7 +28,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
 
             if (config.UseStub)
             {
-                httpClient = new HttpClient {BaseAddress = new Uri("https://sfa-stub-reservations.herokuapp.com/") };
+                httpClient = new HttpClient();
             }
             else
             {

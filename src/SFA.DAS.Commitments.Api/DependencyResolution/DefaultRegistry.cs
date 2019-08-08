@@ -31,7 +31,6 @@ using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Client.Configuration;
 using SFA.DAS.NLog.Logger;
 using StructureMap;
-using StructureMap.Graph;
 using SFA.DAS.Learners.Validators;
 using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.HashingService;

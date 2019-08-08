@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.ReservationsV2.Api.Client
 {

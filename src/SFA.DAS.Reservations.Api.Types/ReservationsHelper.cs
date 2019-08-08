@@ -15,7 +15,7 @@ namespace SFA.DAS.Reservations.Api.Types
 
         public Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, Func<string, object, Task<ReservationValidationResult>> call)
         {
-            var url = $"{_config.ApiBaseUrl}/api/reservations/validate/{request.ReservationId}?courseCode={request.CourseCode}&startDate={request.StartDate}";
+            var url = $"{_config.EffectiveApiBaseUrl}/api/reservations/validate/{request.ReservationId}?courseCode={request.CourseCode}&startDate={request.StartDate}";
 
             var data = new
             {

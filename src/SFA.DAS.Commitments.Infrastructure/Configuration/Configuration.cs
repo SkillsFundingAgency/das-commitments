@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure;
+﻿using System;
+using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 
@@ -11,6 +12,8 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
         private const string ServiceName = "SFA.DAS.Commitments";
         private const string Version = "1.0";
 
+        private static readonly Lazy<IConfigurationRepository> LazyConfigurationRepository = new Lazy<IConfigurationRepository>(GetConfigurationRepository);
+
         public static CommitmentsApiConfiguration Get()
         {
             var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
@@ -21,9 +24,23 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
             return configurationService.Get<CommitmentsApiConfiguration>();
         }
 
+        public static string EnvironmentName = GetEnvironmentName();
+        public static IConfigurationRepository ConfigurationRepository => LazyConfigurationRepository.Value;
+        public static ConfigurationOptions ConfigurationOptions = GetOptions();
+
         private static IConfigurationRepository GetConfigurationRepository()
         {
-            return new AzureTableStorageConfigurationRepository(CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString"));
+            return new AzureTableStorageConfigurationRepository();
+        }
+
+        private static ConfigurationOptions GetOptions()
+        {
+            return new ConfigurationOptions(ServiceName, EnvironmentName, Version);
+        }
+
+        private static string GetEnvironmentName()
+        {
+            return CloudConfigurationManager.GetSetting("ConfigurationStorageConnectionString");
         }
     }
 }

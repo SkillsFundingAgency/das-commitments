@@ -400,12 +400,12 @@
     <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Controllers\ProviderController.cs" />
     <Compile Include="Controllers\ValidationController.cs" />
+    <Compile Include="DependencyResolution\ConfigurationRegistry.cs" />
     <Compile Include="DependencyResolution\EventsUpgradeRegistry.cs" />
     <Compile Include="DependencyResolution\EndpointConfigurationExtensions.cs" />
     <Compile Include="DependencyResolution\NServiceBusRegistry.cs" />
     <Compile Include="DependencyResolution\DefaultRegistry.cs" />
     <Compile Include="DependencyResolution\IoC.cs" />
-    <Compile Include="DependencyResolution\ReservationsApiClientRegistry.cs" />
     <Compile Include="DependencyResolution\StructureMapDependencyScope.cs" />
     <Compile Include="DependencyResolution\StructureMapScopeModule.cs" />
     <Compile Include="DependencyResolution\StructureMapWebApiDependencyResolver.cs" />

@@ -1,28 +1,24 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using SFA.DAS.Http;
 using SFA.DAS.NLog.Logger;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.Reservations.Api.Types.Configuration;
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.Reservations.Api.Client
 {
     public class ReservationsApiClient : ApiClientBase, IReservationsApiClient
     {
-        private ReservationsClientApiConfiguration _config;
         private readonly IReservationHelper _reservationHelper;
         private readonly ILog _log;
 
         public ReservationsApiClient(
             HttpClient client, 
-            ReservationsClientApiConfiguration config,
             IReservationHelper reservationHelper,
             ILog log) : base(client)
         {
-            _config = config;
             _reservationHelper = reservationHelper;
             _log = log;
         }
