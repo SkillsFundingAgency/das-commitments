@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
             
             sendOptions.SetMessageId(messageId.ToString());
             
-            await _messageSession.Send(new RunHealthCheckCommand());
+            await _messageSession.Send(new RunHealthCheckCommand(), sendOptions);
 
             return HealthCheckResult.Healthy(null, data);
         }
