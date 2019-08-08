@@ -46,49 +46,63 @@ namespace SFA.DAS.CommitmentsV2.Services
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, CancellationToken cancellationToken)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
-            var initialParty = assignToOtherParty ? originatingParty.GetOtherParty() : originatingParty;
-            
+
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            if (draftApprenticeshipDetails != null)
+            await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
+
+            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+        }
+
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var originatingParty = _authenticationService.GetUserParty();
+
+            if (originatingParty != Party.Employer)
             {
-                await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
+                throw new InvalidOperationException($"Only Employers can create Cohorts with other party");
             }
 
-            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty);
+            var db = _dbContext.Value;
+
+            var provider = await GetProvider(providerId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
+
+            return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
         }
-        
+
+
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
             var cohort = await GetCohort(cohortId, db, cancellationToken);
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty());
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
             await ValidateDraftApprenticeshipDetails(providerId, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
             return draftApprenticeship;
         }
 
-        public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
 
-            var cohort = await db.Commitment
+            var cohort = await db.Cohorts
                                 .Include(c => c.Apprenticeships)
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
 
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
-            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty());
+            cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
             await ValidateDraftApprenticeshipDetails(cohort.ProviderId.Value, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
 
@@ -137,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         
         private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
-            var cohort = await db.Commitment.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
+            var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
             return cohort;
         }

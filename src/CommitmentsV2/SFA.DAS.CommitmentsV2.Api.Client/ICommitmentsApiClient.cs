@@ -7,7 +7,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 {
     public interface ICommitmentsApiClient
     {
-        Task<bool> HealthCheck();
+        Task Ping();
+        Task<WhoAmIResponse> WhoAmI();
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
 
         // To be removed latter
@@ -16,6 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<string> SecureProviderCheck();
 
         Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
+        Task<CreateCohortResponse> CreateCohort(CreateCohortWithOtherPartyRequest request, CancellationToken cancellationToken = default);
         Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
         Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
         Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);

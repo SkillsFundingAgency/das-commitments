@@ -21,7 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 DateOfBirth = source.DateOfBirth,
-                Uln = source.Uln
+                Uln = source.Uln,
+                UserInfo = source.UserInfo
             });
         }
     }

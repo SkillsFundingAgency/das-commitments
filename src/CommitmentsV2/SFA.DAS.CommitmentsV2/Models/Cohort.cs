@@ -20,11 +20,9 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        public Cohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, Party originatingParty): this()
+        private Cohort(Provider provider, AccountLegalEntity accountLegalEntity, Party originatingParty) : this()
         {
-            CheckOriginatorIsValid(originatingParty);
-            CheckInitialPartyIsValid(originatingParty, initialParty);
-            CheckDraftApprenticeshipIsValid(originatingParty, initialParty, draftApprenticeshipDetails);
+            CheckOriginatorIsEmployerOrProvider(originatingParty);
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
@@ -34,18 +32,45 @@ namespace SFA.DAS.CommitmentsV2.Models
             AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
             ProviderId = provider.UkPrn;
             ProviderName = provider.Name;
-            EditStatus = initialParty.ToEditStatus();
-            Originator = originatingParty.ToOriginator();
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
+            Originator = originatingParty.ToOriginator();
             CommitmentStatus = CommitmentStatus.New;
             CreatedOn = DateTime.UtcNow;
             LastAction = LastAction.None;
+        }
 
-            if (draftApprenticeshipDetails != null)
+        /// <summary>
+        /// Creates a cohort with a draft apprenticeship
+        /// </summary>
+        internal Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails,
+            Party originatingParty,
+            UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty)
+        {
+            CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
+            EditStatus = originatingParty.ToEditStatus();
+            AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty, userInfo);
+        }
+
+        /// <summary>
+        /// Creates an empty cohort with other party
+        /// </summary>
+        internal Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            Party originatingParty,
+            string message,
+            UserInfo userInfo) : this(provider, accountLegalEntity, originatingParty)
+        {
+            CheckOriginatorIsEmployer(originatingParty);
+
+            EditStatus = originatingParty.GetOtherParty().ToEditStatus();
+            LastAction = LastAction.Amend;
+            if (message != null)
             {
-                AddDraftApprenticeship(draftApprenticeshipDetails, originatingParty);
+                AddMessage(message, originatingParty, userInfo);
             }
         }
 
@@ -82,17 +107,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
-        public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator)
+        public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
+            UpdatedBy(userInfo, creator);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
         }
 
-        public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty)
+        public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo)
         {
             EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
 
@@ -105,7 +131,13 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
+            UpdatedBy(userInfo, modifyingParty);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
+        }
+
+        private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
+        {
+            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -225,13 +257,18 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private IEnumerable<DomainError> BuildUlnValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
+            if (string.IsNullOrWhiteSpace(draftApprenticeshipDetails.Uln))
+            {
+                yield break;
+            }
+            
             if (Apprenticeships.Any(a => a.Id != draftApprenticeshipDetails.Id && a.Uln == draftApprenticeshipDetails.Uln))
             {
                 yield return new DomainError(nameof(draftApprenticeshipDetails.Uln), "The unique learner number has already been used for an apprentice in this cohort");
             }
         }
 
-        private void CheckOriginatorIsValid(Party originator)
+        private void CheckOriginatorIsEmployerOrProvider(Party originator)
         {
             if (originator != Party.Employer && originator != Party.Provider)
             {
@@ -239,34 +276,20 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckDraftApprenticeshipIsValid(Party originator, Party initialParty, DraftApprenticeshipDetails draftApprenticeshipDetails)
+
+        private void CheckOriginatorIsEmployer(Party originator)
         {
-            if (originator == Party.Provider && draftApprenticeshipDetails == null)
+            if (originator != Party.Employer)
             {
-                throw new DomainException("DraftApprenticeship", $"Provider-created cohorts cannot be empty");
-            }
-
-            if (originator == Party.Employer && initialParty == Party.Employer && draftApprenticeshipDetails == null)
-            {
-                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts cannot be empty if Employer is initial party");
-            }
-
-            if (originator == Party.Employer && initialParty == Party.Provider && draftApprenticeshipDetails != null)
-            {
-                throw new DomainException("DraftApprenticeship", $"Employer-created cohorts must be empty if Provider is initial party");
+                throw new DomainException("Creator", $"Cohorts can only be created with the other party by the Employer; {originator} is not valid");
             }
         }
 
-        private void CheckInitialPartyIsValid(Party originator, Party initialParty)
+        private void CheckDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (initialParty != Party.Employer && initialParty != Party.Provider)
+            if (draftApprenticeshipDetails == null)
             {
-                throw new DomainException("InitialParty", $"Cohorts can be with Employer or Provider; {initialParty} is not valid");
-            }
-
-            if (originator == Party.Provider && initialParty == Party.Employer)
-            {
-                throw new DomainException("InitialParty", $"Provider-originated Cohorts cannot initially be with Employer");
+                throw new DomainException("DraftApprenticeshipDetails", "DraftApprenticeshipDetails must be supplied");
             }
         }
 
@@ -289,6 +312,24 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
 
             return false;
+        }
+
+        private void UpdatedBy(UserInfo userInfo, Party modifyingParty)
+        {
+            if (userInfo == null)
+                return;
+
+            switch (modifyingParty)
+            {
+                case Party.Employer:
+                    LastUpdatedByEmployerName = userInfo.UserDisplayName;
+                    LastUpdatedByEmployerEmail = userInfo.UserEmail;
+                    break;
+                case Party.Provider:
+                    LastUpdatedByProviderName = userInfo.UserDisplayName;
+                    LastUpdatedByProviderEmail = userInfo.UserEmail;
+                    break;
+            }
         }
     }
 }

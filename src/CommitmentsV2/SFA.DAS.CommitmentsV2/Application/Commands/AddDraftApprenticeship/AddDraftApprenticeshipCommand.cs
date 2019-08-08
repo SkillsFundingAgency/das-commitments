@@ -1,5 +1,6 @@
 using System;
 using MediatR;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
 {
@@ -18,5 +19,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Uln { get; set; }
+        public UserInfo UserInfo { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -46,6 +47,47 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task CreateCohortWithOtherParty_Creates_Cohort()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohortWithOtherParty();
+
+            _fixture.VerifyCohortCreationWithOtherParty();
+        }
+
+        [Test]
+        public async Task CreateCohortWithOtherParty_Creates_CohortWithoutAMessage()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .WithNoMessage()
+                .CreateCohortWithOtherParty();
+
+            _fixture.VerifyCohortCreationWithOtherParty();
+        }
+
+
+        [TestCase(Party.Employer, false)]
+        [TestCase(Party.Provider, true)]
+        [TestCase(Party.TransferSender, true)]
+        public async Task CreateCohortWithOtherParty_Throws_If_Not_Employer(Party creatingParty, bool expectThrows)
+        {
+            await _fixture
+                .WithParty(creatingParty)
+                .CreateCohortWithOtherParty();
+
+            if (expectThrows)
+            {
+                _fixture.VerifyException<InvalidOperationException>();
+            }
+            else
+            {
+                _fixture.VerifyNoException();
+            }
+        }
+
+        [Test]
         public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
         {
             _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer);
@@ -56,14 +98,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public void AddDraftApprenticeship_CohortNotFound_ShouldThrowException()
         {
-            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship, $"Cohort {_fixture.CohortId} was not found");
+            Assert.ThrowsAsync<BadRequestException>(_fixture.AddDraftApprenticeship,
+                $"Cohort {_fixture.CohortId} was not found");
         }
 
         [TestCase("2019-07-31", null, true)]
         [TestCase("2019-07-31", "2020-08-01", false, Description = "One day after cut off")]
         [TestCase("2019-07-31", "2020-07-31", true, Description = "Day of cut off (last valid day)")]
         [TestCase("2019-07-31", "2018-01-01", true, Description = "Day in the past")]
-        public async Task StartDate_CheckIsWithinAYearOfEndOfCurrentTeachingYear_Validation(DateTime academicYearEndDate, DateTime? startDate, bool passes)
+        public async Task StartDate_CheckIsWithinAYearOfEndOfCurrentTeachingYear_Validation(
+            DateTime academicYearEndDate, DateTime? startDate, bool passes)
         {
             await _fixture
                 .WithParty(Party.Provider)
@@ -121,6 +165,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyOverlapExceptionOnEndDate();
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task UpdateDraftApprenticeship_IsSuccessful_ThenDraftApprenticeshipIsUpdated(Party withParty)
+        {
+            _fixture.WithParty(withParty).WithExistingCohort(withParty).WithExistingDraftApprenticeship();
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyDraftApprenticeshipUpdated();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task UpdateDraftApprenticeship_WhenUserInfoDoesExist_ThenLastUpdatedFieldsAreSet(Party withParty)
+        {
+            _fixture.WithParty(withParty).WithExistingCohort(withParty).WithExistingDraftApprenticeship();
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyLastUpdatedFieldsAreSet(withParty);
+        }
+
+        [Test]
+        public async Task UpdateDraftApprenticeship_WhenUserInfoDoesNotExist_ThenLastUpdatedFieldsAreNotSet()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer).WithExistingDraftApprenticeship().WithNoUserInfo();
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyLastUpdatedFieldsAreNotSet();
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public CohortDomainService CohortDomainService { get; set; }
@@ -129,7 +199,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public long AccountLegalEntityId { get; }
             public long CohortId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
-            
+            public DraftApprenticeship ExistingDraftApprenticeship { get; }
+            public long DraftApprenticeshipId { get; }
+
             public Mock<Provider> Provider { get; set; }
             public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
             public Cohort Cohort { get; set; }
@@ -138,11 +210,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IReservationValidationService> ReservationValidationService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
-            public Mock<IAuthenticationService> AuthenticationService { get; private set; }
-            public List<DomainError>  DomainErrors { get; private set; }
+            public Mock<IAuthenticationService> AuthenticationService { get; }
+            public Exception Exception { get; private set; }
+            public List<DomainError> DomainErrors { get; }
+            public string Message { get; private set; }
+            public UserInfo UserInfo { get; private set; }
 
             public CohortDomainServiceTestFixture()
             {
+                var fixture = new Fixture();
+
                 // We need this to allow the UoW to initialise it's internal static events collection.
                 var uow = new UnitOfWorkContext();
 
@@ -154,6 +231,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 ProviderId = 1;
                 AccountLegalEntityId = 2;
                 CohortId = 3;
+                Message = fixture.Create<string>();
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
@@ -162,11 +240,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
-                
+
+                DraftApprenticeshipId = fixture.Create<long>();
+
                 DraftApprenticeshipDetails = new DraftApprenticeshipDetails
                 {
                     FirstName = "Test", LastName = "Test"
-                };               
+                };
+
+                ExistingDraftApprenticeship = new DraftApprenticeship { Id = DraftApprenticeshipId, CommitmentId = CohortId};
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
                 AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
@@ -184,7 +266,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 AuthenticationService = new Mock<IAuthenticationService>();
 
+                Exception = null;
                 DomainErrors = new List<DomainError>();
+                UserInfo = fixture.Create<UserInfo>();
 
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                     Mock.Of<ILogger<CohortDomainService>>(),
@@ -193,7 +277,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     ReservationValidationService.Object,
                     OverlapCheckService.Object,
                     AuthenticationService.Object
-                    );
+                );
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -209,6 +293,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 UlnValidator.Setup(x => x.Validate(It.IsAny<string>())).Returns(value);
                 return this;
             }
+
+            public CohortDomainServiceTestFixture WithNoMessage()
+            {
+                Message = null;
+                return this;
+            }
+
 
             public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
             {
@@ -238,7 +329,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DraftApprenticeshipDetails.Uln = "X";
                 DraftApprenticeshipDetails.StartDate = new DateTime(2020, 1, 1);
                 DraftApprenticeshipDetails.EndDate = new DateTime(2021, 1, 1);
-                
+
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.Is<string>(uln => uln == "X"), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => new OverlapCheckResult(true, false));
 
@@ -272,10 +363,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Cohort = new Cohort
                 {
                     Id = CohortId,
-                    EditStatus = creatingParty.ToEditStatus()
+                    EditStatus = creatingParty.ToEditStatus(),
+                    ProviderId = ProviderId
                 };
-                Db.Commitment.Add(Cohort);
+                Db.Cohorts.Add(Cohort);
 
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingDraftApprenticeship()
+            {
+                DraftApprenticeshipDetails.Id = DraftApprenticeshipId;
+                Db.DraftApprenticeships.Add(ExistingDraftApprenticeship);
                 return this;
             }
 
@@ -286,6 +385,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithNoUserInfo()
+            {
+                UserInfo = null;
+                return this;
+            }
+
             public async Task<Cohort> CreateCohort()
             {
                 Db.SaveChanges();
@@ -293,13 +398,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    var result = await CohortDomainService.CreateCohort(ProviderId, AccountLegalEntityId, DraftApprenticeshipDetails, false, new CancellationToken());
+                    var result = await CohortDomainService.CreateCohort(ProviderId, AccountLegalEntityId,
+                        DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
                 catch (DomainException ex)
                 {
                     DomainErrors.AddRange(ex.DomainErrors);
+                    return null;
+                }
+            }
+
+            public async Task<Cohort> CreateCohortWithOtherParty()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountLegalEntityId, Message, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                    return result;
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Exception = ex;
                     return null;
                 }
             }
@@ -311,7 +440,24 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, new CancellationToken());
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, 
+                        UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                }
+            }
+
+            public async Task UpdateDraftApprenticeship()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    await CohortDomainService.UpdateDraftApprenticeship(CohortId, DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)
@@ -324,21 +470,61 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object, DraftApprenticeshipDetails, party));
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object,
+                        DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object, DraftApprenticeshipDetails, party));
+                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, AccountLegalEntity.Object,
+                        DraftApprenticeshipDetails, UserInfo));
                 }
+            }
+
+            public void VerifyCohortCreationWithOtherParty()
+            {
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object, Message, UserInfo));
             }
 
             public void VerifyProviderDraftApprenticeshipAdded()
             {
                 Assert.IsTrue(Cohort.DraftApprenticeships.Any());
-
             }
 
+            public void VerifyDraftApprenticeshipUpdated()
+            {
+                var updated = Cohort.DraftApprenticeships.SingleOrDefault(x=>x.Id == DraftApprenticeshipId);
+
+                Assert.IsNotNull(updated, "No draft apprenticeship record found");
+                Assert.AreEqual(updated.FirstName, DraftApprenticeshipDetails.FirstName);
+                Assert.AreEqual(updated.LastName, DraftApprenticeshipDetails.LastName);
+            }
+
+            public void VerifyLastUpdatedFieldsAreSet(Party withParty)
+            {
+                switch (withParty)
+                {
+                    case Party.Employer:
+                        Assert.AreEqual(Cohort.LastUpdatedByEmployerName, UserInfo.UserDisplayName);
+                        Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail, UserInfo.UserEmail);
+                        break;
+                    case Party.Provider:
+                        Assert.AreEqual(Cohort.LastUpdatedByProviderName, UserInfo.UserDisplayName);
+                        Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, UserInfo.UserEmail);
+                        break;
+                    default:
+                        Assert.Fail("Party must be provider or Employer");
+                        break;
+                }
+            }
+
+            public void VerifyLastUpdatedFieldsAreNotSet()
+            {
+                Assert.IsNull(Cohort.LastUpdatedByEmployerName);
+                Assert.IsNull(Cohort.LastUpdatedByEmployerEmail);
+                Assert.IsNull(Cohort.LastUpdatedByProviderName);
+                Assert.IsNull(Cohort.LastUpdatedByProviderEmail);
+            }
             public void VerifyStartDateException(bool passes)
             {
                 if (passes)
@@ -374,19 +560,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyReservationValidationNotPerformed()
             {
-               ReservationValidationService.Verify(x => x.Validate(It.IsAny<ReservationValidationRequest>(),
-                       It.IsAny<CancellationToken>()),
-                   Times.Never);
+                ReservationValidationService.Verify(x => x.Validate(It.IsAny<ReservationValidationRequest>(),
+                        It.IsAny<CancellationToken>()),
+                    Times.Never);
             }
 
             public void VerifyOverlapExceptionOnStartDate()
             {
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "StartDate"));
             }
+
             public void VerifyOverlapExceptionOnEndDate()
             {
                 Assert.IsTrue(DomainErrors.Any(x => x.PropertyName == "EndDate"));
             }
-        } 
+
+            public void VerifyException<T>()
+            {
+                Assert.IsNotNull(Exception);
+                Assert.IsInstanceOf<T>(Exception);
+            }
+
+            public void VerifyNoException()
+            {
+                Assert.IsNull(Exception);
+            }
+        }
     }
 }

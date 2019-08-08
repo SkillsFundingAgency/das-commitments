@@ -45,17 +45,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             var cohort = await _cohortDomainService.CreateCohort(command.ProviderId,
                 command.AccountLegalEntityId,
                 draftApprenticeshipDetails,
-                false,
+                command.UserInfo,
                 cancellationToken);
 
-            db.Commitment.Add(cohort);
+            db.Cohorts.Add(cohort);
             await db.SaveChangesAsync(cancellationToken);
 
             //this encoding and re-save could be removed and put elsewhere
             cohort.Reference = _encodingService.Encode(cohort.Id, EncodingType.CohortReference);
             await db.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation($"Saved cohort. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{cohort?.Id} Apprenticeship:{cohort?.Apprenticeships?.First()?.Id}");
+            _logger.LogInformation($"Saved cohort. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Reservation-Id:{command.ReservationId} Commitment-Id:{cohort.Id} Apprenticeship:{cohort.Apprenticeships?.FirstOrDefault()?.Id}");
 
             var response = new AddCohortResponse
             {

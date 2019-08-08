@@ -1,11 +1,11 @@
 ﻿using System;
 using MediatR;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
     public class AddCohortCommand : IRequest<AddCohortResponse>
     {
-        public string UserId { get; set; }
         public long AccountLegalEntityId { get; set; }
         public long ProviderId { get; set; }
 
@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public string ULN { get; set; }
+        public string Uln { get; set; }
+        public UserInfo UserInfo { get; set; }
     }
 }

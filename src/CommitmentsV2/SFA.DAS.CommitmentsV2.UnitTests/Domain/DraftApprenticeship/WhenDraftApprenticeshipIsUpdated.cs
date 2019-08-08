@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -36,10 +37,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
         [Test]
         public void ThenUlnIsMappedCorrectly()
         {
-            var result = _fixture.WithModifyingParty(Party.Provider).ApplyUpdate();
+            var result = _fixture.WithModifyingParty(Party.Provider).WithUlnUpdateOnly().ApplyUpdate();
             Assert.AreEqual(_fixture.DraftApprenticeshipDetails.Uln, result.Uln);
         }
 
+        [Test]
+        public void ThenEmployerUlnUpdateIsNotAllowed()
+        {
+            Assert.Throws<DomainException>(() => _fixture.WithModifyingParty(Party.Employer).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate());
+        }
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
@@ -125,14 +131,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
         }
 
-
-        [TestCase(Party.Provider)]
-        [TestCase(Party.Employer)]
-        public void ThenPriorApprovalByOtherPartyIsNotResetByUlnUpdate(Party modifyingParty)
+        [Test]
+        public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate()
         {
-            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate();
+            var result = _fixture.WithModifyingParty(Party.Provider).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate();
             Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
         }
+
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
@@ -153,8 +158,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             public DraftApprenticeshipUpdateTestFixture()
             {
                 _autoFixture = new Fixture();
-                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(_autoFixture.Create<DraftApprenticeshipDetails>(), Party.Provider);
-                DraftApprenticeshipDetails = _autoFixture.Create<DraftApprenticeshipDetails>();
+                _draftApprenticeship = new CommitmentsV2.Models.DraftApprenticeship(_autoFixture.Build<DraftApprenticeshipDetails>().Without(o=>o.Uln).Create(), Party.Provider);
+                DraftApprenticeshipDetails = _autoFixture.Build<DraftApprenticeshipDetails>().Without(o => o.Uln).Create();
             }
 
             public DraftApprenticeshipUpdateTestFixture WithUlnUpdateOnly()

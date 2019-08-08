@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             _loggerFactory = loggerFactory;
         }
 
-        public ProviderCommitmentsDbContext CreateAccountsDbContext()
+        public ProviderCommitmentsDbContext CreateDbContext()
         {
             var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseSqlServer(_dbConnection)
