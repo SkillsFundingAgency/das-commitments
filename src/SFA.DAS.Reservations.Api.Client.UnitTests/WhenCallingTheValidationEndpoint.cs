@@ -56,7 +56,6 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
                 var autoFixture = new Fixture();
                 _request = new ValidationReservationMessage
                 {
-                    AccountId = autoFixture.Create<long>(),
                     CourseCode = autoFixture.Create<string>(),
                     ReservationId = autoFixture.Create<Guid>(),
                     StartDate = autoFixture.Create<DateTime>()
@@ -71,7 +70,7 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
 
             public void AssertUriCorrectlyFormed()
             {
-                var expectedUrl = $"api/accounts/{_request.AccountId}/reservations/{_request.ReservationId}";
+                var expectedUrl = $"api/reservations/validate/{_request.ReservationId}";
 
                 _restHttpClient.Verify(x => x.Get<ValidationResult>(It.Is<string>(s => s == expectedUrl),
                     It.IsAny<object>(),
