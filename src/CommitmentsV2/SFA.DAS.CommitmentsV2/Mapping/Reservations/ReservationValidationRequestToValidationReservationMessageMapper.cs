@@ -10,7 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Reservations
         {
             return Task.FromResult(new ValidationReservationMessage
             {
-                AccountId = source.AccountId,
                 ReservationId = source.ReservationId,
                 StartDate = source.StartDate,
                 CourseCode = source.CourseCode
