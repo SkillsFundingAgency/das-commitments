@@ -13,8 +13,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(int id, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetCohortSummaryValidator();
-            var validationResults = validator.Validate(new GetCohortSummaryRequest { CohortId = id});
+            var validator = new GetCohortSummaryQueryValidator();
+            var validationResults = validator.Validate(new GetCohortSummaryQuery { CohortId = id});
 
             // act
             var actualIsValid = validationResults.IsValid;

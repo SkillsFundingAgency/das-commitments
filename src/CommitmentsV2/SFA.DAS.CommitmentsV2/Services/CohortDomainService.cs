@@ -46,25 +46,39 @@ namespace SFA.DAS.CommitmentsV2.Services
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountLegalEntityId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, bool assignToOtherParty, UserInfo userInfo, CancellationToken cancellationToken)
+            DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
-            var initialParty = assignToOtherParty ? originatingParty.GetOtherParty() : originatingParty;
-            
+
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            if (draftApprenticeshipDetails != null)
+			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+
+            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+        }
+
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var originatingParty = _authenticationService.GetUserParty();
+
+            if (originatingParty != Party.Employer)
             {
-                await ValidateDraftApprenticeshipDetails(providerId, accountLegalEntity.AccountId, accountLegalEntity.PublicHashedId, draftApprenticeshipDetails, cancellationToken);
+                throw new InvalidOperationException($"Only Employers can create Cohorts with other party");
             }
 
-            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, initialParty, userInfo);
+            var db = _dbContext.Value;
+
+            var provider = await GetProvider(providerId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountLegalEntityId, db, cancellationToken);
+
+            return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
         }
-        
+
+
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
             DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
@@ -72,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await GetCohort(cohortId, db, cancellationToken);
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
-            await ValidateDraftApprenticeshipDetails(providerId, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
             return draftApprenticeship;
         }
@@ -90,7 +104,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
-            await ValidateDraftApprenticeshipDetails(cohort.ProviderId.Value, cohort.EmployerAccountId, cohort.AccountLegalEntityPublicHashedId, draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
             return cohort;
         }
@@ -149,12 +163,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             return provider;
         }
 
-        private async Task ValidateDraftApprenticeshipDetails(long providerId, long accountId, string accountLegalEntityPublicHashedId, DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
+        private async Task ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails, CancellationToken cancellationToken)
         {
             ValidateStartDate(draftApprenticeshipDetails);
             ValidateUln(draftApprenticeshipDetails);
             await ValidateOverlaps(draftApprenticeshipDetails, cancellationToken);
-            await ValidateReservation(accountId, draftApprenticeshipDetails, cancellationToken);
+            await ValidateReservation(draftApprenticeshipDetails, cancellationToken);
         }
 
         private void ValidateUln(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -181,12 +195,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private async Task ValidateReservation(long accountId, DraftApprenticeshipDetails details, CancellationToken cancellationToken)
+        private async Task ValidateReservation(DraftApprenticeshipDetails details, CancellationToken cancellationToken)
         {
             if (!details.ReservationId.HasValue || !details.StartDate.HasValue || details.TrainingProgramme == null)
                 return;
 
-            var validationRequest = new ReservationValidationRequest(accountId, details.ReservationId.Value, details.StartDate.Value, details.TrainingProgramme.CourseCode);
+            var validationRequest = new ReservationValidationRequest(details.ReservationId.Value, details.StartDate.Value, details.TrainingProgramme.CourseCode);
 
             var validationResult = await _reservationValidationService.Validate(validationRequest, cancellationToken);
 

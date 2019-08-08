@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<UlnUtilisation[]> GetUlnUtilisations(string uln, CancellationToken cancellationToken)
         {
-            using (var db = _dbContextFactory.CreateAccountsDbContext())
+            using (var db = _dbContextFactory.CreateDbContext())
             {
                 var result = await db.ApprovedApprenticeships
                     .Where(ca => ca.Uln == uln)

@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Data
             _loggerFactory = loggerFactory;
         }
 
-        public ProviderCommitmentsDbContext CreateAccountsDbContext()
+        public ProviderCommitmentsDbContext CreateDbContext()
         {
             var synchronizedStorageSession = _unitOfWorkContext.Find<SynchronizedStorageSession>();
             var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();

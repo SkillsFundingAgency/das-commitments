@@ -67,6 +67,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public void ThenCohortMustBeWithCreator(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortIsWithCreator();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenCohortCannotBeEmpty(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .CreateCohort();
+
+            _fixture.VerifyException<DomainException>();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public void ThenCohortIsUnapproved(Party creatingParty)
         {
             _fixture
@@ -105,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
-        public void ThenCohortContainsDraftApprenticeshipIfIncluded(Party creatingParty)
+        public void ThenCohortContainsDraftApprenticeship(Party creatingParty)
         {
             _fixture
                 .WithCreatingParty(creatingParty)
@@ -126,5 +149,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
             _fixture.VerifyLastUpdatedFieldsAreSetForParty(creatingParty);
         }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenCohortIsADraftIfAssignedToCreator(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortIsDraft();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenNoMessageIsAdded(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyNoMessageIsAdded();
+        }
+
+
     }
 }

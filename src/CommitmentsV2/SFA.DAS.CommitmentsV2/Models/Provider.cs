@@ -23,9 +23,12 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
 
-        public virtual Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity, DraftApprenticeshipDetails draftApprenticeshipDetails, Party initialParty, UserInfo userInfo)
+        public virtual Cohort CreateCohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            DraftApprenticeshipDetails draftApprenticeshipDetails,
+            UserInfo userInfo)
         {
-            return new Cohort(this, accountLegalEntity, draftApprenticeshipDetails, initialParty, Party.Provider, userInfo);
+            return new Cohort(this, accountLegalEntity, draftApprenticeshipDetails, Party.Provider, userInfo);
         }
     }
 }
