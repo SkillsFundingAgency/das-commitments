@@ -20,10 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
             {
                 RuleFor(r => r.ReservationId).NotEmpty().WithMessage("The reservation id must be supplied");
             }
-            else
-            {
-                RuleFor(r => r.ReservationId).Null().WithMessage("The reservation id must not be supplied");
-            }
+            
             RuleFor(r => r.UserInfo).SetValidator(new UserInfoValidator()).When(r => r.UserInfo != null);
         }
     }

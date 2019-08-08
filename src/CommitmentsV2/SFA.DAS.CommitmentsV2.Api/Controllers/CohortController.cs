@@ -33,20 +33,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{cohortId}")]
         public async Task<IActionResult> GetCohort(long cohortId)
         {
-            var result = await _mediator.Send(new GetCohortSummaryRequest{CohortId = cohortId});
+            var result = await _mediator.Send(new GetCohortSummaryQuery{CohortId = cohortId});
 
             if (result == null)
             {
                 return NotFound();
             }
-
+            
             return Ok(new GetCohortResponse
             {
                 CohortId = result.CohortId,
                 LegalEntityName = result.LegalEntityName,
                 ProviderName = result.ProviderName,
                 IsFundedByTransfer = result.IsFundedByTransfer,
-                WithParty = result.WithParty
+                WithParty = result.WithParty,
+                LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
+                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
             });
         }
 

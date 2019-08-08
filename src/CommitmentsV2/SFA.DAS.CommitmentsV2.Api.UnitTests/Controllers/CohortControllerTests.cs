@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse {CohortId = cohortId},
+                    new GetCohortSummaryQueryResult {CohortId = cohortId},
                     response => Assert.AreEqual(cohortId, response.CohortId));
         }
 
@@ -95,7 +95,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { LegalEntityName = name},
+                    new GetCohortSummaryQueryResult { LegalEntityName = name},
                     response => Assert.AreEqual(name, response.LegalEntityName));
         }
 
@@ -108,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { ProviderName = name },
+                    new GetCohortSummaryQueryResult { ProviderName = name },
                     response => Assert.AreEqual(name, response.ProviderName));
         }
 
@@ -121,7 +121,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { IsFundedByTransfer = expectedIsTransferFunded},
+                    new GetCohortSummaryQueryResult { IsFundedByTransfer = expectedIsTransferFunded},
                     response => Assert.AreEqual(expectedIsTransferFunded, response.IsFundedByTransfer));
         }
 
@@ -133,8 +133,32 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return new CohortControllerTestFixtures()
                 .AssertGetCohortResponse(
                     cohortId,
-                    new GetCohortSummaryResponse { WithParty = Party.Employer },
+                    new GetCohortSummaryQueryResult { WithParty = Party.Employer },
                     response => Assert.AreEqual(Party.Employer, response.WithParty));
+        }
+
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnLatestMessageCreatedByEmployer()
+        {
+            const long cohortId = 1234;
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryQueryResult { LatestMessageCreatedByEmployer = "Foobar" },
+                    response => Assert.AreEqual("Foobar", response.LatestMessageCreatedByEmployer));
+        }
+
+        [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnLatestMessageCreatedByProvider()
+        {
+            const long cohortId = 1234;
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryQueryResult { LatestMessageCreatedByProvider = "Foobar" },
+                    response => Assert.AreEqual("Foobar", response.LatestMessageCreatedByProvider));
         }
 
         [Test]
@@ -254,13 +278,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
 
-        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryResponse queryResponse, Action<GetCohortResponse> checkHttpResponse)
+        public async Task AssertGetCohortResponse(long cohortId, GetCohortSummaryQueryResult queryQueryResult, Action<GetCohortResponse> checkHttpResponse)
         {
             var controller = CreateController();
 
             MediatorMock
-                .Setup(m => m.Send(It.Is<GetCohortSummaryRequest>(r => r.CohortId == cohortId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => queryResponse);
+                .Setup(m => m.Send(It.Is<GetCohortSummaryQuery>(r => r.CohortId == cohortId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => queryQueryResult);
                     
             var http = await controller.GetCohort(cohortId);
             var getCohortResponse = ((OkObjectResult)http).Value as GetCohortResponse;

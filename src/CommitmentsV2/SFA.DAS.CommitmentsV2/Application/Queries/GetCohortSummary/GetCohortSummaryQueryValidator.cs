@@ -3,9 +3,9 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
-    public class GetCohortSummaryValidator :  AbstractValidator<GetCohortSummaryRequest>
+    public class GetCohortSummaryQueryValidator :  AbstractValidator<GetCohortSummaryQuery>
     {
-        public GetCohortSummaryValidator()
+        public GetCohortSummaryQueryValidator()
         {
             RuleFor(model => model.CohortId).GreaterThan(0).WithMessage("The cohort id must be supplied");
         }
