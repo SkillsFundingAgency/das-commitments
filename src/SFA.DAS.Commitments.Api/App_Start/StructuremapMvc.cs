@@ -47,6 +47,16 @@ namespace SFA.DAS.Commitments.Api.App_Start
         {
             try
             {
+                var a = System.Reflection.Assembly.Load(
+                    "Microsoft.WindowsAzure.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+
+                System.Diagnostics.Debug.WriteLine($"Loaded assembly: {a.FullName}");
+
+                var t = a.GetType("Microsoft.Azure.CloudConfigurationManager");
+
+                System.Diagnostics.Debug.WriteLine($"Loaded type: {t.GetType().FullName}");
+
+
                 var container = IoC.Initialize();
                 StructureMapDependencyScope = new StructureMapDependencyScope(container);
                 DependencyResolver.SetResolver(StructureMapDependencyScope);

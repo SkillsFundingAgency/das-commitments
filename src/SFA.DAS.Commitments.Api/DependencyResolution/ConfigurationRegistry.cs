@@ -7,9 +7,9 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
     {
         public ConfigurationRegistry()
         {
-            For<IConfigurationService>().Use<ConfigurationService>().Singleton();
-            For<ConfigurationOptions>().Use(Infrastructure.Configuration.Configuration.ConfigurationOptions);
-            For<IConfigurationRepository>().Use(Infrastructure.Configuration.Configuration.ConfigurationRepository);
+            //For<IConfigurationService>().Use<ConfigurationService>().Singleton();
+            //For<ConfigurationOptions>().Use(Infrastructure.Configuration.Configuration.ConfigurationOptions);
+            //For<IConfigurationRepository>().Use(Infrastructure.Configuration.Configuration.ConfigurationRepository);
         }
     }
 }

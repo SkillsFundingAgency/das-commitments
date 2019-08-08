@@ -12,30 +12,22 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
         private const string ServiceName = "SFA.DAS.Commitments";
         private const string Version = "1.0";
 
-        private static readonly Lazy<IConfigurationRepository> LazyConfigurationRepository = new Lazy<IConfigurationRepository>(GetConfigurationRepository);
+        private static readonly Lazy<IConfigurationService> LazyConfigurationService = new Lazy<IConfigurationService>(GetConfigurationService);
 
         public static CommitmentsApiConfiguration Get()
         {
-            var environment = CloudConfigurationManager.GetSetting("EnvironmentName");
-
-            var configurationRepository = GetConfigurationRepository();
-            var configurationService = new ConfigurationService(configurationRepository, new ConfigurationOptions(ServiceName, environment, Version));
-
-            return configurationService.Get<CommitmentsApiConfiguration>();
+            return ConfigurationService.Get<CommitmentsApiConfiguration>();
         }
 
         public static string EnvironmentName = GetEnvironmentName();
-        public static IConfigurationRepository ConfigurationRepository => LazyConfigurationRepository.Value;
-        public static ConfigurationOptions ConfigurationOptions = GetOptions();
 
-        private static IConfigurationRepository GetConfigurationRepository()
-        {
-            return new AzureTableStorageConfigurationRepository();
-        }
+        public static IConfigurationService ConfigurationService => LazyConfigurationService.Value;
 
-        private static ConfigurationOptions GetOptions()
+        private static IConfigurationService GetConfigurationService()
         {
-            return new ConfigurationOptions(ServiceName, EnvironmentName, Version);
+            var repo = new AzureTableStorageConfigurationRepository();
+            var options = new ConfigurationOptions(ServiceName, EnvironmentName, Version);
+            return new ConfigurationService(repo, options);
         }
 
         private static string GetEnvironmentName()
