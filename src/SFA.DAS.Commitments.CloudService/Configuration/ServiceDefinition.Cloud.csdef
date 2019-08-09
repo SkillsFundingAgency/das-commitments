@@ -19,6 +19,7 @@
       <Setting name="LoggingRedisKey"/>
       <Setting name="InstrumentationKey"/>
       <Setting name="CurrentTime"/>
+      <Setting name="FeatureToggle.ManageReservations" />
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="httpsin" protocol="https" port="443" certificate="WebSslCert"/>

@@ -10,6 +10,7 @@ using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Services
 {
@@ -201,6 +202,21 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ApprenticeshipCreatedEvent>(p => p.AgreedOn != p.CreatedOn), It.IsAny<PublishOptions>()));
         }
+
+        [TestCase(null)]
+        [TestCase(ApprenticeshipEmployerType.NonLevy)]
+        [TestCase(ApprenticeshipEmployerType.Levy)]
+        public async Task PublishApprenticeshipCreated_ShouldSetApprenticeshipEmployerTypeOnApproval(ApprenticeshipEmployerType? apprenticeshipEmployerType)
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<ApprenticeshipCreatedEvent>()
+                .WithStartDate()
+                .WithEndDate()
+                .WithApprenticeshipEmployerTypeOnApproval(apprenticeshipEmployerType);
+            
+            await fixtures.Publish(publisher => publisher.PublishApprenticeshipCreated(fixtures.ApprenticeshipEvent));
+
+            fixtures.EndpointInstanceMock.Verify(x => x.Publish(It.Is<ApprenticeshipCreatedEvent>(p => p.ApprenticeshipEmployerTypeOnApproval == apprenticeshipEmployerType), It.IsAny<PublishOptions>())); 
+        }
         #endregion
 
         #region PublishPaymentOrderChanged
@@ -298,6 +314,13 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Commitment.TransferApprovalActionedOn = DateTime.Today;
             Commitment.TransferSenderId = 12344;
             Commitment.TransferApprovalStatus = TransferApprovalStatus.TransferApproved;
+            return this;
+        }
+
+        public V2EventsPublisherTestFixtures<TEvent> WithApprenticeshipEmployerTypeOnApproval(ApprenticeshipEmployerType? apprenticeshipEmployerType)
+        {
+            Commitment.ApprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerType;
+            
             return this;
         }
 

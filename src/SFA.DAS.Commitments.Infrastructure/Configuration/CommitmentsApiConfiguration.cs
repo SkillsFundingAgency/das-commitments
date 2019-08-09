@@ -15,5 +15,6 @@ namespace SFA.DAS.Commitments.Infrastructure.Configuration
         public ApprenticeshipInfoServiceConfiguration ApprenticeshipInfoService { get; set; }
         public string MessageServiceBusConnectionString { get; set; }
         public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
+        public EmployerAccountsApiClientConfiguration AccountApi { get; set; }
     }
 }

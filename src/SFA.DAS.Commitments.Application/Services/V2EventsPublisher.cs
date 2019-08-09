@@ -81,7 +81,8 @@ namespace SFA.DAS.Commitments.Application.Services
                     PriceEpisodes = GetPriceEpisodes(apprenticeshipEvent.Apprenticeship),
                     TrainingType = (CommitmentsV2.Types.ProgrammeType)apprenticeshipEvent.Apprenticeship.TrainingType,
                     TrainingCode = apprenticeshipEvent.Apprenticeship.TrainingCode,
-                    TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId
+                    TransferSenderId = apprenticeshipEvent.Apprenticeship.TransferSenderId,
+                    ApprenticeshipEmployerTypeOnApproval = apprenticeshipEvent.Commitment.ApprenticeshipEmployerTypeOnApproval
             });
 
                 _logger.Info($"{logMessage} successful");

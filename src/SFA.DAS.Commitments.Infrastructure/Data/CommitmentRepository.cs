@@ -9,9 +9,12 @@ using Newtonsoft.Json;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Provider.Events.Api.Client;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -123,6 +126,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
                 parameters.Add("@lastUpdatedByEmployerEmail", commitment.LastUpdatedByEmployerEmail, DbType.String);
                 parameters.Add("@lastUpdatedByProviderName", commitment.LastUpdatedByProviderName, DbType.String);
                 parameters.Add("@lastUpdatedByProviderEmail", commitment.LastUpdatedByProviderEmail, DbType.String);
+                parameters.Add("@apprenticeshipEmployerTypeOnApproval", commitment.ApprenticeshipEmployerTypeOnApproval, DbType.Byte);
 
                 await connection.ExecuteAsync(
                     sql: "UpdateCommitment",
@@ -189,9 +193,9 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
             });
         }
 
-        public async Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName)
+        public async Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval = null)
         {
-            _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
+            _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} and ApprenticeshipEmployerTypeOnApproval to {apprenticeshipEmployerTypeOnApproval} on commitment {commitmentId}", commitmentId: commitmentId);
             try
             {
                 //todo: await WithTransaction(async (connection, transaction) => ??
@@ -209,7 +213,8 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
                                 @commitmentId = commitmentId,
                                 @transferApprovalStatus = transferApprovalStatus,
                                 @transferStatusSetByEmployerName = userName,
-                                @transferStatusSetByEmployerEmail = userEmail
+                                @transferStatusSetByEmployerEmail = userEmail,
+                                @apprenticeshipEmployerTypeOnApproval = apprenticeshipEmployerTypeOnApproval
                             }
                         );
                         tran.Commit();

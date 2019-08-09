@@ -22,6 +22,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
+        private readonly IFeatureToggleService _featureToggleService;
+        private readonly IEmployerAccountsService _employerAccountsService;
         private readonly HistoryService _historyService;
         private readonly CohortApprovalService _cohortApprovalService;
 
@@ -37,12 +39,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             IMessagePublisher messagePublisher,
             ICommitmentsLogger logger,
             IApprenticeshipInfoService apprenticeshipInfoService,
+            IFeatureToggleService featureToggleService,
+            IEmployerAccountsService employerAccountsService,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
             _logger = logger;
+            _featureToggleService = featureToggleService;
+            _employerAccountsService = employerAccountsService;
             _historyService = new HistoryService(historyRepository);
             
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository,
@@ -108,10 +114,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             return currentAgreementStatus == AgreementStatus.ProviderAgreed;
         }
 
-        private async Task UpdateCommitment(Commitment commitment, bool isFinalApproval, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
+        private async Task UpdateCommitment(Commitment commitment, bool haveBothPartiesApproved, string userId, string lastUpdatedByName, string lastUpdatedByEmail, string message)
         {
-            var updatedEditStatus = DetermineNewEditStatus(isFinalApproval);
-            var changeType = _cohortApprovalService.DetermineHistoryChangeType(isFinalApproval);
+            var updatedEditStatus = DetermineNewEditStatus(haveBothPartiesApproved);
+            var changeType = _cohortApprovalService.DetermineHistoryChangeType(haveBothPartiesApproved);
             _historyService.TrackUpdate(commitment, changeType.ToString(), commitment.Id, null, CallerType.Employer, userId, commitment.ProviderId, commitment.EmployerAccountId, lastUpdatedByName);
 
             commitment.EditStatus = updatedEditStatus;
@@ -121,6 +127,13 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
             commitment.TransferApprovalStatus = null;
 
+            if (_featureToggleService.IsEnabled("ManageReservations") && haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            {
+                var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
+
+                commitment.ApprenticeshipEmployerTypeOnApproval = account.ApprenticeshipEmployerType;
+            }
+            
             await Task.WhenAll(
                 _cohortApprovalService.AddMessageToCommitment(commitment, lastUpdatedByName, message, CallerType.Employer),
                 _commitmentRepository.UpdateCommitment(commitment), 

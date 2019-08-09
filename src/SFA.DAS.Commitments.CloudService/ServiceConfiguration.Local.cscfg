@@ -13,6 +13,7 @@
       <Setting name="LoggingRedisKey" value="" />
       <Setting name="InstrumentationKey" value=""/>
       <Setting name="CurrentTime" value="" />
+      <Setting name="FeatureToggle.ManageReservations" value="true" />
     </ConfigurationSettings>
      <Certificates>
       <Certificate name="WebSslCert" thumbprint="C330ADC8A2164D684E5ED7F0140ADD22505CC9E7" thumbprintAlgorithm="sha1" />
