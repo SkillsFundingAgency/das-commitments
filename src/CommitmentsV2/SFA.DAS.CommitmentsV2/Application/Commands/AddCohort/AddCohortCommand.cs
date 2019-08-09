@@ -6,7 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
     public class AddCohortCommand : IRequest<AddCohortResponse>
     {
-        public long AccountId { get; set; }
         public long AccountLegalEntityId { get; set; }
         public long ProviderId { get; set; }
 
