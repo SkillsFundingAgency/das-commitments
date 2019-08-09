@@ -71,13 +71,17 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
 
             if (_featureToggleService.IsEnabled("ManageReservations"))
             {
+                _logger.Debug("Approving transfer request with ManageReservations feature enabled");
+
                 var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
-                
+
                 await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
                     TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName, account.ApprenticeshipEmployerType);
             }
             else
             {
+                _logger.Debug("Approving transfer request with ManageReservations feature disabled");
+
                 await _commitmentRepository.SetTransferRequestApproval(command.TransferRequestId, command.CommitmentId,
                     TransferApprovalStatus.TransferApproved, command.UserEmail, command.UserName, null);
             }

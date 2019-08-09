@@ -195,7 +195,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
 
         public async Task SetTransferRequestApproval(long transferRequestId, long commitmentId, TransferApprovalStatus transferApprovalStatus, string userEmail, string userName, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval = null)
         {
-            _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} on commitment {commitmentId}", commitmentId: commitmentId);
+            _logger.Debug($"Setting TransferRequest Approval to {transferApprovalStatus} and ApprenticeshipEmployerTypeOnApproval to {apprenticeshipEmployerTypeOnApproval} on commitment {commitmentId}", commitmentId: commitmentId);
             try
             {
                 //todo: await WithTransaction(async (connection, transaction) => ??
