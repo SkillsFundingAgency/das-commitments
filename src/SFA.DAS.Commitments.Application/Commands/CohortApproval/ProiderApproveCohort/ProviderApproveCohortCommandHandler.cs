@@ -22,6 +22,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
+        private readonly IFeatureToggleService _featureToggleService;
+        private readonly IEmployerAccountsService _employerAccountsService;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -37,12 +39,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             IMessagePublisher messagePublisher,
             ICommitmentsLogger logger,
             IApprenticeshipInfoService apprenticeshipInfoService,
+            IFeatureToggleService featureToggleService,
+            IEmployerAccountsService employerAccountsService,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
             _logger = logger;
+            _featureToggleService = featureToggleService;
+            _employerAccountsService = employerAccountsService;
             _historyService = new HistoryService(historyRepository);
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
         }
@@ -97,7 +103,14 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             commitment.CommitmentStatus = CommitmentStatus.Active;
             commitment.LastUpdatedByProviderEmail = lastUpdatedByEmail;
             commitment.LastUpdatedByProviderName = lastUpdatedByName;
+            
+            if (_featureToggleService.IsEnabled("ManageReservations") && haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            {
+                var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
 
+                commitment.ApprenticeshipEmployerTypeOnApproval = account.ApprenticeshipEmployerType;
+            }
+            
             await Task.WhenAll(
                 _cohortApprovalService.AddMessageToCommitment(commitment, lastUpdatedByName, message, CallerType.Provider),
                 _commitmentRepository.UpdateCommitment(commitment),

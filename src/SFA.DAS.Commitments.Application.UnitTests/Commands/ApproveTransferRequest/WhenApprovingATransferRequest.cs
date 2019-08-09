@@ -19,7 +19,12 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Commitments.Infrastructure.Services;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequest
 {
@@ -39,6 +44,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         private Mock<IMediator> _mediator;
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IHistoryRepository> _historyRepository;
+        private Mock<IFeatureToggleService> _featureToggleService;
+        private Mock<IEmployerAccountsService> _employerAccountsService;
+        private Account _account;
         private ApproveTransferRequestCommandHandler _sut;
 
         [SetUp]
@@ -54,6 +62,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             _mediator = new Mock<IMediator>();
             _messagePublisher = new Mock<IMessagePublisher>();
             _historyRepository = new Mock<IHistoryRepository>();
+            _featureToggleService = new Mock<IFeatureToggleService>();
+            _employerAccountsService = new Mock<IEmployerAccountsService>();
             _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             var fixture = new Fixture();
@@ -64,23 +74,31 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
                 .With(x => x.TransferApprovalStatus, TransferApprovalStatus.Pending)
                 .With(x => x.EditStatus, EditStatus.Both).Create();
 
+            _account = fixture.Create<Account>();
+
             _commitmentRepository.Setup(x=>x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_commitment);
             _commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
+            _employerAccountsService.Setup(s => s.GetAccount(_commitment.EmployerAccountId)).ReturnsAsync(_account);
 
             _sut = new ApproveTransferRequestCommandHandler(_validator, _commitmentRepository.Object,
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList, _apprenticeshipEventsPublisher.Object, _mediator.Object,
                 _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>(), _v2EventsPublisher.Object);
+                Mock.Of<IApprenticeshipInfoService>(), _featureToggleService.Object, _employerAccountsService.Object,
+                _v2EventsPublisher.Object);
         }
 
-        [Test]
-        public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus()
+        [TestCase(false, null)]
+        [TestCase(true, ApprenticeshipEmployerType.NonLevy)]
+        [TestCase(true, ApprenticeshipEmployerType.Levy)]
+        public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus(bool isManageReservationsEnabled, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval)
         {
             _command.TransferRequestId = 6467;
+            _featureToggleService.Setup(s => s.IsEnabled("ManageReservations")).Returns(isManageReservationsEnabled);
+            _account.ApprenticeshipEmployerType = apprenticeshipEmployerTypeOnApproval.GetValueOrDefault();
             await _sut.Handle(_command);
 
-            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName));
+            _commitmentRepository.Verify(x => x.SetTransferRequestApproval(_command.TransferRequestId, _command.CommitmentId, TransferApprovalStatus.TransferApproved, _command.UserEmail, _command.UserName, apprenticeshipEmployerTypeOnApproval));
         }
 
         [Test]

@@ -26,6 +26,7 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Infrastructure.Data;
 using SFA.DAS.Commitments.Infrastructure.Logging;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Events.Api.Client;
 using SFA.DAS.Events.Api.Client.Configuration;
 using SFA.DAS.NLog.Logger;
@@ -59,6 +60,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
             ConfigureHashingService(config);
 
+            For<IAccountApiClient>().Use<AccountApiClient>().Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
             For<IEventsApi>().Use<EventsApi>()
                 .Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi)
                 .SelectConstructor(() => new EventsApi(null)); // The default one isn't the one we want to use.

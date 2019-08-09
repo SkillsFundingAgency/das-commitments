@@ -3,7 +3,8 @@
 	@commitmentId BIGINT,
 	@transferApprovalStatus TINYINT,
 	@transferStatusSetByEmployerName NVARCHAR(255),
-	@transferStatusSetByEmployerEmail NVARCHAR(255)
+	@transferStatusSetByEmployerEmail NVARCHAR(255),
+	@apprenticeshipEmployerTypeOnApproval TINYINT = NULL
 AS
 BEGIN
 
@@ -13,7 +14,8 @@ BEGIN
 	UPDATE [dbo].[Commitment] SET 
 		@OldApprovalStatus = TransferApprovalStatus,
 		TransferApprovalStatus = @transferApprovalStatus,
-		TransferApprovalActionedOn = @ApproveDate
+		TransferApprovalActionedOn = @ApproveDate,
+		ApprenticeshipEmployerTypeOnApproval = @apprenticeshipEmployerTypeOnApproval
 	WHERE Id = @commitmentId;
 
 	IF @@ROWCOUNT != 1 

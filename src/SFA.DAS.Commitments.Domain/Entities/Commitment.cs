@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Domain.Entities
 {
@@ -34,11 +35,13 @@ namespace SFA.DAS.Commitments.Domain.Entities
         public bool EmployerCanApproveCommitment { get; set; }
         public bool ProviderCanApproveCommitment { get; set; }
         public Originator Originator { get; set; }
+        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
 
         public string LastUpdatedByEmployerName { get; set; }
         public string LastUpdatedByEmployerEmail { get; set; }
         public string LastUpdatedByProviderName { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
+        
 
         [JsonIgnore]
         public List<Apprenticeship> Apprenticeships { get; set; }

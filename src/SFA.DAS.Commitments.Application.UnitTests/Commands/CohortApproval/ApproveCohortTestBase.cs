@@ -15,7 +15,11 @@ using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Entities.Validation;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
 {
@@ -32,9 +36,12 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<IMediator> Mediator;
         protected Mock<IMessagePublisher> MessagePublisher;
         protected Mock<IApprenticeshipInfoService> ApprenticeshipInfoService;
+        protected Mock<IFeatureToggleService> FeatureToggleService;
+        protected Mock<IEmployerAccountsService> EmployerAccountsService;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
         protected Commitment Commitment;
+        protected Account Account;
 
         [Test]
         public void ThenIfTheCommitmentIsDeletedItCannotBeApproved()
@@ -86,6 +93,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             ApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             Mediator = new Mock<IMediator>();
             MessagePublisher = new Mock<IMessagePublisher>();
+            FeatureToggleService = new Mock<IFeatureToggleService>();
+            EmployerAccountsService = new Mock<IEmployerAccountsService>();
         }
 
         protected Commitment CreateCommitment(long commitmentId, long employerAccountId, long providerId, long? transferSenderId = null, string transferSenderName = null)
@@ -107,6 +116,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
                 ProviderId = providerId,
                 TransferSenderId = transferSenderId,
                 TransferSenderName = transferSenderName
+            };
+        }
+
+        protected Account CreateAccount(long accountId, ApprenticeshipEmployerType apprenticeshipEmployerType)
+        {
+            return new Account
+            {
+                Id = accountId,
+                ApprenticeshipEmployerType = apprenticeshipEmployerType
             };
         }
 
