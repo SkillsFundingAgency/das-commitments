@@ -30,15 +30,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             const string expectedHash = "ABC123";
 
             const long providerId = 1;
-            const long accountId = 2;
             const long accountLegalEntityId = 3;
 
             var fixtures = new AddCohortCommandHandlerTestFixture()
                                 .WithGeneratedHash(expectedHash);
 
-            var response = await fixtures.Handle(accountId, accountLegalEntityId, providerId, "Course1");
+            var response = await fixtures.Handle(accountLegalEntityId, providerId, "Course1");
 
-            fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(providerId, accountId, accountLegalEntityId, 
+            fixtures.CohortDomainServiceMock.Verify(x => x.CreateCohort(It.Is<long>(p => p == providerId),
+                It.Is<long>(ale => ale == accountLegalEntityId),
                 It.IsAny<DraftApprenticeshipDetails>(),
                 fixtures.UserInfo,
                 It.IsAny<CancellationToken>()));
@@ -94,7 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             commitment.Apprenticeships.Add(new DraftApprenticeship());
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), 
+            CohortDomainServiceMock.Setup(x => x.CreateCohort(It.IsAny<long>(), It.IsAny<long>(), 
                     It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(commitment);
 
@@ -121,12 +121,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public async Task<AddCohortResponse> Handle(long accountId, long accountLegalEntity, long providerId, string courseCode)
+        public async Task<AddCohortResponse> Handle(long accountLegalEntity, long providerId, string courseCode)
         {
             Db.SaveChanges();
             var command = new AddCohortCommand
             {
-                AccountId = accountId,
                 AccountLegalEntityId = accountLegalEntity,
                 ProviderId = providerId,
                 ReservationId = Guid.NewGuid(),

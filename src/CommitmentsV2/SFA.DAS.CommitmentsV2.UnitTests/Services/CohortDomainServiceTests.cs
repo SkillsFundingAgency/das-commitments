@@ -22,7 +22,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork;
-using TestSupport.EfHelpers;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -66,24 +65,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .CreateCohortWithOtherParty();
 
             _fixture.VerifyCohortCreationWithOtherParty();
-        }
-        
-        [Test]
-        public async Task CreateCohort_ThrowsBadRequest_WhenAccountLegalEntityNotFound()
-        {
-            await _fixture
-                .CreateCohort(_fixture.AccountId, 2323);
-
-            _fixture.VerifyException<BadRequestException>();
-        }
-
-        [Test]
-        public async Task CreateCohort_ThrowsBadRequest_WhenAccountIdDoesNotMatchAccountIdOnLegalEntity()
-        {
-            await _fixture
-                .CreateCohort(4545, _fixture.AccountLegalEntityId);
-
-            _fixture.VerifyException<BadRequestException>();
         }
 
 
@@ -215,7 +196,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainService CohortDomainService { get; set; }
             public ProviderCommitmentsDbContext Db { get; set; }
             public long ProviderId { get; }
-            public long AccountId { get; }
             public long AccountLegalEntityId { get; }
             public long CohortId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
@@ -249,9 +229,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     .Options);
 
                 ProviderId = 1;
-                AccountId = 2;
-                AccountLegalEntityId = 3;
-                CohortId = 4;
+                AccountLegalEntityId = 2;
+                CohortId = 3;
                 Message = fixture.Create<string>();
 
                 Provider = new Mock<Provider>();
@@ -260,7 +239,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
-                AccountLegalEntity.Setup(x => x.AccountId).Returns(AccountId);
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
 
                 DraftApprenticeshipId = fixture.Create<long>();
@@ -413,17 +391,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null)
+            public async Task<Cohort> CreateCohort()
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();
 
-                accountId = accountId ?? AccountId;
-                accountLegalEntityId = accountLegalEntityId ?? AccountLegalEntityId; 
-
                 try
                 {
-                    var result = await CohortDomainService.CreateCohort(ProviderId, accountId.Value, accountLegalEntityId.Value,
+                    var result = await CohortDomainService.CreateCohort(ProviderId, AccountLegalEntityId,
                         DraftApprenticeshipDetails, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
@@ -431,11 +406,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 catch (DomainException ex)
                 {
                     DomainErrors.AddRange(ex.DomainErrors);
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    Exception = ex;
                     return null;
                 }
             }
@@ -447,7 +417,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountId, AccountLegalEntityId, Message, UserInfo, new CancellationToken());
+                    var result = await CohortDomainService.CreateCohortWithOtherParty(ProviderId, AccountLegalEntityId, Message, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                     return result;
                 }
