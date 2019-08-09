@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.RequestToCommandMappers
         {
             return Task.FromResult(new AddCohortCommand
             {
+                AccountId = source.AccountId,
                 AccountLegalEntityId = source.AccountLegalEntityId,
                 ProviderId = source.ProviderId,
                 Cost = source.Cost,
