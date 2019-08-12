@@ -6,21 +6,24 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
     public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly IEncodingService _encodingService;
 
-        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db)
+        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEncodingService encodingService)
         {
             _db = db;
+            _encodingService = encodingService;
         }
 
-        public Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<GetCohortSummaryQueryResult> Handle(GetCohortSummaryQuery request, CancellationToken cancellationToken)
         {
-            return (
+            var result = await (
                 from c in _db.Value.Cohorts
                 where c.Id == request.CohortId
                 let messages = c.Messages.OrderByDescending(m => m.CreatedDateTime)
@@ -29,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 select new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
+                    AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.LegalEntityName,
                     ProviderName = c.ProviderName,
                     IsFundedByTransfer = c.TransferSenderId != null,
@@ -37,6 +41,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     LatestMessageCreatedByProvider = latestMessageCreatedByProvider
                 })
                 .SingleOrDefaultAsync(cancellationToken);
+
+            result.AccountLegalEntityId = _encodingService.Decode(result.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+
+            return result;
         }
     }
 }
