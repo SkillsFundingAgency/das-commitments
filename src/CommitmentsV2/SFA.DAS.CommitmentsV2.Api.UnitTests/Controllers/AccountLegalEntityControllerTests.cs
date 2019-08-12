@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -20,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountName = "AccountName", LegalEntityName = "" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse {AccountId = 1, AccountName = "AccountName", LegalEntityName = "" });
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -31,6 +32,28 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var objectResult = (OkObjectResult) response;
 
             Assert.AreEqual(200, objectResult.StatusCode);
+        }
+
+        [Test]
+        public async Task GetAccountLegalEntity_WithValidModelAndExistingId_ShouldResultMappedCorrectly()
+        {
+            const long accountLegalEntityId = 456;
+
+            // arrange
+            var fixtures = new AccountLegalEntityControllerTestFixtures()
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountId = 1, AccountName = "AccountName", LegalEntityName = "ABC" });
+
+            // act
+            var response = await fixtures.CallControllerMethod(accountLegalEntityId);
+
+            // Assert
+            var model = response
+                .VerifyReturnsModel()
+                .WithModel<AccountLegalEntityResponse>();
+
+            Assert.AreEqual(1, model.AccountId);
+            Assert.AreEqual("AccountName", model.AccountName);
+            Assert.AreEqual("ABC", model.LegalEntityName);
         }
 
         [Test]
