@@ -58,6 +58,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
 
             var config = Infrastructure.Configuration.Configuration.Get();
 
+
             ConfigureHashingService(config);
 
             For<IAccountApiClient>().Use<AccountApiClient>().Ctor<IAccountApiConfiguration>().Is(config.AccountApi);

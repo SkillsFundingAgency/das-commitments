@@ -8,6 +8,6 @@
         public string ClientSecret { get; set; }
         public string IdentifierUri { get; set; }
         public bool UseStub { get; set; }
-        public string EffectiveApiBaseUrl => UseStub ? "https://sfa-stub-reservations.herokuapp.com/" : ApiBaseUrl;
+        public string EffectiveApiBaseUrl => UseStub ? "https://sfa-stub-reservations.herokuapp.com" : ApiBaseUrl;
     }
 }

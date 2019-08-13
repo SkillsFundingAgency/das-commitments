@@ -22,6 +22,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok();
         }
 
+        [HttpGet]
         [Route("api/reservation")]
         public async Task<IHttpActionResult> TestReservationValidation()
         {
