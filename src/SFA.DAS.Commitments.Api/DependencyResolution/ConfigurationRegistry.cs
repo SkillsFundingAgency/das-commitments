@@ -1,4 +1,5 @@
 using SFA.DAS.Configuration;
+using SFA.DAS.Reservations.Api.Types.Configuration;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution

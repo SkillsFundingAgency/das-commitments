@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
+using Microsoft.Azure;
 using SFA.DAS.Configuration;
 using SFA.DAS.Http;
 using SFA.DAS.Http.TokenGenerators;
@@ -20,9 +22,25 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
 
         public ReservationsClientApiConfiguration GetConfig(IContext ctx)
         {
-            var configurationService = ctx.GetInstance<IConfigurationService>();
+            var configurationRepository = ctx.GetInstance<IConfigurationRepository>();
+            var environmentName = GetEnvironmentName();
+            var configurationOptions =
+                new ConfigurationOptions(ConfigurationKeys.ReservationsClientApiConfiguration, environmentName, "1.0");
 
-            return configurationService.Get<ReservationsClientApiConfiguration>();
+            var svc = new ConfigurationService(configurationRepository, configurationOptions);
+
+            return svc.Get<ReservationsClientApiConfiguration>();
+        }
+
+        private string GetEnvironmentName()
+        {
+            var environment = Environment.GetEnvironmentVariable("DASENV");
+            if (string.IsNullOrEmpty(environment))
+            {
+                environment = CloudConfigurationManager.GetSetting("EnvironmentName");
+            }
+
+            return environment;
         }
 
         private IReservationsApiClient CreateClient(IContext ctx)
