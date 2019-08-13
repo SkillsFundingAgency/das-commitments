@@ -17,7 +17,7 @@ namespace SFA.DAS.Reservations.Api.Types
         {
             var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] {'/'});
 
-            var url = $"{effectiveApiBaseUrl}/api/reservations/validate/{request.ReservationId}?courseCode={request.CourseCode}&startDate={request.StartDate}";
+            var url = $"{effectiveApiBaseUrl}/api/reservations/validate/{request.ReservationId}";
 
             var data = new
             {
