@@ -162,6 +162,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
+        public Task GetCohort_ValidRequest_ShouldReturnAccountLegalEntityId()
+        {
+            const long cohortId = 1234;
+
+            return new CohortControllerTestFixtures()
+                .AssertGetCohortResponse(
+                    cohortId,
+                    new GetCohortSummaryQueryResult { AccountLegalEntityId = 123 },
+                    response => Assert.AreEqual(123, response.AccountLegalEntityId));
+        }
+
+        [Test]
         public async Task CreateCohortWithOtherParty_ValidRequest_ShouldReturnAnOkResult()
         {
             var fixture = new CohortControllerTestFixtures().WithAddCohortWithOtherPartyCommandResponse();

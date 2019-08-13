@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
@@ -21,6 +22,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
     public class GetCohortSummaryQueryHandlerTests
     {
         const long CohortId = 456;
+        const string AccountLegalEntityPublicHashedId = "ALE789";
+        const long AccountLegalEntityId = 789;
         const string LegalEntityName = "ACME Fireworks";
         const string ProviderName = "ACME Training";
         public EditStatus EditStatus = EditStatus.Both;
@@ -73,11 +76,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return CheckCommandResponse(response => Assert.AreEqual(LatestMessageCreatedByProvider, response.LatestMessageCreatedByProvider, "Did not return expected latest message created by provider"));
         }
 
+        [Test]
+        public Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityPublicHashedId()
+        {
+            return CheckCommandResponse(response => Assert.AreEqual(AccountLegalEntityPublicHashedId, response.AccountLegalEntityPublicHashedId, "Did not return expected account legal entity public hashed ID"));
+        }
+
+        [Test]
+        public Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityId()
+        {
+            return CheckCommandResponse(response => Assert.AreEqual(AccountLegalEntityId, response.AccountLegalEntityId, "Did not return expected account legal entity ID"));
+        }
+
         private async Task CheckCommandResponse(Action<GetCohortSummaryQueryResult> assert)
         {
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, LegalEntityName, ProviderName, EditStatus, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider);
+                .AddCommitment(CohortId, AccountLegalEntityPublicHashedId, AccountLegalEntityId, LegalEntityName, ProviderName, EditStatus, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider);
 
             // act
             var response = await fixtures.GetResult(new GetCohortSummaryQuery { CohortId = CohortId });
@@ -94,6 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             HandlerMock = new Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>>();    
             ValidatorMock = new Mock<IValidator<GetCohortSummaryQuery>>();
             SeedCohorts = new List<Cohort>();
+            EncodingServiceMock = new Mock<IEncodingService>();
         }
 
         public Mock<IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>> HandlerMock { get; set; }
@@ -104,8 +120,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public IValidator<GetCohortSummaryQuery> Validator => ValidatorMock.Object;
 
         public List<Cohort> SeedCohorts { get; }
+        public Mock<IEncodingService> EncodingServiceMock { get; set; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string accountLegalEntityPublicHashedId, long accountLegalEntityId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider)
         {
             var cohort = new Cohort
             {
@@ -119,7 +136,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 Originator = Originator.Unknown,
                 ProviderName = providerName,
                 Id = cohortId,
-                Reference = string.Empty
+                Reference = string.Empty,
+                AccountLegalEntityPublicHashedId = accountLegalEntityPublicHashedId
             };
 
             cohort.Messages.Add(new Message
@@ -151,6 +169,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             });
 
             SeedCohorts.Add(cohort);
+            
+            EncodingServiceMock
+                .Setup(e => e.Decode(accountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId))
+                .Returns(accountLegalEntityId);
 
             return this;
         }
@@ -160,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortSummaryQueryHandler(lazy);
+                var handler = new GetCohortSummaryQueryHandler(lazy, EncodingServiceMock.Object);
 
                 return handler.Handle(query, CancellationToken.None);
             });
