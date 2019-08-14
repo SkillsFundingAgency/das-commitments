@@ -9,6 +9,7 @@ using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Reservations.Api.Types.Configuration;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
