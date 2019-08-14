@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             else
             {
-                if (update.TrainingProgramme.CourseCode != CourseCode) return true;
+                if (update.TrainingProgramme?.CourseCode != CourseCode) return true;
             }
 
             return false;

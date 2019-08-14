@@ -131,13 +131,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             Assert.AreEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenPriorApprovalByOtherPartyIsResetByTrainingCourseReset(Party modifyingParty)
+        {
+            var result = _fixture.WithModifyingParty(modifyingParty).WithPriorApprovalByOtherParty().WithTrainingCourseResetOnly().ApplyUpdate();
+            Assert.AreEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
+        }
+
         [Test]
         public void ThenPriorApprovalByEmployerIsNotResetByUlnUpdate()
         {
             var result = _fixture.WithModifyingParty(Party.Provider).WithPriorApprovalByOtherParty().WithUlnUpdateOnly().ApplyUpdate();
             Assert.AreNotEqual(AgreementStatus.NotAgreed, result.AgreementStatus);
         }
-
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
@@ -173,6 +180,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Domain.DraftApprenticeship
             {
                 DraftApprenticeshipDetails = CreateUpdateFromOriginal();
                 DraftApprenticeshipDetails.Reference = _autoFixture.Create<string>();
+                return this;
+            }
+
+            public DraftApprenticeshipUpdateTestFixture WithTrainingCourseResetOnly()
+            {
+                DraftApprenticeshipDetails = CreateUpdateFromOriginal();
+                DraftApprenticeshipDetails.TrainingProgramme = null;
                 return this;
             }
 
