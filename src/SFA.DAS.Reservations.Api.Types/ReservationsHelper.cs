@@ -10,7 +10,7 @@ namespace SFA.DAS.Reservations.Api.Types
 
         public ReservationHelper(ReservationsClientApiConfiguration config)
         {
-            _config = config;
+            _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
         public Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, Func<string, object, Task<ReservationValidationResult>> call)

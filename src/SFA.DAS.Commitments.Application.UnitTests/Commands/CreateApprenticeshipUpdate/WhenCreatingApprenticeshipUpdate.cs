@@ -638,5 +638,64 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CreateApprenticeshi
             }
         }
 
+        public async Task ThenUpdatedDateIsUsedToValidateReservationIfDateUpdated()
+        {
+            _existingApprenticeship.ReservationId = Guid.NewGuid();
+
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    StartDate = DateTime.Now.AddMonths(3)
+                }
+            };
+
+            _existingApprenticeship.StartDate = null;
+
+            await _handler.Handle(command);
+
+            _reservationsValidationService.Verify(rvs => rvs.CheckReservation(It.Is<ReservationValidationServiceRequest>(request => request.StartDate == command.ApprenticeshipUpdate.StartDate.Value)), Times.Once);
+        }
+
+        public async Task ThenExistingDateIsUsedToValidateReservationIfDateNotUpdated()
+        {
+            _existingApprenticeship.ReservationId = Guid.NewGuid();
+
+
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    StartDate = null
+                }
+            };
+
+            _existingApprenticeship.StartDate = DateTime.Now.AddMonths((4));
+
+            await _handler.Handle(command);
+
+            _reservationsValidationService.Verify(rvs => rvs.CheckReservation(It.Is<ReservationValidationServiceRequest>(request => request.StartDate == _existingApprenticeship.StartDate.Value)), Times.Once);
+        }
+
+        [Test]
+        public void ThenShouldThrowExceptionIfAStartDateIsNotAvailable()
+        {
+            _existingApprenticeship.ReservationId = Guid.NewGuid();
+
+            var command = new CreateApprenticeshipUpdateCommand
+            {
+                Caller = new Caller(2, CallerType.Provider),
+                ApprenticeshipUpdate = new ApprenticeshipUpdate
+                {
+                    StartDate = null
+                }
+            };
+
+            _existingApprenticeship.StartDate = null;
+
+            Assert.ThrowsAsync<InvalidOperationException>(() =>_handler.Handle(command));
+        }
     }
 }

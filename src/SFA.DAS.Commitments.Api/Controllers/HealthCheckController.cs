@@ -21,18 +21,5 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
             return Ok();
         }
-
-        [HttpGet]
-        [Route("api/reservation")]
-        public async Task<IHttpActionResult> TestReservationValidation()
-        {
-            var reservationValidationResult = await _reservationClient.ValidateReservation(new ValidationReservationMessage
-            {
-                CourseCode = "ABC",
-                ReservationId = Guid.NewGuid()
-            }, CancellationToken.None);
-
-            return Json(reservationValidationResult);
-        }
     }
 }

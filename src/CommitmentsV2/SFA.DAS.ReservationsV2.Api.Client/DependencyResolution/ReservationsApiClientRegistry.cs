@@ -3,6 +3,7 @@ using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Http;
+using SFA.DAS.Reservations.Api.Client.DependencyResolution;
 using SFA.DAS.Reservations.Api.Types;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 using StructureMap;
@@ -32,7 +33,8 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
             }
             else
             {
-                var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(config, loggerFactory);
+                var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
+                var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
                 httpClient = httpClientFactory.CreateHttpClient();
             }
 

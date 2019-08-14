@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Reservations.Api.Types;
@@ -12,7 +11,7 @@ using SFA.DAS.Reservations.Api.Types;
 namespace SFA.DAS.Commitments.Application.UnitTests.Services
 {
     [TestFixture]
-    [Parallelizable(ParallelScope.Self | ParallelScope.Children)]
+    [Parallelizable(ParallelScope.All)]
     public class ReservationValidationServiceTests
     {
         [Test]
