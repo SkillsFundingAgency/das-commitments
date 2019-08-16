@@ -1,11 +1,15 @@
 using System;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.HealthChecks;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.Testing;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
@@ -15,10 +19,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
     public class NServiceBusHealthCheckTests : FluentTest<NServiceBusHealthCheckTestsFixture>
     {
         [Test]
-        public Task CheckHealthAsync_WhenSendSucceeds_ThenShouldShouldReturnHealthyStatus()
+        public Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldPollDistributedCache()
         {
             return TestAsync(
-                f => f.SetSendSuccess(),
+                f => f.SetSendSuccess().SetReceiveSuccess(),
+                f => f.CheckHealthAsync(),
+                (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.Once));
+        }
+        
+        [Test]
+        public Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldReturnHealthyStatus()
+        {
+            return TestAsync(
+                f => f.SetSendSuccess().SetReceiveSuccess(),
                 f => f.CheckHealthAsync(),
                 (f, r) =>
                 {
@@ -35,14 +48,57 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
                 f => f.CheckHealthAsync(),
                 (f, r) => r.Should().Throw<Exception>().Which.Should().Be(f.Exception));
         }
+        
+        [Test]
+        public Task CheckHealthAsync_WhenReceiveFails_ThenShouldPollDistributedCache()
+        {
+            return TestAsync(
+                f => f.SetSendSuccess().SetReceiveFailure(),
+                f => f.CheckHealthAsync(),
+                (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.Exactly(f.PollCount)));
+        }
+        
+        [Test]
+        public Task CheckHealthAsync_WhenReceiveFails_ThenShouldReturnDegradedStatus()
+        {
+            return TestAsync(
+                f => f.SetSendSuccess().SetReceiveFailure(),
+                f => f.CheckHealthAsync(),
+                (f, r) =>
+                {
+                    r.Should().NotBeNull();
+                    r.Status.Should().Be(HealthStatus.Degraded);
+                    f.Stopwatch.Elapsed.Should().BeGreaterOrEqualTo(f.Timeout);
+                });
+        }
+        
+        [Test]
+        public Task CheckHealthAsync_WhenCancellationRequested_ThenShouldReturnUnhealthyStatus()
+        {
+            return TestAsync(
+                f => f.SetSendSuccess().SetCancellationRequested(),
+                f => f.CheckHealthAsync(),
+                (f, r) =>
+                {
+                    r.Should().NotBeNull();
+                    r.Status.Should().Be(HealthStatus.Unhealthy);
+                });
+        }
     }
 
     public class NServiceBusHealthCheckTestsFixture
     {
         public HealthCheckContext HealthCheckContext { get; set; }
+        public Stopwatch Stopwatch { get; set; }
+        public TimeSpan Interval { get; set; }
+        public TimeSpan Timeout { get; set; }
+        public int PollCount { get; set; }
+        public CancellationToken CancellationToken { get; set; }
         public Mock<IMessageSession> MessageSession { get; set; }
+        public Mock<IDistributedCache> DistributedCache { get; set; }
         public NServiceBusHealthCheck HealthCheck { get; set; }
         public Exception Exception { get; set; }
+        public string MessageId { get; set; }
 
         public NServiceBusHealthCheckTestsFixture()
         {
@@ -50,27 +106,74 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
             {
                 Registration = new HealthCheckRegistration("Foo", Mock.Of<IHealthCheck>(), null, null)
             };
-            
+
+            Interval = TimeSpan.FromMilliseconds(100);
+            Timeout = TimeSpan.FromMilliseconds(500);
+            PollCount = (int)Math.Ceiling(Timeout.TotalMilliseconds / Interval.TotalMilliseconds) + 1;
+            CancellationToken = new CancellationToken();
             MessageSession = new Mock<IMessageSession>();
-            HealthCheck = new NServiceBusHealthCheck(MessageSession.Object);
+            DistributedCache = new Mock<IDistributedCache>();
+            
+            HealthCheck = new NServiceBusHealthCheck(MessageSession.Object, DistributedCache.Object)
+            {
+                Interval = Interval,
+                Timeout = Timeout
+            };
+            
             Exception = new Exception("Foobar");
         }
 
         public Task<HealthCheckResult> CheckHealthAsync()
         {
-            return HealthCheck.CheckHealthAsync(HealthCheckContext);
+            Stopwatch = Stopwatch.StartNew();
+            
+            return HealthCheck.CheckHealthAsync(HealthCheckContext, CancellationToken);
         }
 
         public NServiceBusHealthCheckTestsFixture SetSendSuccess()
         {
-            MessageSession.Setup(s => s.Send(It.IsAny<object>(), It.IsAny<SendOptions>())).Returns(Task.CompletedTask);
+            MessageSession.Setup(s => s.Send(It.IsAny<RunHealthCheckCommand>(), It.IsAny<SendOptions>()))
+                .Returns<RunHealthCheckCommand, SendOptions>((c, o) =>
+                {
+                    MessageId = o.GetMessageId();
+
+                    if (string.IsNullOrWhiteSpace(MessageId))
+                    {
+                        throw new ArgumentNullException(nameof(MessageId));
+                    }
+                    
+                    return Task.CompletedTask;
+                });
             
             return this;
         }
 
         public NServiceBusHealthCheckTestsFixture SetSendFailure()
         {
-            MessageSession.Setup(s => s.Send(It.IsAny<object>(), It.IsAny<SendOptions>())).ThrowsAsync(Exception);
+            MessageSession.Setup(s => s.Send(It.IsAny<RunHealthCheckCommand>(), It.IsAny<SendOptions>())).ThrowsAsync(Exception);
+            
+            return this;
+        }
+
+        public NServiceBusHealthCheckTestsFixture SetReceiveSuccess()
+        {
+            DistributedCache.Setup(s => s.GetAsync(It.Is<string>(k => k == MessageId), CancellationToken))
+                .ReturnsAsync(System.Text.Encoding.UTF8.GetBytes("OK"));
+            
+            return this;
+        }
+
+        public NServiceBusHealthCheckTestsFixture SetReceiveFailure()
+        {
+            DistributedCache.Setup(s => s.GetAsync(It.Is<string>(k => k == MessageId), CancellationToken))
+                .ReturnsAsync((byte[])null);
+            
+            return this;
+        }
+
+        public NServiceBusHealthCheckTestsFixture SetCancellationRequested()
+        {
+            CancellationToken = new CancellationToken(true);
             
             return this;
         }

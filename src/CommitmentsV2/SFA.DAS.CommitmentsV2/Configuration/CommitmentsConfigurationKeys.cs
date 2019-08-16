@@ -6,7 +6,9 @@
         public static string ApprenticeshipInfoService => $"{CommitmentsV2}:ApprenticeshipInfoService";
         public static string AzureActiveDirectoryApiConfiguration => $"{CommitmentsV2}:AzureADApiAuthentication";
         public static string CommitmentIdHashingConfiguration => $"{CommitmentsV2}:CommitmentIdHashing";
+        public static string DatabaseConnectionString => $"{CommitmentsV2}:DatabaseConnectionString";
         public static string Features => $"{CommitmentsV2}:Features";
+        public static string RedisConnectionString => $"{CommitmentsV2}:RedisConnectionString";
         public static string ReservationsClientApiConfiguration => $"{CommitmentsV2}:ReservationsClientApi";
         public static string EncodingConfiguration => "SFA.DAS.Encoding";
     }
