@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using NLog.Web;
 using SFA.DAS.CommitmentsV2.Api.Extensions;
@@ -17,14 +16,13 @@ namespace SFA.DAS.CommitmentsV2.Api
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureDasAppConfiguration()
-                .ConfigureKestrel(options => options.AddServerHeader = false)
-                .UseStructureMap()
-                .UseStartup<Startup>()
                 .UseApplicationInsights()
                 .UseNLog()
+                .UseStructureMap()
+                .UseStartup<Startup>()
         ;
     }
 }
