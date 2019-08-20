@@ -37,5 +37,22 @@ namespace SFA.DAS.ReservationsV2.Api.Client
                 throw;
             }
         }
+
+        public async Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, uint count, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var bulkReservationsResult = await _reservationHelper.BulkCreateReservations(accountLegalEntityId, count, (url) =>
+                    _client.PostAsJson<BulkCreateReservationsResult>(url, cancellationToken));
+
+                _logger.LogInformation($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{count} reservations-created:{bulkReservationsResult?.Reservations?.Length}");
+                return bulkReservationsResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{count}  failed with error {ex.GetType().Name} {ex.Message}");
+                throw;
+            }
+        }
     }
 }

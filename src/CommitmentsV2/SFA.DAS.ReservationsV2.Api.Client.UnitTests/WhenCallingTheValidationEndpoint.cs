@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -7,7 +8,6 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
@@ -26,18 +26,27 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
         }
 
         [Test]
-        public async Task ThenTheRequestUriIsCorrectlyFormed()
+        public async Task ThenTheValidateReservationRequestUriIsCorrectlyFormed()
         {
-            await _fixture.ValidateRequest();
-            _fixture.AssertUriCorrectlyFormed();
+            await _fixture.ValidateReservationRequest();
+            _fixture.AssertValidateReservationUriCorrectlyFormed();
         }
 
         [Test]
-        public async Task ThenTheRequestPayloadIsCorrectlyFormed()
+        public async Task ThenTheValidateReservationRequestPayloadIsCorrectlyFormed()
         {
-            await _fixture.ValidateRequest();
-            _fixture.AssertPayloadCorrectlyFormed();
+            await _fixture.ValidateReservationRequest();
+            _fixture.AssertValidateReservationPayloadCorrectlyFormed();
         }
+
+        [TestCase(1234, 120)]
+        public async Task ThenTheBulkCreateReservationsRequestUriIsCorrectlyFormed(long accountLegalEntityId, int count)
+        {
+            await _fixture.BulkCreateReservationsRequest(accountLegalEntityId, (uint)count);
+            _fixture.AssertBulkCreateReservationsUriCorrectlyFormed(accountLegalEntityId, (uint)count);
+        }
+
+
 
         private class ReservationsClientTestFixture
         {
@@ -55,6 +64,11 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                         It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new ReservationValidationResult());
 
+                _restHttpClient.Setup(x => x.PostAsJson<object, BulkCreateReservationsResult>(It.IsAny<string>(),
+                        It.IsAny<object>(),
+                        It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new BulkCreateReservationsResult(new List<Guid>()));
+
                 _config = new ReservationsClientApiConfiguration
                 {
                     ApiBaseUrl = "https://somehost"
@@ -71,13 +85,19 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                 };
             }
 
-            public async Task<ReservationsClientTestFixture> ValidateRequest()
+            public async Task<ReservationsClientTestFixture> ValidateReservationRequest()
             {
                 await _reservationsApiClient.ValidateReservation(_request, new CancellationToken());
                 return this;
             }
 
-            public void AssertUriCorrectlyFormed()
+            public async Task<ReservationsClientTestFixture> BulkCreateReservationsRequest(long accountLegalEntityId, uint count)
+            {
+                await _reservationsApiClient.BulkCreateReservations(accountLegalEntityId, count, new CancellationToken());
+                return this;
+            }
+
+            public void AssertValidateReservationUriCorrectlyFormed()
             {
                 var expectedUrl = $"{_config.ApiBaseUrl}/api/reservations/validate/{_request.ReservationId}";
 
@@ -86,7 +106,15 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                     It.IsAny<CancellationToken>()));
             }
 
-            public void AssertPayloadCorrectlyFormed()
+            public void AssertBulkCreateReservationsUriCorrectlyFormed(long accountLegalEntityId, uint count)
+            {
+                var expectedUrl = $"{_config.ApiBaseUrl}/api/reservations/accounts/{accountLegalEntityId}/bulk-create/{count}";
+
+                _restHttpClient.Verify(x => x.PostAsJson<BulkCreateReservationsResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
+                    It.IsAny<CancellationToken>()));
+            }
+
+            public void AssertValidateReservationPayloadCorrectlyFormed()
             {
                 var expectedPayload = new
                 {

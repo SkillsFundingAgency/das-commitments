@@ -27,5 +27,14 @@ namespace SFA.DAS.Reservations.Api.Types
 
             return call(url, data);
         }
+
+        public Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, uint count, Func<string, Task<BulkCreateReservationsResult>> call)
+        {
+            var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] { '/' });
+
+            var url = $"{effectiveApiBaseUrl}/api/reservations/accounts/{accountLegalEntityId}/bulk-create/{count}";
+
+            return call(url);
+        }
     }
 }
