@@ -14,6 +14,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
     {
         [TestCase(Party.Employer)]
         [TestCase(Party.Provider)]
+        //In this test the Cost field is used to represent any field for which updates require the approval
+        //of the other party (resulting in the DraftApprenticeship object's AgreementStatus property to be reset)
+        //Further tests can be found in: Domain\DraftApprenticeship\WhenDraftApprenticeshipIsUpdated.cs
         public void UpdateDraftApprenticeship_Cost_Resets_OtherParty_Approval(Party modifyingParty)
         {
             var fixture = new UpdatingDraftApprenticeshipTestFixture(modifyingParty);
@@ -57,10 +60,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
         private class UpdatingDraftApprenticeshipTestFixture
         {
             private readonly Fixture _autoFixture = new Fixture();
-            public UnitOfWorkContext UnitOfWorkContext { get; private set; }
-            public UserInfo UserInfo { get; private set; }
-            public Party ModifyingParty { get; private set; }
-            public CommitmentsV2.Models.Cohort Cohort { get; private set; }
+            private UnitOfWorkContext UnitOfWorkContext { get; }
+            private UserInfo UserInfo { get; }
+            private Party ModifyingParty { get; }
+            private CommitmentsV2.Models.Cohort Cohort { get; }
             public Exception Exception { get; private set; }
 
             public UpdatingDraftApprenticeshipTestFixture(Party modifyingParty)
