@@ -46,8 +46,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             _fixture.AssertBulkCreateReservationsUriCorrectlyFormed(accountLegalEntityId, (uint)count);
         }
 
-
-
         private class ReservationsClientTestFixture
         {
             private readonly ReservationsApiClient _reservationsApiClient;
