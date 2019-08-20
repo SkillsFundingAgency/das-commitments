@@ -132,6 +132,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
+            if (existingDraftApprenticeship.AgreementStatus == AgreementStatus.NotAgreed)
+            {
+                ResetApprovals();
+            }
+
             UpdatedBy(userInfo, modifyingParty);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
