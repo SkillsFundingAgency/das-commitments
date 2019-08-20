@@ -15,9 +15,7 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
     {
         public ReservationsApiClientRegistry()
         {
-            For<ReservationsClientApiConfiguration>().Use(ctx => GetConfig(ctx)).Singleton();
             For<IReservationsApiClient>().Use(ctx => CreateClient(ctx)).Singleton();
-            For<IReservationHelper>().Use<ReservationHelper>().Singleton();
         }
 
         public ReservationsClientApiConfiguration GetConfig(IContext ctx)
@@ -46,30 +44,29 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
         private IReservationsApiClient CreateClient(IContext ctx)
         {
             var config = GetConfig(ctx);
+            var log = ctx.GetInstance<ILog>();
+            var httpClient = CreateHttpClient(ctx, config);
+            var httpHelper = new HttpHelper(httpClient, log);
+            return new ReservationsApiClient(config, httpHelper);
+        }
 
-            HttpClient httpClient;
-
+        private HttpClient CreateHttpClient(IContext ctx, ReservationsClientApiConfiguration config)
+        {
             if (config.UseStub)
             {
-                httpClient = new HttpClient();
-            }
-            else
-            {
-                var adConfig = new ReservationsClientApiConfigurationADAdapter(config);
-                var bearerToken = new AzureADBearerTokenGenerator(adConfig);
-
-                httpClient = new HttpClientBuilder()
-                    .WithBearerAuthorisationHeader(bearerToken)
-                    .WithHandler(new NLog.Logger.Web.MessageHandlers.RequestIdMessageRequestHandler())
-                    .WithHandler(new NLog.Logger.Web.MessageHandlers.SessionIdMessageRequestHandler())
-                    .WithDefaultHeaders()
-                    .Build();
+                return new HttpClient();
             }
 
-            For<IReservationsApiClient>().Use<ReservationsApiClient>().Ctor<HttpClient>().Is(httpClient).Singleton();
-            var helper = ctx.GetInstance<IReservationHelper>();
-            var log = ctx.GetInstance<ILog>();
-            return new ReservationsApiClient(httpClient, helper, log);
+            var adConfig = new ReservationsClientApiConfigurationADAdapter(config);
+            var bearerToken = new AzureADBearerTokenGenerator(adConfig);
+
+            return new HttpClientBuilder()
+                .WithBearerAuthorisationHeader(bearerToken)
+                .WithHandler(new NLog.Logger.Web.MessageHandlers.RequestIdMessageRequestHandler())
+                .WithHandler(new NLog.Logger.Web.MessageHandlers.SessionIdMessageRequestHandler())
+                .WithDefaultHeaders()
+                .Build();
+
         }
         
         private static ReservationsClientApiConfiguration GetConfig(IContext context)

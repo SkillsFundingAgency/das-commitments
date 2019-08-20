@@ -9,28 +9,18 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Reservations.Api.Client
 {
-    public class ReservationsApiClient : ApiClientBase, IReservationsApiClient
+    public class HttpHelper : ApiClientBase, IHttpHelper
     {
-        private readonly IReservationHelper _reservationHelper;
         private readonly ILog _log;
 
-        public ReservationsApiClient(
+        public HttpHelper(
             HttpClient client, 
-            IReservationHelper reservationHelper,
             ILog log) : base(client)
         {
-            _reservationHelper = reservationHelper;
             _log = log;
         }
 
-        public async Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
-        {
-            var validationResult = await _reservationHelper.ValidateReservation(request, GetAsync<ReservationValidationResult>);
-            _log.Info($"reservation id:{request.ReservationId} course:{request.CourseCode} start-date:{request.StartDate} validation-result:{validationResult.IsOkay}");
-            return validationResult;
-        }
-
-        private async Task<T> GetAsync<T>(string url, object data)
+        public async Task<T> GetAsync<T>(string url, object data)
         {
             string stringResponse = null;
             try
