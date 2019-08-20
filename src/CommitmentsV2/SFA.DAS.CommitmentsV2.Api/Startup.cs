@@ -20,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Api.NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.CommitmentsV2.Validators;
 using SFA.DAS.UnitOfWork.Mvc;
+using SFA.DAS.UnitOfWork.Mvc.Extensions;
 using StructureMap;
 using Swashbuckle.AspNetCore.Swagger;
 

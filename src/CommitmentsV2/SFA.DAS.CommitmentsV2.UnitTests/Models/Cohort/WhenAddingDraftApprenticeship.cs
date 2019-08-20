@@ -8,7 +8,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
-using SFA.DAS.UnitOfWork;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
