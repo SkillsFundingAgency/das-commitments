@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithPriorApprovalOfOtherParty()
                 .UpdateDraftApprenticeshipReference();
 
-            fixture.VerifyCohortIsUnapprovedByOtherParty();
+            fixture.VerifyCohortIsApprovedByOtherParty();
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 .WithPriorApprovalOfOtherParty()
                 .UpdateDraftApprenticeshipUln();
 
-            fixture.VerifyCohortIsUnapprovedByOtherParty();
+            fixture.VerifyCohortIsApprovedByOtherParty();
         }
 
 
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.UpdatingDraftApprentices
                 Assert.IsTrue(Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
             }
 
-            public void VerifyCohortIsUnapprovedByOtherParty()
+            public void VerifyCohortIsApprovedByOtherParty()
             {
                 var expectedStatus = ModifyingParty.GetOtherParty() == Party.Employer
                     ? AgreementStatus.EmployerAgreed
