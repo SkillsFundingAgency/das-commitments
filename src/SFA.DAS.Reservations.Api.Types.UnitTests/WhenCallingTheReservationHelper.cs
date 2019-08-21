@@ -22,12 +22,12 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
         }
 
         [Test]
-        public void ThenTheRequestDataIsCorrectlyFormed()
+        public void ThenTheRequestValidateReservationDataIsCorrectlyFormed()
         {
             var fixture = new ReservationHelperTestFixtures()
                 .WithBaseUrlForReservations("https://somehost");
 
-            fixture.AssertDataBuiltCorrectly();
+            fixture.AssertValidateReservationsDataBuiltCorrectly();
         }
 
         [Test]
@@ -36,7 +36,16 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
             var fixture = new ReservationHelperTestFixtures()
                 .WithBaseUrlForReservations("https://somehost");
 
-            fixture.AssertBulkCreateReservationsUrlBuiltCorrectly(1010,2);
+            fixture.AssertBulkCreateReservationsUrlBuiltCorrectly(1010,new BulkCreateReservationsRequest());
+        }
+
+        [Test]
+        public void ThenTheBulkCreateReservationsDataIsCorrectlyPassed()
+        {
+            var fixture = new ReservationHelperTestFixtures()
+                .WithBaseUrlForReservations("https://somehost");
+
+            fixture.AssertBulkCreateReservationsDataPassedCorrectly(1010, new BulkCreateReservationsRequest());
         }
 
         private class ReservationHelperTestFixtures
@@ -78,25 +87,32 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
                 Assert.AreEqual(expectedUri.Scheme, actualUri.Scheme, "Scheme is wrong");
             }
 
-            public void AssertBulkCreateReservationsUrlBuiltCorrectly(long accountLegalEntityId, uint count)
+            public void AssertBulkCreateReservationsUrlBuiltCorrectly(long accountLegalEntityId, BulkCreateReservationsRequest request)
             {
-                var url = MakeCallToBulkCreateReservations(accountLegalEntityId, count);
-                var expectedUrl = _configuration.ApiBaseUrl + $"/api/reservations/accounts/{accountLegalEntityId}/bulk-create/{count}";
+                var actual = MakeCallToBulkCreateReservations(accountLegalEntityId, request);
+                var expectedUrl = _configuration.ApiBaseUrl + $"/api/accounts/{accountLegalEntityId}/bulk-create";
 
-                var expectedUri = new Uri(url, UriKind.Absolute);
-                var actualUri = new Uri(expectedUrl, UriKind.Absolute);
+                var actualUri = new Uri(actual.url, UriKind.Absolute);
+                var expectedUri = new Uri(expectedUrl, UriKind.Absolute);
 
                 Assert.AreEqual(expectedUri.Host, actualUri.Host, "Host is wrong");
                 Assert.AreEqual(expectedUri.AbsolutePath, actualUri.AbsolutePath, "Path is wrong");
                 Assert.AreEqual(expectedUri.Scheme, actualUri.Scheme, "Scheme is wrong");
             }
 
-            public void AssertDataBuiltCorrectly()
+            public void AssertValidateReservationsDataBuiltCorrectly()
             {
                 var actualResults = MakeCallToValidateReservation();
                 
                 AssertHasPropertyWithValue(actualResults.data, "StartDate","");
                 AssertHasPropertyWithValue(actualResults.data, "CourseCode", "");
+            }
+
+            public void AssertBulkCreateReservationsDataPassedCorrectly(long accountLegalEntityId, BulkCreateReservationsRequest request)
+            {
+                var actual = MakeCallToBulkCreateReservations(accountLegalEntityId, request);
+
+                Assert.AreEqual(request, actual.data, "Request not passed as API body");
             }
 
             private void AssertHasPropertyWithValue(object data, string propertyName, string value)
@@ -127,17 +143,19 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
                 return (actualUrl, actualData);
             }
 
-            private string MakeCallToBulkCreateReservations(long accountLegalEntityId, uint count)
+            private (string url, BulkCreateReservationsRequest data) MakeCallToBulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request)
             {
                 string actualUrl = null;
+                BulkCreateReservationsRequest actualData = null;
 
-                _helper.BulkCreateReservations(accountLegalEntityId, count, (url) =>
+                _helper.BulkCreateReservations(accountLegalEntityId, request, (url, data) =>
                 {
                     actualUrl = url;
+                    actualData = data;
                     return Task.FromResult(new BulkCreateReservationsResult(new List<Guid>()));
                 });
 
-                return actualUrl;
+                return (actualUrl, actualData);
             }
         }
     }

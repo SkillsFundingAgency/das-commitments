@@ -6,6 +6,6 @@ namespace SFA.DAS.Reservations.Api.Types
     public interface IReservationsApiClient
     {
         Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken);
-        Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntity, uint count, CancellationToken cancellationToken);
+        Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntity, BulkCreateReservationsRequest request, CancellationToken cancellationToken);
     }
 }

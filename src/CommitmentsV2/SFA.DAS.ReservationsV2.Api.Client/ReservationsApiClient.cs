@@ -38,19 +38,19 @@ namespace SFA.DAS.ReservationsV2.Api.Client
             }
         }
 
-        public async Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, uint count, CancellationToken cancellationToken)
+        public async Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request, CancellationToken cancellationToken)
         {
             try
             {
-                var bulkReservationsResult = await _reservationHelper.BulkCreateReservations(accountLegalEntityId, count, (url) =>
-                    _client.PostAsJson<BulkCreateReservationsResult>(url, cancellationToken));
+                var bulkReservationsResult = await _reservationHelper.BulkCreateReservations(accountLegalEntityId, request, (url, data) =>
+                    _client.PostAsJson<BulkCreateReservationsRequest, BulkCreateReservationsResult>(url, data, cancellationToken));
 
-                _logger.LogInformation($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{count} reservations-created:{bulkReservationsResult?.Reservations?.Length}");
+                _logger.LogInformation($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{request?.Count} reservations-created:{bulkReservationsResult?.Reservations?.Length}");
                 return bulkReservationsResult;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{count}  failed with error {ex.GetType().Name} {ex.Message}");
+                _logger.LogError($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{request?.Count}  failed with error {ex.GetType().Name} {ex.Message}");
                 throw;
             }
         }

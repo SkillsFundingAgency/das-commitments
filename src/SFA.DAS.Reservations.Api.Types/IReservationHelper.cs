@@ -9,7 +9,9 @@ namespace SFA.DAS.Reservations.Api.Types
             ValidationReservationMessage request,
             Func<string, object, Task<ReservationValidationResult>> call);
 
-        Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, uint count,
-            Func<string, Task<BulkCreateReservationsResult>> call);
+        Task<BulkCreateReservationsResult> BulkCreateReservations(
+            long accountLegalEntityId,
+            BulkCreateReservationsRequest request,
+            Func<string, BulkCreateReservationsRequest, Task<BulkCreateReservationsResult>> call);
     }
 }

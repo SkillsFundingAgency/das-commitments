@@ -13,11 +13,12 @@ namespace SFA.DAS.Reservations.Api.Types
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
+        public string EffectiveApiBaseUrl => _config.EffectiveApiBaseUrl.TrimEnd(new [] { '/' });
+
+
         public Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, Func<string, object, Task<ReservationValidationResult>> call)
         {
-            var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] {'/'});
-
-            var url = $"{effectiveApiBaseUrl}/api/reservations/validate/{request.ReservationId}";
+            var url = $"{EffectiveApiBaseUrl}/api/reservations/validate/{request.ReservationId}";
 
             var data = new
             {
@@ -28,13 +29,13 @@ namespace SFA.DAS.Reservations.Api.Types
             return call(url, data);
         }
 
-        public Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, uint count, Func<string, Task<BulkCreateReservationsResult>> call)
+        public Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request, Func<string, BulkCreateReservationsRequest, Task<BulkCreateReservationsResult>> call)
         {
-            var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] { '/' });
-
-            var url = $"{effectiveApiBaseUrl}/api/reservations/accounts/{accountLegalEntityId}/bulk-create/{count}";
-
-            return call(url);
+            var url = $"{EffectiveApiBaseUrl}/api/accounts/{accountLegalEntityId}/bulk-create";
+            return call(url, request);
         }
+
+
+
     }
 }

@@ -12,7 +12,6 @@ using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Infrastructure.Data.Transactions;
 using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
-using OrganisationType = SFA.DAS.Common.Domain.Types.OrganisationType;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
@@ -505,6 +504,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
                 bulkCopy.ColumnMappings.Add("EmployerRef", "EmployerRef");
                 bulkCopy.ColumnMappings.Add("ProviderRef", "ProviderRef");
                 bulkCopy.ColumnMappings.Add("CreatedOn", "CreatedOn");
+                bulkCopy.ColumnMappings.Add("ReservationId", "ReservationId");
                 bulkCopy.WriteToServer(table);
             }
         }
@@ -554,6 +554,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
             apprenticeshipsTable.Columns.Add("EmployerRef", typeof(string));
             apprenticeshipsTable.Columns.Add("ProviderRef", typeof(string));
             apprenticeshipsTable.Columns.Add("CreatedOn", typeof(DateTime));
+            apprenticeshipsTable.Columns.Add("ReservationId", typeof(Guid));
             return apprenticeshipsTable;
         }
 
@@ -561,7 +562,7 @@ namespace SFA.DAS.Commitments.Infrastructure.Data
         {
             return apprenticeshipsTable.Rows.Add(commitmentId, a.FirstName, a.LastName, a.ULN, a.TrainingType, a.TrainingCode, a.TrainingName,
                 a.Cost, a.StartDate, a.EndDate, a.AgreementStatus, a.PaymentStatus, a.DateOfBirth, a.NINumber,
-                a.EmployerRef, a.ProviderRef, _currentDateTime.Now);
+                a.EmployerRef, a.ProviderRef, _currentDateTime.Now, a.ReservationId);
         }
 
         private static async Task<Commitment> GetCommitment(long commitmentId, IDbConnection connection, IDbTransaction transation = null)

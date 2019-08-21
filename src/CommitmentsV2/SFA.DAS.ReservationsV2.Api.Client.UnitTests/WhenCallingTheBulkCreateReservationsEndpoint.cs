@@ -6,7 +6,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
     [TestFixture]
     [Parallelizable]
-    public class WhenCallingTheValidationEndpoint
+    public class WhenCallingTheBulkCreateReservationsEndpoint
     {
         private ReservationsClientTestFixture _fixture;
 
@@ -14,20 +14,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
         public void Setup()
         {
             _fixture = new ReservationsClientTestFixture();   
-        }
-
-        [Test]
-        public async Task ThenTheValidateReservationRequestUriIsCorrectlyFormed()
-        {
-            await _fixture.ValidateReservationRequest();
-            _fixture.AssertValidateReservationUriCorrectlyFormed();
-        }
-
-        [Test]
-        public async Task ThenTheValidateReservationRequestPayloadIsCorrectlyFormed()
-        {
-            await _fixture.ValidateReservationRequest();
-            _fixture.AssertValidateReservationPayloadCorrectlyFormed();
         }
 
         [Test]
