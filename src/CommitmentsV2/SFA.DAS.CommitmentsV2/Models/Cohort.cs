@@ -113,6 +113,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
+            ResetApprovals();
             UpdatedBy(userInfo, creator);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
@@ -131,6 +132,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
             
             existingDraftApprenticeship.Merge(draftApprenticeshipDetails, modifyingParty);
+            if (existingDraftApprenticeship.AgreementStatus == AgreementStatus.NotAgreed)
+            {
+                ResetApprovals();
+            }
+
             UpdatedBy(userInfo, modifyingParty);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
@@ -329,6 +335,14 @@ namespace SFA.DAS.CommitmentsV2.Models
                     LastUpdatedByProviderName = userInfo.UserDisplayName;
                     LastUpdatedByProviderEmail = userInfo.UserEmail;
                     break;
+            }
+        }
+
+        private void ResetApprovals()
+        {
+            foreach (var apprenticeship in Apprenticeships)
+            {
+                apprenticeship.AgreementStatus = AgreementStatus.NotAgreed;
             }
         }
     }
