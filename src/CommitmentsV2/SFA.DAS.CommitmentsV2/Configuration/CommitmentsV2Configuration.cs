@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Configuration
     public class CommitmentsV2Configuration
     {
         public string DatabaseConnectionString { get; set; }
+        public string RedisConnectionString { get; set; }
 
         public EventsApiClientConfiguration EventsApi { get; set; }
         public ApprenticeshipInfoServiceConfiguration ApprenticeshipInfoService { get; set; }
@@ -12,6 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Configuration
         public NServiceBusConfiguration NServiceBusConfiguration { get; set; }
 
         public AzureActiveDirectoryApiConfiguration AzureADApiAuthentication { get; set; }
+        
         /// <summary>
         /// An ISO-formatted string date representation for test override, or any other non-empty value for the real current datetime
         /// </summary>

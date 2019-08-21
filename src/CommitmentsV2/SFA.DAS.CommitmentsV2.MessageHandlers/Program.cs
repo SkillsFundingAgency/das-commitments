@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
+using SFA.DAS.CommitmentsV2.Caching;
 using SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution;
 using SFA.DAS.CommitmentsV2.MessageHandlers.NServiceBus;
 using SFA.DAS.CommitmentsV2.Startup;
@@ -22,7 +23,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .ConfigureLogging(b => b.AddNLog())
                     .UseConsoleLifetime()
                     .UseStructureMap()
-                    .ConfigureServices(s => s.AddNServiceBus())
+                    .ConfigureServices((c, s) => s
+                        .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
+                        .AddNServiceBus())
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
                 using (var host = hostBuilder.Build())
