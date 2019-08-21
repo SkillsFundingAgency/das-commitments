@@ -22,10 +22,10 @@ namespace SFA.DAS.Reservations.Api.Client
 
         public async Task<T> GetAsync<T>(string url, object data)
         {
-        public async Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, uint count, CancellationToken cancellationToken)
+        public async Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request, CancellationToken cancellationToken)
         {
-            var bulkReservationsResult = await _reservationHelper.BulkCreateReservations(accountLegalEntityId, count, PostAsync<BulkCreateReservationsResult>);
-            _log.Info($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{count} reservations-created:{bulkReservationsResult?.Reservations?.Length}");
+            var bulkReservationsResult = await _reservationHelper.BulkCreateReservations(accountLegalEntityId, request, PostAsync<BulkCreateReservationsResult>);
+            _log.Info($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{request?.Count} reservations-created:{bulkReservationsResult?.Reservations?.Length}");
             return bulkReservationsResult;
         }
 
@@ -47,12 +47,12 @@ namespace SFA.DAS.Reservations.Api.Client
             }
         }
 
-        private async Task<T> PostAsync<T>(string url)
+        private async Task<T> PostAsync<T>(string url, object data)
         {
             string stringResponse = null;
             try
             {
-                stringResponse = await PostAsync(url, null);
+                stringResponse = await PostAsync(url, JsonConvert.SerializeObject(data));
                 var result = JsonConvert.DeserializeObject<T>(stringResponse);
                 return result;
             }
