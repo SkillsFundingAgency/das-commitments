@@ -24,17 +24,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         [Test]
         public async Task Handle_WithSpecifiedId_ShouldSetIsValidCorrectly()
         {
+            const long accountId = 123;
             const long accountLegalEntityId = 456;
 
             // arrange
             var fixtures = new GetEmployerHandlerTestFixtures()
-                .AddAccountWithLegalEntities(123, "Account123", accountLegalEntityId, "LegalEntity456");
+                .AddAccountWithLegalEntities(accountId, "Account123", accountLegalEntityId, "LegalEntity456");
 
             // act
             var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest {AccountLegalEntityId = accountLegalEntityId });
 
             // Assert
             Assert.IsNotNull(response);
+            Assert.AreEqual(response.AccountId, accountId);
+            Assert.AreEqual(response.AccountName, "Account123");
         }
     }
 

@@ -15,12 +15,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
     [TestFixture]
     public class CreateCohortRequestValidatorTests
     {
-        [TestCase(null, false)]
-        [TestCase("", false)]
-        [TestCase("Fred Flintstone", true)]
-        public void Validate_UserId_ShouldBeValidated(string value, bool expectedValid)
+        [TestCase(-1, false)]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        public void Validate_AccountId_ShouldBeValidated(long value, bool expectedValid)
         {
-            AssertValidationResult(request => request.UserId, value, expectedValid);
+            AssertValidationResult(request => request.AccountId, value, expectedValid);
         }
 
         [TestCase(-1, false)]

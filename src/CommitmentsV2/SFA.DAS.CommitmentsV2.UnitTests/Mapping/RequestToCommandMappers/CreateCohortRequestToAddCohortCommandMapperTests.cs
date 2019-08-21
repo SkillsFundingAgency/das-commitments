@@ -10,11 +10,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.RequestToCommandMappers
     [TestFixture()]
     public class CreateCohortRequestToAddCohortCommandMapperTests : MapperTester<CreateCohortRequestToAddCohortCommandMapper, CreateCohortRequest, AddCohortCommand>
     {
+
+        [Test]
+        public Task Map_AccountId_ShouldBeSet()
+        {
+            const long accountId = 123;
+            return AssertPropertySet(input => input.AccountId = accountId, output => output.AccountId == accountId);
+        }
+
         [Test]
         public Task Map_AccountLegalEntityId_ShouldBeSet()
         {
-            const long accountLegalEntityIdId = 123;
-            return AssertPropertySet(input => input.AccountLegalEntityId = accountLegalEntityIdId, output => output.AccountLegalEntityId == accountLegalEntityIdId);
+            const long accountLegalEntityId = 123;
+            return AssertPropertySet(input => input.AccountLegalEntityId = accountLegalEntityId, output => output.AccountLegalEntityId == accountLegalEntityId);
         }
 
         [Test]

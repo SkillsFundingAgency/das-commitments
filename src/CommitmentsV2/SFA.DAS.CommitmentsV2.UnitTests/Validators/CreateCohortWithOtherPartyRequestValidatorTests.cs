@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using FluentValidation.TestHelper;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validators;
@@ -13,6 +11,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
     [TestFixture]
     public class CreateCohortWithOtherPartyRequestValidatorTests
     {
+        [TestCase(-1, false)]
+        [TestCase(0, false)]
+        [TestCase(1, true)]
+        public void Validate_AccountId_ShouldBeValidated(long value, bool expectedValid)
+        {
+            AssertValidationResult(request => request.AccountId, value, expectedValid);
+        }
+        
         [TestCase(-1, false)]
         [TestCase(0, false)]
         [TestCase(1, true)]
