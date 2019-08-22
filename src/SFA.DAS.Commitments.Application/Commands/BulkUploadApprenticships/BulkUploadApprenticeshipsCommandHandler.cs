@@ -8,6 +8,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -29,13 +30,15 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         private readonly IHistoryRepository _historyRepository;
         private readonly IReservationsApiClient _reservationsApiClient;
         private readonly IEncodingService _encodingService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private IApprenticeshipEvents _apprenticeshipEvents;
 
         public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository,
             IApprenticeshipRepository apprenticeshipRepository, BulkUploadApprenticeshipsValidator validator,
             IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IMediator mediator,
-            IHistoryRepository historyRepository, IReservationsApiClient reservationsApiClient, IEncodingService encodingService)
+            IHistoryRepository historyRepository, IReservationsApiClient reservationsApiClient, 
+            IEncodingService encodingService, IV2EventsPublisher v2EventsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -46,6 +49,7 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             _historyRepository = historyRepository;
             _reservationsApiClient = reservationsApiClient;
             _encodingService = encodingService;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(BulkUploadApprenticeshipsCommand command)
@@ -76,8 +80,24 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             await Task.WhenAll(
                 _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED"),
                 _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"),
-                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId, command.UserName)
+                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId, command.UserName),
+                PublishBulkUploadIntoCohortCompleted(commitment, insertedApprenticeships)
             );
+        }
+
+        private async Task PublishBulkUploadIntoCohortCompleted(Commitment commitment, IList<Apprenticeship> insertedApprenticeships)
+        {
+            try
+            {
+                await _v2EventsPublisher.PublishBulkUploadIntoCohortCompleted(commitment.ProviderId.Value,
+                    commitment.Id,
+                    (uint) insertedApprenticeships.Count);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error calling PublishBulkUploadIntoCohortCompleted Event");
+                throw;
+            }
         }
 
         private async Task<IEnumerable<Apprenticeship>> MergeBulkCreatedReservationIdsOnToApprenticeships(IList<Apprenticeship> apprenticeships, Commitment commitment)

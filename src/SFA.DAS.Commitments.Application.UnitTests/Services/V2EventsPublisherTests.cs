@@ -244,6 +244,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, null)));
         }
         #endregion
+
+        #region PublishBulkUploadIntoCohortCreated
+        [Test]
+        public async Task PublishBulkUploadIntoCohortCreatedEvent_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<BulkUploadIntoCohortCompletedEvent>();
+
+            await fixtures.Publish(publisher => publisher.PublishBulkUploadIntoCohortCompleted(fixtures.Commitment.ProviderId.Value, fixtures.Commitment.Id, 2));
+        }
+        #endregion
+
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
@@ -256,7 +267,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             Apprenticeship = new Apprenticeship();
             Apprenticeship.AgreedOn = DateTime.Today.AddDays(-1);
-            Commitment = new Commitment();
+            Commitment = new Commitment { ProviderId = 123, Id = 1};
             
             var apprenticeship = new Mock<IApprenticeshipEvent>();
             apprenticeship.Setup(a => a.Apprenticeship).Returns(Apprenticeship);
