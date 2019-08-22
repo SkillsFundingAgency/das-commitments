@@ -13,6 +13,7 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
@@ -42,6 +43,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private Mock<ICurrentDateTime> _stubCurrentDateTime;
         private Mock<IReservationsApiClient> _mockReservationApiClient;
         private Mock<IEncodingService> _mockEncodingService;
+        private Mock<IV2EventsPublisher> _mockV2EventsPublisher;
 
         private Commitment _existingCommitment;
         private List<Apprenticeship> _existingApprenticeships;
@@ -62,6 +64,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _stubCurrentDateTime = new Mock<ICurrentDateTime>();
             _mockReservationApiClient = new Mock<IReservationsApiClient>();
             _mockEncodingService = new Mock<IEncodingService>();
+            _mockV2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(_stubCurrentDateTime.Object, _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
 
@@ -74,7 +77,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                 _mockMediator.Object,
                 _mockHistoryRepository.Object,
                 _mockReservationApiClient.Object,
-                _mockEncodingService.Object);
+                _mockEncodingService.Object,
+                _mockV2EventsPublisher.Object);
 
             _stubCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2018, 4, 1));
 
@@ -182,6 +186,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipEvents.Verify(x => x.BulkPublishEvent(_existingCommitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldPublishV2BulkUploadIntoCohortCompleted()
+        {
+            var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship() };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockV2EventsPublisher.Verify(x => x.PublishBulkUploadIntoCohortCompleted(_existingCommitment.ProviderId.Value, _existingCommitment.Id, 1), Times.Once);
         }
 
         [Test]
