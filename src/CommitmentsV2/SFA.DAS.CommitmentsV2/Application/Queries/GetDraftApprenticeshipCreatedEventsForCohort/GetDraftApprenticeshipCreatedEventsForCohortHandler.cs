@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Messages.Events;
+
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
+{
+    public class GetDraftApprenticeshipCreatedEventsForCohortHandler : IRequestHandler<GetDraftApprenticeshipCreatedEventsForCohortQuery, IEnumerable<DraftApprenticeshipCreatedEvent>>
+    {
+        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+
+        public GetDraftApprenticeshipCreatedEventsForCohortHandler(Lazy<ProviderCommitmentsDbContext> db)
+        {
+            _db = db;
+        }
+
+        public async Task<IEnumerable<DraftApprenticeshipCreatedEvent>> Handle(GetDraftApprenticeshipCreatedEventsForCohortQuery command, CancellationToken cancellationToken)
+        {
+            var cohort = await _db.Value.Cohorts.Include(c => c.Apprenticeships).SingleAsync(x => x.Id == command.CohortId, cancellationToken);
+
+            if (cohort.ProviderId != command.ProviderId)
+            {
+                throw new InvalidOperationException($"The cohort's ProviderId {cohort.ProviderId} doesn't match the expected ProviderId {command.ProviderId}");
+            }
+
+            if (cohort.Apprenticeships.Count != command.NumberOfApprentices)
+            {
+                throw new InvalidOperationException($"The number of apprentices in the cohort ({cohort.Apprenticeships.Count}) doesn't match the number ({command.NumberOfApprentices}");
+            }
+
+            return cohort.Apprenticeships.Select(x => new DraftApprenticeshipCreatedEvent(x.Id, command.CohortId, x.Uln, x.ReservationId, command.UploadedOn));
+        }
+    }
+}

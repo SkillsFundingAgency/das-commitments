@@ -177,6 +177,7 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             var @event = new BulkUploadIntoCohortCompletedEvent
             {
+                ProviderId = providerId,
                 CohortId = cohortId,
                 NumberOfApprentices = numberOfApprentices,
                 UploadedOn = _currentDateTime.Now
