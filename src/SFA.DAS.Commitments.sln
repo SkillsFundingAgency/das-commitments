@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.352
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Commitments.Api", "SFA.DAS.Commitments.Api\SFA.DAS.Commitments.Api.csproj", "{3CB1D817-D35A-4EFE-8B93-5FF0FAB94F82}"
 EndProject
@@ -120,15 +120,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Certificates", "Certificate
 		Certificates\localhost.pfx = Certificates\localhost.pfx
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.Api.Client\SFA.DAS.Reservations.Api.Client.csproj", "{1C575645-72A6-4912-AB53-A58F0D28D5CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Client", "CommitmentsV2\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj", "{1C575645-72A6-4912-AB53-A58F0D28D5CD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.Types", "CommitmentsV2\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj", "{3C2B457C-FBD1-494D-91D8-E0F614BBA99F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.TestSubscriber", "CommitmentsV2\SFA.DAS.CommitmentsV2.TestSubscriber\SFA.DAS.CommitmentsV2.TestSubscriber.csproj", "{4E922C46-4CF5-4457-BDA2-E0F2852C425A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.Reservations.Api.Client.UnitTests", "SFA.DAS.Reservations.Api.Client.UnitTests\SFA.DAS.Reservations.Api.Client.UnitTests.csproj", "{CE74291A-975F-470E-BBFC-884D5215DEB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ReservationsV2.Api.Client.UnitTests", "CommitmentsV2\SFA.DAS.ReservationsV2.Api.Client.UnitTests\SFA.DAS.ReservationsV2.Api.Client.UnitTests.csproj", "{CE74291A-975F-470E-BBFC-884D5215DEB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.CommitmentsV2.TestHelpers", "SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj", "{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.CommitmentsV2.TestHelpers", "CommitmentsV2\SFA.DAS.CommitmentsV2.TestHelpers\SFA.DAS.CommitmentsV2.TestHelpers.csproj", "{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types", "SFA.DAS.Reservations.API.Types\SFA.DAS.Reservations.Api.Types.csproj", "{515D7191-32EC-4CE7-BEBC-444689F27591}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Client", "SFA.DAS.Reservations.API.Client\SFA.DAS.Reservations.Api.Client.csproj", "{BFA13EE6-7663-4682-97CC-9F37090CB516}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.Reservations.Api.Types.UnitTests", "SFA.DAS.Reservations.Api.Types.UnitTests\SFA.DAS.Reservations.Api.Types.UnitTests.csproj", "{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -329,6 +335,18 @@ Global
 		{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{515D7191-32EC-4CE7-BEBC-444689F27591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{515D7191-32EC-4CE7-BEBC-444689F27591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{515D7191-32EC-4CE7-BEBC-444689F27591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{515D7191-32EC-4CE7-BEBC-444689F27591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFA13EE6-7663-4682-97CC-9F37090CB516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -376,6 +394,7 @@ Global
 		{4E922C46-4CF5-4457-BDA2-E0F2852C425A} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{CE74291A-975F-470E-BBFC-884D5215DEB2} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
 		{CC5137EC-ACF3-4460-85E9-C280EB8EC4F5} = {7B7AC1DE-4952-4711-B4A7-80F9202C64E1}
+		{75A2AC2D-172F-4B4C-922E-504D98C5A6E7} = {AEF29222-4B94-48CB-9438-78E5A6333438}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E8BEE571-B9F3-4417-B78E-FF10B021E2AC}

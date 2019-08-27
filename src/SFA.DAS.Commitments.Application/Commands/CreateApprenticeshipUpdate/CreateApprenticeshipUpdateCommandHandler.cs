@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
@@ -32,6 +34,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
         private readonly IMessagePublisher _messagePublisher;
         private readonly IApprenticeshipEventsList _apprenticeshipEventsList;
         private readonly IApprenticeshipEventsPublisher _apprenticeshipEventsPublisher;
+        private readonly IReservationValidationService _reservationValidationService;
 
         public CreateApprenticeshipUpdateCommandHandler(AbstractValidator<CreateApprenticeshipUpdateCommand> validator,
             IApprenticeshipUpdateRepository apprenticeshipUpdateRepository, ICommitmentsLogger logger,
@@ -39,7 +42,8 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             IHistoryRepository historyRepository, ICommitmentRepository commitmentRepository,
             ICurrentDateTime currentDateTime, IMessagePublisher messagePublisher,
             IApprenticeshipEventsList apprenticeshipEventsList,
-            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher)
+            IApprenticeshipEventsPublisher apprenticeshipEventsPublisher,
+            IReservationValidationService reservationValidationService)
         {
             _validator = validator;
             _apprenticeshipUpdateRepository = apprenticeshipUpdateRepository;
@@ -52,6 +56,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
             _messagePublisher = messagePublisher;
             _apprenticeshipEventsList = apprenticeshipEventsList;
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
+            _reservationValidationService = reservationValidationService;
         }
 
         protected override async Task HandleCore(CreateApprenticeshipUpdateCommand command)
@@ -74,7 +79,10 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 throw new ValidationException("Unable to create an update for an apprenticeship that is already started ");
 
             CheckAuthorisation(command, apprenticeship);
-            await CheckOverlappingApprenticeships(command, apprenticeship);
+
+            await Task.WhenAll(
+                CheckOverlappingApprenticeships(command, apprenticeship),
+                CheckReservation(command.ApprenticeshipUpdate, apprenticeship));
 
             Apprenticeship immediateUpdate = null;
             ApprenticeshipUpdate pendingUpdate = null;
@@ -84,6 +92,11 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                 StartHistoryTracking(commitment, apprenticeship, command.Caller.CallerType, command.UserId, command.UserName);
                 MapImmediateApprenticeshipUpdate(apprenticeship, command);
                 immediateUpdate = apprenticeship;
+            }
+
+            if (apprenticeship.StartDate == null)
+            {
+                throw new InvalidOperationException($"The start date on apprenticeship {apprenticeship.Id} is null when calling {nameof(CreateApprenticeshipUpdateCommand)} command handler");
             }
 
             if (command.ApprenticeshipUpdate.HasChanges)
@@ -181,6 +194,16 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
 
         private async Task CheckOverlappingApprenticeships(CreateApprenticeshipUpdateCommand command, Apprenticeship originalApprenticeship)
         {
+            if (originalApprenticeship.StartDate == null)
+            {
+                throw new InvalidOperationException($"The start date on apprenticeship {originalApprenticeship.Id} is null when calling {nameof(CheckOverlappingApprenticeships)}");
+            }
+
+            if (originalApprenticeship.EndDate == null)
+            {
+                throw new InvalidOperationException($"The end date on apprenticeship {originalApprenticeship.Id} is null when calling {nameof(CheckOverlappingApprenticeships)}");
+            }
+
             var coalesce = new Func<string, string, string>((s, s1) => string.IsNullOrWhiteSpace(s) ? s1 : s);
 
             var overlapResult = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
@@ -204,6 +227,30 @@ namespace SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate
                     _logger.Info($"ApprenticeshipUpdate overlaps with apprenticeship {overlap.Id}");
                 }
                 throw new ValidationException("Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
+            }
+        }
+
+        private async Task CheckReservation(ApprenticeshipUpdate pendingUpdate, Apprenticeship originalApprenticeship)
+        {
+            var request = new ReservationValidationServiceRequest
+            {
+                AccountId = originalApprenticeship.EmployerAccountId,
+                ApprenticeshipId = originalApprenticeship.Id,
+                ReservationId = originalApprenticeship.ReservationId,
+                CommitmentId = originalApprenticeship.CommitmentId,
+                TrainingCode = pendingUpdate.TrainingCode ?? originalApprenticeship.TrainingCode,
+                StartDate = pendingUpdate.StartDate ?? originalApprenticeship.StartDate,
+                ProviderId = originalApprenticeship.ProviderId
+            };
+
+            var validationResult = await _reservationValidationService.CheckReservation(request);
+
+            if (validationResult.HasErrors)
+            {
+                var validationFailures =
+                    validationResult.ValidationErrors.Select(e => new ValidationFailure(e.PropertyName, e.Reason));
+
+                throw new ValidationException(validationFailures);
             }
         }
     }

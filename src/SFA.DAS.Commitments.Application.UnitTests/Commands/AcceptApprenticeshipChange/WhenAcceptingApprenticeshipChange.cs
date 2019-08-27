@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -9,11 +10,12 @@ using MediatR;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-
+using SFA.DAS.Commitments.Api.Types.Validation;
 using SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
+using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
@@ -21,6 +23,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshipChange
 {
@@ -42,7 +45,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
         private DateTime _apprenticeshipStartDate;
         private DateTime _effectiveDate;
 
-        private DateTime _updateCreadtedOn;
+        private DateTime _updateCreatedOn;
         private Apprenticeship _apprenticeship;
 
         [SetUp]
@@ -58,7 +61,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
             _messagePublisher = new Mock<IMessagePublisher>();
             _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
-            _updateCreadtedOn = DateTime.Now.AddDays(-2);
+            _updateCreatedOn = DateTime.Now.AddDays(-2);
             _effectiveDate = DateTime.Now.AddDays(-2);
             _validator.Setup(x => x.Validate(It.IsAny<AcceptApprenticeshipChangeCommand>())).Returns(() => new ValidationResult());
 
@@ -78,7 +81,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
 
             _mediator.Setup(m => m.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>())).ReturnsAsync(new GetOverlappingApprenticeshipsResponse { Data = new List<ApprenticeshipResult>() });
 
-            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>())).ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreadtedOn, EffectiveFromDate = _effectiveDate });
+            _repository.Setup(m => m.GetPendingApprenticeshipUpdate(It.IsAny<long>())).ReturnsAsync(new ApprenticeshipUpdate { ApprenticeshipId = 5, Id = 42, CreatedOn = _updateCreatedOn, EffectiveFromDate = _effectiveDate });
             _commitment.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(new Commitment { ProviderId = 43556 });
 
             _sut = new AcceptApprenticeshipChangeCommandHandler(

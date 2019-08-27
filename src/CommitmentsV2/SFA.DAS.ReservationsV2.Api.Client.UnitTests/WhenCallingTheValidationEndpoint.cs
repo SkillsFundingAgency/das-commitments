@@ -6,9 +6,12 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
-using SFA.DAS.Reservations.Api.Client.Types;
+using SFA.DAS.Reservations.Api.Types;
+using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.Reservations.Api.Types.Configuration;
 
-namespace SFA.DAS.Reservations.Api.Client.UnitTests
+namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
     [TestFixture]
     [Parallelizable]
@@ -40,18 +43,24 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
         {
             private readonly ReservationsApiClient _reservationsApiClient;
             private readonly Mock<IRestHttpClient> _restHttpClient;
+            private readonly ReservationsClientApiConfiguration _config;
 
             private readonly ValidationReservationMessage _request;
 
             public ReservationsClientTestFixture()
             {
                 _restHttpClient = new Mock<IRestHttpClient>();
-                _restHttpClient.Setup(x => x.Get<ValidationResult>(It.IsAny<string>(),
+                _restHttpClient.Setup(x => x.Get<ReservationValidationResult>(It.IsAny<string>(),
                         It.IsAny<object>(),
                         It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new ValidationResult());
+                    .ReturnsAsync(new ReservationValidationResult());
 
-                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object);
+                _config = new ReservationsClientApiConfiguration
+                {
+                    ApiBaseUrl = "https://somehost"
+                };
+
+                _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationHelper(_config), Mock.Of<ILogger<ReservationsApiClient>>());
 
                 var autoFixture = new Fixture();
                 _request = new ValidationReservationMessage
@@ -70,9 +79,9 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
 
             public void AssertUriCorrectlyFormed()
             {
-                var expectedUrl = $"api/reservations/validate/{_request.ReservationId}";
+                var expectedUrl = $"{_config.ApiBaseUrl}/api/reservations/validate/{_request.ReservationId}";
 
-                _restHttpClient.Verify(x => x.Get<ValidationResult>(It.Is<string>(s => s == expectedUrl),
+                  _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
                     It.IsAny<object>(),
                     It.IsAny<CancellationToken>()));
             }
@@ -85,9 +94,21 @@ namespace SFA.DAS.Reservations.Api.Client.UnitTests
                     _request.CourseCode
                 };
 
-                _restHttpClient.Verify(x => x.Get<ValidationResult>(It.IsAny<string>(),
+                _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.IsAny<string>(),
                     It.Is<object>(o => CompareHelper.AreEqualIgnoringTypes(expectedPayload, o)),
                     It.IsAny<CancellationToken>()));
+            }
+
+            private bool IsSameUri(string expected, string actual)
+            {
+                var expectedUri = new Uri(expected, UriKind.Absolute);
+                var actualUri = new Uri(actual, UriKind.Absolute);
+
+                Assert.AreEqual(expectedUri.Host, actualUri.Host, "Host is wrong");
+                Assert.AreEqual(expectedUri.AbsolutePath, actualUri.AbsolutePath, "Path is wrong");
+                Assert.AreEqual(expectedUri.Scheme, actualUri.Scheme, "Scheme is wrong");
+
+                return true;
             }
         }
     }
