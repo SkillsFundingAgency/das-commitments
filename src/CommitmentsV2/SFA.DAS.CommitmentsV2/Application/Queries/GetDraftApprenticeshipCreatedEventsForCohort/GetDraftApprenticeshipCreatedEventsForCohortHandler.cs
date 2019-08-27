@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {
-    public class GetDraftApprenticeshipCreatedEventsForCohortHandler : IRequestHandler<GetDraftApprenticeshipCreatedEventsForCohortQuery, IEnumerable<DraftApprenticeshipCreatedEvent>>
+    public class GetDraftApprenticeshipCreatedEventsForCohortHandler : IRequestHandler<GetDraftApprenticeshipCreatedEventsForCohortQuery, GetDraftApprenticeshipCreatedEventsForCohortResponse>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
             _db = db;
         }
 
-        public async Task<IEnumerable<DraftApprenticeshipCreatedEvent>> Handle(GetDraftApprenticeshipCreatedEventsForCohortQuery command, CancellationToken cancellationToken)
+        public async Task<GetDraftApprenticeshipCreatedEventsForCohortResponse> Handle(GetDraftApprenticeshipCreatedEventsForCohortQuery command, CancellationToken cancellationToken)
         {
             var cohort = await _db.Value.Cohorts.Include(c => c.Apprenticeships).SingleAsync(x => x.Id == command.CohortId, cancellationToken);
 
@@ -33,7 +33,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
                 throw new InvalidOperationException($"The number of apprentices in the cohort ({cohort.Apprenticeships.Count}) doesn't match the number ({command.NumberOfApprentices}");
             }
 
-            return cohort.Apprenticeships.Select(x => new DraftApprenticeshipCreatedEvent(x.Id, command.CohortId, x.Uln, x.ReservationId, command.UploadedOn));
+            return new GetDraftApprenticeshipCreatedEventsForCohortResponse(cohort.Apprenticeships.Select(x =>
+                new DraftApprenticeshipCreatedEvent(x.Id, command.CohortId, x.Uln, x.ReservationId,
+                    command.UploadedOn)));
         }
     }
 }

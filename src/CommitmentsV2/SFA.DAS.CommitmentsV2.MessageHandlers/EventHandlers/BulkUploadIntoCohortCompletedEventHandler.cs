@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort;
@@ -17,10 +18,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(BulkUploadIntoCohortCompletedEvent message, IMessageHandlerContext context)
         {
-            var events = await _mediator.Send(new GetDraftApprenticeshipCreatedEventsForCohortQuery(message.ProviderId, message.CohortId,
+            var response = await _mediator.Send(new GetDraftApprenticeshipCreatedEventsForCohortQuery(message.ProviderId, message.CohortId,
                 message.NumberOfApprentices, message.UploadedOn));
 
-            foreach (var item in events)
+            foreach (var item in response.DraftApprenticeshipCreatedEvents)
             {
                 await context.Publish(item);
             }
