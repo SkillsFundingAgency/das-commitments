@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {
-    public class GetDraftApprenticeshipCreatedEventsForCohortQuery : IRequest<IEnumerable<DraftApprenticeshipCreatedEvent>>
+    public class GetDraftApprenticeshipCreatedEventsForCohortQuery : IRequest<GetDraftApprenticeshipCreatedEventsForCohortResponse>
     {
         public long ProviderId { get; }
         public long CohortId { get; }
