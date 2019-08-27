@@ -19,18 +19,18 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
     public class NServiceBusHealthCheckTests : FluentTest<NServiceBusHealthCheckTestsFixture>
     {
         [Test]
-        public Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldPollDistributedCache()
+        public async Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldPollDistributedCacheOnce()
         {
-            return TestAsync(
+            await TestAsync(
                 f => f.SetSendSuccess().SetReceiveSuccess(),
                 f => f.CheckHealthAsync(),
                 (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.Once));
         }
         
         [Test]
-        public Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldReturnHealthyStatus()
+        public async Task CheckHealthAsync_WhenReceiveSucceeds_ThenShouldReturnHealthyStatus()
         {
-            return TestAsync(
+            await TestAsync(
                 f => f.SetSendSuccess().SetReceiveSuccess(),
                 f => f.CheckHealthAsync(),
                 (f, r) =>
@@ -41,27 +41,27 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         }
 
         [Test]
-        public Task CheckHealthAsync_WhenSendFails_ThenShouldThrowException()
+        public async Task CheckHealthAsync_WhenSendFails_ThenShouldThrowException()
         {
-            return TestExceptionAsync(
+            await TestExceptionAsync(
                 f => f.SetSendFailure(),
                 f => f.CheckHealthAsync(),
                 (f, r) => r.Should().Throw<Exception>().Which.Should().Be(f.Exception));
         }
         
         [Test]
-        public Task CheckHealthAsync_WhenReceiveFails_ThenShouldPollDistributedCache()
+        public async Task CheckHealthAsync_WhenReceiveFails_ThenShouldContinuePollingDistributedCache()
         {
-            return TestAsync(
+            await TestAsync(
                 f => f.SetSendSuccess().SetReceiveFailure(),
                 f => f.CheckHealthAsync(),
-                (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.Exactly(f.PollCount)));
+                (f, r) => f.DistributedCache.Verify(c => c.GetAsync(f.MessageId, f.CancellationToken), Times.AtLeast(2)));
         }
         
         [Test]
-        public Task CheckHealthAsync_WhenReceiveFails_ThenShouldReturnDegradedStatus()
+        public async Task CheckHealthAsync_WhenTimeoutExpires_ThenShouldReturnDegradedStatus()
         {
-            return TestAsync(
+            await TestAsync(
                 f => f.SetSendSuccess().SetReceiveFailure(),
                 f => f.CheckHealthAsync(),
                 (f, r) =>
@@ -73,16 +73,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         }
         
         [Test]
-        public Task CheckHealthAsync_WhenCancellationRequested_ThenShouldReturnUnhealthyStatus()
+        public async Task CheckHealthAsync_WhenCancellationRequested_ThenShouldThrowException()
         {
-            return TestAsync(
+            await TestExceptionAsync(
                 f => f.SetSendSuccess().SetCancellationRequested(),
                 f => f.CheckHealthAsync(),
-                (f, r) =>
-                {
-                    r.Should().NotBeNull();
-                    r.Status.Should().Be(HealthStatus.Unhealthy);
-                });
+                (f, r) => r.Should().Throw<OperationCanceledException>().Which.CancellationToken.Should().Be(f.CancellationToken));
         }
     }
 
@@ -92,7 +88,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
         public Stopwatch Stopwatch { get; set; }
         public TimeSpan Interval { get; set; }
         public TimeSpan Timeout { get; set; }
-        public int PollCount { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public Mock<IMessageSession> MessageSession { get; set; }
         public Mock<IDistributedCache> DistributedCache { get; set; }
@@ -109,7 +104,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.HealthChecks
 
             Interval = TimeSpan.FromMilliseconds(100);
             Timeout = TimeSpan.FromMilliseconds(500);
-            PollCount = (int)Math.Ceiling(Timeout.TotalMilliseconds / Interval.TotalMilliseconds) + 1;
             CancellationToken = new CancellationToken();
             MessageSession = new Mock<IMessageSession>();
             DistributedCache = new Mock<IDistributedCache>();

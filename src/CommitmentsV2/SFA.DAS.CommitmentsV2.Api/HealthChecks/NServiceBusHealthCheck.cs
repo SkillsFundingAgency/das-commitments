@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
     public class NServiceBusHealthCheck : IHealthCheck
     {
         public TimeSpan Interval { get; set; } = TimeSpan.FromMilliseconds(500);
-        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(3);
+        public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(5);
         
         private readonly IMessageSession _messageSession;
         private readonly IDistributedCache _distributedCache;
@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
                 await Task.Delay(Interval, cancellationToken);
             }
             
-            return HealthCheckResult.Unhealthy("Cancelled", null, data);
+            throw new OperationCanceledException(cancellationToken);
         }
     }
 }
