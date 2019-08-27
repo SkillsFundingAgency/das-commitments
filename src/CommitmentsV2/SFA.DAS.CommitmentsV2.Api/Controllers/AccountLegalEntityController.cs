@@ -48,6 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok(new AccountLegalEntityResponse
             {
+                AccountId = employer.AccountId,
                 AccountName = employer.AccountName,
                 LegalEntityName = employer.LegalEntityName
             });

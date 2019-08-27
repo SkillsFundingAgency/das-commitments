@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
     {
         public CreateCohortRequestValidator(IAuthorizationService authorizationService)
         {
-            RuleFor(r => r.UserId).NotEmpty().WithMessage("The user id must be supplied");
+            RuleFor(r => r.AccountId).Must(accountId => accountId > 0).WithMessage("The Account Id valid");
             RuleFor(r => r.AccountLegalEntityId).Must(accountLegalEntityId => accountLegalEntityId > 0).WithMessage("The Account Legal Entity must be valid"); 
             RuleFor(r => r.ProviderId).Must(providerId => providerId > 0).WithMessage("The provider id must be positive");
             RuleFor(r => r.FirstName).MaximumLength(100).WithMessage("You must enter a first name that's no longer than 100 characters");

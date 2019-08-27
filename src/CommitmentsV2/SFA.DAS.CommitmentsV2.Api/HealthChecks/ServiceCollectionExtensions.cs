@@ -12,12 +12,11 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
     {
         public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, IConfiguration configuration)
         {
-            var commitmentsV2ConfigurationSection = configuration.GetSection(CommitmentsConfigurationKeys.CommitmentsV2);
-            var commitmentsV2Configuration = commitmentsV2ConfigurationSection.Get<CommitmentsV2Configuration>();
+            var databaseConnectionString = configuration.GetValue<string>(CommitmentsConfigurationKeys.DatabaseConnectionString);
             
             services.AddHealthChecks()
                 .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
-                .AddSqlServer(commitmentsV2Configuration.DatabaseConnectionString, name: "Commitments DB Health Check");
+                .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check");
 
             return services;
         }

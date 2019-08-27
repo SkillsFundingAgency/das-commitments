@@ -51,11 +51,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SFA.DAS.Commitments.Support.SubSiteContent\" />
     <Folder Include="Configuration\" />
-  </ItemGroup>
-  <ItemGroup>
-    <DiagnosticsConfiguration Include="SFA.DAS.Commitments.Support.SubSiteContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Configuration\ServiceDefinition.Cloud.csdef">

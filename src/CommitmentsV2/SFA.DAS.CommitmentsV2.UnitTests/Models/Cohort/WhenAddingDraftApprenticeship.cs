@@ -2,8 +2,10 @@ using System;
 using System.Linq;
 using AutoFixture;
 using FluentAssertions;
+using MoreLinq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -89,12 +91,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 d.ProviderRef == null);
         }
 
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenTheApprovalOfTheOtherPartyIsUndone(Party modifyingParty)
+        {
+            _fixture
+                .WithExistingDraftApprenticeship()
+                .WithApproval(modifyingParty.GetOtherParty())
+                .AddDraftApprenticeship();
+
+            Assert.IsTrue(_fixture.Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
+        }
+
         private class AddDraftApprenticeshipTestFixture
         {
             public DateTime Now { get; set; }
             public Fixture Fixture { get; set; }
             public CommitmentsV2.Models.Cohort Cohort { get; set; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
+            public DraftApprenticeship ExistingApprenticeshipDetails { get; set; }
             public Party Party { get; set; }
             public UnitOfWorkContext UnitOfWorkContext { get; set; }
 
@@ -118,6 +133,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     .Without(d => d.Uln)
                     .Create();
 
+                ExistingApprenticeshipDetails = new DraftApprenticeship(Fixture.Build<DraftApprenticeshipDetails>().Create(), Party.Provider);
+
                 Party = Party.Provider;
                 UnitOfWorkContext = new UnitOfWorkContext();
                 UserInfo = Fixture.Create<UserInfo>();
@@ -138,6 +155,33 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             public AddDraftApprenticeshipTestFixture SetParty(Party party)
             {
                 Party = party;
+
+                return this;
+            }
+
+            public AddDraftApprenticeshipTestFixture WithExistingDraftApprenticeship()
+            {
+                Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
+                return this;
+            }
+
+            public AddDraftApprenticeshipTestFixture WithApproval(Party approvingParty)
+            {
+                var agreementStatus = AgreementStatus.NotAgreed;
+
+                switch (approvingParty)
+                {
+                    case Party.Employer:
+                        agreementStatus = AgreementStatus.EmployerAgreed;
+                        break;
+                    case Party.Provider:
+                        agreementStatus = AgreementStatus.ProviderAgreed;
+                        break;
+                    default:
+                        break;
+                }
+
+                Cohort.Apprenticeships.ForEach(a => a.AgreementStatus = agreementStatus);
 
                 return this;
             }

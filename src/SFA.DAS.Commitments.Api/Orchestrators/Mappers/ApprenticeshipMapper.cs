@@ -52,7 +52,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 DataLockCourseChangeTriaged = source.DataLockCourseChangeTriaged,
                 DataLockPriceTriaged = source.DataLockPriceTriaged,
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
-                EndpointAssessorName = source.EndpointAssessorName
+                EndpointAssessorName = source.EndpointAssessorName,
+                ReservationId = source.ReservationId
             };
         }
 
@@ -76,6 +77,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 StartDate = apprenticeship.StartDate,
                 EndDate = apprenticeship.EndDate,
                 PauseDate = apprenticeship.PauseDate
+                // We do not want to map reservation id as the reservation is not set in V1
             };
 
             if (callerType.IsEmployer())

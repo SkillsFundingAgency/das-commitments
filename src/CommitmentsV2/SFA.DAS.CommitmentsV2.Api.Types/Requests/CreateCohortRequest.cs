@@ -4,7 +4,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
 {
     public class CreateCohortRequest : SaveDataRequest
     {
-        public string UserId { get; set; }
+        public long AccountId { get; set; }
         public long AccountLegalEntityId { get; set; }
         public long ProviderId { get; set; }
         public string FirstName { get; set; }

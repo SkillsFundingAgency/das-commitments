@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity
             return _dbContext.Value
                 .AccountLegalEntities.GetById(
                     request.AccountLegalEntityId, 
-                    ale => new GetAccountLegalEntityResponse {AccountName = ale.Account.Name, LegalEntityName = ale.Name}, 
+                    ale => new GetAccountLegalEntityResponse {AccountId = ale.AccountId, AccountName = ale.Account.Name, LegalEntityName = ale.Name}, 
                     cancellationToken);
         }
     }

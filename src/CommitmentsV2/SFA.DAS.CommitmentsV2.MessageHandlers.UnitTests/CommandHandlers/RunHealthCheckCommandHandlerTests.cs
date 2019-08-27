@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Internal;
 using Moq;
@@ -28,10 +32,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                     It.IsAny<Exception>(),
                     It.IsAny<Func<object, Exception, string>>())));
         }
+        
+        [Test]
+        public Task Handle_WhenHandlingCommand_ThenShouldAddMessageIdToDistributedCache()
+        {
+            return TestAsync(
+                f => f.Handle(),
+                f => f.DistributedCache.Verify(c => c.SetAsync(f.MessageId, It.Is<byte[]>(v => System.Text.Encoding.UTF8.GetString(v) == "OK"), It.IsAny<DistributedCacheEntryOptions>(), It.IsAny<CancellationToken>())));
+        }
     }
 
     public class RunHealthCheckCommandHandlerTestsFixture
     {
+        public Mock<IDistributedCache> DistributedCache { get; set; }
         public Mock<ILogger<RunHealthCheckCommandHandler>> Logger { get; set; }
         public string MessageId { get; set; }
         public RunHealthCheckCommand Command { get; set; }
@@ -40,11 +53,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
         public RunHealthCheckCommandHandlerTestsFixture()
         {
+            DistributedCache = new Mock<IDistributedCache>();
             Logger = new Mock<ILogger<RunHealthCheckCommandHandler>>();
             MessageId = Guid.NewGuid().ToString();
             Command = new RunHealthCheckCommand();
             MessageHandlerContext = new TestableMessageHandlerContext { MessageId = MessageId };
-            CommandHandler = new RunHealthCheckCommandHandler(Logger.Object);
+            CommandHandler = new RunHealthCheckCommandHandler(DistributedCache.Object, Logger.Object);
         }
 
         public Task Handle()

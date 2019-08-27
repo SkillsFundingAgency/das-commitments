@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
@@ -14,6 +16,7 @@ using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
 using SFA.DAS.Messaging.Interfaces;
+using ApprenticeshipOverlapValidationRequest = SFA.DAS.Commitments.Domain.Entities.ApprenticeshipOverlapValidationRequest;
 
 namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 {
@@ -62,34 +65,38 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
             await ValidateCommand(command, pendingUpdate, apprenticeship);
 
             await ApproveApprenticeshipUpdate(command, apprenticeship, pendingUpdate);
-
         }
 
         private async Task ApproveApprenticeshipUpdate(AcceptApprenticeshipChangeCommand command, Apprenticeship apprenticeship, ApprenticeshipUpdate pendingUpdate)
         {
             var commitment = await _commitmentRepository.GetCommitmentById(apprenticeship.CommitmentId);
-            
+
+            if (commitment.ProviderId == null)
+            {
+                throw new InvalidOperationException($"The provider id on commitment {apprenticeship.CommitmentId} is null when calling {nameof(ApproveApprenticeshipUpdate)}");
+            }
+
             var historyService = new HistoryService(_historyRepository);
             historyService.TrackUpdate(commitment, CommitmentChangeType.EditedApprenticeship.ToString(), commitment.Id, null, command.Caller.CallerType, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
             historyService.TrackUpdate(apprenticeship, ApprenticeshipChangeType.Updated.ToString(), null, apprenticeship.Id, command.Caller.CallerType, command.UserId, apprenticeship.ProviderId, apprenticeship.EmployerAccountId, command.UserName);
-            var originalApprenticeship = apprenticeship.Clone();
+
             _mapper.ApplyUpdate(apprenticeship, pendingUpdate);
 
             await Task.WhenAll(
                 _apprenticeshipUpdateRepository.ApproveApprenticeshipUpdate(pendingUpdate, apprenticeship, command.Caller),
-                CreateEvents(commitment, originalApprenticeship, apprenticeship, pendingUpdate),
+                CreateEvents(commitment, apprenticeship, pendingUpdate),
                 historyService.Save(),
                 _messagePublisher.PublishAsync(new ApprenticeshipUpdateAccepted(commitment.EmployerAccountId, commitment.ProviderId.Value, command.ApprenticeshipId)),
                 _v2EventsPublisher.PublishApprenticeshipUpdatedApproved(commitment, apprenticeship)
             );
         }
 
-        private async Task CreateEvents(Commitment commitment, Apprenticeship apprenticeship, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
+        private async Task CreateEvents(Commitment commitment, Apprenticeship updatedApprenticeship, ApprenticeshipUpdate pendingUpdate)
         {
-            await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", pendingUpdate.EffectiveFromDate, null);
+            await _eventsApi.PublishEvent(commitment, updatedApprenticeship, "APPRENTICESHIP-UPDATED", pendingUpdate.EffectiveFromDate);
         }
 
-        private async Task ValidateCommand(AcceptApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
+        private Task ValidateCommand(AcceptApprenticeshipChangeCommand command, ApprenticeshipUpdate pendingUpdate, Apprenticeship apprenticeship)
         {
             var result = _validator.Validate(command);
             if (!result.IsValid)
@@ -100,12 +107,21 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
 
             CheckAuthorisation(command, apprenticeship);
 
-            await CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
-
+            return CheckOverlappingApprenticeships(pendingUpdate, apprenticeship);
         }
 
         private async Task CheckOverlappingApprenticeships(ApprenticeshipUpdate pendingUpdate, Apprenticeship originalApprenticeship)
         {
+            if (originalApprenticeship.StartDate == null)
+            {
+                throw new InvalidOperationException($"The start date on apprenticeship {originalApprenticeship.Id} is null when calling {nameof(CheckOverlappingApprenticeships)}");
+            }
+
+            if (originalApprenticeship.EndDate == null)
+            {
+                throw new InvalidOperationException($"The end date on apprenticeship {originalApprenticeship.Id} is null when calling {nameof(CheckOverlappingApprenticeships)}");
+            }
+
             var overlapResult = await _mediator.SendAsync(new GetOverlappingApprenticeshipsRequest
             {
                 OverlappingApprenticeshipRequests = new List<ApprenticeshipOverlapValidationRequest>
@@ -125,8 +141,7 @@ namespace SFA.DAS.Commitments.Application.Commands.AcceptApprenticeshipChange
                 throw new ValidationException("Unable to create ApprenticeshipUpdate due to overlapping apprenticeship");
             }
         }
-
-
+        
         private void CheckAuthorisation(AcceptApprenticeshipChangeCommand command, Apprenticeship apprenticeship)
         {
             switch (command.Caller.CallerType)

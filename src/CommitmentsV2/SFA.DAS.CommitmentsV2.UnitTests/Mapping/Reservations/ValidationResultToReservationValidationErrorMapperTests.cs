@@ -1,10 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using AutoFixture;
-using Castle.Core.Internal;
+﻿using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.Reservations;
-using SFA.DAS.Reservations.Api.Client.Types;
+using System.Linq;
+using System.Threading.Tasks;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
 {
@@ -12,14 +11,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Reservations
     public class ValidationResultToReservationValidationErrorMapperTests
     {
         private Fixture _autoFixture;
-        private ValidationResult _source;
+        private ReservationValidationResult _source;
         private ValidationResultToReservationValidationErrorMapper _mapper;
 
         [SetUp]
         public void SetUp()
         {
             _autoFixture = new Fixture();
-            _source = _autoFixture.Create<ValidationResult>();
+            _source = _autoFixture.Create<ReservationValidationResult>();
 
             _mapper = new ValidationResultToReservationValidationErrorMapper();
         }
