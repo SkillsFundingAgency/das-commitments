@@ -68,12 +68,5 @@ namespace SFA.DAS.Reservations.Api.Client.DependencyResolution
                 .Build();
 
         }
-        
-        private static ReservationsClientApiConfiguration GetConfig(IContext context)
-        {
-            var configuration = context.GetInstance<IConfiguration>();
-            var configSection = configuration.GetSection(ConfigurationKeys.ReservationsClientApiConfiguration);
-            return configSection.Get<ReservationsClientApiConfiguration>();
-        }
     }
 }
