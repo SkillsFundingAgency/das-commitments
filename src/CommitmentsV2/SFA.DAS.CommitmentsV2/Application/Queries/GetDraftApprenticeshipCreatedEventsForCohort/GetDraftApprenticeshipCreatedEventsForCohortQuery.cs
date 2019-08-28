@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using MediatR;
-using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {

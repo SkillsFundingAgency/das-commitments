@@ -4,21 +4,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
-using FluentValidation;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {
@@ -27,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
     {
         const long CohortId = 456;
         const long ProviderId = 156;
-        private DateTime _loadedOn = DateTime.Now;
+        private readonly DateTime _loadedOn = DateTime.Now;
 
         private GetDraftApprenticeshipCreatedEventsForCohortHandlerTestsFixtures _fixture;
 
@@ -50,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
-        public async Task Handle_WithValidQuery_ShouldReturnResponseWithCreateMessageForEachApprenticeAtachedToCohort()
+        public async Task Handle_WithValidQuery_ShouldReturnResponseWithCreateMessageForEachApprenticeAttachedToCohort()
         {
             _fixture.SetupASingleDraftApprenticeship(123).AddCohort(CohortId, ProviderId, _fixture.DraftApprentices);
 
@@ -72,6 +66,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.GetResult(new GetDraftApprenticeshipCreatedEventsForCohortQuery(98798, CohortId, 0, _loadedOn)));
         }
+
+        [Test]
+        public void Handle_WithWrongNumberOfApprentices_ShouldThrowInvalidOperationException()
+        {
+            _fixture.AddCohort(CohortId, ProviderId, new List<DraftApprenticeship>());
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.GetResult(new GetDraftApprenticeshipCreatedEventsForCohortQuery(ProviderId, CohortId, 100, _loadedOn)));
+        }
     }
 
     public class GetDraftApprenticeshipCreatedEventsForCohortHandlerTestsFixtures
@@ -83,7 +85,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         public List<DraftApprenticeship> DraftApprentices;
-
 
         public List<Cohort> SeedCohorts { get; }
         public GetDraftApprenticeshipCreatedEventsForCohortHandlerTestsFixtures AddCohort(long cohortId, long providerId, IEnumerable<DraftApprenticeship> apprentices)
@@ -128,7 +129,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             return this;
         }
-
 
         public Task<GetDraftApprenticeshipCreatedEventsForCohortQueryResult> GetResult(GetDraftApprenticeshipCreatedEventsForCohortQuery query)
         {

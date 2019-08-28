@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
 
             if (cohort.Apprenticeships.Count != command.NumberOfApprentices)
             {
-                throw new InvalidOperationException($"The number of apprentices in the cohort ({cohort.Apprenticeships.Count}) doesn't match the number ({command.NumberOfApprentices}");
+                throw new InvalidOperationException($"The number of apprentices in the cohort ({cohort.Apprenticeships.Count}) doesn't match the expected number ({command.NumberOfApprentices}");
             }
 
             return new GetDraftApprenticeshipCreatedEventsForCohortQueryResult(cohort.Apprenticeships.Select(x =>
