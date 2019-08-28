@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public Mock<IMessageHandlerContext> MockMessageHandlerContext;
         public BulkUploadIntoCohortCompletedEventHandler BulkUploadIntoCohortCompletedEventHandler;
         public BulkUploadIntoCohortCompletedEvent BulkUploadIntoCohortCompletedEvent;
-        public GetDraftApprenticeshipCreatedEventsForCohortResponse GetDraftApprenticeshipCreatedEventsForCohortResponse;
+        public GetDraftApprenticeshipCreatedEventsForCohortQueryResult GetDraftApprenticeshipCreatedEventsForCohortQueryResult;
 
         public BulkUploadIntoCohortCompletedEventHandlerTestsFixture()
         {
@@ -49,12 +49,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             BulkUploadIntoCohortCompletedEventHandler =
                 new BulkUploadIntoCohortCompletedEventHandler(MockMediator.Object);
             BulkUploadIntoCohortCompletedEvent = autoFixture.Create<BulkUploadIntoCohortCompletedEvent>();
-            GetDraftApprenticeshipCreatedEventsForCohortResponse =
-                autoFixture.Build<GetDraftApprenticeshipCreatedEventsForCohortResponse>().Create();
+            GetDraftApprenticeshipCreatedEventsForCohortQueryResult =
+                autoFixture.Build<GetDraftApprenticeshipCreatedEventsForCohortQueryResult>().Create();
 
             MockMediator.Setup(x => x.Send(It.IsAny<GetDraftApprenticeshipCreatedEventsForCohortQuery>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(GetDraftApprenticeshipCreatedEventsForCohortResponse);
+                .ReturnsAsync(GetDraftApprenticeshipCreatedEventsForCohortQueryResult);
         }
 
         public Task Handle()
@@ -75,7 +75,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerifyDraftApprenticeshipCreatedEventsArePublished()
         {
-            var numberOfEvents = GetDraftApprenticeshipCreatedEventsForCohortResponse.DraftApprenticeshipCreatedEvents.Count();
+            var numberOfEvents = GetDraftApprenticeshipCreatedEventsForCohortQueryResult.DraftApprenticeshipCreatedEvents.Count();
             var mockPipelineContext = MockMessageHandlerContext.As<IPipelineContext>();
             mockPipelineContext.Verify(x =>x.Publish(It.IsAny<DraftApprenticeshipCreatedEvent>(), It.IsAny<PublishOptions>()), Times.Exactly(numberOfEvents));
         }

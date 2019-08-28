@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,16 +9,16 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
 {
-    public class GetDraftApprenticeshipCreatedEventsForCohortHandler : IRequestHandler<GetDraftApprenticeshipCreatedEventsForCohortQuery, GetDraftApprenticeshipCreatedEventsForCohortResponse>
+    public class GetDraftApprenticeshipCreatedEventsForCohortQueryHandler : IRequestHandler<GetDraftApprenticeshipCreatedEventsForCohortQuery, GetDraftApprenticeshipCreatedEventsForCohortQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _db;
 
-        public GetDraftApprenticeshipCreatedEventsForCohortHandler(Lazy<ProviderCommitmentsDbContext> db)
+        public GetDraftApprenticeshipCreatedEventsForCohortQueryHandler(Lazy<ProviderCommitmentsDbContext> db)
         {
             _db = db;
         }
 
-        public async Task<GetDraftApprenticeshipCreatedEventsForCohortResponse> Handle(GetDraftApprenticeshipCreatedEventsForCohortQuery command, CancellationToken cancellationToken)
+        public async Task<GetDraftApprenticeshipCreatedEventsForCohortQueryResult> Handle(GetDraftApprenticeshipCreatedEventsForCohortQuery command, CancellationToken cancellationToken)
         {
             var cohort = await _db.Value.Cohorts.Include(c => c.Apprenticeships).SingleAsync(x => x.Id == command.CohortId, cancellationToken);
 
@@ -33,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
                 throw new InvalidOperationException($"The number of apprentices in the cohort ({cohort.Apprenticeships.Count}) doesn't match the number ({command.NumberOfApprentices}");
             }
 
-            return new GetDraftApprenticeshipCreatedEventsForCohortResponse(cohort.Apprenticeships.Select(x =>
+            return new GetDraftApprenticeshipCreatedEventsForCohortQueryResult(cohort.Apprenticeships.Select(x =>
                 new DraftApprenticeshipCreatedEvent(x.Id, command.CohortId, x.Uln, x.ReservationId,
                     command.UploadedOn)));
         }
