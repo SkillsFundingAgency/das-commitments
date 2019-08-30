@@ -26,14 +26,20 @@ namespace SFA.DAS.Reservations.Api.Types
                 request.CourseCode
             };
 
-            return _httpHelper.GetAsync<ReservationValidationResult>(url, data);
+            return _httpHelper.GetAsync<ReservationValidationResult>(url, data, cancellationToken);
         }
 
         public Task<ReservationAllocationStatusResult> GetReservationAllocationStatus(ReservationAllocationStatusMessage request, CancellationToken cancellationToken)
         {
             var url = BuildUrl($"api/accounts/{request.AccountId}/status");
 
-            return _httpHelper.GetAsync<ReservationAllocationStatusResult>(url, null);
+            return _httpHelper.GetAsync<ReservationAllocationStatusResult>(url, null, cancellationToken);
+        }
+
+        public Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request, CancellationToken cancellationToken)
+        {
+            var url = BuildUrl($"api/accounts/{accountLegalEntityId}/bulk-create");
+            return _httpHelper.PostAsJson<BulkCreateReservationsRequest, BulkCreateReservationsResult>(url, request, cancellationToken);
         }
 
         private string BuildUrl(string path)

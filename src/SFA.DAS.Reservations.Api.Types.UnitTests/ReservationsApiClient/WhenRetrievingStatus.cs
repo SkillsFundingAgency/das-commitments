@@ -36,7 +36,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
         public WhenRetrievingStatusTestFixtures()
         {
             HttpHelper.Setup(x => x.GetAsync<ReservationAllocationStatusResult>(It.IsAny<string>(),
-                    null))
+                    null, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ReservationAllocationStatusResult());
 
             _request = AutoFixture.Create<ReservationAllocationStatusMessage>();
@@ -52,7 +52,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             var expectedUrl = $"{Config.ApiBaseUrl}/api/accounts/{_request.AccountId}/status";
 
             HttpHelper.Verify(x => x.GetAsync<ReservationAllocationStatusResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
-                It.IsAny<object>()));
+                It.IsAny<object>(), It.IsAny<CancellationToken>()));
         }
 
         public void AssertPayloadCorrectlyFormed()
@@ -62,7 +62,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                 StartDate = _request.AccountId
             };
 
-            HttpHelper.Verify(x => x.GetAsync<ReservationAllocationStatusResult>(It.IsAny<string>(), null));
+            HttpHelper.Verify(x => x.GetAsync<ReservationAllocationStatusResult>(It.IsAny<string>(), null, It.IsAny<CancellationToken>()));
         }
     }
 }

@@ -37,7 +37,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
         public WhenRetrievingStatusTestFixturesTestFixtures()
         {
             HttpHelper.Setup(x => x.GetAsync<ReservationValidationResult>(It.IsAny<string>(),
-                    It.IsAny<object>()))
+                    It.IsAny<object>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new ReservationValidationResult());
 
             _request = new ReservationValidationMessage
@@ -58,7 +58,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             var expectedUrl = $"{Config.ApiBaseUrl}/api/reservations/validate/{_request.ReservationId}";
 
             HttpHelper.Verify(x => x.GetAsync<ReservationValidationResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
-                It.IsAny<object>()));
+                It.IsAny<object>(), It.IsAny<CancellationToken>()));
         }
 
         public void AssertPayloadCorrectlyFormed()
@@ -70,7 +70,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             };
 
             HttpHelper.Verify(x => x.GetAsync<ReservationValidationResult>(It.IsAny<string>(),
-                It.Is<object>(o => CompareHelper.AreEqualIgnoringTypes(expectedPayload, o))));
+                It.Is<object>(o => CompareHelper.AreEqualIgnoringTypes(expectedPayload, o)), It.IsAny<CancellationToken>()));
         }
     }
 }

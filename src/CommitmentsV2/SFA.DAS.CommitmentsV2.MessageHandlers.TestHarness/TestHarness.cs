@@ -20,6 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         {
             long accountId = 1001;
             long accountLegalEntityId = 2001;
+            long cohortId = 3001;
 
             var key = "";
 
@@ -33,6 +34,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("C - AddedLegalEntityEvent");
                 Console.WriteLine("D - UpdatedLegalEntityEvent");
                 Console.WriteLine("E - RemovedLegalEntityEvent");
+                Console.WriteLine("F - DraftApprenticeshipCreatedEvent");
+                Console.WriteLine("g - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key.ToString().ToLower();
@@ -71,6 +74,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             break;
                         case "f":
                             await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111", Guid.NewGuid(), DateTime.UtcNow));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
+                            break;
+                        case "g":
+                            await _publisher.Publish(new BulkUploadIntoCohortCompletedEvent { CohortId = cohortId, ProviderId = 10010, NumberOfApprentices = 0, UploadedOn =  DateTime.Now});
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;

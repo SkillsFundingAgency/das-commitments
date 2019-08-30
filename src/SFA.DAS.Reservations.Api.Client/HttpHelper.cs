@@ -20,14 +20,9 @@ namespace SFA.DAS.Reservations.Api.Client
             _log = log;
         }
 
-        public async Task<T> GetAsync<T>(string url, object data)
+        public async Task<T> GetAsync<T>(string url, object data, CancellationToken token)
         {
-        public async Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request, CancellationToken cancellationToken)
-        {
-            var bulkReservationsResult = await _reservationHelper.BulkCreateReservations(accountLegalEntityId, request, PostAsync<BulkCreateReservationsResult>);
-            _log.Info($"BulkCreateReservations - accountLegalEntity Id:{accountLegalEntityId} count:{request?.Count} reservations-created:{bulkReservationsResult?.Reservations?.Length}");
-            return bulkReservationsResult;
-        }
+            token.ThrowIfCancellationRequested();
 
             string stringResponse = null;
             try
@@ -47,20 +42,22 @@ namespace SFA.DAS.Reservations.Api.Client
             }
         }
 
-        private async Task<T> PostAsync<T>(string url, object data)
+        public async Task<TResponse> PostAsJson<TRequest, TResponse>(string url, TRequest data, CancellationToken token)
         {
+            token.ThrowIfCancellationRequested();
+
             string stringResponse = null;
             try
             {
                 stringResponse = await PostAsync(url, JsonConvert.SerializeObject(data));
-                var result = JsonConvert.DeserializeObject<T>(stringResponse);
+                var result = JsonConvert.DeserializeObject<TResponse>(stringResponse);
                 return result;
             }
             catch (Exception ex)
             {
                 var msg = $"Attempt to post to URL {url} " +
                           $"failed to deserialise returned string ({(stringResponse == null ? "which was null" : "length" + stringResponse.Length)}) " +
-                          $"into type {typeof(T).Name}.";
+                          $"into type {typeof(TResponse).Name}.";
                 _log.Error(ex, msg);
                 throw;
             }
