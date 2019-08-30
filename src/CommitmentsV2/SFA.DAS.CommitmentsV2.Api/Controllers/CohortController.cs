@@ -10,30 +10,66 @@ using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/cohorts")]
     [ApiController]
     [Authorize]
+    [Route("api/cohorts")]
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
-        private readonly IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> _addCohortWithOtherPartyMapper;
-
-        public CohortController(
-            IMediator mediator,
-            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper,
-            IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> addCohortWithOtherPartyMapper)
+        
+        public CohortController(IMediator mediator)
         {
             _mediator = mediator;
-            _addCohortMapper = addCohortMapper;
-            _addCohortWithOtherPartyMapper = addCohortWithOtherPartyMapper;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody]CreateCohortRequest request)
+        {
+            var command = new AddCohortCommand(
+                request.AccountId,
+                request.AccountLegalEntityId,
+                request.ProviderId,
+                request.CourseCode,
+                request.Cost,
+                request.StartDate,
+                request.EndDate,
+                request.OriginatorReference,
+                request.ReservationId,
+                request.FirstName,
+                request.LastName,
+                request.DateOfBirth,
+                request.Uln,
+                request.UserInfo);
+            
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
+        }
+
+        [HttpPost]
+        [Route("create-with-other-party")]
+        public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
+        {
+            var command = new AddCohortWithOtherPartyCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.Message, request.UserInfo);
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
         }
 
         [HttpGet]
         [Route("{cohortId}")]
-        public async Task<IActionResult> GetCohort(long cohortId)
+        public async Task<IActionResult> Get(long cohortId)
         {
-            var result = await _mediator.Send(new GetCohortSummaryQuery{CohortId = cohortId});
+            var query = new GetCohortSummaryQuery(cohortId);
+            var result = await _mediator.Send(query);
 
             if (result == null)
             {
@@ -50,33 +86,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 WithParty = result.WithParty,
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
-            });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
-        {
-            var command = await _addCohortMapper.Map(request);
-            var result = await _mediator.Send(command);
-
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
-            });
-        }
-
-        [HttpPost]
-        [Route("with-other-party")]
-        public async Task<IActionResult> CreateCohortWithOtherParty([FromBody]CreateCohortWithOtherPartyRequest request)
-        {
-            var command = await _addCohortWithOtherPartyMapper.Map(request);
-            var result = await _mediator.Send(command);
-
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
             });
         }
     }

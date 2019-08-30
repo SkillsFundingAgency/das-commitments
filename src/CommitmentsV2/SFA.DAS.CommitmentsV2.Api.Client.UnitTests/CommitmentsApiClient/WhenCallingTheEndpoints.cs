@@ -69,7 +69,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
 
             await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/with-other-party", _fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", _fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None));
         }
 
         [Test]
