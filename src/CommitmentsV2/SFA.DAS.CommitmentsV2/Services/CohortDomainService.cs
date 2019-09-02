@@ -44,14 +44,22 @@ namespace SFA.DAS.CommitmentsV2.Services
             _overlapCheckService = overlapCheckService;
             _authenticationService = authenticationService;
         }
+        
+        public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var db = _dbContext.Value;
+            var cohort = await GetCohort(cohortId, db, cancellationToken);
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+
+            return draftApprenticeship;
+        }
+
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
-
             var db = _dbContext.Value;
-
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
@@ -78,17 +86,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
         }
 
-
-        public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId,
-            DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var db = _dbContext.Value;
-            var cohort = await GetCohort(cohortId, db, cancellationToken);
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
-
-            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
-
-            return draftApprenticeship;
+            throw new NotImplementedException();
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
