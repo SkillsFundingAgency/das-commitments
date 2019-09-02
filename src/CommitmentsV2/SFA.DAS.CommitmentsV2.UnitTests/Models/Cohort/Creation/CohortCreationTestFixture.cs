@@ -157,13 +157,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             var draftApprenticeship = Cohort.Apprenticeships.Single();
 
             UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(
-                    new DraftApprenticeshipCreatedEvent(
-                        cohortId: Cohort.Id,
-                        draftApprenticeshipId: draftApprenticeship.Id,
-                        uln: draftApprenticeship.Uln,
-                        reservationId: draftApprenticeship.ReservationId.Value,
-                        createdOn: draftApprenticeship.CreatedOn.Value));
+                .And.Subject.OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
+                    e.CohortId == Cohort.Id &&
+                    e.DraftApprenticeshipId == draftApprenticeship.Id &&
+                    e.Uln == draftApprenticeship.Uln &&
+                    e.ReservationId == draftApprenticeship.ReservationId &&
+                    e.CreatedOn == draftApprenticeship.CreatedOn);
         }
 
         public void VerifyCohortIsWithCreator()

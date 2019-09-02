@@ -106,6 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<TransferRequest> TransferRequests { get; set; }
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
+        public bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == 1);
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
@@ -117,6 +118,36 @@ namespace SFA.DAS.CommitmentsV2.Models
             UpdatedBy(userInfo, creator);
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
+        }
+
+        public void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
+        {
+            CheckModifierIsEmployerOrProvider(modifyingParty);
+            EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
+            
+            EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
+            LastAction = LastAction.Amend;
+            AddMessage(message, modifyingParty, userInfo);
+            UpdatedBy(userInfo, modifyingParty);
+
+            switch (EditStatus)
+            {
+                case EditStatus.EmployerOnly:
+                    Publish(() => new CohortAssignedToEmployerEvent(Id, now));
+                    break;
+                case EditStatus.ProviderOnly:
+                    Publish(() => new CohortAssignedToProviderEvent(Id, now));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(EditStatus));
+            }
+            
+            if (IsApprovedByProvider())
+            {
+                Publish(() => new ApprovedCohortReturnedToProviderEvent(Id, now));
+            }
+            
+            ResetApprovals();
         }
 
         public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo)
@@ -143,7 +174,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
         {
-            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text));
+            Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text ?? ""));
         }
 
         private void ValidateDraftApprenticeshipDetails(DraftApprenticeshipDetails draftApprenticeshipDetails)
@@ -274,6 +305,14 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
+        private void CheckModifierIsEmployerOrProvider(Party party)
+        {
+            if (party != Party.Employer && party != Party.Provider)
+            {
+                throw new DomainException("Modifier", $"Cohorts can only be modified by Employer or Provider; {party} is not valid");
+            }
+        }
+
         private void CheckOriginatorIsEmployerOrProvider(Party originator)
         {
             if (originator != Party.Employer && originator != Party.Provider)
@@ -281,7 +320,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                 throw new DomainException("Creator", $"Cohorts can only be created by Employer or Provider; {originator} is not valid");
             }
         }
-
 
         private void CheckOriginatorIsEmployer(Party originator)
         {
@@ -297,6 +335,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             {
                 throw new DomainException("DraftApprenticeshipDetails", "DraftApprenticeshipDetails must be supplied");
             }
+        }
+
+        private bool IsApprovedByProvider()
+        {
+            return Apprenticeships.Count > 0 && Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed);
         }
 
         private bool ModifierIsAllowedToEdit(Party modifyingParty)

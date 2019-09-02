@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IReservationValidationService _reservationValidationService;
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly IAuthenticationService _authenticationService;
+        private readonly ICurrentDateTime _currentDateTime;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -34,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IUlnValidator ulnValidator,
             IReservationValidationService reservationValidationService,
             IOverlapCheckService overlapCheckService,
-            IAuthenticationService authenticationService)
+            IAuthenticationService authenticationService,
+            ICurrentDateTime currentDateTime)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -43,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _reservationValidationService = reservationValidationService;
             _overlapCheckService = overlapCheckService;
             _authenticationService = authenticationService;
+            _currentDateTime = currentDateTime;
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -86,9 +89,13 @@ namespace SFA.DAS.CommitmentsV2.Services
             return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
         }
 
-        public Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var db = _dbContext.Value;
+            var cohort = await GetCohort(cohortId, db, cancellationToken);
+            var party = _authenticationService.GetUserParty();
+            
+            cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -156,6 +163,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
+            if (cohort.IsApprovedByAllParties) throw new InvalidOperationException($"Cohort {cohortId} is approved by all parties and can't be modified");
             return cohort;
         }
 
