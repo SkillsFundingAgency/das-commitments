@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
 
@@ -51,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
+        [Route("with-other-party")] // TODO: Remove after CV-388 has been deployed to PROD
         [Route("create-with-other-party")]
         public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
         {
@@ -87,6 +89,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
             });
+        }
+
+        [HttpPost]
+        [Route("{cohortId}/send")]
+        public async Task<IActionResult> Send(long cohortId, [FromBody]SendCohortRequest request)
+        {
+            var command = new SendCohortCommand(cohortId, request.Message, request.UserInfo);
+            await _mediator.Send(command);
+            
+            return Ok();
         }
     }
 }
