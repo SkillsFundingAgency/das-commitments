@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
         public GetDraftApprenticeshipCreatedEventsForCohortHandlerTestsFixtures SetupASingleDraftApprenticeship(long apprenticeId)
         {
-            var autoFixture = new AutoFixture.Fixture();
+            var autoFixture = new Fixture();
             var apprentice1 = autoFixture.Build<DraftApprenticeshipDetails>().Without(x => x.StartDate)
                 .With(x => x.EndDate, DateTime.Today.AddYears(1)).With(x => x.DateOfBirth, DateTime.Today.AddYears(-20))
                 .With(x => x.Uln, "012345678").Create();

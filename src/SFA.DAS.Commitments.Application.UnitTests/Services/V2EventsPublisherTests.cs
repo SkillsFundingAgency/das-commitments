@@ -253,6 +253,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             var fixtures = new V2EventsPublisherTestFixtures<BulkUploadIntoCohortCompletedEvent>();
 
             await fixtures.Publish(publisher => publisher.PublishBulkUploadIntoCohortCompleted(fixtures.Commitment.ProviderId.Value, fixtures.Commitment.Id, 2));
+            Assert.Pass();
         }
 
         [Test]

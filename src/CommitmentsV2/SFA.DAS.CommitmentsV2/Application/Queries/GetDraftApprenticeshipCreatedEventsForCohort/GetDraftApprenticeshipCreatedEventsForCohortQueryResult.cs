@@ -5,9 +5,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
 {
     public class GetDraftApprenticeshipCreatedEventsForCohortQueryResult
     {
-        public IEnumerable<DraftApprenticeshipCreatedEvent> DraftApprenticeshipCreatedEvents { get; }
+        public DraftApprenticeshipCreatedEvent[] DraftApprenticeshipCreatedEvents { get; }
 
-        public GetDraftApprenticeshipCreatedEventsForCohortQueryResult(IEnumerable<DraftApprenticeshipCreatedEvent> events)
+        public GetDraftApprenticeshipCreatedEventsForCohortQueryResult(DraftApprenticeshipCreatedEvent[] events)
         {
             DraftApprenticeshipCreatedEvents = events;
         }

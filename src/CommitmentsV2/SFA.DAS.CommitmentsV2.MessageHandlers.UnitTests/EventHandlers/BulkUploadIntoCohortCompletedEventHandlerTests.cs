@@ -14,7 +14,7 @@ using SFA.DAS.Testing;
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 {
     [TestFixture]
-    [Parallelizable]
+    [Parallelizable(ParallelScope.All)]
     public class
         BulkUploadIntoCohortCompletedEventHandlerTests : FluentTest<
             BulkUploadIntoCohortCompletedEventHandlerTestsFixture>

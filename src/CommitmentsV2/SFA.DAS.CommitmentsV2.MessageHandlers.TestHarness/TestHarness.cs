@@ -22,9 +22,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             long accountLegalEntityId = 2001;
             long cohortId = 3001;
 
-            var key = "";
+            ConsoleKey key = ConsoleKey.Escape;
 
-            while (key != "x")
+            while (key != ConsoleKey.X)
             {
                 Console.Clear();
                 Console.WriteLine("Test Options");
@@ -38,23 +38,24 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("g - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
-                key = Console.ReadKey().Key.ToString().ToLower();
+                key = Console.ReadKey().Key;
+
 
                 try
                 {
                     switch (key)
                     {
-                        case "a":
+                        case ConsoleKey.A:
                             await _publisher.Publish(new CreatedAccountEvent { AccountId = accountId, Created = DateTime.Now, HashedId = "HPRIV", PublicHashedId = "PUBH", Name = "My Test", UserName = "Tester", UserRef = Guid.NewGuid() });
                             Console.WriteLine();
                             Console.WriteLine($"Published CreatedAccountEvent");
                             break;
-                        case "b":
+                        case ConsoleKey.B:
                             await _publisher.Publish(new ChangedAccountNameEvent { AccountId = accountId, Created = DateTime.Now, CurrentName = "My Test new", PreviousName = "My Test", HashedAccountId = "PUBH", UserName = "Tester", UserRef = Guid.NewGuid() });
                             Console.WriteLine();
                             Console.WriteLine($"Published ChangedAccountNameEvent");
                             break;
-                        case "c":
+                        case ConsoleKey.C:
                             await _publisher.Publish(new AddedLegalEntityEvent { AccountId = accountId, Created = DateTime.Now, AccountLegalEntityId = accountLegalEntityId,
                                 OrganisationType = OrganisationType.Charities, OrganisationReferenceNumber = "MyLegalEntityId", OrganisationAddress = "My Address",
                                 AccountLegalEntityPublicHashedId = "ABCD", AgreementId = 9898, LegalEntityId = 75263,
@@ -62,22 +63,22 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published AddedLegalEntityEvent");
                             break;
-                        case "d":
+                        case ConsoleKey.D:
                             await _publisher.Publish(new UpdatedLegalEntityEvent { AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now, Name = "TEST", OrganisationName = "OName", UserName = "Tester", UserRef = Guid.NewGuid() });
                             Console.WriteLine();
                             Console.WriteLine($"Published UpdatedLegalEntityEvent");
                             break;
-                        case "e":
+                        case ConsoleKey.E:
                             await _publisher.Publish(new RemovedLegalEntityEvent { AccountLegalEntityId = accountLegalEntityId, Created = DateTime.Now, AccountId = accountId, OrganisationName = "OName", LegalEntityId = 75263, AgreementId = 9898, UserName = "Tester", UserRef = Guid.NewGuid() });
                             Console.WriteLine();
                             Console.WriteLine($"Published RemovedLegalEntityEvent");
                             break;
-                        case "f":
+                        case ConsoleKey.F:
                             await _publisher.Publish(new DraftApprenticeshipCreatedEvent(111111, 222222, "AAA111", Guid.NewGuid(), DateTime.UtcNow));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;
-                        case "g":
+                        case ConsoleKey.G:
                             await _publisher.Publish(new BulkUploadIntoCohortCompletedEvent { CohortId = cohortId, ProviderId = 10010, NumberOfApprentices = 0, UploadedOn =  DateTime.Now});
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
@@ -90,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                     Console.WriteLine();
                 }
 
-                if (key == "x") break;
+                if (key == ConsoleKey.X) break;
 
                 Console.WriteLine();
                 Console.WriteLine("Press anykey to return to menu");

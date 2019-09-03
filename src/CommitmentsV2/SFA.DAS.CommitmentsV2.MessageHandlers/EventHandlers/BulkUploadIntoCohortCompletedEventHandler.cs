@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using MediatR;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort;
@@ -20,10 +21,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             var response = await _mediator.Send(new GetDraftApprenticeshipCreatedEventsForCohortQuery(message.ProviderId, message.CohortId,
                 message.NumberOfApprentices, message.UploadedOn));
 
-            foreach (var item in response.DraftApprenticeshipCreatedEvents)
-            {
-                await context.Publish(item);
-            }
+            await Task.WhenAll(response.DraftApprenticeshipCreatedEvents.Select(context.Publish)).ConfigureAwait(false);
         }
     }
 }

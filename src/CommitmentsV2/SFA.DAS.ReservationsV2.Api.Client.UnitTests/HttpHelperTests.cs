@@ -7,7 +7,7 @@ using SFA.DAS.Http;
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
     [TestFixture]
-    [Parallelizable]
+    [Parallelizable(ParallelScope.All)]
     public class HttpHelperTests
     {
         private const string Url = "http://url";
@@ -44,7 +44,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 
             fixture.MockRestHtpClient.Verify(x => x.PostAsJson<object, object>(Url, testData, CancellationToken.None));
         }
-
 
         [Test]
         public async Task HttpHelper_PostAsync_PassesApiResultBackToCaller()

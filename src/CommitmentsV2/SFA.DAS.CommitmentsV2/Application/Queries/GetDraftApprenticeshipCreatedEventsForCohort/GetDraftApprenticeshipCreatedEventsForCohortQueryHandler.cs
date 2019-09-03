@@ -20,7 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
 
         public async Task<GetDraftApprenticeshipCreatedEventsForCohortQueryResult> Handle(GetDraftApprenticeshipCreatedEventsForCohortQuery command, CancellationToken cancellationToken)
         {
-            var cohort = await _db.Value.Cohorts.Include(c => c.Apprenticeships).SingleAsync(x => x.Id == command.CohortId, cancellationToken);
+            var cohort = await _db.Value.Cohorts.Include(c => c.Apprenticeships)
+                .SingleAsync(x => x.Id == command.CohortId, cancellationToken).ConfigureAwait(false);
 
             if (cohort.ProviderId != command.ProviderId)
             {
@@ -34,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
 
             return new GetDraftApprenticeshipCreatedEventsForCohortQueryResult(cohort.Apprenticeships.Select(x =>
                 new DraftApprenticeshipCreatedEvent(x.Id, command.CohortId, x.Uln, x.ReservationId,
-                    command.UploadedOn)));
+                    command.UploadedOn)).ToArray());
         }
     }
 }
