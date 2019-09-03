@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
 
             return new GetDraftApprenticeshipCreatedEventsForCohortQueryResult(cohort.Apprenticeships.Select(x =>
                 new DraftApprenticeshipCreatedEvent(x.Id, command.CohortId, x.Uln, x.ReservationId,
-                    command.UploadedOn)).ToArray());
+                    command.UploadedOn)));
         }
     }
 }

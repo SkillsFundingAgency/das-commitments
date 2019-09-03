@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreatedEventsForCohort
@@ -7,9 +8,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
     {
         public DraftApprenticeshipCreatedEvent[] DraftApprenticeshipCreatedEvents { get; }
 
-        public GetDraftApprenticeshipCreatedEventsForCohortQueryResult(DraftApprenticeshipCreatedEvent[] events)
+        public GetDraftApprenticeshipCreatedEventsForCohortQueryResult(IEnumerable<DraftApprenticeshipCreatedEvent> events)
         {
-            DraftApprenticeshipCreatedEvents = events;
+            DraftApprenticeshipCreatedEvents = events.ToArray();
         }
     }
 }
