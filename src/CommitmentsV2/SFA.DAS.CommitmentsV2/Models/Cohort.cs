@@ -110,7 +110,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
-            EnsureModifierIsAllowedToModifyDraftApprenticeship(creator);
+            CheckPartyIsAllowedToModifyCohort(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
@@ -122,8 +122,8 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void SendToOtherParty(Party modifyingParty, string message, UserInfo userInfo, DateTime now)
         {
-            CheckModifierIsEmployerOrProvider(modifyingParty);
-            EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
+            CheckPartyIsEmployerOrProvider(modifyingParty);
+            CheckPartyIsAllowedToModifyCohort(modifyingParty);
             
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
@@ -152,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void UpdateDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party modifyingParty, UserInfo userInfo)
         {
-            EnsureModifierIsAllowedToModifyDraftApprenticeship(modifyingParty);
+            CheckPartyIsAllowedToModifyCohort(modifyingParty);
 
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
             var existingDraftApprenticeship = DraftApprenticeships.SingleOrDefault(a => a.Id == draftApprenticeshipDetails.Id);
@@ -190,11 +190,16 @@ namespace SFA.DAS.CommitmentsV2.Models
             errors.ThrowIfAny();
         }
 
-        private void EnsureModifierIsAllowedToModifyDraftApprenticeship(Party modifyingParty)
+        private void CheckPartyIsAllowedToModifyCohort(Party modifyingParty)
         {
-            if (!ModifierIsAllowedToEdit(modifyingParty))
+            switch (EditStatus)
             {
-                throw new DomainException(nameof(modifyingParty), "The cohort may not be modified by the current role");
+                case EditStatus.EmployerOnly when modifyingParty == Party.Employer:
+                case EditStatus.ProviderOnly when modifyingParty == Party.Provider:
+                case EditStatus.ProviderOnly when modifyingParty == Party.Employer && LastAction == LastAction.None:
+                    return;
+                default:
+                    throw new DomainException(nameof(modifyingParty), "The cohort may not be modified by the current party");
             }
         }
 
@@ -305,11 +310,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private void CheckModifierIsEmployerOrProvider(Party party)
+        private void CheckPartyIsEmployerOrProvider(Party party)
         {
             if (party != Party.Employer && party != Party.Provider)
             {
-                throw new DomainException("Modifier", $"Cohorts can only be modified by Employer or Provider; {party} is not valid");
+                throw new DomainException("Party", $"Party must be Employer or Provider; {party} is not valid");
             }
         }
 
@@ -340,27 +345,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         private bool IsApprovedByProvider()
         {
             return Apprenticeships.Count > 0 && Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed);
-        }
-
-        private bool ModifierIsAllowedToEdit(Party modifyingParty)
-        {
-            if (EditStatus == EditStatus.EmployerOnly && modifyingParty == Party.Employer)
-            {
-                return true;
-            }
-
-            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Provider)
-            {
-                return true;
-            }
-
-            //Employers can modify Provider-assigned Cohorts during their initial creation
-            if (EditStatus == EditStatus.ProviderOnly && modifyingParty == Party.Employer && LastAction == LastAction.None)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private void UpdatedBy(UserInfo userInfo, Party modifyingParty)
