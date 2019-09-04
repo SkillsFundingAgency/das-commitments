@@ -14,6 +14,7 @@ using SFA.DAS.Commitments.Events;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.EmployerApproveCohort
 {

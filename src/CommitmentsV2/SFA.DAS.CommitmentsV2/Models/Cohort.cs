@@ -93,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string LastUpdatedByProviderEmail { get; set; }
         public long? TransferSenderId { get; set; }
         public string TransferSenderName { get; set; }
-        public byte? TransferApprovalStatus { get; set; }
+        public TransferApprovalStatus? TransferApprovalStatus { get; set; }
         public string TransferApprovalActionedByEmployerName { get; set; }
         public string TransferApprovalActionedByEmployerEmail { get; set; }
         public DateTime? TransferApprovalActionedOn { get; set; }
@@ -106,7 +106,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual ICollection<TransferRequest> TransferRequests { get; set; }
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
-        public bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == 1);
+        public bool IsApprovedByAllParties => EditStatus == EditStatus.Both && (TransferSenderId == null || TransferApprovalStatus == Types.TransferApprovalStatus.Approved);
 
         public DraftApprenticeship AddDraftApprenticeship(DraftApprenticeshipDetails draftApprenticeshipDetails, Party creator, UserInfo userInfo)
         {
