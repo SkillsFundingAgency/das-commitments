@@ -22,7 +22,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
-        private readonly IFeatureToggleService _featureToggleService;
         private readonly IEmployerAccountsService _employerAccountsService;
         private readonly HistoryService _historyService;
         private readonly CohortApprovalService _cohortApprovalService;
@@ -39,7 +38,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             IMessagePublisher messagePublisher,
             ICommitmentsLogger logger,
             IApprenticeshipInfoService apprenticeshipInfoService,
-            IFeatureToggleService featureToggleService,
             IEmployerAccountsService employerAccountsService,
             IV2EventsPublisher v2EventsPublisher = null)
         {
@@ -47,7 +45,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             _commitmentRepository = commitmentRepository;
             _messagePublisher = messagePublisher;
             _logger = logger;
-            _featureToggleService = featureToggleService;
             _employerAccountsService = employerAccountsService;
             _historyService = new HistoryService(historyRepository);
             
@@ -127,7 +124,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.EmployerApprov
             commitment.LastUpdatedByEmployerName = lastUpdatedByName;
             commitment.TransferApprovalStatus = null;
 
-            if (_featureToggleService.IsEnabled("ManageReservations") && haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
             {
                 var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
 

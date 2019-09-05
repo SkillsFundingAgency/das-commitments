@@ -3,7 +3,6 @@ using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Features;
 
 namespace SFA.DAS.CommitmentsV2.Mapping
 {
@@ -20,9 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
 
         public async Task<DraftApprenticeshipDetails> Map(AddCohortCommand source)
         {
-            var isReservationsEnabledTask = _authorizationService.IsAuthorizedAsync(Feature.Reservations);
             var trainingProgrammeTask = GetCourse(source.CourseCode);
-            var isReservationsEnabled = await isReservationsEnabledTask;
             var trainingProgramme = await trainingProgrammeTask;
 
             var result = new DraftApprenticeshipDetails
@@ -36,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping
                 EndDate = source.EndDate,
                 DateOfBirth = source.DateOfBirth,
                 Reference = source.OriginatorReference,
-                ReservationId = isReservationsEnabled ? source.ReservationId : null
+                ReservationId = source.ReservationId
             };
 
             return result;
