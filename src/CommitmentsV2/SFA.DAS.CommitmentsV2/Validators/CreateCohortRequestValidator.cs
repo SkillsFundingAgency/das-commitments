@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Features;
 
 namespace SFA.DAS.CommitmentsV2.Validators
 {
@@ -15,12 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Validators
             RuleFor(r => r.FirstName).MaximumLength(100).WithMessage("You must enter a first name that's no longer than 100 characters");
             RuleFor(r => r.LastName).MaximumLength(100).WithMessage("You must enter a last name that's no longer than 100 characters"); 
             RuleFor(r => r.OriginatorReference).MaximumLength(20).WithMessage("The Reference must be 20 characters or fewer");
-
-            if (authorizationService.IsAuthorized(Feature.Reservations))
-            {
-                RuleFor(r => r.ReservationId).NotEmpty().WithMessage("The reservation id must be supplied");
-            }
-            
+            RuleFor(r => r.ReservationId).NotEmpty().WithMessage("The reservation id must be supplied");
             RuleFor(r => r.UserInfo).SetValidator(new UserInfoValidator()).When(r => r.UserInfo != null);
         }
     }

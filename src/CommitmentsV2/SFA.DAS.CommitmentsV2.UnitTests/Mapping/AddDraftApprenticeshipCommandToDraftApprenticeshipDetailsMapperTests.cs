@@ -11,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing;
@@ -23,12 +22,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     [Parallelizable]
     public class AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTests : FluentTest<AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture>
     {
-        [TestCase(false, false)]
-        [TestCase(true, true)]
-        public Task Map_WhenMapping_ThenShouldSetProperties(bool isReservationsEnabled, bool expectReservationIdSet)
+        [Test]
+        public Task Map_WhenMapping_ThenShouldSetProperties()
         {
             return TestAsync(
-                f => f.SetReservationsEnabled(isReservationsEnabled),
                 f => f.Map(), 
                 (f, r) =>
                 {
@@ -41,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
                     r.DateOfBirth.Should().Be(f.Command.DateOfBirth);
                     r.Reference.Should().Be(f.Command.OriginatorReference);
                     r.TrainingProgramme.Should().Be(f.TrainingProgramme);
-                    r.ReservationId.Should().Be(expectReservationIdSet ? f.Command.ReservationId : null);
+                    r.ReservationId.Should().Be(f.Command.ReservationId);
                 });
         }
     }
@@ -70,13 +67,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> Map()
         {
             return Mapper.Map(Command);
-        }
-
-        public AddDraftApprenticeshipCommandToDraftApprenticeshipDetailsMapperTestsFixture SetReservationsEnabled(bool isReservationsEnabled)
-        {
-            AuthorizationService.Setup(a => a.IsAuthorizedAsync(Feature.Reservations)).ReturnsAsync(isReservationsEnabled);
-            
-            return this;
         }
     }
 }

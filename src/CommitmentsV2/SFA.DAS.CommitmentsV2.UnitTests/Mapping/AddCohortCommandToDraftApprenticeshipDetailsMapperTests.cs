@@ -6,7 +6,6 @@ using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
@@ -30,16 +29,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
             Assert.AreEqual(fixture.TrainingProgramme, draftApprenticeshipDetails.TrainingProgramme);
-        }
-        
-        [TestCase(false, false)]
-        [TestCase(true, true)]
-        public async Task WhenReservationsIsEnabled_ThenShouldSetReservationId(bool isReservationsEnabled, bool expectReservationIdIsNotNull)
-        {
-            var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture().SetIsReservationsEnabled(isReservationsEnabled);
-            var draftApprenticeshipDetails = await fixture.Map();
-            
-            Assert.AreEqual(expectReservationIdIsNotNull ? fixture.Command.ReservationId : null, draftApprenticeshipDetails.ReservationId);
         }
     }
 
@@ -67,13 +56,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         public Task<DraftApprenticeshipDetails> Map()
         {
             return Mapper.Map(Command);
-        }
-
-        public AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture SetIsReservationsEnabled(bool isEnabled)
-        {
-            AuthorizationService.Setup(a => a.IsAuthorizedAsync(Feature.Reservations)).ReturnsAsync(isEnabled);
-
-            return this;
         }
     }
 }
