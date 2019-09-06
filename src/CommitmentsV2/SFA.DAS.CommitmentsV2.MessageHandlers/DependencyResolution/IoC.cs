@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
-using SFA.DAS.UnitOfWork.EntityFrameworkCore;
-using SFA.DAS.UnitOfWork.NServiceBus;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.StructureMap;
+using SFA.DAS.UnitOfWork.NServiceBus.DependencyResolution.StructureMap;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution

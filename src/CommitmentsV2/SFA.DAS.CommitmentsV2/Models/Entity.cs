@@ -1,5 +1,5 @@
 ﻿using System;
-using SFA.DAS.UnitOfWork;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
