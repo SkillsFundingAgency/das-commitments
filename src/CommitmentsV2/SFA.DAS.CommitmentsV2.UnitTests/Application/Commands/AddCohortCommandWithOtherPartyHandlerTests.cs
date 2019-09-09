@@ -96,17 +96,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public async Task<AddCohortResponse> Handle(long accountId, long accountLegalEntity, long providerId, string message)
+        public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, string message)
         {
             Db.SaveChanges();
-            var command = new AddCohortWithOtherPartyCommand
-            {
-                AccountId = accountId,
-                AccountLegalEntityId = accountLegalEntity,
-                ProviderId = providerId,
-                Message = message,
-                UserInfo = UserInfo
-            };
+            
+            var command = new AddCohortWithOtherPartyCommand(accountId, accountLegalEntity, providerId, message, UserInfo);
 
             var handler = new AddCohortWithOtherPartyHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 EncodingService,

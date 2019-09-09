@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             // arrange
             var validator = new GetCohortSummaryQueryValidator();
-            var validationResults = validator.Validate(new GetCohortSummaryQuery { CohortId = id});
+            var validationResults = validator.Validate(new GetCohortSummaryQuery(id));
 
             // act
             var actualIsValid = validationResults.IsValid;

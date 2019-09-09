@@ -209,9 +209,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.UpdateDraftApprenticeship();
             _fixture.VerifyLastUpdatedFieldsAreNotSet();
         }
+        
+        [Test]
+        public void AddDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.AddDraftApprenticeship());
+        }
+        
+        [Test]
+        public void UpdateDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
+        }
+        
+        [Test]
+        public void SendToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendToOtherParty());
+        }
 
         public class CohortDomainServiceTestFixture
         {
+            public DateTime Now { get; set; }
             public CohortDomainService CohortDomainService { get; set; }
             public ProviderCommitmentsDbContext Db { get; set; }
             public long ProviderId { get; }
@@ -231,6 +253,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
+            public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
             public Exception Exception { get; private set; }
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
@@ -238,6 +261,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture()
             {
+                Now = DateTime.UtcNow;
                 var fixture = new Fixture();
 
                 // We need this to allow the UoW to initialise it's internal static events collection.
@@ -287,6 +311,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
                 AuthenticationService = new Mock<IAuthenticationService>();
+                
+                CurrentDateTime = new Mock<ICurrentDateTime>();
+                CurrentDateTime.Setup(d => d.UtcNow).Returns(Now);
 
                 Exception = null;
                 DomainErrors = new List<DomainError>();
@@ -298,8 +325,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     UlnValidator.Object,
                     ReservationValidationService.Object,
                     OverlapCheckService.Object,
-                    AuthenticationService.Object
-                );
+                    AuthenticationService.Object,
+                    CurrentDateTime.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -388,6 +415,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     EditStatus = creatingParty.ToEditStatus(),
                     ProviderId = ProviderId
                 };
+                
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingCohortApprovedByAllParties()
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Both,
+                    TransferSenderId = null
+                };
+                
                 Db.Cohorts.Add(Cohort);
 
                 return this;
@@ -470,8 +512,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 try
                 {
-                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, 
-                        UserInfo, new CancellationToken());
+                    await CohortDomainService.AddDraftApprenticeship(ProviderId, CohortId, DraftApprenticeshipDetails, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                }
+            }
+
+            public async Task SendToOtherParty()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    await CohortDomainService.SendCohortToOtherParty(CohortId, Message, UserInfo, new CancellationToken());
                     await Db.SaveChangesAsync();
                 }
                 catch (DomainException ex)

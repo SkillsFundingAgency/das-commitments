@@ -9,7 +9,7 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
-    public class AddCohortWithOtherPartyHandler : IRequestHandler<AddCohortWithOtherPartyCommand, AddCohortResponse>
+    public class AddCohortWithOtherPartyHandler : IRequestHandler<AddCohortWithOtherPartyCommand, AddCohortResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<AddCohortWithOtherPartyHandler> _logger;
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             _encodingService = encodingService;
         }
 
-        public async Task<AddCohortResponse> Handle(AddCohortWithOtherPartyCommand command, CancellationToken cancellationToken)
+        public async Task<AddCohortResult> Handle(AddCohortWithOtherPartyCommand command, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
 
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 
             _logger.LogInformation($"Saved cohort with other party. Provider: {command.ProviderId} Account-Legal-Entity:{command.AccountLegalEntityId} Commitment-Id:{cohort.Id}");
 
-            var response = new AddCohortResponse
+            var response = new AddCohortResult
             {
                 Id = cohort.Id,
                 Reference = cohort.Reference

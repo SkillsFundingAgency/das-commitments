@@ -5,35 +5,73 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/cohorts")]
     [ApiController]
     [Authorize]
+    [Route("api/cohorts")]
     public class CohortController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IMapper<CreateCohortRequest, AddCohortCommand> _addCohortMapper;
-        private readonly IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> _addCohortWithOtherPartyMapper;
-
-        public CohortController(
-            IMediator mediator,
-            IMapper<CreateCohortRequest, AddCohortCommand> addCohortMapper,
-            IMapper<CreateCohortWithOtherPartyRequest, AddCohortWithOtherPartyCommand> addCohortWithOtherPartyMapper)
+        
+        public CohortController(IMediator mediator)
         {
             _mediator = mediator;
-            _addCohortMapper = addCohortMapper;
-            _addCohortWithOtherPartyMapper = addCohortWithOtherPartyMapper;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody]CreateCohortRequest request)
+        {
+            var command = new AddCohortCommand(
+                request.AccountId,
+                request.AccountLegalEntityId,
+                request.ProviderId,
+                request.CourseCode,
+                request.Cost,
+                request.StartDate,
+                request.EndDate,
+                request.OriginatorReference,
+                request.ReservationId,
+                request.FirstName,
+                request.LastName,
+                request.DateOfBirth,
+                request.Uln,
+                request.UserInfo);
+            
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
+        }
+
+        [HttpPost]
+        [Route("with-other-party")] // TODO: Remove after CV-388 has been deployed to PROD
+        [Route("create-with-other-party")]
+        public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
+        {
+            var command = new AddCohortWithOtherPartyCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.Message, request.UserInfo);
+            var result = await _mediator.Send(command);
+
+            return Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            });
         }
 
         [HttpGet]
         [Route("{cohortId}")]
-        public async Task<IActionResult> GetCohort(long cohortId)
+        public async Task<IActionResult> Get(long cohortId)
         {
-            var result = await _mediator.Send(new GetCohortSummaryQuery{CohortId = cohortId});
+            var query = new GetCohortSummaryQuery(cohortId);
+            var result = await _mediator.Send(query);
 
             if (result == null)
             {
@@ -54,30 +92,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCohort([FromBody]CreateCohortRequest request)
+        [Route("{cohortId}/send")]
+        public async Task<IActionResult> Send(long cohortId, [FromBody]SendCohortRequest request)
         {
-            var command = await _addCohortMapper.Map(request);
-            var result = await _mediator.Send(command);
-
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
-            });
-        }
-
-        [HttpPost]
-        [Route("with-other-party")]
-        public async Task<IActionResult> CreateCohortWithOtherParty([FromBody]CreateCohortWithOtherPartyRequest request)
-        {
-            var command = await _addCohortWithOtherPartyMapper.Map(request);
-            var result = await _mediator.Send(command);
-
-            return Ok(new CreateCohortResponse
-            {
-                CohortId = result.Id,
-                CohortReference = result.Reference
-            });
+            var command = new SendCohortCommand(cohortId, request.Message, request.UserInfo);
+            await _mediator.Send(command);
+            
+            return Ok();
         }
     }
 }

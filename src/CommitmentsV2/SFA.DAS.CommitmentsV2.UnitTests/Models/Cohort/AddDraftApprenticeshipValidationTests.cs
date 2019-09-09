@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
             var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(modifyingParty));
 
-            Assert.AreEqual("The cohort may not be modified by the current role", domainError?.ErrorMessage);
+            Assert.AreEqual("The cohort may not be modified by the current party", domainError?.ErrorMessage);
         }
 
         [TestCase(1, "", "", true)]

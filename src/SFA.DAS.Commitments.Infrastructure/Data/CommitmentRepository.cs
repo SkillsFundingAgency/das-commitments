@@ -15,6 +15,7 @@ using SFA.DAS.Sql.Client;
 using SFA.DAS.Sql.Dapper;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Infrastructure.Data
 {
