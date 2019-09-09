@@ -1,17 +1,15 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
-namespace SFA.DAS.Reservations.Api.Types.UnitTests
+namespace SFA.DAS.Reservations.Api.Types.UnitTests.ReservationsHelper
 {
     [TestFixture]
     [Parallelizable]
-    public class WhenCallingReservationHelper
+    public class WhenCallingThePingEndpoint
     {
-
         [Test]
         public void ThenTheRequestUriIsCorrectlyFormed()
         {
@@ -19,15 +17,6 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
                                 .WithBaseUrlForReservations("https://somehost");
 
             fixture.AssertUrlBuiltCorrectly();
-        }
-
-        [Test]
-        public void ThenTheRequestDataIsCorrectlyFormed()
-        {
-            var fixture = new ReservationHelperTestFixtures()
-                .WithBaseUrlForReservations("https://somehost");
-
-            fixture.AssertDataBuiltCorrectly();
         }
 
         private class ReservationHelperTestFixtures
@@ -58,10 +47,10 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
 
             public void AssertUrlBuiltCorrectly()
             {
-                var actualResults = MakeCall();
-                var expectedUrl = _configuration.ApiBaseUrl + $"/api/reservations/validate/{_request.ReservationId}";
-
-                var expectedUri = new Uri(actualResults.url, UriKind.Absolute);
+                var url = MakeCall();
+                var expectedUrl = _configuration.ApiBaseUrl + "/ping";
+                
+                var expectedUri = new Uri(url, UriKind.Absolute);
                 var actualUri = new Uri(expectedUrl, UriKind.Absolute);
 
                 Assert.AreEqual(expectedUri.Host, actualUri.Host, "Host is wrong");
@@ -69,40 +58,17 @@ namespace SFA.DAS.Reservations.Api.Types.UnitTests
                 Assert.AreEqual(expectedUri.Scheme, actualUri.Scheme, "Scheme is wrong");
             }
 
-            public void AssertDataBuiltCorrectly()
-            {
-                var actualResults = MakeCall();
-                
-                AssertHasPropertyWithValue(actualResults.data, "StartDate","");
-                AssertHasPropertyWithValue(actualResults.data, "CourseCode", "");
-            }
-
-            private void AssertHasPropertyWithValue(object data, string propertyName, string value)
-            {
-                var property = data.GetType().GetProperty(propertyName);
-
-                Assert.IsNotNull(property, $"Data does not have a property named {propertyName}");
-
-                var actualQueryValue = property.GetValue(data);
-                Assert.IsNotNull(property, $"Data has a property named {propertyName} but it does not have a value");
-
-                var queryValue = value as string;
-                Assert.IsNotNull(queryValue, $"Data has a property named {propertyName} but the value it has is not a string (it is a {value.GetType().Name})");
-            }
-
-            private (string url, object data) MakeCall()
+            private string MakeCall()
             {
                 string actualUrl = null;
-                object actualData = null;
 
-                _helper.ValidateReservation(_request, (url, data) =>  
+                _helper.Ping(url  =>  
                 {
                     actualUrl = url;
-                    actualData = data;
-                    return Task.FromResult(new ReservationValidationResult());
+                    return Task.CompletedTask;
                 });
 
-                return (actualUrl, actualData);
+                return actualUrl;
             }
         }
     }

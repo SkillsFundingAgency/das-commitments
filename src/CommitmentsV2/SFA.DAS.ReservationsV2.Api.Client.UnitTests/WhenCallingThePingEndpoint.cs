@@ -1,42 +1,32 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.TestHelpers;
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
-using SFA.DAS.ReservationsV2.Api.Client.DependencyResolution;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.Reservations.Api.Types.Configuration;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
     [TestFixture]
     [Parallelizable]
-    public class WhenCallingTheValidationEndpoint
+    public class WhenCallingThePingEndpoint
     {
         private ReservationsClientTestFixture _fixture;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            _fixture = new ReservationsClientTestFixture();   
+            _fixture = new ReservationsClientTestFixture();
         }
-
+        
         [Test]
         public async Task ThenTheRequestUriIsCorrectlyFormed()
         {
-            await _fixture.ValidateRequest();
+            await _fixture.Ping();
             _fixture.AssertUriCorrectlyFormed();
-        }
-
-        [Test]
-        public async Task ThenTheRequestPayloadIsCorrectlyFormed()
-        {
-            await _fixture.ValidateRequest();
-            _fixture.AssertPayloadCorrectlyFormed();
         }
 
         private class ReservationsClientTestFixture
@@ -44,8 +34,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             private readonly ReservationsApiClient _reservationsApiClient;
             private readonly Mock<IRestHttpClient> _restHttpClient;
             private readonly ReservationsClientApiConfiguration _config;
-
-            private readonly ValidationReservationMessage _request;
 
             public ReservationsClientTestFixture()
             {
@@ -61,41 +49,20 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
                 };
 
                 _reservationsApiClient = new ReservationsApiClient(_restHttpClient.Object, new ReservationHelper(_config), Mock.Of<ILogger<ReservationsApiClient>>());
-
-                var autoFixture = new Fixture();
-                _request = new ValidationReservationMessage
-                {
-                    CourseCode = autoFixture.Create<string>(),
-                    ReservationId = autoFixture.Create<Guid>(),
-                    StartDate = autoFixture.Create<DateTime>()
-                };
             }
 
-            public async Task<ReservationsClientTestFixture> ValidateRequest()
+            public async Task<ReservationsClientTestFixture> Ping()
             {
-                await _reservationsApiClient.ValidateReservation(_request, new CancellationToken());
+                await _reservationsApiClient.Ping(new CancellationToken());
                 return this;
             }
 
             public void AssertUriCorrectlyFormed()
             {
-                var expectedUrl = $"{_config.ApiBaseUrl}/api/reservations/validate/{_request.ReservationId}";
+                var expectedUrl = $"{_config.ApiBaseUrl}/ping";
 
-                  _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
+                _restHttpClient.Verify(x => x.Get(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
                     It.IsAny<object>(),
-                    It.IsAny<CancellationToken>()));
-            }
-
-            public void AssertPayloadCorrectlyFormed()
-            {
-                var expectedPayload = new
-                {
-                    StartDate = _request.StartDate.ToString("yyyy-MM-dd"),
-                    _request.CourseCode
-                };
-
-                _restHttpClient.Verify(x => x.Get<ReservationValidationResult>(It.IsAny<string>(),
-                    It.Is<object>(o => CompareHelper.AreEqualIgnoringTypes(expectedPayload, o)),
                     It.IsAny<CancellationToken>()));
             }
 

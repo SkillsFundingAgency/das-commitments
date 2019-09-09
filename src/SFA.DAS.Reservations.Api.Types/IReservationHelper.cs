@@ -5,8 +5,7 @@ namespace SFA.DAS.Reservations.Api.Types
 {
     public interface IReservationHelper
     {
-        Task<ReservationValidationResult> ValidateReservation(
-            ValidationReservationMessage request,
-            Func<string, object, Task<ReservationValidationResult>> call);
+        Task Ping(Func<string, Task> call);
+        Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, Func<string, object, Task<ReservationValidationResult>> call);
     }
 }

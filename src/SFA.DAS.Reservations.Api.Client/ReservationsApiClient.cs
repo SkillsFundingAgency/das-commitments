@@ -23,6 +23,11 @@ namespace SFA.DAS.Reservations.Api.Client
             _log = log;
         }
 
+        public Task Ping(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
         {
             var validationResult = await _reservationHelper.ValidateReservation(request, GetAsync<ReservationValidationResult>);

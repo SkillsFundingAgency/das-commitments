@@ -16,6 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
             
             services.AddHealthChecks()
                 .AddCheck<NServiceBusHealthCheck>("Service Bus Health Check")
+                .AddCheck<ReservationsApiHealthCheck>("Reservations API Health Check")
                 .AddSqlServer(databaseConnectionString, name: "Commitments DB Health Check");
 
             return services;
