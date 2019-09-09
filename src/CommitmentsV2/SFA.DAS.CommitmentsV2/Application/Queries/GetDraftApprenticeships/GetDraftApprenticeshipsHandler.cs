@@ -3,10 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
@@ -23,8 +20,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
         public Task<GetDraftApprenticeshipsResult> Handle(GetDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
         {
             var cohort = _dbContext.Value.Cohorts
-                .Where(a => a.Id == request.CohortId)
-                .Select(a => new { DraftApprenticeship = a.DraftApprenticeships})
+                .Where(x => x.Id == request.CohortId)
+                .Select(x => new { Cohort = x, DraftApprenticeship = x.Apprenticeships})
                 .SingleOrDefault();
 
             return Task.FromResult(new GetDraftApprenticeshipsResult
@@ -34,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
                     Id = a.Id,
                     FirstName = a.FirstName,
                     LastName = a.LastName,
-                    Cost = (int) a.Cost,
+                    Cost = (int?) a.Cost,
                     CourseCode = a.CourseCode,
                     CourseName = a.CourseName,
                     DateOfBirth =  a.DateOfBirth,
