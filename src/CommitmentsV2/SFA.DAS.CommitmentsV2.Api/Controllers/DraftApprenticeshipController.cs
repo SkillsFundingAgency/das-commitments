@@ -45,7 +45,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public async Task<IActionResult> Get(long cohortId)
         {
             var response = await _mediator.Send(new GetDraftApprenticeshipsRequest(cohortId));
-            return Ok(await _getDraftApprenticeshipsResultMapper.Map(response));
+            var result = await _getDraftApprenticeshipsResultMapper.Map(response);
+
+            if (result.DraftApprenticeships == null)
+            {
+                return NotFound();
+            }
+            return Ok(result.DraftApprenticeships);
         }
 
         [HttpGet]
