@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.DependencyResolution;
+using SFA.DAS.PAS.Account.Api.ClientV2.DependencyResolution;
 using SFA.DAS.UnitOfWork.EntityFrameworkCore;
 using SFA.DAS.UnitOfWork.NServiceBus;
 using StructureMap;
@@ -15,6 +16,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
+            registry.IncludeRegistry<PasAccountApiClientRegistry>();
+            registry.IncludeRegistry<EncodingRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }

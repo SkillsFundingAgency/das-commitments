@@ -38,7 +38,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     IsFundedByTransfer = c.TransferSenderId != null,
                     WithParty = c.EditStatus.ToParty(),
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
-                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider
+                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider,
+                    ProviderId = c.ProviderId,
+                    LastAction = c.LastAction,
+                    LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
+                    LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 

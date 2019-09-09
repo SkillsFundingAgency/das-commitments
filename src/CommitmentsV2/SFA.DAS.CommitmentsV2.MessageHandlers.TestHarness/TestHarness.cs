@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("C - AddedLegalEntityEvent");
                 Console.WriteLine("D - UpdatedLegalEntityEvent");
                 Console.WriteLine("E - RemovedLegalEntityEvent");
+                Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key.ToString().ToLower();
@@ -74,6 +75,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;
+                        case "h":
+                            await _publisher.Publish(new CohortAssignedToProviderEvent { CommitmentId = 186091 } );
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortAssignedToProviderEvent)}");
+                            break;
+
                     }
                 }
                 catch (Exception e)

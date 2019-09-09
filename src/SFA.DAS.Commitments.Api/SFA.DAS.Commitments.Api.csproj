@@ -473,7 +473,7 @@
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Reservations.API.Client\SFA.DAS.Reservations.Api.Client.csproj">
       <Project>{bfa13ee6-7663-4682-97cc-9f37090cb516}</Project>
-      <Name>SFA.DAS.Reservation.Api.Client</Name>
+      <Name>SFA.DAS.Reservations.Api.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\SFA.DAS.Reservations.API.Types\SFA.DAS.Reservations.Api.Types.csproj">
       <Project>{515d7191-32ec-4ce7-bebc-444689f27591}</Project>

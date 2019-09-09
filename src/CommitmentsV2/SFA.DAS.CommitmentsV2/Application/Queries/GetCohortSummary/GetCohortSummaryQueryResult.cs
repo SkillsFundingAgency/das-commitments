@@ -9,6 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public long AccountLegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
 
+        public long? ProviderId { get; set; }
         public string ProviderName { get; set; }
 
         /// <summary>
@@ -20,5 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public Party WithParty { get; set; }
         public string LatestMessageCreatedByEmployer { get; set; }
         public string LatestMessageCreatedByProvider { get; set; }
+        public LastAction LastAction { get; set; }
+        public string LastUpdatedByEmployerEmail { get; set; }
+        public string LastUpdatedByProviderEmail { get; set; }
     }
 }
