@@ -32,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 select new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
+                    CohortReference = c.Reference,
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.LegalEntityName,
                     ProviderName = c.ProviderName,

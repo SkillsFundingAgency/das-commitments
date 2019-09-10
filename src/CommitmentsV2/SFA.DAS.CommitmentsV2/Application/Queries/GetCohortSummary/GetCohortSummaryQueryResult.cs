@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
     public class GetCohortSummaryQueryResult
     {
         public long CohortId { get; set; }
+        public string CohortReference { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public long AccountLegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
