@@ -32,8 +32,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery { CohortId = message.CommitmentId });
 
                 var emailRequest = BuildEmailRequest(cohortSummary);
-                await _pasAccountApiClient.SendEmailToAllProviderRecipients(cohortSummary.CohortId, emailRequest)
-                    .ConfigureAwait(false);
+                await _pasAccountApiClient.SendEmailToAllProviderRecipients(cohortSummary.CohortId, emailRequest).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -50,20 +49,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
             if (!string.IsNullOrWhiteSpace(cohortSummary.LastUpdatedByProviderEmail))
             {
-                request.ExplicitEmailAddresses.Add(cohortSummary.LastUpdatedByProviderEmail
-                );
+                request.ExplicitEmailAddresses.Add(cohortSummary.LastUpdatedByProviderEmail);
             }
 
             request.Tokens.Add("cohort_reference", cohortSummary.CohortId.ToString());
 
             if (cohortSummary.IsFundedByTransfer)
             {
-                request.TemplateId = "ProviderTransferCohortNotification";
+                request.TemplateId = "ProviderTransferCommitmentNotification";
                 request.Tokens.Add("receiving_employer", cohortSummary.LegalEntityName);
             }
             else
             {
-                request.TemplateId = "ProviderCohortNotification";
+                request.TemplateId = "ProviderCommitmentNotification";
                 request.Tokens.Add("type", cohortSummary.LastAction == LastAction.Approve ? "approval" : "review");
             }
 
