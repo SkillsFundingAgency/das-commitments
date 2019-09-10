@@ -52,9 +52,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<GetDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", null, cancellationToken);
         }
-        public Task<IReadOnlyCollection<DraftApprenticeshipDto>> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default)
+        public Task<GetDraftApprenticeshipsResponse> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default)
         {
-            return _client.Get<IReadOnlyCollection<DraftApprenticeshipDto>>($"api/cohorts/{cohortId}/draft-apprenticeships", null, cancellationToken);
+            return _client.Get<GetDraftApprenticeshipsResponse> ($"api/cohorts/{cohortId}/draft-apprenticeships", null, cancellationToken);
         }
 
         public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)

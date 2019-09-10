@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetDraftApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetDraftApprenticeships(123);
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IReadOnlyCollection<DraftApprenticeshipDto>>("api/cohorts/123/draft-apprenticeships", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetDraftApprenticeshipsResponse>("api/cohorts/123/draft-apprenticeships", null, CancellationToken.None));
         }
 
         [Test]

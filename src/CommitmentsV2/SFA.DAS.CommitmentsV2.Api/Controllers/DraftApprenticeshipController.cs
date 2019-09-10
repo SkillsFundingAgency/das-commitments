@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             {
                 return NotFound();
             }
-            return Ok(result.DraftApprenticeships);
+            return Ok(result);
         }
 
         [HttpGet]
