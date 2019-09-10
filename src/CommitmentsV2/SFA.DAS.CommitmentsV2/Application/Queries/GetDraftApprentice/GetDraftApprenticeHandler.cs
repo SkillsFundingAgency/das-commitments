@@ -4,23 +4,27 @@ using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
-using SFA.DAS.CommitmentsV2.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Authentication;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice
 {
     public class GetDraftApprenticeHandler : IRequestHandler<GetDraftApprenticeRequest, GetDraftApprenticeResponse>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly IAuthenticationService _authenticationService;
 
-        public GetDraftApprenticeHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetDraftApprenticeHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
             _dbContext = dbContext;
+            _authenticationService = authenticationService;
         }
 
-        public Task<GetDraftApprenticeResponse> Handle(GetDraftApprenticeRequest request, CancellationToken cancellationToken)
+        public async Task<GetDraftApprenticeResponse> Handle(GetDraftApprenticeRequest request, CancellationToken cancellationToken)
         {
+            var requestingParty = _authenticationService.GetUserParty();
 
-            return _dbContext.Value
+            var x = await _dbContext.Value
                 .DraftApprenticeships.GetById(
                     request.CohortId,
                     request.DraftApprenticeshipId,
@@ -29,17 +33,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice
                         CourseCode = draft.CourseCode,
                         StartDate = draft.StartDate,
                         Id = draft.Id,
-                        Cost = (int)draft.Cost,
+                        Cost = (int?)draft.Cost,
                         DateOfBirth = draft.DateOfBirth,
                         EndDate = draft.EndDate,
                         FirstName = draft.FirstName,
                         LastName = draft.LastName,
-                        Reference = draft.ProviderRef,
+                        Reference = requestingParty == Party.Provider ? draft.ProviderRef : draft.EmployerRef,
                         ReservationId = draft.ReservationId,
                         Uln = draft.Uln
                     },
                     cancellationToken);
 
+            return x;
         }
     }
 }
