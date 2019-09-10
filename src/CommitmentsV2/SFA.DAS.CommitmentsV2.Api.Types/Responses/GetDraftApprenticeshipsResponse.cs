@@ -5,6 +5,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
     public class GetDraftApprenticeshipsResponse
     {
-        public List<DraftApprenticeshipDto> DraftApprenticeships { get; set; }
+        public IReadOnlyCollection<DraftApprenticeshipDto> DraftApprenticeships { get; set; }
     }
 }

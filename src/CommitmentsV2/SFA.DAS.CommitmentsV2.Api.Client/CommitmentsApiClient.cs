@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -49,6 +51,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             CancellationToken cancellationToken = default)
         {
             return _client.Get<GetDraftApprenticeshipResponse>($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", null, cancellationToken);
+        }
+        public Task<IReadOnlyCollection<DraftApprenticeshipDto>> GetDraftApprenticeships(long cohortId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<IReadOnlyCollection<DraftApprenticeshipDto>>($"api/cohorts/{cohortId}/draft-apprenticeships", null, cancellationToken);
         }
 
         public Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default)

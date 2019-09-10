@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
-
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
 
@@ -75,9 +76,9 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetAll();
 
             //Assert
-            Assert.IsTrue(response is OkObjectResult, $"Get method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
+            Assert.IsTrue(response is OkObjectResult, $"GetAll method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
             var okObjectResult = (OkObjectResult)response;
-            Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipsResponse, $"Get method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
+            Assert.IsTrue(okObjectResult.Value is IReadOnlyCollection<DraftApprenticeshipDto>, $"GetAll method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
     }
 
@@ -151,7 +152,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             GetDraftApprenticeshipsRequest = new GetDraftApprenticeshipsRequest(CohortId);
             Mediator.Setup(m => m.Send(GetDraftApprenticeshipsRequest, CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeshipsResult());
-            GetDraftApprenticeshipsMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipsResult>())).ReturnsAsync(new GetDraftApprenticeshipsResponse());
+            GetDraftApprenticeshipsMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipsResult>())).ReturnsAsync(new GetDraftApprenticeshipsResponse{ DraftApprenticeships = new List<DraftApprenticeshipDto>()});
             return this;
         }
 
@@ -172,7 +173,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public Task<IActionResult> GetAll()
         {
-            return Controller.Get(CohortId);
+            return Controller.GetAll(CohortId);
         }
 
     }

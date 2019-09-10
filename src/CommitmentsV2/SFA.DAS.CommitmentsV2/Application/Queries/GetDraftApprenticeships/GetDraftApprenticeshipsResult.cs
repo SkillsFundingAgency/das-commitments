@@ -5,6 +5,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 {
     public class GetDraftApprenticeshipsResult
     {
-        public List<DraftApprenticeshipDto> DraftApprenticeships { get; set; }
+        public IReadOnlyCollection<DraftApprenticeshipDto> DraftApprenticeships { get; set; }
     }
 }
