@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 request.ExplicitEmailAddresses.Add(cohortSummary.LastUpdatedByProviderEmail);
             }
 
-            request.Tokens.Add("cohort_reference", cohortSummary.CohortId.ToString());
+            request.Tokens.Add("cohort_reference", cohortSummary.CohortReference);
 
             if (cohortSummary.IsFundedByTransfer)
             {

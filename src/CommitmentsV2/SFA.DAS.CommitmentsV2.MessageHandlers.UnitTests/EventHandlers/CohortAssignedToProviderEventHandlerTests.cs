@@ -90,7 +90,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderCommitmentNotification" && 
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
-                    p.Tokens["cohort_reference"] == Message.CommitmentId.ToString() &&
+                    p.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
                     p.Tokens["type"] == actionType), default));
         }
 
@@ -100,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderTransferCommitmentNotification" &&
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
-                    p.Tokens["cohort_reference"] == Message.CommitmentId.ToString() &&
+                    p.Tokens["cohort_reference"] == GetCohortSummaryQueryResult.CohortReference &&
                     p.Tokens["receiving_employer"] == GetCohortSummaryQueryResult.LegalEntityName), default));
         }
     }
