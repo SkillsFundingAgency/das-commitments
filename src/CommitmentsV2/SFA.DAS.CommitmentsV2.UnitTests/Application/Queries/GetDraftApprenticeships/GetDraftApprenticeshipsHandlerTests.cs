@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,8 +91,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                     AccountLegalEntityPublicHashedId = _autoFixture.Create<string>()
                 };
 
-                var apprenticeships = new List<DraftApprenticeship>();
-
                 for (var i = 0; i < 10; i++)
                 {
                     var apprenticeship = new DraftApprenticeship
@@ -111,7 +108,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                         CourseName = _autoFixture.Create<string>(),
                         Uln = _autoFixture.Create<string>()
                     };
-                    apprenticeships.Add(apprenticeship);
+                    _cohort.Apprenticeships.Add(apprenticeship);
                 }
 
                 _db.Cohorts.Add(_cohort);

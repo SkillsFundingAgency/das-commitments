@@ -21,12 +21,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
         {
             var cohort = _dbContext.Value.Cohorts
                 .Where(x => x.Id == request.CohortId)
-                .Select(x => new { Cohort = x, DraftApprenticeship = x.Apprenticeships})
+                .Select(x => new { DraftApprenticeships = x.Apprenticeships})
                 .SingleOrDefault();
 
             return Task.FromResult(new GetDraftApprenticeshipsResult
             {
-                DraftApprenticeships = cohort?.DraftApprenticeship.Select(a => new DraftApprenticeshipDto
+                DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
                 {
                     Id = a.Id,
                     FirstName = a.FirstName,

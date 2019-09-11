@@ -76,8 +76,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.GetAll();
 
             //Assert
+            Assert.IsNotNull(response);
             Assert.IsTrue(response is OkObjectResult, $"GetAll method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
             var okObjectResult = (OkObjectResult)response;
+            Assert.IsNotNull(okObjectResult);
             Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipsResponse, $"GetAll method did not return a value of type {nameof(GetDraftApprenticeshipsResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
     }
