@@ -32,6 +32,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships", request, cancellationToken);
         }
 
+        public Task ApproveCohort(long cohortId, ApproveCohortRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/cohorts/{cohortId}/approve", request, cancellationToken);
+        }
+
         public Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateCohortRequest, CreateCohortResponse>("api/cohorts", request, cancellationToken);
@@ -67,6 +72,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<GetProviderResponse>($"api/providers/{providerId}", null, cancellationToken);
         }
 
+        public Task SendCohort(long cohortId, SendCohortRequest request, CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson($"api/cohorts/{cohortId}/send", request, cancellationToken);
+        }
+
         public Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PutAsJson<UpdateDraftApprenticeshipRequest>(
@@ -86,11 +96,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<string> SecureProviderCheck()
         {
             return _client.Get("api/test/provider");  
-        }
-
-        public Task SendCohort(long cohortId, SendCohortRequest request, CancellationToken cancellationToken = default)
-        {
-            return _client.PostAsJson($"api/cohorts/{cohortId}/send", request, cancellationToken);
         }
     }
 }
