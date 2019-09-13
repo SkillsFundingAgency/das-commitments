@@ -38,7 +38,7 @@ namespace SFA.DAS.Reservations.Api.Types
 
         public Task<BulkCreateReservationsResult> BulkCreateReservations(long accountLegalEntityId, BulkCreateReservationsRequest request, CancellationToken cancellationToken)
         {
-            var url = BuildUrl($"api/accounts/{accountLegalEntityId}/bulk-create");
+            var url = BuildUrl($"api/reservations/accounts/{accountLegalEntityId}/bulk-create");
             return _httpHelper.PostAsJson<BulkCreateReservationsRequest, BulkCreateReservationsResult>(url, request, cancellationToken);
         }
 

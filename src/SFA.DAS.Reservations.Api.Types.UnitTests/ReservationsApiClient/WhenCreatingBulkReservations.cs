@@ -51,7 +51,7 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 
         public void AssertUriCorrectlyFormed()
         {
-            var expectedUrl = $"{Config.ApiBaseUrl}/api/accounts/{AccountLegalEntity}/bulk-create";
+            var expectedUrl = $"{Config.ApiBaseUrl}/api/reservations/accounts/{AccountLegalEntity}/bulk-create";
 
             HttpHelper.Verify(x => x.PostAsJson<BulkCreateReservationsRequest, BulkCreateReservationsResult>(It.Is<string>(actualUrl => IsSameUri(expectedUrl, actualUrl)),
                 It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>()));
