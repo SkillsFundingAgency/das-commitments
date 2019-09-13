@@ -47,7 +47,7 @@ namespace SFA.DAS.Reservations.Api.Types
         private string BuildUrl(string path)
         {
             var effectiveApiBaseUrl = _config.EffectiveApiBaseUrl.TrimEnd(new[] { '/' });
-            path = path.TrimStart(new[] {'/'});
+            path = path.TrimStart(new[] { '/' });
 
             return $"{effectiveApiBaseUrl}/{path}";
         }
