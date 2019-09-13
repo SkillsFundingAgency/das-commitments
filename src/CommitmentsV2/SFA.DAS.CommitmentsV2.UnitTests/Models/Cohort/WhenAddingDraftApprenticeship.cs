@@ -10,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
-using SFA.DAS.UnitOfWork;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
@@ -18,12 +18,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
     [Parallelizable]
     public class WhenAddingDraftApprenticeship
     {
-        private AddDraftApprenticeshipTestFixture _fixture;
+        private WhenAddingDraftApprenticeshipTestsFixture _fixture;
 
         [SetUp]
         public void Arrange()
         {
-            _fixture = new AddDraftApprenticeshipTestFixture();
+            _fixture = new WhenAddingDraftApprenticeshipTestsFixture();
         }
 
         [Test]
@@ -40,13 +40,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var draftApprenticeship = _fixture.AddDraftApprenticeship();
 
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Cast<DraftApprenticeshipCreatedEvent>().Single().Should().BeEquivalentTo(
-                    new DraftApprenticeshipCreatedEvent(
-                        cohortId: _fixture.Cohort.Id,
-                        draftApprenticeshipId: draftApprenticeship.Id,
-                        uln: _fixture.DraftApprenticeshipDetails.Uln,
-                        reservationId: draftApprenticeship.ReservationId.Value,
-                        createdOn: draftApprenticeship.CreatedOn.Value));
+                .And.Subject.OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e => 
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.DraftApprenticeshipId == draftApprenticeship.Id &&
+                    e.Uln == _fixture.DraftApprenticeshipDetails.Uln &&
+                    e.ReservationId == draftApprenticeship.ReservationId &&
+                    e.CreatedOn == draftApprenticeship.CreatedOn);
         }
 
         [Test]
@@ -103,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Assert.IsTrue(_fixture.Cohort.Apprenticeships.All(x => x.AgreementStatus == AgreementStatus.NotAgreed));
         }
 
-        private class AddDraftApprenticeshipTestFixture
+        private class WhenAddingDraftApprenticeshipTestsFixture
         {
             public DateTime Now { get; set; }
             public Fixture Fixture { get; set; }
@@ -115,7 +114,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public UserInfo UserInfo { get; }
 
-            public AddDraftApprenticeshipTestFixture()
+            public WhenAddingDraftApprenticeshipTestsFixture()
             {
                 Now = DateTime.UtcNow;
                 Fixture = new Fixture();
@@ -145,27 +144,27 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 return Cohort.AddDraftApprenticeship(DraftApprenticeshipDetails, Party, UserInfo);
             }
 
-            public AddDraftApprenticeshipTestFixture SetEditStatus(EditStatus editStatus)
+            public WhenAddingDraftApprenticeshipTestsFixture SetEditStatus(EditStatus editStatus)
             {
                 Cohort.Set(c => c.EditStatus, editStatus);
 
                 return this;
             }
 
-            public AddDraftApprenticeshipTestFixture SetParty(Party party)
+            public WhenAddingDraftApprenticeshipTestsFixture SetParty(Party party)
             {
                 Party = party;
 
                 return this;
             }
 
-            public AddDraftApprenticeshipTestFixture WithExistingDraftApprenticeship()
+            public WhenAddingDraftApprenticeshipTestsFixture WithExistingDraftApprenticeship()
             {
                 Cohort.Apprenticeships.Add(ExistingApprenticeshipDetails);
                 return this;
             }
 
-            public AddDraftApprenticeshipTestFixture WithApproval(Party approvingParty)
+            public WhenAddingDraftApprenticeshipTestsFixture WithApproval(Party approvingParty)
             {
                 var agreementStatus = AgreementStatus.NotAgreed;
 

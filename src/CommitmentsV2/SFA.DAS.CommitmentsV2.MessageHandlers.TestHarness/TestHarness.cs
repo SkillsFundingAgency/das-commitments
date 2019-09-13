@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
                             break;
                         case "h":
-                            await _publisher.Publish(new CohortAssignedToProviderEvent { CommitmentId = 186091 } );
+                            await _publisher.Publish(new CohortAssignedToProviderEvent(186091, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortAssignedToProviderEvent)}");
                             break;

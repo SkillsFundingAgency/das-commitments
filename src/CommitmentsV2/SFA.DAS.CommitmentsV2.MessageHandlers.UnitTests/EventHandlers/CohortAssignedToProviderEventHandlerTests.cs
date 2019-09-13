@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             var fixture = new CohortAssignedToProviderEventHandlerTestsFixture();
             await fixture.SetupNonTransferCohort().Handle();
 
-            fixture.Mediator.Verify(x=>x.Send(It.Is<GetCohortSummaryQuery>(c=>c.CohortId == fixture.Message.CommitmentId), It.IsAny<CancellationToken>()));
+            fixture.Mediator.Verify(x=>x.Send(It.Is<GetCohortSummaryQuery>(c=>c.CohortId == fixture.Message.CohortId), It.IsAny<CancellationToken>()));
         }
 
         [Test]
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public CohortAssignedToProviderEventHandlerTestsFixture SetupNonTransferCohort()
         {
             GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
-                .With(p => p.CohortId, Message.CommitmentId).With(p => p.IsFundedByTransfer, false).Create();
+                .With(p => p.CohortId, Message.CohortId).With(p => p.IsFundedByTransfer, false).Create();
 
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public CohortAssignedToProviderEventHandlerTestsFixture SetupTransferCohort()
         {
             GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
-                .With(p => p.CohortId, Message.CommitmentId).With(p => p.IsFundedByTransfer, true).Create();
+                .With(p => p.CohortId, Message.CohortId).With(p => p.IsFundedByTransfer, true).Create();
 
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var actionType = lastAction == LastAction.Approve ? "approval" : "review";
 
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(Message.CommitmentId,
+            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(Message.CohortId,
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderCommitmentNotification" && 
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly()
         {
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(Message.CommitmentId,
+            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(Message.CohortId,
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderTransferCommitmentNotification" &&
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&

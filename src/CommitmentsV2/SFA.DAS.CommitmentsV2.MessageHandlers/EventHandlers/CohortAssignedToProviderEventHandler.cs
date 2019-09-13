@@ -29,14 +29,14 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery { CohortId = message.CommitmentId });
+                var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
                 var emailRequest = BuildEmailRequest(cohortSummary);
                 await _pasAccountApiClient.SendEmailToAllProviderRecipients(cohortSummary.CohortId, emailRequest).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Send message to provider for cohort {message?.CommitmentId} failed");
+                _logger.LogError(e, $"Send message to provider for cohort {message?.CohortId} failed");
                 throw;
             }
         }

@@ -124,7 +124,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 .AddCommitment(CohortId, Cohort, EditStatus, AccountLegalEntityId, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider);
 
             // act
-            var response = await fixtures.GetResult(new GetCohortSummaryQuery { CohortId = CohortId });
+            var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
 
             // Assert
             assert(response);

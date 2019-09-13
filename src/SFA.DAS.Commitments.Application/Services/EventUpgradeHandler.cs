@@ -22,7 +22,7 @@ namespace SFA.DAS.Commitments.Application.Services
         public Task Execute(Events.CohortApprovalRequestedByProvider @event)
         {
             _logger.Debug($"Upgrading {nameof(Events.CohortApprovalRequestedByProvider)} to publish with NServiceBus");
-            return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovalRequestedByProvider()
+            return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovalRequestedByProviderEvent()
             {
                 AccountId = @event.AccountId,
                 ProviderId = @event.ProviderId,
@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.Services
         public Task Execute(CohortApprovedByEmployer @event)
         {
             _logger.Debug($"Upgrading {nameof(Events.CohortApprovedByEmployer)} to publish with NServiceBus");
-            return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovedByEmployer()
+            return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovedByEmployerEvent()
             {
                 AccountId = @event.AccountId,
                 ProviderId = @event.ProviderId,

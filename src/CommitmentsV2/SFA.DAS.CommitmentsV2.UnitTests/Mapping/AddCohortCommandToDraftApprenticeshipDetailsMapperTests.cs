@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using AutoFixture;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization;
@@ -8,113 +8,72 @@ using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Mapping;
-using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
 {
-    [TestFixture()]
+    [TestFixture]
+    [Parallelizable]
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTests
     {
-        private TrainingProgramme _trainingProgramme;
-        private Mock<ITrainingProgrammeLookup> _trainingProgrammeLookup;
-        private Mock<IAuthorizationService> _authorizationService;
-
-        [SetUp]
-        public void Arrange()
+        [Test]
+        public async Task WhenMapping_ThenShouldSetProperties()
         {
-            _trainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue);
-            _trainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
-            _authorizationService = new Mock<IAuthorizationService>();
+            var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var draftApprenticeshipDetails = await fixture.Map();
             
-            _trainingProgrammeLookup
-                .Setup(x => x.GetTrainingProgramme(It.IsAny<string>()))
-                .ReturnsAsync(_trainingProgramme);
+            Assert.AreEqual(fixture.Command.FirstName, draftApprenticeshipDetails.FirstName);
+            Assert.AreEqual(fixture.Command.LastName, draftApprenticeshipDetails.LastName);
+            Assert.AreEqual(fixture.Command.Uln, draftApprenticeshipDetails.Uln);
+            Assert.AreEqual(fixture.Command.Cost, draftApprenticeshipDetails.Cost);
+            Assert.AreEqual(fixture.Command.StartDate, draftApprenticeshipDetails.StartDate);
+            Assert.AreEqual(fixture.Command.EndDate, draftApprenticeshipDetails.EndDate);
+            Assert.AreEqual(fixture.Command.DateOfBirth, draftApprenticeshipDetails.DateOfBirth);
+            Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
+            Assert.AreEqual(fixture.TrainingProgramme, draftApprenticeshipDetails.TrainingProgramme);
         }
-
-        [Test]
-        public async Task Map_FirstName_ShouldBeSet()
-        {
-            const string firstName = "TestFirstName";
-            await AssertPropertySet(input => input.FirstName = firstName, output => output.FirstName == firstName);
-        }
-
-        [Test]
-        public async Task Map_LastName_ShouldBeSet()
-        {
-            const string lastName = "TestLastName";
-            await AssertPropertySet(input => input.LastName = lastName, output => output.LastName == lastName);
-        }
-
-        [Test]
-        public async Task Map_Uln_ShouldBeSet()
-        {
-            const string xxx = "TestULN";
-            await AssertPropertySet(input => input.Uln = xxx, output => output.Uln == xxx);
-        }
-
-        [Test]
-        public async Task Map_Cost_ShouldBeSet()
-        {
-            const int cost = 12345;
-            await AssertPropertySet(input => input.Cost = cost, output => output.Cost == cost);
-        }
-
-        [Test]
-        public async Task Map_StartDate_ShouldBeSet()
-        {
-            var startDate = new DateTime(2020, 10, 15);
-            await AssertPropertySet(input => input.StartDate = startDate, output => output.StartDate == startDate);
-        }
-
-        [Test]
-        public async Task Map_EndDate_ShouldBeSet()
-        {
-            var endDate = new DateTime(2022, 5, 8);
-            await AssertPropertySet(input => input.EndDate = endDate, output => output.EndDate == endDate);
-        }
-
-        [Test]
-        public async Task Map_DateOfBirth_ShouldBeSet()
-        {
-            var dateOfBirth = new DateTime(2004, 1, 2);
-            await AssertPropertySet(input => input.DateOfBirth = dateOfBirth, output => output.DateOfBirth == dateOfBirth);
-        }
-
-        [Test]
-        public async Task Map_ProviderRef_ShouldBeSet()
-        {
-            const string providerRef = "TestProviderRef";
-            await AssertPropertySet(input => input.OriginatorReference = providerRef, output => output.Reference == providerRef);
-        }
-
-        [Test]
-        public async Task Map_TrainingProgramme_ShouldBeSet()
-        {
-            await AssertPropertySet(input => input.CourseCode = "TEST", output => output.TrainingProgramme == _trainingProgramme);
-        }
-
+        
         [TestCase(false, false)]
         [TestCase(true, true)]
-        public async Task Map_ReservationId_ShouldBeSet(bool isReservationsEnabled, bool expectReservationIdSet)
+        public async Task WhenReservationsIsEnabled_ThenShouldSetReservationId(bool isReservationsEnabled, bool expectReservationIdIsNotNull)
         {
-            var reservationId = Guid.NewGuid();
-            var expectedReservationId = expectReservationIdSet ? reservationId : (Guid?)null;
-            _authorizationService.Setup(a => a.IsAuthorizedAsync(Feature.Reservations)).ReturnsAsync(isReservationsEnabled);
-            await AssertPropertySet(input => input.ReservationId = reservationId, output => output.ReservationId == expectedReservationId);
+            var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture().SetIsReservationsEnabled(isReservationsEnabled);
+            var draftApprenticeshipDetails = await fixture.Map();
+            
+            Assert.AreEqual(expectReservationIdIsNotNull ? fixture.Command.ReservationId : null, draftApprenticeshipDetails.ReservationId);
+        }
+    }
+
+    public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
+    {
+        public IFixture AutoFixture { get; }
+        public AddCohortCommand Command { get; }
+        public TrainingProgramme TrainingProgramme { get; }
+        public Mock<IAuthorizationService> AuthorizationService { get; }
+        public Mock<ITrainingProgrammeLookup> TrainingProgrammeLookup { get; }
+        public IMapper<AddCohortCommand, DraftApprenticeshipDetails> Mapper { get; }
+
+        public AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture()
+        {
+            AutoFixture = new Fixture();
+            TrainingProgramme = AutoFixture.Create<TrainingProgramme>();
+            Command = AutoFixture.Create<AddCohortCommand>();
+            AuthorizationService = new Mock<IAuthorizationService>();
+            TrainingProgrammeLookup = new Mock<ITrainingProgrammeLookup>();
+            Mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(AuthorizationService.Object, TrainingProgrammeLookup.Object);
+            
+            TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgramme);
         }
 
-        private async Task AssertPropertySet(Action<AddCohortCommand> setInput,
-            Func<DraftApprenticeshipDetails, bool> expectOutput)
+        public Task<DraftApprenticeshipDetails> Map()
         {
-            var mapper = new AddCohortCommandToDraftApprenticeshipDetailsMapper(_authorizationService.Object, _trainingProgrammeLookup.Object);
+            return Mapper.Map(Command);
+        }
 
-            var input = new AddCohortCommand();
+        public AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture SetIsReservationsEnabled(bool isEnabled)
+        {
+            AuthorizationService.Setup(a => a.IsAuthorizedAsync(Feature.Reservations)).ReturnsAsync(isEnabled);
 
-            setInput(input);
-
-            var output = await mapper.Map(input);
-
-            Assert.IsTrue(expectOutput(output));
+            return this;
         }
     }
 }

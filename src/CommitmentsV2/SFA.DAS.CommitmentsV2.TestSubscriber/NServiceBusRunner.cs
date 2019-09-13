@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Data.Common;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Logging;
-using NServiceBus.ObjectBuilder.Common;
-using SFA.DAS.NServiceBus;
-using SFA.DAS.NServiceBus.AzureServiceBus;
-using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
-using SFA.DAS.NServiceBus.NLog;
+using SFA.DAS.NServiceBus.Configuration;
+using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 namespace SFA.DAS.CommitmentsV2.TestSubscriber
 {
@@ -47,16 +44,19 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         private async Task<IEndpointInstance> StartNServiceBus(string connectionString)
         {
             Console.WriteLine("Starting NServiceBus...");
-            var endpointConfiguration = new EndpointConfiguration(Constants.NameSpace);
-
-            UseDasMessageConventions(endpointConfiguration);
-
-            endpointConfiguration
-                .UseAzureServiceBusTransport(string.IsNullOrWhiteSpace(connectionString), () => connectionString, r => { })
+            var endpointConfiguration = new EndpointConfiguration(Constants.NameSpace)
                 .UseNewtonsoftJsonSerializer()
-                .UseInstallers()
-                ;
+                .UseInstallers();
 
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                endpointConfiguration.UseLearningTransport();
+            }
+            else
+            {
+                endpointConfiguration.UseAzureServiceBusTransport(connectionString);
+            }
+            
             var defaultFactory = LogManager.Use<DefaultFactory>();
             defaultFactory.Level(LogLevel.Debug);
 
@@ -70,14 +70,6 @@ namespace SFA.DAS.CommitmentsV2.TestSubscriber
         private Task StopNServiceBus(IEndpointInstance endpointInstance)
         {
             return endpointInstance.Stop();
-        }
-
-        private EndpointConfiguration UseDasMessageConventions(EndpointConfiguration config)
-        {
-            var conventions = config.Conventions();
-            conventions.DefiningCommandsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Commands"));
-            conventions.DefiningEventsAs(t => t.Namespace != null && t.Namespace.StartsWith("SFA.DAS.CommitmentsV2.Messages.Events"));
-            return config;
         }
     }
 }
