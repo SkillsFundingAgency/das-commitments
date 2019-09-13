@@ -134,14 +134,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         [TestCase(EditStatus.EmployerOnly, Party.None)]
         [TestCase(EditStatus.EmployerOnly, Party.Provider)]
         [TestCase(EditStatus.ProviderOnly, Party.None)]
-        public void Party_CheckValidation(EditStatus editStatus, Party modifyingParty)
+        public void Party_CheckValidation(EditStatus editStatus, Party party)
         {
             _fixture.Cohort.EditStatus = editStatus;
 
-            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
-            var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(modifyingParty));
+            var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, party, _fixture.UserInfo));
+            var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(party));
 
-            Assert.AreEqual("The cohort may not be modified by the current party", domainError?.ErrorMessage);
+            Assert.AreEqual($"Cohort must be with the party; {party} is not valid", domainError?.ErrorMessage);
         }
 
         [TestCase(1, "", "", true)]
