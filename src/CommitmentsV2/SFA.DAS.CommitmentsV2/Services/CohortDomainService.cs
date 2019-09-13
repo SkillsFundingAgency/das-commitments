@@ -59,6 +59,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             return draftApprenticeship;
         }
 
+        public Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
