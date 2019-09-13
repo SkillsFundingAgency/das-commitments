@@ -121,14 +121,14 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
                 throw;
             }
 
-            if (bulkReservations.Reservations.Length != apprenticeships.Count)
+            if (bulkReservations.ReservationIds.Length != apprenticeships.Count)
             {
                 _logger.Info($"The number of bulk reservations did not match the number of apprentices");
                 throw new InvalidOperationException(
-                    $"The number of bulk reservations ({bulkReservations.Reservations.Length}) does not equal the number of apprenticeships ({apprenticeships.Count})");
+                    $"The number of bulk reservations ({bulkReservations.ReservationIds.Length}) does not equal the number of apprenticeships ({apprenticeships.Count})");
             }
 
-            return apprenticeships.Zip(bulkReservations.Reservations, (a, r) =>
+            return apprenticeships.Zip(bulkReservations.ReservationIds, (a, r) =>
             {
                 a.ReservationId = r;
                 return a;

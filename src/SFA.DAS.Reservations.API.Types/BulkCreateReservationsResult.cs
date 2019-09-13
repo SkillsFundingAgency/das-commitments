@@ -6,10 +6,10 @@ namespace SFA.DAS.Reservations.Api.Types
 {
     public class BulkCreateReservationsResult
     {
-        public BulkCreateReservationsResult(IEnumerable<Guid> reservations)
+        public BulkCreateReservationsResult(IEnumerable<Guid> reservationIds)
         {
-            Reservations = reservations.ToArray();
+            ReservationIds = reservationIds.ToArray();
         }
-        public Guid[] Reservations { get; }
+        public Guid[] ReservationIds { get; }
     }
 }
