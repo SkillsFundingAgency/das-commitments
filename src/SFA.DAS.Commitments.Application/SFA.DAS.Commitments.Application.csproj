@@ -170,9 +170,8 @@
     <Reference Include="SFA.DAS.NLog.Logger, Version=1.0.0.43242, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SFA.DAS.NLog.Logger.1.0.0.43242\lib\net45\SFA.DAS.NLog.Logger.dll</HintPath>
     </Reference>
-    <Reference Include="SFA.DAS.NServiceBus, Version=15.0.7.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\SFA.DAS.NServiceBus.15.0.7\lib\net462\SFA.DAS.NServiceBus.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SFA.DAS.NServiceBus, Version=15.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SFA.DAS.NServiceBus.15.0.8\lib\net462\SFA.DAS.NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap, Version=4.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\StructureMap.4.7.0\lib\net45\StructureMap.dll</HintPath>
