@@ -20,8 +20,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenCalled_ThenShouldCallGetCohortSummaryQueryWithCorrectCohortId()
         {
-            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture();
-            await fixture.SetupNonTransferCohort().Handle();
+            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupNonTransferCohort();
+            await fixture.Handle();
 
             fixture.Mediator.Verify(x=>x.Send(It.Is<GetCohortSummaryQuery>(c=>c.CohortId == fixture.Message.CohortId), It.IsAny<CancellationToken>()));
         }
@@ -29,8 +29,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenCalledAndCohortIsNonTransfer_ThenShouldBuildEmailRequestAndSendIt()
         {
-            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture();
-            await fixture.SetupNonTransferCohort().Handle();
+            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupNonTransferCohort();
+            await fixture.Handle();
 
             fixture.VerfiyProviderEmailRequestIsCreatedAndSentCorrectly(fixture.GetCohortSummaryQueryResult.LastAction);
         }
@@ -38,8 +38,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         [Test]
         public async Task Handle_WhenCalledAndCohortIsTransfer_ThenShouldBuildEmailRequestAndSendIt()
         {
-            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture();
-            await fixture.SetupTransferCohort().Handle();
+            var fixture = new CohortAssignedToProviderEventHandlerTestsFixture().SetupTransferCohort();
+            await fixture.Handle();
 
             fixture.VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly();
         }
