@@ -16,6 +16,7 @@ using SFA.DAS.Commitments.Infrastructure.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.ProviderApproveCohort
 {

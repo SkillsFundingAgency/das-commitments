@@ -7,9 +7,9 @@ using NServiceBus;
 using SFA.DAS.CommitmentsV2.Configuration;
 using SFA.DAS.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.NServiceBus;
-using SFA.DAS.NServiceBus.AzureServiceBus;
-using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
+using SFA.DAS.NServiceBus.Configuration;
+using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
 {
@@ -30,11 +30,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
             var isDevelopment = Environment.GetEnvironmentVariable(EnvironmentVariableNames.EnvironmentName) == "LOCAL";
 
             var endpointConfiguration = new EndpointConfiguration("SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness")
-                .UseAzureServiceBusTransport(isDevelopment, () => config.ServiceBusConnectionString, r => { })
                 .UseErrorQueue()
                 .UseInstallers()
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer();
+
+            if (isDevelopment)
+            {
+                endpointConfiguration.UseLearningTransport();
+            }
+            else
+            {
+                endpointConfiguration.UseAzureServiceBusTransport(config.ServiceBusConnectionString);
+            }
 
             var endpoint = await Endpoint.Start(endpointConfiguration);
 

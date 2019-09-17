@@ -4,23 +4,39 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
-    public class AddCohortCommand : IRequest<AddCohortResponse>
+    public class AddCohortCommand : IRequest<AddCohortResult>
     {
-        public long AccountId { get; set; }
-        public long AccountLegalEntityId { get; set; }
-        public long ProviderId { get; set; }
+        public long AccountId { get; }
+        public long AccountLegalEntityId { get; }
+        public long ProviderId { get; }
+        public string CourseCode { get; }
+        public int? Cost { get; }
+        public DateTime? StartDate { get; }
+        public DateTime? EndDate { get; }
+        public string OriginatorReference { get; }
+        public Guid? ReservationId { get; }
+        public string FirstName { get; }
+        public string LastName { get; }
+        public DateTime? DateOfBirth { get; }
+        public string Uln { get; }
+        public UserInfo UserInfo { get; }
 
-        public string CourseCode { get; set; }
-        public int? Cost { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public string OriginatorReference { get; set; }
-        public Guid? ReservationId { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-        public string Uln { get; set; }
-        public UserInfo UserInfo { get; set; }
+        public AddCohortCommand(long accountId, long accountLegalEntityId, long providerId, string courseCode, int? cost, DateTime? startDate, DateTime? endDate, string originatorReference, Guid? reservationId, string firstName, string lastName, DateTime? dateOfBirth, string uln, UserInfo userInfo)
+        {
+            AccountId = accountId;
+            AccountLegalEntityId = accountLegalEntityId;
+            ProviderId = providerId;
+            CourseCode = courseCode;
+            Cost = cost;
+            StartDate = startDate;
+            EndDate = endDate;
+            OriginatorReference = originatorReference;
+            ReservationId = reservationId;
+            FirstName = firstName;
+            LastName = lastName;
+            DateOfBirth = dateOfBirth;
+            Uln = uln;
+            UserInfo = userInfo ?? throw new ArgumentNullException(nameof(userInfo));
+        }
     }
 }

@@ -9,7 +9,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
-using SFA.DAS.UnitOfWork;
+using SFA.DAS.UnitOfWork.Context;
 using ProgrammeType = SFA.DAS.CommitmentsV2.Types.ProgrammeType;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var domainException = Assert.Throws<DomainException>(() => _fixture.Cohort.AddDraftApprenticeship(_fixture.DraftApprenticeshipDetails, modifyingParty, _fixture.UserInfo));
             var domainError = domainException.DomainErrors.SingleOrDefault(e => e.PropertyName == nameof(modifyingParty));
 
-            Assert.AreEqual("The cohort may not be modified by the current role", domainError?.ErrorMessage);
+            Assert.AreEqual("The cohort may not be modified by the current party", domainError?.ErrorMessage);
         }
 
         [TestCase(1, "", "", true)]

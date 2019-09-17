@@ -25,6 +25,7 @@ using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
 using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
 using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
 using PaymentStatus = SFA.DAS.Commitments.Domain.Entities.PaymentStatus;
+using TransferApprovalStatus = SFA.DAS.Commitments.Domain.Entities.TransferApprovalStatus;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequest
 {

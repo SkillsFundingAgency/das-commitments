@@ -1,14 +1,12 @@
 using System;
-using System.Data.Common;
 using NServiceBus;
-using SFA.DAS.Commitments.Application.Configuration;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Domain.Interfaces;
-using SFA.DAS.Configuration;
-using SFA.DAS.NServiceBus;
-using SFA.DAS.NServiceBus.NewtonsoftJsonSerializer;
-using SFA.DAS.NServiceBus.NLog;
-using SFA.DAS.NServiceBus.StructureMap;
+using SFA.DAS.NServiceBus.Configuration;
+using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
+using SFA.DAS.NServiceBus.Configuration.NewtonsoftJsonSerializer;
+using SFA.DAS.NServiceBus.Configuration.NLog;
+using SFA.DAS.NServiceBus.Configuration.StructureMap;
 using StructureMap;
 
 namespace SFA.DAS.Commitments.Api.DependencyResolution
@@ -43,15 +41,23 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
                 logger.Info($"configuration-found?:{configuration != null} environment:{environment.EnvironmentType} nsb-transport-connection:{!string.IsNullOrWhiteSpace(configuration?.TransportConnectionString)} nsb-endpoint:{configuration.EndpointName} nsb-license:{!string.IsNullOrWhiteSpace(configuration.License)}");
 
                 var endpointConfiguration = new EndpointConfiguration(configuration.EndpointName)
-                    .UseNLogFactory()
-                    .UseAzureServiceBusTransport(() => configuration.TransportConnectionString, environment.IsDevelopment)
                     .UseErrorQueue()
                     .UseInstallers()
                     .UseLicense(configuration.License)
-                    .UseDasMessageConventions()
+                    .UseMessageConventions()
                     .UseNewtonsoftJsonSerializer()
+                    .UseNLogFactory()
                     .UseStructureMapBuilder(container);
 
+                if (environment.IsDevelopment)
+                {
+                    endpointConfiguration.UseLearningTransport();
+                }
+                else
+                {
+                    endpointConfiguration.UseAzureServiceBusTransport(configuration.TransportConnectionString);
+                }
+                
                 var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
 
                 return endpoint;

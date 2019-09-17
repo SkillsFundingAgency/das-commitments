@@ -28,6 +28,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task WhoAmI_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.WhoAmI();
+            _fixture.MockRestHttpClient.Verify(x => x.Get<WhoAmIResponse>("api/whoami", null, CancellationToken.None));
+        }
+        
+        [Test]
+        public async Task AddDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.AddDraftApprenticeship(_fixture.CohortId, _fixture.AddDraftApprenticeshipRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest>($"api/cohorts/{_fixture.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetLegalEntity_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetLegalEntity(123);
@@ -69,7 +83,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
 
             await _fixture.CommitmentsApiClient.CreateCohort(_fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/with-other-party", _fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", _fixture.CreateCohortWithOtherPartyRequest, CancellationToken.None));
         }
 
         [Test]
@@ -81,6 +95,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetProvider_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetProvider(123);
+            _fixture.MockRestHttpClient.Verify(c => c.Get<GetProviderResponse>("api/providers/123", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task Send_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.SendCohort(123, _fixture.SendCohortRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.PostAsJson("api/cohorts/123/send", _fixture.SendCohortRequest, CancellationToken.None));
+        }
+
+        [Test]
         public async Task UpdateDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             const long cohortId = 67890;
@@ -88,42 +116,29 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.UpdateDraftApprenticeship(cohortId, apprenticeshipId, _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.PutAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None));
         }
-        
-        [Test]
-        public async Task AddDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
-        {
-            await _fixture.CommitmentsApiClient.AddDraftApprenticeship(_fixture.CohortId, _fixture.AddDraftApprenticeshipRequest, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(x => x.PostAsJson<AddDraftApprenticeshipRequest>($"api/cohorts/{_fixture.CohortId}/draft-apprenticeships", _fixture.AddDraftApprenticeshipRequest, CancellationToken.None));
-        }
-
-        [Test]
-        public async Task GetProvider_VerifyUrlAndDataIsCorrectPassedIn()
-        {
-            await _fixture.CommitmentsApiClient.GetProvider(123);
-            _fixture.MockRestHttpClient.Verify(c => c.Get<GetProviderResponse>("api/providers/123", null, CancellationToken.None));
-        }
     }
 
     public class WhenCallingTheEndpointsFixture
     {
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
         public Mock<IRestHttpClient> MockRestHttpClient { get; }
+        public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
         public CreateCohortRequest CreateCohortRequest { get; }
         public CreateCohortWithOtherPartyRequest CreateCohortWithOtherPartyRequest { get; }
+        public SendCohortRequest SendCohortRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
         public long CohortId { get; set; }
-        public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
-
-
+        
         public WhenCallingTheEndpointsFixture()
         {
             MockRestHttpClient = new Mock<IRestHttpClient>();
             CommitmentsApiClient = new Client.CommitmentsApiClient(MockRestHttpClient.Object);
+            AddDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
             CreateCohortRequest = new CreateCohortRequest();
             CreateCohortWithOtherPartyRequest = new CreateCohortWithOtherPartyRequest();
+            SendCohortRequest = new SendCohortRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
             CohortId = 123;
-            AddDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
         }
 
         public WhenCallingTheEndpointsFixture SetupResponseForCreateCohort()

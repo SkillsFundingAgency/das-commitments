@@ -33,7 +33,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services.EventUpgradeHandler
 
             // assert
             _mockEndpointInstance.Verify(m => m.Publish(
-                It.Is<CommitmentsV2.Messages.Events.CohortApprovalRequestedByProvider>(a => 
+                It.Is<CommitmentsV2.Messages.Events.CohortApprovalRequestedByProviderEvent>(a => 
                 a.AccountId.Equals(testMessage.AccountId) && 
                 a.ProviderId.Equals(testMessage.ProviderId) &&
                 a.CommitmentId.Equals(testMessage.CommitmentId))
@@ -65,7 +65,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services.EventUpgradeHandler
 
             // assert
             _mockEndpointInstance.Verify(m => m.Publish(
-                It.Is<CommitmentsV2.Messages.Events.CohortApprovedByEmployer>(a =>
+                It.Is<CommitmentsV2.Messages.Events.CohortApprovedByEmployerEvent>(a =>
                 a.AccountId.Equals(testMessage.AccountId) &&
                 a.ProviderId.Equals(testMessage.ProviderId) &&
                 a.CommitmentId.Equals(testMessage.CommitmentId))

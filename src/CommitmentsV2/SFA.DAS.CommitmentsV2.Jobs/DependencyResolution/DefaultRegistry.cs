@@ -11,7 +11,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
         public DefaultRegistry()
         {
             For<ImportProvidersJobs>();
-            For<ProcessClientOutboxMessagesJob>();
             For<IDbContextFactory>().Use<DbContextFactory>();
             For<IProviderApiClient>().Use(c => new ProviderApiClient(c.GetInstance<ApprenticeshipInfoServiceConfiguration>().BaseUrl));
         }

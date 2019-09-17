@@ -9,19 +9,17 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
     {
         Task Ping();
         Task<WhoAmIResponse> WhoAmI();
+        Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
+        Task<CreateCohortResponse> CreateCohort(CreateCohortWithOtherPartyRequest request, CancellationToken cancellationToken = default);
+        Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
         Task<AccountLegalEntityResponse> GetLegalEntity(long accountLegalEntityId, CancellationToken cancellationToken = default);
-
-        // To be removed latter
+        Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default);
         Task<string> SecureCheck();
         Task<string> SecureEmployerCheck();
         Task<string> SecureProviderCheck();
-
-        Task<CreateCohortResponse> CreateCohort(CreateCohortRequest request, CancellationToken cancellationToken = default);
-        Task<CreateCohortResponse> CreateCohort(CreateCohortWithOtherPartyRequest request, CancellationToken cancellationToken = default);
-        Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default);
-        Task<GetDraftApprenticeshipResponse> GetDraftApprenticeship(long cohortId, long apprenticeshipId, CancellationToken cancellationToken = default);
+        Task SendCohort(long cohortId, SendCohortRequest request, CancellationToken cancellationToken = default);
         Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
-        Task AddDraftApprenticeship(long cohortId, AddDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
-        Task<GetProviderResponse> GetProvider(long providerId, CancellationToken cancellationToken = default);
     }
 }
