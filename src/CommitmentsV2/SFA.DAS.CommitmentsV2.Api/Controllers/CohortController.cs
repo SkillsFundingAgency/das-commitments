@@ -87,7 +87,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 IsFundedByTransfer = result.IsFundedByTransfer,
                 WithParty = result.WithParty,
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
-                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
+                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
+                EditStatus = result.EditStatus
             });
         }
 

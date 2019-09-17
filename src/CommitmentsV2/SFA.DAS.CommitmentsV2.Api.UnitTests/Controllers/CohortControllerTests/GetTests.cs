@@ -33,7 +33,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                         v.IsFundedByTransfer == f.Result.IsFundedByTransfer &&
                         v.WithParty == f.Result.WithParty &&
                         v.LatestMessageCreatedByEmployer == f.Result.LatestMessageCreatedByEmployer &&
-                        v.LatestMessageCreatedByProvider == f.Result.LatestMessageCreatedByProvider));
+                        v.LatestMessageCreatedByProvider == f.Result.LatestMessageCreatedByProvider &&
+                        v.EditStatus == f.Result.EditStatus));
         }
     }
 
