@@ -30,6 +30,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             Assert.AreEqual(fixture.Command.OriginatorReference, draftApprenticeshipDetails.Reference);
             Assert.AreEqual(fixture.TrainingProgramme, draftApprenticeshipDetails.TrainingProgramme);
         }
+        
+        [Test]
+        public async Task WhenMapping_ThenShouldSetReservationId()
+        {
+            var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
+            var draftApprenticeshipDetails = await fixture.Map();
+            
+            Assert.AreEqual(true ? fixture.Command.ReservationId : null, draftApprenticeshipDetails.ReservationId);
+        }
     }
 
     public class AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture
@@ -52,10 +61,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             
             TrainingProgrammeLookup.Setup(l => l.GetTrainingProgramme(Command.CourseCode)).ReturnsAsync(TrainingProgramme);
         }
-
         public Task<DraftApprenticeshipDetails> Map()
         {
             return Mapper.Map(Command);
         }
+
+        
     }
 }
