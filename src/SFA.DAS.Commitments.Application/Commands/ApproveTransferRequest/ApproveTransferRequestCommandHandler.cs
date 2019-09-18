@@ -67,7 +67,7 @@ namespace SFA.DAS.Commitments.Application.Commands.ApproveTransferRequest
             _historyService.TrackUpdate(commitment, CommitmentChangeType.TransferSenderApproval.ToString(), commitment.Id, null, CallerType.TransferSender, command.UserEmail, commitment.ProviderId, command.TransferSenderId, command.UserName);
 
             
-                _logger.Debug("Approving transfer request with ManageReservations feature enabled");
+                _logger.Debug("Approving transfer request for employer account ID: {0}", commitment.EmployerAccountId);
 
                 var account = await _employerAccountsService.GetAccount(commitment.EmployerAccountId);
 
