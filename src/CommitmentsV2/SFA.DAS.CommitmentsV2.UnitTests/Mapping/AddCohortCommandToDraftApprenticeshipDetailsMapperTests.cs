@@ -37,7 +37,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
             var fixture = new AddCohortCommandToDraftApprenticeshipDetailsMapperTestsFixture();
             var draftApprenticeshipDetails = await fixture.Map();
             
-            Assert.AreEqual(true ? fixture.Command.ReservationId : null, draftApprenticeshipDetails.ReservationId);
+            Assert.AreEqual(fixture.Command.ReservationId, draftApprenticeshipDetails.ReservationId);
         }
     }
 
