@@ -245,40 +245,63 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => fixtures.Publish(publisher => publisher.PublishPaymentOrderChanged(100, null)));
         }
         #endregion
+
+        #region PublishBulkUploadIntoCohortCreated
+        [Test]
+        public async Task PublishBulkUploadIntoCohortCreatedEvent_ShouldNotThrowException()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<BulkUploadIntoCohortCompletedEvent>();
+
+            await fixtures.Publish(publisher => publisher.PublishBulkUploadIntoCohortCompleted(fixtures.Commitment.ProviderId.Value, fixtures.Commitment.Id, 2));
+            Assert.Pass();
+        }
+
+        [Test]
+        public async Task PublishBulkUploadIntoCohortCreatedEvent_ShouldPublishEventWithMappedValues()
+        {
+            var fixtures = new V2EventsPublisherTestFixtures<BulkUploadIntoCohortCompletedEvent>();
+            var providerId = fixtures.Commitment.ProviderId.Value;
+            var cohortId = fixtures.Commitment.Id;
+            uint count = 2;
+
+            await fixtures.Publish(publisher => publisher.PublishBulkUploadIntoCohortCompleted(providerId, cohortId, count));
+            fixtures.EndpointInstanceMock.Verify(x=>x.Publish(It.Is<BulkUploadIntoCohortCompletedEvent>(p=>p.CohortId == cohortId && p.ProviderId == providerId && p.NumberOfApprentices == count && p.UploadedOn == fixtures.Now), It.IsAny<PublishOptions>()));
+        }
+        #endregion
+
     }
 
     internal class V2EventsPublisherTestFixtures<TEvent> where TEvent : class
     {
         public V2EventsPublisherTestFixtures()
         {
+            Now = DateTime.Now;
             EndpointInstanceMock = new Mock<IEndpointInstance>();
+            MessageSessionMock = EndpointInstanceMock.As<IMessageSession>();
             CommitmentsLoggerMock = new Mock<ICommitmentsLogger>();
             CurrentDateTimeMock = new Mock<ICurrentDateTime>();
+            CurrentDateTimeMock.Setup(x => x.Now).Returns(Now);
 
             Apprenticeship = new Apprenticeship();
             Apprenticeship.AgreedOn = DateTime.Today.AddDays(-1);
-            Commitment = new Commitment();
-            
+            Commitment = new Commitment {ProviderId = 123, Id = 1};
+
             var apprenticeship = new Mock<IApprenticeshipEvent>();
             apprenticeship.Setup(a => a.Apprenticeship).Returns(Apprenticeship);
             apprenticeship.Setup(a => a.Commitment).Returns(Commitment);
             ApprenticeshipEvent = apprenticeship.Object;
 
-            PaymentOrder = new List<int> { 100, 200 };
+            PaymentOrder = new List<int> {100, 200};
         }
 
+        public DateTime Now { get; }
         public List<int> PaymentOrder { get; }
-
         public Mock<IEndpointInstance> EndpointInstanceMock { get; }
-
+        public Mock<IMessageSession> MessageSessionMock { get; }
         public IEndpointInstance EndpointInstance => EndpointInstanceMock.Object;
-
         public Mock<ICommitmentsLogger> CommitmentsLoggerMock { get; }
-
         public ICommitmentsLogger CommitmentsLogger => CommitmentsLoggerMock.Object;
-
         public Mock<ICurrentDateTime> CurrentDateTimeMock { get; }
-
         public ICurrentDateTime CurrentDateTime => CurrentDateTimeMock.Object;
 
         public V2EventsPublisher CreateV2EventsPublisher()

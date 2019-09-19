@@ -51,7 +51,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             fixtures.ReservationsApiClientMock
                 .Verify(rac => rac.ValidateReservation(
-                    It.Is<ValidationReservationMessage>(msg => msg.ReservationId == reservationId), 
+                    It.Is<ReservationValidationMessage>(msg => msg.ReservationId == reservationId), 
                     It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -64,7 +64,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             fixtures.ReservationsApiClientMock
                 .Verify(rac => rac.ValidateReservation(
-                    It.IsAny<ValidationReservationMessage>(),
+                    It.IsAny<ReservationValidationMessage>(),
                     It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -127,7 +127,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Services
 
             ReservationsApiClientMock
                 .Setup(rac =>
-                    rac.ValidateReservation(It.IsAny<ValidationReservationMessage>(), It.IsAny<CancellationToken>()))
+                    rac.ValidateReservation(It.IsAny<ReservationValidationMessage>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(ReservationClientValidationResult);
         }
 

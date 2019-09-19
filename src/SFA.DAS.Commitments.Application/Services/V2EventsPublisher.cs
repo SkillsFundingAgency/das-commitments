@@ -173,6 +173,19 @@ namespace SFA.DAS.Commitments.Application.Services
             }
         }
 
+        public Task PublishBulkUploadIntoCohortCompleted(long providerId, long cohortId, uint numberOfApprentices)
+        {
+            var @event = new BulkUploadIntoCohortCompletedEvent
+            {
+                ProviderId = providerId,
+                CohortId = cohortId,
+                NumberOfApprentices = numberOfApprentices,
+                UploadedOn = _currentDateTime.Now
+            };
+
+            return PublishWithLog(@event, $"Provider: {providerId} CohortId: {cohortId} Number of apprentices: {numberOfApprentices}");
+        }
+
         private enum ApprenticePreChecks
         {
             NotRequired = 1,
@@ -213,6 +226,22 @@ namespace SFA.DAS.Commitments.Application.Services
                 throw;
             }
         }
+
+        private async Task PublishWithLog<TEvent>(TEvent @event, string message) where TEvent : class
+        {
+            var logMessage = $"Publish {typeof(TEvent).Name} message. {message}";
+            try
+            {
+                await _endpointInstance.Publish(@event);
+                _logger.Info($"{logMessage} successful");
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, $"{logMessage} failed");
+                throw;
+            }
+        }
+
 
         private void DoPreChecks<TEvent>(ApprenticePreChecks checks, Apprenticeship apprenticeship) where TEvent : class
         {
