@@ -1,7 +1,5 @@
-﻿using SFA.DAS.CommitmentsV2.Configuration;
-using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs;
-using SFA.DAS.Providers.Api.Client;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
@@ -12,7 +10,6 @@ namespace SFA.DAS.CommitmentsV2.Jobs.DependencyResolution
         {
             For<ImportProvidersJobs>();
             For<IDbContextFactory>().Use<DbContextFactory>();
-            For<IProviderApiClient>().Use(c => new ProviderApiClient(c.GetInstance<ApprenticeshipInfoServiceConfiguration>().BaseUrl));
         }
     }
 }

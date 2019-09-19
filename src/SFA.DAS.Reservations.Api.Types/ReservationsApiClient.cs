@@ -16,6 +16,12 @@ namespace SFA.DAS.Reservations.Api.Types
             _httpHelper = httpHelper ?? throw new ArgumentNullException(nameof(httpHelper));
         }
 
+        public Task Ping(CancellationToken cancellationToken)
+        {
+            var url = BuildUrl("ping");
+            return _httpHelper.GetAsync<string>(url, null, cancellationToken);
+        }
+
         public Task<ReservationValidationResult> ValidateReservation(ReservationValidationMessage request, CancellationToken cancellationToken)
         {
             var url = BuildUrl($"api/reservations/validate/{request.ReservationId}");
