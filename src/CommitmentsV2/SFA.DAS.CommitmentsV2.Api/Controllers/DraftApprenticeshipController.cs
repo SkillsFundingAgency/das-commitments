@@ -1,3 +1,5 @@
+using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +9,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Commands.UpdateDraftApprenticeship;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 using SFA.DAS.CommitmentsV2.Mapping;
 
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
@@ -23,17 +26,32 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         private readonly IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
         private readonly IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
         private readonly IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
+        private readonly IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
 
         public DraftApprenticeshipController(
             IMediator mediator,
             IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
             IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
-            IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper)
+            IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper)
         {
             _mediator = mediator;
             _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
             _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
             _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
+            _getDraftApprenticeshipsResultMapper = getDraftApprenticeshipsResultMapper;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(long cohortId)
+        {
+            var result = await _mediator.Send(new GetDraftApprenticeshipsRequest(cohortId));
+            var response = await _getDraftApprenticeshipsResultMapper.Map(result);
+
+            if (response.DraftApprenticeships == null)
+            {
+                return NotFound();
+            }
+            return Ok(response);
         }
 
         [HttpGet]

@@ -1,9 +1,11 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Types.Dtos;
 using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
@@ -60,6 +62,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         {
             await _fixture.CommitmentsApiClient.GetDraftApprenticeship(123, 456);
             _fixture.MockRestHttpClient.Verify(x => x.Get<GetDraftApprenticeshipResponse>("api/cohorts/123/draft-apprenticeships/456", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetDraftApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetDraftApprenticeships(123);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetDraftApprenticeshipsResponse>("api/cohorts/123/draft-apprenticeships", null, CancellationToken.None));
         }
 
         [Test]
