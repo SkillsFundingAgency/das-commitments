@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
@@ -12,14 +13,17 @@ using NUnit.Framework;
 using SFA.DAS.Commitments.Application.Commands;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Encoding;
 using ValidationFailReason = SFA.DAS.Commitments.Domain.Entities.Validation.ValidationFailReason;
 using SFA.DAS.Learners.Validators;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprenticeships
 {
@@ -37,10 +41,15 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         private Mock<IUlnValidator> _mockUlnValidator;
         private Mock<IAcademicYearValidator> _mockAcademicYearValidator;
         private Mock<ICurrentDateTime> _stubCurrentDateTime;
+        private Mock<IReservationsApiClient> _mockReservationApiClient;
+        private Mock<IEncodingService> _mockEncodingService;
+        private Mock<IV2EventsPublisher> _mockV2EventsPublisher;
 
         private Commitment _existingCommitment;
         private List<Apprenticeship> _existingApprenticeships;
-
+        private long _legalEntityId = 123456;
+        private BulkCreateReservationsResult _bulkCreateReservationsResult =
+            new BulkCreateReservationsResult(new List<Guid> {Guid.NewGuid(), Guid.NewGuid()});
 
         [SetUp]
         public void SetUp()
@@ -53,6 +62,9 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             _mockUlnValidator = new Mock<IUlnValidator>();
             _mockAcademicYearValidator = new Mock<IAcademicYearValidator>();
             _stubCurrentDateTime = new Mock<ICurrentDateTime>();
+            _mockReservationApiClient = new Mock<IReservationsApiClient>();
+            _mockEncodingService = new Mock<IEncodingService>();
+            _mockV2EventsPublisher = new Mock<IV2EventsPublisher>();
 
             var validator = new BulkUploadApprenticeshipsValidator(new ApprenticeshipValidator(_stubCurrentDateTime.Object, _mockUlnValidator.Object, _mockAcademicYearValidator.Object));
 
@@ -63,7 +75,10 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                 _mockApprenticeshipEvents.Object,
                 Mock.Of<ICommitmentsLogger>(), 
                 _mockMediator.Object,
-                _mockHistoryRepository.Object);
+                _mockHistoryRepository.Object,
+                _mockReservationApiClient.Object,
+                _mockEncodingService.Object,
+                _mockV2EventsPublisher.Object);
 
             _stubCurrentDateTime.Setup(x => x.Now).Returns(new DateTime(2018, 4, 1));
 
@@ -87,19 +102,68 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             };
 
             _existingApprenticeships = new List<Apprenticeship>();
-            _existingCommitment = new Commitment { ProviderId = 111L, EditStatus = EditStatus.ProviderOnly, Apprenticeships = _existingApprenticeships, EmployerAccountId = 987 };
+            _existingCommitment = new Commitment { ProviderId = 111L, EditStatus = EditStatus.ProviderOnly, Apprenticeships = _existingApprenticeships, EmployerAccountId = 987, TransferSenderId = 888 };
 
             _mockCommitmentRespository.Setup(x => x.GetCommitmentById(It.IsAny<long>())).ReturnsAsync(_existingCommitment);
 
             _mockMediator.Setup(x => x.SendAsync(It.IsAny<GetOverlappingApprenticeshipsRequest>()))
                 .ReturnsAsync(new GetOverlappingApprenticeshipsResponse {Data = new List<ApprenticeshipResult>()});
+
+            _mockEncodingService.Setup(x => x.Decode(It.IsAny<string>(), It.IsAny<EncodingType>()))
+                .Returns(_legalEntityId);
+
+            _mockReservationApiClient.Setup(x => x.BulkCreateReservations(It.IsAny<long>(), It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_bulkCreateReservationsResult);
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
+        }
+
+        [Test]
+        public async Task ShouldDecodeLegalEntityPublicHashedIdBeforePassingItOn()
+        {
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockEncodingService.Verify(
+                x => x.Decode(_existingCommitment.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldCallReservationsApiClientsBulkCreateEndpointWithCorrectContent()
+        {
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockReservationApiClient.Verify(
+                x => x.BulkCreateReservations(_legalEntityId,
+                    It.Is<BulkCreateReservationsRequest>(p => p.Count == _exampleValidRequest.Apprenticeships.Count() && p.TransferSenderId == _existingCommitment.TransferSenderId),
+                    It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(3)]
+        public void ShouldThrowInvalidOperationExceptionIfNumberOfReservationsIdsDoesNotMatchNumberOfApprentices(int numberOfReservations)
+        {
+            _mockReservationApiClient.Setup(x => x.BulkCreateReservations(It.IsAny<long>(),
+                It.IsAny<BulkCreateReservationsRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(CreateBulkCreateReservationsResultWithCountOf(numberOfReservations));
+
+            Func<Task> act = async () => await _handler.Handle(_exampleValidRequest);
+
+            act.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public async Task ShouldNowHaveAReservationIdAgainstEachApprenticeWhenPassedToRepository()
+        {
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockApprenticeshipRespository.Verify(
+                x => x.BulkUploadApprenticeships(It.IsAny<long>(),
+                    It.Is<IEnumerable<Apprenticeship>>(p =>
+                        p.First().ReservationId != null && p.Last().ReservationId != null)), Times.Once);
         }
 
         [Test]
         public async Task ShouldCallCommitmentRepository()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
-
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipRespository.Verify(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>()), Times.Once);
@@ -108,8 +172,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
         [Test]
         public async Task ShouldPublishApprenticeshipDeletedEvents()
         {
-            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(new List<Apprenticeship>());
-
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipEvents.Verify(x => x.BulkPublishDeletionEvent(_existingCommitment, _existingApprenticeships, "APPRENTICESHIP-DELETED"), Times.Once);
@@ -124,6 +186,17 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
             await _handler.Handle(_exampleValidRequest);
 
             _mockApprenticeshipEvents.Verify(x => x.BulkPublishEvent(_existingCommitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"), Times.Once);
+        }
+
+        [Test]
+        public async Task ShouldPublishV2BulkUploadIntoCohortCompleted()
+        {
+            var insertedApprenticeships = new List<Apprenticeship> { new Apprenticeship() };
+            _mockApprenticeshipRespository.Setup(x => x.BulkUploadApprenticeships(It.IsAny<long>(), It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync(insertedApprenticeships);
+
+            await _handler.Handle(_exampleValidRequest);
+
+            _mockV2EventsPublisher.Verify(x => x.PublishBulkUploadIntoCohortCompleted(_existingCommitment.ProviderId.Value, _existingCommitment.Id, 1), Times.Once);
         }
 
         [Test]
@@ -266,6 +339,18 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.BulkUploadApprentic
                                 y.Last().ProviderId == _existingCommitment.ProviderId &&
                                 y.Last().EmployerAccountId == _existingCommitment.EmployerAccountId &&
                                 y.Last().UpdatedByName == _exampleValidRequest.UserName)), Times.Once);
+        }
+
+        private BulkCreateReservationsResult CreateBulkCreateReservationsResultWithCountOf(int ncount)
+        {
+
+            var list = new List<Guid>();
+            for (int i = 0; i < ncount; i++)
+            {
+                list.Add(Guid.NewGuid());
+            }
+
+            return new BulkCreateReservationsResult(list);
         }
     }
 }

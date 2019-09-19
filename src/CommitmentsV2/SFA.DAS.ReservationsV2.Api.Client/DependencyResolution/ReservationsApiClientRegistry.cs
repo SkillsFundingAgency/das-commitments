@@ -14,32 +14,29 @@ namespace SFA.DAS.ReservationsV2.Api.Client.DependencyResolution
     {
         public ReservationsApiClientRegistry()
         {
-            For<ReservationsClientApiConfiguration>().Use(ctx => GetConfig(ctx)).Singleton();
             For<IReservationsApiClient>().Use(ctx => CreateClient(ctx)).Singleton();
-            For<IReservationHelper>().Use<ReservationHelper>().Singleton();
         } 
 
         private IReservationsApiClient CreateClient(IContext ctx)
         {
-            var config = ctx.GetInstance<ReservationsClientApiConfiguration>();
-            var loggerFactory = ctx.GetInstance<ILoggerFactory>();
-            var reservationHelper = ctx.GetInstance<IReservationHelper>();
+            var config = GetConfig(ctx);
+            var httpClient = CreateHttpClient(ctx, config);
+            var restHttpClient = new RestHttpClient(httpClient);
+            var httpHelper = new HttpHelper(restHttpClient, ctx.GetInstance<ILogger<ReservationsApiClient>>());
+            return new ReservationsApiClient(config, httpHelper);
+        }
 
-            HttpClient httpClient;
-
+        private HttpClient CreateHttpClient(IContext ctx, ReservationsClientApiConfiguration config)
+        {
             if (config.UseStub)
             {
-                httpClient = new HttpClient();
-            }
-            else
-            {
-                var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
-                var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
-                httpClient = httpClientFactory.CreateHttpClient();
+                return new HttpClient();
             }
 
-            var restHttpClient = new RestHttpClient(httpClient);
-            return new ReservationsApiClient(restHttpClient, reservationHelper, loggerFactory.CreateLogger<ReservationsApiClient>());
+            var loggerFactory = ctx.GetInstance<ILoggerFactory>();
+            var activeDirectoryConfig = new ReservationsClientApiConfigurationADAdapter(config);
+            var httpClientFactory = new AzureActiveDirectoryHttpClientFactory(activeDirectoryConfig, loggerFactory);
+            return httpClientFactory.CreateHttpClient();
         }
 
         private static ReservationsClientApiConfiguration GetConfig(IContext context)

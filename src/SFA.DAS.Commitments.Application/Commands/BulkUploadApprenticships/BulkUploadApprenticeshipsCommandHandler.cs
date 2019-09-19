@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships;
 using SFA.DAS.Commitments.Application.Services;
 using SFA.DAS.Commitments.Domain;
@@ -14,6 +16,8 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Entities.History;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.Encoding;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 {
@@ -24,10 +28,17 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
         private ICommitmentRepository _commitmentRepository;
         private IMediator _mediator;
         private readonly IHistoryRepository _historyRepository;
+        private readonly IReservationsApiClient _reservationsApiClient;
+        private readonly IEncodingService _encodingService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private IApprenticeshipEvents _apprenticeshipEvents;
 
-        public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, BulkUploadApprenticeshipsValidator validator, IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IMediator mediator, IHistoryRepository historyRepository)
+        public BulkUploadApprenticeshipsCommandHandler(ICommitmentRepository commitmentRepository,
+            IApprenticeshipRepository apprenticeshipRepository, BulkUploadApprenticeshipsValidator validator,
+            IApprenticeshipEvents apprenticeshipEvents, ICommitmentsLogger logger, IMediator mediator,
+            IHistoryRepository historyRepository, IReservationsApiClient reservationsApiClient, 
+            IEncodingService encodingService, IV2EventsPublisher v2EventsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -36,6 +47,9 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
             _logger = logger;
             _mediator = mediator;
             _historyRepository = historyRepository;
+            _reservationsApiClient = reservationsApiClient;
+            _encodingService = encodingService;
+            _v2EventsPublisher = v2EventsPublisher;
         }
 
         protected override async Task HandleCore(BulkUploadApprenticeshipsCommand command)
@@ -60,12 +74,65 @@ namespace SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships
 
             await ValidateOverlaps(apprenticeships);
 
-            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeships);
+            var apprenticeshipsWithReservationIds = await MergeBulkCreatedReservationIdsOnToApprenticeships(apprenticeships, commitment);
+
+            var insertedApprenticeships = await _apprenticeshipRepository.BulkUploadApprenticeships(command.CommitmentId, apprenticeshipsWithReservationIds);
             await Task.WhenAll(
                 _apprenticeshipEvents.BulkPublishDeletionEvent(commitment, commitment.Apprenticeships, "APPRENTICESHIP-DELETED"),
                 _apprenticeshipEvents.BulkPublishEvent(commitment, insertedApprenticeships, "APPRENTICESHIP-CREATED"),
-                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId, command.UserName)
+                CreateHistory(commitment, insertedApprenticeships, command.Caller.CallerType, command.UserId, command.UserName),
+                PublishBulkUploadIntoCohortCompleted(commitment, insertedApprenticeships)
             );
+        }
+
+        private async Task PublishBulkUploadIntoCohortCompleted(Commitment commitment, IList<Apprenticeship> insertedApprenticeships)
+        {
+            try
+            {
+                await _v2EventsPublisher.PublishBulkUploadIntoCohortCompleted(commitment.ProviderId.Value,
+                    commitment.Id,
+                    (uint) insertedApprenticeships.Count);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Error calling PublishBulkUploadIntoCohortCompleted Event");
+                throw;
+            }
+        }
+
+        private async Task<IEnumerable<Apprenticeship>> MergeBulkCreatedReservationIdsOnToApprenticeships(IList<Apprenticeship> apprenticeships, Commitment commitment)
+        {
+            BulkCreateReservationsRequest BuildBulkCreateRequest()
+            {
+                return new BulkCreateReservationsRequest
+                    {Count = (uint) apprenticeships.Count, TransferSenderId = commitment.TransferSenderId};
+            }
+
+            BulkCreateReservationsResult bulkReservations;
+            try
+            {
+                bulkReservations = await _reservationsApiClient.BulkCreateReservations(
+                    _encodingService.Decode(commitment.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
+                    BuildBulkCreateRequest(), CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Failed calling BulkCreateReservations endpoint");
+                throw;
+            }
+
+            if (bulkReservations.ReservationIds.Length != apprenticeships.Count)
+            {
+                _logger.Info($"The number of bulk reservations did not match the number of apprentices");
+                throw new InvalidOperationException(
+                    $"The number of bulk reservations ({bulkReservations.ReservationIds.Length}) does not equal the number of apprenticeships ({apprenticeships.Count})");
+            }
+
+            return apprenticeships.Zip(bulkReservations.ReservationIds, (a, r) =>
+            {
+                a.ReservationId = r;
+                return a;
+            });
         }
 
         private async Task CreateHistory(Commitment commitment, IList<Apprenticeship> insertedApprenticeships, CallerType callerType, string userId, string userName)

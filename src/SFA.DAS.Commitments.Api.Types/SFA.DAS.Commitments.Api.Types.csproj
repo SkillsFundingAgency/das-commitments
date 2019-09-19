@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.43" />
+    <PackageReference Include="SFA.DAS.Common.Domain" Version="1.4.272" />
   </ItemGroup>
 
 </Project>

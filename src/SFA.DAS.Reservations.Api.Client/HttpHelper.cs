@@ -9,29 +9,21 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.Reservations.Api.Client
 {
-    public class ReservationsApiClient : ApiClientBase, IReservationsApiClient
+    public class HttpHelper : ApiClientBase, IHttpHelper
     {
-        private readonly IReservationHelper _reservationHelper;
         private readonly ILog _log;
 
-        public ReservationsApiClient(
+        public HttpHelper(
             HttpClient client, 
-            IReservationHelper reservationHelper,
             ILog log) : base(client)
         {
-            _reservationHelper = reservationHelper;
             _log = log;
         }
 
-        public async Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)
+        public async Task<T> GetAsync<T>(string url, object data, CancellationToken token)
         {
-            var validationResult = await _reservationHelper.ValidateReservation(request, GetAsync<ReservationValidationResult>);
-            _log.Info($"reservation id:{request.ReservationId} course:{request.CourseCode} start-date:{request.StartDate} validation-result:{validationResult.IsOkay}");
-            return validationResult;
-        }
+            token.ThrowIfCancellationRequested();
 
-        private async Task<T> GetAsync<T>(string url, object data)
-        {
             string stringResponse = null;
             try
             {
@@ -45,6 +37,27 @@ namespace SFA.DAS.Reservations.Api.Client
                           $"{(data == null ? "(no additional query string parameters provided)" : "using query string built from type" + data.GetType().Name)} " +
                           $"failed to deserialise returned string ({(stringResponse == null ? "which was null" : "length" + stringResponse.Length)}) " +
                           $"into type {typeof(T).Name}.";
+                _log.Error(ex, msg);
+                throw;
+            }
+        }
+
+        public async Task<TResponse> PostAsJson<TRequest, TResponse>(string url, TRequest data, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+
+            string stringResponse = null;
+            try
+            {
+                stringResponse = await PostAsync(url, JsonConvert.SerializeObject(data));
+                var result = JsonConvert.DeserializeObject<TResponse>(stringResponse);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Attempt to post to URL {url} " +
+                          $"failed to deserialise returned string ({(stringResponse == null ? "which was null" : "length" + stringResponse.Length)}) " +
+                          $"into type {typeof(TResponse).Name}.";
                 _log.Error(ex, msg);
                 throw;
             }
