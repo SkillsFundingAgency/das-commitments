@@ -66,7 +66,6 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
             var expectedUrl = $"{Config.ApiBaseUrl}/api/accounts/{_request.AccountId}/status?transferSenderId={_request.TransferSenderId}";
 
             HttpHelper.Verify(x => x.GetAsync<ReservationAllocationStatusResult>(It.IsAny<string>(), null, It.IsAny<CancellationToken>()));
-                It.IsAny<object>()));
         }
     }
 }

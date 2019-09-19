@@ -1,8 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.Http;
+using SFA.DAS.Reservations.Api.Types;
 
 namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
 {
@@ -62,11 +64,13 @@ namespace SFA.DAS.ReservationsV2.Api.Client.UnitTests
         public object ApiResult;
         public HttpHelper Sut;
         public Mock<IRestHttpClient> MockRestHtpClient;
+        public Mock<ILogger<ReservationsApiClient>> MockLogger { get; set; }
         public HttpHelperTestsFixture()
         {
             ApiResult = new object(); 
             MockRestHtpClient = new Mock<IRestHttpClient>();
-            Sut = new HttpHelper(MockRestHtpClient.Object);
+            MockLogger = new Mock<ILogger<ReservationsApiClient>>();
+            Sut = new HttpHelper(MockRestHtpClient.Object, MockLogger.Object);
 
             MockRestHtpClient.Setup(x => x.Get<object>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(ApiResult);
