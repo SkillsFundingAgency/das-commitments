@@ -24,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
             _distributedCache = distributedCache;
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             var messageId = Guid.NewGuid();
             var data = new Dictionary<string, object> { ["MessageId"] = messageId };

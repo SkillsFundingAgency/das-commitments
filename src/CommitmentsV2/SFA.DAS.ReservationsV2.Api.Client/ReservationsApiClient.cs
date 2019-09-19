@@ -2,6 +2,7 @@
 using SFA.DAS.Http;
 using SFA.DAS.Reservations.Api.Types;
 using System;
+using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +19,11 @@ namespace SFA.DAS.ReservationsV2.Api.Client
             _client = client;
             _reservationHelper = reservationHelper;
             _logger = logger;
+        }
+
+        public Task Ping(CancellationToken cancellationToken)
+        {
+            return _reservationHelper.Ping(url => _client.Get(url, null, cancellationToken));
         }
 
         public async Task<ReservationValidationResult> ValidateReservation(ValidationReservationMessage request, CancellationToken cancellationToken)

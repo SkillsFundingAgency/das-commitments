@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         public static void Initialize(Registry registry)
         {
             registry.IncludeRegistry<AcademicYearDateProviderRegistry>();
+            registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
             registry.IncludeRegistry<AuthorizationRegistry>();
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<CurrentDateTimeRegistry>();
@@ -28,7 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<NServiceBusClientUnitOfWorkRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
             registry.IncludeRegistry<ReservationsApiClientRegistry>();
-            registry.IncludeRegistry<TrainingProgrammeRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }
