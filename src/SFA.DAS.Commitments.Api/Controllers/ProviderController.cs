@@ -179,7 +179,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
             }
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
-            response.Content = new StringContent(file, Encoding.UTF8, "application/json");
+            response.Content = new StringContent(file, System.Text.Encoding.UTF8, "application/json");
             return response;
         }
 

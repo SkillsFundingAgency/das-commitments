@@ -60,7 +60,7 @@ namespace SFA.DAS.Commitments.Application.Services
                     $"Unable to validate the reservation because the start date is absent");
             }
 
-            var validationReservationMessage = new ValidationReservationMessage
+            var validationReservationMessage = new ReservationValidationMessage
             {
                 ReservationId = request.ReservationId.Value,
                 CourseCode = request.TrainingCode,

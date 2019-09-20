@@ -32,6 +32,7 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             {
                 c.AddRegistry<DefaultRegistry>();
                 c.AddRegistry<ConfigurationRegistry>();
+                c.AddRegistry<EncodingRegistry>();
                 c.AddRegistry<NServiceBusRegistry>();    
                 c.AddRegistry<ReservationsApiClientRegistry>();
                 c.Policies.Add<CurrentDatePolicy>();

@@ -17,12 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Api.IntegrationTests.Pipeline
         {
             return TestAsync(f => f.Client.GetAsync("/api/ping"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
         }
-        
-        [Test]
-        public Task CallHealthEndpoint_ThenShouldReturnOkResponse()
-        {
-            return TestAsync(f => f.Client.GetAsync("/health"), (f, r) => r.StatusCode.Should().Be(HttpStatusCode.OK));
-        }
     }
 
     public class HealthCheckFixture
