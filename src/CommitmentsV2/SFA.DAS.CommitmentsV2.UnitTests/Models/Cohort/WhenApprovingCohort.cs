@@ -118,12 +118,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship(agreementStatus)
                 .Approve();
 
-            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>().Should().HaveCount(1)
-                .And.Subject.Single().Should().BeEquivalentTo(new
-                {
-                    CohortId = _fixture.Cohort.Id,
-                    UpdatedOn = _fixture.Now
-                });
+            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
+                .And.Subject.Single().Should().Match<CohortFullyApprovedEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.AccountId == _fixture.Cohort.EmployerAccountId &&
+                    e.ProviderId == _fixture.Cohort.ProviderId.Value &&
+                    e.UpdatedOn == _fixture.Now);
         }
         
         [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
@@ -132,17 +132,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetEditStatus(modifyingParty.ToEditStatus())
-                .SetIsFundedByTransfer()
+                .SetTransferSender()
                 .AddDraftApprenticeship(agreementStatus)
                 .Approve();
             
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().BeOfType<CohortTransferApprovalRequestedEvent>()
-                .And.BeEquivalentTo(new
-                {
-                    CohortId = _fixture.Cohort.Id,
-                    UpdatedOn = _fixture.Now
-                });
+                .And.Subject.Single().Should().Match<CohortTransferApprovalRequestedEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UpdatedOn == _fixture.Now);
         }
         
         [Test]
@@ -189,7 +186,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.TransferSender)
                 .SetEditStatus(EditStatus.Both)
-                .SetIsFundedByTransfer()
+                .SetTransferSender()
                 .AddDraftApprenticeship(AgreementStatus.BothAgreed)
                 .Approve();
             
@@ -203,17 +200,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.TransferSender)
                 .SetEditStatus(EditStatus.Both)
-                .SetIsFundedByTransfer()
+                .SetTransferSender()
                 .AddDraftApprenticeship(AgreementStatus.BothAgreed)
                 .Approve();
-            
+
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().BeOfType<CohortFullyApprovedEvent>()
-                .And.BeEquivalentTo(new
-                {
-                    CohortId = _fixture.Cohort.Id,
-                    UpdatedOn = _fixture.Now
-                });
+                .And.Subject.Single().Should().Match<CohortFullyApprovedEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.AccountId == _fixture.Cohort.EmployerAccountId &&
+                    e.ProviderId == _fixture.Cohort.ProviderId.Value &&
+                    e.UpdatedOn == _fixture.Now);
         }
         
         [TestCase(EditStatus.EmployerOnly)]
@@ -222,7 +218,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.TransferSender)
                 .SetEditStatus(editStatus)
-                .SetIsFundedByTransfer();
+                .SetTransferSender();
 
             _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
         }
@@ -232,7 +228,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             _fixture.SetModifyingParty(Party.TransferSender)
                 .SetEditStatus(EditStatus.Both)
-                .SetIsFundedByTransfer();
+                .SetTransferSender();
 
             _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
         }
@@ -256,7 +252,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Message = AutoFixture.Create<string>();
             UserInfo = AutoFixture.Create<UserInfo>();
             UnitOfWorkContext = new UnitOfWorkContext();
-            Cohort = new CommitmentsV2.Models.Cohort().Set(c => c.Id, 111);
+            
+            Cohort = new CommitmentsV2.Models.Cohort()
+                .Set(c => c.Id, 111)
+                .Set(c => c.EmployerAccountId, 222)
+                .Set(c => c.ProviderId, 333);
         }
 
         public void Approve()
@@ -292,13 +292,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             return this;
         }
 
-        public WhenApprovingCohortFixture SetIsFundedByTransfer()
-        {
-            Cohort.Set(c => c.TransferSenderId, 222).Set(c => c.TransferApprovalStatus, TransferApprovalStatus.Pending);
-            
-            return this;
-        }
-
         public WhenApprovingCohortFixture SetLastAction(LastAction lastAction)
         {
             Cohort.Set(c => c.LastAction, lastAction);
@@ -316,6 +309,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         public WhenApprovingCohortFixture SetMessage(string message)
         {
             Message = message;
+            
+            return this;
+        }
+
+        public WhenApprovingCohortFixture SetTransferSender()
+        {
+            Cohort.Set(c => c.TransferSenderId, 444).Set(c => c.TransferApprovalStatus, TransferApprovalStatus.Pending);
             
             return this;
         }
