@@ -21,6 +21,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public Party WithParty { get; set; }
         public string LatestMessageCreatedByEmployer { get; set; }
         public string LatestMessageCreatedByProvider { get; set; }
-        public EditStatus EditStatus { get; set; }
     }
 }

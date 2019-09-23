@@ -88,12 +88,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return CheckCommandResponse(response => Assert.AreEqual(AccountLegalEntityId, response.AccountLegalEntityId, "Did not return expected account legal entity ID"));
         }
 
-        [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedEditStatus()
-        {
-            return CheckCommandResponse(response => Assert.AreEqual(EditStatus, response.EditStatus, "Did not return expected edit status"));
-        }
-
         private async Task CheckCommandResponse(Action<GetCohortSummaryQueryResult> assert)
         {
             // arrange
