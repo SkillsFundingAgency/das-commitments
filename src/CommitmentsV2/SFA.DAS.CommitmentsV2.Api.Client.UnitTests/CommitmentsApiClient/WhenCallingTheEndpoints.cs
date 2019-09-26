@@ -44,6 +44,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task Approve_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.ApproveCohort(123, _fixture.ApproveCohortRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.PostAsJson("api/cohorts/123/approve", _fixture.ApproveCohortRequest, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetLegalEntity_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetLegalEntity(123);
@@ -132,6 +139,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public Client.CommitmentsApiClient CommitmentsApiClient { get; }
         public Mock<IRestHttpClient> MockRestHttpClient { get; }
         public AddDraftApprenticeshipRequest AddDraftApprenticeshipRequest { get; set; }
+        public ApproveCohortRequest ApproveCohortRequest { get; }
         public CreateCohortRequest CreateCohortRequest { get; }
         public CreateCohortWithOtherPartyRequest CreateCohortWithOtherPartyRequest { get; }
         public SendCohortRequest SendCohortRequest { get; }
@@ -143,6 +151,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             MockRestHttpClient = new Mock<IRestHttpClient>();
             CommitmentsApiClient = new Client.CommitmentsApiClient(MockRestHttpClient.Object);
             AddDraftApprenticeshipRequest = new AddDraftApprenticeshipRequest();
+            ApproveCohortRequest = new ApproveCohortRequest();
             CreateCohortRequest = new CreateCohortRequest();
             CreateCohortWithOtherPartyRequest = new CreateCohortWithOtherPartyRequest();
             SendCohortRequest = new SendCohortRequest();

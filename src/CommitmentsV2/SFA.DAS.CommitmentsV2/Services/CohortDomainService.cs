@@ -59,6 +59,14 @@ namespace SFA.DAS.CommitmentsV2.Services
             return draftApprenticeship;
         }
 
+        public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
+            var party = _authenticationService.GetUserParty();
+            
+            cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
+        }
+
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
@@ -91,8 +99,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var db = _dbContext.Value;
-            var cohort = await GetCohort(cohortId, db, cancellationToken);
+            var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
             
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
