@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    public class ProviderCommitmentsDbContext : DbContext
+    public class CommitmentsDbContext : DbContext
     {
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
@@ -25,11 +25,11 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<PriceHistory> PriceHistory { get; set; }
         public virtual DbSet<TransferRequest> TransferRequests { get; set; }
 
-        public ProviderCommitmentsDbContext(DbContextOptions<ProviderCommitmentsDbContext> options) : base(options)
+        public CommitmentsDbContext(DbContextOptions<CommitmentsDbContext> options) : base(options)
         {
         }
 
-        protected ProviderCommitmentsDbContext()
+        protected CommitmentsDbContext()
         {
         }
 

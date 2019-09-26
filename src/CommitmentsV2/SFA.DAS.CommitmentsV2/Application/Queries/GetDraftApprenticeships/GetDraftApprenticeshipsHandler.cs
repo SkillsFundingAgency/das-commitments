@@ -10,9 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 {
     public class GetDraftApprenticeshipsHandler : IRequestHandler<GetDraftApprenticeshipsRequest, GetDraftApprenticeshipsResult>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly Lazy<CommitmentsDbContext> _dbContext;
 
-        public GetDraftApprenticeshipsHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetDraftApprenticeshipsHandler(Lazy<CommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }

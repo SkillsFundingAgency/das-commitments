@@ -15,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
     {
         private readonly ILogger<ImportProvidersJobs> _logger;
         private readonly IProviderApiClient _providerApiClient;
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly Lazy<CommitmentsDbContext> _db;
 
-        public ImportProvidersJobs(ILogger<ImportProvidersJobs> logger, IProviderApiClient providerApiClient, Lazy<ProviderCommitmentsDbContext> db)
+        public ImportProvidersJobs(ILogger<ImportProvidersJobs> logger, IProviderApiClient providerApiClient, Lazy<CommitmentsDbContext> db)
         {
             _logger = logger;
             _providerApiClient = providerApiClient;
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.ScheduledJobs
             _logger.LogInformation("ImportProvidersJob - Finished");
         }
 
-        private static Task ImportProviders(ProviderCommitmentsDbContext db, DataTable providersDataTable)
+        private static Task ImportProviders(CommitmentsDbContext db, DataTable providersDataTable)
         {
             var providers = new SqlParameter("providers", SqlDbType.Structured)
             {

@@ -20,17 +20,17 @@ namespace SFA.DAS.CommitmentsV2.Data
             _loggerFactory = loggerFactory;
         }
 
-        public ProviderCommitmentsDbContext CreateDbContext()
+        public CommitmentsDbContext CreateDbContext()
         {
             var synchronizedStorageSession = _unitOfWorkContext.Find<SynchronizedStorageSession>();
             var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            var optionsBuilder = new DbContextOptionsBuilder<CommitmentsDbContext>()
                 .UseSqlServer(sqlStorageSession.Connection)
                 .UseLoggerFactory(_loggerFactory)
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning));
 
-            var dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
+            var dbContext = new CommitmentsDbContext(optionsBuilder.Options);
 
             dbContext.Database.UseTransaction(sqlStorageSession.Transaction);
 

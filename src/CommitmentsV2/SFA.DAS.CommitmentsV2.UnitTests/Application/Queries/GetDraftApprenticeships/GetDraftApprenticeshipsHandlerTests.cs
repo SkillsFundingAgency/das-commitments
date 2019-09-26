@@ -42,7 +42,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public class GetDraftApprenticeshipsHandlerTestsFixture
         {
             private readonly GetDraftApprenticeshipsHandler _handler;
-            private readonly ProviderCommitmentsDbContext _db;
+            private readonly CommitmentsDbContext _db;
             private GetDraftApprenticeshipsRequest _request;
             private GetDraftApprenticeshipsResult _result;
             private readonly Fixture _autoFixture;
@@ -56,9 +56,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
                 _cohortId = _autoFixture.Create<long>();
                 _request = new GetDraftApprenticeshipsRequest(_cohortId);
 
-                _db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+                _db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
                 SeedData();
-                _handler = new GetDraftApprenticeshipsHandler(new Lazy<ProviderCommitmentsDbContext>(() => _db));
+                _handler = new GetDraftApprenticeshipsHandler(new Lazy<CommitmentsDbContext>(() => _db));
             }
 
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()

@@ -72,13 +72,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class AddCohortCommandHandlerTestFixture
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
 
         public Mock<Provider> Provider { get; set; }
 
         public AddCohortCommandHandlerTestFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>()
                                                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                                     .Options);
@@ -141,7 +141,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 null,
                 UserInfo);
 
-            var handler = new AddCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+            var handler = new AddCohortHandler(new Lazy<CommitmentsDbContext>(() => Db),
                 EncodingService,
                 Logger,
                 DraftApprenticeshipDetailsMapperMock.Object,

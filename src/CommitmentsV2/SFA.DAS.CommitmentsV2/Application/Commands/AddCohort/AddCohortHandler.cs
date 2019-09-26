@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
 {
     public class AddCohortHandler : IRequestHandler<AddCohortCommand, AddCohortResult>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly Lazy<CommitmentsDbContext> _dbContext;
         private readonly ILogger<AddCohortHandler> _logger;
         private readonly IEncodingService _encodingService;
 
@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
         private readonly ICohortDomainService _cohortDomainService;
 
         public AddCohortHandler(
-            Lazy<ProviderCommitmentsDbContext> dbContext,
+            Lazy<CommitmentsDbContext> dbContext,
             IEncodingService encodingService,
             ILogger<AddCohortHandler> logger,
             IMapper<AddCohortCommand, DraftApprenticeshipDetails> draftApprenticeshipDetailsMapper,

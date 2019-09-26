@@ -11,10 +11,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice
 {
     public class GetDraftApprenticeHandler : IRequestHandler<GetDraftApprenticeRequest, GetDraftApprenticeResponse>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly Lazy<CommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
 
-        public GetDraftApprenticeHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
+        public GetDraftApprenticeHandler(Lazy<CommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;

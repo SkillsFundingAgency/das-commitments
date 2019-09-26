@@ -235,7 +235,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         {
             public DateTime Now { get; set; }
             public CohortDomainService CohortDomainService { get; set; }
-            public ProviderCommitmentsDbContext Db { get; set; }
+            public CommitmentsDbContext Db { get; set; }
             public long ProviderId { get; }
             public long AccountId { get; }
             public long AccountLegalEntityId { get; }
@@ -267,7 +267,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 // We need this to allow the UoW to initialise it's internal static events collection.
                 var uow = new UnitOfWorkContext();
 
-                Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+                Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                     .Options);
@@ -319,7 +319,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
 
-                CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                CohortDomainService = new CohortDomainService(new Lazy<CommitmentsDbContext>(() => Db),
                     Mock.Of<ILogger<CohortDomainService>>(),
                     AcademicYearDateProvider.Object,
                     UlnValidator.Object,

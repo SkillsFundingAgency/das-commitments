@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
     public class GetDraftApprenticeHandlerTestFixtures
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public Mock<IAuthenticationService> AuthenticationServiceMock { get; set; }
         public GetDraftApprenticeHandler Handler { get; set; }
 
@@ -48,9 +48,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         public GetDraftApprenticeHandlerTestFixtures()
         {
             AuthenticationServiceMock = new Mock<IAuthenticationService>();
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             Handler = new GetDraftApprenticeHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db), 
+                new Lazy<CommitmentsDbContext>(() => Db), 
                 AuthenticationServiceMock.Object);
         }
 

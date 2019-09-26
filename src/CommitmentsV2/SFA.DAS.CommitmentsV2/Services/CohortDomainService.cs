@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 {
     public class CohortDomainService : ICohortDomainService
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly Lazy<CommitmentsDbContext> _dbContext;
         private readonly IAcademicYearDateProvider _academicYearDateProvider;
         private readonly ILogger<CohortDomainService> _logger;
         private readonly IUlnValidator _ulnValidator;
@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
 
-        public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
+        public CohortDomainService(Lazy<CommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
             IAcademicYearDateProvider academicYearDateProvider,
             IUlnValidator ulnValidator,
@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, CommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
                 await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,
@@ -159,7 +159,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             return accountLegalEntity;
         }
         
-        private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<Cohort> GetCohort(long cohortId, CommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
             if (cohort == null) throw new BadRequestException($"Cohort {cohortId} was not found");
@@ -167,7 +167,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
-        private static async Task<Provider> GetProvider(long providerId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<Provider> GetProvider(long providerId, CommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var provider = await db.Providers.SingleOrDefaultAsync(p => p.UkPrn == providerId, cancellationToken);
             if (provider == null) throw new BadRequestException($"Provider {providerId} was not found");

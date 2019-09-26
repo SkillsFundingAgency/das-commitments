@@ -33,15 +33,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class CreateAccountCommandHandlerTestFixture
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public CreateAccountCommand Command { get; set; }
         public IRequestHandler<CreateAccountCommand, Unit> Handler { get; set; }
 
         public CreateAccountCommandHandlerTestFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
             Command = new CreateAccountCommand(1, "AAA111", "AAA222", "Foo", DateTime.UtcNow);
-            Handler = new CreateAccountCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new CreateAccountCommandHandler(new Lazy<CommitmentsDbContext>(() => Db));
         }
 
         public async Task Handle()

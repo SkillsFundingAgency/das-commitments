@@ -10,9 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProvider
 {
     public class GetProviderQueryHandler : IRequestHandler<GetProviderQuery, GetProviderQueryResult>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly Lazy<CommitmentsDbContext> _db;
 
-        public GetProviderQueryHandler(Lazy<ProviderCommitmentsDbContext> db)
+        public GetProviderQueryHandler(Lazy<CommitmentsDbContext> db)
         {
             _db = db;
         }

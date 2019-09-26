@@ -50,7 +50,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; set; }
         public DraftApprenticeship DraftApprenticeship { get; set; }
         public CancellationToken CancellationToken { get; set; }
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
 
         public Mock<IMapper<AddDraftApprenticeshipCommand, DraftApprenticeshipDetails>> DraftApprenticeshipDetailsMapper { get; set; }
 
@@ -65,7 +65,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             DraftApprenticeship = new DraftApprenticeship().Set(a => a.Id, 123);
             CancellationToken = new CancellationToken();
 
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning))
                 .Options);
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Command = Fixture.Build<AddDraftApprenticeshipCommand>().With(o => o.UserInfo, UserInfo).Create();
 
             Handler = new AddDraftApprenticeshipCommandHandler(
-                new Lazy<ProviderCommitmentsDbContext>(() => Db),
+                new Lazy<CommitmentsDbContext>(() => Db),
                 Mock.Of<ILogger<AddDraftApprenticeshipCommandHandler>>(),
                 DraftApprenticeshipDetailsMapper.Object,
                 CohortDomainService.Object);

@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Account Account { get; set; }
         public UpdateAccountNameCommand Command { get; set; }
         public IRequestHandler<UpdateAccountNameCommand, Unit> Handler { get; set; }
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public string OriginalAccountName { get; set; }
         public DateTime Now { get; set; }
 
@@ -57,12 +57,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Account = ObjectActivator.CreateInstance<Account>().Set(a => a.Id, 1).Set(a => a.Name, OriginalAccountName);
 
             Command = new UpdateAccountNameCommand(Account.Id, "Bar", Now.AddHours(-1));
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
 
             Db.Accounts.Add(Account);
             Db.SaveChanges();
 
-            Handler = new UpdateAccountNameCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new UpdateAccountNameCommandHandler(new Lazy<CommitmentsDbContext>(() => Db));
         }
 
         public async Task Handle()

@@ -16,14 +16,14 @@ namespace SFA.DAS.CommitmentsV2.Data
             _loggerFactory = loggerFactory;
         }
 
-        public ProviderCommitmentsDbContext CreateDbContext()
+        public CommitmentsDbContext CreateDbContext()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            var optionsBuilder = new DbContextOptionsBuilder<CommitmentsDbContext>()
                 .UseSqlServer(_dbConnection)
                 .UseLoggerFactory(_loggerFactory)
                 .ConfigureWarnings(w => w.Throw(RelationalEventId.QueryClientEvaluationWarning));
 
-            var dbContext = new ProviderCommitmentsDbContext(optionsBuilder.Options);
+            var dbContext = new CommitmentsDbContext(optionsBuilder.Options);
 
             return dbContext;
         }

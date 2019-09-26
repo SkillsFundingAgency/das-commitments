@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
     public class ImportProvidersJobTestsFixture
     {
         public DateTime Now { get; set; }
-        public Mock<ProviderCommitmentsDbContext> Db { get; set; }
+        public Mock<CommitmentsDbContext> Db { get; set; }
         public ImportProvidersJobs ImportProvidersJob { get; set; }
         public Mock<IProviderApiClient> ProviderApiClient { get; set; }
         public List<ProviderSummary> Providers { get; set; }
@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
         public ImportProvidersJobTestsFixture()
         {
             Now = DateTime.UtcNow;
-            Db = new Mock<ProviderCommitmentsDbContext>();
+            Db = new Mock<CommitmentsDbContext>();
             ProviderApiClient = new Mock<IProviderApiClient>();
             ImportedProviders = new List<ProviderSummary>();
 
@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.Jobs.UnitTests.ScheduledJobs
                     }));
                 });
 
-            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object, ProviderApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object));
+            ImportProvidersJob = new ImportProvidersJobs((new Mock<ILogger<ImportProvidersJobs>>()).Object, ProviderApiClient.Object, new Lazy<CommitmentsDbContext>(() => Db.Object));
         }
 
         public Task Run()

@@ -59,13 +59,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class AddCohortCommandWithOtherPartyHandlerTestsFixture
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public long CohortId { get; set; }
         public Cohort Cohort { get; set; }
 
         public AddCohortCommandWithOtherPartyHandlerTestsFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>()
                                                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                                                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
                                                     .Options);
@@ -102,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             
             var command = new AddCohortWithOtherPartyCommand(accountId, accountLegalEntity, providerId, message, UserInfo);
 
-            var handler = new AddCohortWithOtherPartyHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
+            var handler = new AddCohortWithOtherPartyHandler(new Lazy<CommitmentsDbContext>(() => Db),
                 EncodingService,
                 Mock.Of<ILogger<AddCohortWithOtherPartyHandler>>(),
                 CohortDomainServiceMock.Object);

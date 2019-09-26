@@ -44,7 +44,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AccountLegalEntity AccountLegalEntity { get; set; }
         public UpdateAccountLegalEntityNameCommand Command { get; set; }
         public IRequestHandler<UpdateAccountLegalEntityNameCommand, Unit> Handler { get; set; }
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public string OriginalAccountLegalEntityName { get; set; }
         public DateTime Now { get; set; }
 
@@ -54,12 +54,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Now = DateTime.UtcNow;
             AccountLegalEntity = ObjectActivator.CreateInstance<AccountLegalEntity>().Set(ale => ale.Id, 1).Set(ale => ale.Name, OriginalAccountLegalEntityName);
             Command = new UpdateAccountLegalEntityNameCommand(AccountLegalEntity.Id, "Bar", Now.AddHours(-1));
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
 
             Db.AccountLegalEntities.Add(AccountLegalEntity);
             Db.SaveChanges();
 
-            Handler = new UpdateAccountLegalEntityNameCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new UpdateAccountLegalEntityNameCommandHandler(new Lazy<CommitmentsDbContext>(() => Db));
         }
 
         public async Task Handle()

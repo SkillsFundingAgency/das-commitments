@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.CreateAccount
 {
     public class CreateAccountCommandHandler : RequestHandler<CreateAccountCommand>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly Lazy<CommitmentsDbContext> _db;
 
-        public CreateAccountCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
+        public CreateAccountCommandHandler(Lazy<CommitmentsDbContext> db)
         {
             _db = db;
         }

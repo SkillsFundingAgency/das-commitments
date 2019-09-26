@@ -2,6 +2,6 @@
 {
     public interface IDbContextFactory
     {
-        ProviderCommitmentsDbContext CreateDbContext();
+        CommitmentsDbContext CreateDbContext();
     }
 }

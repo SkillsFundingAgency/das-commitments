@@ -46,15 +46,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetProvider
     {
         public GetProviderQuery Query { get; set; }
         public Provider Provider { get; set; }
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public IRequestHandler<GetProviderQuery, GetProviderQueryResult> Handler { get; set; }
 
         public GetProviderQueryHandlerTestsFixture()
         {
             Query = new GetProviderQuery(1);
             Provider = new Provider(1, "Foo", DateTime.UtcNow, DateTime.UtcNow);
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-            Handler = new GetProviderQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
+            Handler = new GetProviderQueryHandler(new Lazy<CommitmentsDbContext>(() => Db));
             
             Db.Providers.Add(new Provider(2, "Bar", DateTime.UtcNow, DateTime.UtcNow));
             Db.SaveChanges();

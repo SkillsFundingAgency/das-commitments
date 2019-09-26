@@ -38,14 +38,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
     public class AddAccountLegalEntityCommandHandlerTestsFixture
     {
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public AddAccountLegalEntityCommand Command { get; set; }
         public IRequestHandler<AddAccountLegalEntityCommand, Unit> Handler { get; set; }
         public Account Account { get; set; }
 
         public AddAccountLegalEntityCommandHandlerTestsFixture()
         {
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
 
             Account = ObjectActivator.CreateInstance<Account>().Set(a => a.Id, 1);
 
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Command = new AddAccountLegalEntityCommand(Account.Id, 2,  "ALE123", "Foo",
                 OrganisationType.CompaniesHouse, "REFNo", "Address", DateTime.UtcNow);
 
-            Handler = new AddAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new AddAccountLegalEntityCommandHandler(new Lazy<CommitmentsDbContext>(() => Db));
         }
 
         public async Task Handle()

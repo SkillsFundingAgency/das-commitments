@@ -10,9 +10,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort
 {
     public class CanAccessCohortHandler : IRequestHandler<CanAccessCohortQuery, bool>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly Lazy<CommitmentsDbContext> _dbContext;
 
-        public CanAccessCohortHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public CanAccessCohortHandler(Lazy<CommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }

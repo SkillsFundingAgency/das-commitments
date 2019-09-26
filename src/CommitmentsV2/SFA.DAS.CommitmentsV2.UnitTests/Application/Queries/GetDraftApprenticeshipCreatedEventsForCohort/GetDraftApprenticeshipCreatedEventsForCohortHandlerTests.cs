@@ -134,21 +134,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         {
             return RunWithDbContext(dbContext =>
             {
-                var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
+                var lazy = new Lazy<CommitmentsDbContext>(dbContext);
                 var handler = new GetDraftApprenticeshipCreatedEventsForCohortQueryHandler(lazy);
 
                 return handler.Handle(query, CancellationToken.None);
             });
         }
 
-        public Task<T> RunWithDbContext<T>(Func<ProviderCommitmentsDbContext, Task<T>> action)
+        public Task<T> RunWithDbContext<T>(Func<CommitmentsDbContext, Task<T>> action)
         {
-            var options = new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
+            var options = new DbContextOptionsBuilder<CommitmentsDbContext>()
                 .UseInMemoryDatabase(databaseName: "SFA.DAS.Commitments.Database")
                 .UseLoggerFactory(MyLoggerFactory)
                 .Options;
 
-            using (var dbContext = new ProviderCommitmentsDbContext(options))
+            using (var dbContext = new CommitmentsDbContext(options))
             {
                 dbContext.Database.EnsureCreated();
                 SeedData(dbContext);
@@ -156,7 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             }
         }
 
-        private void SeedData(ProviderCommitmentsDbContext dbContext)
+        private void SeedData(CommitmentsDbContext dbContext)
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Cohorts.AddRange(SeedCohorts);

@@ -9,9 +9,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.RemoveAccountLegalEntity
 {
     public class RemoveAccountLegalEntityCommandHandler : AsyncRequestHandler<RemoveAccountLegalEntityCommand>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly Lazy<CommitmentsDbContext> _db;
 
-        public RemoveAccountLegalEntityCommandHandler(Lazy<ProviderCommitmentsDbContext> db)
+        public RemoveAccountLegalEntityCommandHandler(Lazy<CommitmentsDbContext> db)
         {
             _db = db;
         }

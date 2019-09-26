@@ -11,9 +11,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeshipCreate
 {
     public class GetDraftApprenticeshipCreatedEventsForCohortQueryHandler : IRequestHandler<GetDraftApprenticeshipCreatedEventsForCohortQuery, GetDraftApprenticeshipCreatedEventsForCohortQueryResult>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly Lazy<CommitmentsDbContext> _db;
 
-        public GetDraftApprenticeshipCreatedEventsForCohortQueryHandler(Lazy<ProviderCommitmentsDbContext> db)
+        public GetDraftApprenticeshipCreatedEventsForCohortQueryHandler(Lazy<CommitmentsDbContext> db)
         {
             _db = db;
         }

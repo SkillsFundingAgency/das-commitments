@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public AccountLegalEntity AccountLegalEntity { get; set; }
         public RemoveAccountLegalEntityCommand Command { get; set; }
         public IRequestHandler<RemoveAccountLegalEntityCommand, Unit> Handler { get; set; }
-        public ProviderCommitmentsDbContext Db { get; set; }
+        public CommitmentsDbContext Db { get; set; }
         public IUnitOfWorkContext UnitOfWorkContext { get; set; }
         public DateTime Now { get; set; }
 
@@ -57,13 +57,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Account = ObjectActivator.CreateInstance<Account>().Set(a => a.Id, 1);
             AccountLegalEntity = ObjectActivator.CreateInstance<AccountLegalEntity>().Set(ale => ale.Id, 2).Set(ale => ale.AccountId, Account.Id);
             Command = new RemoveAccountLegalEntityCommand(Account.Id, AccountLegalEntity.Id, Now.AddHours(-1));
-            Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
+            Db = new CommitmentsDbContext(new DbContextOptionsBuilder<CommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)).Options);
 
             Db.Accounts.Add(Account);
             Db.AccountLegalEntities.Add(AccountLegalEntity);
             Db.SaveChanges();
 
-            Handler = new RemoveAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
+            Handler = new RemoveAccountLegalEntityCommandHandler(new Lazy<CommitmentsDbContext>(() => Db));
             UnitOfWorkContext = new UnitOfWorkContext();
         }
 

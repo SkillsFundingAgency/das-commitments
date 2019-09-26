@@ -12,10 +12,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
 {
     public class GetCohortSummaryQueryHandler : IRequestHandler<GetCohortSummaryQuery, GetCohortSummaryQueryResult>
     {
-        private readonly Lazy<ProviderCommitmentsDbContext> _db;
+        private readonly Lazy<CommitmentsDbContext> _db;
         private readonly IEncodingService _encodingService;
 
-        public GetCohortSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> db, IEncodingService encodingService)
+        public GetCohortSummaryQueryHandler(Lazy<CommitmentsDbContext> db, IEncodingService encodingService)
         {
             _db = db;
             _encodingService = encodingService;
