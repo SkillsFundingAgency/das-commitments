@@ -8,6 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<TransferRequest> builder)
         {
+
+            builder.ToTable("TransferRequest");
             builder.Property(e => e.Cost).HasColumnType("money");
             builder.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             builder.Property(e => e.FundingCap).HasColumnType("money");
