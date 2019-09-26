@@ -85,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 AccountLegalEntityId = result.AccountLegalEntityId,
                 LegalEntityName = result.LegalEntityName,
                 ProviderName = result.ProviderName,
-                IsFundedByTransfer = result.IsFundedByTransfer,
+                TransferSenderId = result.TransferSenderId,
                 WithParty = result.WithParty,
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider

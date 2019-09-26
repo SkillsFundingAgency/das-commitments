@@ -35,7 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.LegalEntityName,
                     ProviderName = c.ProviderName,
-                    IsFundedByTransfer = c.TransferSenderId != null,
+                    TransferSenderId = c.TransferSenderId,
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
                     LatestMessageCreatedByProvider = latestMessageCreatedByProvider
