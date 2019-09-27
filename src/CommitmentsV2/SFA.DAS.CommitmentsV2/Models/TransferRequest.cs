@@ -1,26 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
     public class TransferRequest : Entity
     {
-        public static async Task<TransferRequest> CreateForCohort(ProviderCommitmentsDbContext db, long cohortId, ITrainingProgrammeLookup trainingProgrammeLookup, CancellationToken cancellationToken)
+        public static async Task<TransferRequest> CreateForCohort(ProviderCommitmentsDbContext db, long cohortId, ITrainingProgrammeApiClient trainingProgrammeApiClient, CancellationToken cancellationToken)
         {
             var cohort = await db.Cohorts
                 .Include(c => c.Apprenticeships)
+                .Include(c => c.TransferRequests)
                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
 
+            if (cohort.TransferRequests.Count(x => x.Status == (byte) TransferApprovalStatus.Pending) > 0)
+            {
+                throw new DomainException("", $"A Pending Transfer Request already exists for this cohort {cohortId}");
+            }
+
             var transferRequest = new TransferRequest(cohort);
-            var request = await GetApprenticeshipSummaries(cohort, trainingProgrammeLookup);
+            var request = await GetApprenticeshipSummaries(cohort, trainingProgrammeApiClient);
 
             transferRequest.TrainingCourses = request.JsonList;
             transferRequest.Cost = request.Cost;
@@ -32,19 +38,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public static async Task<TransferRequest> GetExistingTransferRequest(ProviderCommitmentsDbContext db, long transferRequestId, CancellationToken cancellationToken)
         {
-            try
-            {
-                return await db.TransferRequests.Include(c=>c.Cohort).SingleAsync(c => c.Id == transferRequestId, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return await db.TransferRequests.Include(c=>c.Cohort).SingleAsync(c => c.Id == transferRequestId, cancellationToken);
         }
 
         public TransferRequest()
         {
-
         }
 
         public TransferRequest(Cohort cohort) : this()
@@ -64,9 +62,13 @@ namespace SFA.DAS.CommitmentsV2.Models
         public decimal? FundingCap { get; set; }
         public virtual Cohort Cohort { get; set; }
 
-        private static async Task<(string JsonList, decimal Cost, int Cap)> GetApprenticeshipSummaries(Cohort cohort, ITrainingProgrammeLookup trainingProgrammeLookup)
+        private static async Task<(string JsonList, decimal Cost, int Cap)> GetApprenticeshipSummaries(Cohort cohort, ITrainingProgrammeApiClient trainingProgrammeApiClient)
         {
-            //var fundingBandCaps = Task.WhenAll(cohort.Apprenticeships.Select(async x=>new {x.Id, Cap = (await trainingProgrammeLookup.GetTrainingProgramme(x.CourseCode)).GetStatusOn(x.StartDate)  }))
+            var fundingBandCaps = Task.WhenAll(cohort.Apprenticeships.Select(async x => new
+            {
+                x.Id,
+                Cap = (await trainingProgrammeApiClient.GetTrainingProgramme(x.CourseCode)).GetStatusOn(x.StartDate.Value)
+            }));
 
             var summaries = cohort.Apprenticeships.GroupBy(a => new { a.CourseCode, a.CourseName })
                 .Select(course => new

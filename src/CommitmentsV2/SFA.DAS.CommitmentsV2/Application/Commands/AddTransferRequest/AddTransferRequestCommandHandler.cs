@@ -1,45 +1,53 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
 {
-    public class AddTransferRequestCommandHandler : IRequestHandler<AddTransferRequestCommand, AddTransferRequestResult>
+    public class AddTransferRequestCommandHandler : AsyncRequestHandler<AddTransferRequestCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
+        private readonly IFundingCapService _fundingCapService;
         private readonly ILogger<AddTransferRequestCommandHandler> _logger;
 
         public AddTransferRequestCommandHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
+            IFundingCapService fundingCapService,
             ILogger<AddTransferRequestCommandHandler> logger)
         {
             _dbContext = dbContext;
+            _fundingCapService = fundingCapService;
             _logger = logger;
         }
 
-        public async Task<AddTransferRequestResult> Handle(AddTransferRequestCommand request, CancellationToken cancellationToken)
+        protected override async Task Handle(AddTransferRequestCommand request, CancellationToken cancellationToken)
         {
-            var db = _dbContext.Value;
-
             try
             {
-                var transferRequest = await TransferRequest.CreateForCohort(db, request.CohortId, cancellationToken);
+                var db = _dbContext.Value;
+
+                var cohort = await db.Cohorts
+                    .Include(c => c.Apprenticeships)
+                    .Include(c => c.TransferRequests)
+                    .SingleAsync(c => c.Id == request.CohortId, cancellationToken: cancellationToken);
+
+
+                var fundingCaps = await _fundingCapService.GetFundingCapsFor(cohort.Apprenticeships);
+
+                cohort.AddTransferRequest("[]", 1000, 1100);
                 await db.SaveChangesAsync(cancellationToken);
-
-                _logger.LogInformation($"Created TransferRequest Id:{transferRequest.Id} CohortId:{request.CohortId}");
-
-                return new AddTransferRequestResult
-                {
-                    Id = transferRequest.Id
-                };
             }
-            catch(Exception e)
+            catch (Exception e)
+            {
+                _logger.LogError("Error Adding Transfer Request", e);
+                throw;
+            }
         }
     }
 }
