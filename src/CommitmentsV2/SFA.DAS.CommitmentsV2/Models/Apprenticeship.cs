@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Azure.Amqp.Framing;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -25,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string EmployerRef { get; set; }
         public string ProviderRef { get; set; }
         public DateTime? CreatedOn { get; set; }
+        public DateTime? AgreedOn { get; set; }
         public int? PaymentOrder { get; set; }
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }

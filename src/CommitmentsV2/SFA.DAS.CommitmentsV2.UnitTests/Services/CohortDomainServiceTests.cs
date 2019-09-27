@@ -225,10 +225,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
         
         [Test]
-        public void SendToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties();
-            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendToOtherParty());
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendCohortToOtherParty());
+        }
+        
+        [Test]
+        public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
+        {
+            _fixture.WithExistingCohortApprovedByAllParties();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
         }
 
         public class CohortDomainServiceTestFixture
@@ -521,7 +528,23 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
-            public async Task SendToOtherParty()
+            public async Task ApproveCohort()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    await CohortDomainService.ApproveCohort(CohortId, Message, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                }
+            }
+
+            public async Task SendCohortToOtherParty()
             {
                 Db.SaveChanges();
                 DomainErrors.Clear();

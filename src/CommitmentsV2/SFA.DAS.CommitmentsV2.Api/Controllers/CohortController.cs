@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
+using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
@@ -84,7 +85,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 AccountLegalEntityId = result.AccountLegalEntityId,
                 LegalEntityName = result.LegalEntityName,
                 ProviderName = result.ProviderName,
-                IsFundedByTransfer = result.IsFundedByTransfer,
+                TransferSenderId = result.TransferSenderId,
                 WithParty = result.WithParty,
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
@@ -98,6 +99,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var command = new SendCohortCommand(cohortId, request.Message, request.UserInfo);
             await _mediator.Send(command);
             
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("{cohortId}/approve")]
+        public async Task<IActionResult> Approve(long cohortId, [FromBody]ApproveCohortRequest request)
+        {
+            var command = new ApproveCohortCommand(cohortId, request.Message, request.UserInfo);
+            await _mediator.Send(command);
+
             return Ok();
         }
     }

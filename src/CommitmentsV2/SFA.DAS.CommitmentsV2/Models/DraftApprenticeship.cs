@@ -7,6 +7,25 @@ namespace SFA.DAS.CommitmentsV2.Models
 {
     public class DraftApprenticeship : Apprenticeship
     {
+        private bool IsCompleteForEmployer => 
+            FirstName != null &&
+            LastName != null &&
+            Cost != null &&
+            StartDate != null &&
+            EndDate != null &&
+            CourseCode != null &&
+            DateOfBirth != null;
+
+        private bool IsCompleteForProvider => 
+            FirstName != null &&
+            LastName != null &&
+            Uln != null &&
+            Cost != null &&
+            StartDate != null &&
+            EndDate != null &&
+            CourseCode != null &&
+            DateOfBirth != null;
+        
         internal DraftApprenticeship()
         {
             CreatedOn = DateTime.UtcNow;
@@ -17,6 +36,39 @@ namespace SFA.DAS.CommitmentsV2.Models
             Merge(source, modifyingParty);
 
             ReservationId = source.ReservationId;
+        }
+
+        internal void Approve(Party modifyingParty, DateTime now)
+        {
+            CheckIsEmployerOrProvider(modifyingParty);
+            CheckIsNotApproved();
+
+            switch (modifyingParty)
+            {
+                case Party.Employer:
+                    CheckIsCompleteForEmployer();
+                
+                    AgreementStatus = AgreementStatus == AgreementStatus.ProviderAgreed
+                        ? AgreementStatus.BothAgreed
+                        : AgreementStatus.EmployerAgreed;
+                    
+                    break;
+                case Party.Provider:
+                    CheckIsCompleteForProvider();
+                
+                    AgreementStatus = AgreementStatus == AgreementStatus.EmployerAgreed
+                        ? AgreementStatus.BothAgreed
+                        : AgreementStatus.ProviderAgreed;
+                    
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(modifyingParty));
+            }
+
+            if (AgreementStatus == AgreementStatus.BothAgreed)
+            {
+                AgreedOn = now;
+            }
         }
 
         public void Merge(DraftApprenticeshipDetails source, Party modifyingParty)
@@ -53,6 +105,38 @@ namespace SFA.DAS.CommitmentsV2.Models
                 case Party.Provider:
                     ProviderRef = source.Reference;
                     break;
+            }
+        }
+
+        private void CheckIsCompleteForEmployer()
+        {
+            if (!IsCompleteForEmployer)
+            {
+                throw new DomainException(nameof(IsCompleteForEmployer), "Draft apprenticeship must be complete for employer");
+            }
+        }
+
+        private void CheckIsCompleteForProvider()
+        {
+            if (!IsCompleteForProvider)
+            {
+                throw new DomainException(nameof(IsCompleteForProvider), "Draft apprenticeship must be complete for provider");
+            }
+        }
+
+        private void CheckIsEmployerOrProvider(Party party)
+        {
+            if (party != Party.Employer && party != Party.Provider)
+            {
+                throw new DomainException(nameof(party), $"Party must be {Party.Employer} or {Party.Provider}; {party} is not valid");
+            }
+        }
+
+        private void CheckIsNotApproved()
+        {
+            if (AgreementStatus == AgreementStatus.BothAgreed)
+            {
+                throw new DomainException(nameof(AgreementStatus), "Draft apprenticeship must be not be approved");
             }
         }
 

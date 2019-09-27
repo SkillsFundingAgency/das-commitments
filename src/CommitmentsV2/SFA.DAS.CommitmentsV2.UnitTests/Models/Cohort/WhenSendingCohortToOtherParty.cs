@@ -26,16 +26,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture = new WhenSendingCohortToOtherPartyTestsFixture();
         }
 
-        [TestCase(Party.Employer, EditStatus.EmployerOnly, EditStatus.ProviderOnly)]
-        [TestCase(Party.Provider, EditStatus.ProviderOnly, EditStatus.EmployerOnly)]
-        public void ThenShouldUpdateStatus(Party modifyingParty, EditStatus editStatus, EditStatus expectedEditStatus)
+        [TestCase(Party.Employer, EditStatus.ProviderOnly)]
+        [TestCase(Party.Provider, EditStatus.EmployerOnly)]
+        public void ThenShouldUpdateStatus(Party modifyingParty, EditStatus expectedEditStatus)
         {
             _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(editStatus)
+                .SetEditStatus(modifyingParty.ToEditStatus())
                 .SendToOtherParty();
             
             _fixture.Cohort.EditStatus.Should().Be(expectedEditStatus);
             _fixture.Cohort.LastAction.Should().Be(LastAction.Amend);
+            _fixture.Cohort.CommitmentStatus.Should().Be(CommitmentStatus.Active);
         }
 
         [TestCase(Party.Employer, null, "", 0)]
