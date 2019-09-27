@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public EditStatus EditStatus;
         public const string LatestMessageCreatedByEmployer = "ohayou";
         public const string LatestMessageCreatedByProvider = "konbanwa";
+        public bool HasTransferSender = true;
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -62,12 +63,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [TestCase(EditStatus.EmployerOnly, Party.Employer)]
         [TestCase(EditStatus.ProviderOnly, Party.Provider)]
         [TestCase(EditStatus.Neither, Party.None)]
-        [TestCase(EditStatus.Both, Party.None)]
+        [TestCase(EditStatus.Both, Party.TransferSender)]
         public Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus, Party expectedParty)
         {
             EditStatus = editStatus;
             return CheckCommandResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
         }
+
+        [Test]
+        public Task Handle_WithEditStatusOfBothAndHasTransferSender_ShouldReturnTransferSender()
+        {
+            EditStatus = EditStatus.Both;
+            HasTransferSender = false;
+            return CheckCommandResponse(response => Assert.AreEqual(Party.None, response.WithParty, "Did not return expected Party type"));
+        }
+
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByEmployer()
@@ -117,6 +127,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             CohortId = autoFixture.Create<long>();
             Cohort = autoFixture.Build<Cohort>().Without(o=>o.Apprenticeships).Without(o=>o.TransferRequests).Without(o=>o.Messages).Create();
+            if (!HasTransferSender)
+            {
+                Cohort.TransferSenderId = null;
+            }
             AccountLegalEntityId = autoFixture.Create<long>();
 
             // arrange

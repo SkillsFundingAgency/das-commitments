@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public CohortAssignedToProviderEventHandlerTestsFixture SetupNonTransferCohort()
         {
             GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
-                .With(p => p.CohortId, Message.CohortId).With(p => p.IsFundedByTransfer, false).Create();
+                .With(p => p.CohortId, Message.CohortId).Without(p => p.TransferSenderId).Create();
 
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
@@ -74,7 +74,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         public CohortAssignedToProviderEventHandlerTestsFixture SetupTransferCohort()
         {
             GetCohortSummaryQueryResult = DataFixture.Build<GetCohortSummaryQueryResult>()
-                .With(p => p.CohortId, Message.CohortId).With(p => p.IsFundedByTransfer, true).Create();
+                .With(p => p.CohortId, Message.CohortId).With(p => p.TransferSenderId, 12345).Create();
 
             Mediator.Setup(x => x.Send(It.IsAny<GetCohortSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GetCohortSummaryQueryResult);
