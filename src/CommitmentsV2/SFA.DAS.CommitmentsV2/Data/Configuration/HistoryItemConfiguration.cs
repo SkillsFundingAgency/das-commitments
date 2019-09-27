@@ -4,10 +4,12 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data.Configuration
 {
-    public class HistoryConfiguration : IEntityTypeConfiguration<History>
+    public class HistoryItemConfiguration : IEntityTypeConfiguration<HistoryItem>
     {
-        public void Configure(EntityTypeBuilder<History> builder)
+        public void Configure(EntityTypeBuilder<HistoryItem> builder)
         {
+            builder.ToTable("History");
+            
             builder.Property(e => e.ChangeType)
                 .IsRequired()
                 .HasMaxLength(50);

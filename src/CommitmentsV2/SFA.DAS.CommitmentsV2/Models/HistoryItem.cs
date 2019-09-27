@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public partial class History
+    public class HistoryItem
     {
         public long Id { get; set; }
         public string EntityType { get; set; }
