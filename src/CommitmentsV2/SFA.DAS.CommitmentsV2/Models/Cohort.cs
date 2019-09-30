@@ -245,7 +245,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap)
         {
-            CheckThereIsNoOtherPendingTransferRequest();
+            CheckThereIsNoPendingTransferRequest();
             var transferRequest = new TransferRequest();
             transferRequest.Status = (byte) Types.TransferApprovalStatus.Pending;
             transferRequest.TrainingCourses = jsonSummary;
@@ -257,7 +257,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow));
         }
 
-        private void CheckThereIsNoOtherPendingTransferRequest()
+        private void CheckThereIsNoPendingTransferRequest()
         {
             if (TransferRequests.Any(x =>x.Status == (byte) Types.TransferApprovalStatus.Pending))
             {

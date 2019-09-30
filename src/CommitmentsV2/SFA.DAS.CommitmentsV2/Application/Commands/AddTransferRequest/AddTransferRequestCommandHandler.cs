@@ -38,7 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
                     .SingleAsync(c => c.Id == request.CohortId, cancellationToken: cancellationToken);
 
 
-                var fundingCaps = await _fundingCapService.GetFundingCapsFor(cohort.Apprenticeships);
+                //var fundingCaps = await _fundingCapService.GetFundingCapsFor(cohort.Apprenticeships);
 
                 cohort.AddTransferRequest("[]", 1000, 1100);
                 await db.SaveChangesAsync(cancellationToken);
