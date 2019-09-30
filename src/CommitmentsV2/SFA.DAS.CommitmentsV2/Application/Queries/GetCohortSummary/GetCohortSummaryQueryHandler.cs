@@ -32,13 +32,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 select new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
+                    CohortReference = c.Reference,
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.LegalEntityName,
                     ProviderName = c.ProviderName,
                     TransferSenderId = c.TransferSenderId,
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
-                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider
+                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider,
+                    ProviderId = c.ProviderId,
+                    LastAction = c.LastAction,
+                    LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
+                    LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 

@@ -1,0 +1,16 @@
+Name: EmployerCohortApproved
+Dev TemplateId: 70e3bc3e-03ed-433f-8729-059c1377d477
+Prod TemplateId: 2e4ea7ce-b4fb-44f6-b74a-c29e67a68810
+
+From: The Apprenticeship Service
+To: email address
+Subject: Apprentice details ready to approve
+Body:
+((provider_name)) sent you apprentice details to approve.
+Sign into your apprenticeship service account to view these details – https://manage-apprenticeships.service.gov.uk/commitments/accounts/((employer_hashed_account))/apprentices/((cohort_reference))/details
+
+This is an automated message. Please don’t reply to this email.
+
+Kind regards,
+Apprenticeship service team
+

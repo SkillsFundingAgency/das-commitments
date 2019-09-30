@@ -10,6 +10,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
 {
     public class EventHandlerTestsFixture<TEvent, TEventHandler> where TEventHandler : IHandleMessages<TEvent>
     {
+        protected Fixture DataFixture { get; }
         public Mock<IMediator> Mediator { get; set; }
         public TEvent Message { get; set; }
         public IHandleMessages<TEvent> Handler { get; set; }
@@ -20,10 +21,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests
         {
             Mediator = new Mock<IMediator>();
 
-            var fixture = new Fixture();
-            Message = fixture.Create<TEvent>();
+            DataFixture = new Fixture();
+            Message = DataFixture.Create<TEvent>();
 
-            MessageId = fixture.Create<string>();
+            MessageId = DataFixture.Create<string>();
             MessageHandlerContext = new Mock<IMessageHandlerContext>();
 
             MessageHandlerContext.Setup(c => c.MessageId).Returns(MessageId);
