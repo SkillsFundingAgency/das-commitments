@@ -5,8 +5,8 @@
         public string CourseTitle { get; set; }
         public int ApprenticeshipCount { get; set; }
 
-        public int Cap { get; set; }
-        public decimal Cost { get; set; }
+        public int ActualCap { get; set; }
+        public decimal CappedCost { get; set; }
 
     }
 }
