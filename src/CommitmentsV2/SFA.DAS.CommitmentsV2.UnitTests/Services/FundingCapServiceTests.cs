@@ -127,8 +127,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Apprentices = new List<DraftApprenticeship> {apprenticeA, apprenticeB, apprenticeC, apprenticeD, apprenticeE};
 
-                  
-
                 return this;
             }
 
@@ -148,14 +146,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void AssertCourseCapsAreCorrect(FundingCapCourseSummary[] result)
             {
-                Assert.AreEqual(2200, result[0].ActualCap, "Incorrect Cap for C1");
-                Assert.AreEqual(3200, result[1].ActualCap, "Incorrect Cap for C2");
+                Assert.AreEqual(2200, result[0].ActualCap, "Incorrect ActualCap for C1");
+                Assert.AreEqual(3200, result[1].ActualCap, "Incorrect ActualCap for C2");
             }
 
             public void AssertCourseCostsExcludeTheExcessAmountsWhereCostExceedsCap(FundingCapCourseSummary[] result)
             {
-                Assert.AreEqual(2000, result[0].CappedCost, "Incorrect Cost for C1");
-                Assert.AreEqual(3200, result[1].CappedCost, "Incorrect Cost for C2");
+                Assert.AreEqual(2000, result[0].CappedCost, "Incorrect CappedCost for C1");
+                Assert.AreEqual(3200, result[1].CappedCost, "Incorrect CappedCost for C2");
             }
         }
     }
