@@ -1,10 +1,11 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.Apprenticeships.Api.Client;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
@@ -38,9 +39,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
                     .SingleAsync(c => c.Id == request.CohortId, cancellationToken: cancellationToken);
 
 
-                //var fundingCaps = await _fundingCapService.GetFundingCapsFor(cohort.Apprenticeships);
+                var fundingCaps = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
 
-                cohort.AddTransferRequest("[]", 1000, 1100);
+                cohort.AddTransferRequest(
+                    JsonConvert.SerializeObject(fundingCaps.Select(x => new {x.CourseTitle, x.ApprenticeshipCount})),
+                    fundingCaps.Sum(x => x.Cost), 
+                    fundingCaps.Sum(x => x.Cap));
+
                 await db.SaveChangesAsync(cancellationToken);
             }
             catch (Exception e)

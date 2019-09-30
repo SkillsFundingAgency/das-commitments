@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using SFA.DAS.Apprenticeships.Api.Client;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -19,14 +17,18 @@ namespace SFA.DAS.CommitmentsV2.Services
             _trainingProgrammeApiClient = trainingProgrammeApiClient;
         }
 
-        public Task<IReadOnlyCollection<ApprenticeFundingCap>> GetFundingCapsFor(IEnumerable<Apprenticeship> list)
+        public async Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<Apprenticeship> apprenticeships)
         {
-            throw new NotImplementedException();
-        }
+            decimal CalcCappedCost(decimal? cost, int cap)
+            {
+                if (cost.HasValue)
+                {
+                    return cost.Value > cap ? cap : cost.Value;
+                }
+                return 0;
+            }
 
-        private async Task<(string JsonList, decimal Cost, int Cap)> GetApprenticeshipSummaries(Cohort cohort)
-        {
-            var fundingBandCapForApprentice = await Task.WhenAll(cohort.Apprenticeships.Select(async x => new
+            var fundingBandCapForApprentice = await Task.WhenAll(apprenticeships.Select(async x => new
             {
                 x.Id,
                 x.CourseCode,
@@ -37,20 +39,15 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             var courseSummary = fundingBandCapForApprentice.GroupBy(a => new {a.CourseCode, a.CourseName})
                 .OrderBy(course => course.Key.CourseName)
-                .Select(course => new
+                .Select(course => new FundingCapCourseSummary
                 {
-                    course.Key.CourseName,
+                    CourseTitle = course.Key.CourseName,
                     ApprenticeshipCount = course.Count(),
-                    Cap = course.Sum(a => a.Cap),
-                    Cost = course.Sum(a => a.Cost > a.Cap ? a.Cap : a.Cost)
-                }).ToList();
+                    Cap = fundingBandCapForApprentice.Sum(a => a.Cap),
+                    Cost = fundingBandCapForApprentice.Sum(a => CalcCappedCost(a.Cost, a.Cap))
+                });
 
-
-
-
-            return await Task.FromResult((JsonConvert.SerializeObject(course), cost, 2));
+            return courseSummary.ToList();
         }
-
-
     }
 }
