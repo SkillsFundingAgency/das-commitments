@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public EditStatus EditStatus = EditStatus.EmployerOnly;
         public string LatestMessageCreatedByEmployer = "ohayou";
         public string LatestMessageCreatedByProvider = "konbanwa";
-        public AgreementStatus ApprenticeshipAgreementStatus = AgreementStatus.NotAgreed;
+        public AgreementStatus? ApprenticeshipAgreementStatus = AgreementStatus.NotAgreed;
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -92,10 +92,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         [TestCase(AgreementStatus.ProviderAgreed, false)]
         [TestCase(AgreementStatus.EmployerAgreed, true)]
         [TestCase(AgreementStatus.BothAgreed, true)]
-        public Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(AgreementStatus agreementStatus, bool expectIsApprovedByEmployer)
+        [TestCase(null, false)]
+        public Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(AgreementStatus? agreementStatus, bool expectIsApprovedByEmployer)
         {
             ApprenticeshipAgreementStatus = agreementStatus;
-             return CheckCommandResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
+            return CheckCommandResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
         }
 
         private async Task CheckCommandResponse(Action<GetCohortSummaryQueryResult> assert)
@@ -132,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public List<Cohort> SeedCohorts { get; }
         public Mock<IEncodingService> EncodingServiceMock { get; set; }
         
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string accountLegalEntityPublicHashedId, long accountLegalEntityId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus apprenticeshipAgreementStatus)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string accountLegalEntityPublicHashedId, long accountLegalEntityId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus? apprenticeshipAgreementStatus)
         {
             var cohort = new Cohort
             {
@@ -178,10 +179,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 Text = latestMessageCreatedByProvider
             });
 
-            cohort.Apprenticeships.Add(new DraftApprenticeship
+            if (apprenticeshipAgreementStatus.HasValue)
             {
-                AgreementStatus = apprenticeshipAgreementStatus
-            });
+                cohort.Apprenticeships.Add(new DraftApprenticeship
+                {
+                    AgreementStatus = apprenticeshipAgreementStatus.Value
+                });
+            }
 
             SeedCohorts.Add(cohort);
             

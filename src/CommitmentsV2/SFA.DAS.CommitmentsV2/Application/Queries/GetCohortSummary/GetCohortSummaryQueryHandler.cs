@@ -40,8 +40,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
                     LatestMessageCreatedByProvider = latestMessageCreatedByProvider,
-                    IsApprovedByEmployer = c.EditStatus == EditStatus.Both || c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed),
-                    IsApprovedByProvider = c.EditStatus == EditStatus.Both || c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed)
+                    IsApprovedByEmployer = c.EditStatus == EditStatus.Both || (c.Apprenticeships.Any() && c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed)),
+                    IsApprovedByProvider = c.EditStatus == EditStatus.Both || (c.Apprenticeships.Any() && c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed))
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 
