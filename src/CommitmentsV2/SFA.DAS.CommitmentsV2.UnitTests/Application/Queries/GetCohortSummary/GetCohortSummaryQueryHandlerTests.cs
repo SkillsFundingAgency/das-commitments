@@ -14,7 +14,6 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.Builders;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 {
@@ -26,9 +25,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         const long AccountLegalEntityId = 789;
         const string LegalEntityName = "ACME Fireworks";
         const string ProviderName = "ACME Training";
-        public EditStatus EditStatus = EditStatus.Both;
+        public EditStatus EditStatus = EditStatus.EmployerOnly;
         public string LatestMessageCreatedByEmployer = "ohayou";
         public string LatestMessageCreatedByProvider = "konbanwa";
+        public AgreementStatus ApprenticeshipAgreementStatus = AgreementStatus.NotAgreed;
 
         [Test]
         public Task Handle_WithSpecifiedId_ShouldReturnValue()
@@ -88,11 +88,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             return CheckCommandResponse(response => Assert.AreEqual(AccountLegalEntityId, response.AccountLegalEntityId, "Did not return expected account legal entity ID"));
         }
 
+        [TestCase(AgreementStatus.NotAgreed, false)]
+        [TestCase(AgreementStatus.ProviderAgreed, false)]
+        [TestCase(AgreementStatus.EmployerAgreed, true)]
+        [TestCase(AgreementStatus.BothAgreed, true)]
+        public Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(AgreementStatus agreementStatus, bool expectIsApprovedByEmployer)
+        {
+            ApprenticeshipAgreementStatus = agreementStatus;
+             return CheckCommandResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
+        }
+
         private async Task CheckCommandResponse(Action<GetCohortSummaryQueryResult> assert)
         {
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, AccountLegalEntityPublicHashedId, AccountLegalEntityId, LegalEntityName, ProviderName, EditStatus, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider);
+                .AddCommitment(CohortId, AccountLegalEntityPublicHashedId, AccountLegalEntityId, LegalEntityName, ProviderName, EditStatus, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, ApprenticeshipAgreementStatus);
 
             // act
             var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
@@ -121,8 +131,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
         public List<Cohort> SeedCohorts { get; }
         public Mock<IEncodingService> EncodingServiceMock { get; set; }
-
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string accountLegalEntityPublicHashedId, long accountLegalEntityId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider)
+        
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, string accountLegalEntityPublicHashedId, long accountLegalEntityId, string legalEntityName, string providerName, EditStatus editStatus, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus apprenticeshipAgreementStatus)
         {
             var cohort = new Cohort
             {
@@ -166,6 +176,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 CreatedBy = 1,
                 CreatedDateTime = DateTime.UtcNow,
                 Text = latestMessageCreatedByProvider
+            });
+
+            cohort.Apprenticeships.Add(new DraftApprenticeship
+            {
+                AgreementStatus = apprenticeshipAgreementStatus
             });
 
             SeedCohorts.Add(cohort);

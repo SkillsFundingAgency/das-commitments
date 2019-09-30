@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
@@ -38,7 +39,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     TransferSenderId = c.TransferSenderId,
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
-                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider
+                    LatestMessageCreatedByProvider = latestMessageCreatedByProvider,
+                    IsApprovedByEmployer = c.EditStatus == EditStatus.Both || c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed),
+                    IsApprovedByProvider = c.EditStatus == EditStatus.Both || c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed)
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 
