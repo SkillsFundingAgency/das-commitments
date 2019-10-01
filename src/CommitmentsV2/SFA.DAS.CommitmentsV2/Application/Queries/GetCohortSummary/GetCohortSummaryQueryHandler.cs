@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 select new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
+                    CohortReference = c.Reference,
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.LegalEntityName,
                     ProviderName = c.ProviderName,
@@ -40,7 +41,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                     WithParty = c.WithParty,
                     LatestMessageCreatedByEmployer = latestMessageCreatedByEmployer,
                     LatestMessageCreatedByProvider = latestMessageCreatedByProvider,
-                    IsApprovedByEmployer = c.EditStatus == EditStatus.Both || (c.Apprenticeships.Any() && c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed)),
+                    ProviderId = c.ProviderId,
+                    LastAction = c.LastAction,
+                    LastUpdatedByEmployerEmail = c.LastUpdatedByEmployerEmail,
+                    LastUpdatedByProviderEmail = c.LastUpdatedByProviderEmail,
+ 	 				IsApprovedByEmployer = c.EditStatus == EditStatus.Both || (c.Apprenticeships.Any() && c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.EmployerAgreed || a.AgreementStatus == AgreementStatus.BothAgreed)),
                     IsApprovedByProvider = c.EditStatus == EditStatus.Both || (c.Apprenticeships.Any() && c.Apprenticeships.All(a => a.AgreementStatus == AgreementStatus.ProviderAgreed || a.AgreementStatus == AgreementStatus.BothAgreed))
                 })
                 .SingleOrDefaultAsync(cancellationToken);
