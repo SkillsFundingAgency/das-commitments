@@ -38,13 +38,12 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
                     .Include(c => c.TransferRequests)
                     .SingleAsync(c => c.Id == request.CohortId, cancellationToken: cancellationToken);
 
-
-                var fundingCaps = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
+                var fundingCapSummary = await _fundingCapService.FundingCourseSummary(cohort.Apprenticeships);
 
                 cohort.AddTransferRequest(
-                    JsonConvert.SerializeObject(fundingCaps.Select(x => new {x.CourseTitle, x.ApprenticeshipCount})),
-                    fundingCaps.Sum(x => x.CappedCost), 
-                    fundingCaps.Sum(x => x.ActualCap));
+                    JsonConvert.SerializeObject(fundingCapSummary.Select(x => new {x.CourseTitle, x.ApprenticeshipCount})),
+                    fundingCapSummary.Sum(x => x.CappedCost), 
+                    fundingCapSummary.Sum(x => x.ActualCap));
 
                 await db.SaveChangesAsync(cancellationToken);
             }
