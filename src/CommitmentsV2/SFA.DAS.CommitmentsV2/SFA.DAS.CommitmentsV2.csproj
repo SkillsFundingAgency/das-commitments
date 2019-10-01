@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="morelinq" Version="3.1.0" />
+    <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.2086" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.174" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.174" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="4.3.1" />

@@ -116,8 +116,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
                 .SendToOtherParty();
             
-            _fixture.UnitOfWorkContext.GetEvents().OfType<ApprovedCohortReturnedToProviderEvent>()
-                .Should().ContainSingle(e => e.CohortId == _fixture.Cohort.Id && e.UpdatedOn == _fixture.Now);
+            _fixture.UnitOfWorkContext.GetEvents().OfType<ApprovedCohortReturnedToProviderEvent>().Should().HaveCount(1)
+                .And.Subject.Should().ContainSingle(e => e.CohortId == _fixture.Cohort.Id && e.UpdatedOn == _fixture.Now);
         }
         
         [Test]

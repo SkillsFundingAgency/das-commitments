@@ -88,7 +88,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 TransferSenderId = result.TransferSenderId,
                 WithParty = result.WithParty,
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
-                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider
+                LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
+                IsApprovedByEmployer = result.IsApprovedByEmployer,
+                IsApprovedByProvider = result.IsApprovedByProvider
             });
         }
 

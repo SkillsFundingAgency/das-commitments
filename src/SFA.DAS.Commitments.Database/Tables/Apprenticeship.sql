@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Apprenticeship]
 (
-	[Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
+    [Id] BIGINT NOT NULL PRIMARY KEY IDENTITY, 
     [CommitmentId] BIGINT NOT NULL, 
     [FirstName] NVARCHAR(100) NULL, 
     [LastName] NVARCHAR(100) NULL, 
@@ -22,21 +22,20 @@
     [PaymentOrder] INT NULL, 
     [StopDate] DATE NULL, 
     [PauseDate] DATE NULL, 
-	[HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0,
-	-- PendingUpdateOriginator is a combination of ApprenticeshipUpdate Originator and Status
-	-- if not null, Status = Pending, contains PendingUpdateOriginator = Originator
-	-- if null, no ApprenticeshipUpdate or Status != Pending
-	-- (we could store Originator and Status instead)
-	[PendingUpdateOriginator] TINYINT NULL,
-	[EPAOrgId] CHAR(7) NULL,
-	[CloneOf] BIGINT NULL,
-	[ReservationId] UNIQUEIDENTIFIER NULL,
-    [IsApproved] AS (case when [PaymentStatus]>(0) then CONVERT([bit],(1)) else CONVERT([bit],(0)) end) PERSISTED, 
+	  [HasHadDataLockSuccess] BIT NOT NULL DEFAULT 0,
+    -- PendingUpdateOriginator is a combination of ApprenticeshipUpdate Originator and Status
+    -- if not null, Status = Pending, contains PendingUpdateOriginator = Originator
+    -- if null, no ApprenticeshipUpdate or Status != Pending
+    -- (we could store Originator and Status instead)
+    [PendingUpdateOriginator] TINYINT NULL,
+    [EPAOrgId] CHAR(7) NULL,
+    [CloneOf] BIGINT NULL,
+    [ReservationId] UNIQUEIDENTIFIER NULL,
+    [IsApproved] AS (CASE WHEN [PaymentStatus] > (0) THEN CONVERT([BIT], (1)) ELSE CONVERT([BIT], (0)) END) PERSISTED, 
     CONSTRAINT [FK_Apprenticeship_Commitment] FOREIGN KEY ([CommitmentId]) REFERENCES [Commitment]([Id]),
-	CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
+	  CONSTRAINT [FK_Apprenticeship_AssessmentOrganisation] FOREIGN KEY ([EPAOrgId]) REFERENCES [AssessmentOrganisation]([EPAOrgId])
 )
 GO
-
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId] ON [dbo].[Apprenticeship] ([CommitmentId]) INCLUDE ([AgreedOn], [AgreementStatus], [Cost], [CreatedOn], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [LastName], [NINumber], [PaymentOrder], [PaymentStatus], [ProviderRef], [StartDate], [TrainingCode], [TrainingName], [TrainingType], [ULN], [StopDate], [PauseDate], [HasHadDataLockSuccess], [PendingUpdateOriginator]) WITH (ONLINE = ON)
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_Statuses] ON [dbo].[Apprenticeship] ([ULN], [AgreementStatus], [PaymentStatus])

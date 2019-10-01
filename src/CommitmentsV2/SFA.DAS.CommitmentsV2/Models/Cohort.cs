@@ -100,7 +100,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? TransferApprovalActionedOn { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
-        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
 
         public virtual ICollection<Apprenticeship> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
@@ -186,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             
             if (IsApprovedByAllParties)
             {
-                Publish(() => new CohortFullyApprovedEvent(Id, now));
+                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now));
             }
         }
 

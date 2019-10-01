@@ -41,7 +41,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         internal void Approve(Party modifyingParty, DateTime now)
         {
             CheckIsEmployerOrProvider(modifyingParty);
-            CheckIsNotApproved();
 
             switch (modifyingParty)
             {
@@ -129,14 +128,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             if (party != Party.Employer && party != Party.Provider)
             {
                 throw new DomainException(nameof(party), $"Party must be {Party.Employer} or {Party.Provider}; {party} is not valid");
-            }
-        }
-
-        private void CheckIsNotApproved()
-        {
-            if (AgreementStatus == AgreementStatus.BothAgreed)
-            {
-                throw new DomainException(nameof(AgreementStatus), "Draft apprenticeship must be not be approved");
             }
         }
 

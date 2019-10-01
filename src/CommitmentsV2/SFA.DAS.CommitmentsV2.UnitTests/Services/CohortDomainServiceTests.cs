@@ -22,7 +22,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
-using TestSupport.EfHelpers;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
