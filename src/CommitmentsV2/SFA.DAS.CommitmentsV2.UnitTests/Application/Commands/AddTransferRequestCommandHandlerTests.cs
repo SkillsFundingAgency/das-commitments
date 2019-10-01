@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
@@ -31,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
             await fixture.Handle();
 
-            fixture.AssertTransferWasSavedToDatabase();
+            fixture.AssertTransferRequestWasCorrectlySavedToDatabase();
         }
 
         [Test]
@@ -41,6 +42,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             await fixture.Handle();
 
             fixture.AssertCohortTransferStatusIsSetToPending();
+        }
+
+        [Test]
+        public async Task Handle_WhenCommandIsHandled_ThenShouldPublishTransferRequestCreatedEvent()
+        {
+            var fixture = new AddTransferRequestCommandHandlerTestFixture().SetupCohort();
+            await fixture.Handle();
+
+            fixture.AssertTransferRequestCreatedEventWasPublished();
         }
 
         [Test]
@@ -58,6 +68,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public FundingCapCourseSummary FundingCapCourseSummary1 { get; set; }
         public FundingCapCourseSummary FundingCapCourseSummary2 { get; set; }
         public CancellationToken CancellationToken { get; set; }
+        public UnitOfWorkContext UnitOfWorkContext { get; set; }
         public ProviderCommitmentsDbContext Db { get; set; }
 
         public Mock<IFundingCapService> FundingService { get; set; }
@@ -83,9 +94,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 FundingService.Object,
                 Mock.Of<ILogger<AddTransferRequestCommandHandler>>());
 
-            // This line is required.
-            // ReSharper disable once ObjectCreationAsStatement
-            new UnitOfWorkContext();
+            UnitOfWorkContext = new UnitOfWorkContext();
         }
 
         public AddTransferRequestCommandHandlerTestFixture SetupCohort()
@@ -105,13 +114,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
+        public AddTransferRequestCommandHandlerTestFixture SetupPendingTransferRequest()
+        {
+            Db.TransferRequests.Add(new TransferRequest
+                { CommitmentId = CohortId, Status = (byte)TransferApprovalStatus.Pending, });
+
+            return this;
+        }
+
         public async Task Handle()
         {
             var cmd = new AddTransferRequestCommand { CohortId = this.CohortId };
             await Handler.Handle(cmd, CancellationToken);
         }
 
-        public void AssertTransferWasSavedToDatabase()
+        public void AssertTransferRequestWasCorrectlySavedToDatabase()
         {
             var transferRequest = Db.TransferRequests.FirstOrDefault();
             Assert.IsNotNull(transferRequest.TrainingCourses);
@@ -121,19 +138,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Assert.AreEqual(FundingCapCourseSummary1.CappedCost + FundingCapCourseSummary2.CappedCost, transferRequest.Cost);
         }
 
-        public AddTransferRequestCommandHandlerTestFixture SetupPendingTransferRequest()
-        {
-            //var cohort = Db.Cohorts.FirstOrDefault();
-            Db.TransferRequests.Add(new TransferRequest
-                {CommitmentId = CohortId, Status = (byte) TransferApprovalStatus.Pending,});
-
-            return this;
-        }
-
         public void AssertCohortTransferStatusIsSetToPending()
         {
             var cohort = Db.Cohorts.First();
             Assert.AreEqual(TransferApprovalStatus.Pending, cohort.TransferApprovalStatus);
+        }
+
+        public void AssertTransferRequestCreatedEventWasPublished()
+        {
+            var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestCreatedEvent>().First();
+            Assert.AreEqual(CohortId, @event.CohortId);
+            Assert.IsNotNull(@event.TransferRequestId);
         }
     }
 }

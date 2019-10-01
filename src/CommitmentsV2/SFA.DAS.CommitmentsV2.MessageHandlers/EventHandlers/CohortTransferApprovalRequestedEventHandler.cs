@@ -15,9 +15,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
             _mediator = mediator;
         }
 
-        public async Task Handle(CohortTransferApprovalRequestedEvent message, IMessageHandlerContext context)
+        public Task Handle(CohortTransferApprovalRequestedEvent message, IMessageHandlerContext context)
         {
-            var result = await _mediator.Send(new AddTransferRequestCommand { CohortId = message.CohortId });
+            return _mediator.Send(new AddTransferRequestCommand { CohortId = message.CohortId });
         }
     }
 }

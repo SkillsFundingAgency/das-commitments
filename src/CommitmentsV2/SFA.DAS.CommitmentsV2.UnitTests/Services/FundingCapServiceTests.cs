@@ -52,11 +52,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             var result = (await _fixture.SetApprenticesList().CallFundingCapCourseSummary()).ToArray();
             _fixture.AssertCourseCostsExcludeTheExcessAmountsWhereCostExceedsCap(result);
         }
-
         
         private class FundingCapServiceTestFixture
         {
-            public FundingCapService Sut;
+            public FundingCapService FundingCapService;
             public IList<DraftApprenticeship> Apprentices;
             public readonly Mock<ITrainingProgrammeApiClient> TrainingProgrammeApiClient;
             public readonly Mock<ITrainingProgramme> TrainingProgramme;
@@ -83,12 +82,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 TrainingProgrammeApiClient.Setup(x => x.GetTrainingProgramme(It.IsAny<string>()))
                     .ReturnsAsync(TrainingProgramme.Object);
 
-                Sut = new FundingCapService(TrainingProgrammeApiClient.Object);
+                FundingCapService = new FundingCapService(TrainingProgrammeApiClient.Object);
             }
 
             public FundingCapServiceTestFixture SetApprenticesList()
             {
-
                 var apprenticeA = new DraftApprenticeship  
                 {
                     StartDate = _breakDate.AddMonths(-1),
@@ -132,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public Task<IReadOnlyCollection<FundingCapCourseSummary>> CallFundingCapCourseSummary()
             {
-                return Sut.FundingCourseSummary(Apprentices);
+                return FundingCapService.FundingCourseSummary(Apprentices);
             }
 
             public void AssertApprenticeshipCountsAreCorrect(FundingCapCourseSummary[] result)
