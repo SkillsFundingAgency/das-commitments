@@ -35,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("D - UpdatedLegalEntityEvent");
                 Console.WriteLine("E - RemovedLegalEntityEvent");
                 Console.WriteLine("F - DraftApprenticeshipCreatedEvent");
-                Console.WriteLine("g - BulkUploadIntoCohortCompletedEvent");
+                Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
+                Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
@@ -83,6 +84,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new BulkUploadIntoCohortCompletedEvent { CohortId = cohortId, ProviderId = 10010, NumberOfApprentices = 0, UploadedOn =  DateTime.Now});
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(DraftApprenticeshipCreatedEvent)}");
+                            break;
+                        case ConsoleKey.H:
+                            await _publisher.Publish(new CohortAssignedToProviderEvent(186091, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortAssignedToProviderEvent)}");
                             break;
                         case ConsoleKey.I:
                             await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now));
