@@ -1,6 +1,6 @@
 using System;
 
-namespace SFA.DAS.Commitments.Application.Extensions
+namespace SFA.DAS.CommitmentsV2.Extensions
 {
     public static class StringExtensions
     {

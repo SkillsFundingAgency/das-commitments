@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using SFA.DAS.Authorization.Features;
 using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 using StructureMap;
 
@@ -11,6 +12,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
         public ConfigurationRegistry()
         {
             AddConfiguration<CommitmentsV2Configuration>(CommitmentsConfigurationKeys.CommitmentsV2);
+            AddConfiguration<AccountApiConfiguration>(CommitmentsConfigurationKeys.AccountApi);
             AddConfiguration<ApprenticeshipInfoServiceConfiguration>(CommitmentsConfigurationKeys.ApprenticeshipInfoService);
             AddConfiguration<AzureActiveDirectoryApiConfiguration>(CommitmentsConfigurationKeys.AzureActiveDirectoryApiConfiguration);
             AddConfiguration<FeaturesConfiguration>(CommitmentsConfigurationKeys.Features);

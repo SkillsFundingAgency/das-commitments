@@ -24,105 +24,116 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public Cohort Cohort;
         public long CohortId;
         public long AccountLegalEntityId;
-        public EditStatus EditStatus;
+        public EditStatus EditStatus = EditStatus.EmployerOnly;
         public const string LatestMessageCreatedByEmployer = "ohayou";
         public const string LatestMessageCreatedByProvider = "konbanwa";
         public bool HasTransferSender = true;
+        public AgreementStatus? ApprenticeshipAgreementStatus = AgreementStatus.NotAgreed;
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnValue()
+        public async Task Handle_WithSpecifiedId_ShouldReturnValue()
         {
-            return CheckCommandResponse(response => Assert.IsNotNull(response, "Did not return response"));
+            await CheckQueryResponse(response => Assert.IsNotNull(response, "Did not return response"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortId()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortId()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(CohortId, response.CohortId, "Did not return expected cohort id"));
+            await CheckQueryResponse(response => Assert.AreEqual(CohortId, response.CohortId, "Did not return expected cohort id"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortReference()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedCohortReference()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.Reference, response.CohortReference, "Did not return expected cohort reference"));
-        }
-
-
-        [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedProviderName()
-        {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.ProviderName, response.ProviderName, "Did not return expected provider name"));
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.Reference, response.CohortReference, "Did not return expected cohort reference"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityNameName()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedProviderName()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.LegalEntityName, response.LegalEntityName, "Did not return expected legal entity name"));
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.ProviderName, response.ProviderName, "Did not return expected provider name"));
+        }
+
+        [Test]
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLegalEntityNameName()
+        {
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.LegalEntityName, response.LegalEntityName, "Did not return expected legal entity name"));
         }
 
         [TestCase(EditStatus.EmployerOnly, Party.Employer)]
         [TestCase(EditStatus.ProviderOnly, Party.Provider)]
         [TestCase(EditStatus.Neither, Party.None)]
         [TestCase(EditStatus.Both, Party.TransferSender)]
-        public Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus, Party expectedParty)
+        public async Task Handle_WithSpecifiedIdAndEditStatus_ShouldReturnExpectedParty(EditStatus editStatus, Party expectedParty)
         {
             EditStatus = editStatus;
             HasTransferSender = true;
-            return CheckCommandResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
+            await CheckQueryResponse(response => Assert.AreEqual(expectedParty, response.WithParty, "Did not return expected Party type"));
         }
 
         [Test]
-        public Task Handle_WithEditStatusOfBothAndHasTransferSender_ShouldReturnTransferSender()
+        public async Task Handle_WithEditStatusOfBothAndHasTransferSender_ShouldReturnTransferSender()
         {
             EditStatus = EditStatus.Both;
             HasTransferSender = false;
-            return CheckCommandResponse(response => Assert.AreEqual(Party.None, response.WithParty, "Did not return expected Party type"));
-        }
-
-
-        [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByEmployer()
-        {
-            return CheckCommandResponse(response => Assert.AreEqual(LatestMessageCreatedByEmployer, response.LatestMessageCreatedByEmployer, "Did not return expected latest message created by employer"));
+            await CheckQueryResponse(response => Assert.AreEqual(Party.None, response.WithParty, "Did not return expected Party type"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByProvider()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByEmployer()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(LatestMessageCreatedByProvider, response.LatestMessageCreatedByProvider, "Did not return expected latest message created by provider"));
+            await CheckQueryResponse(response => Assert.AreEqual(LatestMessageCreatedByEmployer, response.LatestMessageCreatedByEmployer, "Did not return expected latest message created by employer"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityPublicHashedId()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLatestMessageCreatedByProvider()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.AccountLegalEntityPublicHashedId, response.AccountLegalEntityPublicHashedId, "Did not return expected account legal entity public hashed ID"));
+            await CheckQueryResponse(response => Assert.AreEqual(LatestMessageCreatedByProvider, response.LatestMessageCreatedByProvider, "Did not return expected latest message created by provider"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityId()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityPublicHashedId()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(AccountLegalEntityId, response.AccountLegalEntityId, "Did not return expected account legal entity ID"));
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.AccountLegalEntityPublicHashedId, response.AccountLegalEntityPublicHashedId, "Did not return expected account legal entity public hashed ID"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLastAction()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedAccountLegalEntityId()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.LastAction, response.LastAction, "Did not return expected Last Action"));
+            await CheckQueryResponse(response => Assert.AreEqual(AccountLegalEntityId, response.AccountLegalEntityId, "Did not return expected account legal entity ID"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByEmployerEmail()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastAction()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail, response.LastUpdatedByEmployerEmail, "Did not return expected Last Updated By Employer Email"));
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastAction, response.LastAction, "Did not return expected Last Action"));
         }
 
         [Test]
-        public Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByProviderEmail()
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByEmployerEmail()
         {
-            return CheckCommandResponse(response => Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, response.LastUpdatedByProviderEmail, "Did not return expected Last Updated By Provider Email"));
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByEmployerEmail, response.LastUpdatedByEmployerEmail, "Did not return expected Last Updated By Employer Email"));
         }
 
-        private async Task CheckCommandResponse(Action<GetCohortSummaryQueryResult> assert)
+        [Test]
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByProviderEmail()
+        {
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, response.LastUpdatedByProviderEmail, "Did not return expected Last Updated By Provider Email"));
+        }
+
+        [TestCase(AgreementStatus.NotAgreed, false)]
+        [TestCase(AgreementStatus.ProviderAgreed, false)]
+        [TestCase(AgreementStatus.EmployerAgreed, true)]
+        [TestCase(AgreementStatus.BothAgreed, true)]
+        [TestCase(null, false)]
+        public async Task Handle_WithSpecifiedApprovals_ShouldReturnExpectedIsApprovedByEmployer(AgreementStatus? agreementStatus, bool expectIsApprovedByEmployer)
+        {
+            EditStatus = EditStatus.EmployerOnly;
+            ApprenticeshipAgreementStatus = agreementStatus;
+            await CheckQueryResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
+        }
+
+        private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert)
         {
             var autoFixture = new Fixture();
 
@@ -136,7 +147,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
-                .AddCommitment(CohortId, Cohort, EditStatus, AccountLegalEntityId, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider);
+                .AddCommitment(CohortId, Cohort, EditStatus, AccountLegalEntityId, LatestMessageCreatedByEmployer, LatestMessageCreatedByProvider, ApprenticeshipAgreementStatus);
 
             // act
             var response = await fixtures.GetResult(new GetCohortSummaryQuery(CohortId));
@@ -166,7 +177,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         public List<Cohort> SeedCohorts { get; }
         public Mock<IEncodingService> EncodingServiceMock { get; set; }
 
-        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, EditStatus editStatus, long decodedAccountLegalEntityId, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider)
+        public GetCohortSummaryHandlerTestFixtures AddCommitment(long cohortId, Cohort cohort, EditStatus editStatus, long decodedAccountLegalEntityId, string latestMessageCreatedByEmployer, string latestMessageCreatedByProvider, AgreementStatus? apprenticeshipAgreementStatus)
         {
             cohort.Id =  cohortId;
             cohort.EditStatus = editStatus;
@@ -198,6 +209,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 CreatedDateTime = DateTime.UtcNow,
                 Text = latestMessageCreatedByProvider
             });
+
+            if (apprenticeshipAgreementStatus.HasValue)
+            {
+                cohort.Apprenticeships.Add(new DraftApprenticeship
+                {
+                    AgreementStatus = apprenticeshipAgreementStatus.Value
+                });
+            }
 
             SeedCohorts.Add(cohort);
             

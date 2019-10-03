@@ -25,7 +25,8 @@
 	[TransferApprovalActionedOn] DATETIME2,
 	[AccountLegalEntityPublicHashedId] CHAR(6) NULL,
 	[Originator] TINYINT NOT NULL DEFAULT 0,
-	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL
+	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL,
+	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0
 )
 GO
 
