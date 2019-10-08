@@ -1,6 +1,6 @@
 ﻿CREATE VIEW [dbo].[ProviderPaymentPriority]
 AS 
-
+ 
 	WITH AllProviders
 AS
 (

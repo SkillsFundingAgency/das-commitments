@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         {
             long accountId = 1001;
             long accountLegalEntityId = 2001;
-            long cohortId = 3001;
+            long cohortId = 186091;
 
             ConsoleKey key = ConsoleKey.Escape;
 
@@ -37,6 +37,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("F - DraftApprenticeshipCreatedEvent");
                 Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
+                Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -89,7 +90,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortAssignedToProviderEvent)}");
                             break;
-
+                        case ConsoleKey.I:
+                            await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
+                            break;
                     }
                 }
                 catch (Exception e)

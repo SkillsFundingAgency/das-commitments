@@ -100,7 +100,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? TransferApprovalActionedOn { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
-        public ApprenticeshipEmployerType? ApprenticeshipEmployerTypeOnApproval { get; set; }
 
         public virtual ICollection<Apprenticeship> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
@@ -186,7 +185,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             
             if (IsApprovedByAllParties)
             {
-                Publish(() => new CohortFullyApprovedEvent(Id, now));
+                Publish(() => new CohortFullyApprovedEvent(Id, EmployerAccountId, ProviderId.Value, now));
             }
         }
 
@@ -241,6 +240,28 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             UpdatedBy(modifyingParty, userInfo);
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
+        }
+
+        public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap)
+        {
+            CheckThereIsNoPendingTransferRequest();
+            var transferRequest = new TransferRequest();
+            transferRequest.Status = (byte) Types.TransferApprovalStatus.Pending;
+            transferRequest.TrainingCourses = jsonSummary;
+            transferRequest.Cost = cost;
+            transferRequest.FundingCap = fundingCap;
+
+            TransferRequests.Add(transferRequest);
+            TransferApprovalStatus = Types.TransferApprovalStatus.Pending;
+            Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow));
+        }
+
+        private void CheckThereIsNoPendingTransferRequest()
+        {
+            if (TransferRequests.Any(x =>x.Status == (byte) Types.TransferApprovalStatus.Pending))
+            {
+                throw new DomainException(nameof(TransferRequests), $"Cohort already has a pending transfer request");
+            }
         }
 
         private void AddMessage(string text, Party sendingParty, UserInfo userInfo)

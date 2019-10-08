@@ -26,5 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public LastAction LastAction { get; set; }
         public string LastUpdatedByEmployerEmail { get; set; }
         public string LastUpdatedByProviderEmail { get; set; }
+		public bool IsApprovedByProvider { get; set; }
+        public bool IsApprovedByEmployer { get; set; }
     }
 }
