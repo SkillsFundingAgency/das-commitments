@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Commitments.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -21,6 +22,7 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -256,6 +258,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
+            public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
+            public Mock<IEncodingService> EncodingService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
@@ -316,6 +320,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
+                EmployerAgreementService = new Mock<IEmployerAgreementService>();
+                EncodingService = new Mock<IEncodingService>();
+
                 AuthenticationService = new Mock<IAuthenticationService>();
                 
                 CurrentDateTime = new Mock<ICurrentDateTime>();
@@ -332,7 +339,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     ReservationValidationService.Object,
                     OverlapCheckService.Object,
                     AuthenticationService.Object,
-                    CurrentDateTime.Object);
+                    CurrentDateTime.Object,
+                    EmployerAgreementService.Object,
+                    EncodingService.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)

@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.Commitments.Shared.Interfaces;
+using SFA.DAS.Commitments.Shared.Models;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -15,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -28,6 +31,8 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IEmployerAgreementService _employerAgreementService;
+        private readonly IEncodingService _encodingService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -36,7 +41,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             IReservationValidationService reservationValidationService,
             IOverlapCheckService overlapCheckService,
             IAuthenticationService authenticationService,
-            ICurrentDateTime currentDateTime)
+            ICurrentDateTime currentDateTime,
+            IEmployerAgreementService employerAgreementService,
+            IEncodingService encodingService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -46,6 +53,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             _overlapCheckService = overlapCheckService;
             _authenticationService = authenticationService;
             _currentDateTime = currentDateTime;
+            _employerAgreementService = employerAgreementService;
+            _encodingService = encodingService;
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -61,9 +70,15 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
+
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
-            
+
+            if (party == Party.Employer)
+            {
+                await ValidateEmployerHasSignedAgreement(cohort);
+            }
+
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
@@ -251,6 +266,24 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             throw new DomainException(errors);
+        }
+
+        private async Task ValidateEmployerHasSignedAgreement(Cohort cohort)
+        {
+            AgreementFeature[] agreementFeatures = null;
+
+            long accountLegalEntityId = _encodingService.Decode(cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+
+            if (cohort.TransferSenderId != null)
+            {
+                agreementFeatures = new AgreementFeature[] { AgreementFeature.Transfers };
+            }
+            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, accountLegalEntityId, agreementFeatures);
+
+            if (!isSigned)
+            {
+                throw new DomainException("Agreement", "The Employer has not signed the agreement");
+            }
         }
     }
 }
