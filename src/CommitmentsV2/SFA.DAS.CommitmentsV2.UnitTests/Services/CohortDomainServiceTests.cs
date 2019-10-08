@@ -239,6 +239,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
         }
 
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndThereIsATransferSenderAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -445,6 +459,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     TransferSenderId = null
                 };
                 
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingUnapprovedCohort()
+            {
+
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Neither,
+                    TransferSenderId = null
+                };
+
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingUnapprovedTransferCohort()
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Neither,
+                    TransferSenderId = 11212
+                };
+
                 Db.Cohorts.Add(Cohort);
 
                 return this;
