@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Caching;
@@ -25,6 +26,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers
                     .UseStructureMap()
                     .ConfigureServices((c, s) => s
                         .AddDasDistributedMemoryCache(c.Configuration, c.HostingEnvironment.IsDevelopment())
+                        .AddMemoryCache()
                         .AddNServiceBus())
                     .ConfigureContainer<Registry>(IoC.Initialize);
 
