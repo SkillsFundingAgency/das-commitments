@@ -242,6 +242,28 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
+        public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap)
+        {
+            CheckThereIsNoPendingTransferRequest();
+            var transferRequest = new TransferRequest();
+            transferRequest.Status = (byte) Types.TransferApprovalStatus.Pending;
+            transferRequest.TrainingCourses = jsonSummary;
+            transferRequest.Cost = cost;
+            transferRequest.FundingCap = fundingCap;
+
+            TransferRequests.Add(transferRequest);
+            TransferApprovalStatus = Types.TransferApprovalStatus.Pending;
+            Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow));
+        }
+
+        private void CheckThereIsNoPendingTransferRequest()
+        {
+            if (TransferRequests.Any(x =>x.Status == (byte) Types.TransferApprovalStatus.Pending))
+            {
+                throw new DomainException(nameof(TransferRequests), $"Cohort already has a pending transfer request");
+            }
+        }
+
         private void AddMessage(string text, Party sendingParty, UserInfo userInfo)
         {
             Messages.Add(new Message(this, sendingParty, userInfo.UserDisplayName, text == null || EditStatus == EditStatus.Both ? "" : text));
