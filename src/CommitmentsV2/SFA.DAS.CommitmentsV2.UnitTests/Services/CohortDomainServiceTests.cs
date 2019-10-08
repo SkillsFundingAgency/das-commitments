@@ -466,7 +466,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithExistingUnapprovedCohort()
             {
-
                 Cohort = new Cohort
                 {
                     Id = CohortId,
