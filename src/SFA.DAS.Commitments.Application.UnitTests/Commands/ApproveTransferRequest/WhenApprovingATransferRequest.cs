@@ -45,7 +45,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
         private Mock<IMediator> _mediator;
         private Mock<IMessagePublisher> _messagePublisher;
         private Mock<IHistoryRepository> _historyRepository;
-        private Mock<IFeatureToggleService> _featureToggleService;
         private Mock<IEmployerAccountsService> _employerAccountsService;
         private Account _account;
         private ApproveTransferRequestCommandHandler _sut;
@@ -63,7 +62,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
             _mediator = new Mock<IMediator>();
             _messagePublisher = new Mock<IMessagePublisher>();
             _historyRepository = new Mock<IHistoryRepository>();
-            _featureToggleService = new Mock<IFeatureToggleService>();
             _employerAccountsService = new Mock<IEmployerAccountsService>();
             _v2EventsPublisher = new Mock<IV2EventsPublisher>();
 
@@ -85,17 +83,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.ApproveTransferRequ
                 _apprenticeshipRepository.Object, _overlapRules.Object, _currentDateTime.Object,
                 _apprenticeshipEventsList, _apprenticeshipEventsPublisher.Object, _mediator.Object,
                 _messagePublisher.Object, _historyRepository.Object, Mock.Of<ICommitmentsLogger>(),
-                Mock.Of<IApprenticeshipInfoService>(), _featureToggleService.Object, _employerAccountsService.Object,
-                _v2EventsPublisher.Object);
+                Mock.Of<IApprenticeshipInfoService>(), _employerAccountsService.Object, _v2EventsPublisher.Object);
         }
 
-        [TestCase(false, null)]
-        [TestCase(true, ApprenticeshipEmployerType.NonLevy)]
-        [TestCase(true, ApprenticeshipEmployerType.Levy)]
-        public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus(bool isManageReservationsEnabled, ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval)
+        [TestCase(ApprenticeshipEmployerType.NonLevy)]
+        [TestCase(ApprenticeshipEmployerType.Levy)]
+        public async Task ThenEnsureRespositoryIsCalledWithApprovalStatus(ApprenticeshipEmployerType? apprenticeshipEmployerTypeOnApproval)
         {
             _command.TransferRequestId = 6467;
-            _featureToggleService.Setup(s => s.IsEnabled("ManageReservations")).Returns(isManageReservationsEnabled);
             _account.ApprenticeshipEmployerType = apprenticeshipEmployerTypeOnApproval.GetValueOrDefault();
             await _sut.Handle(_command);
 
