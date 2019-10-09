@@ -50,7 +50,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
                 MessagePublisher.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 Mock.Of<IApprenticeshipInfoService>(),
-                FeatureToggleService.Object,
                 EmployerAccountsService.Object);
         }
 
@@ -160,13 +159,11 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
             HistoryRepository.Verify(x => x.InsertHistory(It.Is<IEnumerable<HistoryItem>>(y => VerifyHistoryItem(y.Single(), CommitmentChangeType.FinalApproval, Command.UserId, Command.LastUpdatedByName, CallerType.Employer))), Times.Once);
         }
 
-        [TestCase(false, null)]
-        [TestCase(true, ApprenticeshipEmployerType.NonLevy)]
-        [TestCase(true, ApprenticeshipEmployerType.Levy)]
-        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentApprenticeshipEmployerTypeIsSet(bool isManageReservationsEnabled, ApprenticeshipEmployerType? apprenticeshipEmployerType)
+        [TestCase(ApprenticeshipEmployerType.NonLevy)]
+        [TestCase(ApprenticeshipEmployerType.Levy)]
+        public async Task ThenIfTheProviderHasAlreadyApprovedTheCommitmentApprenticeshipEmployerTypeIsSet(ApprenticeshipEmployerType? apprenticeshipEmployerType)
         {
             Commitment.Apprenticeships.ForEach(x => x.AgreementStatus = AgreementStatus.ProviderAgreed);
-            FeatureToggleService.Setup(s => s.IsEnabled("ManageReservations")).Returns(isManageReservationsEnabled);
             Account.ApprenticeshipEmployerType = apprenticeshipEmployerType.GetValueOrDefault();
             
             await Target.Handle(Command);

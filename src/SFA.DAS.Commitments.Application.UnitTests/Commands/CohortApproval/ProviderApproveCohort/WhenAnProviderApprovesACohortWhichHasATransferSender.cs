@@ -64,7 +64,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                 MessagePublisher.Object,
                 Mock.Of<ICommitmentsLogger>(),
                 ApprenticeshipInfoService.Object,
-                FeatureToggleService.Object,
                 EmployerAccountsService.Object);
         }
 

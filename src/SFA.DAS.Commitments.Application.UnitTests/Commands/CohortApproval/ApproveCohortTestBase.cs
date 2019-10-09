@@ -36,7 +36,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
         protected Mock<IMediator> Mediator;
         protected Mock<IMessagePublisher> MessagePublisher;
         protected Mock<IApprenticeshipInfoService> ApprenticeshipInfoService;
-        protected Mock<IFeatureToggleService> FeatureToggleService;
         protected Mock<IEmployerAccountsService> EmployerAccountsService;
         protected AsyncRequestHandler<T> Target;
         protected T Command;
@@ -93,7 +92,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval
             ApprenticeshipEventsPublisher = new Mock<IApprenticeshipEventsPublisher>();
             Mediator = new Mock<IMediator>();
             MessagePublisher = new Mock<IMessagePublisher>();
-            FeatureToggleService = new Mock<IFeatureToggleService>();
             EmployerAccountsService = new Mock<IEmployerAccountsService>();
         }
 
