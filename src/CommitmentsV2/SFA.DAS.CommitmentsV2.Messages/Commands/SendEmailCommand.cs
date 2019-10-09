@@ -7,9 +7,9 @@ namespace SFA.DAS.CommitmentsV2.Messages.Commands
         public string TemplateId { get; }
         public string RecipientsAddress { get; }
         public string ReplyToAddress { get; set; }
-        public Dictionary<string, string> Tokens { get; set; }
+        public IReadOnlyDictionary<string, string> Tokens { get; set; }
 
-        public SendEmailCommand(string templateId, string recipientsAddress, string replyToAddress, Dictionary<string, string> tokens)
+        public SendEmailCommand(string templateId, string recipientsAddress, string replyToAddress, IReadOnlyDictionary<string, string> tokens)
         {
             TemplateId = templateId;
             RecipientsAddress = recipientsAddress;
