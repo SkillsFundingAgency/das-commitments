@@ -23,7 +23,6 @@
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.199" />
     <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.199" />
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="4.3.1" />
-    <PackageReference Include="SFA.DAS.Commitments.Shared" Version="1.0.3-cv-449-check-for0005" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.57" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="15.0.8" />
@@ -37,6 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Shared\SFA.DAS.CommitmentsV2.Shared.csproj" />
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api.Types\SFA.DAS.CommitmentsV2.Api.Types.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Types\SFA.DAS.CommitmentsV2.Types.csproj" />
