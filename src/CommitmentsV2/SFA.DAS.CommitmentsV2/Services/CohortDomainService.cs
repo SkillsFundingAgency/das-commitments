@@ -282,7 +282,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (!isSigned)
             {
-                throw new InvalidOperationException($"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not sighed");
+                throw new InvalidOperationException($"Employer {cohort.EmployerAccountId} cannot approve any cohort because the agreement is not signed");
             }
         }
     }
