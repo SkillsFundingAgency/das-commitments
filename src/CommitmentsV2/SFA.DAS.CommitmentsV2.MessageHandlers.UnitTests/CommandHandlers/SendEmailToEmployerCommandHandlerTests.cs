@@ -146,8 +146,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
             public void VerifyCorrectMessageSendForSpecificEmail(string email)
             {
                 PipelineContext.Verify(
-                    x => x.Publish(It.Is<SendEmailCommand>(c =>
-                        c.RecipientsAddress == email && c.Tokens == Tokens && c.TemplateId == TemplateId), It.IsAny<PublishOptions>()), Times.Once);
+                    x => x.Send(It.Is<SendEmailCommand>(c =>
+                        c.RecipientsAddress == email && c.Tokens == Tokens && c.TemplateId == TemplateId), It.IsAny<SendOptions>()), Times.Once);
             }
 
             public void VerifyNoMessagesSent()
@@ -157,9 +157,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 
             public void VerifyMessageAreSentForOwnersAndTransactors()
             {
-                PipelineContext.Verify(x=>x.Publish(It.IsAny<SendEmailCommand>(), It.IsAny<PublishOptions>()), Times.Exactly(2));
-                PipelineContext.Verify(x => x.Publish(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "owner@test.com"), It.IsAny<PublishOptions>()), Times.Once);
-                PipelineContext.Verify(x => x.Publish(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "transactor@test.com"), It.IsAny<PublishOptions>()), Times.Once);
+                PipelineContext.Verify(x=>x.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Exactly(2));
+                PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "owner@test.com"), It.IsAny<SendOptions>()), Times.Once);
+                PipelineContext.Verify(x => x.Send(It.Is<SendEmailCommand>(c => c.RecipientsAddress == "transactor@test.com"), It.IsAny<SendOptions>()), Times.Once);
             }
         }
     }

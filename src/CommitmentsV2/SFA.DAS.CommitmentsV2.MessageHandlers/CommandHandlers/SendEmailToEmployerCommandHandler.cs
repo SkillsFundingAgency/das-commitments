@@ -52,7 +52,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
                 if (emails.Any())
                 {
                     await Task.WhenAll(emails.Select(email =>
-                        context.Publish(new SendEmailCommand(message.Template, email, ReplyTo, message.Tokens))));
+                        context.Send(new SendEmailCommand(message.Template, email, ReplyTo, message.Tokens))));
                 }
             }
             catch (Exception e)
