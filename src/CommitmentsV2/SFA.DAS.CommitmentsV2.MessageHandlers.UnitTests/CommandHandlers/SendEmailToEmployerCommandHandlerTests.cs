@@ -10,6 +10,7 @@ using SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
+using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
 {
