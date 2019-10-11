@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Types.Models;
@@ -38,6 +40,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
+                Console.WriteLine("J - SendEmailToEmployerCommand");
+                Console.WriteLine("K - RunHealthCheckCommand");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -94,6 +98,16 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
+                            break;
+                        case ConsoleKey.J:
+                            await _publisher.Send(new SendEmailToEmployerCommand(10003, "ABCDE", new Dictionary<string, string>(), "Test@test.com"), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(SendEmailToEmployerCommand)}");
+                            break;
+                        case ConsoleKey.K:
+                            await _publisher.Send(new RunHealthCheckCommand(), new SendOptions());
+                            Console.WriteLine();
+                            Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
                             break;
                     }
                 }
