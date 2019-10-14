@@ -15,5 +15,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
         public string LatestMessageCreatedByProvider { get; set; }
         public bool IsApprovedByEmployer { get; set; }
         public bool IsApprovedByProvider { get; set; }
+        public bool EmployerCanApprove { get; set; }
     }
 }
