@@ -256,6 +256,8 @@
     <Compile Include="Commands\ValidateReservation\ValidateReservationHandler.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationRequest.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationResponse.cs" />
+    <Compile Include="Interfaces\INotificationsPublisher.cs" />
+    <Compile Include="Services\NotificationsPublisher.cs" />
     <Compile Include="Services\ReservationValidationRequest.cs" />
     <Compile Include="Services\ReservationValidationService.cs" />
     <Compile Include="Commands\ApprenticeshipValidator.cs" />

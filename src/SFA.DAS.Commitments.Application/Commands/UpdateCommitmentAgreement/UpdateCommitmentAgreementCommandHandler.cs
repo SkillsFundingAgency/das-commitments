@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using SFA.DAS.Commitments.Application.Exceptions;
+using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Application.Rules;
 using SFA.DAS.Commitments.Application.Services;
@@ -32,11 +33,15 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
         private readonly IHistoryRepository _historyRepository;
         private readonly IApprenticeshipRepository _apprenticeshipRepository;
         private readonly IMessagePublisher _messagePublisher;
+        private readonly INotificationsPublisher _notificationsPublisher;
 
         private readonly ICommitmentsLogger _logger;
         private readonly AbstractValidator<UpdateCommitmentAgreementCommand> _validator;
 
-        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, AbstractValidator<UpdateCommitmentAgreementCommand> validator, IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, IMessagePublisher messagePublisher)
+        public UpdateCommitmentAgreementCommandHandler(ICommitmentRepository commitmentRepository, IApprenticeshipRepository apprenticeshipRepository, 
+            IApprenticeshipUpdateRules apprenticeshipUpdateRules, ICommitmentsLogger logger, AbstractValidator<UpdateCommitmentAgreementCommand> validator, 
+            IApprenticeshipEventsList apprenticeshipEventsList, IApprenticeshipEventsPublisher apprenticeshipEventsPublisher, IHistoryRepository historyRepository, 
+            IMessagePublisher messagePublisher, INotificationsPublisher notificationsPublisher)
         {
             _commitmentRepository = commitmentRepository;
             _apprenticeshipRepository = apprenticeshipRepository;
@@ -45,12 +50,16 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             _apprenticeshipEventsPublisher = apprenticeshipEventsPublisher;
             _historyRepository = historyRepository;
             _messagePublisher = messagePublisher;
+            _notificationsPublisher = notificationsPublisher;
             _logger = logger;
             _validator = validator;
         }
 
         protected override async Task HandleCore(UpdateCommitmentAgreementCommand command)
         {
+            bool ProviderHasAmendedCohort() => command.Caller.CallerType == CallerType.Provider &&
+                                         command.LatestAction != LastAction.None;
+
             _validator.ValidateAndThrow(command);
 
             LogMessage(command);
@@ -72,6 +81,11 @@ namespace SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement
             if (ApprovedCommitmentIsBeingReturnedToProvider(command, providerHasPreviouslyApprovedCommitment))
             {
                 await _messagePublisher.PublishAsync(new ApprovedCohortReturnedToProvider(commitment.EmployerAccountId, commitment.ProviderId.Value, commitment.Id));
+            }
+
+            if (ProviderHasAmendedCohort())
+            {
+                await _notificationsPublisher.ProviderAmendedCohort(commitment);
             }
         }
 

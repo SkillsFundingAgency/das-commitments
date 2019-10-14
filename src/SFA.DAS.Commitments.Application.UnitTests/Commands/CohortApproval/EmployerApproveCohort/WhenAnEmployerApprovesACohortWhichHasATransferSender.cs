@@ -137,5 +137,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Empl
                 null
             ), Times.Exactly(Commitment.Apprenticeships.Count));
         }
+
+
+        [Test]
+        public async Task ThenTheProviderApprovedCohortNotificationIsNotSent()
+        {
+            await Target.Handle(Command);
+
+            NotificationsPublisher.Verify(x => x.ProviderApprovedCohort(It.IsAny<Commitment>()), Times.Never);
+        }
     }
 }

@@ -52,7 +52,8 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
                 Mock.Of<ICommitmentsLogger>(),
                 Mock.Of<IApprenticeshipInfoService>(),
                 FeatureToggleService.Object,
-                EmployerAccountsService.Object);
+                EmployerAccountsService.Object,
+                NotificationsPublisher.Object);
         }
 
         [Test]
@@ -252,6 +253,14 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
             Assert.AreEqual(Command.Message, Commitment.Messages.Last().Text);
             Assert.AreEqual(CallerType.Provider, Commitment.Messages.Last().CreatedBy);
             CommitmentRepository.Verify(x => x.SaveMessage(Commitment.Id, Commitment.Messages.Last()));
+        }
+
+        [Test]
+        public async Task ThenTheProviderApprovedCohortNotificationIsSent()
+        {
+            await Target.Handle(Command);
+
+            NotificationsPublisher.Verify(x => x.ProviderApprovedCohort(Commitment));
         }
     }
 }

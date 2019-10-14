@@ -24,6 +24,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
         private readonly ICommitmentsLogger _logger;
         private readonly IFeatureToggleService _featureToggleService;
         private readonly IEmployerAccountsService _employerAccountsService;
+        private readonly INotificationsPublisher _notificationsPublisher;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -41,6 +42,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             IApprenticeshipInfoService apprenticeshipInfoService,
             IFeatureToggleService featureToggleService,
             IEmployerAccountsService employerAccountsService,
+            INotificationsPublisher notificationsPublisher,
             IV2EventsPublisher v2EventsPublisher = null)
         {
             _validator = validator;
@@ -49,6 +51,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             _logger = logger;
             _featureToggleService = featureToggleService;
             _employerAccountsService = employerAccountsService;
+            _notificationsPublisher = notificationsPublisher;
             _historyService = new HistoryService(historyRepository);
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
         }
@@ -85,6 +88,13 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             {
                 await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
             }
+
+            if (message.Caller.CallerType == CallerType.Provider)
+            {
+                await _notificationsPublisher.ProviderApprovedCohort(commitment);
+            }
+
+
         }
 
         private async Task PublishApprovalRequestedMessage(Commitment commitment)
