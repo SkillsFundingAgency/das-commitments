@@ -146,7 +146,6 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.CohortApproval.Prov
         public async Task ThenTheProviderApprovedCohortNotificationIsSent()
         {
             await Target.Handle(Command);
-
             NotificationsPublisher.Verify(x => x.ProviderApprovedCohort(Commitment));
         }
     }

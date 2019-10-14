@@ -129,7 +129,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 {
                     employee.CanReceiveNotifications = false;
                 }
-
                 return this;
             }
 

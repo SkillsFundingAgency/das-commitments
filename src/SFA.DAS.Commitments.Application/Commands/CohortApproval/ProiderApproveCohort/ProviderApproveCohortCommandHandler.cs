@@ -93,8 +93,6 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             {
                 await _notificationsPublisher.ProviderApprovedCohort(commitment);
             }
-
-
         }
 
         private async Task PublishApprovalRequestedMessage(Commitment commitment)
