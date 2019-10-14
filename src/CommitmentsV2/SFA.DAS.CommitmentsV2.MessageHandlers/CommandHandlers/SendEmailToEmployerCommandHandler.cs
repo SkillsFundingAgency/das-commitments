@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.Notifications.Messages.Commands;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 {
