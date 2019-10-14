@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                         return Party.Employer;
                     case EditStatus.ProviderOnly:
                         return Party.Provider;
-                    case EditStatus.Both when TransferSenderId != null && TransferApprovalStatus == Types.TransferApprovalStatus.Pending:
+                    case EditStatus.Both when TransferSenderId != null && TransferApprovalStatus != Types.TransferApprovalStatus.Approved:
                         return Party.TransferSender;
                     default:
                         return Party.None;
