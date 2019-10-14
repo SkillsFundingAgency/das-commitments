@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.Authorization;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Features;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.CommitmentsV2.Validators;
 
@@ -31,13 +30,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Validators
             AssertValidationResult(request => request.ProviderId, value, expectedValid);
         }
 
-        [TestCase(false, false, true)]
-        [TestCase(false, true, true)]
-        [TestCase(true, false, false)]
-        [TestCase(true, true, true)]
-        public void Validate_ReservationId_ShouldBeValidated(bool isFeatureEnabled, bool hasValue, bool expectedValid)
+
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void Validate_ReservationId_ShouldBeValidated(bool hasValue, bool expectedValid)
         {
-            AssertValidationResult(request => request.ReservationId, s => s == Feature.Reservations && isFeatureEnabled, hasValue ? Guid.NewGuid() : (Guid?)null, expectedValid);
+            AssertValidationResult(request => request.ReservationId, hasValue ? Guid.NewGuid() : (Guid?)null, expectedValid);
         }
 
         [TestCase("XXXXXXXXX1XXXXXXXXX2XXXXXXXXX3XXXXXXXXX4XXXXXXXXX5XXXXXXXXX6XXXXXXXXX7XXXXXXXXX8XXXXXXXXX9XXXXXXXXX100", false)]
