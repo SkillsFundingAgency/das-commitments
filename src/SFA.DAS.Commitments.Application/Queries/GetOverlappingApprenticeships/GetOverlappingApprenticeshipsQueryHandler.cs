@@ -54,7 +54,7 @@ namespace SFA.DAS.Commitments.Application.Queries.GetOverlappingApprenticeships
 
                     if (validationFailReason != ValidationFailReason.None)
                     {
-                        _logger.Info($"ULN: {request.Uln} {request.StartDate:MMM yyyy} - {request.EndDate:MMM yyyy} Reason: {validationFailReason} " +
+                        _logger.Info($"Reason: {validationFailReason} " +
                                      $"with Apprenticeship Id: {apprenticeship.Id} {apprenticeship.StartDate:MMM yyyy} - {apprenticeship.EndDate:MMM yyyy}");
                         apprenticeship.ValidationFailReason = validationFailReason;
                         apprenticeship.RequestApprenticeshipId = request.ApprenticeshipId;
