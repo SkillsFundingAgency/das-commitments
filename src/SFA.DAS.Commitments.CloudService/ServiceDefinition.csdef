@@ -12,8 +12,9 @@
       <Setting name="EnvironmentName" />
       <Setting name="ConfigurationStorageConnectionString" />
       <Setting name="ApiTokenSecret" />
-      <Setting name="ApiIssuer" />
+      <Setting name="ApiIssuers" />
       <Setting name="ApiAudiences" />
+      <Setting name="MetadataEndpoint" />
       <Setting name="LoggingRedisConnectionString"/>
       <Setting name="LoggingRedisKey"/>
       <Setting name="InstrumentationKey"/>
