@@ -156,6 +156,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
+                    TransferApprovalStatus = null;
                     DraftApprenticeships.ForEach(a => a.Approve(modifyingParty, now));
                     AddMessage(message, modifyingParty, userInfo);
                     UpdatedBy(modifyingParty, userInfo);
@@ -197,6 +198,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
+            TransferApprovalStatus = null;
             AddMessage(message, modifyingParty, userInfo);
             UpdatedBy(modifyingParty, userInfo);
             
