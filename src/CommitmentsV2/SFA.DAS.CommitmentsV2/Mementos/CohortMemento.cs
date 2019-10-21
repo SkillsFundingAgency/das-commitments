@@ -1,9 +1,11 @@
-﻿using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mementos
 {
     public class CohortMemento : IMemento
     {
+        public string EntityName => nameof(Cohort);
         public long Id { get; }
         public string CohortReference { get; }
         public long ProviderId { get; set; }

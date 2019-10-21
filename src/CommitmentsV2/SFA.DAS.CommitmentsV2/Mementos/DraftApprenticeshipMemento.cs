@@ -1,9 +1,11 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Mementos
 {
     public class DraftApprenticeshipMemento : IMemento
     {
+        public string EntityName => nameof(DraftApprenticeship);
         public long Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

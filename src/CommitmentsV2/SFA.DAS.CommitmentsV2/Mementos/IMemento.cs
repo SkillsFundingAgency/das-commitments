@@ -3,5 +3,6 @@
     public interface IMemento
     {
         long Id { get; }
+        string EntityName { get; }
     }
 }

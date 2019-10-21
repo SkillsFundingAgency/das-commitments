@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -14,11 +13,9 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
-using SFA.DAS.CommitmentsV2.Mementos;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
-using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -32,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IDiffGeneratorService _diffGeneratorService;
+        private readonly IChangeTrackingService _changeTrackingService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -41,8 +38,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             IReservationValidationService reservationValidationService,
             IOverlapCheckService overlapCheckService,
             IAuthenticationService authenticationService,
-            ICurrentDateTime currentDateTime,
-            IDiffGeneratorService diffGeneratorService)
+            ICurrentDateTime currentDateTime, IChangeTrackingService changeTrackingService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -52,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _overlapCheckService = overlapCheckService;
             _authenticationService = authenticationService;
             _currentDateTime = currentDateTime;
-            _diffGeneratorService = diffGeneratorService;
+            _changeTrackingService = changeTrackingService;
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -60,14 +56,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
             var cohort = await GetCohort(cohortId, db, cancellationToken);
             var party = _authenticationService.GetUserParty();
+
+            _changeTrackingService.BeginTrackingSession(UserAction.AddDraftApprenticeship, party, cohort.EmployerAccountId, providerId, userInfo);
+
+            _changeTrackingService.TrackUpdate(cohort);
+
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            var updated = draftApprenticeship.CreateMemento();
-            var diff = _diffGeneratorService.GenerateDiff(null, updated);
-
-            PublishEntityStateChangedEvent(null, updated, cohort.EmployerAccountId, cohort.ProviderId.Value, EntityStateChangeType.CohortApproved, party, userInfo, diff);
+            _changeTrackingService.TrackInsert(draftApprenticeship);
+            _changeTrackingService.CompleteTrackingSession();
 
             return draftApprenticeship;
         }
@@ -77,14 +76,12 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
-            var initial = cohort.CreateMemento();
+            _changeTrackingService.BeginTrackingSession(UserAction.ApproveCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
+            _changeTrackingService.TrackUpdate(cohort);
 
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
 
-            var updated = cohort.CreateMemento();
-            var diff = _diffGeneratorService.GenerateDiff(initial, updated);
-
-            PublishEntityStateChangedEvent(initial, updated, cohort.EmployerAccountId, cohort.ProviderId.Value, EntityStateChangeType.CohortApproved, party, userInfo, diff);
+            _changeTrackingService.CompleteTrackingSession();
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -97,7 +94,13 @@ namespace SFA.DAS.CommitmentsV2.Services
 
 			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+            var cohort = originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+
+            _changeTrackingService.BeginTrackingSession(UserAction.CreateCohort, originatingParty, accountId, provider.UkPrn, userInfo);
+            _changeTrackingService.TrackInsert(cohort);
+            _changeTrackingService.CompleteTrackingSession();
+
+            return cohort;
         }
 
         public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -114,21 +117,33 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
 
-            return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
+            var cohort = accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
+
+            _changeTrackingService.BeginTrackingSession(UserAction.CreateCohortWithOtherParty, originatingParty, accountId, provider.UkPrn, userInfo);
+            _changeTrackingService.TrackInsert(cohort);
+            _changeTrackingService.CompleteTrackingSession();
+
+            return cohort;
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
-            
+
+            _changeTrackingService.BeginTrackingSession(UserAction.CreateCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
+            _changeTrackingService.TrackUpdate(cohort);
+
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
+
+            _changeTrackingService.CompleteTrackingSession();
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
 
+            var party = _authenticationService.GetUserParty();
             var cohort = await db.Cohorts
                                 .Include(c => c.Apprenticeships)
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
@@ -136,9 +151,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
+            _changeTrackingService.BeginTrackingSession(UserAction.CreateCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
+            _changeTrackingService.TrackUpdate(cohort);
+            _changeTrackingService.TrackUpdate(cohort.DraftApprenticeships.Single(x => x.Id == draftApprenticeshipDetails.Id));
+
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+
+            _changeTrackingService.CompleteTrackingSession();
 
             return cohort;
         }
@@ -271,31 +292,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             throw new DomainException(errors);
-        }
-
-        //todo: make a memento interface?
-        //also, do the diff inside here?
-        //or add a history service?
-        private void PublishEntityStateChangedEvent(IMemento initial, IMemento updated, long employerAccountId, long providerId,
-            EntityStateChangeType stateChangeType, Party modifyingParty, UserInfo userInfo, IReadOnlyList<DiffItem> diff)
-        {
-            var diffJson = JsonConvert.SerializeObject(diff);
-
-            UnitOfWorkContext.AddEvent(() => new EntityStateChangedEvent
-            {
-                StateChangeType = stateChangeType,
-                EntityType = nameof(Cohort),
-                EntityId = initial?.Id ?? updated.Id,
-                ProviderId = providerId,
-                EmployerAccountId = employerAccountId,
-                InitialState = initial == null ? null : JsonConvert.SerializeObject(initial),
-                UpdatedState = updated == null ? null: JsonConvert.SerializeObject(updated),
-                Diff = diffJson,
-                UpdatedOn = DateTime.UtcNow,
-                UpdatingParty = modifyingParty,
-                UpdatingUserId = userInfo.UserId,
-                UpdatingUserName = userInfo.UserDisplayName
-            });
         }
     }
 }

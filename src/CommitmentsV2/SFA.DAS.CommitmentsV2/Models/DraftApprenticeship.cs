@@ -1,12 +1,13 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mementos;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class DraftApprenticeship : Apprenticeship
+    public class DraftApprenticeship : Apprenticeship, IMementoCreator
     {
         private bool IsCompleteForEmployer => 
             FirstName != null &&
@@ -108,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public DraftApprenticeshipMemento CreateMemento()
+        public IMemento CreateMemento()
         {
             return new DraftApprenticeshipMemento
             {

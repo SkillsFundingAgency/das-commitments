@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
 {
     public class AddHistoryCommand : IRequest
     {
-        public EntityStateChangeType StateChangeType { get; set; }
+        public UserAction StateChangeType { get; set; }
         public long EntityId { get; set; }
         public string EntityType { get; set; }
         public long EmployerAccountId { get; set; }

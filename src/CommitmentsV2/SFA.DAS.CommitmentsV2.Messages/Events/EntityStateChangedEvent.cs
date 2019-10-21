@@ -5,7 +5,8 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
     public class EntityStateChangedEvent
     {
-        public EntityStateChangeType StateChangeType { get; set; }
+        public Guid CorrelationId { get; set; }
+        public UserAction StateChangeType { get; set; }
         public string EntityType { get; set; }
         public long EmployerAccountId { get; set; }
         public long ProviderId { get; set; }
@@ -19,9 +20,12 @@ namespace SFA.DAS.CommitmentsV2.Messages.Events
         public DateTime UpdatedOn { get; set; }
     }
 
-    public enum EntityStateChangeType
+    public enum UserAction
     {
-        CohortApproved,
-        CohortSentToOtherParty
+        ApproveCohort,
+        SendCohort,
+        AddDraftApprenticeship,
+        CreateCohort,
+        CreateCohortWithOtherParty
     }
 }

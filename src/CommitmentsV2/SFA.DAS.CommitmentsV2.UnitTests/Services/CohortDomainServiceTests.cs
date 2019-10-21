@@ -333,7 +333,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     OverlapCheckService.Object,
                     AuthenticationService.Object,
                     CurrentDateTime.Object,
-                    Mock.Of<IDiffGeneratorService>());
+                    Mock.Of<IChangeTrackingService>());
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)

@@ -7,13 +7,14 @@ using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Mementos;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class Cohort : Entity
+    public class Cohort : Entity, IMementoCreator
     {
         public Cohort()
         {
@@ -147,8 +148,6 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
             CheckHasDraftApprenticeships();
-
-            var initialState = CreateMemento();
 
             switch (modifyingParty)
             {
@@ -498,7 +497,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public CohortMemento CreateMemento()
+        public IMemento CreateMemento()
         {
             return new CohortMemento(Id, Reference, ProviderId.Value, EmployerAccountId, WithParty, GetPartyApprovals(), TransferSenderId);
         }
