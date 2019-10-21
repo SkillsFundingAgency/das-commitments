@@ -27,27 +27,29 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.CommandHandlers
 
         public async Task Handle(SendEmailToEmployerCommand message, IMessageHandlerContext context)
         {
+
+            bool IsOwnerOrTransactor(string role)
+            {
+                return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
+                       role.Equals(Transactor, StringComparison.InvariantCultureIgnoreCase);
+            }
+
             try
             {
-                List<string> emails;
-
-                bool IsOwnerOrTransactor(string role)
-                {
-                    return role.Equals(Owner, StringComparison.InvariantCultureIgnoreCase) ||
-                           role.Equals(Transactor, StringComparison.InvariantCultureIgnoreCase);
-                }
+                List<string> emails = new List<string>();
+                var users = await _accountApiClient.GetAccountUsers(message.AccountId);
 
                 if (string.IsNullOrWhiteSpace(message.EmailAddress))
                 {
-                    var users = await _accountApiClient.GetAccountUsers(message.AccountId);
-                    emails = users.Where(x =>
+                    emails.AddRange(users.Where(x =>
                             x.CanReceiveNotifications && !string.IsNullOrWhiteSpace(x.Email) &&
                             IsOwnerOrTransactor(x.Role))
-                        .Select(x => x.Email).ToList();
+                        .Select(x => x.Email));
                 }
-                else
-                {
-                    emails = new List<string> {message.EmailAddress};
+                else if (users.Any(x => message.EmailAddress.Equals(x.Email, StringComparison.InvariantCultureIgnoreCase) &&
+                    x.CanReceiveNotifications))
+                { 
+                    emails.Add(message.EmailAddress);
                 }
 
                 if (emails.Any())

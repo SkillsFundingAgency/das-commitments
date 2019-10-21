@@ -27,11 +27,27 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
         }
 
         [TestCase("test@test.com")]
-        public async Task When_HandlingCommand_AndAEmailIsSpecified_OneEmailIsSent(string email)
+        public async Task When_HandlingCommand_AndAEmailIsSpecifiedAndUserAcceptsNotifications_OneEmailIsSent(string email)
+        {
+            _fixture.SetupCommandWithSpecificEmailAddress(email).AddToEmployeeList(email.ToUpper(), true);
+            await _fixture.Handle();
+            _fixture.VerifyCorrectMessageSendForSpecificEmail(email);
+        }
+
+        [TestCase("test@test.com")]
+        public async Task When_HandlingCommand_AndAEmailIsSpecifiedAndUserDoesntAcceptsNotifications_NoEmailIsSent(string email)
+        {
+            _fixture.SetupCommandWithSpecificEmailAddress(email).AddToEmployeeList(email, false);
+            await _fixture.Handle();
+            _fixture.VerifyNoMessagesSent(); ;
+        }
+
+        [TestCase("test@test.com")]
+        public async Task When_HandlingCommand_AndAEmailIsSpecifiedAndNoUserIsFoundInEmployeeList_NoEmailIsSent(string email)
         {
             _fixture.SetupCommandWithSpecificEmailAddress(email);
             await _fixture.Handle();
-            _fixture.VerifyCorrectMessageSendForSpecificEmail(email);
+            _fixture.VerifyNoMessagesSent(); ;
         }
 
         [Test]
@@ -120,6 +136,12 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.CommandHandlers
                 Employees.Add(new TeamMemberViewModel { CanReceiveNotifications = true, Email = "owner@test.com", Role = "Owner" });
                 Employees.Add(new TeamMemberViewModel { CanReceiveNotifications = true, Email = "transactor@test.com", Role = "Transactor" });
                 Employees.Add(new TeamMemberViewModel { CanReceiveNotifications = true, Email = "viewer@test.com", Role = "Viewer" });
+                return this;
+            }
+
+            public SendEmailToEmployerCommandHandlerTestsFixture AddToEmployeeList(string email, bool acceptNotifications)
+            {
+                Employees.Add(new TeamMemberViewModel { CanReceiveNotifications = acceptNotifications, Email = email, Role = "Viewer" });
                 return this;
             }
 
