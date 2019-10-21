@@ -13,5 +13,6 @@
 	[EmployerAccountId] BIGINT NULL,
     [UpdatedByName] NVARCHAR(255) NULL, 
     [OriginalState] NVARCHAR(MAX) NULL, 
-    [UpdatedState] NVARCHAR(MAX) NULL
+    [UpdatedState] NVARCHAR(MAX) NULL,
+	[Diff] NVARCHAR(MAX) NULL
 )

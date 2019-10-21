@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
@@ -13,8 +14,11 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Mementos;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
@@ -28,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
+        private readonly IDiffGeneratorService _diffGeneratorService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -36,7 +41,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IReservationValidationService reservationValidationService,
             IOverlapCheckService overlapCheckService,
             IAuthenticationService authenticationService,
-            ICurrentDateTime currentDateTime)
+            ICurrentDateTime currentDateTime,
+            IDiffGeneratorService diffGeneratorService)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -46,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _overlapCheckService = overlapCheckService;
             _authenticationService = authenticationService;
             _currentDateTime = currentDateTime;
+            _diffGeneratorService = diffGeneratorService;
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -63,8 +70,15 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
-            
+
+            var initial = cohort.CreateMemento();
+
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
+
+            var updated = cohort.CreateMemento();
+            var diff = _diffGeneratorService.GenerateDiff(initial, updated);
+
+            PublishEntityStateChangedEvent(initial, updated, EntityStateChangeType.CohortApproved, party, userInfo, diff);
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -251,6 +265,28 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
 
             throw new DomainException(errors);
+        }
+
+        private void PublishEntityStateChangedEvent(CohortMemento initial, CohortMemento updated,
+            EntityStateChangeType stateChangeType, Party modifyingParty, UserInfo userInfo, IReadOnlyList<DiffItem> diff)
+        {
+            var diffJson = JsonConvert.SerializeObject(diff);
+
+            UnitOfWorkContext.AddEvent(() => new EntityStateChangedEvent
+            {
+                StateChangeType = stateChangeType,
+                EntityType = nameof(Cohort),
+                EntityId = initial.CohortId,
+                ProviderId = initial.ProviderId,
+                EmployerAccountId = initial.EmployerAccountId,
+                InitialState = initial == null ? null : JsonConvert.SerializeObject(initial),
+                UpdatedState = updated == null ? null: JsonConvert.SerializeObject(updated),
+                Diff = diffJson,
+                UpdatedOn = DateTime.UtcNow,
+                UpdatingParty = modifyingParty,
+                UpdatingUserId = userInfo.UserId,
+                UpdatingUserName = userInfo.UserDisplayName
+            });
         }
     }
 }

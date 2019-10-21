@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Mementos;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
@@ -131,10 +132,12 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckIsWithParty(creator);
             ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails);
+
             var draftApprenticeship = new DraftApprenticeship(draftApprenticeshipDetails, creator);
             Apprenticeships.Add(draftApprenticeship);
             ResetApprovals();
             UpdatedBy(creator, userInfo);
+
             Publish(() => new DraftApprenticeshipCreatedEvent(draftApprenticeship.Id, Id, draftApprenticeship.Uln, draftApprenticeship.ReservationId, draftApprenticeship.CreatedOn.Value));
             return draftApprenticeship;
         }
@@ -144,6 +147,8 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckIsEmployerOrProviderOrTransferSender(modifyingParty);
             CheckIsWithParty(modifyingParty);
             CheckHasDraftApprenticeships();
+
+            var initialState = CreateMemento();
 
             switch (modifyingParty)
             {
@@ -194,14 +199,14 @@ namespace SFA.DAS.CommitmentsV2.Models
         {
             CheckIsEmployerOrProvider(modifyingParty);
             CheckIsWithParty(modifyingParty);
-            
+
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
             TransferApprovalStatus = null;
             AddMessage(message, modifyingParty, userInfo);
             UpdatedBy(modifyingParty, userInfo);
-            
+
             switch (EditStatus)
             {
                 case EditStatus.EmployerOnly:
@@ -491,6 +496,30 @@ namespace SFA.DAS.CommitmentsV2.Models
                     LastUpdatedByProviderEmail = userInfo.UserEmail;
                     break;
             }
+        }
+
+        public CohortMemento CreateMemento()
+        {
+            return new CohortMemento(Id, Reference, ProviderId.Value, EmployerAccountId, WithParty, GetPartyApprovals(), TransferSenderId);
+        }
+
+        private Party GetPartyApprovals()
+        {
+            var approvals = Party.None;
+            if (IsApprovedByParty(Party.Employer))
+            {
+                approvals |= Party.Employer;
+            }
+            if (IsApprovedByParty(Party.Provider))
+            {
+                approvals |= Party.Provider;
+            }
+            if (IsApprovedByParty(Party.TransferSender))
+            {
+                approvals |= Party.TransferSender;
+            }
+
+            return approvals;
         }
     }
 }
