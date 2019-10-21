@@ -146,7 +146,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         {
             var apprenticeDetails = SetApprenticeDetails(nullProperty);
 
-            await CheckQueryResponse(response => Assert.AreEqual(expectedEmployerCanApprove, response.EmployerCanApprove),
+            await CheckQueryResponse(response => Assert.AreEqual(expectedEmployerCanApprove, response.IsCompleteForEmployer),
                 apprenticeDetails);
         }
 

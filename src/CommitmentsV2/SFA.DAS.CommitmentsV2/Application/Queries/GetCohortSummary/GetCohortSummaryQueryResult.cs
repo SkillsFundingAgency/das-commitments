@@ -28,6 +28,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
         public string LastUpdatedByProviderEmail { get; set; }
 		public bool IsApprovedByProvider { get; set; }
         public bool IsApprovedByEmployer { get; set; }
-        public bool EmployerCanApprove { get; set; }
+        public bool IsCompleteForEmployer { get; set; }
     }
 }

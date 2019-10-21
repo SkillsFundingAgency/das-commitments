@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
                 IsApprovedByEmployer = result.IsApprovedByEmployer,
                 IsApprovedByProvider = result.IsApprovedByProvider,
-                EmployerCanApprove = result.EmployerCanApprove
+                IsCompleteForEmployer = result.IsCompleteForEmployer
             });
         }
 
