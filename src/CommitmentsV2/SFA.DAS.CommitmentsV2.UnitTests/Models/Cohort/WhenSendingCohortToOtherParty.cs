@@ -132,6 +132,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.Cohort.Apprenticeships.Should().HaveCount(2)
                 .And.Subject.All(a => a.AgreementStatus == AgreementStatus.NotAgreed).Should().BeTrue();
         }
+
+        [Test]
+        public void ThenShouldResetTransferApprovalStatus()
+        {
+            _fixture.SetModifyingParty(Party.Employer)
+                .SetEditStatus(Party.Employer.ToEditStatus())
+                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetTransferApprovalStatus(TransferApprovalStatus.Rejected)
+                .SendToOtherParty();
+
+            _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
+        }
     }
 
     public class WhenSendingCohortToOtherPartyTestsFixture
@@ -166,6 +178,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             
             Cohort.Add(c => c.Apprenticeships, apprenticeship);
             
+            return this;
+        }
+
+        public WhenSendingCohortToOtherPartyTestsFixture SetTransferApprovalStatus(TransferApprovalStatus status)
+        {
+            Cohort.Set(x => x.TransferApprovalStatus, status);
             return this;
         }
 
