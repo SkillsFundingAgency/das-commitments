@@ -11,18 +11,44 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         public IReadOnlyList<DiffItem> GenerateDiff(object initial, object updated)
         {
-            if (initial.GetType() != updated.GetType())
+            if (initial != null && updated!= null && initial.GetType() != updated.GetType())
             {
                 throw new ArgumentException("Diff generation can only be performed on objects of the same type");
             }
 
+            var targetType = initial == null ? updated.GetType() : initial.GetType();
+
             var result = new List<DiffItem>();
 
-            var type = typeof(CohortMemento);
-            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var property in targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                var initialValue = property.GetValue(initial);
-                var updatedValue = property.GetValue(updated);
+                var initialValue = initial == null ? null : property.GetValue(initial);
+                var updatedValue = updated == null ? null : property.GetValue(updated);
+
+                if (initialValue == null)
+                {
+                    if (updatedValue != null)
+                    {
+                        result.Add(new DiffItem
+                        {
+                            PropertyName = property.Name,
+                            InitialValue = null,
+                            UpdatedValue = updatedValue
+                        });
+                    }
+                    continue;
+                }
+
+                if (updatedValue == null)
+                {
+                    result.Add(new DiffItem
+                    {
+                        PropertyName = property.Name,
+                        InitialValue = initialValue,
+                        UpdatedValue = null
+                    });
+                    continue;
+                }
 
                 if (!initialValue.Equals(updatedValue))
                 {

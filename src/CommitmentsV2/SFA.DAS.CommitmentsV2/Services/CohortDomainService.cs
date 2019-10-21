@@ -59,9 +59,15 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var db = _dbContext.Value;
             var cohort = await GetCohort(cohortId, db, cancellationToken);
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
+            var party = _authenticationService.GetUserParty();
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+
+            var updated = draftApprenticeship.CreateMemento();
+            var diff = _diffGeneratorService.GenerateDiff(null, updated);
+
+            PublishEntityStateChangedEvent(null, updated, cohort.EmployerAccountId, cohort.ProviderId.Value, EntityStateChangeType.CohortApproved, party, userInfo, diff);
 
             return draftApprenticeship;
         }
@@ -78,7 +84,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var updated = cohort.CreateMemento();
             var diff = _diffGeneratorService.GenerateDiff(initial, updated);
 
-            PublishEntityStateChangedEvent(initial, updated, EntityStateChangeType.CohortApproved, party, userInfo, diff);
+            PublishEntityStateChangedEvent(initial, updated, cohort.EmployerAccountId, cohort.ProviderId.Value, EntityStateChangeType.CohortApproved, party, userInfo, diff);
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -267,7 +273,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             throw new DomainException(errors);
         }
 
-        private void PublishEntityStateChangedEvent(CohortMemento initial, CohortMemento updated,
+        //todo: make a memento interface?
+        //also, do the diff inside here?
+        //or add a history service?
+        private void PublishEntityStateChangedEvent(IMemento initial, IMemento updated, long employerAccountId, long providerId,
             EntityStateChangeType stateChangeType, Party modifyingParty, UserInfo userInfo, IReadOnlyList<DiffItem> diff)
         {
             var diffJson = JsonConvert.SerializeObject(diff);
@@ -276,9 +285,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 StateChangeType = stateChangeType,
                 EntityType = nameof(Cohort),
-                EntityId = initial.CohortId,
-                ProviderId = initial.ProviderId,
-                EmployerAccountId = initial.EmployerAccountId,
+                EntityId = initial?.Id ?? updated.Id,
+                ProviderId = providerId,
+                EmployerAccountId = employerAccountId,
                 InitialState = initial == null ? null : JsonConvert.SerializeObject(initial),
                 UpdatedState = updated == null ? null: JsonConvert.SerializeObject(updated),
                 Diff = diffJson,

@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using SFA.DAS.CommitmentsV2.Types;
+﻿using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mementos
 {
-    public class CohortMemento
+    public class CohortMemento : IMemento
     {
-        public long CohortId { get;  }
+        public long Id { get; }
         public string CohortReference { get; }
         public long ProviderId { get; set; }
         public long EmployerAccountId { get; set; }
@@ -14,9 +12,9 @@ namespace SFA.DAS.CommitmentsV2.Mementos
         public Party Approvals { get; }
         public long? TransferSenderId { get; }
         
-        public CohortMemento(long cohortId, string cohortReference, long providerId, long employerAccountId, Party withParty, Party approvals, long? transferSenderId)
+        public CohortMemento(long id, string cohortReference, long providerId, long employerAccountId, Party withParty, Party approvals, long? transferSenderId)
         {
-            CohortId = cohortId;
+            Id = id;
             CohortReference = cohortReference;
             ProviderId = providerId;
             EmployerAccountId = employerAccountId;
