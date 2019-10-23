@@ -579,7 +579,7 @@ Target "Create Nuget Package" (fun _ ->
                     Project = name
                     Summary = name
                     Description = name
-                    Version = versionNumber + "-alpha"
+                    Version = versionNumber
                     NoPackageAnalysis = true
                     OutputPath = outputPath
                     WorkingDir = FileSystemHelper.DirectoryName(fileInfo.FullName)
