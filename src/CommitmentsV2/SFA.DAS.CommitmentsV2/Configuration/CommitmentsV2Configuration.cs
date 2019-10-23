@@ -5,6 +5,7 @@ namespace SFA.DAS.CommitmentsV2.Configuration
     public class CommitmentsV2Configuration
     {
         public string DatabaseConnectionString { get; set; }
+        public string MessageServiceBusConnectionString { get; set; }
         public string RedisConnectionString { get; set; }
 
         public EventsApiClientConfiguration EventsApi { get; set; }
