@@ -16,7 +16,7 @@
     [TriageStatus] TINYINT NOT NULL,
 	[ApprenticeshipUpdateId] BIGINT NULL,
 	[IsResolved] BIT NOT NULL,
-	[EventStatus] TINYINT NOT NULL default 1,
+	[EventStatus] TINYINT NOT NULL DEFAULT 1,
 	[IsExpired] BIT NOT NULL DEFAULT(0),
 	[Expired] DATETIME NULL,
 	CONSTRAINT [FK_DataLockStatus_ApprenticeshipId] FOREIGN KEY ([ApprenticeshipId]) REFERENCES [Apprenticeship]([Id]),
@@ -41,4 +41,7 @@ INCLUDE ([ErrorCode],
 	[IsResolved],
 	[EventStatus],
 	[IsExpired])
+GO
+
+CREATE NONCLUSTERED INDEX [IX_DataLockStatus_ApprenticeshipUpdateId] ON [dbo].[DataLockStatus] (ApprenticeshipUpdateId)
 GO
