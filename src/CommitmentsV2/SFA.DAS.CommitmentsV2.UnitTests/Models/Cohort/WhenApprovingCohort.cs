@@ -232,6 +232,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.Invoking(f => f.Approve()).Should().Throw<DomainException>();
         }
+
+
+        [Test]
+        public void AndPartyIsEmployerAndCohortWasRejectedByTransferSenderThenShouldResetTransferApprovalStatus()
+        {
+            _fixture.SetModifyingParty(Party.Employer)
+                .SetEditStatus(Party.Employer.ToEditStatus())
+                .AddDraftApprenticeship(AgreementStatus.EmployerAgreed)
+                .SetTransferApprovalStatus(TransferApprovalStatus.Rejected)
+                .Approve();
+
+            _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
+        }
     }
 
     public class WhenApprovingCohortFixture
@@ -289,6 +302,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         {
             Cohort.Set(c => c.EditStatus, editStatus);
             
+            return this;
+        }
+        public WhenApprovingCohortFixture SetTransferApprovalStatus(TransferApprovalStatus status)
+        {
+            Cohort.Set(x => x.TransferApprovalStatus, status);
             return this;
         }
 

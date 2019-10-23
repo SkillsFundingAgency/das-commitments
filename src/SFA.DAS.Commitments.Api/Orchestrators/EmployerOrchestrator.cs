@@ -552,14 +552,14 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
         public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetActiveApprenticeshipsForUln(long accountId, string uln)
         {
-            _logger.Trace($"Getting active apprenticeships for Uln {uln} for employer account {accountId}", accountId);
+            _logger.Trace($"Getting active apprenticeships for employer account {accountId}", accountId);
 
             var response = await _mediator.SendAsync(new GetActiveApprenticeshipsByUlnRequest
             {
                 Uln = uln
             });
 
-            _logger.Info($"Retrieved active apprenticeships for Uln {uln} for employer account {accountId}", accountId);
+            _logger.Info($"Retrieved active apprenticeships for employer account {accountId}", accountId);
 
             return _apprenticeshipMapper.MapFrom(response.Data);
         }
