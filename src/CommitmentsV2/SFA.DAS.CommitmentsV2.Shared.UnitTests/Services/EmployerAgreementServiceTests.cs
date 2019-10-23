@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Shared.Models;
@@ -80,7 +81,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
             AccountApiClient = new Mock<IAccountApiClient>();
             AccountApiClient.Setup(x => x.GetLegalEntity(It.IsAny<string>(), It.IsAny<long>())).ReturnsAsync(LegalEntityViewModel);
 
-            Sut = new EmployerAgreementService(AccountApiClient.Object, EncodingService.Object);
+            Sut = new EmployerAgreementService(AccountApiClient.Object, EncodingService.Object, Mock.Of<ILogger<EmployerAgreementService>>());
         }
 
         public EmployerAgreementServiceTestsFixture SetUpSignedAgreementWithVersion(int version)
