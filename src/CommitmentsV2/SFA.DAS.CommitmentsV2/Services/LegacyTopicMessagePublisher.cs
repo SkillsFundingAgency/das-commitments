@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
@@ -13,12 +11,14 @@ namespace SFA.DAS.CommitmentsV2.Services
 {
     public class LegacyTopicMessagePublisher : ILegacyTopicMessagePublisher
     {
+        private readonly ITopicClientFactory _topicClientFactory;
         private readonly ILogger<LegacyTopicMessagePublisher> _logger;
 
         private readonly string _connectionString;
 
-        public LegacyTopicMessagePublisher(ILogger<LegacyTopicMessagePublisher> logger, string connectionString)
+        public LegacyTopicMessagePublisher(ITopicClientFactory topicClientFactory, ILogger<LegacyTopicMessagePublisher> logger, string connectionString)
         {
+            _topicClientFactory = topicClientFactory;
             _logger = logger;
             _connectionString = connectionString;
         }
@@ -26,10 +26,10 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task PublishAsync(object @event)
         {
             string messageGroupName = GetMessageGroupName(@event);
-            TopicClient client = (TopicClient)null;
+            ITopicClient client = null;
             try
             {
-                client = new TopicClient(_connectionString, messageGroupName);
+                client = _topicClientFactory.CreateClient(_connectionString, messageGroupName);
                 string messageBody = JsonConvert.SerializeObject(@event);
                 Message message = new Message(System.Text.Encoding.UTF8.GetBytes(messageBody));
                 await client.SendAsync(message);
@@ -49,7 +49,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        public static string GetMessageGroupName(object obj)
+        private static string GetMessageGroupName(object obj)
         {
             CustomAttributeData customAttributeData = obj.GetType().CustomAttributes.FirstOrDefault<CustomAttributeData>((Func<CustomAttributeData, bool>)(att => att.AttributeType.Name == "MessageGroupAttribute"));
             string str = customAttributeData != null ? (string)customAttributeData.ConstructorArguments.FirstOrDefault<CustomAttributeTypedArgument>().Value : (string)(object)null;

@@ -27,18 +27,18 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                var response = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
+                var cohort = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
                 await _legacyTopicMessagePublisher.PublishAsync(new ApprovedCohortReturnedToProvider
                 {
-                    AccountId = response.AccountId,
-                    ProviderId = response.ProviderId.Value,
+                    AccountId = cohort.AccountId,
+                    ProviderId = cohort.ProviderId.Value,
                     CommitmentId = message.CohortId
                 });
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error when trying to publish ApprovedCohortReturnedToProvider ");
+                _logger.LogError(e, "Error when trying to publish ApprovedCohortReturnedToProvider");
                 throw;
             }
         }
