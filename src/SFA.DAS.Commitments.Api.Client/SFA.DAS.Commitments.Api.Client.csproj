@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="SFA.DAS.Authentication.Extensions.Legacy" Version="1.0.22" />
-    <PackageReference Include="SFA.DAS.Http" Version="1.2.4" />
+    <PackageReference Include="SFA.DAS.Http" Version="3.2.28" />
   </ItemGroup>
 
   <ItemGroup>
