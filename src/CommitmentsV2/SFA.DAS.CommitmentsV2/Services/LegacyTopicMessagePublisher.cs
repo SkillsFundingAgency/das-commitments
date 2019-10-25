@@ -13,7 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Services
     {
         private readonly ITopicClientFactory _topicClientFactory;
         private readonly ILogger<LegacyTopicMessagePublisher> _logger;
-
         private readonly string _connectionString;
 
         public LegacyTopicMessagePublisher(ITopicClientFactory topicClientFactory, ILogger<LegacyTopicMessagePublisher> logger, string connectionString)

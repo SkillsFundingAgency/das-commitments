@@ -51,7 +51,6 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             MessageHandlerContext = new Mock<IMessageHandlerContext>();
             LegacyTopicMessagePublisher = new Mock<ILegacyTopicMessagePublisher>();
 
-
             Sut = new ApprovedCohortReturnedToProviderEventHandler(Mediator.Object, LegacyTopicMessagePublisher.Object, Mock.Of<ILogger<ApprovedCohortReturnedToProviderEventHandler>>());
             ApprovedCohortReturnedToProviderEvent = autoFixture.Create<ApprovedCohortReturnedToProviderEvent>();
 
