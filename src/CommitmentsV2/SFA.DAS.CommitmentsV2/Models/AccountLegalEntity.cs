@@ -1,6 +1,5 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
-using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -9,6 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public virtual long Id { get; private set; }
         public string LegalEntityId { get; private set; }
+        public long MaLegalEntityId { get; private set; }
         public string PublicHashedId { get; private set; }
         public Account Account { get; private set; }
         public virtual long AccountId { get; private set; }
@@ -19,11 +19,12 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? Updated { get; private set; }
         public DateTime? Deleted { get; private set; }
 
-        internal AccountLegalEntity(Account account, long id, string legalEntityId, string publicHashedId, 
+        internal AccountLegalEntity(Account account, long id, long maLegalEntityId, string legalEntityId, string publicHashedId, 
             string name, OrganisationType organisationType, string address, DateTime created)
         {
             Id = id;
             LegalEntityId = legalEntityId;
+            MaLegalEntityId = maLegalEntityId;
             PublicHashedId = publicHashedId;
             Account = account;
             AccountId = account.Id;

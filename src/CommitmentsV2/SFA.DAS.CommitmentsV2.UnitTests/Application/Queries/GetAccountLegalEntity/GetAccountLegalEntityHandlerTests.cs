@@ -26,10 +26,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         {
             const long accountId = 123;
             const long accountLegalEntityId = 456;
+            const long maLegalEntityId = 987;
 
             // arrange
             var fixtures = new GetEmployerHandlerTestFixtures()
-                .AddAccountWithLegalEntities(accountId, "Account123", accountLegalEntityId, "LegalEntity456");
+                .AddAccountWithLegalEntities(accountId, "Account123", accountLegalEntityId, maLegalEntityId, "LegalEntity456");
 
             // act
             var response = await fixtures.GetResponse(new GetAccountLegalEntityRequest {AccountLegalEntityId = accountLegalEntityId });
@@ -61,11 +62,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         public List<Account> SeedAccounts { get; }
 
         public GetEmployerHandlerTestFixtures AddAccountWithLegalEntities(long accountId, string accountName,
-            long accountLegalEntityId, string name)
+            long accountLegalEntityId, long maLegalEntityId, string name)
         {
             var account = new Account(accountId, "PRI123", "PUB123", accountName, DateTime.Now);
 
-            account.AddAccountLegalEntity(accountLegalEntityId, "ABC456", "PUB456", 
+            account.AddAccountLegalEntity(accountLegalEntityId, maLegalEntityId, "ABC456", "PUB456", 
                 name, OrganisationType.Charities, "My address", DateTime.Now);
 
             SeedAccounts.Add(account);

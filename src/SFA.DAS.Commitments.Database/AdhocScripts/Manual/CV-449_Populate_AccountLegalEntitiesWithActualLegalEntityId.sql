@@ -44,13 +44,19 @@ BEGIN TRY
 	'
 
 	print '
-	update AccountLegalEntities SET 
+	UPDATE AccountLegalEntities SET 
 		[MaLegalEntityId] = T.[ActualLegalEntityId] 
 	FROM AccountLegalEntities ALE
 	INNER JOIN @AccountLegalEntitiesUpdate T ON ALE.AccountLegalEntityId = T.AccountLegalEntityId
 
 	print ''updated '' + convert(varchar,@@ROWCOUNT) + '' AccountLegalEntities''
 	print ''Completed''
+
+	UPDATE AccountLegalEntities SET 
+		[MaLegalEntityId] = 0
+	WHERE [MaLegalEntityId] IS NULL
+
+	print ''zeroed '' + convert(varchar,@@ROWCOUNT) + '' AccountLegalEntities Not matched''
 
 
 	COMMIT TRANSACTION

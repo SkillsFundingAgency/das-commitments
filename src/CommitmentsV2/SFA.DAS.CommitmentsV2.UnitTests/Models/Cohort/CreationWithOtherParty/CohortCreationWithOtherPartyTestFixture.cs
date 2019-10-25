@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
             AccountLegalEntity = new AccountLegalEntity(account,
                 _autoFixture.Create<long>(),
+                _autoFixture.Create<long>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<string>(),
