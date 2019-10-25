@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
     public class LegacyTopicMessagePublisherTests
     {
         [Test]
-        public async Task PublishAsync_ShouldCreateTopicClientPassingInCorrectParameters()
+        public async Task PublishAsync_ShouldCreateTopicClientPassingCorrectParameters()
         {
             var f = new LegacyTopicMessagePublisherTestsFixture();
             await f.Sut.PublishAsync(f.ApprovedCohortReturnedToProvider);
