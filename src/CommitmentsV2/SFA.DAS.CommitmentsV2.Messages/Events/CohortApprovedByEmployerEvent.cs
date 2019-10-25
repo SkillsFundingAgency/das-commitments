@@ -1,9 +1,16 @@
-﻿namespace SFA.DAS.CommitmentsV2.Messages.Events
+﻿using System;
+
+namespace SFA.DAS.CommitmentsV2.Messages.Events
 {
     public class CohortApprovedByEmployerEvent
     {
-        public long AccountId { get; set; }
-        public long ProviderId { get; set; }
-        public long CommitmentId { get; set; }
+        public long CohortId { get; }
+        public DateTime UpdatedOn { get; }
+
+        public CohortApprovedByEmployerEvent(long cohortId, DateTime updatedOn)
+        {
+            CohortId = cohortId;
+            UpdatedOn = updatedOn;
+        }
     }
 }
