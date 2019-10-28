@@ -19,6 +19,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             await _mediator.Send(new AddHistoryCommand
             {
+                CorrelationId = message.CorrelationId,
                 StateChangeType = message.StateChangeType,
                 EntityId = message.EntityId,
                 InitialState = message.InitialState,

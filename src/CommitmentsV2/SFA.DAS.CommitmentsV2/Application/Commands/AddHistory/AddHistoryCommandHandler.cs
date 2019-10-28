@@ -31,10 +31,10 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
                 EmployerAccountId = request.EmployerAccountId,
                 ProviderId = request.ProviderId,
                 EntityType =  request.EntityType,
-                Diff = request.Diff
+                Diff = request.Diff,
+                CorrelationId = request.CorrelationId
             };
-            //todo: add diff field
-
+            
             _dbContext.History.Add(history);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }

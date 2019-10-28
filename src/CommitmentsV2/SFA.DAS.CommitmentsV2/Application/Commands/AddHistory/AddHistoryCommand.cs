@@ -7,6 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
 {
     public class AddHistoryCommand : IRequest
     {
+        public Guid CorrelationId { get; set; }
         public UserAction StateChangeType { get; set; }
         public long EntityId { get; set; }
         public string EntityType { get; set; }
