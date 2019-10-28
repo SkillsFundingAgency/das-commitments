@@ -39,6 +39,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
                 Console.WriteLine("M - ApprovedCohortReturnedToProviderEvent");
+                Console.WriteLine("N - CohortApprovedByEmployer");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -100,6 +101,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new ApprovedCohortReturnedToProviderEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(ApprovedCohortReturnedToProviderEvent)}");
+                            break;
+                        case ConsoleKey.N:
+                            await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
                             break;
                     }
                 }
