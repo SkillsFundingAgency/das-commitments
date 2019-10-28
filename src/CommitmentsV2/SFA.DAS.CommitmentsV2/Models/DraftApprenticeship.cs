@@ -1,13 +1,11 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Mementos;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class DraftApprenticeship : Apprenticeship, IMementoCreator
+    public class DraftApprenticeship : Apprenticeship
     {
         private bool IsCompleteForEmployer => 
             FirstName != null &&
@@ -107,25 +105,6 @@ namespace SFA.DAS.CommitmentsV2.Models
                     ProviderRef = source.Reference;
                     break;
             }
-        }
-
-        public IMemento CreateMemento()
-        {
-            return new DraftApprenticeshipMemento
-            {
-                Id = Id,
-                FirstName = FirstName,
-                LastName = LastName,
-                Uln = Uln,
-                Cost = Cost,
-                CourseCode = CourseCode,
-                DateOfBirth = DateOfBirth,
-                EmployerRef = EmployerRef,
-                ProviderRef = ProviderRef,
-                StartDate = StartDate,
-                EndDate = EndDate,
-                ReservationId = ReservationId
-            };
         }
 
         private void CheckIsCompleteForEmployer()

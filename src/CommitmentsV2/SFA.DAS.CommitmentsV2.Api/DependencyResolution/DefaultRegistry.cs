@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
         {
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
             For<IAuthenticationService>().Use<AuthenticationService>().Singleton();
-            For<IDiffGeneratorService>().Use<DiffGeneratorService>(); //todo: move this/resolve auto
+            For<IStateService>().Use<StateService>(); //todo: move this/resolve auto
             For<IChangeTrackingService>().Use<ChangeTrackingService>();
         }
     }

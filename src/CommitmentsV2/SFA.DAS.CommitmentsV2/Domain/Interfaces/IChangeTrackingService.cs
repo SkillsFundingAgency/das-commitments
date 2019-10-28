@@ -6,9 +6,9 @@ namespace SFA.DAS.CommitmentsV2.Domain.Interfaces
     public interface IChangeTrackingService
     {
         void BeginTrackingSession(UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo);
-        void TrackInsert(IMementoCreator trackedObject);
-        void TrackUpdate(IMementoCreator trackedObject);
-        void TrackDelete(IMementoCreator trackedObject);
+        void TrackInsert(object trackedObject);
+        void TrackUpdate(object trackedObject);
+        void TrackDelete(object trackedObject);
         void CompleteTrackingSession();
     }
 }

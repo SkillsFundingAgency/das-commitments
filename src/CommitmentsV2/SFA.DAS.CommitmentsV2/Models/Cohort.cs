@@ -7,14 +7,12 @@ using SFA.DAS.CommitmentsV2.Domain;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
-using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Mementos;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using TrainingProgrammeStatus = SFA.DAS.Apprenticeships.Api.Types.TrainingProgrammeStatus;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class Cohort : Entity, IMementoCreator
+    public class Cohort : Entity
     {
         public Cohort()
         {
@@ -497,28 +495,26 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        public IMemento CreateMemento()
+        private Party PartyApprovals
         {
-            return new CohortMemento(Id, Reference, ProviderId.Value, EmployerAccountId, WithParty, GetPartyApprovals(), TransferSenderId);
-        }
+            get
+            {
+                var approvals = Party.None;
+                if (IsApprovedByParty(Party.Employer))
+                {
+                    approvals |= Party.Employer;
+                }
+                if (IsApprovedByParty(Party.Provider))
+                {
+                    approvals |= Party.Provider;
+                }
+                if (IsApprovedByParty(Party.TransferSender))
+                {
+                    approvals |= Party.TransferSender;
+                }
 
-        private Party GetPartyApprovals()
-        {
-            var approvals = Party.None;
-            if (IsApprovedByParty(Party.Employer))
-            {
-                approvals |= Party.Employer;
+                return approvals;
             }
-            if (IsApprovedByParty(Party.Provider))
-            {
-                approvals |= Party.Provider;
-            }
-            if (IsApprovedByParty(Party.TransferSender))
-            {
-                approvals |= Party.TransferSender;
-            }
-
-            return approvals;
         }
     }
 }

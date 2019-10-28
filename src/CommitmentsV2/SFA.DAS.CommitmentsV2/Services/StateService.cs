@@ -1,29 +1,39 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
-using SFA.DAS.CommitmentsV2.Mementos;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class DiffGeneratorService : IDiffGeneratorService
+    public class StateService : IStateService
     {
-        public IReadOnlyList<DiffItem> GenerateDiff(object initial, object updated)
+        public Dictionary<string, object> GetState(object item)
         {
-            if (initial != null && updated!= null && initial.GetType() != updated.GetType())
+            var result = new Dictionary<string, object>();
+            var targetType = item.GetType();
+
+            foreach (var property in targetType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                throw new ArgumentException("Diff generation can only be performed on objects of the same type");
+                var propertyType = property.PropertyType;
+
+                if (!propertyType.IsClass && propertyType.GetInterface(nameof(IEnumerable)) == null)
+                {
+                    result.Add(property.Name, property.GetValue(item));
+                }
             }
 
-            var targetType = initial == null ? updated.GetType() : initial.GetType();
+            return result;
+        }
 
+        public IReadOnlyList<DiffItem> GenerateDiff(Dictionary<string, object> initial, Dictionary<string, object> updated)
+        {
             var result = new List<DiffItem>();
 
-            foreach (var property in targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var item in initial)
             {
-                var initialValue = initial == null ? null : property.GetValue(initial);
-                var updatedValue = updated == null ? null : property.GetValue(updated);
+                var initialValue = item.Value;
+                var updatedValue = updated == null ? null : updated.ContainsKey(item.Key) ? updated[item.Key] : null;
 
                 if (initialValue == null)
                 {
@@ -31,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     {
                         result.Add(new DiffItem
                         {
-                            PropertyName = property.Name,
+                            PropertyName = item.Key,
                             InitialValue = null,
                             UpdatedValue = updatedValue
                         });
@@ -43,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     result.Add(new DiffItem
                     {
-                        PropertyName = property.Name,
+                        PropertyName = item.Key,
                         InitialValue = initialValue,
                         UpdatedValue = null
                     });
@@ -54,12 +64,14 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     result.Add(new DiffItem
                     {
-                        PropertyName = property.Name,
+                        PropertyName = item.Key,
                         InitialValue = initialValue,
                         UpdatedValue = updatedValue
                     });
                 }
+
             }
+            
 
             return result;
         }

@@ -13,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Services
     public class ChangeTrackingService : IChangeTrackingService
     {
         private List<TrackedItem> _trackedItems;
-        private IDiffGeneratorService _diffGenerator;
+        private IStateService _stateService;
 
         private Guid _correlationId;
         private UserAction _userAction;
@@ -23,9 +23,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         private UserInfo _userInfo;
 
 
-        public ChangeTrackingService(IDiffGeneratorService diffGenerator)
+        public ChangeTrackingService(IStateService stateService)
         {
-            _diffGenerator = diffGenerator;
+            _stateService = stateService;
             _trackedItems = new List<TrackedItem>();
         }
 
@@ -40,27 +40,28 @@ namespace SFA.DAS.CommitmentsV2.Services
             _trackedItems.Clear();
         }
 
-        public void TrackInsert(IMementoCreator trackedObject)
+        public void TrackInsert(object trackedObject)
         {
-            _trackedItems.Add(new TrackedItem(trackedObject, ChangeTrackingOperation.Insert));
+            _trackedItems.Add(TrackedItem.CreateInsertTrackedItem(trackedObject));
         }
 
-        public void TrackUpdate(IMementoCreator trackedObject)
+        public void TrackUpdate(object trackedObject)
         {
-            _trackedItems.Add(new TrackedItem(trackedObject, ChangeTrackingOperation.Update));
+            var initialState = _stateService.GetState(trackedObject);
+            _trackedItems.Add(TrackedItem.CreateUpdateTrackedItem(trackedObject, initialState));
         }
 
-        public void TrackDelete(IMementoCreator trackedObject)
+        public void TrackDelete(object trackedObject)
         {
-            _trackedItems.Add(new TrackedItem(trackedObject, ChangeTrackingOperation.Delete));
+            _trackedItems.Add(TrackedItem.CreateDeleteTrackedItem(trackedObject));
         }
 
         public void CompleteTrackingSession()
         {
             foreach (var item in _trackedItems)
             {
-                var updated = item.Operation == ChangeTrackingOperation.Delete ? null : item.TrackedEntity.CreateMemento();
-                var diff = _diffGenerator.GenerateDiff(item.InitialState, updated);
+                var updated = item.Operation == ChangeTrackingOperation.Delete ? null : _stateService.GetState(item.TrackedEntity);
+                var diff = _stateService.GenerateDiff(item.InitialState, updated);
                 if (!diff.Any()) continue;
                 var diffJson = JsonConvert.SerializeObject(diff);
 
@@ -68,8 +69,9 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     CorrelationId = _correlationId,
                     StateChangeType = _userAction,
-                    EntityType = item.InitialState == null ? updated.EntityName : item.InitialState.EntityName,
-                    EntityId = item.InitialState?.Id ?? updated.Id,
+                    EntityType = item.TrackedEntity.GetType().Name,
+                    //EntityId = item.InitialState?.Id ?? updated.Id,
+                    EntityId = 0, //TODO
                     ProviderId = _providerId,
                     EmployerAccountId = _employerAccountId,
                     InitialState = item.InitialState == null ? null : JsonConvert.SerializeObject(item.InitialState),
