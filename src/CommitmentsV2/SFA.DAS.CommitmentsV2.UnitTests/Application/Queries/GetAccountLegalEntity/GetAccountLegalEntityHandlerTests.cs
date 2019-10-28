@@ -38,6 +38,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
             // Assert
             Assert.IsNotNull(response);
             Assert.AreEqual(response.AccountId, accountId);
+            Assert.AreEqual(response.MaLegalEntityId, maLegalEntityId);
             Assert.AreEqual(response.AccountName, "Account123");
         }
     }
