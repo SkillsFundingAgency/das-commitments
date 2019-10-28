@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Azure.Amqp.Framing;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models

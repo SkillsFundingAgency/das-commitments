@@ -131,7 +131,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
-            _changeTrackingService.BeginTrackingSession(UserAction.CreateCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
+            _changeTrackingService.BeginTrackingSession(UserAction.SendCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
             _changeTrackingService.TrackUpdate(cohort);
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
@@ -151,7 +151,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
-            _changeTrackingService.BeginTrackingSession(UserAction.CreateCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
+            _changeTrackingService.BeginTrackingSession(UserAction.UpdateDraftApprenticeship, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
             _changeTrackingService.TrackUpdate(cohort);
             _changeTrackingService.TrackUpdate(cohort.DraftApprenticeships.Single(x => x.Id == draftApprenticeshipDetails.Id));
 

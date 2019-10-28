@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -40,18 +41,18 @@ namespace SFA.DAS.CommitmentsV2.Services
             _trackedItems.Clear();
         }
 
-        public void TrackInsert(object trackedObject)
+        public void TrackInsert(ITrackableEntity trackedObject)
         {
             _trackedItems.Add(TrackedItem.CreateInsertTrackedItem(trackedObject));
         }
 
-        public void TrackUpdate(object trackedObject)
+        public void TrackUpdate(ITrackableEntity trackedObject)
         {
             var initialState = _stateService.GetState(trackedObject);
             _trackedItems.Add(TrackedItem.CreateUpdateTrackedItem(trackedObject, initialState));
         }
 
-        public void TrackDelete(object trackedObject)
+        public void TrackDelete(ITrackableEntity trackedObject)
         {
             _trackedItems.Add(TrackedItem.CreateDeleteTrackedItem(trackedObject));
         }
@@ -70,8 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                     CorrelationId = _correlationId,
                     StateChangeType = _userAction,
                     EntityType = item.TrackedEntity.GetType().Name,
-                    //EntityId = item.InitialState?.Id ?? updated.Id,
-                    EntityId = 0, //TODO
+                    EntityId = item.TrackedEntity.Id,
                     ProviderId = _providerId,
                     EmployerAccountId = _employerAccountId,
                     InitialState = item.InitialState == null ? null : JsonConvert.SerializeObject(item.InitialState),
