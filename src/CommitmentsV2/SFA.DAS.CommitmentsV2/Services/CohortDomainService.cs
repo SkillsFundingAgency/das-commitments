@@ -98,6 +98,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             _changeTrackingService.BeginTrackingSession(UserAction.CreateCohort, originatingParty, accountId, provider.UkPrn, userInfo);
             _changeTrackingService.TrackInsert(cohort);
+            _changeTrackingService.TrackInsert(cohort.DraftApprenticeships.First());
             _changeTrackingService.CompleteTrackingSession();
 
             return cohort;

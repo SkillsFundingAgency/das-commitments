@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
@@ -13,8 +12,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 {
     public class ChangeTrackingService : IChangeTrackingService
     {
-        private List<TrackedItem> _trackedItems;
-        private IStateService _stateService;
+        private readonly List<TrackedItem> _trackedItems;
+        private readonly IStateService _stateService;
 
         private Guid _correlationId;
         private UserAction _userAction;
@@ -61,26 +60,29 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             foreach (var item in _trackedItems)
             {
-                var updated = item.Operation == ChangeTrackingOperation.Delete ? null : _stateService.GetState(item.TrackedEntity);
-                var diff = _stateService.GenerateDiff(item.InitialState, updated);
-                if (!diff.Any()) continue;
-                var diffJson = JsonConvert.SerializeObject(diff);
-
-                UnitOfWorkContext.AddEvent(() => new EntityStateChangedEvent
+                UnitOfWorkContext.AddEvent(() =>
                 {
-                    CorrelationId = _correlationId,
-                    StateChangeType = _userAction,
-                    EntityType = item.TrackedEntity.GetType().Name,
-                    EntityId = item.TrackedEntity.Id,
-                    ProviderId = _providerId,
-                    EmployerAccountId = _employerAccountId,
-                    InitialState = item.InitialState == null ? null : JsonConvert.SerializeObject(item.InitialState),
-                    UpdatedState = updated == null ? null : JsonConvert.SerializeObject(updated),
-                    Diff = diffJson,
-                    UpdatedOn = DateTime.UtcNow,
-                    UpdatingParty = _party,
-                    UpdatingUserId = _userInfo.UserId,
-                    UpdatingUserName = _userInfo.UserDisplayName
+                    var updated = item.Operation == ChangeTrackingOperation.Delete ? null : _stateService.GetState(item.TrackedEntity);
+                    var diff = _stateService.GenerateDiff(item.InitialState, updated);
+
+                    var result = new EntityStateChangedEvent
+                    {
+                        CorrelationId = _correlationId,
+                        StateChangeType = _userAction,
+                        EntityType = item.TrackedEntity.GetType().Name,
+                        EntityId = item.TrackedEntity.Id,
+                        ProviderId = _providerId,
+                        EmployerAccountId = _employerAccountId,
+                        InitialState = item.InitialState == null ? null : JsonConvert.SerializeObject(item.InitialState),
+                        UpdatedState = updated == null ? null : JsonConvert.SerializeObject(updated),
+                        Diff = JsonConvert.SerializeObject(diff),
+                        UpdatedOn = DateTime.UtcNow,
+                        UpdatingParty = _party,
+                        UpdatingUserId = _userInfo.UserId,
+                        UpdatingUserName = _userInfo.UserDisplayName
+                    };
+
+                    return result;
                 });
             }
 
