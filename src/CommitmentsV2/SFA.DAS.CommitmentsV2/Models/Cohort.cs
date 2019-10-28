@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
+            MaLegalEntityId = accountLegalEntity.MaLegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
             LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
@@ -78,6 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
+        public long MaLegalEntityId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string LegalEntityAddress { get; set; }

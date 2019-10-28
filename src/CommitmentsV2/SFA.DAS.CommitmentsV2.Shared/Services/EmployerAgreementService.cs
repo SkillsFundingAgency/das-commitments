@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             _agreementUnlocks = new Dictionary<AgreementFeature, int> { { AgreementFeature.Transfers, 2 } };
         }
 
-        public async Task<bool> IsAgreementSigned(long accountId, long accountLegalEntityId,  params AgreementFeature[] requiredFeatures)
+        public async Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId,  params AgreementFeature[] requiredFeatures)
         {
             bool AreAllRequiredFeaturesPresentInSignedAgreement(int signedAgreement)
             {
@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             {
 
                 var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
-                var legalEntity = await _accountApiClient.GetLegalEntity(hashedAccountId, accountLegalEntityId);
+                var legalEntity = await _accountApiClient.GetLegalEntity(hashedAccountId, maLegalEntityId);
 
                 var signedAgreements = legalEntity.Agreements
                     .Where(x => x.Status == EmployerAgreementStatus.Signed).ToList();

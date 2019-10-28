@@ -272,13 +272,11 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             AgreementFeature[] agreementFeatures = null;
 
-            long accountLegalEntityId = _encodingService.Decode(cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
-
             if (cohort.TransferSenderId != null)
             {
                 agreementFeatures = new AgreementFeature[] { AgreementFeature.Transfers };
             }
-            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, accountLegalEntityId, agreementFeatures);
+            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, cohort.MaLegalEntityId, agreementFeatures);
 
             if (!isSigned)
             {

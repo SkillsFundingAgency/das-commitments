@@ -21,6 +21,7 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
@@ -253,6 +254,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
         }
 
+        [Test]
+        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
+        {
+            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithSignedAgreement();
+            await _fixture.ApproveCohort();
+            _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -283,6 +292,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
 
+            public long EmployerAccountId { get; private set; }
+            public long MaLegalEntityId { get; private set; }
+
             public CohortDomainServiceTestFixture()
             {
                 Now = DateTime.UtcNow;
@@ -300,6 +312,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountId = 2;
                 AccountLegalEntityId = 3;
                 CohortId = 4;
+                EmployerAccountId = fixture.Create<long>();
+                MaLegalEntityId = fixture.Create<long>();
+
                 Message = fixture.Create<string>();
 
                 Provider = new Mock<Provider>();
@@ -378,7 +393,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-
             public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
             {
                 DraftApprenticeshipDetails.ReservationId = Guid.NewGuid();
@@ -442,7 +456,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Id = CohortId,
                     EditStatus = creatingParty.ToEditStatus(),
-                    ProviderId = ProviderId
+                    ProviderId = ProviderId,
+                    EmployerAccountId = EmployerAccountId,
+                    MaLegalEntityId = MaLegalEntityId
                 };
                 
                 Db.Cohorts.Add(Cohort);
@@ -511,6 +527,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 UserInfo = null;
                 return this;
             }
+
+            public CohortDomainServiceTestFixture WithSignedAgreement()
+            {
+                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<AgreementFeature[]>())).ReturnsAsync(true);
+                return this;
+            }
+
 
             public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null)
             {
@@ -745,6 +768,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Assert.IsNull(Exception);
             }
+
+            public void VerifyIsAgreementSignedIsCalledCorrectly()
+            {
+                EmployerAgreementService.Verify(x => x.IsAgreementSigned(EmployerAccountId, MaLegalEntityId, It.IsAny<AgreementFeature[]>()));
+            }
+
         }
     }
 }
