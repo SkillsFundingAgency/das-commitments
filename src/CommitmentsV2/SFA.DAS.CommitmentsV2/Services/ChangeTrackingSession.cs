@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 UnitOfWorkContext.AddEvent(() =>
                 {
                     var updated = item.Operation == ChangeTrackingOperation.Delete ? null : _stateService.GetState(item.TrackedEntity);
-                    var diff = _stateService.GenerateDiff(item.InitialState, updated);
+                    //var diff = _stateService.GenerateDiff(item.InitialState, updated);
                     
                     var result = new EntityStateChangedEvent
                     {
@@ -68,7 +68,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                         EmployerAccountId = _employerAccountId,
                         InitialState = item.InitialState == null ? null : JsonConvert.SerializeObject(item.InitialState),
                         UpdatedState = updated == null ? null : JsonConvert.SerializeObject(updated),
-                        Diff = JsonConvert.SerializeObject(diff),
+                        //Diff = JsonConvert.SerializeObject(diff), //TODO: Remove the diff from here and move to handler
                         UpdatedOn = DateTime.UtcNow,
                         UpdatingParty = _party,
                         UpdatingUserId = _userInfo.UserId,

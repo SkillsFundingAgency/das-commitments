@@ -2,12 +2,11 @@
 using AutoFixture;
 using NUnit.Framework;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Services.StateService
+namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
     [TestFixture]
-    public class WhenGettingState
+    public class StateServiceTests
     {
-        
         private WhenGettingStateTestFixture _fixture;
         
         [SetUp]
@@ -17,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.StateService
         }
 
         [Test]
-        public void ThenPublicInstancePropertiesAreCaptured()
+        public void PublicInstancePropertiesAreCaptured()
         {
             var result = _fixture.GetState();
             Assert.IsTrue(result.ContainsKey(nameof(GetStateTestClass.TestPublicProperty)));
@@ -25,7 +24,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.StateService
         }
 
         [Test]
-        public void ThenPrivateInstancePropertiesAreCaptured()
+        public void PrivateInstancePropertiesAreCaptured()
         {
             var result = _fixture.GetState();
             Assert.IsTrue(result.ContainsKey("TestPrivateProperty"));
@@ -33,21 +32,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services.StateService
         }
 
         [Test]
-        public void ThenStaticPropertiesAreNotCaptured()
+        public void StaticPropertiesAreNotCaptured()
         {
             var result = _fixture.GetState();
             Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestStaticProperty)));
         }
 
         [Test]
-        public void ThenEnumerablePropertiesAreNotCaptured()
+        public void EnumerablePropertiesAreNotCaptured()
         {
             var result = _fixture.GetState();
             Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestEnumerable)));
         }
 
         [Test]
-        public void ThenObjectsAreNotCaptured()
+        public void ObjectsAreNotCaptured()
         {
             var result = _fixture.GetState();
             Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestObject)));

@@ -18,6 +18,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
@@ -264,6 +265,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
+            public Mock<IChangeTrackingSessionFactory> ChangeTrackingSessionFactory { get; set; }
 
             public CohortDomainServiceTestFixture()
             {
@@ -325,6 +327,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
 
+                ChangeTrackingSessionFactory = new Mock<IChangeTrackingSessionFactory>();
+                ChangeTrackingSessionFactory
+                    .Setup(x => x.CreateTrackingSession(It.IsAny<UserAction>(),
+                        It.IsAny<Party>(),
+                        It.IsAny<long>(),
+                        It.IsAny<long>(),
+                        It.IsAny<UserInfo>()))
+                    .Returns(Mock.Of<IChangeTrackingSession>());
+
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                     Mock.Of<ILogger<CohortDomainService>>(),
                     AcademicYearDateProvider.Object,
@@ -333,7 +344,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     OverlapCheckService.Object,
                     AuthenticationService.Object,
                     CurrentDateTime.Object,
-                    Mock.Of<IChangeTrackingSession>());
+                    ChangeTrackingSessionFactory.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
