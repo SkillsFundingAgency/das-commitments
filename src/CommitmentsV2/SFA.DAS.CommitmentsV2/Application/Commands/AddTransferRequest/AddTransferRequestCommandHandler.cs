@@ -43,7 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddTransferRequest
                 cohort.AddTransferRequest(
                     JsonConvert.SerializeObject(fundingCapSummary.Select(x => new {x.CourseTitle, x.ApprenticeshipCount})),
                     fundingCapSummary.Sum(x => x.CappedCost), 
-                    fundingCapSummary.Sum(x => x.ActualCap));
+                    fundingCapSummary.Sum(x => x.ActualCap),
+                    request.LastApprovedByParty);
 
                 await db.SaveChangesAsync(cancellationToken);
             }

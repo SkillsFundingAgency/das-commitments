@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Types.Models;
 
@@ -92,7 +93,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published {nameof(CohortAssignedToProviderEvent)}");
                             break;
                         case ConsoleKey.I:
-                            await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now));
+                            await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now, Party.Employer));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
                             break;
