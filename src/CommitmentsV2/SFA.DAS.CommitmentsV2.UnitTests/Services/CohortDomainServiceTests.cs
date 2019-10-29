@@ -20,7 +20,9 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -237,6 +239,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
         }
 
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndThereIsATransferSenderAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -256,6 +272,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
+            public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
+            public Mock<IEncodingService> EncodingService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
@@ -316,6 +334,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
+                EmployerAgreementService = new Mock<IEmployerAgreementService>();
+                EncodingService = new Mock<IEncodingService>();
+
                 AuthenticationService = new Mock<IAuthenticationService>();
                 
                 CurrentDateTime = new Mock<ICurrentDateTime>();
@@ -332,7 +353,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     ReservationValidationService.Object,
                     OverlapCheckService.Object,
                     AuthenticationService.Object,
-                    CurrentDateTime.Object);
+                    CurrentDateTime.Object,
+                    EmployerAgreementService.Object,
+                    EncodingService.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -436,6 +459,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     TransferSenderId = null
                 };
                 
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingUnapprovedCohort()
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Neither,
+                    TransferSenderId = null
+                };
+
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingUnapprovedTransferCohort()
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Neither,
+                    TransferSenderId = 11212
+                };
+
                 Db.Cohorts.Add(Cohort);
 
                 return this;
