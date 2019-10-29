@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Services
