@@ -18,7 +18,11 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 var propertyType = property.PropertyType;
 
-                if (!propertyType.IsClass && propertyType.GetInterface(nameof(IEnumerable)) == null)
+                var isClass = propertyType.IsClass;
+                var isString = propertyType == typeof(string);
+                var isEnumerable = propertyType.GetInterface(nameof(IEnumerable)) != null;
+
+                if(isString || (!isClass && !isEnumerable))
                 {
                     result.Add(property.Name, property.GetValue(item));
                 }

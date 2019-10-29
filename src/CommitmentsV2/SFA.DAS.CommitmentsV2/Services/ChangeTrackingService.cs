@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 {
     public class ChangeTrackingService : IChangeTrackingService
     {
-        private readonly List<TrackedItem> _trackedItems;
+        private List<TrackedItem> _trackedItems;
         private readonly IStateService _stateService;
 
         private Guid _correlationId;
@@ -26,7 +26,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         public ChangeTrackingService(IStateService stateService)
         {
             _stateService = stateService;
-            _trackedItems = new List<TrackedItem>();
         }
 
         public void BeginTrackingSession(UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo)
@@ -37,7 +36,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _providerId = providerId;
             _userInfo = userInfo;
             _correlationId = Guid.NewGuid();
-            _trackedItems.Clear();
+            _trackedItems = new List<TrackedItem>();
         }
 
         public void TrackInsert(ITrackableEntity trackedObject)
@@ -64,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 {
                     var updated = item.Operation == ChangeTrackingOperation.Delete ? null : _stateService.GetState(item.TrackedEntity);
                     var diff = _stateService.GenerateDiff(item.InitialState, updated);
-
+                    
                     var result = new EntityStateChangedEvent
                     {
                         CorrelationId = _correlationId,
