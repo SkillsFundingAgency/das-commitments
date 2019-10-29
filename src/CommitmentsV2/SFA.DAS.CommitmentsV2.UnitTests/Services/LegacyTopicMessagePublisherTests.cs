@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task PublishAsync_ShouldCreateTopicClientPassingInNameOfClassAsMessageGroupName()
         {
             var f = new LegacyTopicMessagePublisherTestsFixture();
-            var @event = new ApprovedCohortReturnedToProviderEvent(1, DateTime.Now);
+            var @event = new SimpleTestObject();
             await f.Sut.PublishAsync(@event);
             f.VerifyTopicClientFactoryReceivesConnectionStringAndMessageGroupName(@event.GetType().Name);
         }
@@ -121,5 +121,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
         }
     }
-}
 
+    public class SimpleTestObject
+    {
+        public SimpleTestObject()
+        {
+        }
+    }
+}
