@@ -47,7 +47,7 @@ BEGIN TRY
 	UPDATE AccountLegalEntities SET 
 		[MaLegalEntityId] = T.[ActualLegalEntityId] 
 	FROM AccountLegalEntities ALE
-	INNER JOIN @AccountLegalEntitiesUpdate T ON ALE.AccountLegalEntityId = T.AccountLegalEntityId
+	INNER JOIN @AccountLegalEntitiesUpdate T ON ALE.Id = T.AccountLegalEntityId
 
 	print ''updated '' + convert(varchar,@@ROWCOUNT) + '' AccountLegalEntities''
 	print ''Completed''
