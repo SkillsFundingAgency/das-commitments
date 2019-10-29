@@ -10,26 +10,20 @@ using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class ChangeTrackingService : IChangeTrackingService
+    public class ChangeTrackingSession : IChangeTrackingSession
     {
-        private List<TrackedItem> _trackedItems;
         private readonly IStateService _stateService;
+        private readonly List<TrackedItem> _trackedItems;
+        private readonly Guid _correlationId;
+        private readonly UserAction _userAction;
+        private readonly long _employerAccountId;
+        private readonly long _providerId;
+        private readonly Party _party;
+        private readonly UserInfo _userInfo;
 
-        private Guid _correlationId;
-        private UserAction _userAction;
-        private long _employerAccountId;
-        private long _providerId;
-        private Party _party;
-        private UserInfo _userInfo;
-
-
-        public ChangeTrackingService(IStateService stateService)
+        public ChangeTrackingSession(IStateService stateService, UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo)
         {
             _stateService = stateService;
-        }
-
-        public void BeginTrackingSession(UserAction userAction, Party party, long employerAccountId, long providerId, UserInfo userInfo)
-        {
             _userAction = userAction;
             _party = party;
             _employerAccountId = employerAccountId;
