@@ -139,7 +139,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
                 .And.Subject.Single().Should().Match<CohortTransferApprovalRequestedEvent>(e =>
                     e.CohortId == _fixture.Cohort.Id &&
-                    e.UpdatedOn == _fixture.Now);
+                    e.UpdatedOn == _fixture.Now &&
+                    e.LastApprovedByParty == modifyingParty);
         }
         
         [Test]
