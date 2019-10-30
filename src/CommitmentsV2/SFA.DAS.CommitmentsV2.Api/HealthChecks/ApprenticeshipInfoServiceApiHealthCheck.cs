@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Api.HealthChecks
         {
             try
             {
-                await _providerApiClient.FindAllAsync();
+                await _providerApiClient.Ping();
                 
                 return HealthCheckResult.Healthy();
             }
