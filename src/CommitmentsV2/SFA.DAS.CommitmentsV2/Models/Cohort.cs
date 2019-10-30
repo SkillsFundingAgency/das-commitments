@@ -27,6 +27,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             EmployerAccountId = accountLegalEntity.AccountId;
             LegalEntityId = accountLegalEntity.LegalEntityId;
+            MaLegalEntityId = accountLegalEntity.MaLegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
             LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
@@ -78,6 +79,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
+        public long MaLegalEntityId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string LegalEntityAddress { get; set; }
@@ -117,7 +119,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                         return Party.Employer;
                     case EditStatus.ProviderOnly:
                         return Party.Provider;
-                    case EditStatus.Both when TransferSenderId != null && TransferApprovalStatus == Types.TransferApprovalStatus.Pending:
+                    case EditStatus.Both when TransferSenderId != null && TransferApprovalStatus != Types.TransferApprovalStatus.Approved:
                         return Party.TransferSender;
                     default:
                         return Party.None;
@@ -156,6 +158,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     EditStatus = isApprovedByOtherParty ? EditStatus.Both : otherParty.ToEditStatus();
                     LastAction = LastAction.Approve;
                     CommitmentStatus = CommitmentStatus.Active;
+                    TransferApprovalStatus = null;
                     DraftApprenticeships.ForEach(a => a.Approve(modifyingParty, now));
                     AddMessage(message, modifyingParty, userInfo);
                     UpdatedBy(modifyingParty, userInfo);
@@ -197,6 +200,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             EditStatus = modifyingParty.GetOtherParty().ToEditStatus();
             LastAction = LastAction.Amend;
             CommitmentStatus = CommitmentStatus.Active;
+            TransferApprovalStatus = null;
             AddMessage(message, modifyingParty, userInfo);
             UpdatedBy(modifyingParty, userInfo);
             

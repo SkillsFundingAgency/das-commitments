@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Models;
 using SFA.DAS.EAS.Account.Api.Client;
@@ -13,19 +15,21 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
     {
         private readonly IAccountApiClient _accountApiClient;
         private readonly IEncodingService _encodingService;
+        private readonly ILogger<EmployerAgreementService> _logger;
 
         private readonly Dictionary<AgreementFeature, int> _agreementUnlocks;
 
-        public EmployerAgreementService(IAccountApiClient accountApiClient, IEncodingService encodingService)
+        public EmployerAgreementService(IAccountApiClient accountApiClient, IEncodingService encodingService, ILogger<EmployerAgreementService> logger)
         {
             _accountApiClient = accountApiClient;
             _encodingService = encodingService;
+            _logger = logger;
 
             //This dictionary indicates which features are unlocked by agreement versions
             _agreementUnlocks = new Dictionary<AgreementFeature, int> { { AgreementFeature.Transfers, 2 } };
         }
 
-        public async Task<bool> IsAgreementSigned(long accountId, long accountLegalEntityId,  params AgreementFeature[] requiredFeatures)
+        public async Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId,  params AgreementFeature[] requiredFeatures)
         {
             bool AreAllRequiredFeaturesPresentInSignedAgreement(int signedAgreement)
             {
@@ -37,24 +41,34 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
                 return true;
             }
 
-            var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
-            var legalEntity = await _accountApiClient.GetLegalEntity(hashedAccountId, accountLegalEntityId);
-
-            var signedAgreements = legalEntity.Agreements
-                .Where(x => x.Status == EmployerAgreementStatus.Signed).ToList();
-
-            if (!signedAgreements.Any())
+            try
             {
-                return false;
+
+                var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
+                var legalEntity = await _accountApiClient.GetLegalEntity(hashedAccountId, maLegalEntityId);
+
+                var signedAgreements = legalEntity.Agreements
+                    .Where(x => x.Status == EmployerAgreementStatus.Signed).ToList();
+
+                if (!signedAgreements.Any())
+                {
+                    return false;
+                }
+
+                //No extended features required
+                if (requiredFeatures.Length == 0)
+                {
+                    return true;
+                }
+
+                return AreAllRequiredFeaturesPresentInSignedAgreement(signedAgreements.Max(x => x.TemplateVersionNumber));
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, $"Error in EmployerAgreementService: {e.Message}");
+                throw;
             }
 
-            //No extended features required
-            if (requiredFeatures.Length == 0)
-            {
-                return true;
-            }
-
-            return AreAllRequiredFeaturesPresentInSignedAgreement(signedAgreements.Max(x => x.TemplateVersionNumber));
         }
     }
 }

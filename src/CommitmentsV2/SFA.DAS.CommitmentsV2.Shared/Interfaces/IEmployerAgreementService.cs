@@ -5,6 +5,6 @@ namespace SFA.DAS.CommitmentsV2.Shared.Interfaces
 {
     public interface IEmployerAgreementService
     {
-        Task<bool> IsAgreementSigned(long accountId, long accountLegalEntityId, params AgreementFeature[] requiredFeatures);
+        Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId, params AgreementFeature[] requiredFeatures);
     }
 }
