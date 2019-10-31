@@ -538,7 +538,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public CohortDomainServiceTestFixture WithSignedAgreement()
             {
-                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<AgreementFeature[]>())).ReturnsAsync(true);
+                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), 
+                    It.IsAny<CancellationToken>(), It.IsAny<AgreementFeature[]>())).ReturnsAsync(true);
                 return this;
             }
 
@@ -778,7 +779,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyIsAgreementSignedIsCalledCorrectly()
             {
-                EmployerAgreementService.Verify(x => x.IsAgreementSigned(EmployerAccountId, MaLegalEntityId, It.IsAny<AgreementFeature[]>()));
+                EmployerAgreementService.Verify(x => x.IsAgreementSigned(EmployerAccountId, AccountLegalEntityId, 
+                    It.IsAny<CancellationToken>(), It.IsAny<AgreementFeature[]>()));
             }
 
         }

@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Api.Client;
+using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Shared.Models;
 using SFA.DAS.CommitmentsV2.Shared.Services;
 using SFA.DAS.EAS.Account.Api.Client;
@@ -20,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
         public async Task IsAgreementSigned_ItShouldCallAccountApiEndpointWithCorrectParameters()
         {
             var f = new EmployerAgreementServiceTestsFixture();
-            await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId);
+            await f.Sut.IsAgreementSigned(f.AccountId, f.AccountLegalEntityId);
             f.VerifyAccountApiClientReceivesCorrectValues();
         }
 
@@ -30,7 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
         public async Task IsAgreementSigned_WithoutAnyAgreementFeatureAndWithOneSignedAgreementAtSpecifiedVersion_ItShouldReturnTrue(int version)
         {
             var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId);
+            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.AccountLegalEntityId);
             Assert.IsTrue(result);
         }
 
@@ -40,7 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
         public async Task IsAgreementSigned_WithTransferAgreementFeatureAndWithOneSignedAgreementAtSpecifiedVersion_ItShouldReturnExpectedValue(int version, bool expected)
         {
             var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(version);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId, AgreementFeature.Transfers);
+            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.AccountLegalEntityId, new CancellationToken(), AgreementFeature.Transfers);
             Assert.AreEqual(expected, result);
         }
 
@@ -48,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
         public async Task IsAgreementSigned_WithTransferAgreementFeatureAndWithMultipleSignedAgreements_ItShouldReturnTrue()
         {
             var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId, AgreementFeature.Transfers);
+            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.AccountLegalEntityId, new CancellationToken(), AgreementFeature.Transfers);
             Assert.IsTrue(result);
         }
 
@@ -56,7 +59,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
         public async Task IsAgreementSigned_WithoutAnyAgreementFeaturesAndWithMultipleSignedAgreements_ItShouldReturnTrue()
         {
             var f = new EmployerAgreementServiceTestsFixture().SetUpSignedAgreementWithVersion(1).SetUpSignedAgreementWithVersion(2);
-            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.MaLegalEntityId);
+            var result = await f.Sut.IsAgreementSigned(f.AccountId, f.AccountLegalEntityId);
             Assert.IsTrue(result);
         }
     }
@@ -64,8 +67,11 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
     public class EmployerAgreementServiceTestsFixture
     {
         public long AccountId = 123;
-        public long MaLegalEntityId = 456;
+        public long AccountLegalEntityId = 456;
+        public long MaLegalEntityId = 777;
         public LegalEntityViewModel LegalEntityViewModel;
+        public AccountLegalEntityResponse AccountLegalEntityResponse;
+        public Mock<ICommitmentsApiClient> CommitmentsApiClient;
         public Mock<IAccountApiClient> AccountApiClient;
         public Mock<IEncodingService> EncodingService;
         public EmployerAgreementService Sut;
@@ -75,13 +81,19 @@ namespace SFA.DAS.CommitmentsV2.Shared.UnitTests.Services
             LegalEntityViewModel = new LegalEntityViewModel();
             LegalEntityViewModel.Agreements = new List<AgreementViewModel>();
 
+            AccountLegalEntityResponse = new AccountLegalEntityResponse();
+            AccountLegalEntityResponse.MaLegalEntityId = MaLegalEntityId;
+
             EncodingService = new Mock<IEncodingService>();
             EncodingService.Setup(x => x.Encode(It.IsAny<long>(), EncodingType.AccountId)).Returns((long x, EncodingType t) => $"X{x}X");
 
             AccountApiClient = new Mock<IAccountApiClient>();
             AccountApiClient.Setup(x => x.GetLegalEntity(It.IsAny<string>(), It.IsAny<long>())).ReturnsAsync(LegalEntityViewModel);
 
-            Sut = new EmployerAgreementService(AccountApiClient.Object, EncodingService.Object, Mock.Of<ILogger<EmployerAgreementService>>());
+            CommitmentsApiClient = new Mock<ICommitmentsApiClient>();
+            CommitmentsApiClient.Setup(x => x.GetLegalEntity(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync(AccountLegalEntityResponse);
+
+            Sut = new EmployerAgreementService(AccountApiClient.Object, CommitmentsApiClient.Object, EncodingService.Object, Mock.Of<ILogger<EmployerAgreementService>>());
         }
 
         public EmployerAgreementServiceTestsFixture SetUpSignedAgreementWithVersion(int version)

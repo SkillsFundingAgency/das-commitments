@@ -271,11 +271,10 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private async Task ValidateEmployerHasSignedAgreement(Cohort cohort, CancellationToken cancellationToken)
         {
-            async Task<long> GetMaLegalEntityId()
+            long GetAccountLegalEntityId()
             {
                 var accountLegalEntityId = _encodingService.Decode(cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
-                var accountLegalEntity = await _dbContext.Value.AccountLegalEntities.Where(x => x.Id == accountLegalEntityId).SingleAsync(cancellationToken);
-                return accountLegalEntity.MaLegalEntityId;
+                return accountLegalEntityId;
             }
 
             AgreementFeature[] agreementFeatures = null;
@@ -284,7 +283,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 agreementFeatures = new AgreementFeature[] { AgreementFeature.Transfers };
             }
-            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, await GetMaLegalEntityId(), agreementFeatures);
+            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, GetAccountLegalEntityId(), cancellationToken, agreementFeatures);
 
             if (!isSigned)
             {
