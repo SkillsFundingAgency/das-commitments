@@ -116,6 +116,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         }
 
         [Test]
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedEmployerAccountId()
+        {
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.EmployerAccountId, response.AccountId, "Did not return expected EmployerAccountId"));
+        }
+
+        [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByProviderEmail()
         {
             await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, response.LastUpdatedByProviderEmail, "Did not return expected Last Updated By Provider Email"));
