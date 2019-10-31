@@ -20,6 +20,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
@@ -47,6 +48,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreation(party);
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public async Task CreateCohort_Tracks_State(Party party)
+        {
+            var result = await _fixture
+                .WithParty(party)
+                .CreateCohort();
+
+            _fixture.VerifyTrackingSessionStarted(UserAction.CreateCohort, party);
+            _fixture.VerifyInsertTracking(result);
+            _fixture.VerifyInsertTracking(result.DraftApprenticeships.First());
+            _fixture.VerifyTrackingSessionCompleted();
+        }
+
         [Test]
         public async Task CreateCohortWithOtherParty_Creates_Cohort()
         {
@@ -67,7 +82,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyCohortCreationWithOtherParty();
         }
-        
+
+        [Test]
+        public async Task CreateCohortWithOtherParty_Tracks_State()
+        {
+            var result = await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohortWithOtherParty();
+
+            _fixture.VerifyTrackingSessionStarted(UserAction.CreateCohortWithOtherParty, Party.Employer);
+            _fixture.VerifyInsertTracking(result);
+            _fixture.VerifyTrackingSessionCompleted();
+        }
+
         [Test]
         public async Task CreateCohort_ThrowsBadRequest_WhenAccountLegalEntityNotFound()
         {
@@ -112,6 +139,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer);
             await _fixture.AddDraftApprenticeship();
             _fixture.VerifyProviderDraftApprenticeshipAdded();
+        }
+
+        [Test]
+        public async Task AddDraftApprenticeship_Provider_Tracks_State()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer);
+            await _fixture.AddDraftApprenticeship();
+
+            _fixture.VerifyTrackingSessionStarted(UserAction.AddDraftApprenticeship, Party.Employer);
+            _fixture.VerifyUpdateTracking(_fixture.Cohort);
+            _fixture.VerifyTrackingSessionCompleted();
         }
 
         [Test]
@@ -209,7 +247,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             await _fixture.UpdateDraftApprenticeship();
             _fixture.VerifyLastUpdatedFieldsAreNotSet();
         }
-        
+
+        [Test]
+        public async Task UpdateDraftApprenticeship_Tracks_State()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer).WithExistingDraftApprenticeship();
+            await _fixture.UpdateDraftApprenticeship();
+            _fixture.VerifyTrackingSessionStarted(UserAction.UpdateDraftApprenticeship, Party.Employer);
+            _fixture.VerifyUpdateTracking(_fixture.Cohort);
+            _fixture.VerifyUpdateTracking(_fixture.ExistingDraftApprenticeship);
+            _fixture.VerifyTrackingSessionCompleted();
+        }
+
         [Test]
         public void AddDraftApprenticeship_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
@@ -223,19 +272,44 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithExistingCohortApprovedByAllParties();
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.UpdateDraftApprenticeship());
         }
-        
+
         [Test]
         public void SendCohortToOtherParty_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties();
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.SendCohortToOtherParty());
         }
-        
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task SendCohortToOtherParty_Tracks_State(Party party)
+        {
+            _fixture.WithParty(party).WithExistingCohort(party);
+            await _fixture.SendCohortToOtherParty();
+
+            _fixture.VerifyTrackingSessionStarted(UserAction.SendCohort, party);
+            _fixture.VerifyUpdateTracking(_fixture.Cohort);
+            _fixture.VerifyTrackingSessionCompleted();
+        }
+
         [Test]
         public void ApproveCohort_WhenCohortIsApprovedByAllParties_ShouldThrowException()
         {
             _fixture.WithExistingCohortApprovedByAllParties();
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public async Task ApproveCohort_Tracks_State(Party party)
+        {
+            _fixture.WithParty(party).WithExistingCohort(party).WithExistingDraftApprenticeship();
+            
+            await _fixture.ApproveCohort();
+
+            _fixture.VerifyTrackingSessionStarted(UserAction.ApproveCohort, party);
+            _fixture.VerifyUpdateTracking(_fixture.Cohort);
+            _fixture.VerifyTrackingSessionCompleted();
         }
 
         public class CohortDomainServiceTestFixture
@@ -254,6 +328,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<Provider> Provider { get; set; }
             public Mock<AccountLegalEntity> AccountLegalEntity { get; set; }
             public Cohort Cohort { get; set; }
+            public Cohort NewCohort { get; set; }
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
@@ -266,6 +341,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
             public Mock<IChangeTrackingSessionFactory> ChangeTrackingSessionFactory { get; set; }
+            public Mock<IChangeTrackingSession> ChangeTrackingSession { get; set; }
 
             public CohortDomainServiceTestFixture()
             {
@@ -286,13 +362,25 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 CohortId = 4;
                 Message = fixture.Create<string>();
 
+                NewCohort = new Cohort {Apprenticeships = new List<Apprenticeship> {new DraftApprenticeship()}};
+
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
+                Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(),
+                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
+                    .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
 
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
                 AccountLegalEntity.Setup(x => x.AccountId).Returns(AccountId);
+                AccountLegalEntity.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(),
+                        It.IsAny<DraftApprenticeshipDetails>(), It.IsAny<UserInfo>()))
+                    .Returns(NewCohort);
+                AccountLegalEntity.Setup(x => x.CreateCohortWithOtherParty(It.IsAny<Provider>(),It.IsAny<string>(),
+                        It.IsAny<UserInfo>()))
+                    .Returns(NewCohort);
+
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
 
                 DraftApprenticeshipId = fixture.Create<long>();
@@ -302,7 +390,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     FirstName = "Test", LastName = "Test"
                 };
 
-                ExistingDraftApprenticeship = new DraftApprenticeship { Id = DraftApprenticeshipId, CommitmentId = CohortId};
+                ExistingDraftApprenticeship = new DraftApprenticeship {
+                        Id = DraftApprenticeshipId,
+                        CommitmentId = CohortId,
+                        FirstName = fixture.Create<string>(),
+                        LastName = fixture.Create<string>(),
+                        Uln = "4860364820",
+                        StartDate = DateTime.UtcNow,
+                        EndDate = DateTime.UtcNow.AddYears(1),
+                        CourseCode = fixture.Create<string>(),
+                        Cost = fixture.Create<int>(),
+                        DateOfBirth = fixture.Create<DateTime>()
+                };
 
                 AcademicYearDateProvider = new Mock<IAcademicYearDateProvider>();
                 AcademicYearDateProvider.Setup(x => x.CurrentAcademicYearEndDate).Returns(new DateTime(2020, 7, 31));
@@ -327,6 +426,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
 
+                ChangeTrackingSession = new Mock<IChangeTrackingSession>();
                 ChangeTrackingSessionFactory = new Mock<IChangeTrackingSessionFactory>();
                 ChangeTrackingSessionFactory
                     .Setup(x => x.CreateTrackingSession(It.IsAny<UserAction>(),
@@ -334,7 +434,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                         It.IsAny<long>(),
                         It.IsAny<long>(),
                         It.IsAny<UserInfo>()))
-                    .Returns(Mock.Of<IChangeTrackingSession>());
+                    .Returns(ChangeTrackingSession.Object);
 
                 CohortDomainService = new CohortDomainService(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                     Mock.Of<ILogger<CohortDomainService>>(),
@@ -431,7 +531,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Id = CohortId,
                     EditStatus = creatingParty.ToEditStatus(),
-                    ProviderId = ProviderId
+                    ProviderId = ProviderId,
+                    EmployerAccountId = AccountId
                 };
                 
                 Db.Cohorts.Add(Cohort);
@@ -445,7 +546,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Id = CohortId,
                     EditStatus = EditStatus.Both,
-                    TransferSenderId = null
+                    TransferSenderId = null,
+                    EmployerAccountId = AccountId,
+                    ProviderId = ProviderId
                 };
                 
                 Db.Cohorts.Add(Cohort);
@@ -573,6 +676,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public async Task UpdateDraftApprenticeship()
             {
+                if (Party == Party.Employer)
+                {
+                    DraftApprenticeshipDetails.Uln = ExistingDraftApprenticeship.Uln;
+                }
+
                 Db.SaveChanges();
                 DomainErrors.Clear();
 
@@ -705,6 +813,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyNoException()
             {
                 Assert.IsNull(Exception);
+            }
+
+            public void VerifyTrackingSessionStarted(UserAction action, Party party)
+            {
+                ChangeTrackingSessionFactory.Verify(x => x.CreateTrackingSession(
+                    It.Is<UserAction>(a => a== action), 
+                    It.Is<Party>(p => p == party),
+                    It.Is<long>(e => e == AccountId),
+                    It.Is<long>(p => p == ProviderId),
+                    It.Is<UserInfo>(u => u == UserInfo)),
+                    Times.Once);
+            }
+
+            public void VerifyTrackingSessionCompleted()
+            {
+                ChangeTrackingSession.Verify(x => x.CompleteTrackingSession(), Times.Once);
+            }
+
+            public void VerifyUpdateTracking(ITrackableEntity entity)
+            {
+                ChangeTrackingSession.Verify(x => x.TrackUpdate(It.Is<ITrackableEntity>(e => e==entity)));
+            }
+
+            public void VerifyDeletionTracking(ITrackableEntity entity)
+            {
+                ChangeTrackingSession.Verify(x => x.TrackDelete(It.Is<ITrackableEntity>(e => e == entity)));
+            }
+
+            public void VerifyInsertTracking(ITrackableEntity entity)
+            {
+                ChangeTrackingSession.Verify(x => x.TrackInsert(It.Is<ITrackableEntity>(e => e == entity)));
             }
         }
     }
