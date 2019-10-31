@@ -156,6 +156,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                 apprenticeDetails);
         }
 
+        [Test]
+        public async Task Handle_WithNoApprenticeDetails_ShouldReturnEmployerCannotApprove()
+        {
+            await CheckQueryResponse(response => Assert.IsFalse(response.IsCompleteForEmployer));
+        }
+
         private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null)
         {
             var autoFixture = new Fixture();
