@@ -55,15 +55,13 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
                     return false;
                 }
 
-                //No extended features required
-                if (requiredFeatures.Length == 0)
+                if (requiredFeatures?.Length > 0)
                 {
-                    return true;
+                    return AreAllRequiredFeaturesPresentInSignedAgreement(signedAgreements.Max(x => x.TemplateVersionNumber));
                 }
-
-                return AreAllRequiredFeaturesPresentInSignedAgreement(signedAgreements.Max(x => x.TemplateVersionNumber));
+                return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError(e, $"Error in EmployerAgreementService: {e.Message}");
                 throw;

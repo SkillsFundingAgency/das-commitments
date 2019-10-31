@@ -258,7 +258,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
         {
-            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithDecodeOfHashedAccountLegalEntity().WithSignedAgreement();
+            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithDecodeOfPublicHashedAccountLegalEntity().WithSignedAgreement();
             await _fixture.ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
         }
@@ -529,9 +529,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public CohortDomainServiceTestFixture WithDecodeOfHashedAccountLegalEntity()
+            public CohortDomainServiceTestFixture WithDecodeOfPublicHashedAccountLegalEntity()
             {
-                EncodingService.Setup(x => x.Decode(It.IsAny<string>(), EncodingType.AccountLegalEntityId))
+                EncodingService.Setup(x => x.Decode(It.IsAny<string>(), EncodingType.PublicAccountLegalEntityId))
                     .Returns(AccountLegalEntityId);
                 return this;
             }
