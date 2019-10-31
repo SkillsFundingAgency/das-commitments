@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public virtual long Id { get; private set; }
         public string LegalEntityId { get; private set; }
-        public long MaLegalEntityId { get; private set; }
+        public virtual long MaLegalEntityId { get; private set; }
         public string PublicHashedId { get; private set; }
         public Account Account { get; private set; }
         public virtual long AccountId { get; private set; }

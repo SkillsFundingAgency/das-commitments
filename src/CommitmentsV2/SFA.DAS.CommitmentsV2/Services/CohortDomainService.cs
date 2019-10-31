@@ -13,6 +13,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Models;
@@ -76,7 +77,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             if (party == Party.Employer)
             {
-                await ValidateEmployerHasSignedAgreement(cohort);
+                await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
@@ -268,15 +269,22 @@ namespace SFA.DAS.CommitmentsV2.Services
             throw new DomainException(errors);
         }
 
-        private async Task ValidateEmployerHasSignedAgreement(Cohort cohort)
+        private async Task ValidateEmployerHasSignedAgreement(Cohort cohort, CancellationToken cancellationToken)
         {
+            async Task<long> GetMaLegalEntityId()
+            {
+                var accountLegalEntityId = _encodingService.Decode(cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+                var accountLegalEntity = await _dbContext.Value.AccountLegalEntities.Where(x => x.Id == accountLegalEntityId).SingleAsync(cancellationToken);
+                return accountLegalEntity.MaLegalEntityId;
+            }
+
             AgreementFeature[] agreementFeatures = null;
 
             if (cohort.TransferSenderId != null)
             {
                 agreementFeatures = new AgreementFeature[] { AgreementFeature.Transfers };
             }
-            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, cohort.MaLegalEntityId, agreementFeatures);
+            var isSigned = await _employerAgreementService.IsAgreementSigned(cohort.EmployerAccountId, await GetMaLegalEntityId(), agreementFeatures);
 
             if (!isSigned)
             {

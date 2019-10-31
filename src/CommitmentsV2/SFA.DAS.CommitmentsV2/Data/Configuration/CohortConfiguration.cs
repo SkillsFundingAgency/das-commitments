@@ -43,7 +43,6 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.TransferSenderName).HasMaxLength(100);
             builder.Property(e => e.Originator).IsRequired().HasColumnType("tinyint");
             builder.Ignore(e => e.DraftApprenticeships);
-            builder.Ignore(e => e.MaLegalEntityId);
         }
     }
 }
