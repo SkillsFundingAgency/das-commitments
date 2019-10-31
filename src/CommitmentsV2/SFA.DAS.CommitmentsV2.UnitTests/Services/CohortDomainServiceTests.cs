@@ -24,6 +24,7 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 using SFA.DAS.CommitmentsV2.Shared.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -257,7 +258,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
         {
-            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithSignedAgreement();
+            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithDecodeOfHashedAccountLegalEntity().WithSignedAgreement();
             await _fixture.ApproveCohort();
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
         }
@@ -323,6 +324,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
+                AccountLegalEntity.Setup(x => x.MaLegalEntityId).Returns(MaLegalEntityId);
                 AccountLegalEntity.Setup(x => x.AccountId).Returns(AccountId);
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
 
@@ -457,8 +459,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     Id = CohortId,
                     EditStatus = creatingParty.ToEditStatus(),
                     ProviderId = ProviderId,
-                    EmployerAccountId = EmployerAccountId,
-                    MaLegalEntityId = MaLegalEntityId
+                    EmployerAccountId = EmployerAccountId
                 };
                 
                 Db.Cohorts.Add(Cohort);
@@ -528,12 +529,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
+            public CohortDomainServiceTestFixture WithDecodeOfHashedAccountLegalEntity()
+            {
+                EncodingService.Setup(x => x.Decode(It.IsAny<string>(), EncodingType.AccountLegalEntityId))
+                    .Returns(AccountLegalEntityId);
+                return this;
+            }
+
             public CohortDomainServiceTestFixture WithSignedAgreement()
             {
                 EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<AgreementFeature[]>())).ReturnsAsync(true);
                 return this;
             }
-
 
             public async Task<Cohort> CreateCohort(long? accountId = null, long? accountLegalEntityId = null)
             {
