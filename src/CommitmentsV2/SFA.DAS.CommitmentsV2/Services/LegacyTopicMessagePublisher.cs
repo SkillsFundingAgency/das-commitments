@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -22,15 +24,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             _connectionString = connectionString;
         }
 
-        public async Task PublishAsync(object @event)
+        public async Task PublishAsync<T>(T @event)
         {
             string messageGroupName = GetMessageGroupName(@event);
             ITopicClient client = null;
             try
             {
                 client = _topicClientFactory.CreateClient(_connectionString, messageGroupName);
-                string messageBody = JsonConvert.SerializeObject(@event);
-                Message message = new Message(System.Text.Encoding.UTF8.GetBytes(messageBody));
+                var messageBody = Serialize(@event);
+                Message message = new Message(messageBody);
                 await client.SendAsync(message);
             }
             catch (Exception e)
@@ -55,6 +57,17 @@ namespace SFA.DAS.CommitmentsV2.Services
             if (!string.IsNullOrEmpty(str))
                 return str;
             return obj.GetType().Name;
+        }
+
+        private static byte[] Serialize<T>(T obj)
+        {
+            var serializer = new DataContractSerializer(typeof(T));
+            var stream = new MemoryStream();
+            using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
+            {
+                serializer.WriteObject(writer, obj);
+            }
+            return stream.ToArray();
         }
     }
 }
