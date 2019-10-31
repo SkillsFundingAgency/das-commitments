@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
-using SFA.DAS.CommitmentsV2.Mapping;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 
@@ -33,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 select new GetCohortSummaryQueryResult
                 {
                     CohortId = c.Id,
+                    AccountId = c.EmployerAccountId,
                     CohortReference = c.Reference,
                     AccountLegalEntityPublicHashedId = c.AccountLegalEntityPublicHashedId,
                     LegalEntityName = c.LegalEntityName,
