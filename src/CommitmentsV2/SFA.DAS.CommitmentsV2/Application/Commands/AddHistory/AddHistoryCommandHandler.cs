@@ -21,6 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddHistory
             var history = new History
             {
                 EntityId = request.EntityId,
+                CommitmentId = request.EntityType == nameof(Cohort) ? request.EntityId : default(long?),
+                ApprenticeshipId = (request.EntityType == nameof(DraftApprenticeship) || request.EntityType == nameof(ApprovedApprenticeship)) ? request.EntityId : default(long?),
                 OriginalState = request.InitialState,
                 UpdatedState = request.UpdatedState,
                 ChangeType = request.StateChangeType.ToString(),

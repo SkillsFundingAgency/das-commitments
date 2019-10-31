@@ -11,8 +11,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 {
     public class EntityStateChangedEventHandler : IHandleMessages<EntityStateChangedEvent>
     {
-        private IMediator _mediator;
-        private IDiffService _diffService;
+        private readonly IMediator _mediator;
+        private readonly IDiffService _diffService;
 
         public EntityStateChangedEventHandler(IMediator mediator, IDiffService diffService)
         {
@@ -22,8 +22,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
 
         public async Task Handle(EntityStateChangedEvent message, IMessageHandlerContext context)
         {
-            var initialState = JsonConvert.DeserializeObject<Dictionary<string, object>>(message.InitialState);
-            var updatedState = JsonConvert.DeserializeObject<Dictionary<string, object>>(message.UpdatedState);
+            var initialState = message.InitialState == null ? null : JsonConvert.DeserializeObject<Dictionary<string, object>>(message.InitialState);
+            var updatedState = message.UpdatedState == null ? null : JsonConvert.DeserializeObject<Dictionary<string, object>>(message.UpdatedState);
             var diff = _diffService.GenerateDiff(initialState, updatedState);
             if (diff.Count == 0) return;
 
