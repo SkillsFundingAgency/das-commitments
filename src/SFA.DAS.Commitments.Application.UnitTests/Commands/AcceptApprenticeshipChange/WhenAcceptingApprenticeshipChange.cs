@@ -195,7 +195,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 {
                     ApprenticeshipId = 5,
                     Id = 42,
-                    FirstName = "UpdatedState first name",
+                    FirstName = "Updated first name",
                     EffectiveFromDate = createdOn,
                     CreatedOn = createdOn
                 });
@@ -214,7 +214,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 It.Is<Apprenticeship>(m =>
                        m.StartDate == _apprenticeshipStartDate
                     && m.EndDate == _apprenticeshipStartDate.AddYears(2)
-                    && m.FirstName == "UpdatedState first name"),
+                    && m.FirstName == "Updated first name"),
                 It.IsAny<string>(), createdOn, null), Times.Exactly(1));
         }
 
@@ -228,7 +228,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 {
                     ApprenticeshipId = 5,
                     Id = 42,
-                    FirstName = "UpdatedState first name",
+                    FirstName = "Updated first name",
                     EffectiveFromDate = _apprenticeshipStartDate,
                     CreatedOn = createdOn
                 });
@@ -260,7 +260,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 It.Is<Apprenticeship>(m =>
                        m.StartDate == _apprenticeshipStartDate
                     && m.EndDate == _apprenticeshipStartDate.AddYears(2)
-                    && m.FirstName == "UpdatedState first name"),
+                    && m.FirstName == "Updated first name"),
                 It.IsAny<string>(), _apprenticeshipStartDate, null), Times.Once);
         }
 
@@ -275,7 +275,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 {
                     ApprenticeshipId = 5,
                     Id = 42,
-                    FirstName = "UpdatedState first name",
+                    FirstName = "Updated first name",
                     EffectiveFromDate = newStartDate,
                     CreatedOn = createdOn,
                     StartDate = newStartDate,
@@ -294,7 +294,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 It.Is<Apprenticeship>(p =>
                        p.StartDate == newStartDate
                     && p.EndDate == newEndDate
-                    && p.FirstName == "UpdatedState first name"
+                    && p.FirstName == "Updated first name"
                     ),
                 It.IsAny<Caller>()), Times.Once);
 
@@ -304,7 +304,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                 It.Is<Apprenticeship>(m =>
                        m.StartDate == newStartDate // Keep old start date
                     && m.EndDate == newEndDate // Set new end date from update reqest
-                    && m.FirstName == "UpdatedState first name"),
+                    && m.FirstName == "Updated first name"),
                 It.IsAny<string>(), newStartDate, null), Times.Exactly(1));
         }
 
@@ -337,7 +337,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                                 y.First().ApprenticeshipId == null &&
                                 y.First().OriginalState == expectedOriginalCommitmentState &&
                                 y.First().UpdatedByRole == command.Caller.CallerType.ToString() &&
-                                y.First().UpdatedState == expectedOriginalCommitmentState &&
+                                y.First().Updated == expectedOriginalCommitmentState &&
                                 y.First().UserId == command.UserId &&
                                 y.First().ProviderId == _apprenticeship.ProviderId &&
                                 y.First().EmployerAccountId == _apprenticeship.EmployerAccountId &&
@@ -353,7 +353,7 @@ namespace SFA.DAS.Commitments.Application.UnitTests.Commands.AcceptApprenticeshi
                                 y.Last().ApprenticeshipId == _apprenticeship.Id &&
                                 y.Last().OriginalState == expectedOriginalApprenticeshipState &&
                                 y.Last().UpdatedByRole == command.Caller.CallerType.ToString() &&
-                                y.Last().UpdatedState == expectedNewApprenticeshipState &&
+                                y.Last().Updated == expectedNewApprenticeshipState &&
                                 y.Last().UserId == command.UserId &&
                                 y.Last().ProviderId == _apprenticeship.ProviderId &&
                                 y.Last().EmployerAccountId == _apprenticeship.EmployerAccountId &&
