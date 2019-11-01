@@ -87,7 +87,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyException<BadRequestException>();
         }
 
-
         [TestCase(Party.Employer, false)]
         [TestCase(Party.Provider, true)]
         [TestCase(Party.TransferSender, true)]
@@ -783,7 +782,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 EmployerAgreementService.Verify(x => x.IsAgreementSigned(EmployerAccountId, MaLegalEntityId, 
                     It.IsAny<AgreementFeature[]>()));
             }
-
         }
     }
 }
