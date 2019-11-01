@@ -98,4 +98,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="PriorityOrder" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="5f73e37e-afa0-4e64-b897-3122529f7eb5" ChangeDateTime="10/25/2019 10:30:01">
+    <Property Name="ElementName" Value="[dbo].[AccountLegalEntities].[MALegalEntityId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[AccountLegalEntities]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="MaLegalEntityId" />
+  </Operation>
 </Operations>

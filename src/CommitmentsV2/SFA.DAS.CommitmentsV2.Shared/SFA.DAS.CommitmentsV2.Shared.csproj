@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="SFA.DAS.Account.Api.Client" Version="1.6.2276" />
+    <PackageReference Include="SFA.DAS.Apprenticeships.Api.Client" Version="0.11.199" />
+    <PackageReference Include="SFA.DAS.Apprenticeships.Api.Types" Version="0.11.199" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
+    <PackageReference Include="SFA.DAS.Encoding" Version="1.1.1" />
+    <PackageReference Include="SFA.DAS.Validation.Mvc" Version="6.0.7" />
+    <PackageReference Include="StructureMap" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api.Client\SFA.DAS.CommitmentsV2.Api.Client.csproj" />
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api.Types\SFA.DAS.CommitmentsV2.Api.Types.csproj" />
+  </ItemGroup>
+
+</Project>

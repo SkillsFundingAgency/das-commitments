@@ -28,6 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                     a.PublicHashedId == f.Command.AccountLegalEntityPublicHashedId &&
                     a.Account == f.Account &&
                     a.AccountId == f.Command.AccountId &&
+                    a.MaLegalEntityId == f.Command.MaLegalEntityId &&
                     a.Name == f.Command.OrganisationName &&
                     a.OrganisationType == f.Command.OrganisationType &&
                     a.LegalEntityId == f.Command.OrganisationReferenceNumber &&
@@ -52,7 +53,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             Db.Accounts.Add(Account);
             Db.SaveChanges();
 
-            Command = new AddAccountLegalEntityCommand(Account.Id, 2,  "ALE123", "Foo",
+            Command = new AddAccountLegalEntityCommand(Account.Id, 2,  202, "ALE123", "Foo",
                 OrganisationType.CompaniesHouse, "REFNo", "Address", DateTime.UtcNow);
 
             Handler = new AddAccountLegalEntityCommandHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
