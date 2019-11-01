@@ -11,15 +11,15 @@ using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Services
 {
-    public class EmployerAgreementService2 : IEmployerAgreementService2
+    public class EmployerAgreementService : IEmployerAgreementService
     {
         private readonly IAccountApiClient _accountApiClient;
         private readonly IEncodingService _encodingService;
-        private readonly ILogger<EmployerAgreementService2> _logger;
+        private readonly ILogger<EmployerAgreementService> _logger;
 
         private readonly Dictionary<AgreementFeature, int> _agreementUnlocks;
 
-        public EmployerAgreementService2(IAccountApiClient accountApiClient, IEncodingService encodingService, ILogger<EmployerAgreementService2> logger)
+        public EmployerAgreementService(IAccountApiClient accountApiClient, IEncodingService encodingService, ILogger<EmployerAgreementService> logger)
         {
             _accountApiClient = accountApiClient;
             _encodingService = encodingService;

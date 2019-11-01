@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly IOverlapCheckService _overlapCheckService;
         private readonly IAuthenticationService _authenticationService;
         private readonly ICurrentDateTime _currentDateTime;
-        private readonly IEmployerAgreementService2 _employerAgreementService;
+        private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
@@ -40,7 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             IOverlapCheckService overlapCheckService,
             IAuthenticationService authenticationService,
             ICurrentDateTime currentDateTime,
-            IEmployerAgreementService2 employerAgreementService,
+            IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService)
         {
             _dbContext = dbContext;

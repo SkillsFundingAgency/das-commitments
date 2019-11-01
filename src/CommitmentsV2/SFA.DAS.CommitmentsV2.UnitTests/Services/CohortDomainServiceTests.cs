@@ -280,7 +280,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
-            public Mock<IEmployerAgreementService2> EmployerAgreementService { get; }
+            public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
             public Mock<IEncodingService> EncodingService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
@@ -350,7 +350,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
-                EmployerAgreementService = new Mock<IEmployerAgreementService2>();
+                EmployerAgreementService = new Mock<IEmployerAgreementService>();
                 EncodingService = new Mock<IEncodingService>();
 
                 AuthenticationService = new Mock<IAuthenticationService>();
