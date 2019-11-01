@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.CommitmentsV2.Shared.Models
+﻿namespace SFA.DAS.CommitmentsV2.Types
 {
     public enum AgreementFeature
     {
