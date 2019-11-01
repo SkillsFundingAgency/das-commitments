@@ -54,6 +54,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
         }
 
+        [Test]
+        public void ComparisonToInitialItemWithNullValuesReturnsAllItemsInUpdated()
+        {
+            _fixture.WithInitialItemsWithNullValues().WithDifferentUpdatedValues().GenerateDiff();
+
+            Assert.AreEqual(_fixture.UpdatedItem.Count, _fixture.Result.Count);
+            foreach (var item in _fixture.UpdatedItem)
+            {
+                var resultItem = _fixture.Result.Single(x => x.PropertyName == item.Key);
+                Assert.IsNull(resultItem.InitialValue);
+                Assert.AreEqual(item.Value, resultItem.UpdatedValue);
+            }
+        }
+
 
         [Test]
         public void ComparisonToNullUpdatedStateReturnsAllItemsInInitial()
@@ -90,6 +104,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public DiffServiceTestsFixture WithNullInitialItem()
             {
                 InitialItem = null;
+                return this;
+            }
+
+            public DiffServiceTestsFixture WithInitialItemsWithNullValues()
+            {
+                InitialItem = GenerateRandomDataWithNullValues();
                 return this;
             }
 
@@ -141,25 +161,36 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return result;
             }
 
+            private Dictionary<string, object> GenerateRandomDataWithNullValues()
+            {
+                var result = new Dictionary<string, object>();
+                for (var i = 0; i < 10; i++)
+                {
+                    result.Add(_autoFixture.Create<string>(), null);
+                }
+                return result;
+            }
+
             private Dictionary<string, object> GenerateModifiedData(Dictionary<string, object> source)
             {
                 var result = new Dictionary<string, object>();
 
                 foreach (var sourceItem in source)
                 {
-                    if (sourceItem.Value is string stringValue)
+                    switch (sourceItem.Value)
                     {
-                        result.Add(sourceItem.Key, stringValue + "_modified");
-                    }
-
-                    if (sourceItem.Value is long longValue)
-                    {
-                        result.Add(sourceItem.Key, longValue+1);
-                    }
-
-                    if (sourceItem.Value is DateTime dateTimeValue)
-                    {
-                        result.Add(sourceItem.Key, dateTimeValue.AddDays(1));
+                        case null:
+                            result.Add(sourceItem.Key, "modified");
+                            continue;
+                        case string stringValue:
+                            result.Add(sourceItem.Key, stringValue + "_modified");
+                            continue;
+                        case long longValue:
+                            result.Add(sourceItem.Key, longValue+1);
+                            continue;
+                        case DateTime dateTimeValue:
+                            result.Add(sourceItem.Key, dateTimeValue.AddDays(1));
+                            continue;
                     }
                 }
 
