@@ -28,10 +28,10 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .HasColumnName("NINumber")
                 .HasMaxLength(10);
 
-            builder.Property(e => e.PauseDate).HasColumnType("date");
+            
             builder.Property(e => e.ProviderRef).HasMaxLength(50);
             builder.Property(e => e.StartDate).HasColumnType("datetime");
-            builder.Property(e => e.StopDate).HasColumnType("date");
+
 
             builder.Property(e => e.ProgrammeType)
                 .HasColumnName("TrainingType");
