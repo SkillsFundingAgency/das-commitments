@@ -500,7 +500,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             }
         }
 
-        private Party PartyApprovals
+        public Party PartyApprovals
         {
             get
             {
