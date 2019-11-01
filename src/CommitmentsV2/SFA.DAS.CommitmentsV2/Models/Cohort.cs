@@ -108,6 +108,10 @@ namespace SFA.DAS.CommitmentsV2.Models
 
         public IEnumerable<DraftApprenticeship> DraftApprenticeships => Apprenticeships.OfType<DraftApprenticeship>();
 
+        public int DraftApprenticeshipCount => DraftApprenticeships.Count();
+
+        public string LastMessage => Messages.OrderByDescending(x => x.Id).FirstOrDefault()?.Text;
+
         public Party WithParty
         {
             get
