@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse {AccountId = 1, AccountName = "AccountName", LegalEntityName = "" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse());
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -41,7 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             // arrange
             var fixtures = new AccountLegalEntityControllerTestFixtures()
-                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountId = 1, AccountName = "AccountName", LegalEntityName = "ABC" });
+                .SetQueryResponse(accountLegalEntityId, new GetAccountLegalEntityResponse { AccountId = 1, MaLegalEntityId = 234, AccountName = "AccountName", LegalEntityName = "ABC" });
 
             // act
             var response = await fixtures.CallControllerMethod(accountLegalEntityId);
@@ -52,6 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 .WithModel<AccountLegalEntityResponse>();
 
             Assert.AreEqual(1, model.AccountId);
+            Assert.AreEqual(234, model.MaLegalEntityId);
             Assert.AreEqual("AccountName", model.AccountName);
             Assert.AreEqual("ABC", model.LegalEntityName);
         }
@@ -76,7 +77,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             Assert.AreEqual(404, objectResult.StatusCode);
         }
     }
-
 
     public class AccountLegalEntityControllerTestFixtures
     {

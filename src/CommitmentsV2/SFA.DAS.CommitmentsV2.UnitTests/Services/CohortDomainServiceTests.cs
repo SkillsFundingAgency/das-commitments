@@ -20,7 +20,11 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.CommitmentsV2.Shared.Interfaces;
+using SFA.DAS.CommitmentsV2.Shared.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
+using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -237,6 +241,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
         }
 
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
+        [Test]
+        public void ApproveCohort_WhenEmployerApprovesAndThereIsATransferSenderAndAgreementIsNotSigned_ShouldThrowException()
+        {
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedTransferCohort();
+            Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
+        }
+
+        [Test]
+        public async Task ApproveCohort_WhenEmployerApprovesAndAgreementIsSigned_ShouldSucceed()
+        {
+            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithDecodeOfPublicHashedAccountLegalEntity().WithSignedAgreement();
+            await _fixture.ApproveCohort();
+            _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -256,6 +282,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Mock<IAcademicYearDateProvider> AcademicYearDateProvider { get; }
             public Mock<IUlnValidator> UlnValidator { get; }
             public Mock<IReservationValidationService> ReservationValidationService { get; }
+            public Mock<IEmployerAgreementService> EmployerAgreementService { get; }
+            public Mock<IEncodingService> EncodingService { get; }
             private Mock<IOverlapCheckService> OverlapCheckService { get; }
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
@@ -264,6 +292,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
             public UserInfo UserInfo { get; private set; }
+
+            public long EmployerAccountId { get; private set; }
+            public long MaLegalEntityId { get; private set; }
 
             public CohortDomainServiceTestFixture()
             {
@@ -282,6 +313,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountId = 2;
                 AccountLegalEntityId = 3;
                 CohortId = 4;
+                EmployerAccountId = fixture.Create<long>();
+                MaLegalEntityId = fixture.Create<long>();
+
                 Message = fixture.Create<string>();
 
                 Provider = new Mock<Provider>();
@@ -290,6 +324,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 AccountLegalEntity = new Mock<AccountLegalEntity>();
                 AccountLegalEntity.Setup(x => x.Id).Returns(AccountLegalEntityId);
+                AccountLegalEntity.Setup(x => x.MaLegalEntityId).Returns(MaLegalEntityId);
                 AccountLegalEntity.Setup(x => x.AccountId).Returns(AccountId);
                 Db.AccountLegalEntities.Add(AccountLegalEntity.Object);
 
@@ -316,6 +351,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 OverlapCheckService = new Mock<IOverlapCheckService>();
                 OverlapCheckService.Setup(x => x.CheckForOverlaps(It.IsAny<string>(), It.IsAny<DateRange>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()));
 
+                EmployerAgreementService = new Mock<IEmployerAgreementService>();
+                EncodingService = new Mock<IEncodingService>();
+
                 AuthenticationService = new Mock<IAuthenticationService>();
                 
                 CurrentDateTime = new Mock<ICurrentDateTime>();
@@ -332,7 +370,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     ReservationValidationService.Object,
                     OverlapCheckService.Object,
                     AuthenticationService.Object,
-                    CurrentDateTime.Object);
+                    CurrentDateTime.Object,
+                    EmployerAgreementService.Object,
+                    EncodingService.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)
@@ -354,7 +394,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Message = null;
                 return this;
             }
-
 
             public CohortDomainServiceTestFixture WithReservationValidationResult(bool hasReservationError)
             {
@@ -419,7 +458,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     Id = CohortId,
                     EditStatus = creatingParty.ToEditStatus(),
-                    ProviderId = ProviderId
+                    ProviderId = ProviderId,
+                    EmployerAccountId = EmployerAccountId
                 };
                 
                 Db.Cohorts.Add(Cohort);
@@ -436,6 +476,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     TransferSenderId = null
                 };
                 
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingUnapprovedCohort()
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Neither,
+                    TransferSenderId = null
+                };
+
+                Db.Cohorts.Add(Cohort);
+
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithExistingUnapprovedTransferCohort()
+            {
+                Cohort = new Cohort
+                {
+                    Id = CohortId,
+                    EditStatus = EditStatus.Neither,
+                    TransferSenderId = 11212
+                };
+
                 Db.Cohorts.Add(Cohort);
 
                 return this;
@@ -458,6 +526,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public CohortDomainServiceTestFixture WithNoUserInfo()
             {
                 UserInfo = null;
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithDecodeOfPublicHashedAccountLegalEntity()
+            {
+                EncodingService.Setup(x => x.Decode(It.IsAny<string>(), EncodingType.PublicAccountLegalEntityId))
+                    .Returns(AccountLegalEntityId);
+                return this;
+            }
+
+            public CohortDomainServiceTestFixture WithSignedAgreement()
+            {
+                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<AgreementFeature[]>())).ReturnsAsync(true);
                 return this;
             }
 
@@ -694,6 +775,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 Assert.IsNull(Exception);
             }
+
+            public void VerifyIsAgreementSignedIsCalledCorrectly()
+            {
+                EmployerAgreementService.Verify(x => x.IsAgreementSigned(EmployerAccountId, MaLegalEntityId, It.IsAny<AgreementFeature[]>()));
+            }
+
         }
     }
 }

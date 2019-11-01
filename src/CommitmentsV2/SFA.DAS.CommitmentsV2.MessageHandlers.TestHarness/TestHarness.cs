@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         public async Task Run()
         {
             long accountId = 1001;
-            long accountLegalEntityId = 2001;
+            long accountLegalEntityId = 2061;
             long cohortId = 186091;
 
             ConsoleKey key = ConsoleKey.Escape;
