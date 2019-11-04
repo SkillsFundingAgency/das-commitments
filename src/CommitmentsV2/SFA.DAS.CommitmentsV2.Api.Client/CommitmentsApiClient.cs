@@ -93,9 +93,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 cancellationToken);
         }
 
-        public Task<long> GetLatestAgreementId(long accountLegalEntityId, CancellationToken cancellationToken)
+        public Task<long?> GetLatestAgreementId(long accountLegalEntityId, CancellationToken cancellationToken)
         {
-            return _client.Get<long>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
+            return _client.Get<long?>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
         public Task<string> SecureCheck()
         {

@@ -136,7 +136,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public async Task GetLatestAgreementId_VerifyUrlAndDataIsCorrectlyPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetLatestAgreementId(123, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(c => c.Get<long>("api/employer-agreements/123/latest-id", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(c => c.Get<long?>("api/employer-agreements/123/latest-id", null, CancellationToken.None));
         }
 
         [Test]
