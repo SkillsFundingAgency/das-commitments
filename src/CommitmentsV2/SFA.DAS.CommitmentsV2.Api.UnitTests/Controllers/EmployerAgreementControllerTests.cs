@@ -21,7 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             var f = new EmployerAgreementControllerTestFixtures();
 
-            var response = await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest, CancellationToken.None);
+            var response = await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest.AccountLegalEntityId,
+                f.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
             Assert.AreEqual(typeof(OkObjectResult), response.GetType());
             var objectResult = (OkObjectResult) response;
@@ -34,7 +35,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             var f = new EmployerAgreementControllerTestFixtures().WithAgreementIdSignedAs(expected);
 
-            var response = await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest, CancellationToken.None);
+            var response = await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest.AccountLegalEntityId,
+                f.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
             Assert.IsInstanceOf<OkObjectResult>(response);
             Assert.AreEqual(expected, (bool)((OkObjectResult)response).Value);
@@ -45,7 +47,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         {
             var f = new EmployerAgreementControllerTestFixtures();
 
-            await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest, CancellationToken.None);
+            await f.Sut.IsAgreementSignedForFeature(f.AgreementSignedRequest.AccountLegalEntityId,
+                f.AgreementSignedRequest.AgreementFeatures, CancellationToken.None);
 
             f.VerifyMediatorCalledCorrectlyWithId(f.AgreementSignedRequest.AccountLegalEntityId);
             f.VerifyIsAgreementSignedCalledCorrectly();

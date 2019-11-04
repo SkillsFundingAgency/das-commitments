@@ -3,10 +3,9 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -27,11 +26,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{AccountLegalEntityId}/signed")]
-        public async Task<IActionResult> IsAgreementSignedForFeature(AgreementSignedRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> IsAgreementSignedForFeature(long accountLegalEntityId, [FromQuery] AgreementFeature[] agreementFeatures, CancellationToken cancellationToken)
         {
-            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest{AccountLegalEntityId = request.AccountLegalEntityId}, cancellationToken);
+            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest{AccountLegalEntityId = accountLegalEntityId}, cancellationToken);
             var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId,
-                accountLegalEntity.MaLegalEntityId, request.AgreementFeatures);
+                accountLegalEntity.MaLegalEntityId, agreementFeatures);
 
             return Ok(isSigned);
         }
