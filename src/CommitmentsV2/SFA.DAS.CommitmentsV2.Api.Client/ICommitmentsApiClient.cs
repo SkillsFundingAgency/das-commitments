@@ -25,5 +25,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task<string> SecureProviderCheck();
         Task SendCohort(long cohortId, SendCohortRequest request, CancellationToken cancellationToken = default);
         Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
+        Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
     }
 }

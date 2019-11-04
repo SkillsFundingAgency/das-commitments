@@ -92,5 +92,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 DraftApprenticeshipId = result.Id
             });
         }
+
+        [HttpPost]
+        [Route("{apprenticeshipId}")]
+        public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
+        {
+            return await Task.FromResult(BadRequest("Not implemented"));
+        }
     }
 }
