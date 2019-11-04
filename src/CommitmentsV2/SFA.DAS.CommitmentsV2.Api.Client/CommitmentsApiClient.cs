@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -83,14 +80,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 $"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", request, cancellationToken);
         }
 
-        public Task<bool> IsAgreementSignedForFeature(AgreementSignedRequest request)
+        public Task<bool> IsAgreementSigned(AgreementSignedRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            object queryData = null;
+
+            if (request.AgreementFeatures?.Length > 0)
+            {
+                queryData = new {request.AgreementFeatures};
+            }
+
+            return _client.Get<bool>($"api/employer-agreements/{request.AccountLegalEntityId}/signed", queryData, 
+                cancellationToken);
         }
 
-        public Task<long> GetLatestAgreementId(long accountLegalEntityId)
+        public Task<long> GetLatestAgreementId(long accountLegalEntityId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _client.Get<long>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
         public Task<string> SecureCheck()
         {

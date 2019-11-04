@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/employer-agreement")]
+    [Route("api/employer-agreements")]
     [ApiController]
     [Authorize]
     public class EmployerAgreementController : ControllerBase
@@ -25,11 +26,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("{AccountLegalEntityId}/features-signed")]
-        public async Task<IActionResult> IsAgreementSignedForFeature(AgreementSignedRequest request)
+        [Route("{AccountLegalEntityId}/signed")]
+        public async Task<IActionResult> IsAgreementSignedForFeature(AgreementSignedRequest request, CancellationToken cancellationToken)
         {
-            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest
-                {AccountLegalEntityId = request.AccountLegalEntityId});
+            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest{AccountLegalEntityId = request.AccountLegalEntityId}, cancellationToken);
             var isSigned = await _employerAgreementService.IsAgreementSigned(accountLegalEntity.AccountId,
                 accountLegalEntity.MaLegalEntityId, request.AgreementFeatures);
 
@@ -38,9 +38,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{AccountLegalEntityId}/latest-id")]
-        public async Task<IActionResult> GetLatestAgreementId(long accountLegalEntityId)
+        public async Task<IActionResult> GetLatestAgreementId(long accountLegalEntityId, CancellationToken cancellationToken)
         {
-            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest { AccountLegalEntityId = accountLegalEntityId });
+            var accountLegalEntity = await _mediator.Send(new GetAccountLegalEntityRequest { AccountLegalEntityId = accountLegalEntityId }, cancellationToken);
             var agreementId = await _employerAgreementService.GetLatestAgreementId(accountLegalEntity.AccountId, accountLegalEntity.MaLegalEntityId);
 
             return Ok(agreementId);
