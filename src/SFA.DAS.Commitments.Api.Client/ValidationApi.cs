@@ -5,11 +5,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
-
+using SFA.DAS.Authentication.Extensions.Legacy;
 using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types.Validation;
-using SFA.DAS.Http;
 
 namespace SFA.DAS.Commitments.Api.Client
 {

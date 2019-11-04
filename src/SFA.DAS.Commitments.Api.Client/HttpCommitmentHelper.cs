@@ -7,8 +7,7 @@ using SFA.DAS.Commitments.Api.Types.ProviderPayment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http;
-
-using SFA.DAS.Http;
+using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
