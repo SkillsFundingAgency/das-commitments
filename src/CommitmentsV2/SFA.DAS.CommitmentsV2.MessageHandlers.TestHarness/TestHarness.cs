@@ -20,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         public async Task Run()
         {
             long accountId = 1001;
-            long accountLegalEntityId = 2001;
+            long accountLegalEntityId = 2061;
             long cohortId = 186091;
 
             ConsoleKey key = ConsoleKey.Escape;
@@ -40,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
                 Console.WriteLine("M - ApprovedCohortReturnedToProviderEvent");
+                Console.WriteLine("N - CohortApprovedByEmployer");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -101,6 +102,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Publish(new ApprovedCohortReturnedToProviderEvent(cohortId, DateTime.Now));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(ApprovedCohortReturnedToProviderEvent)}");
+                            break;
+                        case ConsoleKey.N:
+                            await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
                             break;
                     }
                 }

@@ -36,6 +36,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
             AccountLegalEntity = new AccountLegalEntity(account,
                 _autoFixture.Create<long>(),
+                _autoFixture.Create<long>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<string>(),
