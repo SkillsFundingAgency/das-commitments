@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Http;
+using SFA.DAS.Authentication.Extensions.Legacy;
 
 namespace SFA.DAS.Commitments.Api.Client
 {
