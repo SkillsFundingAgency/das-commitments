@@ -83,6 +83,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 $"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", request, cancellationToken);
         }
 
+        public Task<bool> IsAgreementSignedForFeature(AgreementSignedRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> GetLatestAgreementId(long accountLegalEntityId)
+        {
+            throw new NotImplementedException();
+        }
         public Task<string> SecureCheck()
         {
             return _client.Get("api/test");
