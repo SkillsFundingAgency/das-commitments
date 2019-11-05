@@ -82,7 +82,24 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<bool> IsAgreementSigned(AgreementSignedRequest request, CancellationToken cancellationToken)
         {
-            return _client.Get<bool>($"api/employer-agreements/{request.AccountLegalEntityId}/signed", request.AgreementFeatures, 
+            string queryString = null;
+
+            if (request.AgreementFeatures?.Length > 0)
+            {
+                foreach (var agreementFeature in request.AgreementFeatures)
+                {
+                    if (queryString == null)
+                    {
+                        queryString = $"?agreementFeatures={agreementFeature}";
+                    }
+                    else
+                    {
+                        queryString += $"&agreementFeatures={agreementFeature}";
+                    }
+                }
+            }
+
+            return _client.Get<bool>($"api/employer-agreements/{request.AccountLegalEntityId}/signed{queryString}", null, 
                 cancellationToken);
         }
 
