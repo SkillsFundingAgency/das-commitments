@@ -258,6 +258,25 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow));
         }
 
+        public void DeleteDraftApprenticeship(long draftApprenticeshipId, Party modifyingParty, UserInfo userInfo)
+        {
+            CheckIsWithParty(modifyingParty);
+
+            var draftApprenticeship = DraftApprenticeships.Single(x => x.Id == draftApprenticeshipId);
+            Apprenticeships.Remove(draftApprenticeship);
+
+            ResetApprovals();
+
+            Publish(() => new DraftApprenticeshipDeletedEvent
+            {
+                DraftApprenticeshipId = draftApprenticeshipId,
+                CohortId = draftApprenticeship.CommitmentId,
+                Uln = draftApprenticeship.Uln,
+                ReservationId = draftApprenticeship.ReservationId,
+                DeletedOn = DateTime.UtcNow
+            });
+        }
+
         private void CheckThereIsNoPendingTransferRequest()
         {
             if (TransferRequests.Any(x =>x.Status == (byte) Types.TransferApprovalStatus.Pending))
