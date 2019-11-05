@@ -162,7 +162,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             };
 
             await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed", request.AgreementFeatures, CancellationToken.None));
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             };
 
             await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
-            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed", It.IsAny<object>(), CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed", request.AgreementFeatures, CancellationToken.None));
         }
     }
 
