@@ -27,7 +27,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<IMessagePublisher>().DecorateAllWith<MessagePublisherWithV2Upgrade>();
 
             For<IEventUpgradeHandler<CohortApprovalRequestedByProvider>>().Use<EventUpgradeHandler>().Singleton();
-            For<IEventUpgradeHandler<CohortApprovedByEmployer>>().Use<EventUpgradeHandler>().Singleton();
         }
 
         private void RegisterMessagePublisher()

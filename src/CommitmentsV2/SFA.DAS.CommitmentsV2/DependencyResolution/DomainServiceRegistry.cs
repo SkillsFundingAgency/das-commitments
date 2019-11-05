@@ -11,6 +11,7 @@ namespace SFA.DAS.CommitmentsV2.DependencyResolution
             For<ICohortDomainService>().Use<CohortDomainService>();
 
             For<IReservationValidationService>().Use<ReservationValidationService>();
+            For<IEmployerAgreementService>().Use<EmployerAgreementService>().Singleton();
             For<IUlnUtilisationService>().Use<UlnUtilisationService>();
             For<IOverlapCheckService>().Use<OverlapCheckService>();
             For<IUlnValidator>().Use<UlnValidator>();

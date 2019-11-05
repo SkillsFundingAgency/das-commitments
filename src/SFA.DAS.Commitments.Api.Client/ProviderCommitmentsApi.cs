@@ -4,14 +4,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
-
+using SFA.DAS.Authentication.Extensions.Legacy;
 using SFA.DAS.Commitments.Api.Client.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.DataLock;
-using SFA.DAS.Http;
+
 
 namespace SFA.DAS.Commitments.Api.Client
 {

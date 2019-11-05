@@ -111,21 +111,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
         
         [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
         [TestCase(Party.Provider, AgreementStatus.EmployerAgreed)]
-        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldPublishEvent(Party modifyingParty, AgreementStatus agreementStatus)
+        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedThenShouldPublishFullyApprovedEvent(Party modifyingParty, AgreementStatus agreementStatus)
         {
             _fixture.SetModifyingParty(modifyingParty)
                 .SetEditStatus(modifyingParty.ToEditStatus())
                 .AddDraftApprenticeship(agreementStatus)
                 .Approve();
 
-            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().Match<CohortFullyApprovedEvent>(e =>
+            _fixture.UnitOfWorkContext.GetEvents().Should().Subject.LastOrDefault()
+                .Should().Match<CohortFullyApprovedEvent>(e =>
                     e.CohortId == _fixture.Cohort.Id &&
                     e.AccountId == _fixture.Cohort.EmployerAccountId &&
                     e.ProviderId == _fixture.Cohort.ProviderId.Value &&
                     e.UpdatedOn == _fixture.Now);
         }
-        
+
+        [Test]
+        public void AndPartyIsEmployerAndProviderHasApprovedThenShouldPublishEmployerApprovedEvent()
+        {
+            _fixture.SetModifyingParty(Party.Employer)
+                .SetEditStatus(EditStatus.EmployerOnly)
+                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
+                .Approve();
+
+            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(2)
+                .And.Subject.FirstOrDefault().Should().Match<CohortApprovedByEmployerEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UpdatedOn == _fixture.Now);
+        }
+
         [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
         [TestCase(Party.Provider, AgreementStatus.EmployerAgreed)]
         public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty, AgreementStatus agreementStatus)

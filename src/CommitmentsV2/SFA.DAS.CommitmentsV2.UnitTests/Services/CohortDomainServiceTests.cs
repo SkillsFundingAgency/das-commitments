@@ -22,8 +22,6 @@ using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Shared.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
 using SFA.DAS.Testing.Builders;
@@ -116,7 +114,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             _fixture.VerifyException<BadRequestException>();
         }
-
 
         [TestCase(Party.Employer, false)]
         [TestCase(Party.Provider, true)]
@@ -308,7 +305,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         public async Task ApproveCohort_Tracks_State(Party party)
         {
             _fixture.WithParty(party).WithExistingCohort(party).WithExistingDraftApprenticeship()
-                .WithDecodeOfPublicHashedAccountLegalEntity().WithSignedAgreement();
+                .WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(true);
 
             await _fixture.ApproveCohort();
 
@@ -320,7 +317,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         [Test]
         public void ApproveCohort_WhenEmployerApprovesAndAgreementIsNotSigned_ShouldThrowException()
         {
-            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort();
+            _fixture.WithParty(Party.Employer).WithExistingUnapprovedCohort().WithDecodeOfPublicHashedAccountLegalEntity().WithAgreementSignedAs(false);
             Assert.ThrowsAsync<InvalidOperationException>(() => _fixture.ApproveCohort());
         }
 
@@ -337,7 +334,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.WithExistingCohort(Party.Employer)
                 .WithParty(Party.Employer)
                 .WithDecodeOfPublicHashedAccountLegalEntity()
-                .WithSignedAgreement()
+                .WithAgreementSignedAs(true)
                 .WithExistingDraftApprenticeship();
 
             await _fixture.ApproveCohort();
@@ -353,6 +350,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public long AccountId { get; }
             public long AccountLegalEntityId { get; }
             public long CohortId { get; }
+            public string AccountLegalEntityPublicHashedId { get; }
             public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; }
             public DraftApprenticeship ExistingDraftApprenticeship { get; }
             public long DraftApprenticeshipId { get; }
@@ -397,6 +395,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 AccountLegalEntityId = 3;
                 CohortId = 4;
                 MaLegalEntityId = fixture.Create<long>();
+                AccountLegalEntityPublicHashedId = fixture.Create<string>();
 
                 Message = fixture.Create<string>();
 
@@ -575,7 +574,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     Id = CohortId,
                     EditStatus = creatingParty.ToEditStatus(),
                     ProviderId = ProviderId,
-                    EmployerAccountId = AccountId
+                    EmployerAccountId = AccountId,
+                    AccountLegalEntityPublicHashedId = AccountLegalEntityPublicHashedId
                 };
                 
                 Db.Cohorts.Add(Cohort);
@@ -654,9 +654,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 return this;
             }
 
-            public CohortDomainServiceTestFixture WithSignedAgreement()
+            public CohortDomainServiceTestFixture WithAgreementSignedAs(bool signed)
             {
-                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<AgreementFeature[]>())).ReturnsAsync(true);
+                EmployerAgreementService.Setup(x => x.IsAgreementSigned(It.IsAny<long>(), It.IsAny<long>(), 
+                    It.IsAny<AgreementFeature[]>())).ReturnsAsync(signed);
                 return this;
             }
 
@@ -932,7 +933,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
             public void VerifyIsAgreementSignedIsCalledCorrectly()
             {
-                EmployerAgreementService.Verify(x => x.IsAgreementSigned(AccountId, MaLegalEntityId, It.IsAny<AgreementFeature[]>()));
+                EmployerAgreementService.Verify(x => x.IsAgreementSigned(AccountId, MaLegalEntityId, 
+                    It.IsAny<AgreementFeature[]>()));
             }
         }
     }
