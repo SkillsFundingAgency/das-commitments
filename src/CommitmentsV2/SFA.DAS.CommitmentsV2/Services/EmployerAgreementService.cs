@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Shared.Interfaces;
-using SFA.DAS.CommitmentsV2.Shared.Models;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
 
-namespace SFA.DAS.CommitmentsV2.Shared.Services
+namespace SFA.DAS.CommitmentsV2.Services
 {
     public class EmployerAgreementService : IEmployerAgreementService
     {
@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             _agreementUnlocks = new Dictionary<AgreementFeature, int> { { AgreementFeature.Transfers, 2 } };
         }
 
-        public async Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId,  params AgreementFeature[] requiredFeatures)
+        public async Task<bool> IsAgreementSigned(long accountId, long maLegalEntityId, params AgreementFeature[] requiredFeatures)
         {
             bool AreAllRequiredFeaturesPresentInSignedAgreement(int signedAgreement)
             {
@@ -43,9 +43,7 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
 
             try
             {
-
-                var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
-                var legalEntity = await _accountApiClient.GetLegalEntity(hashedAccountId, maLegalEntityId);
+                var legalEntity = await GetLegalEntity(accountId, maLegalEntityId);
 
                 var signedAgreements = legalEntity.Agreements
                     .Where(x => x.Status == EmployerAgreementStatus.Signed).ToList();
@@ -63,10 +61,33 @@ namespace SFA.DAS.CommitmentsV2.Shared.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error in EmployerAgreementService: {e.Message}");
+                _logger.LogError(e, $"Error in EmployerAgreementService.IsAgreementSigned: {e.Message}");
                 throw;
             }
+        }
 
+        public async Task<long?> GetLatestAgreementId(long accountId, long maLegalEntityId)
+        {
+            try
+            {
+               var legalEntity = await GetLegalEntity(accountId, maLegalEntityId);
+
+               var latestAgreement = legalEntity.Agreements.OrderByDescending(x => x.TemplateVersionNumber).FirstOrDefault();
+
+                return latestAgreement?.Id;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error in EmployerAgreementService.GetLatestAgreementId: {e.Message}");
+                throw;
+            }
+        }
+
+        private async Task<LegalEntityViewModel> GetLegalEntity(long accountId, long maLegalEntityId)
+        {
+            var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
+            var legalEntity = await _accountApiClient.GetLegalEntity(hashedAccountId, maLegalEntityId);
+            return legalEntity;
         }
     }
 }
