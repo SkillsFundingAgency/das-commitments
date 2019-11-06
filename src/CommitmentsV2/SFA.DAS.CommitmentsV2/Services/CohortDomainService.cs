@@ -80,20 +80,20 @@ namespace SFA.DAS.CommitmentsV2.Services
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
-        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
-            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
+            var employerCohortDetails = await GetCohortEmployerDetails(accountId, accountLegalEntityId, transferSenderId, db, cancellationToken);
+            var originator = GetCohortOriginator(originatingParty, provider, employerCohortDetails.AccountLegalEntity);
 
 			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+            return originator.CreateCohort(provider, employerCohortDetails, draftApprenticeshipDetails, userInfo);
         }
 
-        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
+        public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
 
@@ -105,9 +105,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
-            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            var employerCohortDetails = await GetCohortEmployerDetails(accountId, accountLegalEntityId, transferSenderId, db, cancellationToken);
 
-            return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
+            return employerCohortDetails.AccountLegalEntity.CreateCohortWithOtherParty(provider, employerCohortDetails, message, userInfo);
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -178,7 +178,29 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             return accountLegalEntity;
         }
-        
+
+        private static async Task<Account> GetAccount(long accountId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            var account = await db.Accounts.SingleOrDefaultAsync(x => x.Id == accountId, cancellationToken);
+            if (account == null)
+                throw new BadRequestException($"Account {accountId} was not found");
+
+            return account;
+        }
+
+        private static async Task<CohortEmployerDetails> GetCohortEmployerDetails(long accountId, long accountLegalEntityId, long? transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        {
+            Account transferSenderAccount = null;
+
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            if (transferSenderId != null)
+            {
+                transferSenderAccount = await GetAccount(transferSenderId.Value, db, cancellationToken);
+            }
+
+            return new CohortEmployerDetails(accountLegalEntity, transferSenderAccount);
+        }
+
         private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);

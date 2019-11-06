@@ -4,6 +4,7 @@ using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -17,9 +18,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
         public CommitmentsV2.Models.Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
+        public CohortEmployerDetails CohortEmployerDetails { get; private set; }
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
         public UserInfo UserInfo { get; }
+        public long? TransferSenderId { get; }
+        public string TransferSenderName { get; }
+
 
         public CohortCreationWithOtherPartyTestFixture()
         {
@@ -40,6 +45,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
                 _autoFixture.Create<OrganisationType>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>());
+
+            TransferSenderId = _autoFixture.Create<long>();
+            TransferSenderName = _autoFixture.Create<string>();
+
+            CohortEmployerDetails = new CohortEmployerDetails(AccountLegalEntity, new Account(TransferSenderId.Value, "XXX", "ZZZ", TransferSenderName, new DateTime()));
         }
 
         public CohortCreationWithOtherPartyTestFixture WithCreatingParty(Party creatingParty)
@@ -47,9 +57,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             CreatingParty = creatingParty;
             return this;
         }
+
         public CohortCreationWithOtherPartyTestFixture WithMessage(string message)
         {
             Message = message;
+            return this;
+        }
+
+        public CohortCreationWithOtherPartyTestFixture WithNoTransferSender()
+        {
+            CohortEmployerDetails = new CohortEmployerDetails(AccountLegalEntity, null);
+
             return this;
         }
 
@@ -60,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
             try
             {
                 Cohort = new CommitmentsV2.Models.Cohort(Provider,
-                    AccountLegalEntity,
+                    CohortEmployerDetails,
                     CreatingParty,
                     Message,
                     UserInfo);
@@ -113,5 +131,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         {
             Assert.AreEqual(CreatingParty.GetOtherParty().ToEditStatus(), Cohort.EditStatus);
         }
-    }
+        public void VerifyCohortHasTransferInformation()
+        {
+            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
+            Assert.AreEqual(TransferSenderName, Cohort.TransferSenderName);
+        }
+
+        public void VerifyCohortHasNoTransferInformation()
+        {
+            Assert.IsNull(Cohort.TransferSenderId);
+            Assert.IsNull(Cohort.TransferSenderName);
+        }
+}
 }
