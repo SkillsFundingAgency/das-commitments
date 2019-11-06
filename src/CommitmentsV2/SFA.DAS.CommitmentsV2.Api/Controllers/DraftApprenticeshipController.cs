@@ -14,6 +14,7 @@ using SFA.DAS.CommitmentsV2.Mapping;
 
 using GetDraftApprenticeshipResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses.GetDraftApprenticeshipResponse;
 using GetDraftApprenticeshipCommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice.GetDraftApprenticeResponse;
+using SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -27,18 +28,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         private readonly IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
         private readonly IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
         private readonly IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
+        private readonly IMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> _deleteDraftApprenticeshipsMapper;
 
         public DraftApprenticeshipController(
             IMediator mediator,
             IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
             IMapper<GetDraftApprenticeshipCommandResponse, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
-            IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper)
+            IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, 
+            IMapper<GetDraftApprenticeshipsResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
+            IMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper
+            )
         {
             _mediator = mediator;
             _updateDraftApprenticeshipMapper = updateDraftApprenticeshipMapper;
             _getDraftApprenticeshipMapper = getDraftApprenticeshipMapper;
             _addDraftApprenticeshipMapper = addDraftApprenticeshipMapper;
             _getDraftApprenticeshipsResultMapper = getDraftApprenticeshipsResultMapper;
+            _deleteDraftApprenticeshipsMapper = deleteDraftApprenticeshipsMapper;
         }
 
         [HttpGet]
@@ -97,7 +103,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}")]
         public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
         {
-            return await Task.FromResult(BadRequest("Not implemented"));
+            var command = await _deleteDraftApprenticeshipsMapper.Map(request);
+            command.CohortId = cohortId;
+            command.ApprenticeshipId = apprenticeshipId;
+
+            await _mediator.Send(command);
+
+            return Ok();
         }
     }
 }

@@ -263,6 +263,14 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyIsAgreementSignedIsCalledCorrectly();
         }
 
+        [Test]
+        public async Task DeleteDraftApprenticeship_Provider_Deletes_Draft_Apprenticeship()
+        {
+            _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship();
+            await _fixture.DeleteDraftApprenticeship();
+            _fixture.VerifyDraftApprenticeshipDeleted();
+        }
+
         public class CohortDomainServiceTestFixture
         {
             public DateTime Now { get; set; }
@@ -307,6 +315,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                    .EnableSensitiveDataLogging()
                     .Options);
 
                 ProviderId = 1;
@@ -656,6 +665,22 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public async Task DeleteDraftApprenticeship()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    await CohortDomainService.DeleteDraftApprenticeship(CohortId, DraftApprenticeshipId, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                }
+            }
+
             public void VerifyCohortCreation(Party party)
             {
                 if (party == Party.Provider)
@@ -779,6 +804,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public void VerifyIsAgreementSignedIsCalledCorrectly()
             {
                 EmployerAgreementService.Verify(x => x.IsAgreementSigned(EmployerAccountId, MaLegalEntityId, It.IsAny<AgreementFeature[]>()));
+            }
+
+            public void VerifyDraftApprenticeshipDeleted()
+            {
+                var deleted = Cohort.DraftApprenticeships.SingleOrDefault(x => x.Id == DraftApprenticeshipId);
+
+                Assert.IsNull(deleted, "Draft apprenticeship record not deleted");
             }
 
         }

@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _employerAgreementService = employerAgreementService;
             _encodingService = encodingService;
         }
-        
+
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
@@ -91,7 +91,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
+            await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
             return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
         }
@@ -117,7 +117,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
-            
+
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
@@ -130,7 +130,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
 
             AssertHasProvider(cohortId, cohort.ProviderId);
-            AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
+            this.AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
@@ -139,7 +139,27 @@ namespace SFA.DAS.CommitmentsV2.Services
             return cohort;
         }
 
-        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider,  AccountLegalEntity accountLegalEntity)
+        public async Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var db = _dbContext.Value;
+
+            var cohort = await db.Cohorts
+                                .Include(c => c.Apprenticeships)
+                                .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
+
+           
+
+            AssertHasApprenticeshipId(cohortId, apprenticeshipId);
+
+            cohort.DeleteDraftApprenticeship(apprenticeshipId, _authenticationService.GetUserParty(), userInfo);
+
+           // var apprenticeship = await db.DraftApprenticeships.SingleAsync(c => c.Id == apprenticeshipId, cancellationToken: cancellationToken);
+           // db.DraftApprenticeships.Remove(apprenticeship);
+
+            return cohort;
+        }
+
+        private ICohortOriginator GetCohortOriginator(Party originatingParty, Provider provider, AccountLegalEntity accountLegalEntity)
         {
             switch (originatingParty)
             {
@@ -163,7 +183,12 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         private void AssertHasApprenticeshipId(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
-            if (draftApprenticeshipDetails.Id < 1)
+            CohortDomainService.AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
+        }
+
+        private static void AssertHasApprenticeshipId(long cohortId, long draftApprenticeshipDetailId)
+        {
+            if (draftApprenticeshipDetailId < 1)
             {
                 throw new InvalidOperationException($"Cannot update cohort {cohortId} because the supplied draft apprenticeship does not have an id");
             }
@@ -181,7 +206,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
             return accountLegalEntity;
         }
-        
+
         private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var cohort = await db.Cohorts.Include(c => c.Apprenticeships).SingleOrDefaultAsync(c => c.Id == cohortId, cancellationToken);
