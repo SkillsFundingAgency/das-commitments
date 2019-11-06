@@ -266,6 +266,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Apprenticeships.Remove(draftApprenticeship);
 
             ResetApprovals();
+            ResetTransferSenderRejection();
 
             Publish(() => new DraftApprenticeshipDeletedEvent
             {
@@ -275,6 +276,16 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ReservationId = draftApprenticeship.ReservationId,
                 DeletedOn = DateTime.UtcNow
             });
+        }
+
+        private void ResetTransferSenderRejection()
+        {
+            if (TransferApprovalStatus == Types.TransferApprovalStatus.Rejected)
+            {
+                TransferApprovalStatus = null;
+                TransferApprovalActionedOn = null;
+                LastAction = LastAction.AmendAfterRejected;
+            }
         }
 
         private void CheckThereIsNoPendingTransferRequest()

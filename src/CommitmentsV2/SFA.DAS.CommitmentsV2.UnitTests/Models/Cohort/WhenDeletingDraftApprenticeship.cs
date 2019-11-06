@@ -55,6 +55,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.VerifyEventEmitted();
         }
 
+        [Test]
+        public void Any_Prior_TransferSender_Rejection_Is_Reset()
+        {
+            _fixture
+                .WithParty(Party.Employer)
+                .WithTransferSenderRejection()
+                .DeleteDraftApprenticeship();
+
+            _fixture.VerifyTransferRejectionReset();
+        }
+
         private class WhenDeletingDraftApprenticeshipFixture
         {
             public int CohortSize { get; private set; }
@@ -78,6 +89,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 return this;
             }
 
+            public WhenDeletingDraftApprenticeshipFixture WithTransferSenderRejection()
+            {
+                Cohort.TransferApprovalStatus = TransferApprovalStatus.Rejected;
+                return this;
+            }
+
             public WhenDeletingDraftApprenticeshipFixture WithApprovalOfOtherParty()
             {
                 var otherParty = Cohort.WithParty.GetOtherParty();
@@ -94,7 +111,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             public void DeleteDraftApprenticeship()
             {
-                //select a target
                 var minId = (int) Cohort.DraftApprenticeships.Min(x => x.Id);
                 var maxId = (int) Cohort.DraftApprenticeships.Max(x => x.Id);
                 var randomId = new Random().Next(minId, maxId);
@@ -111,6 +127,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 emittedEvent.CohortId = Cohort.Id;
                 emittedEvent.ReservationId = DeletionTarget.ReservationId;
                 emittedEvent.Uln = DeletionTarget.Uln;
+            }
+
+            public void VerifyTransferRejectionReset()
+            {
+                Assert.IsNull(Cohort.TransferApprovalStatus);
+                Assert.AreEqual(LastAction.AmendAfterRejected, Cohort.LastAction);
             }
 
             public void VerifyDeletion()
