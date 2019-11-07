@@ -21,8 +21,9 @@ using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.EAS.Account.Api.Client;
+using SFA.DAS.EAS.Account.Api.Types;
 using SFA.DAS.Encoding;
-using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
@@ -58,6 +59,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             _fixture.VerifyCohortCreationWithTransferSender(party);
         }
 
+        [Test]
+        public async Task CreateCohort_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohort(null, null, -1);
+
+            _fixture.VerifyException<BadRequestException>();
+        }
+
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public async Task CreateCohort_CreatingPartyWithoutTransferSenderId_Creates_Cohort(Party party)
@@ -86,6 +97,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 .CreateCohortWithOtherParty(_fixture.TransferSenderId);
 
             _fixture.VerifyCohortCreationWithOtherParty_WithTransferSender();
+        }
+
+        [Test]
+        public async Task CreateCohortWithOtherParty_WithAnInvalidTransferSenderId_ThrowsBadRequestException()
+        {
+            await _fixture
+                .WithParty(Party.Employer)
+                .CreateCohortWithOtherParty(-1);
+
+            _fixture.VerifyException<BadRequestException>();
         }
 
         [Test]
@@ -339,6 +360,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public Party Party { get; set; }
             public Mock<IAuthenticationService> AuthenticationService { get; }
             public Mock<ICurrentDateTime> CurrentDateTime { get; set; }
+            public Mock<IAccountApiClient> AccountApiClient { get; set; }
+            public List<TransferConnectionViewModel> TransferConnections { get; }
+
             public Exception Exception { get; private set; }
             public List<DomainError> DomainErrors { get; }
             public string Message { get; private set; }
@@ -382,9 +406,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 TransferSenderId = fixture.Create<long>();
                 TransferSenderName = fixture.Create<string>();
-                TransferSenderAccount =
-                    new Account(TransferSenderId, "XXXX", "ZZZZ", TransferSenderName, new DateTime());
+                TransferSenderAccount = new Account(TransferSenderId, "XXXX", "ZZZZ", TransferSenderName, new DateTime());
                 Db.Accounts.Add(TransferSenderAccount);
+
+                TransferConnections = new List<TransferConnectionViewModel>
+                    {new TransferConnectionViewModel {FundingEmployerAccountId = TransferSenderId}};
 
                 DraftApprenticeshipId = fixture.Create<long>();
 
@@ -417,6 +443,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 CurrentDateTime = new Mock<ICurrentDateTime>();
                 CurrentDateTime.Setup(d => d.UtcNow).Returns(Now);
 
+                AccountApiClient = new Mock<IAccountApiClient>();
+                AccountApiClient.Setup(x => x.GetTransferConnections(It.IsAny<string>()))
+                    .ReturnsAsync(TransferConnections);
+
                 Exception = null;
                 DomainErrors = new List<DomainError>();
                 UserInfo = fixture.Create<UserInfo>();
@@ -430,7 +460,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                     AuthenticationService.Object,
                     CurrentDateTime.Object,
                     EmployerAgreementService.Object,
-                    EncodingService.Object);
+                    EncodingService.Object,
+                    AccountApiClient.Object);
             }
 
             public CohortDomainServiceTestFixture WithAcademicYearEndDate(DateTime value)

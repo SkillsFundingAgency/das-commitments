@@ -15,6 +15,7 @@ using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Exceptions;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.EAS.Account.Api.Client;
 using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Services
@@ -31,6 +32,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
+        private readonly IAccountApiClient _accountApiClient;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -41,7 +43,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             IAuthenticationService authenticationService,
             ICurrentDateTime currentDateTime,
             IEmployerAgreementService employerAgreementService,
-            IEncodingService encodingService)
+            IEncodingService encodingService,
+            IAccountApiClient accountApiClient)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -53,6 +56,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _currentDateTime = currentDateTime;
             _employerAgreementService = employerAgreementService;
             _encodingService = encodingService;
+            _accountApiClient = accountApiClient;
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -188,17 +192,29 @@ namespace SFA.DAS.CommitmentsV2.Services
             return account;
         }
 
-        private static async Task<CohortEmployerDetails> GetCohortEmployerDetails(long accountId, long accountLegalEntityId, long? transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private async Task<CohortEmployerDetails> GetCohortEmployerDetails(long accountId, long accountLegalEntityId, long? transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             Account transferSenderAccount = null;
 
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
             if (transferSenderId != null)
             {
+                await ValidateTransferSenderIdIsAFundingConnection(accountId, transferSenderId.Value);
                 transferSenderAccount = await GetAccount(transferSenderId.Value, db, cancellationToken);
             }
 
             return new CohortEmployerDetails(accountLegalEntity, transferSenderAccount);
+        }
+
+        private async Task ValidateTransferSenderIdIsAFundingConnection(long accountId, long transferSenderId)
+        {
+            var hashedAccountId = _encodingService.Encode(accountId, EncodingType.AccountId);
+            var fundingConnections = await _accountApiClient.GetTransferConnections(hashedAccountId);
+            if (fundingConnections.Any(x => x.FundingEmployerAccountId == transferSenderId))
+            {
+                return;
+            }
+            throw new BadRequestException($"TransferSenderId {transferSenderId} is not a FundingEmployer for Account {accountId}");
         }
 
         private static async Task<Cohort> GetCohort(long cohortId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
