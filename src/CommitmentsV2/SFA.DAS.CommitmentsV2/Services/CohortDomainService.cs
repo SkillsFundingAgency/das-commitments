@@ -147,14 +147,8 @@ namespace SFA.DAS.CommitmentsV2.Services
                                 .Include(c => c.Apprenticeships)
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
 
-           
-
             AssertHasApprenticeshipId(cohortId, apprenticeshipId);
-
             cohort.DeleteDraftApprenticeship(apprenticeshipId, _authenticationService.GetUserParty(), userInfo);
-
-           // var apprenticeship = await db.DraftApprenticeships.SingleAsync(c => c.Id == apprenticeshipId, cancellationToken: cancellationToken);
-           // db.DraftApprenticeships.Remove(apprenticeship);
 
             return cohort;
         }

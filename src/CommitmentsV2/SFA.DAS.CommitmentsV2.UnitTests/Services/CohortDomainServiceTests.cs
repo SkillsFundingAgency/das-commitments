@@ -264,7 +264,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task DeleteDraftApprenticeship_Provider_Deletes_Draft_Apprenticeship()
+        public async Task DeleteDraftApprenticeship_WhenCohortIsWithEmployer()
         {
             _fixture.WithExistingCohort(Party.Employer).WithParty(Party.Employer).WithExistingDraftApprenticeship();
             await _fixture.DeleteDraftApprenticeship();
