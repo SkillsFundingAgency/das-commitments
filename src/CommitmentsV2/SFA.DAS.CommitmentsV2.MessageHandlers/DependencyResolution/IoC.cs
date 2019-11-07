@@ -7,6 +7,7 @@ using SFA.DAS.PAS.Account.Api.ClientV2.DependencyResolution;
 using StructureMap;
 using ApprenticeshipInfoServiceRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.ApprenticeshipInfoServiceRegistry;
 using EncodingRegistry = SFA.DAS.CommitmentsV2.DependencyResolution.EncodingRegistry;
+using SFA.DAS.CommitmentsV2.Shared.DependencyInjection;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
 {
@@ -17,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             registry.IncludeRegistry<ConfigurationRegistry>();
             registry.IncludeRegistry<ApprenticeshipInfoServiceRegistry>();
             registry.IncludeRegistry<DataRegistry>();
-            //registry.IncludeRegistry<EmployerAccountsRegistry>();
+            registry.IncludeRegistry<EmployerAccountsRegistry>();
             registry.IncludeRegistry<EntityFrameworkCoreUnitOfWorkRegistry<ProviderCommitmentsDbContext>>();
             registry.IncludeRegistry<MediatorRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
