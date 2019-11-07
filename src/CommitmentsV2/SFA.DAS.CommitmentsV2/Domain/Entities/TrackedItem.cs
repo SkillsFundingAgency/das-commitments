@@ -19,11 +19,12 @@ namespace SFA.DAS.CommitmentsV2.Domain.Entities
             };
         }
 
-        public static TrackedItem CreateDeleteTrackedItem(ITrackableEntity trackedEntity)
+        public static TrackedItem CreateDeleteTrackedItem(ITrackableEntity trackedEntity, Dictionary<string, object> initialState)
         {
             return new TrackedItem
             {
                 TrackedEntity = trackedEntity,
+                InitialState = initialState,
                 Operation = ChangeTrackingOperation.Delete
             };
         }

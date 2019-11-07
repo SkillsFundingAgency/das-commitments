@@ -46,7 +46,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public void TrackDelete(ITrackableEntity trackedObject)
         {
-            _trackedItems.Add(TrackedItem.CreateDeleteTrackedItem(trackedObject));
+            var initialState = _stateService.GetState(trackedObject);
+            _trackedItems.Add(TrackedItem.CreateDeleteTrackedItem(trackedObject, initialState));
         }
 
         public void CompleteTrackingSession()
