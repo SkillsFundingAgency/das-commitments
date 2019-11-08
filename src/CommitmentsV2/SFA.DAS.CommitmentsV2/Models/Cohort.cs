@@ -21,20 +21,23 @@ namespace SFA.DAS.CommitmentsV2.Models
             TransferRequests = new HashSet<TransferRequest>();
         }
 
-        private Cohort(Provider provider, CohortEmployerDetails cohortEmployerDetails, Party originatingParty) : this()
+        private Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            Account transferSender,
+            Party originatingParty) : this()
         {
             CheckIsEmployerOrProvider(originatingParty);
 
-            EmployerAccountId = cohortEmployerDetails.AccountLegalEntity.AccountId;
-            LegalEntityId = cohortEmployerDetails.AccountLegalEntity.LegalEntityId;
-            LegalEntityName = cohortEmployerDetails.AccountLegalEntity.Name;
-            LegalEntityAddress = cohortEmployerDetails.AccountLegalEntity.Address;
-            LegalEntityOrganisationType = cohortEmployerDetails.AccountLegalEntity.OrganisationType;
-            AccountLegalEntityPublicHashedId = cohortEmployerDetails.AccountLegalEntity.PublicHashedId;
+            EmployerAccountId = accountLegalEntity.AccountId;
+            LegalEntityId = accountLegalEntity.LegalEntityId;
+            LegalEntityName = accountLegalEntity.Name;
+            LegalEntityAddress = accountLegalEntity.Address;
+            LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
+            AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
             ProviderId = provider.UkPrn;
             ProviderName = provider.Name;
-            TransferSenderId = cohortEmployerDetails.TransferSenderAccount?.Id;
-            TransferSenderName = cohortEmployerDetails.TransferSenderAccount?.Name;
+            TransferSenderId = transferSender?.Id;
+            TransferSenderName = transferSender?.Name;
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
@@ -48,10 +51,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// Creates a cohort with a draft apprenticeship
         /// </summary>
         internal Cohort(Provider provider,
-            CohortEmployerDetails cohortEmployerDetails,
+            AccountLegalEntity accountLegalEntity,
+            Account transferSender,
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             Party originatingParty,
-            UserInfo userInfo) : this(provider, cohortEmployerDetails, originatingParty)
+            UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty)
         {
             CheckDraftApprenticeshipDetails(draftApprenticeshipDetails);
             EditStatus = originatingParty.ToEditStatus();
@@ -62,10 +66,11 @@ namespace SFA.DAS.CommitmentsV2.Models
         /// Creates an empty cohort with other party
         /// </summary>
         internal Cohort(Provider provider,
-            CohortEmployerDetails cohortEmployerDetails,
+            AccountLegalEntity accountLegalEntity,
+            Account transferSender,
             Party originatingParty,
             string message,
-            UserInfo userInfo) : this(provider, cohortEmployerDetails, originatingParty)
+            UserInfo userInfo) : this(provider, accountLegalEntity, transferSender, originatingParty)
         {
             CheckIsEmployer(originatingParty);
 

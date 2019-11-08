@@ -84,7 +84,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
 
             var commitment = new Cohort(
                 new Provider(),
-                new CohortEmployerDetails(new AccountLegalEntity(), null),
+                new AccountLegalEntity(),
+                null,
                 draftApprenticeshipDetails,
                 creatingParty,
                 new UserInfo());

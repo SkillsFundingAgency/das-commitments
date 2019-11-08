@@ -102,7 +102,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var cohort = new Cohort(
                 new Provider(),
-                new CohortEmployerDetails(new AccountLegalEntity(), null),
+                new AccountLegalEntity(),
+                null,
                 Party.Employer,
                 "",
                 new UserInfo());

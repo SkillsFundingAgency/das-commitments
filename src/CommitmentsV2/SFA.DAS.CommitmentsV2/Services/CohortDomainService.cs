@@ -89,12 +89,13 @@ namespace SFA.DAS.CommitmentsV2.Services
             var originatingParty = _authenticationService.GetUserParty();
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
-            var employerCohortDetails = await GetCohortEmployerDetails(accountId, accountLegalEntityId, transferSenderId, db, cancellationToken);
-            var originator = GetCohortOriginator(originatingParty, provider, employerCohortDetails.AccountLegalEntity);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            var transferSender = transferSenderId.HasValue  ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
 			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            return originator.CreateCohort(provider, employerCohortDetails, draftApprenticeshipDetails, userInfo);
+            return originator.CreateCohort(provider, accountLegalEntity, transferSender, draftApprenticeshipDetails, userInfo);
         }
 
         public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -109,9 +110,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             var db = _dbContext.Value;
 
             var provider = await GetProvider(providerId, db, cancellationToken);
-            var employerCohortDetails = await GetCohortEmployerDetails(accountId, accountLegalEntityId, transferSenderId, db, cancellationToken);
-
-            return employerCohortDetails.AccountLegalEntity.CreateCohortWithOtherParty(provider, employerCohortDetails, message, userInfo);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            return accountLegalEntity.CreateCohortWithOtherParty(provider, accountLegalEntity, transferSender, message, userInfo);
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -192,18 +193,10 @@ namespace SFA.DAS.CommitmentsV2.Services
             return account;
         }
 
-        private async Task<CohortEmployerDetails> GetCohortEmployerDetails(long accountId, long accountLegalEntityId, long? transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private async Task<Account> GetTransferSender(long employerAccountId, long transferSenderId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
-            Account transferSenderAccount = null;
-
-            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
-            if (transferSenderId != null)
-            {
-                await ValidateTransferSenderIdIsAFundingConnection(accountId, transferSenderId.Value);
-                transferSenderAccount = await GetAccount(transferSenderId.Value, db, cancellationToken);
-            }
-
-            return new CohortEmployerDetails(accountLegalEntity, transferSenderAccount);
+            await ValidateTransferSenderIdIsAFundingConnection(employerAccountId, transferSenderId);
+            return await GetAccount(transferSenderId, db, cancellationToken);
         }
 
         private async Task ValidateTransferSenderIdIsAFundingConnection(long accountId, long transferSenderId)

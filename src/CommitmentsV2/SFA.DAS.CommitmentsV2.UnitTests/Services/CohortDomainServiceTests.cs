@@ -751,13 +751,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<CohortEmployerDetails>(p=>p.AccountLegalEntity == AccountLegalEntity.Object),
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p=>p == AccountLegalEntity.Object), null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<CohortEmployerDetails>(p => p.AccountLegalEntity == AccountLegalEntity.Object),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
@@ -766,13 +766,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<CohortEmployerDetails>(p => p.TransferSenderAccount.Id == TransferSenderId && p.TransferSenderAccount.Name == TransferSenderName),
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<CohortEmployerDetails>(p => p.TransferSenderAccount.Id == TransferSenderId && p.TransferSenderAccount.Name == TransferSenderName),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
@@ -781,29 +781,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<CohortEmployerDetails>(p => p.TransferSenderAccount == null),
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
                         DraftApprenticeshipDetails, UserInfo));
                 }
 
                 if (party == Party.Employer)
                 {
-                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<CohortEmployerDetails>(p => p.TransferSenderAccount == null),
+                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.IsAny<AccountLegalEntity>(), It.Is<Account>(p => p == null),
                         DraftApprenticeshipDetails, UserInfo));
                 }
             }
 
             public void VerifyCohortCreationWithOtherParty_WithoutTransferSender()
             {
-                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object, It.Is<CohortEmployerDetails>(p => p.AccountLegalEntity == AccountLegalEntity.Object && p.TransferSenderAccount == null), Message, UserInfo));
+                AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), It.Is<Account>(t => t == null), Message, UserInfo));
             }
 
             public void VerifyCohortCreationWithOtherParty_WithTransferSender()
             {
                 AccountLegalEntity.Verify(x => x.CreateCohortWithOtherParty(Provider.Object,
-                    It.Is<CohortEmployerDetails>(p =>
-                        p.AccountLegalEntity == AccountLegalEntity.Object &&
-                        p.TransferSenderAccount.Id == TransferSenderId &&
-                        p.TransferSenderAccount.Name == TransferSenderName), Message, UserInfo));
+                    It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object),
+                    It.Is<Account>(t => t.Id == TransferSenderId && t.Name == TransferSenderName),
+                    Message,
+                    UserInfo));
             }
 
             public void VerifyProviderDraftApprenticeshipAdded()
