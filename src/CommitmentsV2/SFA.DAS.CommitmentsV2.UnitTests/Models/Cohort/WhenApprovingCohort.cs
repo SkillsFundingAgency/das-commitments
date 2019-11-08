@@ -140,10 +140,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     e.UpdatedOn == _fixture.Now);
         }
 
-        [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
-        [TestCase(Party.Provider, AgreementStatus.EmployerAgreed)]
-        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty, AgreementStatus agreementStatus)
+        [Test]
+        public void AndPartyIsProviderAndEmployerHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent()
         {
+            Party modifyingParty = Party.Provider;
+            AgreementStatus agreementStatus = AgreementStatus.EmployerAgreed;
+
             _fixture.SetModifyingParty(modifyingParty)
                 .SetEditStatus(modifyingParty.ToEditStatus())
                 .SetTransferSender()
@@ -156,7 +158,34 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     e.UpdatedOn == _fixture.Now &&
                     e.LastApprovedByParty == modifyingParty);
         }
-        
+
+        [Test]
+        public void AndPartyIsEmployerAndProviderHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvents()
+        {
+            _fixture.SetModifyingParty(Party.Employer)
+                .SetEditStatus(Party.Employer.ToEditStatus())
+                .SetTransferSender()
+                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
+                .Approve();
+
+            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(2);
+
+            _fixture.UnitOfWorkContext.GetEvents()
+                .First(x => x is CohortTransferApprovalRequestedEvent).Should()
+                .Match<CohortTransferApprovalRequestedEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UpdatedOn == _fixture.Now &&
+                    e.LastApprovedByParty == Party.Employer
+                );
+           
+            _fixture.UnitOfWorkContext.GetEvents()
+                .First(x => x is CohortApprovedByEmployerEvent).Should()
+                .Match<CohortApprovedByEmployerEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UpdatedOn == _fixture.Now 
+                );
+        }
+
         [Test]
         public void AndModifyingPartyIsNotEmployerOrProviderOrTransferSenderThenShouldThrowException()
         {
