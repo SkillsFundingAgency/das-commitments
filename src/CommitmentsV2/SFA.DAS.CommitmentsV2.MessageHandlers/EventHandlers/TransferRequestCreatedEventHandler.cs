@@ -30,10 +30,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
         {
             try
             {
-                _logger.LogInformation("Start Handle message for TransferRequestCreatedEvent");
                 if (message.LastApprovedByParty == Types.Party.Employer)
                 {
-                    _logger.LogInformation("Start --- LastApprovedByParty is employer");
                     var db = _dbContext.Value;
                     var transferRequest = await db.TransferRequests.Include(c => c.Cohort)
                         .SingleAsync(x => x.Id == message.TransferRequestId);
@@ -46,9 +44,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                         TransferCost = transferRequest.Cost,
                         CommitmentId = transferRequest.CommitmentId
                     });
-                    _logger.LogInformation("End --- LastApprovedByParty is employer");
                 }
-                _logger.LogInformation($"End Handle message for TransferRequestCreatedEvent");
             }
             catch (Exception e)
             {
