@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.Commitments.Application.Services
 {
     public class EventUpgradeHandler :
-        IEventUpgradeHandler<Events.CohortApprovalRequestedByProvider>,
-        IEventUpgradeHandler<Events.CohortApprovedByEmployer>
+        IEventUpgradeHandler<Events.CohortApprovalRequestedByProvider>
     {
         private readonly IEndpointInstance _endpointInstance;
         private readonly ILog _logger;
@@ -23,17 +22,6 @@ namespace SFA.DAS.Commitments.Application.Services
         {
             _logger.Debug($"Upgrading {nameof(Events.CohortApprovalRequestedByProvider)} to publish with NServiceBus");
             return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovalRequestedByProviderEvent()
-            {
-                AccountId = @event.AccountId,
-                ProviderId = @event.ProviderId,
-                CommitmentId = @event.CommitmentId
-            });
-        }
-
-        public Task Execute(CohortApprovedByEmployer @event)
-        {
-            _logger.Debug($"Upgrading {nameof(Events.CohortApprovedByEmployer)} to publish with NServiceBus");
-            return _endpointInstance.Publish(new CommitmentsV2.Messages.Events.CohortApprovedByEmployerEvent()
             {
                 AccountId = @event.AccountId,
                 ProviderId = @event.ProviderId,

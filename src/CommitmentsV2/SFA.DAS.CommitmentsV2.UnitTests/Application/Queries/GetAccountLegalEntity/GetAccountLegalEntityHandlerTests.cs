@@ -43,7 +43,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountLegalEnt
         }
     }
 
-
     public class GetEmployerHandlerTestFixtures
     {
         public GetEmployerHandlerTestFixtures()

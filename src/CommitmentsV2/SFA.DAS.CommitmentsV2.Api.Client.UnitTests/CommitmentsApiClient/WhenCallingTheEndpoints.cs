@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using SFA.DAS.CommitmentsV2.Types.Dtos;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Http;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
@@ -131,6 +130,52 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             const long apprenticeshipId = 13456;
             await _fixture.CommitmentsApiClient.UpdateDraftApprenticeship(cohortId, apprenticeshipId, _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(x => x.PutAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", _fixture.UpdateDraftApprenticeshipRequest, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetLatestAgreementId_VerifyUrlAndDataIsCorrectlyPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetLatestAgreementId(123, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.Get<long?>("api/employer-agreements/123/latest-id", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task IsAgreementSigned_When_NoFeatureSpecified_VerifyNoUrlDataIsPassedIn()
+        {
+            var request = new AgreementSignedRequest
+            {
+                AccountLegalEntityId = 123,
+                AgreementFeatures = null
+            };
+
+            await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task IsAgreementSigned_When_EmptyArrayOfFeaturesSpecified_VerifyNoUrlDataIsPassedIn()
+        {
+            var request = new AgreementSignedRequest
+            {
+                AccountLegalEntityId = 123,
+                AgreementFeatures = new AgreementFeature[0]
+            };
+
+            await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task IsAgreementSigned_When_OneFeaturesSpecified_VerifyNoUrlDataIsPassedIn()
+        {
+            var request = new AgreementSignedRequest
+            {
+                AccountLegalEntityId = 123,
+                AgreementFeatures = new AgreementFeature[] { AgreementFeature.Transfers }
+            };
+
+            await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed?agreementFeatures=Transfers", null, CancellationToken.None));
         }
 
         [Test]
