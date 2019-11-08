@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(modifyingParty));
             }
 
-            if (IsApprovedByAllParties && modifyingParty == Party.Employer)
+            if (IsApprovedByParty(Party.Provider) && modifyingParty == Party.Employer)
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
