@@ -79,10 +79,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.SetModifyingParty(modifyingParty)
                 .SetEditStatus(modifyingParty.ToEditStatus())
                 .SendToOtherParty();
-            
-            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().BeOfType(expectedEventType)
-                .And.BeEquivalentTo(new
+
+            _fixture.UnitOfWorkContext.GetEvents().Single(e => e.GetType() == expectedEventType)
+                .Should().BeEquivalentTo(new
                 {
                     CohortId = _fixture.Cohort.Id,
                     UpdatedOn = _fixture.Now
@@ -164,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             Message = AutoFixture.Create<string>();
             UserInfo = AutoFixture.Create<UserInfo>();
             UnitOfWorkContext = new UnitOfWorkContext();
-            Cohort = new CommitmentsV2.Models.Cohort().Set(c => c.Id, 111);
+            Cohort = new CommitmentsV2.Models.Cohort().Set(c => c.Id, 111).Set(x=> x.ProviderId, 1);
         }
 
         public void SendToOtherParty()

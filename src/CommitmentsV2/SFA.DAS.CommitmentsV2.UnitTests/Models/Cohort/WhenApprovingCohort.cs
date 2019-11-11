@@ -11,6 +11,7 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
+using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
@@ -99,10 +100,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetEditStatus(modifyingParty.ToEditStatus())
                 .AddDraftApprenticeship(AgreementStatus.NotAgreed)
                 .Approve();
-            
-            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().BeOfType(expectedEventType)
-                .And.BeEquivalentTo(new
+
+            _fixture.UnitOfWorkContext.GetEvents().Single(e => e.GetType() == expectedEventType)
+                .Should().BeEquivalentTo(new
                 {
                     CohortId = _fixture.Cohort.Id,
                     UpdatedOn = _fixture.Now
@@ -118,8 +118,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship(agreementStatus)
                 .Approve();
 
-            _fixture.UnitOfWorkContext.GetEvents().Should().Subject.LastOrDefault()
-                .Should().Match<CohortFullyApprovedEvent>(e =>
+            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>()
+                .Single().Should().Match<CohortFullyApprovedEvent>(e =>
                     e.CohortId == _fixture.Cohort.Id &&
                     e.AccountId == _fixture.Cohort.EmployerAccountId &&
                     e.ProviderId == _fixture.Cohort.ProviderId.Value &&
@@ -222,8 +222,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship(AgreementStatus.BothAgreed)
                 .Approve();
 
-            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().Match<CohortFullyApprovedEvent>(e =>
+            _fixture.UnitOfWorkContext.GetEvents().OfType<CohortFullyApprovedEvent>().Single(e =>
                     e.CohortId == _fixture.Cohort.Id &&
                     e.AccountId == _fixture.Cohort.EmployerAccountId &&
                     e.ProviderId == _fixture.Cohort.ProviderId.Value &&
