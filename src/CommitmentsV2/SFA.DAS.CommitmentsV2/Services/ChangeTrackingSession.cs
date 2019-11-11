@@ -33,6 +33,8 @@ namespace SFA.DAS.CommitmentsV2.Services
             _trackedItems = new List<TrackedItem>();
         }
 
+        public IReadOnlyList<TrackedItem> TrackedItems => _trackedItems.AsReadOnly();
+
         public void TrackInsert(ITrackableEntity trackedObject)
         {
             _trackedItems.Add(TrackedItem.CreateInsertTrackedItem(trackedObject));
