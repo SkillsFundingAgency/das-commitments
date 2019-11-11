@@ -20,7 +20,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.8.0" />
     <PackageReference Include="SFA.DAS.Authorization.Mvc" Version="4.2.21" />
-    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.1" />
+    <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.77" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.1.5" />
     <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.8" />
@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Shared\SFA.DAS.CommitmentsV2.Shared.csproj" />
     <ProjectReference Include="..\SFA.DAS.ReservationsV2.Api.Client\SFA.DAS.ReservationsV2.Api.Client.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2.Api.Types\SFA.DAS.CommitmentsV2.Api.Types.csproj" />
     <ProjectReference Include="..\SFA.DAS.CommitmentsV2\SFA.DAS.CommitmentsV2.csproj" />

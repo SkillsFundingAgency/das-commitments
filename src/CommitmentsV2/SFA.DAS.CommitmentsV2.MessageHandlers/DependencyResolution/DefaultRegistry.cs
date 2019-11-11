@@ -1,6 +1,8 @@
-﻿using SFA.DAS.CommitmentsV2.Data;
+﻿using SFA.DAS.CommitmentsV2.Configuration;
+using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Services;
+using SFA.DAS.EAS.Account.Api.Client;
 using StructureMap;
 
 namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
@@ -11,6 +13,9 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
         {
             For<IDbContextFactory>().Use<SynchronizedDbContextFactory>();
             For<IFundingCapService>().Use<FundingCapService>().Singleton();
+            For<ITopicClientFactory>().Use<TopicClientFactory>();
+            For<ILegacyTopicMessagePublisher>().Use<LegacyTopicMessagePublisher>().Ctor<string>("connectionString").Is(ctx=>ctx.GetInstance<CommitmentsV2Configuration>().MessageServiceBusConnectionString);
+            For<IAccountApiClient>().Use(c => new AccountApiClient(c.GetInstance<AccountApiConfiguration>()));
         }
     }
 }

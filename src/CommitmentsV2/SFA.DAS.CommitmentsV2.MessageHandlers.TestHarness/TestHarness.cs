@@ -21,7 +21,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         public async Task Run()
         {
             long accountId = 1001;
-            long accountLegalEntityId = 2001;
+            long accountLegalEntityId = 2061;
             long cohortId = 186091;
 
             ConsoleKey key = ConsoleKey.Escape;
@@ -40,8 +40,10 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
-                Console.WriteLine("J - SendEmailToEmployerCommand");
-                Console.WriteLine("K - RunHealthCheckCommand");
+                Console.WriteLine("J - ApprovedCohortReturnedToProviderEvent");
+                Console.WriteLine("K - CohortApprovedByEmployer");
+                Console.WriteLine("L - SendEmailToEmployerCommand");
+                Console.WriteLine("M - RunHealthCheckCommand");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -100,11 +102,21 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
                             break;
                         case ConsoleKey.J:
+                            await _publisher.Publish(new ApprovedCohortReturnedToProviderEvent(cohortId, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(ApprovedCohortReturnedToProviderEvent)}");
+                            break;
+                        case ConsoleKey.K:
+                            await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
+                            break;
+                        case ConsoleKey.L:
                             await _publisher.Send(new SendEmailToEmployerCommand(10003, "ABCDE", new Dictionary<string, string>(), "Test@test.com"), new SendOptions());
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(SendEmailToEmployerCommand)}");
                             break;
-                        case ConsoleKey.K:
+                        case ConsoleKey.M:
                             await _publisher.Send(new RunHealthCheckCommand(), new SendOptions());
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
