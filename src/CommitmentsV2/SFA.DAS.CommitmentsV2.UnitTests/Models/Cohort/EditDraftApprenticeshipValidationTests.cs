@@ -56,7 +56,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 TrainingProgramme = new TrainingProgramme("TEST", "TEST", ProgrammeType.Framework, DateTime.MinValue, DateTime.MaxValue)
             };
             SetupMinimumNameProperties();
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
+            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
             CurrentDateTime = new CurrentDateTime(new DateTime(2019, 04, 01, 0, 0, 0, DateTimeKind.Utc));
             AcademicYearDateProvider = new AcademicYearDateProvider(CurrentDateTime);
             UserInfo = autoFixture.Create<UserInfo>();
@@ -64,13 +64,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public UpdateDraftApprenticeshipValidationTestsFixture WithProviderCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
+            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1 };
             return this;
         }
 
         public UpdateDraftApprenticeshipValidationTestsFixture WithEmployerCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.EmployerOnly};
+            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.EmployerOnly, ProviderId = 1 };
             return this;
         }
 

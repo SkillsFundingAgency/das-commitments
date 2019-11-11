@@ -182,7 +182,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
         public AddDraftApprenticeshipValidationTestsFixture WithProviderCohort()
         {
-            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
+            Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
             return this;
         }
 

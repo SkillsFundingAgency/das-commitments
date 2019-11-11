@@ -157,8 +157,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             var draftApprenticeship = Cohort.Apprenticeships.Single();
 
-            UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
+            UnitOfWorkContext.GetEvents().OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
                     e.CohortId == Cohort.Id &&
                     e.DraftApprenticeshipId == draftApprenticeship.Id &&
                     e.Uln == draftApprenticeship.Uln &&

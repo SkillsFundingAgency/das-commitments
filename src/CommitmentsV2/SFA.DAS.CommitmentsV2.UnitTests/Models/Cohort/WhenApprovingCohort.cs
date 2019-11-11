@@ -134,9 +134,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
                 .Approve();
 
-            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(2)
-                .And.Subject.FirstOrDefault().Should().Match<CohortApprovedByEmployerEvent>(e =>
-                    e.CohortId == _fixture.Cohort.Id &&
+            _fixture.UnitOfWorkContext.GetEvents()
+                .OfType<CohortApprovedByEmployerEvent>()
+                .Single()
+                .Should()
+                .Match<CohortApprovedByEmployerEvent>(e => e.CohortId == _fixture.Cohort.Id &&
                     e.UpdatedOn == _fixture.Now);
         }
 
@@ -149,11 +151,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .SetTransferSender()
                 .AddDraftApprenticeship(agreementStatus)
                 .Approve();
-            
-            _fixture.UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.Single().Should().Match<CohortTransferApprovalRequestedEvent>(e =>
-                    e.CohortId == _fixture.Cohort.Id &&
-                    e.UpdatedOn == _fixture.Now);
+
+            _fixture.UnitOfWorkContext.GetEvents()
+                .OfType<CohortTransferApprovalRequestedEvent>()
+                .Single()
+                .Should()
+                .Match<CohortTransferApprovalRequestedEvent>(e => e.CohortId == _fixture.Cohort.Id &&
+                                                           e.UpdatedOn == _fixture.Now);
         }
         
         [Test]

@@ -32,7 +32,6 @@ namespace SFA.DAS.CommitmentsV2.Services
         private readonly ICurrentDateTime _currentDateTime;
         private readonly IEmployerAgreementService _employerAgreementService;
         private readonly IEncodingService _encodingService;
-        private readonly IChangeTrackingSessionFactory _changeTrackingSessionFactory;
 
         public CohortDomainService(Lazy<ProviderCommitmentsDbContext> dbContext,
             ILogger<CohortDomainService> logger,
@@ -42,7 +41,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             IOverlapCheckService overlapCheckService,
             IAuthenticationService authenticationService,
             ICurrentDateTime currentDateTime,
-			IChangeTrackingSessionFactory changeTrackingSessionFactory,
             IEmployerAgreementService employerAgreementService,
             IEncodingService encodingService)
         {
@@ -56,7 +54,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             _currentDateTime = currentDateTime;
             _employerAgreementService = employerAgreementService;
             _encodingService = encodingService;
-            _changeTrackingSessionFactory = changeTrackingSessionFactory;
         }
         
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -65,16 +62,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await GetCohort(cohortId, db, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
-            var changeTrackingSession = _changeTrackingSessionFactory.CreateTrackingSession(UserAction.AddDraftApprenticeship, party, cohort.EmployerAccountId, providerId, userInfo);
-
-            changeTrackingSession.TrackUpdate(cohort);
-
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
-
-            changeTrackingSession.TrackInsert(draftApprenticeship);
-            changeTrackingSession.CompleteTrackingSession();
 
             return draftApprenticeship;
         }
@@ -90,13 +80,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
 			
-
-            var changeTrackingSession = _changeTrackingSessionFactory.CreateTrackingSession(UserAction.ApproveCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
-            changeTrackingSession.TrackUpdate(cohort);
-
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
-
-            changeTrackingSession.CompleteTrackingSession();
         }
 
         public async Task<Cohort> CreateCohort(long providerId, long accountId, long accountLegalEntityId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -110,12 +94,6 @@ namespace SFA.DAS.CommitmentsV2.Services
 			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
             var cohort = originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
-
-            var changeTrackingSession = _changeTrackingSessionFactory.CreateTrackingSession(UserAction.CreateCohort, originatingParty, accountId, provider.UkPrn, userInfo);
-            changeTrackingSession.TrackInsert(cohort);
-            changeTrackingSession.TrackInsert(cohort.DraftApprenticeships.First());
-            changeTrackingSession.CompleteTrackingSession();
-
             return cohort;
         }
 
@@ -134,11 +112,6 @@ namespace SFA.DAS.CommitmentsV2.Services
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
 
             var cohort = accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
-
-            var changeTrackingSession = _changeTrackingSessionFactory.CreateTrackingSession(UserAction.CreateCohortWithOtherParty, originatingParty, accountId, provider.UkPrn, userInfo);
-            changeTrackingSession.TrackInsert(cohort);
-            changeTrackingSession.CompleteTrackingSession();
-
             return cohort;
         }
 
@@ -147,12 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
-            var changeTrackingSession = _changeTrackingSessionFactory.CreateTrackingSession(UserAction.SendCohort, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
-            changeTrackingSession.TrackUpdate(cohort);
-
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
-
-            changeTrackingSession.CompleteTrackingSession();
         }
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
@@ -167,15 +135,9 @@ namespace SFA.DAS.CommitmentsV2.Services
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
 
-            var changeTrackingSession = _changeTrackingSessionFactory.CreateTrackingSession(UserAction.UpdateDraftApprenticeship, party, cohort.EmployerAccountId, cohort.ProviderId.Value, userInfo);
-            changeTrackingSession.TrackUpdate(cohort);
-            changeTrackingSession.TrackUpdate(cohort.DraftApprenticeships.Single(x => x.Id == draftApprenticeshipDetails.Id));
-
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
-
-            changeTrackingSession.CompleteTrackingSession();
 
             return cohort;
         }

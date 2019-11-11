@@ -46,11 +46,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public void ObjectsAreNotCaptured()
+        public void ClassesAreNotCaptured()
         {
             var result = _fixture.GetState();
             Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestObject)));
         }
+
+        [Test]
+        public void AbstractsAreNotCaptured()
+        {
+            var result = _fixture.GetState();
+            Assert.IsFalse(result.ContainsKey(nameof(GetStateTestClass.TestInterfaceImplementation)));
+        }
+
 
         private class WhenGettingStateTestFixture
         {
@@ -83,6 +91,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 TestPublicProperty = autoFixture.Create<string>();
                 TestObject = new GetStateTestSubClass();
                 TestEnumerable = new List<GetStateTestSubClass>();
+                TestInterfaceImplementation = new StateTestInterfaceImplementation();
             }
 
             public string TestPublicProperty { get; }
@@ -90,11 +99,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             public GetStateTestSubClass TestObject { get; }
             public List<GetStateTestSubClass> TestEnumerable { get; }
             public static string TestStaticProperty { get; }
+            public IStateTestInterface TestInterfaceImplementation { get; }
         }
 
         private class GetStateTestSubClass
         {
         }
 
+        private interface IStateTestInterface
+        {
+        }
+
+        private class StateTestInterfaceImplementation : IStateTestInterface
+        {
+        }
     }
 }
