@@ -143,6 +143,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
         }
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenShouldPublishEvent(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetEditStatus(modifyingParty.ToEditStatus())
+                .SendToOtherParty();
+
+            _fixture.VerifyCohortTracking();
+        }
     }
 
     public class WhenSendingCohortToOtherPartyTestsFixture
@@ -220,6 +231,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             UserInfo.UserEmail = userEmail;
             
             return this;
+        }
+
+        public void VerifyCohortTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                                && @event.EntityType ==
+                                                                                nameof(Cohort)));
         }
     }
 }

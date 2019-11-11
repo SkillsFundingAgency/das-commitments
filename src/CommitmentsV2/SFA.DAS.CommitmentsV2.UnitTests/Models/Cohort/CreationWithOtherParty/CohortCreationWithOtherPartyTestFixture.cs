@@ -3,6 +3,7 @@ using System.Linq;
 using AutoFixture;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
@@ -113,5 +114,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
         {
             Assert.AreEqual(CreatingParty.GetOtherParty().ToEditStatus(), Cohort.EditStatus);
         }
+
+        public void VerifyCohortTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                                && @event.EntityType ==
+                                                                                nameof(Cohort)));
+        }
+
     }
 }

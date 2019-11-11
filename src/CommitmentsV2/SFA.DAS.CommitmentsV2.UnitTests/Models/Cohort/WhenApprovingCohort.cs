@@ -159,7 +159,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Match<CohortTransferApprovalRequestedEvent>(e => e.CohortId == _fixture.Cohort.Id &&
                                                            e.UpdatedOn == _fixture.Now);
         }
-        
+
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenTheStateChangesAreTracked(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetEditStatus(modifyingParty.ToEditStatus())
+                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .Approve();
+
+            _fixture.VerifyCohortTracking();
+        }
+
         [Test]
         public void AndModifyingPartyIsNotEmployerOrProviderOrTransferSenderThenShouldThrowException()
         {
@@ -362,5 +374,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             
             return this;
         }
+
+        public void VerifyCohortTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                                && @event.EntityType ==
+                                                                                nameof(Cohort)));
+        }
+
     }
 }
