@@ -170,7 +170,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                             Publish(() => new CohortAssignedToProviderEvent(Id, now));
                             break;
                         case Party.TransferSender:
-                            Publish(() => new CohortTransferApprovalRequestedEvent(Id, now));
+                            Publish(() => new CohortTransferApprovalRequestedEvent(Id, now, modifyingParty));
                             break;
                     }
 
@@ -184,7 +184,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                     throw new ArgumentOutOfRangeException(nameof(modifyingParty));
             }
 
-            if (IsApprovedByAllParties && modifyingParty == Party.Employer)
+            if (IsApprovedByParty(Party.Provider) && modifyingParty == Party.Employer)
             {
                 Publish(() => new CohortApprovedByEmployerEvent(Id, now));
             }
@@ -248,7 +248,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new DraftApprenticeshipUpdatedEvent(existingDraftApprenticeship.Id, Id, existingDraftApprenticeship.Uln, existingDraftApprenticeship.ReservationId, DateTime.UtcNow));
         }
 
-        public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap)
+        public void AddTransferRequest(string jsonSummary, decimal cost, decimal fundingCap, Party lastApprovedByParty)
         {
             CheckThereIsNoPendingTransferRequest();
             var transferRequest = new TransferRequest();
@@ -259,7 +259,7 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             TransferRequests.Add(transferRequest);
             TransferApprovalStatus = Types.TransferApprovalStatus.Pending;
-            Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow));
+            Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
         }
 
         private void CheckThereIsNoPendingTransferRequest()
