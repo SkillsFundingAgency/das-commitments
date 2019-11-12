@@ -11,7 +11,6 @@ using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.Builders;
 using SFA.DAS.UnitOfWork.Context;
-using Xunit.Extensions.AssertExtensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 {
@@ -142,34 +141,51 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                     e.UpdatedOn == _fixture.Now);
         }
 
-        [TestCase(Party.Employer, AgreementStatus.ProviderAgreed)]
-        [TestCase(Party.Provider, AgreementStatus.EmployerAgreed)]
-        public void AndPartyIsEmployerOrProviderAndOtherPartyHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent(Party modifyingParty, AgreementStatus agreementStatus)
+        [Test]
+        public void AndPartyIsProviderAndEmployerHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvent()
         {
+            Party modifyingParty = Party.Provider;
+            AgreementStatus agreementStatus = AgreementStatus.EmployerAgreed;
+
             _fixture.SetModifyingParty(modifyingParty)
                 .SetEditStatus(modifyingParty.ToEditStatus())
                 .SetTransferSender()
                 .AddDraftApprenticeship(agreementStatus)
                 .Approve();
-
-            _fixture.UnitOfWorkContext.GetEvents()
+            
+				  _fixture.UnitOfWorkContext.GetEvents()
                 .OfType<CohortTransferApprovalRequestedEvent>()
                 .Single()
                 .Should()
                 .Match<CohortTransferApprovalRequestedEvent>(e => e.CohortId == _fixture.Cohort.Id &&
-                                                           e.UpdatedOn == _fixture.Now);
+                                                           e.UpdatedOn == _fixture.Now &&
+                    e.LastApprovedByParty == modifyingParty);
+
         }
 
-        [TestCase(Party.Employer)]
-        [TestCase(Party.Provider)]
-        public void ThenTheStateChangesAreTracked(Party modifyingParty)
+        [Test]
+        public void AndPartyIsEmployerAndProviderHasApprovedAndCohortIsFundedByTransferThenShouldPublishEvents()
         {
-            _fixture.SetModifyingParty(modifyingParty)
-                .SetEditStatus(modifyingParty.ToEditStatus())
-                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+            _fixture.SetModifyingParty(Party.Employer)
+                .SetEditStatus(Party.Employer.ToEditStatus())
+                .SetTransferSender()
+                .AddDraftApprenticeship(AgreementStatus.ProviderAgreed)
                 .Approve();
 
-            _fixture.VerifyCohortTracking();
+            _fixture.UnitOfWorkContext.GetEvents()
+                .First(x => x is CohortTransferApprovalRequestedEvent).Should()
+                .Match<CohortTransferApprovalRequestedEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UpdatedOn == _fixture.Now &&
+                    e.LastApprovedByParty == Party.Employer
+                );
+           
+            _fixture.UnitOfWorkContext.GetEvents()
+                .First(x => x is CohortApprovedByEmployerEvent).Should()
+                .Match<CohortApprovedByEmployerEvent>(e =>
+                    e.CohortId == _fixture.Cohort.Id &&
+                    e.UpdatedOn == _fixture.Now 
+                );
         }
 
         [Test]
@@ -273,6 +289,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 .Approve();
 
             _fixture.Cohort.TransferApprovalStatus.Should().BeNull();
+        }
+		
+        [TestCase(Party.Employer)]
+        [TestCase(Party.Provider)]
+        public void ThenTheStateChangesAreTracked(Party modifyingParty)
+        {
+            _fixture.SetModifyingParty(modifyingParty)
+                .SetEditStatus(modifyingParty.ToEditStatus())
+                .AddDraftApprenticeship(AgreementStatus.NotAgreed)
+                .Approve();
+
+            _fixture.VerifyCohortTracking();
         }
     }
 
