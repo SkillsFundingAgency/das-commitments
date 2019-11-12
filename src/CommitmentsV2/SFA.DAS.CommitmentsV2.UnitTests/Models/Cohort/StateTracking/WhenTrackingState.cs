@@ -66,7 +66,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.StateTracking
                 cohort.TransferApprovalStatus = TransferApprovalStatus.Approved;
             }
             
-            Assert.AreEqual(expectedApprovals, cohort.PartyApprovals);
+            Assert.AreEqual(expectedApprovals, cohort.Approvals);
         }
     }
 }

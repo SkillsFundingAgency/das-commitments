@@ -5,7 +5,6 @@ using SFA.DAS.CommitmentsV2.Services;
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
-using MoreLinq.Extensions;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 {
@@ -68,7 +67,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             }
         }
 
-
         [Test]
         public void ComparisonToNullUpdatedStateReturnsAllItemsInInitial()
         {
@@ -99,7 +97,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 InitialItem = null;
                 UpdatedItem = null;
             }
-
 
             public DiffServiceTestsFixture WithNullInitialItem()
             {
