@@ -75,15 +75,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IFundingCapService> FundingService { get; set; }
         public IRequestHandler<AddTransferRequestCommand> Handler { get; set; }
 
+        public Party LastApprovedByParty { get; set; }
+
         public AddTransferRequestCommandHandlerTestFixture()
         {
             Fixture = new Fixture();
             CancellationToken = new CancellationToken();
 
-            FundingCapCourseSummary1 = new FundingCapCourseSummary{ ActualCap = 1000, ApprenticeshipCount = 1, CappedCost = 1200, CourseTitle = "C1Title"};
-            FundingCapCourseSummary2 = new FundingCapCourseSummary{ ActualCap = 1100, ApprenticeshipCount = 2, CappedCost = 1300, CourseTitle = "C2Title"};
+            FundingCapCourseSummary1 = new FundingCapCourseSummary
+                {ActualCap = 1000, ApprenticeshipCount = 1, CappedCost = 1200, CourseTitle = "C1Title"};
+            FundingCapCourseSummary2 = new FundingCapCourseSummary
+                {ActualCap = 1100, ApprenticeshipCount = 2, CappedCost = 1300, CourseTitle = "C2Title"};
             FundingService = new Mock<IFundingCapService>();
-            FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<Apprenticeship>>())).ReturnsAsync( new List<FundingCapCourseSummary>{ FundingCapCourseSummary1, FundingCapCourseSummary2 });
+            FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<Apprenticeship>>()))
+                .ReturnsAsync(new List<FundingCapCourseSummary> {FundingCapCourseSummary1, FundingCapCourseSummary2});
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -96,6 +101,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 Mock.Of<ILogger<AddTransferRequestCommandHandler>>());
 
             UnitOfWorkContext = new UnitOfWorkContext();
+            LastApprovedByParty = Party.Employer;
         }
 
         public AddTransferRequestCommandHandlerTestFixture SetupCohort()
@@ -126,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
         public async Task Handle()
         {
-            var cmd = new AddTransferRequestCommand { CohortId = this.CohortId };
+            var cmd = new AddTransferRequestCommand { CohortId = this.CohortId, LastApprovedByParty = LastApprovedByParty};
             await Handler.Handle(cmd, CancellationToken);
         }
 
@@ -150,6 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         {
             var @event = UnitOfWorkContext.GetEvents().OfType<TransferRequestCreatedEvent>().First();
             Assert.AreEqual(CohortId, @event.CohortId);
+            Assert.AreEqual(LastApprovedByParty, @event.LastApprovedByParty);
             Assert.IsNotNull(@event.TransferRequestId);
         }
     }
