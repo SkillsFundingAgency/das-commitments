@@ -26,7 +26,7 @@
     <PackageReference Include="SFA.DAS.Authorization.Features" Version="4.3.1" />
     <PackageReference Include="SFA.DAS.Encoding" Version="1.1.57" />
     <PackageReference Include="SFA.DAS.Learners" Version="1.1.181" />
-    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="2.2.21" />
+    <PackageReference Include="SFA.DAS.Notifications.Messages" Version="2.2.52" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="15.0.8" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="15.0.8" />
     <PackageReference Include="SFA.DAS.Providers.Api.Client" Version="0.11.98" />
