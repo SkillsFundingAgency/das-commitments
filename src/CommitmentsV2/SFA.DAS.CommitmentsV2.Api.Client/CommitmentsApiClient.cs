@@ -107,6 +107,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get<long?>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
+
+        public Task<GetCohortsResponse> GetCohortsByEmployer(long accountId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<GetCohortsResponse>($"api/cohorts?employers={accountId}", null, cancellationToken);
+        }
+
         public Task<string> SecureCheck()
         {
             return _client.Get("api/test");
