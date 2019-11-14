@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -6,6 +7,13 @@ namespace SFA.DAS.CommitmentsV2.Models
     {
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
+
+        public int? PaymentOrder { get; set; }
+        public DateTime? StopDate { get; set; }
+        public DateTime? PauseDate { get; set; }
+        public bool HasHadDataLockSuccess { get; set; }
+        public byte? PendingUpdateOriginator { get; set; }
+
 
         public ApprovedApprenticeship()
         {

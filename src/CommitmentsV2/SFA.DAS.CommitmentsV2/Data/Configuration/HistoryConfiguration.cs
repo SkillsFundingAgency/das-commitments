@@ -23,6 +23,9 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.UserId)
                 .IsRequired()
                 .HasMaxLength(50);
+
+            builder.Property(e => e.Diff)
+                .IsRequired(false);
         }
     }
 }

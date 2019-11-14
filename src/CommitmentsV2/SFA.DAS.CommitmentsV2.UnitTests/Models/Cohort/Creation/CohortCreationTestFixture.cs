@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -7,7 +8,9 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
@@ -30,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public CohortCreationTestFixture()
         {
             UnitOfWorkContext = new UnitOfWorkContext();
+
             Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>(), _autoFixture.Create<DateTime>());
 
@@ -183,8 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             var draftApprenticeship = Cohort.Apprenticeships.Single();
 
-            UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
+            UnitOfWorkContext.GetEvents().OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
                     e.CohortId == Cohort.Id &&
                     e.DraftApprenticeshipId == draftApprenticeship.Id &&
                     e.Uln == draftApprenticeship.Uln &&
@@ -195,6 +198,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public void VerifyCohortIsWithCreator()
         {
             Assert.AreEqual(CreatingParty.ToEditStatus(), Cohort.EditStatus);
+        }
+
+        public void VerifyCohortTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                  && @event.EntityType ==
+                                                                  nameof(Cohort)));
+        }
+
+        public void VerifyDraftApprenticeshipTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                  && @event.EntityType ==
+                                                                  nameof(DraftApprenticeship)));
         }
     }
 }
