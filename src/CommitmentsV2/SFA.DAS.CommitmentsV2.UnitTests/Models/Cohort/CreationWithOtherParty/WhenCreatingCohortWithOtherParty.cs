@@ -68,5 +68,15 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.CreationWithOtherParty
 
             _fixture.VerifyCohortIsWithOtherParty();
         }
+
+        [Test]
+        public void ThenTheStateChangesAreTracked()
+        {
+            _fixture
+                .WithCreatingParty(Party.Employer)
+                .CreateCohort();
+
+            _fixture.VerifyCohortTracking();
+        }
     }
 }

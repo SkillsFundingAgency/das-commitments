@@ -1,11 +1,12 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class DraftApprenticeship : Apprenticeship
+    public class DraftApprenticeship : Apprenticeship, ITrackableEntity
     {
         private bool IsCompleteForEmployer => 
             FirstName != null &&

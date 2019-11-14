@@ -59,7 +59,9 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var db = _dbContext.Value;
             var cohort = await GetCohort(cohortId, db, cancellationToken);
-            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
+            var party = _authenticationService.GetUserParty();
+
+            var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
 
             await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
@@ -76,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             {
                 await ValidateEmployerHasSignedAgreement(cohort, cancellationToken);
             }
-
+			
             cohort.Approve(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
@@ -90,7 +92,8 @@ namespace SFA.DAS.CommitmentsV2.Services
 
 			await ValidateDraftApprenticeshipDetails(draftApprenticeshipDetails, cancellationToken);
 
-            return originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+            var cohort = originator.CreateCohort(provider, accountLegalEntity, draftApprenticeshipDetails, userInfo);
+            return cohort;
         }
 
         public async Task<Cohort> CreateCohortWithOtherParty(long providerId, long accountId, long accountLegalEntityId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -107,14 +110,15 @@ namespace SFA.DAS.CommitmentsV2.Services
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
 
-            return accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
+            var cohort = accountLegalEntity.CreateCohortWithOtherParty(provider, message, userInfo);
+            return cohort;
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var cohort = await GetCohort(cohortId, _dbContext.Value, cancellationToken);
             var party = _authenticationService.GetUserParty();
-            
+
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
         }
 
@@ -122,6 +126,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             var db = _dbContext.Value;
 
+            var party = _authenticationService.GetUserParty();
             var cohort = await db.Cohorts
                                 .Include(c => c.Apprenticeships)
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
@@ -275,7 +280,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                 return accountLegalEntity.MaLegalEntityId;
             }
 
-            AgreementFeature[] agreementFeatures = null;
+            AgreementFeature[] agreementFeatures = new AgreementFeature[0];
 
             if (cohort.TransferSenderId != null)
             {
