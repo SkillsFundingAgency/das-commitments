@@ -21,6 +21,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.DependencyResolution
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
             registry.IncludeRegistry<PasAccountApiClientRegistry>();
             registry.IncludeRegistry<EncodingRegistry>();
+            registry.IncludeRegistry<DiffServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }

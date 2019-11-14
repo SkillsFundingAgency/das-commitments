@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var modifiedDraft = fixtures.UpdatePropertiesWithNewValues(originalDraft);
             var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
 
-            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
             c.Apprenticeships.Add(originalDraft);
 
             // Act
@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             var modifiedDraftDetails = fixtures.ToApprenticeshipDetails(modifiedDraft, Party.Provider);
             modifiedDraftDetails.StartDate = modifiedDraftDetails.EndDate.Value.AddMonths(1);
 
-            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
+            var c = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
             c.Apprenticeships.Add(originalDraft);
 
             // Act
