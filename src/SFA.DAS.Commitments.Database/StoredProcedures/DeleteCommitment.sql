@@ -6,6 +6,6 @@ AS
 
 			DELETE FROM [dbo].[Message] WHERE CommitmentId = @commitmentId
 
-			DELETE FROM [dbo].[Commitment] WHERE Id = @commitmentId
+			update [dbo].[Commitment] set IsDeleted=1 WHERE Id = @commitmentId
 	END
 GO
