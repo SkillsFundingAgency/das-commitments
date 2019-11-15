@@ -150,7 +150,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
 
             private void CreateCohort()
             {
-                Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly};
+                Cohort = new CommitmentsV2.Models.Cohort {EditStatus = EditStatus.ProviderOnly, ProviderId = 1};
 
                 for (var i = 0; i < CohortSize; i++)
                 {

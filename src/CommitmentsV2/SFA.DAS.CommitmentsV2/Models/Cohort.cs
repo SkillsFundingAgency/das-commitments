@@ -309,6 +309,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckIsWithParty(modifyingParty);
 
             var draftApprenticeship = DraftApprenticeships.Single(x => x.Id == draftApprenticeshipId);
+
+            StartTrackingSession(UserAction.DeleteDraftApprenticeship, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            ChangeTrackingSession.TrackDelete(draftApprenticeship);
+
             Apprenticeships.Remove(draftApprenticeship);
 
             ResetApprovals();
@@ -322,6 +327,7 @@ namespace SFA.DAS.CommitmentsV2.Models
                 ReservationId = draftApprenticeship.ReservationId,
                 DeletedOn = DateTime.UtcNow
             });
+            ChangeTrackingSession.CompleteTrackingSession();
         }
 
         private void ResetTransferSenderRejection()
