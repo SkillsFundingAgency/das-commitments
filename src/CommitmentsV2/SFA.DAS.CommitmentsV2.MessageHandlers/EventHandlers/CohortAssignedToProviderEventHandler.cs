@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.EventHandlers
                 var cohortSummary = await _mediator.Send(new GetCohortSummaryQuery(message.CohortId));
 
                 var emailRequest = BuildEmailRequest(cohortSummary);
-                await _pasAccountApiClient.SendEmailToAllProviderRecipients(cohortSummary.CohortId, emailRequest).ConfigureAwait(false);
+                await _pasAccountApiClient.SendEmailToAllProviderRecipients(cohortSummary.ProviderId.Value, emailRequest).ConfigureAwait(false);
             }
             catch (Exception e)
             {
