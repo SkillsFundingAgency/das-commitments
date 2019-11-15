@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
 {
@@ -7,8 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
     {
         public GetCohortsResponse(IEnumerable<CohortSummary> cohorts)
         {
-            Cohorts = cohorts.ToList();
+            Cohorts = cohorts.ToArray();
         }
-        public IList<CohortSummary> Cohorts { get; }
+        public CohortSummary[] Cohorts { get; }
     }
 }

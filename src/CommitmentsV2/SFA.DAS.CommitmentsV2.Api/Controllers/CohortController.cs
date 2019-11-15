@@ -7,6 +7,7 @@ using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
 
@@ -22,6 +23,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         public CohortController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCohorts([FromQuery] GetCohortsRequest request)
+        {
+            var query = new GetCohortsQuery(request.AccountId);
+            var result = await _mediator.Send(query);
+
+            return Ok(new GetCohortsResponse(result.Cohorts));
         }
 
         [HttpPost]
