@@ -20,16 +20,30 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
 
         public async Task<GetCohortsResult> Handle(GetCohortsQuery command, CancellationToken cancellationToken)
         {
-            var cohorts = await _db.Value.Cohorts.Include(cohort=>cohort.Apprenticeships).Where(x => x.EmployerAccountId == command.AccountId)
-                .Select(x => new CohortSummary
+            var query =
+                from c in _db.Value.Cohorts
+                where c.EmployerAccountId == command.AccountId &&
+                      (c.EditStatus != EditStatus.Both ||
+                       (c.TransferSenderId != null && c.TransferApprovalStatus != TransferApprovalStatus.Approved))
+                let messages = c.Messages.OrderByDescending(m => m.CreatedDateTime)
+                let latestMessageCreatedByEmployer = messages.Where(m => m.CreatedBy == 0).Select(m => m.Text).FirstOrDefault()
+                let latestMessageCreatedByProvider = messages.Where(m => m.CreatedBy == 1).Select(m => m.Text).FirstOrDefault()
+
+                select new CohortSummary
                 {
-                    AccountId = x.EmployerAccountId,
-                    LegalEntityName = x.LegalEntityName,
-                    ProviderId = x.ProviderId.Value,
-                    ProviderName = x.ProviderName,
-                    CohortId = x.Id,
-                    //NumberOfDraftApprentices = x.DraftApprenticeships.Count()
-                }).ToListAsync(cancellationToken);
+                    AccountId = c.EmployerAccountId,
+                    LegalEntityName = c.LegalEntityName,
+                    ProviderId = c.ProviderId.Value,
+                    ProviderName = c.ProviderName,
+                    CohortId = c.Id,
+                    NumberOfDraftApprentices = c.Apprenticeships.Count,
+                    LastMessageFromEmployer = latestMessageCreatedByEmployer,
+                    LastMessageFromProvider = latestMessageCreatedByProvider,
+                    IsDraft = c.LastAction == LastAction.None,
+                    WithParty = c.WithParty
+                };
+
+            var cohorts = await query.ToArrayAsync(cancellationToken);
 
             return new GetCohortsResult(cohorts);
         }
