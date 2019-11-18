@@ -51,10 +51,12 @@ FROM
 	Commitment c
 LEFT JOIN 
 	Apprenticeship a ON a.CommitmentId = c.Id
+WHERE
+	c.IsDeleted = 0
 
 GROUP BY 
 	c.Id, c.Reference, c.EmployerAccountId, c.LegalEntityId, c.LegalEntityName, c.ProviderId, c.ProviderName, c.CommitmentStatus, c.EditStatus, c.CreatedOn, c.LastAction, 
 	c.LastUpdatedByEmployerEmail, c.LastUpdatedByProviderEmail, c.LastUpdatedByEmployerName, c.LastUpdatedByProviderName, c.LegalEntityAddress, 
 	c.LegalEntityOrganisationType, c.TransferSenderId, c.TransferSenderName, c.TransferApprovalStatus, c.TransferApprovalActionedByEmployerEmail,
 	c.TransferApprovalActionedByEmployerName, c.TransferApprovalActionedOn, c.AccountLegalEntityPublicHashedId, c.Originator, c.ApprenticeshipEmployerTypeOnApproval,
-	c.IsFullApprovalProcessed
+	c.IsFullApprovalProcessed, c.IsDeleted

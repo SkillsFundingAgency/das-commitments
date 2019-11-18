@@ -116,6 +116,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? TransferApprovalActionedOn { get; set; }
         public string AccountLegalEntityPublicHashedId { get; set; }
         public Originator Originator { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual ICollection<Apprenticeship> Apprenticeships { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
