@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
     {
         [TestCase(1, true)]
         [TestCase(null, false)]
-        public void Validate_WithAccountId_ShouldSetIsValidCorrectly(int id, bool expectedIsValid)
+        public void Validate_WithAccountId_ShouldSetIsValidCorrectly(long? id, bool expectedIsValid)
         {
             // arrange
             var validator = new GetCohortsQueryValidator();
