@@ -140,6 +140,8 @@
     <Build Include="StoredProcedures\ImportProviders.sql" />
     <Build Include="StoredProcedures\ProcessFullyApprovedCohort.sql" />
     <None Include="AdhocScripts\Manual\CV-449_Populate_AccountLegalEntitiesWithActualLegalEntityId.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeshipsForProvider.sql" />
+    <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
