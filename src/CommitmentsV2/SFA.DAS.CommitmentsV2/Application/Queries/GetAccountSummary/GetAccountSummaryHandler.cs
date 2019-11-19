@@ -18,11 +18,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
             _dbContext = dbContext;
         }
 
-        public Task<GetAccountSummaryResponse> Handle(GetAccountSummaryRequest request, CancellationToken cancellationToken)
+        public async Task<GetAccountSummaryResponse> Handle(GetAccountSummaryRequest request, CancellationToken cancellationToken)
         {
             //todo: what if account doesn't exist? do we pay the cost of account.GetById in order to do a 404 if not?
 
-            var result = _dbContext.Value
+            var result = await (_dbContext.Value
                 .Cohorts
                 .Where(c => c.EmployerAccountId == request.AccountId)
                 .Select(c =>
@@ -31,14 +31,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
                         IsApproved = c.EditStatus == EditStatus.Both &&
                                      (!c.TransferSenderId.HasValue ||
                                       c.TransferApprovalStatus == TransferApprovalStatus.Approved)
-                    });
+                    })).ToListAsync(cancellationToken);
 
-            return Task.FromResult(new GetAccountSummaryResponse
+            return new GetAccountSummaryResponse
             {
                 AccountId = request.AccountId,
                 HasCohorts = result.Any(x => !x.IsApproved),
                 HasApprenticeships = result.Any(x => x.IsApproved)
-            });
+            };
 
         }
     }
