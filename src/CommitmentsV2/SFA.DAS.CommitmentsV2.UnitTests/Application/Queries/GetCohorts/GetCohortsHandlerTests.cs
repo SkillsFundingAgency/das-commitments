@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
+using Message = SFA.DAS.CommitmentsV2.Models.Message;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
 {
@@ -32,6 +33,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             Assert.AreEqual(response.Cohorts[0].ProviderId, f.SeedCohorts[0].ProviderId);
             Assert.AreEqual(response.Cohorts[0].ProviderName, f.SeedCohorts[0].ProviderName);
             Assert.AreEqual(response.Cohorts[0].CohortId, f.SeedCohorts[0].Id);
+            Assert.AreEqual(response.Cohorts[0].CreatedOn, f.SeedCohorts[0].CreatedOn);
+        }
+
+        [Test]
+        public async Task Handle_WithAccountId_ShouldReturnEmptyMessagesAsNothingSent()
+        {
+            var f = new GetCohortsHandlerTestFixtures();
+            f.AddEmptyDraftCohortForEmployer(f.AccountId);
+
+            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
+
+            Assert.IsNull(response.Cohorts[0].LatestMessageFromEmployer);
+            Assert.IsNull(response.Cohorts[0].LatestMessageFromProvider);
         }
 
         [Test]
@@ -83,11 +97,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
 
             Assert.IsNotNull(response);
             Assert.AreEqual(response.Cohorts.Length, 2);
-            Assert.AreEqual(response.Cohorts[0].LastMessageFromEmployer, "EmployerLast");
-            Assert.AreEqual(response.Cohorts[0].LastMessageFromProvider, "ProviderLast");
+            Assert.AreEqual(response.Cohorts[0].LatestMessageFromEmployer.Text, "EmployerLast");
+            Assert.AreEqual(response.Cohorts[0].LatestMessageFromProvider.Text, "ProviderLast");
             Assert.AreEqual(response.Cohorts[0].NumberOfDraftApprentices, 2);
-            Assert.AreEqual(response.Cohorts[1].LastMessageFromEmployer, "EmployerLast");
-            Assert.AreEqual(response.Cohorts[1].LastMessageFromProvider, "ProviderLast");
+            Assert.AreEqual(response.Cohorts[1].LatestMessageFromEmployer.Text, "EmployerLast");
+            Assert.AreEqual(response.Cohorts[1].LatestMessageFromProvider.Text, "ProviderLast");
             Assert.AreEqual(response.Cohorts[1].NumberOfDraftApprentices, 2);
         }
     }
@@ -112,7 +126,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             return RunWithDbContext(dbContext =>
             {
                 var lazy = new Lazy<ProviderCommitmentsDbContext>(dbContext);
-                var handler = new GetCohortsHandler(lazy);
+                var handler = new GetCohortsHandler(lazy, Mock.Of<ILogger<GetCohortsHandler>>());
 
                 return handler.Handle(query, CancellationToken.None);
             });
