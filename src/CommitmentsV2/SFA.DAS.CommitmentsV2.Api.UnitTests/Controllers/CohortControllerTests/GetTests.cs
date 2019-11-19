@@ -52,7 +52,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     .And.BeOfType<NotFoundResult>());
         }
 
-
         [Test]
         public async Task WhenGetCohortsRequestReceivedForEmployer_ThenShouldReturnOkayResponseWithCohorts()
         {
