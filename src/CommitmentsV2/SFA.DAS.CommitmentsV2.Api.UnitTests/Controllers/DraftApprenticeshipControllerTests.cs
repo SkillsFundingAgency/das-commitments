@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             var response = await fixture.Add();
             var okObjectResult = response as OkObjectResult;
             var addDraftApprenticeshipResponse = okObjectResult?.Value as AddDraftApprenticeshipResponse;
-            
+
             //Assert
             Assert.AreEqual(DraftApprenticeshipControllerTestsFixture.DraftApprenticeshipId, addDraftApprenticeshipResponse?.DraftApprenticeshipId);
         }
@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             //Assert
             Assert.IsTrue(response is OkObjectResult, $"Get method did not return a {nameof(OkObjectResult)} - returned a {response.GetType().Name} instead");
-            var okObjectResult = (OkObjectResult) response;
+            var okObjectResult = (OkObjectResult)response;
             Assert.IsTrue(okObjectResult.Value is GetDraftApprenticeshipResponse, $"Get method did not return a value of type {nameof(GetDraftApprenticeshipResponse)} - returned a {okObjectResult.Value?.GetType().Name} instead");
         }
 
@@ -193,8 +193,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             DeleteDraftApprenticeshipRequest = new DeleteDraftApprenticeshipRequest();
             DeleteDraftApprenticeshipCommand = new DeleteDraftApprenticeshipCommand();
             DeleteDraftApprenticeshipMapper.Setup(m => m.Map(DeleteDraftApprenticeshipRequest)).ReturnsAsync(DeleteDraftApprenticeshipCommand);
-            Mediator.Setup(m => m.Send(DeleteDraftApprenticeshipCommand, CancellationToken.None)).ReturnsAsync(new DeleteDraftApprenticeshipResponse { Id = CohortId, ApprenticeshipId = DraftApprenticeshipId });
-
             return this;
         }
 

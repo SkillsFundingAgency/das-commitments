@@ -108,21 +108,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}")]
         public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
         {
-            try
-            {
-                var command = await _deleteDraftApprenticeshipsMapper.Map(request);
-                command.CohortId = cohortId;
-                command.ApprenticeshipId = apprenticeshipId;
+            var command = await _deleteDraftApprenticeshipsMapper.Map(request);
+            command.CohortId = cohortId;
+            command.ApprenticeshipId = apprenticeshipId;
 
-                await _mediator.Send(command);
+            await _mediator.Send(command);
 
-                return Ok();
-            }
-            catch (Exception exception)
-            {
-                var excep = exception.Message;
-                return NotFound();
-            }
+            return Ok();
         }
     }
 }

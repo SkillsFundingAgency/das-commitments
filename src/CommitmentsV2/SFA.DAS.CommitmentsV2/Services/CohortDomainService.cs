@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.Services
                                 .SingleAsync(c => c.Id == cohortId, cancellationToken: cancellationToken);
 
             AssertHasProvider(cohortId, cohort.ProviderId);
-            this.AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails);
+            AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
 
             cohort.UpdateDraftApprenticeship(draftApprenticeshipDetails, _authenticationService.GetUserParty(), userInfo);
 
@@ -175,11 +175,6 @@ namespace SFA.DAS.CommitmentsV2.Services
                 // We need a provider id to validate the apprenticeship with reservations, so a provider id is mandatory.
                 throw new InvalidOperationException($"Cannot update cohort {cohortId} because it is not linked to a provider");
             }
-        }
-
-        private void AssertHasApprenticeshipId(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails)
-        {
-            CohortDomainService.AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
         }
 
         private static void AssertHasApprenticeshipId(long cohortId, long draftApprenticeshipDetailId)

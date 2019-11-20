@@ -3,14 +3,12 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship
 {
-    public class DeleteDraftApprenticeshipHandler : IRequestHandler<DeleteDraftApprenticeshipCommand, DeleteDraftApprenticeshipResponse>
+    public class DeleteDraftApprenticeshipHandler : AsyncRequestHandler<DeleteDraftApprenticeshipCommand>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly ILogger<DeleteDraftApprenticeshipHandler> _logger;
@@ -26,19 +24,19 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship
             _cohortDomainService = cohortDomainService;
         }
 
-        public async Task<DeleteDraftApprenticeshipResponse> Handle(DeleteDraftApprenticeshipCommand command, CancellationToken cancellationToken)
+        protected override async Task Handle(DeleteDraftApprenticeshipCommand command, CancellationToken cancellationToken)
         {
-            await _cohortDomainService.DeleteDraftApprenticeship(command.CohortId, command.ApprenticeshipId, command.UserInfo, cancellationToken);
-
-            _logger.LogInformation($"Deleted apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId} Commitment-Id:{command.CohortId}");
-
-            var response = new DeleteDraftApprenticeshipResponse
+            try
             {
-                Id = command.CohortId,
-                ApprenticeshipId = command.ApprenticeshipId
-            };
+                await _cohortDomainService.DeleteDraftApprenticeship(command.CohortId, command.ApprenticeshipId, command.UserInfo, cancellationToken);
 
-            return response;
+                _logger.LogInformation($"Deleted apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId} Commitment-Id:{command.CohortId}");
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("Error Deleting Apprenticeship", e);
+                throw;
+            }
         }
     }
 }
