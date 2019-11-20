@@ -68,6 +68,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             var response = await _mediator.Send(command);
 
+            if (response == null)
+            {
+                return NotFound();
+            }
+
             return Ok(await _getDraftApprenticeshipMapper.Map(response));
         }
 
@@ -103,13 +108,21 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{apprenticeshipId}")]
         public async Task<IActionResult> Delete(long cohortId, long apprenticeshipId, [FromBody]DeleteDraftApprenticeshipRequest request)
         {
-            var command = await _deleteDraftApprenticeshipsMapper.Map(request);
-            command.CohortId = cohortId;
-            command.ApprenticeshipId = apprenticeshipId;
+            try
+            {
+                var command = await _deleteDraftApprenticeshipsMapper.Map(request);
+                command.CohortId = cohortId;
+                command.ApprenticeshipId = apprenticeshipId;
 
-            await _mediator.Send(command);
+                await _mediator.Send(command);
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                var excep = exception.Message;
+                return NotFound();
+            }
         }
     }
 }

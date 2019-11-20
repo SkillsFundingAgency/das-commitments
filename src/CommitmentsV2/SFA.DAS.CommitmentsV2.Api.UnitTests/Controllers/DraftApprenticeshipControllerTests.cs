@@ -68,6 +68,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
         }
 
         [Test]
+        public async Task Get_InValidRequest_ShouldReturnNotFoundResult()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture();
+
+            //Act
+            var response = await fixture.Get();
+
+            //Assert
+            Assert.IsTrue(response is NotFoundResult, $"Get method did not return a {nameof(NotFoundResult)} - returned a {response.GetType().Name} instead");
+        }
+
+        [Test]
         public async Task GetAll_ValidRequest_ShouldReturnAnOkObjectResult()
         {
             //Arrange
@@ -108,7 +121,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public UpdateDraftApprenticeshipCommand UpdateDraftApprenticeshipCommand { get; set; }
         public AddDraftApprenticeshipCommand AddDraftApprenticeshipCommand { get; set; }
-        public GetDraftApprenticeRequest GetDraftApprenticeRequest { get; set; }
         public GetDraftApprenticeshipsRequest GetDraftApprenticeshipsRequest { get; set; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; set; }
         public DeleteDraftApprenticeshipCommand DeleteDraftApprenticeshipCommand { get; set; }
@@ -163,8 +175,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
         public DraftApprenticeshipControllerTestsFixture WithGetDraftApprenticeshipCommandResponse()
         {
-            GetDraftApprenticeRequest = new GetDraftApprenticeRequest(CohortId, DraftApprenticeshipId);
-            Mediator.Setup(m => m.Send(GetDraftApprenticeRequest, CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeResponse{Id = DraftApprenticeshipId});
+            Mediator.Setup(m => m.Send(It.Is<GetDraftApprenticeRequest>(x => x.CohortId == CohortId && x.DraftApprenticeshipId == DraftApprenticeshipId), CancellationToken.None)).ReturnsAsync(new GetDraftApprenticeResponse{Id = DraftApprenticeshipId});
             GetDraftApprenticeshipMapper.Setup(m => m.Map(It.IsAny<GetDraftApprenticeshipCommandResponse>())).ReturnsAsync(new GetDraftApprenticeshipResponse());
             return this;
         }
