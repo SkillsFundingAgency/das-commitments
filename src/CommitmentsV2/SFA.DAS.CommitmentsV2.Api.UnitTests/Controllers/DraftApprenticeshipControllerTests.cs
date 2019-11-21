@@ -109,6 +109,19 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             //Assert
             Assert.IsTrue(response is OkResult);
         }
+
+        [Test]
+        public async Task Delete_DeleteCommandHandler_CalledWith_CorrectParameter()
+        {
+            //Arrange
+            var fixture = new DraftApprenticeshipControllerTestsFixture().WithDeleteDraftApprenticeshipCommandResponse();
+
+            //Act
+            await fixture.Delete();
+
+            //Assert
+            fixture.Verify_DeleteCommandHandler_CalledWith_CorrectParameter();
+        }
     }
 
     public class DraftApprenticeshipControllerTestsFixture
@@ -221,5 +234,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
             return Controller.Delete(CohortId, DraftApprenticeshipId, DeleteDraftApprenticeshipRequest);
         }
 
+        public void Verify_DeleteCommandHandler_CalledWith_CorrectParameter()
+        {
+            Mediator.Verify(x =>
+               x.Send(
+               It.Is<DeleteDraftApprenticeshipCommand>(command =>
+               command.ApprenticeshipId == DraftApprenticeshipId && command.CohortId == CohortId),
+               It.IsAny<CancellationToken>()), Times.Once);
+        }
     }
 }

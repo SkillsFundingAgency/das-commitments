@@ -52,8 +52,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
 
             builder.HasOne(d => d.Cohort)
                 .WithMany(p => p.Apprenticeships)
-                .HasForeignKey(d => d.CommitmentId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.CommitmentId);
 
             builder.HasOne(d => d.EpaOrg)
                 .WithMany(p => p.Apprenticeship)
