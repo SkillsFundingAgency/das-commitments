@@ -33,7 +33,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
                 .AddApprentices(10)
                 .AddNoise();
 
-
             var response = await fixture.GetResponse();
 
             Assert.AreEqual(expectedHasCohorts, response.HasCohorts);
