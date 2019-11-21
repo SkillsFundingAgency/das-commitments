@@ -177,6 +177,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.IsAgreementSigned(request, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(c => c.Get<bool>("api/employer-agreements/123/signed?agreementFeatures=Transfers", null, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetAccount(123, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<AccountResponse>("api/accounts/123", null, CancellationToken.None));
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
