@@ -9,19 +9,15 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
     [Authorize]
-    public class AccountsController : ControllerBase
+    public class AccountController : ControllerBase
     {
-        private readonly ILogger<AccountsController> _logger;
         private readonly IMediator _mediator;
 
-        public AccountsController(
-            ILogger<AccountsController> logger,
-            IMediator mediator)
+        public AccountController(IMediator mediator)
         {
-            _logger = logger;
             _mediator = mediator;
         }
 
