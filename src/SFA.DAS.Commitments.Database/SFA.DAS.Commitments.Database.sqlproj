@@ -141,6 +141,7 @@
     <Build Include="StoredProcedures\ProcessFullyApprovedCohort.sql" />
     <None Include="AdhocScripts\Manual\CV-449_Populate_AccountLegalEntitiesWithActualLegalEntityId.sql" />
     <Build Include="AdhocScripts\Manual\CV-449_AddMaLegalEntityIdColumn.sql" />
+    <Build Include="AdhocScripts\Manual\CV-504-Create-Missing-PriceHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
