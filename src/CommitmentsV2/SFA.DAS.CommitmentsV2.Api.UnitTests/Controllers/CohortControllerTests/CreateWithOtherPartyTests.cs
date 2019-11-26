@@ -53,6 +53,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.AccountId == Request.AccountId &&
                     c.AccountLegalEntityId == Request.AccountLegalEntityId &&
                     c.ProviderId == Request.ProviderId &&
+                    c.TransferSenderId == Request.TransferSenderId &&
                     c.Message == Request.Message &&
                     c.UserInfo == Request.UserInfo), CancellationToken.None))
                 .ReturnsAsync(Result);
