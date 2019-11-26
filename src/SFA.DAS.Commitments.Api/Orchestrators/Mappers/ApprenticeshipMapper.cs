@@ -48,6 +48,52 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
                 AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
+                DataLockCourse = source.DataLockCourse,
+                DataLockPrice = source.DataLockPrice,
+                DataLockCourseTriaged = source.DataLockCourseTriaged,
+                DataLockCourseChangeTriaged = source.DataLockCourseChangeTriaged,
+                DataLockPriceTriaged = source.DataLockPriceTriaged,
+                HasHadDataLockSuccess = source.HasHadDataLockSuccess,
+                EndpointAssessorName = source.EndpointAssessorName,
+                ReservationId = source.ReservationId
+            };
+        }
+
+        public Apprenticeship MapFromV2(Domain.Entities.Apprenticeship source, CallerType callerType)
+        {
+            return new Apprenticeship
+            {
+                Id = source.Id,
+                CommitmentId = source.CommitmentId,
+                EmployerAccountId = source.EmployerAccountId,
+                ProviderId = source.ProviderId,
+                TransferSenderId = source.TransferSenderId,
+                Reference = source.Reference,
+                FirstName = source.FirstName,
+                LastName = source.LastName,
+                ULN = source.ULN,
+                TrainingType = (Api.Types.Apprenticeship.Types.TrainingType)source.TrainingType,
+                TrainingCode = source.TrainingCode,
+                TrainingName = source.TrainingName,
+                Cost = source.Cost,
+                StartDate = source.StartDate,
+                EndDate = source.EndDate,
+                PauseDate = source.PauseDate,
+                StopDate = source.StopDate,
+                PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus)source.PaymentStatus,
+                AgreementStatus = (Api.Types.AgreementStatus)source.AgreementStatus,
+                DateOfBirth = source.DateOfBirth,
+                NINumber = source.NINumber,
+                EmployerRef = source.EmployerRef,
+                ProviderRef = source.ProviderRef,
+                CanBeApproved = callerType == CallerType.Employer
+                        ? source.EmployerCanApproveApprenticeship
+                        : source.ProviderCanApproveApprenticeship,
+                PendingUpdateOriginator = (Api.Types.Apprenticeship.Types.Originator?)source.UpdateOriginator,
+                ProviderName = source.ProviderName,
+                LegalEntityId = source.LegalEntityId,
+                LegalEntityName = source.LegalEntityName,
+                AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
                 DataLockCourse = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Unknown),
                 DataLockPrice = source.DataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Unknown),
                 DataLockCourseTriaged = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Restart),
@@ -118,6 +164,11 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
         public IEnumerable<Apprenticeship> MapFrom(IEnumerable<Domain.Entities.Apprenticeship> source, CallerType callerType)
         {
             return source.Select(sourceItem => MapFrom(sourceItem, callerType));
+        }
+
+        public IEnumerable<Apprenticeship> MapFromV2(IEnumerable<Domain.Entities.Apprenticeship> source, CallerType callerType)
+        {
+            return source.Select(sourceItem => MapFromV2(sourceItem, callerType));
         }
 
         public PriceHistory MapPriceHistory(Domain.Entities.PriceHistory domainPrice)
