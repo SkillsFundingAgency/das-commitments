@@ -140,6 +140,8 @@
     <Build Include="StoredProcedures\ImportProviders.sql" />
     <Build Include="StoredProcedures\ProcessFullyApprovedCohort.sql" />
     <None Include="AdhocScripts\Manual\CV-449_Populate_AccountLegalEntitiesWithActualLegalEntityId.sql" />
+    <None Include="AdhocScripts\Manual\CV-449_AddMaLegalEntityIdColumn.sql" />
+    <None Include="AdhocScripts\Manual\CV-504-Create-Missing-PriceHistory.sql" />
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForProvider.sql" />
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
   </ItemGroup>
