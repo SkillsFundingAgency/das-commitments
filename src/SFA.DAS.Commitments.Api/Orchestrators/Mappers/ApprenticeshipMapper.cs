@@ -3,9 +3,11 @@ using System.Linq;
 
 using SFA.DAS.Commitments.Domain;
 using SFA.DAS.Commitments.Domain.Entities;
-
+using SFA.DAS.Commitments.Domain.Entities.DataLock;
+using SFA.DAS.Commitments.Domain.Extensions;
 using Apprenticeship = SFA.DAS.Commitments.Api.Types.Apprenticeship.Apprenticeship;
 using PriceHistory = SFA.DAS.Commitments.Api.Types.Apprenticeship.PriceHistory;
+
 
 namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
 {
@@ -24,7 +26,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 FirstName = source.FirstName,
                 LastName = source.LastName,
                 ULN = source.ULN,
-                TrainingType = (Api.Types.Apprenticeship.Types.TrainingType) source.TrainingType,
+                TrainingType = (Api.Types.Apprenticeship.Types.TrainingType)source.TrainingType,
                 TrainingCode = source.TrainingCode,
                 TrainingName = source.TrainingName,
                 Cost = source.Cost,
@@ -32,8 +34,8 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 EndDate = source.EndDate,
                 PauseDate = source.PauseDate,
                 StopDate = source.StopDate,
-                PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus) source.PaymentStatus,
-                AgreementStatus = (Api.Types.AgreementStatus) source.AgreementStatus,
+                PaymentStatus = (Api.Types.Apprenticeship.Types.PaymentStatus)source.PaymentStatus,
+                AgreementStatus = (Api.Types.AgreementStatus)source.AgreementStatus,
                 DateOfBirth = source.DateOfBirth,
                 NINumber = source.NINumber,
                 EmployerRef = source.EmployerRef,
@@ -41,19 +43,18 @@ namespace SFA.DAS.Commitments.Api.Orchestrators.Mappers
                 CanBeApproved = callerType == CallerType.Employer
                         ? source.EmployerCanApproveApprenticeship
                         : source.ProviderCanApproveApprenticeship,
-                PendingUpdateOriginator = (Api.Types.Apprenticeship.Types.Originator?) source.UpdateOriginator,
+                PendingUpdateOriginator = (Api.Types.Apprenticeship.Types.Originator?)source.UpdateOriginator,
                 ProviderName = source.ProviderName,
                 LegalEntityId = source.LegalEntityId,
                 LegalEntityName = source.LegalEntityName,
                 AccountLegalEntityPublicHashedId = source.AccountLegalEntityPublicHashedId,
-                DataLockCourse = source.DataLockCourse,
-                DataLockPrice = source.DataLockPrice,
-                DataLockCourseTriaged = source.DataLockCourseTriaged,
-                DataLockCourseChangeTriaged = source.DataLockCourseChangeTriaged,
-                DataLockPriceTriaged = source.DataLockPriceTriaged,
+                DataLockCourse = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Unknown),
+                DataLockPrice = source.DataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Unknown),
+                DataLockCourseTriaged = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Restart),
+                DataLockCourseChangeTriaged = source.DataLocks.Any(x => x.WithCourseError() && x.TriageStatus == TriageStatus.Change),
+                DataLockPriceTriaged = source.DataLocks.Any(x => x.IsPriceOnly() && x.TriageStatus == TriageStatus.Change),
                 HasHadDataLockSuccess = source.HasHadDataLockSuccess,
-                EndpointAssessorName = source.EndpointAssessorName,
-                ReservationId = source.ReservationId
+                EndpointAssessorName = source.EndpointAssessorName
             };
         }
 
