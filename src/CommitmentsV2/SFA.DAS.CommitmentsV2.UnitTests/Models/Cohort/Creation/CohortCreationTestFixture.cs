@@ -22,10 +22,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
         public CommitmentsV2.Models.Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
+        public Account TransferSender { get; private set; }
         public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; private set; }
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
         public UserInfo UserInfo { get; }
+        public long? TransferSenderId { get; }
+        public string TransferSenderName { get; }
 
         public CohortCreationTestFixture()
         {
@@ -47,6 +50,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 _autoFixture.Create<OrganisationType>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>());
+
+            TransferSenderId = _autoFixture.Create<long>();
+            TransferSenderName = _autoFixture.Create<string>();
+            TransferSender = new Account(TransferSenderId.Value, "XXX", "ZZZ", TransferSenderName, new DateTime());
         }
 
         public CohortCreationTestFixture WithCreatingParty(Party creatingParty)
@@ -67,6 +74,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             return this;
         }
 
+        public CohortCreationTestFixture WithNoTransferSender()
+        {
+            TransferSender = null;
+            return this;
+        }
+
         public void CreateCohort()
         {
             Exception = null;
@@ -75,6 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             {
                 Cohort = new CommitmentsV2.Models.Cohort(Provider,
                     AccountLegalEntity,
+                    TransferSender,
                     DraftApprenticeshipDetails,
                     CreatingParty,
                     UserInfo);
@@ -135,6 +149,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public void VerifyCohortBelongsToAccount()
         {
             Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
+        }
+
+        public void VerifyCohortHasTransferInformation()
+        {
+            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
+            Assert.AreEqual(TransferSenderName, Cohort.TransferSenderName);
+        }
+
+        public void VerifyCohortHasNoTransferInformation()
+        {
+            Assert.IsNull(Cohort.TransferSenderId);
+            Assert.IsNull(Cohort.TransferSenderName);
         }
 
         public void VerifyCohortBelongsToProvider()
