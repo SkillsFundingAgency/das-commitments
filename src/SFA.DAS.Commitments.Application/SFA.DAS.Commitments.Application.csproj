@@ -252,6 +252,7 @@
     <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeCommand.cs" />
     <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeCommandHandler.cs" />
     <Compile Include="Commands\AcceptApprenticeshipChange\AcceptApprenticeshipChangeValidator.cs" />
+    <Compile Include="Extensions\RoutingSettingsExtensions.cs" />
     <Compile Include="Interfaces\IReservationValidationService.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationHandler.cs" />
     <Compile Include="Commands\ValidateReservation\ValidateReservationRequest.cs" />

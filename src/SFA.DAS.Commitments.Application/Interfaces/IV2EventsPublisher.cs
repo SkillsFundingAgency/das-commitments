@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.Commitments.Application.Interfaces
 {
@@ -20,5 +21,6 @@ namespace SFA.DAS.Commitments.Application.Interfaces
         Task PublishApprenticeshipResumed(Commitment commitment, Apprenticeship apprenticeship);
         Task PublishPaymentOrderChanged(long employerAccountId, IEnumerable<int> paymentOrder);
         Task PublishBulkUploadIntoCohortCompleted(long providerId, long cohortId, uint numberOfApprentices);
+        Task SendProviderApproveCohortCommand(long cohortId, UserInfo userInfo);
     }
 }

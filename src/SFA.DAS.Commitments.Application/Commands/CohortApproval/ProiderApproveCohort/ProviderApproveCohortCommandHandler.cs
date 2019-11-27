@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using NServiceBus;
 using SFA.DAS.Commitments.Application.Exceptions;
 using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
@@ -12,7 +13,12 @@ using SFA.DAS.Commitments.Domain.Data;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
 using SFA.DAS.Commitments.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Messaging.Interfaces;
+using AgreementStatus = SFA.DAS.Commitments.Domain.Entities.AgreementStatus;
+using CommitmentStatus = SFA.DAS.Commitments.Domain.Entities.CommitmentStatus;
+using EditStatus = SFA.DAS.Commitments.Domain.Entities.EditStatus;
+using LastAction = SFA.DAS.Commitments.Domain.Entities.LastAction;
 
 namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApproveCohort
 {
@@ -23,6 +29,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
         private readonly IMessagePublisher _messagePublisher;
         private readonly ICommitmentsLogger _logger;
         private readonly IEmployerAccountsService _employerAccountsService;
+        private readonly IV2EventsPublisher _v2EventsPublisher;
         private readonly CohortApprovalService _cohortApprovalService;
         private readonly HistoryService _historyService;
 
@@ -46,6 +53,7 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             _messagePublisher = messagePublisher;
             _logger = logger;
             _employerAccountsService = employerAccountsService;
+            _v2EventsPublisher = v2EventsPublisher;
             _historyService = new HistoryService(historyRepository);
             _cohortApprovalService = new CohortApprovalService(apprenticeshipRepository, overlapRules, currentDateTime, commitmentRepository, apprenticeshipEventsList, apprenticeshipEventsPublisher, mediator, _logger, apprenticeshipInfoService, v2EventsPublisher);
         }
@@ -57,31 +65,40 @@ namespace SFA.DAS.Commitments.Application.Commands.CohortApproval.ProiderApprove
             var commitment = await GetCommitment(message.CommitmentId);
             await CheckCommitmentCanBeApproved(commitment, message.Caller.Id);
 
-            var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
-            var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
-
-            await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
-
-            await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);            
-
-            if (haveBothPartiesApproved)
+            var userInfo = new UserInfo
             {
-                if (commitment.HasTransferSenderAssigned)
-                {
-                    await _cohortApprovalService.CreateTransferRequest(commitment, _messagePublisher);
-                }
-            }
-            else
-            {
-                await PublishApprovalRequestedMessage(commitment);
-            }
+                UserDisplayName = "testing",
+                UserEmail = "test@email.com",
+                UserId = "plop"
+            };
 
-            await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
+            await _v2EventsPublisher.SendProviderApproveCohortCommand(message.CommitmentId, userInfo);
 
-            if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
-            {
-                await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
-            }
+            //var haveBothPartiesApproved = HaveBothPartiesApproved(commitment);
+            //var newAgreementStatus = DetermineNewAgreementStatus(haveBothPartiesApproved);
+
+            //await UpdateCommitment(commitment, haveBothPartiesApproved, message.UserId, message.LastUpdatedByName, message.LastUpdatedByEmail, message.Message);
+
+            //await _cohortApprovalService.UpdateApprenticeships(commitment, haveBothPartiesApproved, newAgreementStatus);            
+
+            //if (haveBothPartiesApproved)
+            //{
+            //    if (commitment.HasTransferSenderAssigned)
+            //    {
+            //        await _cohortApprovalService.CreateTransferRequest(commitment, _messagePublisher);
+            //    }
+            //}
+            //else
+            //{
+            //    await PublishApprovalRequestedMessage(commitment);
+            //}
+
+            //await _cohortApprovalService.PublishApprenticeshipEvents(commitment, haveBothPartiesApproved);
+
+            //if (haveBothPartiesApproved && !commitment.HasTransferSenderAssigned)
+            //{
+            //    await _cohortApprovalService.ReorderPayments(commitment.EmployerAccountId);
+            //}
         }
 
         private async Task PublishApprovalRequestedMessage(Commitment commitment)

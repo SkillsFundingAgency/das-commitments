@@ -7,7 +7,9 @@ using SFA.DAS.Commitments.Application.Interfaces;
 using SFA.DAS.Commitments.Application.Interfaces.ApprenticeshipEvents;
 using SFA.DAS.Commitments.Domain.Entities;
 using SFA.DAS.Commitments.Domain.Interfaces;
+using SFA.DAS.CommitmentsV2.Messages.Commands;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using Apprenticeship = SFA.DAS.Commitments.Domain.Entities.Apprenticeship;
 
 namespace SFA.DAS.Commitments.Application.Services
@@ -184,6 +186,15 @@ namespace SFA.DAS.Commitments.Application.Services
             };
 
             return PublishWithLog(@event, $"Provider: {providerId} CohortId: {cohortId} Number of apprentices: {numberOfApprentices}");
+        }
+
+        public async Task SendProviderApproveCohortCommand(long cohortId, UserInfo userInfo)
+        {
+            await _endpointInstance.Send<ProviderApproveCohortCommand>(ev =>
+            {
+                ev.CohortId = cohortId;
+                ev.UserInfo = userInfo;
+            });
         }
 
         private enum ApprenticePreChecks
