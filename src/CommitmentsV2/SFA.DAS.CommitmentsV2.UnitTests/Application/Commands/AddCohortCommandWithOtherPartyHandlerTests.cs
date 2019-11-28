@@ -35,11 +35,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             const long providerId = 1;
             const long accountId = 2;
             const long accountLegalEntityId = 3;
+            long? transferSenderId = 4;
             const string message = "Message";
 
-            await _fixture.Handle(accountId, accountLegalEntityId, providerId, message);
+            await _fixture.Handle(accountId, accountLegalEntityId, providerId, transferSenderId, message);
 
-            _fixture.CohortDomainServiceMock.Verify(x => x.CreateCohortWithOtherParty(providerId, accountId, accountLegalEntityId, message, _fixture.UserInfo, It.IsAny<CancellationToken>()));
+            _fixture.CohortDomainServiceMock.Verify(x => x.CreateCohortWithOtherParty(providerId, accountId, accountLegalEntityId, transferSenderId, message, _fixture.UserInfo, It.IsAny<CancellationToken>()));
         }
 
 
@@ -50,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             _fixture.WithGeneratedHash(expectedHash);
 
-            var response = await _fixture.Handle(1,123, 2323, "Message1");
+            var response = await _fixture.Handle(1,123, 2323, null, "Message1");
 
             Assert.AreEqual(expectedHash, response.Reference);
             Assert.AreEqual(_fixture.CohortId, response.Id);
@@ -75,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             EncodingServiceMock = new Mock<IEncodingService>();
 
             CohortDomainServiceMock = new Mock<ICohortDomainService>();
-            CohortDomainServiceMock.Setup(x => x.CreateCohortWithOtherParty(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), 
+            CohortDomainServiceMock.Setup(x => x.CreateCohortWithOtherParty(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long?>(), 
                     It.IsAny<string>(), It.IsAny<UserInfo>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Cohort);
 
@@ -96,11 +97,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             return this;
         }
 
-        public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, string message)
+        public async Task<AddCohortResult> Handle(long accountId, long accountLegalEntity, long providerId, long? transferSenderId, string message)
         {
             Db.SaveChanges();
             
-            var command = new AddCohortWithOtherPartyCommand(accountId, accountLegalEntity, providerId, message, UserInfo);
+            var command = new AddCohortWithOtherPartyCommand(accountId, accountLegalEntity, providerId, transferSenderId, message, UserInfo);
 
             var handler = new AddCohortWithOtherPartyHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 EncodingService,
