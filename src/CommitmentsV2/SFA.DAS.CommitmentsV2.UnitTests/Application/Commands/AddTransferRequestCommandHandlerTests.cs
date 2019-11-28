@@ -17,6 +17,7 @@ using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
 using SFA.DAS.CommitmentsV2.Models;
+using SFA.DAS.CommitmentsV2.Services;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.UnitOfWork.Context;
 
@@ -108,6 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             var cohort = new Cohort(
                 new Provider(),
                 new AccountLegalEntity(),
+                null,
                 Party.Employer,
                 "",
                 new UserInfo());

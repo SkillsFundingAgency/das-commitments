@@ -74,6 +74,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
             Cohort = new Cohort(
                 new Provider(),
                 new AccountLegalEntity(),
+                null,
                 Party.Employer,
                 "",
                 new UserInfo()) {EmployerAccountId = 100, TransferSenderId = 99};

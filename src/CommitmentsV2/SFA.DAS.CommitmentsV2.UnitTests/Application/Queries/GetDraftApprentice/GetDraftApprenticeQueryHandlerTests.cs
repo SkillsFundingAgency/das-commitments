@@ -11,7 +11,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.UnitOfWork;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
@@ -86,6 +85,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             var commitment = new Cohort(
                 new Provider(),
                 new AccountLegalEntity(),
+                null,
                 draftApprenticeshipDetails,
                 creatingParty,
                 new UserInfo());
