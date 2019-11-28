@@ -310,6 +310,42 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
         }
 
+        public void DeleteDraftApprenticeship(long draftApprenticeshipId, Party modifyingParty, UserInfo userInfo)
+        {
+            CheckIsWithParty(modifyingParty);
+
+            var draftApprenticeship = DraftApprenticeships.Single(x => x.Id == draftApprenticeshipId);
+
+            StartTrackingSession(UserAction.DeleteDraftApprenticeship, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            ChangeTrackingSession.TrackDelete(draftApprenticeship);
+
+            Apprenticeships.Remove(draftApprenticeship);
+
+            ResetApprovals();
+            ResetTransferSenderRejection();
+
+            Publish(() => new DraftApprenticeshipDeletedEvent
+            {
+                DraftApprenticeshipId = draftApprenticeshipId,
+                CohortId = draftApprenticeship.CommitmentId,
+                Uln = draftApprenticeship.Uln,
+                ReservationId = draftApprenticeship.ReservationId,
+                DeletedOn = DateTime.UtcNow
+            });
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        private void ResetTransferSenderRejection()
+        {
+            if (TransferApprovalStatus == Types.TransferApprovalStatus.Rejected)
+            {
+                TransferApprovalStatus = null;
+                TransferApprovalActionedOn = null;
+                LastAction = LastAction.AmendAfterRejected;
+            }
+        }
+
         private void CheckThereIsNoPendingTransferRequest()
         {
             if (TransferRequests.Any(x =>x.Status == (byte) Types.TransferApprovalStatus.Pending))
