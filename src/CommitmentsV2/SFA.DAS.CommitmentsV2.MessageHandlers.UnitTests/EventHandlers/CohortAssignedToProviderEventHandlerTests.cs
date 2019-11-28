@@ -86,7 +86,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
         {
             var actionType = lastAction == LastAction.Approve ? "approval" : "review";
 
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(Message.CohortId,
+            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(GetCohortSummaryQueryResult.ProviderId.Value,
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderCommitmentNotification" && 
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
@@ -96,7 +96,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.UnitTests.EventHandlers
 
         public void VerfiyProviderTransferEmailRequestIsCreatedAndSentCorrectly()
         {
-            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(Message.CohortId,
+            PasAccountApiClient.Verify(x => x.SendEmailToAllProviderRecipients(GetCohortSummaryQueryResult.ProviderId.Value,
                 It.Is<ProviderEmailRequest>(p =>
                     p.TemplateId == "ProviderTransferCommitmentNotification" &&
                     p.ExplicitEmailAddresses[0] == GetCohortSummaryQueryResult.LastUpdatedByProviderEmail &&
