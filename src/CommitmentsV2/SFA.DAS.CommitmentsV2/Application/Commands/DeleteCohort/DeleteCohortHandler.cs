@@ -29,9 +29,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort
         {
             try
             {
-                var cohort = await _dbContext.Value.GetCohortWithDraftApprenticeships(command.CohortId, cancellationToken: cancellationToken);
+                var db = _dbContext.Value;
+                var cohort = await db.GetCohortAggregate(command.CohortId, cancellationToken: cancellationToken);
 
                 cohort.Delete(_authenticationService.GetUserParty(), command.UserInfo);
+                await db.SaveChangesAsync(cancellationToken);
 
                 _logger.LogInformation($"Cohort marked as deleted. Cohort-Id:{command.CohortId}");
             }

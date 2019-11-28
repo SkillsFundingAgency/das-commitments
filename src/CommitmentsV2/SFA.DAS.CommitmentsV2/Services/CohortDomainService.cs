@@ -63,7 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<DraftApprenticeship> AddDraftApprenticeship(long providerId, long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var db = _dbContext.Value;
-            var cohort = await db.GetCohortWithDraftApprenticeships(cohortId, cancellationToken);
+            var cohort = await db.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
             var draftApprenticeship = cohort.AddDraftApprenticeship(draftApprenticeshipDetails, party, userInfo);
@@ -76,7 +76,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task ApproveCohort(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
 
-            var cohort = await _dbContext.Value.GetCohortWithDraftApprenticeships(cohortId, cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
             if (party == Party.Employer)
@@ -120,7 +120,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var cohort = await _dbContext.Value.GetCohortWithDraftApprenticeships(cohortId, cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);
             var party = _authenticationService.GetUserParty();
 
             cohort.SendToOtherParty(party, message, userInfo, _currentDateTime.UtcNow);
@@ -128,7 +128,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<Cohort> UpdateDraftApprenticeship(long cohortId, DraftApprenticeshipDetails draftApprenticeshipDetails, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var cohort = await _dbContext.Value.GetCohortWithDraftApprenticeships(cohortId, cancellationToken: cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
             AssertHasProvider(cohortId, cohort.ProviderId);
             AssertHasApprenticeshipId(cohortId, draftApprenticeshipDetails.Id);
@@ -142,7 +142,7 @@ namespace SFA.DAS.CommitmentsV2.Services
 
         public async Task<Cohort> DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, UserInfo userInfo, CancellationToken cancellationToken)
         {
-            var cohort = await _dbContext.Value.GetCohortWithDraftApprenticeships(cohortId, cancellationToken: cancellationToken);
+            var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken: cancellationToken);
 
             AssertHasApprenticeshipId(cohortId, apprenticeshipId);
             cohort.DeleteDraftApprenticeship(apprenticeshipId, _authenticationService.GetUserParty(), userInfo);
