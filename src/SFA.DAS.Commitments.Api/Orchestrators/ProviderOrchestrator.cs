@@ -152,7 +152,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var apiApprenticeships = _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Provider).ToList();
+            var apiApprenticeships = _apprenticeshipMapper.MapFromV2(response.Apprenticeships, CallerType.Provider).ToList();
 
             var totalApprenticeshipsBeforeFilter = response.TotalCount - apiApprenticeships.Count(m => m.PaymentStatus == PaymentStatus.PendingApproval);
             var approvedApprenticeships = apiApprenticeships

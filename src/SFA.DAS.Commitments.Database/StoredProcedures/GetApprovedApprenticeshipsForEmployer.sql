@@ -27,6 +27,7 @@ AS
 	a.EmployerRef,
 	a.ProviderRef,
 	a.PendingUpdateOriginator as 'UpdateOriginator',
+	a.ReservationId,
 	c.ProviderName,
 	c.LegalEntityId,
 	c.LegalEntityName,
