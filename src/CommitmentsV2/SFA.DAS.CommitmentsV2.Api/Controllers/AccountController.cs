@@ -25,20 +25,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{AccountId}")]
         public async Task<IActionResult> GetAccount(long accountId)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.CreateErrorResponse());
-            }
-
             var employer = await _mediator.Send(new GetAccountSummaryRequest
             {
                 AccountId = accountId
             });
-
-            if (employer == null)
-            {
-                return NotFound();
-            }
 
             return Ok(new AccountResponse
             {
