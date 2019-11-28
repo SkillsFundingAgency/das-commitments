@@ -311,7 +311,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
         }
 
-		public void DeleteCohort(Party modifyingParty, UserInfo userInfo)
+		public void Delete(Party modifyingParty, UserInfo userInfo)
         {
             CheckIsWithParty(modifyingParty);
 

@@ -33,9 +33,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort
                     .Include(c => c.Apprenticeships)
                     .SingleAsync(c => c.Id == command.CohortId, cancellationToken: cancellationToken);
 
-                cohort.DeleteCohort(_authenticationService.GetUserParty(), command.UserInfo);
+                cohort.Delete(_authenticationService.GetUserParty(), command.UserInfo);
 
-                _logger.LogInformation($"Cohort marked as deleted. Commitment-Id:{command.CohortId}");
+                _logger.LogInformation($"Cohort marked as deleted. Cohort-Id:{command.CohortId}");
             }
             catch(Exception e)
             {
