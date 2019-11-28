@@ -179,12 +179,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
-        public async Task Delete_VerifyUrlAndDataIsCorrectPassedIn()
+        public async Task DeleteDraftApprenticeship_VerifyUrlAndDataIsCorrectPassedIn()
         {
             const long cohortId = 67890;
             const long apprenticeshipId = 13456;
             await _fixture.CommitmentsApiClient.DeleteDraftApprenticeship(cohortId, apprenticeshipId, _fixture.DeleteDraftApprenticeshipRequest, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(c => c.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", _fixture.DeleteDraftApprenticeshipRequest, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task DeleteCohort_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            const long cohortId = 67890;
+            await _fixture.CommitmentsApiClient.DeleteCohort(cohortId, _fixture.UserInfo, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.PostAsJson($"api/cohorts/{cohortId}/delete", _fixture.UserInfo, CancellationToken.None));
         }
     }
 
@@ -199,6 +207,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public SendCohortRequest SendCohortRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
         public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; }
+        public UserInfo UserInfo { get; }
         public long CohortId { get; set; }
         
         public WhenCallingTheEndpointsFixture()
@@ -212,6 +221,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             SendCohortRequest = new SendCohortRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
             DeleteDraftApprenticeshipRequest = new DeleteDraftApprenticeshipRequest();
+            UserInfo = new UserInfo();
             CohortId = 123;
         }
 

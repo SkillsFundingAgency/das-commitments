@@ -117,8 +117,9 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command);
 
             return Ok();
-        }
-		[HttpPost]
+        } 
+        
+        [HttpPost]
         [Route("{cohortId}/delete")]
         public async Task<IActionResult> Delete(long cohortId, [FromBody]UserInfo userInfo, CancellationToken cancellationToken)
         {

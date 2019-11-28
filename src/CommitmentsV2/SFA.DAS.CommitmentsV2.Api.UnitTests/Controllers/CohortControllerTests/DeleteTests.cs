@@ -64,8 +64,6 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
                     c.CohortId == CohortId &&
                     c.UserInfo == UserInfo), CancellationToken), Times.Once);
             }
-
-
         }
     }
 }
