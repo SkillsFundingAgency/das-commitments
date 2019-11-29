@@ -80,6 +80,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 $"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", request, cancellationToken);
         }
 
+        public Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            return _client.PostAsJson<DeleteDraftApprenticeshipRequest>(
+                $"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", request, cancellationToken);
+        }
+
         public Task<bool> IsAgreementSigned(AgreementSignedRequest request, CancellationToken cancellationToken)
         {
             string queryString = null;
