@@ -41,6 +41,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 request.LastName,
                 request.DateOfBirth,
                 request.Uln,
+                request.TransferSenderId,
                 request.UserInfo);
             
             var result = await _mediator.Send(command);
@@ -57,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("create-with-other-party")]
         public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
         {
-            var command = new AddCohortWithOtherPartyCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.Message, request.UserInfo);
+            var command = new AddCohortWithOtherPartyCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.TransferSenderId, request.Message, request.UserInfo);
             var result = await _mediator.Send(command);
 
             return Ok(new CreateCohortResponse
@@ -90,7 +91,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 LatestMessageCreatedByEmployer = result.LatestMessageCreatedByEmployer,
                 LatestMessageCreatedByProvider = result.LatestMessageCreatedByProvider,
                 IsApprovedByEmployer = result.IsApprovedByEmployer,
-                IsApprovedByProvider = result.IsApprovedByProvider
+                IsApprovedByProvider = result.IsApprovedByProvider,
+                IsCompleteForEmployer = result.IsCompleteForEmployer
             });
         }
 

@@ -15,6 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(ale => ale.Name).IsRequired().HasColumnType("nvarchar(100)");
             builder.Property(ale => ale.OrganisationType).IsRequired().HasConversion(new EnumToNumberConverter< OrganisationType,short>());
             builder.Property(ale => ale.Address).IsRequired().HasColumnType("nvarchar(256)");
+            builder.Property(ale => ale.MaLegalEntityId).IsRequired();
             builder.HasOne(ale => ale.Account).WithMany(a => a.AccountLegalEntities).Metadata.DeleteBehavior = DeleteBehavior.Restrict;
 
             builder.HasQueryFilter(ale => ale.Deleted == null);

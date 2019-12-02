@@ -18,5 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string UpdatedByName { get; set; }
         public string OriginalState { get; set; }
         public string UpdatedState { get; set; }
+        public string Diff { get; set; }
+        public Guid? CorrelationId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
@@ -7,7 +8,9 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
+using SFA.DAS.CommitmentsV2.Domain.Interfaces;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Models.Interfaces;
 using SFA.DAS.UnitOfWork.Context;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
@@ -19,14 +22,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public CommitmentsV2.Models.Cohort Cohort { get; private set; }
         public CommitmentsV2.Models.Provider Provider { get; private set; }
         public AccountLegalEntity AccountLegalEntity { get; private set; }
+        public Account TransferSender { get; private set; }
         public DraftApprenticeshipDetails DraftApprenticeshipDetails { get; private set; }
         public Exception Exception { get; private set; }
         public UnitOfWorkContext UnitOfWorkContext { get; private set; }
         public UserInfo UserInfo { get; }
+        public long? TransferSenderId { get; }
+        public string TransferSenderName { get; }
 
         public CohortCreationTestFixture()
         {
             UnitOfWorkContext = new UnitOfWorkContext();
+
             Provider = new CommitmentsV2.Models.Provider(_autoFixture.Create<long>(), _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>(), _autoFixture.Create<DateTime>());
 
@@ -36,12 +43,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
             AccountLegalEntity = new AccountLegalEntity(account,
                 _autoFixture.Create<long>(),
+                _autoFixture.Create<long>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<OrganisationType>(),
                 _autoFixture.Create<string>(),
                 _autoFixture.Create<DateTime>());
+
+            TransferSenderId = _autoFixture.Create<long>();
+            TransferSenderName = _autoFixture.Create<string>();
+            TransferSender = new Account(TransferSenderId.Value, "XXX", "ZZZ", TransferSenderName, new DateTime());
         }
 
         public CohortCreationTestFixture WithCreatingParty(Party creatingParty)
@@ -62,6 +74,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             return this;
         }
 
+        public CohortCreationTestFixture WithNoTransferSender()
+        {
+            TransferSender = null;
+            return this;
+        }
+
         public void CreateCohort()
         {
             Exception = null;
@@ -70,6 +88,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             {
                 Cohort = new CommitmentsV2.Models.Cohort(Provider,
                     AccountLegalEntity,
+                    TransferSender,
                     DraftApprenticeshipDetails,
                     CreatingParty,
                     UserInfo);
@@ -132,6 +151,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             Assert.AreEqual(AccountLegalEntity.AccountId, Cohort.EmployerAccountId);
         }
 
+        public void VerifyCohortHasTransferInformation()
+        {
+            Assert.AreEqual(TransferSenderId, Cohort.TransferSenderId);
+            Assert.AreEqual(TransferSenderName, Cohort.TransferSenderName);
+        }
+
+        public void VerifyCohortHasNoTransferInformation()
+        {
+            Assert.IsNull(Cohort.TransferSenderId);
+            Assert.IsNull(Cohort.TransferSenderName);
+        }
+
         public void VerifyCohortBelongsToProvider()
         {
             Assert.AreEqual(Provider.UkPrn, Cohort.ProviderId);
@@ -156,8 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         {
             var draftApprenticeship = Cohort.Apprenticeships.Single();
 
-            UnitOfWorkContext.GetEvents().Should().HaveCount(1)
-                .And.Subject.OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
+            UnitOfWorkContext.GetEvents().OfType<DraftApprenticeshipCreatedEvent>().Should().ContainSingle(e =>
                     e.CohortId == Cohort.Id &&
                     e.DraftApprenticeshipId == draftApprenticeship.Id &&
                     e.Uln == draftApprenticeship.Uln &&
@@ -168,6 +198,20 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
         public void VerifyCohortIsWithCreator()
         {
             Assert.AreEqual(CreatingParty.ToEditStatus(), Cohort.EditStatus);
+        }
+
+        public void VerifyCohortTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                  && @event.EntityType ==
+                                                                  nameof(Cohort)));
+        }
+
+        public void VerifyDraftApprenticeshipTracking()
+        {
+            Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is EntityStateChangedEvent @event
+                                                                  && @event.EntityType ==
+                                                                  nameof(DraftApprenticeship)));
         }
     }
 }

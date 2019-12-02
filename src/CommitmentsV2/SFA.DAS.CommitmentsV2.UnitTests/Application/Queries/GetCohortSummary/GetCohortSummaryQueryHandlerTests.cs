@@ -12,6 +12,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Domain.Entities;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Encoding;
@@ -116,6 +117,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
         }
 
         [Test]
+        public async Task Handle_WithSpecifiedId_ShouldReturnExpectedEmployerAccountId()
+        {
+            await CheckQueryResponse(response => Assert.AreEqual(Cohort.EmployerAccountId, response.AccountId, "Did not return expected EmployerAccountId"));
+        }
+
+        [Test]
         public async Task Handle_WithSpecifiedId_ShouldReturnExpectedLastUpdatedByProviderEmail()
         {
             await CheckQueryResponse(response => Assert.AreEqual(Cohort.LastUpdatedByProviderEmail, response.LastUpdatedByProviderEmail, "Did not return expected Last Updated By Provider Email"));
@@ -133,17 +140,45 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
             await CheckQueryResponse(response => Assert.AreEqual(expectIsApprovedByEmployer, response.IsApprovedByEmployer, "Did not return expected IsApprovedByEmployer"));
         }
 
-        private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert)
+        [TestCase(0, true)]
+        [TestCase(1, false)]
+        [TestCase(2, false)]
+        [TestCase(3, false)]
+        [TestCase(4, false)]
+        [TestCase(5, false)]
+        [TestCase(6, false)]
+        [TestCase(7, false)]
+        public async Task Handle_WithApprenticeDetails_ShouldReturnExpectedEmployerCanApprove(int nullProperty, bool expectedEmployerCanApprove)
+        {
+            var apprenticeDetails = SetApprenticeDetails(nullProperty);
+
+            await CheckQueryResponse(response => Assert.AreEqual(expectedEmployerCanApprove, response.IsCompleteForEmployer),
+                apprenticeDetails);
+        }
+
+        [Test]
+        public async Task Handle_WithNoApprenticeDetails_ShouldReturnEmployerCannotApprove()
+        {
+            await CheckQueryResponse(response => Assert.IsFalse(response.IsCompleteForEmployer));
+        }
+
+        private async Task CheckQueryResponse(Action<GetCohortSummaryQueryResult> assert, DraftApprenticeshipDetails apprenticeshipDetails = null)
         {
             var autoFixture = new Fixture();
 
             CohortId = autoFixture.Create<long>();
             Cohort = autoFixture.Build<Cohort>().Without(o=>o.Apprenticeships).Without(o=>o.TransferRequests).Without(o=>o.Messages).Create();
+            
             if (!HasTransferSender)
             {
                 Cohort.TransferSenderId = null;
             }
             AccountLegalEntityId = autoFixture.Create<long>();
+            if (apprenticeshipDetails != null)
+            {
+                Cohort.Apprenticeships.Add(new DraftApprenticeship(apprenticeshipDetails, Cohort.WithParty));
+                ApprenticeshipAgreementStatus = null;
+            }
 
             // arrange
             var fixtures = new GetCohortSummaryHandlerTestFixtures()
@@ -154,6 +189,49 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
 
             // Assert
             assert(response);
+        }
+
+
+        private DraftApprenticeshipDetails SetApprenticeDetails(int nullProperty)
+        {
+            var apprenticeDetails = new DraftApprenticeshipDetails
+            {
+                Id = 1,
+                FirstName = "FirstName",
+                LastName = "LastName",
+                TrainingProgramme = new TrainingProgramme("code", "name", ProgrammeType.Framework, DateTime.Now, DateTime.Now),
+                Cost = 1500,
+                StartDate = new DateTime(2019, 10, 1),
+                EndDate = DateTime.Now,
+                DateOfBirth = new DateTime(2000, 1, 1),
+                Reference = "",
+                ReservationId = new Guid()
+            };
+            switch (nullProperty)
+            {
+                case 1:
+                    apprenticeDetails.FirstName = null;
+                    break;
+                case 2:
+                    apprenticeDetails.LastName = null;
+                    break;
+                case 3:
+                    apprenticeDetails.TrainingProgramme = null;
+                    break;
+                case 4:
+                    apprenticeDetails.Cost = null;
+                    break;
+                case 5:
+                    apprenticeDetails.StartDate = null;
+                    break;
+                case 6:
+                    apprenticeDetails.EndDate = null;
+                    break;
+                case 7:
+                    apprenticeDetails.DateOfBirth = null;
+                    break;
+            }
+            return apprenticeDetails;
         }
     }
 
@@ -269,5 +347,5 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohortSummary
                     => category == DbLoggerCategory.Database.Command.Name
                        && level == LogLevel.Debug, true)
             });
-    }
+        }
 }

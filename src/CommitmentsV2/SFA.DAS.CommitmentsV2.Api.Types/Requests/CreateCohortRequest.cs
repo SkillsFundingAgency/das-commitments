@@ -17,5 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Requests
         public DateTime? EndDate { get; set; }
         public string OriginatorReference { get; set; }
         public Guid? ReservationId { get; set; }
+        public long? TransferSenderId { get; set; }
     }
 }

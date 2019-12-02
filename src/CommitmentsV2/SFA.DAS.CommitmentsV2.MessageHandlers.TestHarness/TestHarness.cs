@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NServiceBus;
 using SFA.DAS.CommitmentsV2.Messages.Events;
+using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.EmployerAccounts.Messages.Events;
 using SFA.DAS.EmployerAccounts.Types.Models;
 
@@ -19,7 +20,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
         public async Task Run()
         {
             long accountId = 1001;
-            long accountLegalEntityId = 2001;
+            long accountLegalEntityId = 2061;
             long cohortId = 186091;
 
             ConsoleKey key = ConsoleKey.Escape;
@@ -38,6 +39,8 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("G - BulkUploadIntoCohortCompletedEvent");
                 Console.WriteLine("H - CohortAssignedToProviderEvent");
                 Console.WriteLine("I - CohortTransferApprovalRequestedEvent");
+                Console.WriteLine("M - ApprovedCohortReturnedToProviderEvent");
+                Console.WriteLine("N - CohortApprovedByEmployer");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -91,9 +94,19 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             Console.WriteLine($"Published {nameof(CohortAssignedToProviderEvent)}");
                             break;
                         case ConsoleKey.I:
-                            await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now));
+                            await _publisher.Publish(new CohortTransferApprovalRequestedEvent(186091, DateTime.Now, Party.Employer));
                             Console.WriteLine();
                             Console.WriteLine($"Published {nameof(CohortTransferApprovalRequestedEvent)}");
+                            break;
+                        case ConsoleKey.M:
+                            await _publisher.Publish(new ApprovedCohortReturnedToProviderEvent(cohortId, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(ApprovedCohortReturnedToProviderEvent)}");
+                            break;
+                        case ConsoleKey.N:
+                            await _publisher.Publish(new CohortApprovedByEmployerEvent(cohortId, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortApprovedByEmployerEvent)}");
                             break;
                     }
                 }

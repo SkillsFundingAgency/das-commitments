@@ -6,5 +6,6 @@
         public long AccountLegalEntityId { get; set; }
         public long ProviderId { get; set; }
         public string Message { get; set; }
+        public long? TransferSenderId { get; set; }
     }
 }

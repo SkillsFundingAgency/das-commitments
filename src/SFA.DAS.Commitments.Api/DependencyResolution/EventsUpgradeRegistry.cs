@@ -27,7 +27,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             For<IMessagePublisher>().DecorateAllWith<MessagePublisherWithV2Upgrade>();
 
             For<IEventUpgradeHandler<CohortApprovalRequestedByProvider>>().Use<EventUpgradeHandler>().Singleton();
-            For<IEventUpgradeHandler<CohortApprovedByEmployer>>().Use<EventUpgradeHandler>().Singleton();
         }
 
         private void RegisterMessagePublisher()
@@ -47,7 +46,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         private void RegisterEventHandlers(IContext ctx, IEventConsumer eventConsumer)
         {
             eventConsumer.RegisterHandler<CohortApprovalRequestedByProvider>((message) => (ctx.GetInstance<EventUpgradeHandler>() as IEventUpgradeHandler<CohortApprovalRequestedByProvider>).Execute(message));
-            eventConsumer.RegisterHandler<CohortApprovedByEmployer>((message) => (ctx.GetInstance<EventUpgradeHandler>() as IEventUpgradeHandler<CohortApprovedByEmployer>).Execute(message));
         }
 
         private string GetMessageQueueConnectionString(string environment)
