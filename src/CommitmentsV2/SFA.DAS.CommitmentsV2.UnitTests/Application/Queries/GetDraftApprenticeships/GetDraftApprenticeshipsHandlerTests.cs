@@ -32,7 +32,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
         }
 
         [Test]
-        public async Task Handle_WhenCohortDoesNotExist_ThenShouldReturnResult()
+        public async Task Handle_WhenCohortDoesNotExist_ThenShouldNotReturnResult()
         {
             _fixture.WithNonExistentCohort();
             await _fixture.Handle();
@@ -64,6 +64,12 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetDraftApprentice
             public GetDraftApprenticeshipsHandlerTestsFixture WithNonExistentCohort()
             {
                 _request = new GetDraftApprenticeshipsRequest(_cohortId+1);
+                return this;
+            }
+
+            public GetDraftApprenticeshipsHandlerTestsFixture WithDeletedCohort()
+            {
+                _cohort.IsDeleted = true;
                 return this;
             }
 

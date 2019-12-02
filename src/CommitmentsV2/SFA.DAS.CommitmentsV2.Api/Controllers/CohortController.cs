@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,9 +7,11 @@ using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Commands.AddCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.ApproveCohort;
+using SFA.DAS.CommitmentsV2.Application.Commands.DeleteCohort;
 using SFA.DAS.CommitmentsV2.Application.Commands.SendCohort;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary;
 using SFA.DAS.CommitmentsV2.Mapping;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -114,6 +117,16 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             await _mediator.Send(command);
 
             return Ok();
+        } 
+        
+        [HttpPost]
+        [Route("{cohortId}/delete")]
+        public async Task<IActionResult> Delete(long cohortId, [FromBody]UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var command = new DeleteCohortCommand { CohortId = cohortId, UserInfo = userInfo };
+            await _mediator.Send(command, cancellationToken);
+
+            return NoContent();
         }
     }
 }

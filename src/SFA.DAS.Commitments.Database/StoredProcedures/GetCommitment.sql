@@ -14,4 +14,5 @@ ON
 WHERE 
 	c.Id = @commitmentId 
 AND 
-	c.CommitmentStatus <> 2 -- ignore deleted
+	c.IsDeleted = 0
+

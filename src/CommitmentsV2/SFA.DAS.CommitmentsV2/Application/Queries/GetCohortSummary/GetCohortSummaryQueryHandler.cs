@@ -51,7 +51,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohortSummary
                 })
                 .SingleOrDefaultAsync(cancellationToken);
 
-            result.AccountLegalEntityId = _encodingService.Decode(result.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId);
+            if (result != null)
+            {
+                result.AccountLegalEntityId = _encodingService.Decode(result.AccountLegalEntityPublicHashedId,
+                    EncodingType.PublicAccountLegalEntityId);
+            }
 
             return result;
         }
