@@ -179,6 +179,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task Delete_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            const long cohortId = 67890;
+            const long apprenticeshipId = 13456;
+            await _fixture.CommitmentsApiClient.DeleteDraftApprenticeship(cohortId, apprenticeshipId, _fixture.DeleteDraftApprenticeshipRequest, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(c => c.PostAsJson($"api/cohorts/{cohortId}/draft-apprenticeships/{apprenticeshipId}", _fixture.DeleteDraftApprenticeshipRequest, CancellationToken.None));
+        }
+		
+        [Test]
         public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
         {
             await _fixture.CommitmentsApiClient.GetAccount(123, CancellationToken.None);
@@ -196,6 +205,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         public CreateCohortWithOtherPartyRequest CreateCohortWithOtherPartyRequest { get; }
         public SendCohortRequest SendCohortRequest { get; }
         public UpdateDraftApprenticeshipRequest UpdateDraftApprenticeshipRequest { get; }
+        public DeleteDraftApprenticeshipRequest DeleteDraftApprenticeshipRequest { get; }
         public long CohortId { get; set; }
         
         public WhenCallingTheEndpointsFixture()
@@ -208,6 +218,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             CreateCohortWithOtherPartyRequest = new CreateCohortWithOtherPartyRequest();
             SendCohortRequest = new SendCohortRequest();
             UpdateDraftApprenticeshipRequest = new UpdateDraftApprenticeshipRequest();
+            DeleteDraftApprenticeshipRequest = new DeleteDraftApprenticeshipRequest();
             CohortId = 123;
         }
 
