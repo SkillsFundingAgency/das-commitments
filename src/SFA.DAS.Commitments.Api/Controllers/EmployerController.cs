@@ -118,15 +118,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return Ok(response);
         }
 
-        [Route("{accountId}/commitments/")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateCommitment(long accountId, CommitmentRequest commitment)
-        {
-            var response = await _employerOrchestrator.CreateCommitment(accountId, commitment);
-
-            return CreatedAtRoute("GetCommitmentForEmployer", new { accountId, commitmentId = response }, new CommitmentView { Id = response });
-        }
-
         [Route("{accountId}/commitments/{commitmentId}")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> PatchCommitment(long accountId, long commitmentId, [FromBody] CommitmentSubmission values)

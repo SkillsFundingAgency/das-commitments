@@ -19,7 +19,6 @@ namespace SFA.DAS.Commitments.Api.Client.Interfaces
         Task<ApprenticeshipSearchResponse> GetEmployerApprenticeships(long employerAccountId, ApprenticeshipSearchQuery apprenticeshipSearchQuery);
         Task<Apprenticeship> GetEmployerApprenticeship(long employerAccountId, long apprenticeshipId);
         Task<List<ApprenticeshipStatusSummary>> GetEmployerAccountSummary(long employerAccountId);
-        Task<CommitmentView> CreateEmployerCommitment(long employerAccountId, CommitmentRequest commitment);
         Task PatchEmployerCommitment(long employerAccountId, long commitmentId, CommitmentSubmission submission);
         Task DeleteEmployerCommitment(long employerAccountId, long commitmentId, DeleteRequest deleteRequest);
         Task CreateEmployerApprenticeship(long employerAccountId, long commitmentId, ApprenticeshipRequest apprenticeship);

@@ -41,13 +41,6 @@ namespace SFA.DAS.Commitments.Api.Client
             return await _commitmentHelper.GetEmployerAccountSummary(url);
         }
 
-        public async Task<CommitmentView> CreateEmployerCommitment(long employerAccountId, CommitmentRequest commitment)
-        {
-            var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments";
-
-            return await _commitmentHelper.PostCommitment(url, commitment);
-        }
-
         public async Task<List<CommitmentListItem>> GetEmployerCommitments(long employerAccountId)
         {
             var url = $"{_configuration.BaseUrl}api/employer/{employerAccountId}/commitments";

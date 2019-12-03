@@ -18,7 +18,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<Types.Commitment.CommitmentListItem>> GetCommitments(long accountId);
         Task<Types.Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId);
         Task<Types.Commitment.CommitmentView> GetCommitment(long accountId, long commitmentId, CallerType callerType);
-        Task<long> CreateCommitment(long accountId, Types.Commitment.CommitmentRequest commitmentRequest);
         Task<IEnumerable<Apprenticeship>> GetApprenticeships(long accountId);
         Task<ApprenticeshipSearchResponse> GetApprenticeships(long accountId, ApprenticeshipSearchQuery query);
         Task<Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId);

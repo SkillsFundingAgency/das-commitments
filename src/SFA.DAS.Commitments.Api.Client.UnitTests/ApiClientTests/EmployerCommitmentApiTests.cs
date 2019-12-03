@@ -59,17 +59,6 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
-        public async Task CreateEmployerCommitment()
-        {
-            var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments"), JsonConvert.SerializeObject(new CommitmentRequest()));
-            _fakeHandler.AddFakeResponse(employerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
-
-            var commitmentView = await _employerApiClient.CreateEmployerCommitment(EmployerAccountId, new CommitmentRequest());
-
-            Assert.Pass();
-        }
-
-        [Test]
         public async Task GetEmployerCommitments()
         {
             var employerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/employer/{EmployerAccountId}/commitments"), string.Empty);

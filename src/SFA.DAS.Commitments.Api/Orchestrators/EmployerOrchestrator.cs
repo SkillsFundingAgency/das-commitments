@@ -119,27 +119,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _commitmentMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
-        public async Task<long> CreateCommitment(long accountId, Commitment.CommitmentRequest commitmentRequest)
-        {
-            _logger.Trace($"Creating commitment for employer account {accountId}", accountId: accountId);
-
-            commitmentRequest.Commitment.EmployerAccountId = accountId;
-
-            var commitment = _commitmentMapper.MapFrom(commitmentRequest.Commitment);
-            var id = await _mediator.SendAsync(new CreateCommitmentCommand
-            {
-                Caller = new Caller { CallerType = CallerType.Employer, Id = accountId },
-                Commitment = commitment,
-                UserId = commitmentRequest.UserId,
-                Message = commitmentRequest.Message,
-                LastAction = (LastAction) commitmentRequest.LastAction
-            });
-
-            _logger.Info($"Created commitment {id} for employer account {accountId}", accountId: accountId);
-
-            return id;
-        }
-
         public async Task<IEnumerable<Apprenticeship.Apprenticeship>> GetApprenticeships(long accountId)
         {
             _logger.Trace($"Getting apprenticeships for employer account {accountId}", accountId: accountId);
