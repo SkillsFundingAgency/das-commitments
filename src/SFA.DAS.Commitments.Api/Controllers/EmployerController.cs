@@ -146,17 +146,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-
-        [Route("{accountId}/commitments/{commitmentId}/apprenticeships", Name = "CreateApprenticeshipForEmployer")]
-        [AuthorizeRemoteOnly(Roles = "Role1")]
-        public async Task<IHttpActionResult> CreateApprenticeship(long accountId, long commitmentId, ApprenticeshipRequest apprenticeshipRequest)
-        {
-            var response = await _employerOrchestrator.CreateApprenticeship(accountId, commitmentId, apprenticeshipRequest);
-
-            return CreatedAtRoute("GetApprenticeshipForEmployer", new { accountId, commitmentId, apprenticeshipId = response }, default(Apprenticeship));
-        }
-
-
         [Route("{accountId}/commitments/{commitmentId}/apprenticeships/{apprenticeshipId}")]
         [AuthorizeRemoteOnly(Roles = "Role1")]
         public async Task<IHttpActionResult> PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)

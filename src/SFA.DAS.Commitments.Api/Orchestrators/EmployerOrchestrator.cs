@@ -197,30 +197,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
         }
 
-        public async Task<long> CreateApprenticeship(long accountId, long commitmentId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
-        {
-            _logger.Trace($"Creating apprenticeship for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId);
-
-            apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
-
-            var id = await _mediator.SendAsync(new CreateApprenticeshipCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                },
-                CommitmentId = commitmentId,
-                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
-                UserId = apprenticeshipRequest.UserId,
-                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
-            });
-
-            _logger.Info($"Created apprenticeship {id} for commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: id);
-
-            return id;
-        }
-
         public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
         {
             _logger.Trace($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
