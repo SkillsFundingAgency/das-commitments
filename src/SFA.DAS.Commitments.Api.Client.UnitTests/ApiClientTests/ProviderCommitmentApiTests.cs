@@ -227,17 +227,6 @@ namespace SFA.DAS.Commitments.Api.Client.UnitTests.ApiClientTests
         }
 
         [Test]
-        public async Task CreateProviderApprenticeship()
-        {
-            var providerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider/{ProviderId}/commitments/{CommitmentId}/apprenticeships"), JsonConvert.SerializeObject(new ApprenticeshipRequest()));
-            _fakeHandler.AddFakeResponse(providerRequest, new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(string.Empty) });
-
-            await _apiclient.CreateProviderApprenticeship(ProviderId, CommitmentId, new ApprenticeshipRequest());
-
-            Assert.Pass();
-        }
-
-        [Test]
         public async Task UpdateProviderApprenticeship()
         {
             var providerRequest = new TestRequest(new Uri(ExpectedApiBaseUrl + $"api/provider/{ProviderId}/commitments/{CommitmentId}/apprenticeships/{ApprenticeshipId}"), JsonConvert.SerializeObject(new ApprenticeshipRequest()));
