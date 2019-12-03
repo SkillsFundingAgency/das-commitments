@@ -7,7 +7,6 @@ using MediatR;
 using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Api.Types.Apprenticeship;
 using SFA.DAS.Commitments.Application.Commands.BulkUploadApprenticships;
-using SFA.DAS.Commitments.Application.Commands.CreateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.CreateBulkUpload;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
@@ -200,30 +199,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
 
             return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider);
-        }
-
-        public async Task<long> CreateApprenticeship(long providerId, long commitmentId, ApprenticeshipRequest apprenticeshipRequest)
-        {
-            _logger.Trace($"Creating apprenticeship for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId);
-
-            apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
-
-            var id = await _mediator.SendAsync(new CreateApprenticeshipCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Provider,
-                    Id = providerId
-                },
-                CommitmentId = commitmentId,
-                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Provider),
-                UserId = apprenticeshipRequest.UserId,
-                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
-            });
-
-            _logger.Info($"Created apprenticeship {id} for commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: id, recordCount: 1);
-
-            return id;
         }
 
         public async Task PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)

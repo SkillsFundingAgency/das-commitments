@@ -118,7 +118,6 @@
     <Compile Include="Controllers\EmployerControllerTests\WhenUpdatingApprenticeshipStatus.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingCommitmentAgreements.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenUpdatingAnApprenticeship.cs" />
-    <Compile Include="Controllers\ProviderControllerTests\WhenCreatingAnApprenticeship.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingASingleApprenticeship.cs" />
     <Compile Include="Controllers\EmployerControllerTests\WhenGettingASingleCommitment.cs" />
     <Compile Include="Controllers\ProviderControllerTests\WhenGettingAllCommitments.cs" />

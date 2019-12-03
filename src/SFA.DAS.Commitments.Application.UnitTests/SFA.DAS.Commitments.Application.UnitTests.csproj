@@ -229,9 +229,6 @@
     <Compile Include="Commands\CohortApproval\ProviderApproveCohort\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenCreatingApprenticeshipUpdate.cs" />
     <Compile Include="Commands\CreateApprenticeshipUpdate\WhenValidatingRequest.cs" />
-    <Compile Include="Commands\CreateApprenticeship\WhenCreatingApprenticeship.cs" />
-    <Compile Include="Commands\CreateApprenticeship\WhenEmployerCreatesApprenticeship.cs" />
-    <Compile Include="Commands\CreateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateBulkUpload\WhenValidatngCreatingBulkUpload.cs" />
     <Compile Include="Commands\CreateCommitment\WhenCreatingCommitment.cs" />
