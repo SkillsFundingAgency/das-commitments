@@ -26,19 +26,30 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
         {
             try
             {
-                var cohortFiltered = await _db.Value.Cohorts.Where(c => c.EmployerAccountId == command.AccountId &&
-                       (c.EditStatus != EditStatus.Both ||
-                        (c.TransferSenderId != null && c.TransferApprovalStatus != TransferApprovalStatus.Approved)))
-                       .GroupJoin(_db.Value.Accounts, cohort => cohort.TransferSenderId, account => account.Id,
-                  (cohort, account) => new { Cohort = cohort, TransferSender = account })
-                 .Select(c => new
-                 {
-                     c.Cohort,
-                     c.TransferSender
-                 }).ToArrayAsync(cancellationToken);
+                //filter cohorts
+                var cohortFiltered = await (from c in _db.Value.Cohorts
+                                            join a in _db.Value.Accounts on c.TransferSenderId equals a.Id into account
+                                            from transferSender in account.DefaultIfEmpty()
+                                            where c.EmployerAccountId == command.AccountId &&
+                                      (c.EditStatus != EditStatus.Both ||
+                                       (c.TransferSenderId != null && c.TransferApprovalStatus != TransferApprovalStatus.Approved))
+                                            select new CohortSummary
+                                            {
+                                                AccountId = c.EmployerAccountId,
+                                                LegalEntityName = c.LegalEntityName,
+                                                ProviderId = c.ProviderId.Value,
+                                                ProviderName = c.ProviderName,
+                                                CohortId = c.Id,
+                                                IsDraft = c.LastAction == LastAction.None,
+                                                WithParty = c.WithParty,
+                                                CreatedOn = c.CreatedOn.Value,
+                                                TransferSenderName = transferSender.Name,
+                                                TransferSenderId = c.TransferSenderId
+                                            }).ToArrayAsync(cancellationToken);
 
-                var cohortIds = cohortFiltered.Select(x => x.Cohort.Id);
+                var cohortIds = cohortFiltered.Select(x => x.CohortId);
 
+                //Get apprentices count for cohorts.
                 var apprenticesTask = _db.Value.DraftApprenticeships.Where(y => cohortIds.Contains(y.CommitmentId))
                     .GroupBy(x => x.CommitmentId).Select(z => new
                     {
@@ -46,6 +57,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                         NumberOfApprentices = z.Count()
                     }).ToArrayAsync(cancellationToken);
 
+                //Get latest messages for cohorts.
                 var filteredMessages = _db.Value.Messages.Where(y => cohortIds.Contains(y.CommitmentId))
                     .GroupBy(x => new { x.CreatedBy, x.CommitmentId })
                     .Select(z => z.Max(x => x.Id));
@@ -60,24 +72,18 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                 var apprentices = await apprenticesTask;
                 var messages = await messagesTask;
 
-                var cohorts = cohortFiltered.GroupJoin(apprentices, c => c.Cohort.Id, a => a.CohortId,
-                        (c, a) => new { c.Cohort, Apprentices = a?.FirstOrDefault(), TransferSender = c.TransferSender?.FirstOrDefault()})
-                       .GroupJoin(messages, c => c.Cohort.Id, m => m.CommitmentId,
-                       (c, m) => new CohortSummary
+                // update CohortSummary with apprentices and messages.
+                var cohorts = cohortFiltered.GroupJoin(apprentices, c => c.CohortId, a => a.CohortId,
+                        (c, a) => {
+                            c.NumberOfDraftApprentices = a.FirstOrDefault()?.NumberOfApprentices ?? 0;
+                            return c;
+                           })
+                       .GroupJoin(messages, c => c.CohortId, m => m.CommitmentId,
+                       (c, m) => 
                        {
-                           AccountId = c.Cohort.EmployerAccountId,
-                           LegalEntityName = c.Cohort.LegalEntityName,
-                           ProviderId = c.Cohort.ProviderId.Value,
-                           ProviderName = c.Cohort.ProviderName,
-                           CohortId = c.Cohort.Id,
-                           NumberOfDraftApprentices = c.Apprentices?.NumberOfApprentices ?? 0,
-                           LatestMessageFromEmployer = m?.Where(x => x.CreatedBy == 0).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault(),
-                           LatestMessageFromProvider = m?.Where(x => x.CreatedBy == 1).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault(),
-                           IsDraft = c.Cohort.LastAction == LastAction.None,
-                           WithParty = c.Cohort.WithParty,
-                           CreatedOn = c.Cohort.CreatedOn.Value,
-                           TransferSenderName = c.TransferSender?.Name,
-                           TransferSenderId = c.Cohort.TransferSenderId
+                           c.LatestMessageFromEmployer = m?.Where(x => x.CreatedBy == 0).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault();
+                           c.LatestMessageFromProvider = m?.Where(x => x.CreatedBy == 1).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault();
+                           return c;
                        }).ToList();
 
                 return new GetCohortsResult(cohorts);
