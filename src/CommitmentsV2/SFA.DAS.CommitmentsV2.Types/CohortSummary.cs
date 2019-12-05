@@ -15,5 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Types
         public bool IsDraft { get; set; }
         public Party WithParty { get; set; }
         public DateTime CreatedOn { get; set; }
+        public long? TransferSenderId { get; set; }
+        public string TransferSenderName { get; set; }
     }
 }
