@@ -46,3 +46,5 @@ CREATE NONCLUSTERED INDEX [IX_Apprenticeship_Uln_PaymentStatus] ON [dbo].[Appren
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [UK_Apprenticeship_ReservationId] ON [dbo].[Apprenticeship] ([ReservationId] ASC) WHERE [ReservationId] IS NOT NULL
 GO
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_LastName] ON [dbo].[Apprenticeship] ([LastName]) WITH (ONLINE = ON)
+GO
