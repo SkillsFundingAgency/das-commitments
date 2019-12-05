@@ -79,11 +79,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetCohorts
                             return c;
                            })
                        .GroupJoin(messages, c => c.CohortId, m => m.CommitmentId,
-                       (c, m) => 
+                       (cs, message) => 
                        {
-                           c.LatestMessageFromEmployer = m?.Where(x => x.CreatedBy == 0).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault();
-                           c.LatestMessageFromProvider = m?.Where(x => x.CreatedBy == 1).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault();
-                           return c;
+                           cs.LatestMessageFromEmployer = message?.Where(x => x.CreatedBy == 0).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault();
+                           cs.LatestMessageFromProvider = message?.Where(x => x.CreatedBy == 1).Select(m => new Message(m.Text, m.CreatedDateTime)).FirstOrDefault();
+                           return cs;
                        }).ToList();
 
                 return new GetCohortsResult(cohorts);
