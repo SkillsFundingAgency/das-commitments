@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
@@ -23,7 +22,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
                         CourseName = "Testing Level 1",
                         PlannedStartDate = DateTime.Now.AddDays(2),
                         PlannedEndDateTime = DateTime.Now.AddMonths(2),
-                        Status = "Planned"
+                        Status = "Planned",
+                        Alerts = "Test Alert"
                     }
                 }
             });
