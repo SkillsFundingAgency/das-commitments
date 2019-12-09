@@ -35,6 +35,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
             var cohort = await _cohortDomainService.CreateCohortWithOtherParty(command.ProviderId,
                 command.AccountId,
                 command.AccountLegalEntityId,
+                command.TransferSenderId,
                 command.Message,
                 command.UserInfo,
                 cancellationToken);

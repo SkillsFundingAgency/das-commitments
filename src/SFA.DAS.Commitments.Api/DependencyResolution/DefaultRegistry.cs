@@ -62,9 +62,9 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
             ConfigureHashingService(config);
 
             For<IAccountApiClient>().Use<AccountApiClient>().Ctor<IAccountApiConfiguration>().Is(config.AccountApi);
-            For<IEventsApi>().Use<EventsApi>()
-                .Ctor<IEventsApiClientConfiguration>().Is(config.EventsApi)
-                .SelectConstructor(() => new EventsApi(null)); // The default one isn't the one we want to use.
+
+            For<IEventsApi>().Use<DummyEventsApiClient>();
+
             For<IApprenticeshipInfoServiceConfiguration>().Use(config.ApprenticeshipInfoService);
 
             For<IAcademicYearDateProvider>().Use<AcademicYearDateProvider>();

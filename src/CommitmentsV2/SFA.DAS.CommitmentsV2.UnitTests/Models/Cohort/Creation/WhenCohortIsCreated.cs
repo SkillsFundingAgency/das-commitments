@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Exceptions;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -39,6 +38,31 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 .CreateCohort();
 
             _fixture.VerifyCohortBelongsToAccount();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void TheCohortHasCorrectTransferInformation(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortHasTransferInformation();
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void TheCohortHasNoTransferInformation(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithNoTransferSender()
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortHasNoTransferInformation();
         }
 
         [TestCase(Party.Provider)]
@@ -174,6 +198,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyNoMessageIsAdded();
         }
 
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
+        public void ThenTheStateChangesAreTracked(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
 
+            _fixture.VerifyCohortTracking();
+            _fixture.VerifyDraftApprenticeshipTracking();
+        }
     }
 }

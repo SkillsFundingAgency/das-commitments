@@ -151,7 +151,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
 
             _logger.Info($"Retrieved apprenticeships for employer account {accountId}. {response.Apprenticeships.Count} apprenticeships found", accountId: accountId);
 
-            return _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Employer);
+            return _apprenticeshipMapper.MapFromV2(response.Apprenticeships, CallerType.Employer);
         }
 
         public async Task<Apprenticeship.ApprenticeshipSearchResponse> GetApprenticeships(long accountId, Apprenticeship.ApprenticeshipSearchQuery query)
@@ -167,7 +167,7 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
                 }
             });
 
-            var apiApprenticeships = _apprenticeshipMapper.MapFrom(response.Apprenticeships, CallerType.Employer).ToList();
+            var apiApprenticeships = _apprenticeshipMapper.MapFromV2(response.Apprenticeships, CallerType.Employer).ToList();
 
             var totalApprenticeshipsBeforeFilter = response.TotalCount - apiApprenticeships.Count(m => m.PaymentStatus == PaymentStatus.PendingApproval);
 

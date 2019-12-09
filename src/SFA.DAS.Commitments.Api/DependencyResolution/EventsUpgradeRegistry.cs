@@ -46,7 +46,6 @@ namespace SFA.DAS.Commitments.Api.DependencyResolution
         private void RegisterEventHandlers(IContext ctx, IEventConsumer eventConsumer)
         {
             eventConsumer.RegisterHandler<CohortApprovalRequestedByProvider>((message) => (ctx.GetInstance<EventUpgradeHandler>() as IEventUpgradeHandler<CohortApprovalRequestedByProvider>).Execute(message));
-            eventConsumer.RegisterHandler<CohortApprovedByEmployer>((message) => (ctx.GetInstance<EventUpgradeHandler>() as IEventUpgradeHandler<CohortApprovedByEmployer>).Execute(message));
         }
 
         private string GetMessageQueueConnectionString(string environment)

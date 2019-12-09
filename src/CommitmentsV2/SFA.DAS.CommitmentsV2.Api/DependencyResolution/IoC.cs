@@ -33,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Api.DependencyResolution
             registry.IncludeRegistry<NServiceBusClientUnitOfWorkRegistry>();
             registry.IncludeRegistry<NServiceBusUnitOfWorkRegistry>();
             registry.IncludeRegistry<ReservationsApiClientRegistry>();
+            registry.IncludeRegistry<StateServiceRegistry>();
             registry.IncludeRegistry<DefaultRegistry>();
         }
     }
