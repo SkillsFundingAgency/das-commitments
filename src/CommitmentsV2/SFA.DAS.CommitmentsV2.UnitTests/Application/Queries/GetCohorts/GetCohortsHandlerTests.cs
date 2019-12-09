@@ -156,6 +156,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         {
             var cohort = _autoFixture.Build<Cohort>().With(o=>o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Neither)
+                .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
@@ -169,6 +170,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var cohort = _autoFixture.Build<Cohort>()
                 .With(o => o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Both)
+                .With(o => o.IsDeleted, false)
                 .Without(o => o.TransferSenderId)
                 .Without(o => o.TransferApprovalStatus)
                 .Without(o => o.Apprenticeships)
@@ -185,6 +187,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Both)
                 .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Approved)
+                .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
@@ -200,6 +203,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
                 .With(o => o.TransferSenderId, TransferSenderId)
                 .With(o => o.EditStatus, EditStatus.Both)
                 .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Pending)
+                .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
@@ -217,6 +221,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             var cohort = _autoFixture.Build<Cohort>()
                 .With(o => o.EmployerAccountId, accountId)
                 .With(o => o.EditStatus, EditStatus.Neither)
+                .With(o => o.IsDeleted, false)
                 .Without(o => o.Apprenticeships)
                 .Without(o => o.TransferRequests)
                 .Without(o => o.Messages).Create();
