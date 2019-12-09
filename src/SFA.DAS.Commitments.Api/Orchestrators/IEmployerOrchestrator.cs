@@ -21,7 +21,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<Apprenticeship>> GetApprenticeships(long accountId);
         Task<ApprenticeshipSearchResponse> GetApprenticeships(long accountId, ApprenticeshipSearchQuery query);
         Task<Apprenticeship> GetApprenticeship(long accountId, long apprenticeshipId);
-        Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest);
         Task UpdateCustomProviderPaymentPriority(long accountId, ProviderPaymentPrioritySubmission submission);
         Task<IEnumerable<ProviderPaymentPriorityItem>> GetCustomProviderPaymentPriority(long accountId);
         Task PatchCommitment(long accountId, long commitmentId, CommitmentSubmission submission);

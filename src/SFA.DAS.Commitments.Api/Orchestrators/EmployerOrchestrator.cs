@@ -6,7 +6,6 @@ using SFA.DAS.Commitments.Api.Types;
 using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeshipStatus;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
@@ -193,29 +192,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for employer account {accountId}", accountId: accountId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
            
             return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Employer);
-        }
-
-        public async Task PutApprenticeship(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipRequest apprenticeshipRequest)
-        {
-            _logger.Trace($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
-
-            apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
-
-            await _mediator.SendAsync(new UpdateApprenticeshipCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Employer,
-                    Id = accountId
-                },
-                CommitmentId = commitmentId,
-                ApprenticeshipId = apprenticeshipId,
-                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Employer),
-                UserId = apprenticeshipRequest.UserId,
-                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
-            });
-
-            _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for employer account {accountId}", accountId: accountId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
         }
 
         public async Task PutApprenticeshipStopDate(long accountId, long commitmentId, long apprenticeshipId, Apprenticeship.ApprenticeshipStopDate stopDate)

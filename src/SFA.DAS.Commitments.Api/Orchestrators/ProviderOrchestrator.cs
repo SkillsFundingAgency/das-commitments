@@ -11,7 +11,6 @@ using SFA.DAS.Commitments.Application.Commands.CreateApprenticeshipUpdate;
 using SFA.DAS.Commitments.Application.Commands.CreateBulkUpload;
 using SFA.DAS.Commitments.Application.Commands.DeleteApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.DeleteCommitment;
-using SFA.DAS.Commitments.Application.Commands.UpdateApprenticeship;
 using SFA.DAS.Commitments.Application.Commands.UpdateCommitmentAgreement;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeship;
 using SFA.DAS.Commitments.Application.Queries.GetApprenticeships;
@@ -199,30 +198,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
             _logger.Info($"Retrieved apprenticeship {apprenticeshipId} for provider {providerId}", providerId: providerId, apprenticeshipId: apprenticeshipId, commitmentId: response.Data.CommitmentId);
 
             return _apprenticeshipMapper.MapFrom(response.Data, CallerType.Provider);
-        }
-
-        public async Task PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest)
-        {
-            _logger.Trace($"Updating apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
-
-            apprenticeshipRequest.Apprenticeship.CommitmentId = commitmentId;
-
-            await _mediator.SendAsync(new UpdateApprenticeshipCommand
-            {
-                Caller = new Caller
-                {
-                    CallerType = CallerType.Provider,
-                    Id = providerId
-                },
-                CommitmentId = commitmentId,
-                ApprenticeshipId = apprenticeshipId,
-                Apprenticeship = _apprenticeshipMapper.Map(apprenticeshipRequest.Apprenticeship, CallerType.Provider),
-                UserId = apprenticeshipRequest.UserId,
-                UserName = apprenticeshipRequest.LastUpdatedByInfo?.Name
-            });
-
-            _logger.Info($"Updated apprenticeship {apprenticeshipId} in commitment {commitmentId} for provider {providerId}", providerId: providerId, commitmentId: commitmentId, apprenticeshipId: apprenticeshipId);
-
         }
 
         public async Task CreateApprenticeships(long providerId, long commitmentId, BulkApprenticeshipRequest bulkRequest)

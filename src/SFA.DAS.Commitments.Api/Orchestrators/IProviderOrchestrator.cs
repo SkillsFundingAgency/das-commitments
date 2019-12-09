@@ -15,7 +15,6 @@ namespace SFA.DAS.Commitments.Api.Orchestrators
         Task<IEnumerable<Apprenticeship>> GetApprenticeships(long providerId);
         Task<ApprenticeshipSearchResponse> GetApprenticeships(long providerId, ApprenticeshipSearchQuery query);
         Task<Apprenticeship> GetApprenticeship(long providerId, long apprenticeshipId);
-        Task PutApprenticeship(long providerId, long commitmentId, long apprenticeshipId, ApprenticeshipRequest apprenticeshipRequest);
         Task CreateApprenticeships(long providerId, long commitmentId, BulkApprenticeshipRequest bulkRequest);
         Task PatchCommitment(long providerId, long commitmentId, CommitmentSubmission submission);
         Task ApproveCohort(long providerId, long commitmentId, CommitmentSubmission submission);

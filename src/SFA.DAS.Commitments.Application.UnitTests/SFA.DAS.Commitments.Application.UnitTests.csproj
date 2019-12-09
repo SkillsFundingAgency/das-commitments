@@ -273,9 +273,6 @@
     <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenUpdatingAnApprenticeshipStopDate.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenEditingTheStopDateOfAnApprenticeship.cs" />
     <Compile Include="Commands\UpdateApprenticeshipStopDate\WhenValidatingUpdateApprenticeshipStopDateCommand.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\WhenEmployerUpdatesApprenticeship.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\WhenUpdatingApprenticeship.cs" />
-    <Compile Include="Commands\UpdateApprenticeship\WhenValidatingCommand.cs" />
     <Compile Include="Commands\UpdateCommitmentAgreement\WhenUpdatingCommitmentAgreement.cs" />
     <Compile Include="Commands\ApproveDataLockTriage\WhenApprovingDataLockTriage.cs" />
     <Compile Include="Commands\RejectDataLockTriage\WhenRejectingDataLockTriage.cs" />
