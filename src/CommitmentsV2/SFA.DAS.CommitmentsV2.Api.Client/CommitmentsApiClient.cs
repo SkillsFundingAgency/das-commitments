@@ -135,5 +135,10 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         {
             return _client.Get("api/test/provider");  
         }
+
+        public Task<GetApprovedProvidersResponse> GetApprovedProviders(GetApprovedProvidersRequest request, CancellationToken cancellationToken)
+        {
+            return _client.Get<GetApprovedProvidersResponse>($"api/providers/approved", request, cancellationToken);
+        }
     }
 }
