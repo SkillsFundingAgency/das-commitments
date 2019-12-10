@@ -116,15 +116,15 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<long?>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
 
-<<<<<<< HEAD
+
         public Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/delete", userInfo, cancellationToken);
-=======
+        }
+
         public Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default)
         {
             return _client.Get<AccountResponse>($"api/accounts/{accountId}", null, cancellationToken);
->>>>>>> CV-498-Api-Endpoint-For-MA
         }
 
         public Task<string> SecureCheck()
