@@ -29,5 +29,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
 		Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken = default);
         Task<GetApprovedProvidersResponse> GetApprovedProviders(GetApprovedProvidersRequest request, CancellationToken cancellationToken);
+        Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
     }
 }
