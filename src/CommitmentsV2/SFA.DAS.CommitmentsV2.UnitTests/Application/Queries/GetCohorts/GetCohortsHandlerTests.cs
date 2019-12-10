@@ -85,20 +85,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         }
 
         [Test]
-        public async Task Handle_WithAccountId_CohortWithTransferSender_ShouldReturnTransferSenderDetails()
-        {
-            var f = new GetCohortsHandlerTestFixtures();
-            f.AddCohortWithTransferSender(f.AccountId);
-
-            var response = await f.GetResponse(new GetCohortsQuery(f.AccountId));
-
-            Assert.IsNotNull(response);
-            Assert.AreEqual(response.Cohorts.Length, 1);
-            Assert.AreEqual(response.Cohorts[0].TransferSenderId, f.TransferSenderId);
-            Assert.AreEqual(response.Cohorts[0].TransferSenderName, "TransferSender");
-        }
-
-        [Test]
         public async Task Handle_WithAccountIdWithMixedCohorts_ShouldReturn2CohortsAndExcludeApprovedAndNonMatchingCohorts()
         {
             var f = new GetCohortsHandlerTestFixtures();
@@ -127,19 +113,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         public GetCohortsHandlerTestFixtures()
         {
             SeedCohorts = new List<Cohort>();
-            SeedAccounts = new List<Account>();
             _autoFixture = new Fixture();
             AccountId = _autoFixture.Create<long>();
-            TransferSenderId = _autoFixture.Create<long>();
         }
 
         public long AccountId { get; }
-        public long TransferSenderId { get; set; }
         public long NonMatchingAccountId => AccountId + 100;
         public List<Cohort> SeedCohorts { get; }
-        public List<Account> SeedAccounts { get; }
-
-
 
         public Task<GetCohortsResult> GetResponse(GetCohortsQuery query)
         {
@@ -193,24 +173,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
             return this;
         }
 
-        public GetCohortsHandlerTestFixtures AddCohortWithTransferSender(long accountId)
-        {
-            var cohort = _autoFixture.Build<Cohort>()
-                .With(o => o.EmployerAccountId, accountId)
-                .With(o => o.TransferSenderId, TransferSenderId)
-                .With(o => o.EditStatus, EditStatus.Both)
-                .With(o => o.TransferApprovalStatus, TransferApprovalStatus.Pending)
-                .Without(o => o.Apprenticeships)
-                .Without(o => o.TransferRequests)
-                .Without(o => o.Messages).Create();
-
-            var account = new Account(TransferSenderId, "hashedId", "publicHashedId", "TransferSender", DateTime.Now);
-
-            SeedAccounts.Add(account);
-            SeedCohorts.Add(cohort);
-            return this;
-        }
-
         public GetCohortsHandlerTestFixtures AddUnapprovedCohortForEmployerWithMessagesAnd2Apprentices(long accountId)
         {
 
@@ -251,12 +213,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetCohorts
         private void SeedData(ProviderCommitmentsDbContext dbContext)
         {
             dbContext.Cohorts.AddRange(SeedCohorts);
-            
-            if (SeedAccounts.Count > 0)
-            {
-                dbContext.Accounts.AddRange(SeedAccounts);
-            }
-
             dbContext.SaveChanges(true);
         }
     }
