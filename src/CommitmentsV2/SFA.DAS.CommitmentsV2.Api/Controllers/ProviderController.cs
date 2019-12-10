@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
 
@@ -18,17 +17,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        [Route("approved")]
-        public async Task<IActionResult> GetApprovedProviders(GetApprovedProvidersRequest request)
-        {
-            var query = new GetApprovedProvidersQuery(request.AccountId);
-
-            var result = await  _mediator.Send(query);
-
-            return Ok(new GetApprovedProvidersResponse(result.ProviderIds));
-        }
-        
         [HttpGet]
         [Route("{providerId}")]
         public async Task<IActionResult> GetProvider(long providerId)
