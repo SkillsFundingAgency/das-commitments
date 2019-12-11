@@ -45,7 +45,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             var result = await _mediator.Send(query);
 
-            return Ok(new GetApprovedProvidersResponse(accountId, result.ProviderIds));
+            return Ok(new GetApprovedProvidersResponse(result.ProviderIds));
         }
     }
 }
