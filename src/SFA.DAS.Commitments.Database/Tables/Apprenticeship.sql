@@ -48,3 +48,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [UK_Apprenticeship_ReservationId] ON [dbo].[App
 GO
 CREATE NONCLUSTERED INDEX [IX_Apprenticeship_LastName] ON [dbo].[Apprenticeship] ([LastName]) WITH (ONLINE = ON)
 GO
+
+CREATE NONCLUSTERED INDEX [IX_Apprenticeship_CommitmentId2] ON [dbo].[Apprenticeship] ([CommitmentId])
+INCLUDE ([AgreementStatus], [Cost], [DateOfBirth], [EmployerRef], [EndDate], [FirstName], [HasHadDataLockSuccess], [LastName], [NINumber], [PauseDate], [PaymentStatus], [PendingUpdateOriginator], [ProviderRef], [ReservationId], [StartDate], [StopDate], [TrainingCode], [TrainingName], [TrainingType], [ULN])
+GO
