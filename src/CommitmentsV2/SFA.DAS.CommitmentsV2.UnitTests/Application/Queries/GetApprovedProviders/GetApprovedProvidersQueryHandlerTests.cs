@@ -27,11 +27,30 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
         [Test]
         public async Task Handle_WhenCohortApprovedByBoth_And_TransferSender_IdIsNull_ThenShouldReturnResult()
         {
-            var result = await _fixture.AddApprovedCohortAndProviderForAccount().SeedDb().Handle();
+            var result = await _fixture.AddApprovedCohortAndProviderForAccount()
+                .AddApprovedCohortAndProviderForAccount()
+                .AddNotApprovedCohortAndProviderForAccount()
+                .SeedDb().Handle();
 
-            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.ProviderIds.Count());
+        }
 
-            Assert.AreEqual(1, result.ProviderIds[0]);
+        [Test]
+        public async Task Handle_WhenCohortApprovedByBoth_And_TransferSenderNotApproved_ThenShouldNotReturnResult()
+        {
+            var result = await _fixture.AddCohortAndProvider_WithTransfserSenderNotApproved()
+                .SeedDb().Handle();
+
+            Assert.AreEqual(0, result.ProviderIds.Count());
+        }
+
+        [Test]
+        public async Task Handle_WhenCohortApprovedByBoth_And_TransferSenderApproved_ThenShouldReturnResult()
+        {
+            var result = await _fixture.AddCohortAndProvider_WithTransfserSenderApproved()
+                .SeedDb().Handle();
+
+            Assert.AreEqual(1, result.ProviderIds.Count());
         }
 
         [Test]
@@ -62,11 +81,50 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
             Handler = new GetApprovedProvidersQueryHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db));
         }
 
+        public GetApprovedProvidersQueryHandlerFixture AddCohortAndProvider_WithTransfserSenderNotApproved()
+        {
+            var provider = new Provider(GetNextProviderId(), "Foo", DateTime.UtcNow, DateTime.UtcNow);
+
+            Provider.Add(provider);
+
+            Cohorts.Add(new Cohort
+            {
+                EmployerAccountId = AccountId,
+                Id = GetNextCohortId(),
+                EditStatus = 0,
+                TransferSenderId = 1,
+                ProviderId = provider.UkPrn,
+                TransferApprovalStatus = Types.TransferApprovalStatus.Pending
+            });
+            
+            return this;
+        }
+
+
+        public GetApprovedProvidersQueryHandlerFixture AddCohortAndProvider_WithTransfserSenderApproved()
+        {
+            var provider = new Provider(GetNextProviderId(), "Foo", DateTime.UtcNow, DateTime.UtcNow);
+
+            Provider.Add(provider);
+
+            Cohorts.Add(new Cohort
+            {
+                EmployerAccountId = AccountId,
+                Id = GetNextCohortId(),
+                EditStatus = 0,
+                TransferSenderId = 1,
+                ProviderId = provider.UkPrn,
+                TransferApprovalStatus = Types.TransferApprovalStatus.Approved
+            });
+
+            return this;
+        }
+
         public GetApprovedProvidersQueryHandlerFixture AddApprovedCohortAndProviderForAccount()
         {
-            Provider.Add(
-                new Provider(GetNextProviderId(), "Foo", DateTime.UtcNow, DateTime.UtcNow)
-              );
+            var provider = new Provider(GetNextProviderId(), "Foo", DateTime.UtcNow, DateTime.UtcNow);
+
+            Provider.Add(provider);
 
             Cohorts.Add(new Cohort
             {
@@ -74,9 +132,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
                 Id = GetNextCohortId(),
                 EditStatus = 0,
                 TransferSenderId = null,
-                ProviderId = 1
+                ProviderId = provider.UkPrn
             });
-            
+
             return this;
         }
 
