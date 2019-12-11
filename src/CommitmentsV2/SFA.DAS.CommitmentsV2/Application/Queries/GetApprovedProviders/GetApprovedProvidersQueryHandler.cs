@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetProvider
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders
 {
     public class GetApprovedProvidersQueryHandler : IRequestHandler<GetApprovedProvidersQuery, GetApprovedProvidersQueryResult>
     {

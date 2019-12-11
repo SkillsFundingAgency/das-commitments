@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetProvider;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedProviders;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
