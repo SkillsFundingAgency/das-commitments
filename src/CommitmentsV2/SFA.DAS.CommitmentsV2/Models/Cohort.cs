@@ -311,6 +311,22 @@ namespace SFA.DAS.CommitmentsV2.Models
             Publish(() => new TransferRequestCreatedEvent(transferRequest.Id, Id, DateTime.UtcNow, lastApprovedByParty));
         }
 
+		public void Delete(Party modifyingParty, UserInfo userInfo)
+        {
+            CheckIsWithParty(modifyingParty);
+
+            StartTrackingSession(UserAction.DeleteCohort, modifyingParty, EmployerAccountId, ProviderId.Value, userInfo);
+            ChangeTrackingSession.TrackUpdate(this);
+            
+            MarkAsDeletedAndEmitCohortDeletedEvent();
+
+            foreach (var draftApprenticeship in DraftApprenticeships.ToArray())
+            {
+                RemoveDraftApprenticeship(draftApprenticeship);
+            }
+
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
         public void DeleteDraftApprenticeship(long draftApprenticeshipId, Party modifyingParty, UserInfo userInfo)
         {
             CheckIsWithParty(modifyingParty);
@@ -321,20 +337,33 @@ namespace SFA.DAS.CommitmentsV2.Models
             ChangeTrackingSession.TrackUpdate(this);
             ChangeTrackingSession.TrackDelete(draftApprenticeship);
 
-            Apprenticeships.Remove(draftApprenticeship);
+            RemoveDraftApprenticeship(draftApprenticeship);
 
             ResetApprovals();
             ResetTransferSenderRejection();
-
+            
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+		
+		private void RemoveDraftApprenticeship(DraftApprenticeship draftApprenticeship)
+        {
+            ChangeTrackingSession.TrackDelete(draftApprenticeship);
+            Apprenticeships.Remove(draftApprenticeship);
             Publish(() => new DraftApprenticeshipDeletedEvent
             {
-                DraftApprenticeshipId = draftApprenticeshipId,
+                DraftApprenticeshipId = draftApprenticeship.Id,
                 CohortId = draftApprenticeship.CommitmentId,
                 Uln = draftApprenticeship.Uln,
                 ReservationId = draftApprenticeship.ReservationId,
                 DeletedOn = DateTime.UtcNow
             });
-            ChangeTrackingSession.CompleteTrackingSession();
+        }
+		
+		private void MarkAsDeletedAndEmitCohortDeletedEvent()
+        {
+            var approvalStatusPriorToDeletion = Approvals;
+            IsDeleted = true;
+            Publish(() => new CohortDeletedEvent(Id, EmployerAccountId, ProviderId.Value, approvalStatusPriorToDeletion, DateTime.UtcNow));
         }
 
         private void ResetTransferSenderRejection()

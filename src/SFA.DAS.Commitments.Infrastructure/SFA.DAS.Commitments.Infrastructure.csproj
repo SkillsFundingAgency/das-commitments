@@ -258,6 +258,7 @@
     <Compile Include="Services\AssessmentOrgsDocumentService.cs" />
     <Compile Include="Services\AssessmentOrgsService.cs" />
     <Compile Include="Services\CurrentDateTime.cs" />
+    <Compile Include="Services\DummyEventsApiClient.cs" />
     <Compile Include="Services\EmployerAccountsService.cs" />
     <Compile Include="Services\FeatureToggleService.cs" />
     <Compile Include="Services\HttpClientWrapper.cs" />

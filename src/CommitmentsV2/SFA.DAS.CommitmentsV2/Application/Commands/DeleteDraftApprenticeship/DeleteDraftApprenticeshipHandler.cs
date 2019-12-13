@@ -30,7 +30,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.DeleteDraftApprenticeship
             {
                 await _cohortDomainService.DeleteDraftApprenticeship(command.CohortId, command.ApprenticeshipId, command.UserInfo, cancellationToken);
 
-                _logger.LogInformation($"Deleted apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId} Commitment-Id:{command.CohortId}");
+                _logger.LogInformation($"Deleted apprenticeShip. Apprenticeship-Id:{command.ApprenticeshipId} Cohort-Id:{command.CohortId}");
             }
             catch(Exception e)
             {
