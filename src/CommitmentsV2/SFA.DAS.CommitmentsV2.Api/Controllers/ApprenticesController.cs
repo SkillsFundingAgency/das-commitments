@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +20,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _mediator = mediator;
             _logger = logger;
         }
-
-        [Authorize]
+       
         [HttpGet]
         [Route("{providerId}")]
         public async Task<IActionResult> GetApprovedApprentices(uint providerId)
