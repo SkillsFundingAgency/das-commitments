@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data
 {
-    public class ProviderCommitmentsDbContext : DbContext
+    public class ProviderCommitmentsDbContext : DbContext, IProviderCommitmentsDbContext
     {
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
