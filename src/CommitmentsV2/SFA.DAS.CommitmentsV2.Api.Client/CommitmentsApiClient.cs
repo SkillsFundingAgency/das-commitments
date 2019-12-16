@@ -116,11 +116,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.Get<long?>($"api/employer-agreements/{accountLegalEntityId}/latest-id", null, cancellationToken);
         }
 
-
         public Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             return _client.PostAsJson($"api/cohorts/{cohortId}/delete", userInfo, cancellationToken);
         }
+
 
         public Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default)
         {
