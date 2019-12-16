@@ -1,4 +1,4 @@
-﻿using AutoFixture.NUnit3;
+﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Models;
@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             result.PlannedEndDateTime.Should().Be(source.EndDate.Value);
             result.PaymentStatus.Should().Be(source.PaymentStatus);
             result.Uln.Should().Be(source.Uln);
-            //todo: datalockstatus
+            result.DataLockStatus.Should().BeEquivalentTo(source.DataLockStatus.Select(status => status.Status));
         }
     }
 }

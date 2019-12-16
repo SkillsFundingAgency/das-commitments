@@ -21,8 +21,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
         public async Task<GetApprovedApprenticesResponse> Handle(GetApprovedApprenticesRequest request, CancellationToken cancellationToken)
         {
             var matched = await _dbContext.ApprovedApprenticeships
-                //.Include(apprenticeship => apprenticeship.Cohort)
-                //.Include(apprenticeship => apprenticeship.DataLockStatus)
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
                 .Select(apprenticeship => (ApprenticeshipDetails)apprenticeship)
                 .ToListAsync(cancellationToken);

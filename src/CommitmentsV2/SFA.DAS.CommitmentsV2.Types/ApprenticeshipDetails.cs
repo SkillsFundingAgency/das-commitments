@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Types
 {
@@ -13,5 +14,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public DateTime PlannedEndDateTime { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public string Alerts { get; set; }
+        public IEnumerable<byte> DataLockStatus { get; set; }
     }
 }

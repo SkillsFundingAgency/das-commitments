@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
@@ -33,7 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Models
                 PlannedStartDate = source.StartDate.GetValueOrDefault(),
                 PlannedEndDateTime = source.EndDate.GetValueOrDefault(),
                 PaymentStatus = source.PaymentStatus,
-                Uln = source.Uln
+                Uln = source.Uln,
+                DataLockStatus = source.DataLockStatus.Select(status => status.Status)
             };
         }
     }
