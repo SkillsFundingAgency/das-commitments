@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
         [Test]
         public async Task Handle_WhenCohortApprovedByBoth_And_TransferSenderApproved_ThenShouldReturnResult()
         {
-            var result = await _fixture.AddCohortAndProvider_WithTransfserSenderApproved()
+            var result = await _fixture.AddCohortAndProvider_WithTransferSenderApproved()
                 .SeedDb().Handle();
 
             Assert.AreEqual(1, result.ProviderIds.Count());
@@ -100,8 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedProvide
             return this;
         }
 
-
-        public GetApprovedProvidersQueryHandlerFixture AddCohortAndProvider_WithTransfserSenderApproved()
+        public GetApprovedProvidersQueryHandlerFixture AddCohortAndProvider_WithTransferSenderApproved()
         {
             var provider = new Provider(GetNextProviderId(), "Foo", DateTime.UtcNow, DateTime.UtcNow);
 
