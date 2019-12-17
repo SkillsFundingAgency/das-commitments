@@ -342,6 +342,11 @@ namespace SFA.DAS.CommitmentsV2.Models
 
             ResetApprovals();
             ResetTransferSenderRejection();
+
+            if (!DraftApprenticeships.Any())
+            {
+                MarkAsDeletedAndEmitCohortDeletedEvent();
+            }
             
             ChangeTrackingSession.CompleteTrackingSession();
         }
