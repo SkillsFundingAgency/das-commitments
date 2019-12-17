@@ -451,11 +451,20 @@ namespace SFA.DAS.CommitmentsV2.Models
                 yield break;
             }
 
-            if (draftApprenticeshipDetails.EndDate.HasValue && draftApprenticeshipDetails.StartDate.HasValue && draftApprenticeshipDetails.EndDate <= draftApprenticeshipDetails.StartDate)
+            if (draftApprenticeshipDetails.EndDate.HasValue
+                && draftApprenticeshipDetails.StartDate.HasValue)
             {
-                yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+                var startDate = draftApprenticeshipDetails.StartDate.Value;
+                var endDate = draftApprenticeshipDetails.EndDate.Value;
+
+                if (endDate.Year < startDate.Year ||
+                    (startDate.Year == endDate.Year && endDate.Month < startDate.Month ))
+                {
+                    yield return new DomainError(nameof(draftApprenticeshipDetails.EndDate), "The end date must not be on or before the start date");
+                }
             }
         }
+
 
         private IEnumerable<DomainError> BuildCostValidationFailures(DraftApprenticeshipDetails draftApprenticeshipDetails)
         {
