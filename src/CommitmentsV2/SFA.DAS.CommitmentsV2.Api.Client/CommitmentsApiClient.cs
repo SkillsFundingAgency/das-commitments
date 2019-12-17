@@ -121,6 +121,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson($"api/cohorts/{cohortId}/delete", userInfo, cancellationToken);
         }
 
+
+        public Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<AccountResponse>($"api/accounts/{accountId}", null, cancellationToken);
+        }
+
         public Task<string> SecureCheck()
         {
             return _client.Get("api/test");
