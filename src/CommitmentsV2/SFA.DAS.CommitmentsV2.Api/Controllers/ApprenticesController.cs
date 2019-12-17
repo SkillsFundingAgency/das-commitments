@@ -36,5 +36,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
             return Ok(response.Apprenticeships);
         }
+
+        [Authorize]
+        [HttpGet]
+        [Route("{providerId}")]
+        public Task<IActionResult> GetApprovedApprenticesFilterValues(uint providerId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
