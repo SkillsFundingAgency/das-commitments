@@ -57,7 +57,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpPost]
-        [Route("with-other-party")] // TODO: Remove after CV-388 has been deployed to PROD
         [Route("create-with-other-party")]
         public async Task<IActionResult> Create([FromBody]CreateCohortWithOtherPartyRequest request)
         {
