@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
@@ -39,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprovedApprenticesRequest>(r => r.ProviderId.Equals(providerId)), 
+                It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(providerId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -60,8 +60,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
                 PaymentStatus = PaymentStatus.Active
             };
 
-            _mediator.Setup(m => m.Send(It.Is<GetApprovedApprenticesRequest>(r => r.ProviderId.Equals(providerId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprovedApprenticesResponse
+            _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(providerId)),
+                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsResponse
             {
                     Apprenticeships = new []{ expectedApprenticeship}
             });

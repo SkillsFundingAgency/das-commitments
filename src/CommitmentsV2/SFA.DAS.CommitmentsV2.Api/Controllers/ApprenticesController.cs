@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -29,7 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             try
             {
-                var response = await _mediator.Send(new GetApprovedApprenticesRequest {ProviderId = providerId});
+                var response = await _mediator.Send(new GetApprenticeshipsRequest {ProviderId = providerId});
 
                 if (response == null)
                 {
