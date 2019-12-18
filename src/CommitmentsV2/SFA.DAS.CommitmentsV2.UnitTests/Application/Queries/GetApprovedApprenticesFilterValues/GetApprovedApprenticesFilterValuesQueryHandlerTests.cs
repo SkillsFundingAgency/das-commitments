@@ -36,5 +36,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
             result.EmployerNames.Should().BeEquivalentTo(expectedEmployerNames);
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_All_Distinct_Course_Names(
+            GetApprovedApprenticesFilterValuesQuery query,
+            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprovedApprenticesFilterValuesQueryHandler handler)
+        {
+            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[2].CourseName = approvedApprenticeships[1].CourseName;
+
+            var expectedCourseNames = new[]
+                {approvedApprenticeships[0].CourseName, approvedApprenticeships[1].CourseName};
+
+            mockContext
+                .Setup(context => context.ApprovedApprenticeships)
+                .ReturnsDbSet(approvedApprenticeships);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.CourseNames.Should().BeEquivalentTo(expectedCourseNames);
+        }
     }
 }

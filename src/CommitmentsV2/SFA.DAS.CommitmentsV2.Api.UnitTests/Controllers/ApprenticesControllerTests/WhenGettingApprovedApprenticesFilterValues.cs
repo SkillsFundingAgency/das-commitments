@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -45,13 +46,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticesControllerT
         {
             //Arrange
             var providerId = (uint)10;
-            var expectedEmployerNames = new[] {"Test 1", "Test 2"};
+            var expectedResponse = new GetApprovedApprenticesFilterValuesResponse
+            {
+                EmployerNames = new[] {"Test 1", "Test 2"},
+                CourseNames = new[] {"Test 3", "Test 4"},
+            };
 
             _mediator.Setup(m => m.Send(It.Is<GetApprovedApprenticesFilterValuesQuery>(r => r.ProviderId.Equals(providerId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprovedApprenticesFilterValuesResponse
-                {
-                    EmployerNames = expectedEmployerNames
-                });
+                It.IsAny<CancellationToken>())).ReturnsAsync(expectedResponse);
 
             //Act
             var result = await _controller.GetApprovedApprenticesFilterValues(providerId) as OkObjectResult;
@@ -61,9 +63,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticesControllerT
 
             var filterValues = result.Value as GetApprovedApprenticesFilterValuesResponse;
 
-            Assert.IsNotNull(filterValues);
-            Assert.IsNotEmpty(filterValues.EmployerNames);
-            Assert.AreEqual(expectedEmployerNames, filterValues.EmployerNames);
+            filterValues.Should().BeEquivalentTo(expectedResponse);
         }
 
         [Test]
