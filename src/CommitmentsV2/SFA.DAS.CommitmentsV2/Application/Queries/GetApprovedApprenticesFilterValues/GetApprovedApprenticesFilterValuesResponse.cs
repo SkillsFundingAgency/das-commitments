@@ -6,5 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
     {
         public IEnumerable<string> EmployerNames { get; set; }
         public IEnumerable<string> CourseNames { get; set; }
+        public IEnumerable<string> Statuses { get; set; }
     }
 }

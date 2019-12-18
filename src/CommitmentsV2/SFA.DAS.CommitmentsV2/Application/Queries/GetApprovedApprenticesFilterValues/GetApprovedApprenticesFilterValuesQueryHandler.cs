@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Data;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilterValues
 {
@@ -21,7 +23,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
         {
            var dbTasks = new []{
                 GetDistinctEmployerNames(request, cancellationToken),
-                GetDistinctCourseNames(request, cancellationToken)
+                GetDistinctCourseNames(request, cancellationToken),
+                GetDistinctStatuses(request, cancellationToken)
             };
 
             Task.WaitAll(dbTasks.ToArray<Task>());
@@ -30,6 +33,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
             {
                 EmployerNames = dbTasks[0].Result,
                 CourseNames = dbTasks[1].Result,
+                Statuses = dbTasks[2].Result
             });
         }
 
@@ -50,6 +54,17 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
                 .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
                 .Select(apprenticeship => apprenticeship.CourseName)
                 .Distinct()
+                .ToListAsync(cancellationToken);
+        }
+
+        private Task<List<string>> GetDistinctStatuses(GetApprovedApprenticesFilterValuesQuery request, CancellationToken cancellationToken)
+        {
+            return _dbContext.ApprovedApprenticeships
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Select(apprenticeship => apprenticeship.Cohort.CommitmentStatus)
+                .Distinct()
+                .Select(status => Enum.GetName(typeof(CommitmentStatus), status))
                 .ToListAsync(cancellationToken);
         }
     }
