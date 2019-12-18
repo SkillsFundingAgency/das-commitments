@@ -44,11 +44,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
 
             return new GetApprovedApprenticesResponse
             {
-<<<<<<< HEAD
                 Apprenticeships = SortApprenticeships(mapped)
-=======
-                Apprenticeships = SortApprenticeships(matched)
->>>>>>> 027a5b9f201af0654cdda4adccb2d1d9bc868a1a
             };
         }
 
@@ -113,11 +109,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
             {
                 if (hasAlerts && string.Equals(apprenticeships[i].ApprenticeFirstName, apprenticeships[i + 1].ApprenticeFirstName, StringComparison.CurrentCultureIgnoreCase))
                 {
-<<<<<<< HEAD
                     if (apprenticeships[i].Alerts.FirstOrDefault() != apprenticeships[i + 1].Alerts.FirstOrDefault())
-=======
-                    if (apprenticeships[i].Alerts.FirstOrDefault() != apprenticeships[1 + 1].Alerts.FirstOrDefault())
->>>>>>> 027a5b9f201af0654cdda4adccb2d1d9bc868a1a
                     {
                         return apprenticeships;
                     }
