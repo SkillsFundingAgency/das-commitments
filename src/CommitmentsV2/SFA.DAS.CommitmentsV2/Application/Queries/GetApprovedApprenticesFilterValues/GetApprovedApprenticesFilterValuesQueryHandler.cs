@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,8 +36,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
                 EmployerNames = dbTasks[0].Result,
                 CourseNames = dbTasks[1].Result,
                 Statuses = dbTasks[2].Result,
-                PlannedStartDates = dbTasks[3].Result,
-                PlannedEndDates = dbTasks[4].Result
+                PlannedStartDates = dbTasks[3].Result.Distinct(),
+                PlannedEndDates = dbTasks[4].Result.Distinct()
             });
         }
 
@@ -79,8 +78,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
                 .Select(apprenticeship => apprenticeship.StartDate.HasValue ? apprenticeship.StartDate.Value.ToString("dd/MM/yyyy") : "N/A")
-                .Distinct()
-                
                 .ToListAsync(cancellationToken);
         }
 
@@ -90,8 +87,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
                 .Select(apprenticeship => apprenticeship.EndDate.HasValue ? apprenticeship.EndDate.Value.ToString("dd/MM/yyyy") : "N/A")
-                .Distinct()
-
                 .ToListAsync(cancellationToken);
         }
     }
