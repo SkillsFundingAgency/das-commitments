@@ -15,6 +15,3 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
         }
     }
 }
-
-
-

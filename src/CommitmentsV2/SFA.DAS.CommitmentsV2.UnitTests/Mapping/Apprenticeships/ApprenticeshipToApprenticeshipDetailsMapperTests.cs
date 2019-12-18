@@ -1,19 +1,21 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
+using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
-using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.CommitmentsV2.UnitTests.Models
+namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
 {
-    public class ApprovedApprenticeshipTests
+    public class ApprenticeshipToApprenticeshipDetailsMapperTests
     {
         [Test, RecursiveMoqAutoData]
-        public void Then_Casts_ApprovedApprenticeship_To_ApprenticeshipDetails(
-            ApprovedApprenticeship source)
+        public async Task Then_Maps_Apprenticeship_To_ApprenticeshipDetails(
+            ApprovedApprenticeship source,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
-            ApprenticeshipDetails result = source;
+            var result = await mapper.Map(source);
 
             result.ApprenticeFirstName.Should().Be(source.FirstName);
             result.ApprenticeLastName.Should().Be(source.LastName);
@@ -23,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models
             result.PlannedEndDateTime.Should().Be(source.EndDate.Value);
             result.PaymentStatus.Should().Be(source.PaymentStatus);
             result.Uln.Should().Be(source.Uln);
-            result.DataLockStatus.Should().BeEquivalentTo(source.DataLockStatus.Select(status => status.Status));
+            result.Alerts.Should().BeEquivalentTo(source.DataLockStatus.Select(status => status.Status.ToString()));
         }
     }
 }

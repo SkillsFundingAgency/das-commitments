@@ -13,7 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public DateTime PlannedStartDate { get; set; }
         public DateTime PlannedEndDateTime { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public string Alerts { get; set; }
-        public IEnumerable<byte> DataLockStatus { get; set; }
+        public IEnumerable<string> Alerts { get; set; }
     }
 }

@@ -8,6 +8,8 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<DataLockStatus> builder)
         {
+            builder.ToTable("DataLockStatus");
+
             builder.Property(e => e.DataLockEventDatetime).HasColumnType("datetime");
             builder.Property(e => e.EventStatus).HasDefaultValueSql("((1))");
             builder.Property(e => e.Expired).HasColumnType("datetime");

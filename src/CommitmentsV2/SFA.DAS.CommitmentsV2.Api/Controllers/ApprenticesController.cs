@@ -27,14 +27,22 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("{providerId}")]
         public async Task<IActionResult> GetApprovedApprentices(uint providerId)
         {
-            var response = await _mediator.Send(new GetApprovedApprenticesRequest {ProviderId = providerId});
-
-            if (response == null)
+            try
             {
-                return NotFound();
-            }
+                var response = await _mediator.Send(new GetApprovedApprenticesRequest {ProviderId = providerId});
 
-            return Ok(response.Apprenticeships);
+                if (response == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(response.Apprenticeships);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
         }
     }
 }
