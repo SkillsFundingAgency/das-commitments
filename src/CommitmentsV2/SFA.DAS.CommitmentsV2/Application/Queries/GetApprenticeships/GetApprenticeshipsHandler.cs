@@ -42,8 +42,58 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             return new GetApprenticeshipsResponse
             {
-                Apprenticeships = mapped
+                Apprenticeships = SortApprenticeships(mapped)
             };
+        }
+        private List<ApprenticeshipDetails> SortApprenticeships(List<ApprenticeshipDetails> apprenticeships)
+        {
+            var sortedApprenticeships = new List<ApprenticeshipDetails>();
+
+            var apprenticeshipsWithAlerts = SortApprenticeshipsWithAlerts(apprenticeships);
+
+            foreach (var apprenticeship in apprenticeshipsWithAlerts)
+            {
+                sortedApprenticeships.Add(apprenticeship);
+            }
+
+            var apprenticeshipsWithoutAlerts = SortApprenticeshipsWithoutAlerts(apprenticeships);
+
+            foreach (var apprenticeship in apprenticeshipsWithoutAlerts)
+            {
+                sortedApprenticeships.Add(apprenticeship);
+            }
+
+            return sortedApprenticeships;
+        }
+
+        private List<ApprenticeshipDetails> SortApprenticeshipsWithAlerts(List<ApprenticeshipDetails> apprenticeships)
+        {
+            var apprenticeshipsWithAlerts = new List<ApprenticeshipDetails>();
+            foreach (var apprenticeship in apprenticeships)
+            {
+                if (apprenticeship.Alerts != null)
+                { apprenticeshipsWithAlerts.Add(apprenticeship); }
+            }
+
+            var apprenticeshipsWithAlertsSortedByName =
+                new List<ApprenticeshipDetails>(apprenticeshipsWithAlerts.OrderBy(x => x.ApprenticeFirstName));
+
+            return apprenticeshipsWithAlertsSortedByName;
+        }
+
+        private List<ApprenticeshipDetails> SortApprenticeshipsWithoutAlerts(List<ApprenticeshipDetails> apprenticeships)
+        {
+            var apprenticeshipsWithoutAlerts = new List<ApprenticeshipDetails>();
+            foreach (var apprenticeship in apprenticeships)
+            {
+                if (apprenticeship.Alerts == null)
+                { apprenticeshipsWithoutAlerts.Add(apprenticeship); }
+            }
+
+            var apprenticeshipsWithoutAlertsSortedByName =
+                new List<ApprenticeshipDetails>(apprenticeshipsWithoutAlerts.OrderBy(x => x.ApprenticeFirstName));
+
+            return apprenticeshipsWithoutAlertsSortedByName;
         }
     }
 }
