@@ -3,7 +3,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public abstract class Apprenticeship
+    public abstract class ApprenticeshipBase
     {
         public bool IsApproved { get; set; }
 

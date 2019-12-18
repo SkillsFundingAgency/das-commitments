@@ -8,7 +8,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<ApprovedApprenticeship> builder)
         {
-            builder.HasBaseType<Apprenticeship>();
+            builder.HasBaseType<ApprenticeshipBase>();
 
             builder.Property(e => e.PauseDate).HasColumnType("date");
             builder.Property(e => e.StopDate).HasColumnType("date");

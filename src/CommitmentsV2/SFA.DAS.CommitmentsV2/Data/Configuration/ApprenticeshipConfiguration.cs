@@ -4,9 +4,9 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Data.Configuration
 {
-    public class ApprenticeshipConfiguration : IEntityTypeConfiguration<Apprenticeship>
+    public class ApprenticeshipConfiguration : IEntityTypeConfiguration<ApprenticeshipBase>
     {
-        public void Configure(EntityTypeBuilder<Apprenticeship> builder)
+        public void Configure(EntityTypeBuilder<ApprenticeshipBase> builder)
         {
             SetTablePerHierarchy(builder);
             
@@ -62,7 +62,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
             builder.Property(e => e.ProgrammeType).HasColumnName("TrainingType");
         }
 
-        private void SetTablePerHierarchy(EntityTypeBuilder<Apprenticeship> builder)
+        private void SetTablePerHierarchy(EntityTypeBuilder<ApprenticeshipBase> builder)
         {
             /*
              *  TPH requires a discriminator column. By default this is called Discriminator and is a string, but this can be configured.
@@ -78,7 +78,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
              */
 
             builder.ToTable("Apprenticeship")
-                .HasDiscriminator<bool>(nameof(Apprenticeship.IsApproved))
+                .HasDiscriminator<bool>(nameof(ApprenticeshipBase.IsApproved))
                 .HasValue<DraftApprenticeship>(false)
                 .HasValue<ApprovedApprenticeship>(true);
 

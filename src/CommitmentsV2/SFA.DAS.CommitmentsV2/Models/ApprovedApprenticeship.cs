@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class ApprovedApprenticeship : Apprenticeship
+    public class ApprovedApprenticeship : ApprenticeshipBase
     {
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
