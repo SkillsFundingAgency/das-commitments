@@ -11,9 +11,9 @@ using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers
+namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticesControllerTests
 {
-    public class ApprenticesControllerTests
+    public class WhenGettingApprovedApprentices
     {
         private Mock<IMediator> _mediator;
         private Mock<ILogger<ApprenticesController>> _logger;

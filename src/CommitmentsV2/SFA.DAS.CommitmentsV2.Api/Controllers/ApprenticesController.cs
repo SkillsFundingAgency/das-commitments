@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilterValues;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _logger = logger;
         }
 
-        [Authorize]
+        
         [HttpGet]
         [Route("{providerId}")]
         public async Task<IActionResult> GetApprovedApprentices(uint providerId)
@@ -37,12 +37,18 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             return Ok(response.Apprenticeships);
         }
 
-        [Authorize]
         [HttpGet]
-        [Route("{providerId}")]
-        public Task<IActionResult> GetApprovedApprenticesFilterValues(uint providerId)
+        [Route("filters/{providerId}")]
+        public async Task<IActionResult> GetApprovedApprenticesFilterValues(uint providerId)
         {
-            throw new NotImplementedException();
+            var response = await _mediator.Send(new GetApprovedApprenticesFilterValuesQuery { ProviderId = providerId });
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
         }
     }
 }
