@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +25,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
            var dbTasks = new []{
                 GetDistinctEmployerNames(request, cancellationToken),
                 GetDistinctCourseNames(request, cancellationToken),
-                GetDistinctStatuses(request, cancellationToken)
+                GetDistinctStatuses(request, cancellationToken),
+                GetDistinctStartDates(request, cancellationToken),
+                GetDistinctEndDates(request, cancellationToken)
             };
 
             Task.WaitAll(dbTasks.ToArray<Task>());
@@ -33,7 +36,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
             {
                 EmployerNames = dbTasks[0].Result,
                 CourseNames = dbTasks[1].Result,
-                Statuses = dbTasks[2].Result
+                Statuses = dbTasks[2].Result,
+                PlannedStartDates = dbTasks[3].Result,
+                PlannedEndDates = dbTasks[4].Result
             });
         }
 
@@ -65,6 +70,28 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilter
                 .Select(apprenticeship => apprenticeship.Cohort.CommitmentStatus)
                 .Distinct()
                 .Select(status => Enum.GetName(typeof(CommitmentStatus), status))
+                .ToListAsync(cancellationToken);
+        }
+
+        private Task<List<string>> GetDistinctStartDates(GetApprovedApprenticesFilterValuesQuery request, CancellationToken cancellationToken)
+        {
+            return _dbContext.ApprovedApprenticeships
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Select(apprenticeship => apprenticeship.StartDate.HasValue ? apprenticeship.StartDate.Value.ToString("dd/MM/yyyy") : "N/A")
+                .Distinct()
+                
+                .ToListAsync(cancellationToken);
+        }
+
+        private Task<List<string>> GetDistinctEndDates(GetApprovedApprenticesFilterValuesQuery request, CancellationToken cancellationToken)
+        {
+            return _dbContext.ApprovedApprenticeships
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Where(apprenticeship => apprenticeship.ProviderRef == request.ProviderId.ToString())
+                .Select(apprenticeship => apprenticeship.EndDate.HasValue ? apprenticeship.EndDate.Value.ToString("dd/MM/yyyy") : "N/A")
+                .Distinct()
+
                 .ToListAsync(cancellationToken);
         }
     }

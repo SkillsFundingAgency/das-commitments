@@ -89,5 +89,59 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
             result.Statuses.Should().BeEquivalentTo(expectedStatuses);
         }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_All_Distinct_Planned_Start_Dates(
+            GetApprovedApprenticesFilterValuesQuery query,
+            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprovedApprenticesFilterValuesQueryHandler handler)
+        {
+            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[2].StartDate = approvedApprenticeships[1].StartDate;
+
+            var expectedStartDates = new[]
+            {
+                approvedApprenticeships[0].StartDate.Value.ToString("dd/MM/yyyy"),
+                approvedApprenticeships[1].StartDate.Value.ToString("dd/MM/yyyy")
+            };
+
+            mockContext
+                .Setup(context => context.ApprovedApprenticeships)
+                .ReturnsDbSet(approvedApprenticeships);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.PlannedStartDates.Should().BeEquivalentTo(expectedStartDates);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_All_Distinct_Planned_End_Dates(
+            GetApprovedApprenticesFilterValuesQuery query,
+            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            GetApprovedApprenticesFilterValuesQueryHandler handler)
+        {
+            approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[2].ProviderRef = query.ProviderId.ToString();
+            approvedApprenticeships[2].EndDate = approvedApprenticeships[1].EndDate;
+
+            var expectedEndDates = new[]
+            {
+                approvedApprenticeships[0].EndDate.Value.ToString("dd/MM/yyyy"),
+                approvedApprenticeships[1].EndDate.Value.ToString("dd/MM/yyyy")
+            };
+
+            mockContext
+                .Setup(context => context.ApprovedApprenticeships)
+                .ReturnsDbSet(approvedApprenticeships);
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.PlannedEndDates.Should().BeEquivalentTo(expectedEndDates);
+        }
     }
 }

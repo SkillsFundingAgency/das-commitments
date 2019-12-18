@@ -51,6 +51,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticesControllerT
                 EmployerNames = new[] {"Test 1", "Test 2"},
                 CourseNames = new[] {"Test 3", "Test 4"},
                 Statuses = new[] { "Test 5", "Test 6" },
+                PlannedStartDates = new[] { "Test 7", "Test 8" },
+                PlannedEndDates = new[] { "Test 9", "Test 10" }
             };
 
             _mediator.Setup(m => m.Send(It.Is<GetApprovedApprenticesFilterValuesQuery>(r => r.ProviderId.Equals(providerId)),
