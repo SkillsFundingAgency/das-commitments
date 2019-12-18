@@ -5,9 +5,9 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
-    public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<ApprovedApprenticeship, ApprenticeshipDetails>
+    public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<Apprenticeship, ApprenticeshipDetails>
     {
-        public async Task<ApprenticeshipDetails> Map(ApprovedApprenticeship source)
+        public async Task<ApprenticeshipDetails> Map(Apprenticeship source)
         {
             await Task.CompletedTask;
             return new ApprenticeshipDetails

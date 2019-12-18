@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
         public virtual DbSet<DraftApprenticeship> DraftApprenticeships { get; set; }
-        public virtual DbSet<ApprovedApprenticeship> ApprovedApprenticeships { get; set; }
+        public virtual DbSet<Apprenticeship> Apprenticeships { get; set; }
         public virtual DbSet<ApprenticeshipUpdate> ApprenticeshipUpdates { get; set; }
         public virtual DbSet<AssessmentOrganisation> AssessmentOrganisations { get; set; }
         public virtual DbSet<BulkUpload> BulkUploads { get; set; }

@@ -57,7 +57,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 .SetApprovedApprenticeships(isFundedByTransfer)
                 .Handle();
             
-            _fixture.ApprovedApprenticeships.ForEach(
+            _fixture.Apprenticeships.ForEach(
                 a => _fixture.EventPublisher.Verify(
                     p => p.Publish(It.Is<ApprenticeshipCreatedEvent>(
                         e => _fixture.IsValid(apprenticeshipEmployerType, a, e))),
@@ -72,7 +72,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
         public Mock<IAccountApiClient> AccountApiClient { get; set; }
         public Mock<ProviderCommitmentsDbContext> Db { get; set; }
         public Mock<IEventPublisher> EventPublisher { get; set; }
-        public List<ApprovedApprenticeship> ApprovedApprenticeships { get; set; }
+        public List<Apprenticeship> Apprenticeships { get; set; }
         public IRequestHandler<ProcessFullyApprovedCohortCommand> Handler { get; set; }
         
         public ProcessFullyApprovedCohortCommandFixture()
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             AccountApiClient = new Mock<IAccountApiClient>();
             Db = new Mock<ProviderCommitmentsDbContext>(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options) { CallBase = true };
             EventPublisher = new Mock<IEventPublisher>();
-            ApprovedApprenticeships = new List<ApprovedApprenticeship>();
+            Apprenticeships = new List<Apprenticeship>();
             Handler = new ProcessFullyApprovedCohortCommandHandler(AccountApiClient.Object, new Lazy<ProviderCommitmentsDbContext>(() => Db.Object), EventPublisher.Object);
             
             AutoFixture.Behaviors.Add(new OmitOnRecursionBehavior());
@@ -115,43 +115,43 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
                 cohortBuilder.Without(c => c.TransferSenderId).Without(c => c.TransferApprovalActionedOn);
             }
             
-            var approvedApprenticeshipBuilder = AutoFixture.Build<ApprovedApprenticeship>().Without(a => a.DataLockStatus).Without(a => a.EpaOrg);
+            var apprenticeshipBuilder = AutoFixture.Build<Apprenticeship>().Without(a => a.DataLockStatus).Without(a => a.EpaOrg);
             var cohort1 = cohortBuilder.With(c => c.Id, Command.CohortId).Create();
             var cohort2 = cohortBuilder.Create();
-            var approvedApprenticeship1 = approvedApprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
-            var approvedApprenticeship2 = approvedApprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
-            var approvedApprenticeship3 = approvedApprenticeshipBuilder.With(a => a.Cohort, cohort2).Create();
-            var approvedApprenticeships1 = new[] { approvedApprenticeship1, approvedApprenticeship2 };
-            var approvedApprenticeships2 = new[] { approvedApprenticeship1, approvedApprenticeship2, approvedApprenticeship3 };
+            var apprenticeship1 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
+            var apprenticeship2 = apprenticeshipBuilder.With(a => a.Cohort, cohort1).Create();
+            var apprenticeship3 = apprenticeshipBuilder.With(a => a.Cohort, cohort2).Create();
+            var apprenticeships1 = new[] { apprenticeship1, apprenticeship2 };
+            var apprenticeships2 = new[] { apprenticeship1, apprenticeship2, apprenticeship3 };
             
-            ApprovedApprenticeships.AddRange(approvedApprenticeships1);
-            Db.Object.ApprovedApprenticeships.AddRange(approvedApprenticeships2);
+            Apprenticeships.AddRange(apprenticeships1);
+            Db.Object.Apprenticeships.AddRange(apprenticeships2);
             Db.Object.SaveChanges();
             
             return this;
         }
 
-        public bool IsValid(ApprenticeshipEmployerType apprenticeshipEmployerType, ApprovedApprenticeship approvedApprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
+        public bool IsValid(ApprenticeshipEmployerType apprenticeshipEmployerType, Apprenticeship apprenticeship, ApprenticeshipCreatedEvent apprenticeshipCreatedEvent)
         {
-            var isValid = apprenticeshipCreatedEvent.ApprenticeshipId == approvedApprenticeship.Id &&
-                          apprenticeshipCreatedEvent.CreatedOn == (approvedApprenticeship.Cohort.TransferApprovalActionedOn ?? approvedApprenticeship.AgreedOn.Value) &&
-                          apprenticeshipCreatedEvent.AgreedOn == approvedApprenticeship.AgreedOn.Value &&
-                          apprenticeshipCreatedEvent.AccountId == approvedApprenticeship.Cohort.EmployerAccountId &&
-                          apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == approvedApprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
-                          apprenticeshipCreatedEvent.LegalEntityName == approvedApprenticeship.Cohort.LegalEntityName &&
-                          apprenticeshipCreatedEvent.ProviderId == approvedApprenticeship.Cohort.ProviderId.Value &&
-                          apprenticeshipCreatedEvent.TransferSenderId == approvedApprenticeship.Cohort.TransferSenderId &&
+            var isValid = apprenticeshipCreatedEvent.ApprenticeshipId == apprenticeship.Id &&
+                          apprenticeshipCreatedEvent.CreatedOn == (apprenticeship.Cohort.TransferApprovalActionedOn ?? apprenticeship.AgreedOn.Value) &&
+                          apprenticeshipCreatedEvent.AgreedOn == apprenticeship.AgreedOn.Value &&
+                          apprenticeshipCreatedEvent.AccountId == apprenticeship.Cohort.EmployerAccountId &&
+                          apprenticeshipCreatedEvent.AccountLegalEntityPublicHashedId == apprenticeship.Cohort.AccountLegalEntityPublicHashedId &&
+                          apprenticeshipCreatedEvent.LegalEntityName == apprenticeship.Cohort.LegalEntityName &&
+                          apprenticeshipCreatedEvent.ProviderId == apprenticeship.Cohort.ProviderId.Value &&
+                          apprenticeshipCreatedEvent.TransferSenderId == apprenticeship.Cohort.TransferSenderId &&
                           apprenticeshipCreatedEvent.ApprenticeshipEmployerTypeOnApproval == apprenticeshipEmployerType &&
-                          apprenticeshipCreatedEvent.Uln == approvedApprenticeship.Uln &&
-                          apprenticeshipCreatedEvent.TrainingType == approvedApprenticeship.ProgrammeType.Value &&
-                          apprenticeshipCreatedEvent.TrainingCode == approvedApprenticeship.CourseCode &&
-                          apprenticeshipCreatedEvent.StartDate == approvedApprenticeship.StartDate.Value &&
-                          apprenticeshipCreatedEvent.EndDate == approvedApprenticeship.EndDate.Value &&
-                          apprenticeshipCreatedEvent.PriceEpisodes.Count() == approvedApprenticeship.PriceHistory.Count;
+                          apprenticeshipCreatedEvent.Uln == apprenticeship.Uln &&
+                          apprenticeshipCreatedEvent.TrainingType == apprenticeship.ProgrammeType.Value &&
+                          apprenticeshipCreatedEvent.TrainingCode == apprenticeship.CourseCode &&
+                          apprenticeshipCreatedEvent.StartDate == apprenticeship.StartDate.Value &&
+                          apprenticeshipCreatedEvent.EndDate == apprenticeship.EndDate.Value &&
+                          apprenticeshipCreatedEvent.PriceEpisodes.Count() == apprenticeship.PriceHistory.Count;
 
-            for (var i = 0; i < approvedApprenticeship.PriceHistory.Count; i++)
+            for (var i = 0; i < apprenticeship.PriceHistory.Count; i++)
             {
-                var priceHistory = approvedApprenticeship.PriceHistory.ElementAt(i);
+                var priceHistory = apprenticeship.PriceHistory.ElementAt(i);
                 var priceEpisode = apprenticeshipCreatedEvent.PriceEpisodes.ElementAtOrDefault(i);
 
                 isValid = isValid &&

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class ApprovedApprenticeship : ApprenticeshipBase
+    public class Apprenticeship : ApprenticeshipBase
     {
         public virtual ICollection<DataLockStatus> DataLockStatus { get; set; }
         public virtual ICollection<PriceHistory> PriceHistory { get; set; }
@@ -15,7 +15,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public byte? PendingUpdateOriginator { get; set; }
 
 
-        public ApprovedApprenticeship()
+        public Apprenticeship()
         {
             DataLockStatus = new List<DataLockStatus>();
             PriceHistory = new List<PriceHistory>();

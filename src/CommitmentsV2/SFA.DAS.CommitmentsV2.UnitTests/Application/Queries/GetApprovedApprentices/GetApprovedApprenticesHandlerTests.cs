@@ -20,16 +20,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_Approved_Apprentices(
             GetApprovedApprenticesRequest request,
-            List<ApprovedApprenticeship> approvedApprenticeships,
+            List<Apprenticeship> approvedApprenticeships,
             ApprenticeshipDetails apprenticeshipDetails,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            [Frozen] Mock<IMapper<ApprovedApprenticeship, ApprenticeshipDetails>> mockMapper,
+            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
             GetApprovedApprenticesHandler handler)
         {
             approvedApprenticeships[0].Cohort.ProviderId = request.ProviderId;
             approvedApprenticeships[1].Cohort.ProviderId = request.ProviderId;
             mockContext
-                .Setup(context => context.ApprovedApprenticeships)
+                .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(approvedApprenticeships);
             mockMapper
                 .Setup(mapper => mapper.Map(It.IsIn(approvedApprenticeships
