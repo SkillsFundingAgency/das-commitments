@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoFixture;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Domain.Extensions;
 using SFA.DAS.CommitmentsV2.Messages.Events;
@@ -66,6 +67,28 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             _fixture.VerifyTransferRejectionReset();
         }
 
+        [Test]
+        public void If_The_Cohort_Is_Left_Empty_Then_It_Is_Deleted()
+        {
+            _fixture
+                .WithParty(Party.Employer)
+                .WithCohortSize(1)
+                .DeleteDraftApprenticeship();
+
+            _fixture.VerifyCohortIsDeleted();
+        }
+
+        [Test]
+        public void If_The_Cohort_Is_Not_Left_Empty_Then_It_Is_Not_Deleted()
+        {
+            _fixture
+                .WithParty(Party.Employer)
+                .WithCohortSize(2)
+                .DeleteDraftApprenticeship();
+
+            _fixture.VerifyCohortIsNotDeleted();
+        }
+
         private class WhenDeletingDraftApprenticeshipFixture
         {
             public int CohortSize { get; private set; }
@@ -109,6 +132,13 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
                 return this;
             }
 
+            public WhenDeletingDraftApprenticeshipFixture WithCohortSize(int size)
+            {
+                CohortSize = size;
+                CreateCohort();
+                return this;
+            }
+
             public void DeleteDraftApprenticeship()
             {
                 var minId = (int) Cohort.DraftApprenticeships.Min(x => x.Id);
@@ -144,6 +174,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort
             public void VerifyCohortIsUnapprovedByAllParties()
             {
                 Assert.IsTrue(Cohort.Apprenticeships.All(x=> x.AgreementStatus == AgreementStatus.NotAgreed));
+            }
+
+            public void VerifyCohortIsDeleted()
+            {
+                Assert.IsTrue(Cohort.IsDeleted);
+                Assert.IsNotNull(UnitOfWorkContext.GetEvents().SingleOrDefault(x => x is CohortDeletedEvent));
+            }
+
+            public void VerifyCohortIsNotDeleted()
+            {
+                Assert.IsFalse(Cohort.IsDeleted);
             }
 
             public UserInfo UserInfo { get; }
