@@ -78,7 +78,6 @@
     <Build Include="Views\CommitmentSummary.sql" />
     <Build Include="Views\ApprenticeshipSummary.sql" />
     <Build Include="StoredProcedures\GetCommitment.sql" />
-    <Build Include="StoredProcedures\SetPaymentOrder.sql" />
     <Build Include="StoredProcedures\DeleteCommitment.sql" />
     <Build Include="StoredProcedures\GetActiveApprenticeshipsByULNs.sql" />
     <Build Include="UserDefinedTypes\ULNTable.sql" />
