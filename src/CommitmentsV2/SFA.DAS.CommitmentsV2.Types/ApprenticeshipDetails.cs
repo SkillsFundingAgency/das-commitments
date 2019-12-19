@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.CommitmentsV2.Types
 {
@@ -12,6 +13,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public DateTime PlannedStartDate { get; set; }
         public DateTime PlannedEndDateTime { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public string Alerts { get; set; }
+        public IEnumerable<string> Alerts { get; set; }
     }
 }

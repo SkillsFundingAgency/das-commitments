@@ -22,22 +22,5 @@ namespace SFA.DAS.CommitmentsV2.Models
             DataLockStatus = new List<DataLockStatus>();
             PriceHistory = new List<PriceHistory>();
         }
-
-        public static implicit operator ApprenticeshipDetails(ApprovedApprenticeship source)
-        {
-           
-
-            return new ApprenticeshipDetails
-            {
-                ApprenticeFirstName = source.FirstName,
-                ApprenticeLastName = source.LastName,
-                CourseName = source.CourseName,
-                EmployerName = source.Cohort.LegalEntityName,
-                PlannedStartDate = source.StartDate.GetValueOrDefault(),
-                PlannedEndDateTime = source.EndDate.GetValueOrDefault(),
-                PaymentStatus = source.PaymentStatus,
-                Uln = source.Uln
-            };
-        }
     }
 }
