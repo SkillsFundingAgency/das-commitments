@@ -1,7 +1,7 @@
 ﻿/*
 Apprenticeship Stop fix-up script
 This script stops a specific apprenticeship as at a given date. If the apprenticeship is already stopped, the stop date will be amended accordingly.
-IMPORTANT: Also generates a SQL statement to be run against the Events DB to keep things in sync.
+IMPORTANT: Other services such as Payments that require notification of stops must be informed, or the data they hold will be out of sync.
 */
   
 --Set the target record here:
