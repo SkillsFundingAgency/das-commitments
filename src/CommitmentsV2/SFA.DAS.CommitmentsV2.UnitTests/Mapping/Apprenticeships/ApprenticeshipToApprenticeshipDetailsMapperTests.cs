@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NUnit.Framework;
@@ -25,7 +26,17 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
             result.PlannedEndDateTime.Should().Be(source.EndDate.Value);
             result.PaymentStatus.Should().Be(source.PaymentStatus);
             result.Uln.Should().Be(source.Uln);
-            result.Alerts.Should().BeEquivalentTo(source.DataLockStatus.Select(status => status.Status.ToString()));
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public async Task And_Has_Course_Error_Then_Alert_ILR_Data_Mismatch(
+            Apprenticeship source,
+            ApprenticeshipToApprenticeshipDetailsMapper mapper)
+        {
+            source.DataLockStatus = new List<DataLockStatus>();
+            var result = await mapper.Map(source);
+
+            result.Alerts.Should().BeEquivalentTo(new List<string> {"ILR data mismatch"});
         }
     }
 }
