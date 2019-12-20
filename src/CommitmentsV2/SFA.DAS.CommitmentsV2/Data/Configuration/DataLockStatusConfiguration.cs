@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Data.Configuration
                 .IsRequired()
                 .HasMaxLength(25);
 
-            builder.HasOne(d => d.ApprovedApprenticeship)
+            builder.HasOne(d => d.Apprenticeship)
                 .WithMany(p => p.DataLockStatus)
                 .HasForeignKey(d => d.ApprenticeshipId)
                 .OnDelete(DeleteBehavior.ClientSetNull);

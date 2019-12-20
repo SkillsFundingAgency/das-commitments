@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             _trainingProgrammeApiClient = trainingProgrammeApiClient;
         }
 
-        public async Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<Apprenticeship> apprenticeships)
+        public async Task<IReadOnlyCollection<FundingCapCourseSummary>> FundingCourseSummary(IEnumerable<ApprenticeshipBase> apprenticeships)
         {
             decimal MaximumCappedCost(decimal? cost, int cap)
             {

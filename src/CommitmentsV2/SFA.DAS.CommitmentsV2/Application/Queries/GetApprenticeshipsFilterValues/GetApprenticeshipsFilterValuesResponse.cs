@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilterValues
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues
 {
-    public class GetApprovedApprenticesFilterValuesResponse
+    public class GetApprenticeshipsFilterValuesResponse
     {
         public IEnumerable<string> EmployerNames { get; set; }
         public IEnumerable<string> CourseNames { get; set; }

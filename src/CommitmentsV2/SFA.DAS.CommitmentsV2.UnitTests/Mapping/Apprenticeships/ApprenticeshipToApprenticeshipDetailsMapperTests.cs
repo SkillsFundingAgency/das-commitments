@@ -12,7 +12,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
     {
         [Test, RecursiveMoqAutoData]
         public async Task Then_Maps_Apprenticeship_To_ApprenticeshipDetails(
-            ApprovedApprenticeship source,
+            Apprenticeship source,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
             var result = await mapper.Map(source);

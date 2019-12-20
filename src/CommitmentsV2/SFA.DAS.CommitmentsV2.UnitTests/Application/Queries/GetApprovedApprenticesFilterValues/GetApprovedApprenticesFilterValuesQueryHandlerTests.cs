@@ -6,7 +6,7 @@ using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilterValues;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Types;
 using SFA.DAS.Testing.AutoFixture;
@@ -17,10 +17,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
     {
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Employer_Names(
-            GetApprovedApprenticesFilterValuesQuery query,
-            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            GetApprenticeshipsFilterValuesQuery query,
+            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            GetApprovedApprenticesFilterValuesQueryHandler handler)
+            GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
             approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
@@ -31,7 +31,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
                 {approvedApprenticeships[0].Cohort.LegalEntityName, approvedApprenticeships[1].Cohort.LegalEntityName};
 
             mockContext
-                .Setup(context => context.ApprovedApprenticeships)
+                .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(approvedApprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -41,10 +41,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Course_Names(
-            GetApprovedApprenticesFilterValuesQuery query,
-            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            GetApprenticeshipsFilterValuesQuery query,
+            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            GetApprovedApprenticesFilterValuesQueryHandler handler)
+            GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
             approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
@@ -55,7 +55,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
                 {approvedApprenticeships[0].CourseName, approvedApprenticeships[1].CourseName};
 
             mockContext
-                .Setup(context => context.ApprovedApprenticeships)
+                .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(approvedApprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -65,10 +65,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Statuses(
-            GetApprovedApprenticesFilterValuesQuery query,
-            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            GetApprenticeshipsFilterValuesQuery query,
+            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            GetApprovedApprenticesFilterValuesQueryHandler handler)
+            GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
             approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
@@ -82,7 +82,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
                 };
 
             mockContext
-                .Setup(context => context.ApprovedApprenticeships)
+                .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(approvedApprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -92,10 +92,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_Start_Dates(
-            GetApprovedApprenticesFilterValuesQuery query,
-            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            GetApprenticeshipsFilterValuesQuery query,
+            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            GetApprovedApprenticesFilterValuesQueryHandler handler)
+            GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
             approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
@@ -109,7 +109,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             };
 
             mockContext
-                .Setup(context => context.ApprovedApprenticeships)
+                .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(approvedApprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -119,10 +119,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
 
         [Test, RecursiveMoqAutoData]
         public async Task Then_Returns_All_Distinct_Planned_End_Dates(
-            GetApprovedApprenticesFilterValuesQuery query,
-            List<CommitmentsV2.Models.ApprovedApprenticeship> approvedApprenticeships,
+            GetApprenticeshipsFilterValuesQuery query,
+            List<CommitmentsV2.Models.Apprenticeship> approvedApprenticeships,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
-            GetApprovedApprenticesFilterValuesQueryHandler handler)
+            GetApprenticeshipsFilterValuesQueryHandler handler)
         {
             approvedApprenticeships[0].ProviderRef = query.ProviderId.ToString();
             approvedApprenticeships[1].ProviderRef = query.ProviderId.ToString();
@@ -136,7 +136,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
             };
 
             mockContext
-                .Setup(context => context.ApprovedApprenticeships)
+                .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(approvedApprenticeships);
 
             var result = await handler.Handle(query, CancellationToken.None);

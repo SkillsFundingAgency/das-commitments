@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprenticesFilterValues;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 
 namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprenticesFilterValues
 {
@@ -11,8 +11,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprovedApprent
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(uint providerId, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetApprovedApprenticesFilterValuesQueryValidator();
-            var validationResults = validator.Validate(new GetApprovedApprenticesFilterValuesQuery {ProviderId = providerId});
+            var validator = new GetApprenticeshipsFilterValuesQueryValidator();
+            var validationResults = validator.Validate(new GetApprenticeshipsFilterValuesQuery {ProviderId = providerId});
 
             // act
             var actualIsValid = validationResults.IsValid;

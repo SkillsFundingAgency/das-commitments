@@ -6,7 +6,7 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
-    public class DraftApprenticeship : Apprenticeship, ITrackableEntity
+    public class DraftApprenticeship : ApprenticeshipBase, ITrackableEntity
     {
         private bool IsCompleteForEmployer => 
             FirstName != null &&

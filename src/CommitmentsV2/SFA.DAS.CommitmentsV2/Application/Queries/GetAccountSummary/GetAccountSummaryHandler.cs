@@ -26,7 +26,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
             var hasCohorts = await _dbContext.Value.Cohorts
                 .AnyAsync(accountQuery.And(CohortQueries.IsNotFullyApproved()), cancellationToken: cancellationToken);
 
-            var hasApprenticeships = await _dbContext.Value.ApprovedApprenticeships
+            var hasApprenticeships = await _dbContext.Value.Apprenticeships
                 .AnyAsync(a => a.Cohort.EmployerAccountId == request.AccountId, cancellationToken: cancellationToken);
 
             return new GetAccountSummaryResponse
