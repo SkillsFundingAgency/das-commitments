@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.Http;
@@ -43,6 +44,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         public Task<CreateCohortResponse> CreateCohort(CreateCohortWithOtherPartyRequest request, CancellationToken cancellationToken = default)
         {
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
+        }
+
+        public Task<IEnumerable<ApprenticeshipDetails>> GetApprovedApprenticeships(uint providerId, CancellationToken cancellationToken = default)
+        {
+            return _client.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{providerId}", null, cancellationToken);
         }
 
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
