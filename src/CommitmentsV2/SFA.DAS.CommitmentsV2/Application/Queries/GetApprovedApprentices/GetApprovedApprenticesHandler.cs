@@ -79,9 +79,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
             }
 
             var apprenticeshipsWithAlertsSortedByName = 
-                new List<ApprenticeshipDetails>(apprenticeshipsWithAlerts.OrderBy(x => x.ApprenticeFirstName));
-
-            apprenticeshipsWithAlertsSortedByName = CheckForUniqueness(apprenticeshipsWithAlertsSortedByName, true);
+                new List<ApprenticeshipDetails>(apprenticeshipsWithAlerts.OrderBy(x => x.ApprenticeFirstName)
+                    .ThenBy(x => x.Uln)
+                    .ThenBy(x => x.EmployerName)
+                    .ThenBy(x => x.CourseName)
+                    .ThenBy(x => x.PlannedStartDate));
 
             return apprenticeshipsWithAlertsSortedByName;
         }
@@ -96,127 +98,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprovedApprentices
             }
 
             var apprenticeshipsWithoutAlertsSortedByName =
-                new List<ApprenticeshipDetails>(apprenticeshipsWithoutAlerts.OrderBy(x => x.ApprenticeFirstName));
-
-            apprenticeshipsWithoutAlertsSortedByName = CheckForUniqueness(apprenticeshipsWithoutAlertsSortedByName, false);
-
+                new List<ApprenticeshipDetails>(apprenticeshipsWithoutAlerts.OrderBy(x => x.ApprenticeFirstName)
+                    .ThenBy(x => x.Uln)
+                    .ThenBy(x => x.EmployerName)
+                    .ThenBy(x => x.CourseName)
+                    .ThenBy(x => x.PlannedStartDate));
+           
             return apprenticeshipsWithoutAlertsSortedByName;
-        }
-
-        private List<ApprenticeshipDetails> CheckForUniqueness(List<ApprenticeshipDetails> apprenticeships, bool hasAlerts)
-        {
-            for (int i = 0; i < apprenticeships.Count -1; i++)
-            {
-                if (hasAlerts && string.Equals(apprenticeships[i].ApprenticeFirstName, apprenticeships[i + 1].ApprenticeFirstName, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    if (apprenticeships[i].Alerts.FirstOrDefault() != apprenticeships[i + 1].Alerts.FirstOrDefault())
-                    {
-                        return apprenticeships;
-                    }
-                }
-                if (apprenticeships[i].ApprenticeFirstName.ToUpper() == apprenticeships[i + 1].ApprenticeFirstName.ToUpper())
-                {
-                    var comparedApprenticeships = CompareByUln(apprenticeships[i], apprenticeships[i + 1], hasAlerts);
-                    apprenticeships[i] = comparedApprenticeships[0];
-                    apprenticeships[i + 1] = comparedApprenticeships[1];
-                }
-            }
-
-            return apprenticeships;
-        }
-
-        private List<ApprenticeshipDetails> CompareByUln(ApprenticeshipDetails apprenticeship1,
-            ApprenticeshipDetails apprenticeship2, bool hasAlerts)
-        {
-            if (hasAlerts && apprenticeship1.Uln == apprenticeship2.Uln)
-            {
-                if (apprenticeship1.Alerts.FirstOrDefault() != apprenticeship2.Alerts.FirstOrDefault())
-                {
-                    return new List<ApprenticeshipDetails>{apprenticeship1,apprenticeship2};
-                }
-            }
-
-            var sortedApprenticeships = new List<ApprenticeshipDetails>();
-
-            if (apprenticeship1.Uln == apprenticeship2.Uln)
-            {
-                sortedApprenticeships = CompareByEmployerName(apprenticeship1, apprenticeship2, hasAlerts);
-            }
-            else
-            {
-                var unsortedApprenticeships = new List<ApprenticeshipDetails> { apprenticeship1, apprenticeship2 };
-                sortedApprenticeships = new List<ApprenticeshipDetails>(unsortedApprenticeships.OrderBy(x => x.Uln));
-            }
-
-            return sortedApprenticeships;
-        }
-
-        private List<ApprenticeshipDetails> CompareByEmployerName(ApprenticeshipDetails apprenticeship1,
-            ApprenticeshipDetails apprenticeship2, bool hasAlerts)
-        {
-            if (hasAlerts && string.Equals(apprenticeship1.EmployerName, apprenticeship2.EmployerName, StringComparison.CurrentCultureIgnoreCase))
-            {
-                if (apprenticeship1.Alerts.FirstOrDefault() != apprenticeship2.Alerts.FirstOrDefault())
-                {
-                    return new List<ApprenticeshipDetails> { apprenticeship1, apprenticeship2 };
-                }
-            }
-
-            var sortedApprenticeships = new List<ApprenticeshipDetails>();
-
-            if (string.Equals(apprenticeship1.EmployerName, apprenticeship2.EmployerName, StringComparison.CurrentCultureIgnoreCase))
-            {
-                sortedApprenticeships = CompareByApprenticeshipCourseName(apprenticeship1, apprenticeship2, hasAlerts);
-            }
-            else
-            {
-                var unsortedApprenticeships = new List<ApprenticeshipDetails> { apprenticeship1, apprenticeship2 };
-                sortedApprenticeships = new List<ApprenticeshipDetails>(unsortedApprenticeships.OrderBy(x => x.EmployerName));
-            }
-
-            return sortedApprenticeships;
-        }
-
-        private List<ApprenticeshipDetails> CompareByApprenticeshipCourseName(ApprenticeshipDetails apprenticeship1,
-            ApprenticeshipDetails apprenticeship2, bool hasAlerts)
-        {
-            if (hasAlerts && string.Equals(apprenticeship1.CourseName, apprenticeship2.CourseName, StringComparison.CurrentCultureIgnoreCase))
-            {
-                if (apprenticeship1.Alerts.FirstOrDefault() != apprenticeship2.Alerts.FirstOrDefault())
-                {
-                    return new List<ApprenticeshipDetails> { apprenticeship1, apprenticeship2 };
-                }
-            }
-
-            var sortedApprenticeships = new List<ApprenticeshipDetails>();
-
-            if (string.Equals(apprenticeship1.CourseName, apprenticeship2.CourseName, StringComparison.CurrentCultureIgnoreCase))
-            {
-                sortedApprenticeships = CompareByPlannedStartDate(apprenticeship1, apprenticeship2, hasAlerts);
-            }
-            else
-            {
-                var unsortedApprenticeships = new List<ApprenticeshipDetails> { apprenticeship1, apprenticeship2 };
-                sortedApprenticeships = new List<ApprenticeshipDetails>(unsortedApprenticeships.OrderBy(x => x.CourseName));
-            }
-
-            return sortedApprenticeships;
-        }
-
-        private List<ApprenticeshipDetails> CompareByPlannedStartDate(ApprenticeshipDetails apprenticeship1,
-            ApprenticeshipDetails apprenticeship2, bool hasAlerts)
-        {
-            if (hasAlerts && apprenticeship1.PlannedStartDate == apprenticeship2.PlannedStartDate)
-            {
-                if (apprenticeship1.Alerts.FirstOrDefault() != apprenticeship2.Alerts.FirstOrDefault())
-                {
-                    return new List<ApprenticeshipDetails> { apprenticeship1, apprenticeship2 };
-                }
-            }
-            var unsortedApprenticeships = new List<ApprenticeshipDetails> {apprenticeship1, apprenticeship2};
-            var sortedApprenticeships = new List<ApprenticeshipDetails>(unsortedApprenticeships.OrderBy(x => x.Uln));
-            
-            return sortedApprenticeships;
         }
     }
 }
