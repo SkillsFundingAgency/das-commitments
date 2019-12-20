@@ -9,7 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Data
         DbSet<Account> Accounts { get; set; }
         DbSet<AccountLegalEntity> AccountLegalEntities { get; set; }
         DbSet<DraftApprenticeship> DraftApprenticeships { get; set; }
-        DbSet<ApprovedApprenticeship> ApprovedApprenticeships { get; set; }
+        DbSet<Apprenticeship> Apprenticeships { get; set; }
         DbSet<ApprenticeshipUpdate> ApprenticeshipUpdates { get; set; }
         DbSet<AssessmentOrganisation> AssessmentOrganisations { get; set; }
         DbSet<BulkUpload> BulkUploads { get; set; }

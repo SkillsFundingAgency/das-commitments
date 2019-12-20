@@ -87,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
             FundingCapCourseSummary2 = new FundingCapCourseSummary
                 {ActualCap = 1100, ApprenticeshipCount = 2, CappedCost = 1300, CourseTitle = "C2Title"};
             FundingService = new Mock<IFundingCapService>();
-            FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<Apprenticeship>>()))
+            FundingService.Setup(x => x.FundingCourseSummary(It.IsAny<IEnumerable<ApprenticeshipBase>>()))
                 .ReturnsAsync(new List<FundingCapCourseSummary> {FundingCapCourseSummary1, FundingCapCourseSummary2});
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()

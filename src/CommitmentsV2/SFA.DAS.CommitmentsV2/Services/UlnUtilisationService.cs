@@ -22,7 +22,7 @@ namespace SFA.DAS.CommitmentsV2.Services
         {
             using (var db = _dbContextFactory.CreateDbContext())
             {
-                var result = await db.ApprovedApprenticeships
+                var result = await db.Apprenticeships
                     .Where(ca => ca.Uln == uln)
                     .Select(x => new UlnUtilisation(x.Id,
                         x.Uln,
