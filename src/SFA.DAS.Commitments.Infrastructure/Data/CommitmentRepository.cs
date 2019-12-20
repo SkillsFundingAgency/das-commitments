@@ -158,18 +158,7 @@ AND (TransferApprovalStatus is null OR TransferApprovalStatus = {(int)TransferAp
 
         public async Task SetPaymentOrder(long accountId)
         {
-            await WithConnection(async c =>
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("@employerAccountId", accountId);
-
-                var returnCode = await c.ExecuteAsync(
-                    sql: "[dbo].[SetPaymentOrder]",
-                    param: parameters,
-                    commandType: CommandType.StoredProcedure);
-
-                return returnCode;
-            });
+            await Task.CompletedTask;
         }
 
         public async Task DeleteCommitment(long commitmentId)

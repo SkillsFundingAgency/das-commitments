@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
+using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipsFilterValues;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
@@ -22,7 +23,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             _logger = logger;
         }
 
-        [Authorize]
         [HttpGet]
         [Route("{providerId}")]
         public async Task<IActionResult> GetApprenticeships(uint providerId)
@@ -43,6 +43,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                 _logger.LogError(e, e.Message);
                 throw;
             }
+        }
+
+        [HttpGet]
+        [Route("filters/{providerId}")]
+        public async Task<IActionResult> GetApprenticeshipsFilterValues(uint providerId)
+        {
+            var response = await _mediator.Send(new GetApprenticeshipsFilterValuesQuery { ProviderId = providerId });
+
+            if (response == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response);
         }
     }
 }
