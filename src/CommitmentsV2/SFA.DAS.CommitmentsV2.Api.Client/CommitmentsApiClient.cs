@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
 
-        public Task<IEnumerable<ApprenticeshipDetails>> GetApprovedApprenticeships(uint providerId, CancellationToken cancellationToken = default)
+        public Task<IEnumerable<ApprenticeshipDetails>> GetApprenticeships(uint providerId, CancellationToken cancellationToken = default)
         {
             return _client.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{providerId}", null, cancellationToken);
         }

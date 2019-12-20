@@ -203,7 +203,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var expectedProviderId = (uint) 10;
 
             //Act
-            await _fixture.CommitmentsApiClient.GetApprovedApprenticeships(expectedProviderId);
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId);
 
             //Assert$
             _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}", null, CancellationToken.None));
