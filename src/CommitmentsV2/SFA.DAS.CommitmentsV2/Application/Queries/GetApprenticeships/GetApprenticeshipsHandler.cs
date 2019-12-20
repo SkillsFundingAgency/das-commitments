@@ -76,7 +76,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             }
 
             var apprenticeshipsWithAlertsSortedByName =
-                new List<ApprenticeshipDetails>(apprenticeshipsWithAlerts.OrderBy(x => x.ApprenticeFirstName));
+                new List<ApprenticeshipDetails>(
+                    apprenticeshipsWithAlerts
+                        .OrderBy(x => x.ApprenticeFirstName)
+                        .ThenBy(x => x.Uln)
+                        .ThenBy(x => x.EmployerName)
+                        .ThenBy(x => x.CourseName)
+                        .ThenBy(x => x.PlannedStartDate));
 
             return apprenticeshipsWithAlertsSortedByName;
         }
@@ -91,7 +97,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             }
 
             var apprenticeshipsWithoutAlertsSortedByName =
-                new List<ApprenticeshipDetails>(apprenticeshipsWithoutAlerts.OrderBy(x => x.ApprenticeFirstName));
+                new List<ApprenticeshipDetails>(
+                    apprenticeshipsWithoutAlerts
+                        .OrderBy(x => x.ApprenticeFirstName)
+                        .ThenBy(x => x.Uln)
+                        .ThenBy(x => x.EmployerName)
+                        .ThenBy(x => x.CourseName)
+                        .ThenBy(x => x.PlannedStartDate));
 
             return apprenticeshipsWithoutAlertsSortedByName;
         }

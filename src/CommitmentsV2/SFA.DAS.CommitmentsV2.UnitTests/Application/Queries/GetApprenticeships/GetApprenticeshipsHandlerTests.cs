@@ -47,7 +47,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Approved_Apprentices_Are_Sorted_By_First_Name(
+        public async Task Then_Apprentices_Are_Sorted_By_First_Name(
             GetApprenticeshipsRequest request,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -105,7 +105,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Approved_Apprentices_Are_Sorted_By_Uln(
+        public async Task Then_Apprentices_Are_Sorted_By_Uln(
             GetApprenticeshipsRequest request,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -163,7 +163,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Approved_Apprentices_Are_Sorted_By_Employer_Name(
+        public async Task Then_Apprentices_Are_Sorted_By_Employer_Name(
             GetApprenticeshipsRequest request,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -221,7 +221,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Approved_Apprentices_Are_Sorted_By_Course_Name(
+        public async Task Then_Apprentices_Are_Sorted_By_Course_Name(
             GetApprenticeshipsRequest request,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
@@ -279,7 +279,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Approved_Apprentices_Are_Sorted_By_Planned_Start_Date(
+        public async Task Then_Apprentices_Are_Sorted_By_Planned_Start_Date(
             GetApprenticeshipsRequest request,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
