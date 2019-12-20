@@ -208,6 +208,14 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             //Assert$
             _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}", null, CancellationToken.None));
         }
+		
+        [Test]
+        public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            await _fixture.CommitmentsApiClient.GetAccount(123, CancellationToken.None);
+            _fixture.MockRestHttpClient.Verify(x => x.Get<AccountResponse>("api/accounts/123", null, CancellationToken.None));
+
+        }
     }
 
     public class WhenCallingTheEndpointsFixture
