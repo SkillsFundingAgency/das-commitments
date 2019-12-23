@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoFixture.NUnit3;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Mapping.Apprenticeships;
 using SFA.DAS.CommitmentsV2.Models;
@@ -29,14 +31,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         }
 
         [Test, RecursiveMoqAutoData]
-        public async Task And_Has_Course_Error_Then_Alert_ILR_Data_Mismatch(
+        public async Task Then_Adds_Alerts_From_AlertsMapper(
             Apprenticeship source,
+            List<string> alerts,
+            [Frozen] Mock<IAlertsMapper> mockAlertsMapper,
             ApprenticeshipToApprenticeshipDetailsMapper mapper)
         {
-            source.DataLockStatus = new List<DataLockStatus>();
+            mockAlertsMapper
+                .Setup(alertsMapper => alertsMapper.Map(source))
+                .Returns(alerts);
+
             var result = await mapper.Map(source);
 
-            result.Alerts.Should().BeEquivalentTo(new List<string> {"ILR data mismatch"});
+            result.Alerts.Should().BeEquivalentTo(alerts);
         }
     }
 }
