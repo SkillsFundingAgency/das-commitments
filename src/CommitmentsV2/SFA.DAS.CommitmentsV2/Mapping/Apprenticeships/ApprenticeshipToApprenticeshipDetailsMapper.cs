@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Models;
 using SFA.DAS.CommitmentsV2.Types;
 
@@ -7,10 +6,16 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
 {
     public class ApprenticeshipToApprenticeshipDetailsMapper : IMapper<Apprenticeship, ApprenticeshipDetails>
     {
-        public async Task<ApprenticeshipDetails> Map(Apprenticeship source)
+        private readonly IAlertsMapper _alertsMapper;
+
+        public ApprenticeshipToApprenticeshipDetailsMapper(IAlertsMapper alertsMapper)
         {
-            await Task.CompletedTask;
-            return new ApprenticeshipDetails
+            _alertsMapper = alertsMapper;
+        }
+
+        public Task<ApprenticeshipDetails> Map(Apprenticeship source)
+        {
+            return Task.FromResult(new ApprenticeshipDetails
             {
                 ApprenticeFirstName = source.FirstName,
                 ApprenticeLastName = source.LastName,
@@ -20,8 +25,8 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
                 PlannedEndDateTime = source.EndDate.GetValueOrDefault(),
                 PaymentStatus = source.PaymentStatus,
                 Uln = source.Uln,
-                Alerts = source.DataLockStatus.Select(status => status.Status.ToString())
-            };
+                Alerts = _alertsMapper.Map(source)
+            });
         }
     }
 }
