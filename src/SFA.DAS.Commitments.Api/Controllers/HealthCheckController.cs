@@ -9,7 +9,6 @@ namespace SFA.DAS.Commitments.Api.Controllers
         {
         }
 
-
         [Route("api/HealthCheck")]
         public IHttpActionResult GetStatus()
         {
