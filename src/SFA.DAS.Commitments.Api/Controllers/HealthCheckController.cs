@@ -5,7 +5,7 @@ namespace SFA.DAS.Commitments.Api.Controllers
 {
     public class HealthCheckController : ApiController
     {
-        public HealthCheckController(IReservationsApiClient reservationClient)
+        public HealthCheckController()
         {
         }
 
