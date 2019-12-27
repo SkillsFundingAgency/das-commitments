@@ -194,6 +194,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.DeleteCohort(cohortId, _fixture.UserInfo, CancellationToken.None);
             _fixture.MockRestHttpClient.Verify(c => c.PostAsJson($"api/cohorts/{cohortId}/delete", _fixture.UserInfo, CancellationToken.None));
         }
+
+        [Test]
+        public async Task GetApprovedApprenticeships_VerifyUrlAndDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var expectedProviderId = (uint) 10;
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprovedApprenticeships(expectedProviderId);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}", null, CancellationToken.None));
+        }
 		
         [Test]
         public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
