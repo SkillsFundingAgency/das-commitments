@@ -118,6 +118,18 @@ namespace SFA.DAS.CommitmentsV2.Services
             return accountLegalEntity.CreateCohortWithOtherParty(provider, accountLegalEntity, transferSender, message, userInfo);
         }
 
+        public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, long? transferSenderId, UserInfo userInfo, CancellationToken cancellationToken)
+        {
+            var originatingParty = _authenticationService.GetUserParty();
+            var db = _dbContext.Value;
+            var provider = await GetProvider(providerId, db, cancellationToken);
+            var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
+            var transferSender = transferSenderId.HasValue ? await GetTransferSender(accountId, transferSenderId.Value, db, cancellationToken) : null;
+            var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
+
+            return originator.CreateCohort(provider, accountLegalEntity,transferSender, null, userInfo);
+        }
+
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var cohort = await _dbContext.Value.GetCohortAggregate(cohortId, cancellationToken);

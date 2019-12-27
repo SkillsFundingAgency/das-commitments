@@ -50,6 +50,21 @@ namespace SFA.DAS.CommitmentsV2.Models
         }
 
         /// <summary>
+        /// Creates an empty cohort without draft apprenticeship
+        /// </summary>
+        internal Cohort(Provider provider,
+            AccountLegalEntity accountLegalEntity,
+            Party originatingParty,
+            UserInfo userInfo) : this(provider, accountLegalEntity, null, originatingParty, userInfo)
+        {
+            EditStatus = originatingParty.ToEditStatus();
+
+            StartTrackingSession(UserAction.CreateCohort, originatingParty, accountLegalEntity.AccountId, provider.UkPrn, userInfo);
+            ChangeTrackingSession.TrackInsert(this);
+            ChangeTrackingSession.CompleteTrackingSession();
+        }
+
+        /// <summary>
         /// Creates a cohort with a draft apprenticeship
         /// </summary>
         internal Cohort(Provider provider,

@@ -71,6 +71,20 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             });
         }
 
+        [HttpPost]
+        [Route("create-empty-cohort")]
+        public async Task<IActionResult> Create([FromBody]CreateEmptyCohortRequest request)
+        {
+            var command = new AddEmptyCohortCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.UserInfo);
+            var result = await _mediator.Send(command);
+
+            return await Task.FromResult(Ok(new CreateCohortResponse
+            {
+                CohortId = result.Id,
+                CohortReference = result.Reference
+            }));
+        }
+
         [HttpGet]
         [Route("{cohortId}")]
         public async Task<IActionResult> Get(long cohortId)
