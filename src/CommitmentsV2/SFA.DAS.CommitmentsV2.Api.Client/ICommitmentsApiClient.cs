@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
@@ -29,5 +30,6 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
 		Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken = default);
         Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<ApprenticeshipDetails>> GetApprovedApprenticeships(uint providerId, CancellationToken cancellationToken = default);
     }
 }
