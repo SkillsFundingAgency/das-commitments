@@ -78,11 +78,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
             var command = new AddEmptyCohortCommand(request.AccountId, request.AccountLegalEntityId, request.ProviderId, request.UserInfo);
             var result = await _mediator.Send(command);
 
-            return await Task.FromResult(Ok(new CreateCohortResponse
+            return Ok(new CreateCohortResponse
             {
                 CohortId = result.Id,
                 CohortReference = result.Reference
-            }));
+            });
         }
 
         [HttpGet]
