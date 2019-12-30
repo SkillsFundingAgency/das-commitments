@@ -1,4 +1,5 @@
 ﻿using System;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -15,9 +16,9 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? IlrEffectiveFromDate { get; set; }
         public DateTime? IlrPriceEffectiveToDate { get; set; }
         public decimal? IlrTotalCost { get; set; }
-        public int ErrorCode { get; set; }
-        public byte Status { get; set; }
-        public byte TriageStatus { get; set; }
+        public DataLockErrorCode ErrorCode { get; set; }
+        public Status Status { get; set; }
+        public TriageStatus TriageStatus { get; set; }
         public long? ApprenticeshipUpdateId { get; set; }
         public bool IsResolved { get; set; }
         public byte EventStatus { get; set; }

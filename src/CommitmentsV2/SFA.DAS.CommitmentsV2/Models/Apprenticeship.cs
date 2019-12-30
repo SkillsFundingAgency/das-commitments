@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Models
 {
@@ -12,7 +13,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public DateTime? StopDate { get; set; }
         public DateTime? PauseDate { get; set; }
         public bool HasHadDataLockSuccess { get; set; }
-        public byte? PendingUpdateOriginator { get; set; }
+        public Originator? PendingUpdateOriginator { get; set; }
 
 
         public Apprenticeship()
