@@ -141,6 +141,7 @@
     <None Include="AdhocScripts\Manual\CV-504-Create-Missing-PriceHistory.sql" />
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForProvider.sql" />
     <Build Include="StoredProcedures\GetApprovedApprenticeshipsForEmployer.sql" />
+    <Build Include="AdhocScripts\Manual\CV-561_Populate_EmployerAccountLegalEntities_including_MAIdentity.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.Commitments.Database.refactorlog" />
