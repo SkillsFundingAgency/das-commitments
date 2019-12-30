@@ -64,6 +64,9 @@ BEGIN TRY
 	--Final inserts
 	print '
 	BEGIN TRANSACTION
+	
+	DELETE AccountLegalEntities
+	DELETE Accounts
 
 	insert into Accounts ([Id], [HashedId], [PublicHashedId], [Name], [Created])
 	select a.[AccountId], a.[HashedId], a.[PublicHashedId], a.[Name], a.[CreatedDate] from @Accounts a
@@ -82,7 +85,7 @@ BEGIN TRY
 	print ''Completed''
 
 
-	COMMIT TRANSACTION
+	ROLLBACK TRANSACTION
 	'
 
 END TRY
