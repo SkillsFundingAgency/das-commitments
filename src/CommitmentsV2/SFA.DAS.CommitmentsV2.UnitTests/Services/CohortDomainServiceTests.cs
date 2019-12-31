@@ -723,6 +723,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 }
             }
 
+            public async Task<Cohort> CreateEmptyCohort()
+            {
+                Db.SaveChanges();
+                DomainErrors.Clear();
+
+                try
+                {
+                    var result = await CohortDomainService.CreateEmptyCohort(ProviderId, AccountId, AccountLegalEntityId, UserInfo, new CancellationToken());
+                    await Db.SaveChangesAsync();
+                    return result;
+                }
+                catch (DomainException ex)
+                {
+                    DomainErrors.AddRange(ex.DomainErrors);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Exception = ex;
+                    return null;
+                }
+            }
+
             public async Task AddDraftApprenticeship()
             {
                 Db.SaveChanges();
