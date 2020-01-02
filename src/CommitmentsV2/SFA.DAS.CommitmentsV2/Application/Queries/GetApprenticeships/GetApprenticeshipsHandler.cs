@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -28,11 +30,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         {
             var mapped = new List<ApprenticeshipDetails>();
 
-            var matched = await _dbContext.Apprenticeships
-                .Include(apprenticeship => apprenticeship.Cohort)
-                .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId)
-                .ToListAsync(cancellationToken);
+            var matched = await (string.IsNullOrEmpty(request.SortField) 
+                    ? ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId) 
+                    : ApprenticeshipsOrderedByField(cancellationToken,request.ProviderId, request.SortField));
 
             foreach (var apprenticeship in matched)
             {
@@ -42,70 +42,78 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             return new GetApprenticeshipsResponse
             {
-                Apprenticeships = SortApprenticeships(mapped)
+                Apprenticeships = mapped
             };
         }
-        private List<ApprenticeshipDetails> SortApprenticeships(List<ApprenticeshipDetails> apprenticeships)
+
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByDefaultOrder(CancellationToken cancellationToken, long? providerId)
         {
-            var sortedApprenticeships = new List<ApprenticeshipDetails>();
-
-            var apprenticeshipsWithAlerts = SortApprenticeshipsWithAlerts(apprenticeships);
-
-            foreach (var apprenticeship in apprenticeshipsWithAlerts)
-            {
-                sortedApprenticeships.Add(apprenticeship);
-            }
-
-            var apprenticeshipsWithoutAlerts = SortApprenticeshipsWithoutAlerts(apprenticeships);
-
-            foreach (var apprenticeship in apprenticeshipsWithoutAlerts)
-            {
-                sortedApprenticeships.Add(apprenticeship);
-            }
-
-            return sortedApprenticeships;
+            var apprentices = await _dbContext
+                .Apprenticeships
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
+                .OrderBy(x=>x.DataLockStatus.Any(c=>!c.IsResolved))
+                .ThenBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .ThenBy(x => x.Uln)
+                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.CourseName)
+                .ThenByDescending(x => x.StartDate)
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .ToListAsync(cancellationToken);
+            return apprentices;
         }
 
-        private List<ApprenticeshipDetails> SortApprenticeshipsWithAlerts(List<ApprenticeshipDetails> apprenticeships)
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsOrderedByField(CancellationToken cancellationToken,long? providerId, string fieldName)
         {
-            var apprenticeshipsWithAlerts = new List<ApprenticeshipDetails>();
-            foreach (var apprenticeship in apprenticeships)
-            {
-                if (apprenticeship.Alerts != null)
-                { apprenticeshipsWithAlerts.Add(apprenticeship); }
-            }
-
-            var apprenticeshipsWithAlertsSortedByName =
-                new List<ApprenticeshipDetails>(
-                    apprenticeshipsWithAlerts
-                        .OrderBy(x => x.ApprenticeFirstName)
-                        .ThenBy(x => x.Uln)
-                        .ThenBy(x => x.EmployerName)
-                        .ThenBy(x => x.CourseName)
-                        .ThenBy(x => x.PlannedStartDate));
-
-            return apprenticeshipsWithAlertsSortedByName;
+            var apprenticeships = await _dbContext
+                .Apprenticeships
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
+                .OrderBy(x => x.DataLockStatus.Any(c => !c.IsResolved))
+                .ThenBy(GetOrderByField(fieldName))
+                .ThenBy(GetSecondarySortByField(fieldName))
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .ToListAsync(cancellationToken);
+            return apprenticeships;
         }
 
-        private List<ApprenticeshipDetails> SortApprenticeshipsWithoutAlerts(List<ApprenticeshipDetails> apprenticeships)
+        private Expression<Func<Apprenticeship, object>> GetOrderByField(string fieldName)
         {
-            var apprenticeshipsWithoutAlerts = new List<ApprenticeshipDetails>();
-            foreach (var apprenticeship in apprenticeships)
+            switch (fieldName)
             {
-                if (apprenticeship.Alerts == null)
-                { apprenticeshipsWithoutAlerts.Add(apprenticeship); }
+                case nameof(Apprenticeship.FirstName):
+                    return apprenticeship => apprenticeship.FirstName;
+                case nameof(Apprenticeship.LastName):
+                    return apprenticeship => apprenticeship.LastName;
+                case nameof(Apprenticeship.CourseName):
+                    return apprenticeship => apprenticeship.CourseName;
+                case nameof(Apprenticeship.Cohort.LegalEntityName):
+                    return apprenticeship => apprenticeship.Cohort.LegalEntityName;
+                case nameof(Apprenticeship.StartDate):
+                    return apprenticeship => apprenticeship.StartDate;
+                case nameof(Apprenticeship.StopDate):
+                    return apprenticeship => apprenticeship.StopDate;
+                case nameof(Apprenticeship.PaymentStatus):
+                    return apprenticeship => apprenticeship.PaymentStatus;
+                case nameof(Apprenticeship.Uln):
+                    return apprenticeship => apprenticeship.Uln;
+                default:
+                    return apprenticeship => apprenticeship.FirstName;
             }
-
-            var apprenticeshipsWithoutAlertsSortedByName =
-                new List<ApprenticeshipDetails>(
-                    apprenticeshipsWithoutAlerts
-                        .OrderBy(x => x.ApprenticeFirstName)
-                        .ThenBy(x => x.Uln)
-                        .ThenBy(x => x.EmployerName)
-                        .ThenBy(x => x.CourseName)
-                        .ThenBy(x => x.PlannedStartDate));
-
-            return apprenticeshipsWithoutAlertsSortedByName;
         }
+
+        private Expression<Func<Apprenticeship, object>> GetSecondarySortByField(string fieldName)
+        {
+            switch (fieldName)
+            {
+                case nameof(Apprenticeship.FirstName):
+                    return apprenticeship => apprenticeship.LastName;
+                default:
+                    return null;
+            }
+        }
+
+        
     }
 }

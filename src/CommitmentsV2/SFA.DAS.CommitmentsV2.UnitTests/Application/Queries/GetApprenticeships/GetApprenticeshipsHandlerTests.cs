@@ -47,17 +47,19 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Apprentices_Are_Sorted_By_First_Name(
+        public async Task Then_Apprentices_Are_Sorted_Name(
             GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
-            var Apprenticeships = new List<Apprenticeship>
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
                 {
                     FirstName = "BB_Should_Be_Second_Name",
+                    LastName = "Zog",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
@@ -68,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 new Apprenticeship
                 {
                     FirstName = "CC_Should_Be_Third_Name",
+                    LastName = "Zog",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
@@ -78,6 +81,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 new Apprenticeship
                 {
                     FirstName = "AA_Should_Be_First_Name",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "AA_Should_Be_First_Name",
+                    LastName = "Fog",
                     Uln = "Uln",
                     CourseName = "Course",
                     StartDate = DateTime.UtcNow,
@@ -86,31 +101,37 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     DataLockStatus = new List<DataLockStatus>()
                 }
             };
-            Apprenticeships[0].Cohort.ProviderId = request.ProviderId;
-            Apprenticeships[1].Cohort.ProviderId = request.ProviderId;
-            Apprenticeships[2].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[0].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[3].Cohort.ProviderId = request.ProviderId;
 
             mockContext
                 .Setup(context => context.Apprenticeships)
-                .ReturnsDbSet(Apprenticeships);
+                .ReturnsDbSet(apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            request.SortField = nameof(Apprenticeship.FirstName);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
 
             //Assert
             Assert.AreEqual("AA_Should_Be_First_Name", actual.Apprenticeships.ElementAt(0).ApprenticeFirstName);
-            Assert.AreEqual("BB_Should_Be_Second_Name", actual.Apprenticeships.ElementAt(1).ApprenticeFirstName);
-            Assert.AreEqual("CC_Should_Be_Third_Name", actual.Apprenticeships.ElementAt(2).ApprenticeFirstName);
+            Assert.AreEqual("Fog", actual.Apprenticeships.ElementAt(0).ApprenticeLastName);
+            Assert.AreEqual("AA_Should_Be_First_Name", actual.Apprenticeships.ElementAt(1).ApprenticeFirstName);
+            Assert.AreEqual("Zog", actual.Apprenticeships.ElementAt(1).ApprenticeLastName);
+            Assert.AreEqual("BB_Should_Be_Second_Name", actual.Apprenticeships.ElementAt(2).ApprenticeFirstName);
+            Assert.AreEqual("CC_Should_Be_Third_Name", actual.Apprenticeships.ElementAt(3).ApprenticeFirstName);
         }
 
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Uln(
             GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -152,6 +173,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            request.SortField = nameof(Apprenticeship.Uln);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -165,10 +187,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Employer_Name(
             GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -210,6 +233,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            request.SortField = nameof(Apprenticeship.Cohort.LegalEntityName);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -223,10 +247,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Course_Name(
             GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -269,6 +294,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
 
+            request.SortField = nameof(Apprenticeship.CourseName);
+
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
 
@@ -281,10 +308,11 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         [Test, MoqAutoData]
         public async Task Then_Apprentices_Are_Sorted_By_Planned_Start_Date(
             GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper();
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
             {
                 new Apprenticeship
@@ -329,6 +357,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+            request.SortField = nameof(Apprenticeship.StartDate);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
