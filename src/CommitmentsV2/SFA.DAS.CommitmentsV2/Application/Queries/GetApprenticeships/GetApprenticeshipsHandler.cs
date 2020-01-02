@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
                 .OrderBy(x => x.DataLockStatus.Any(c => !c.IsResolved))
                 .ThenBy(GetOrderByField(fieldName))
-                .ThenBy(GetSecondarySortByField(fieldName))
+                //.ThenBy(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
