@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 {
-    public class GetDraftApprenticeshipsValidator : AbstractValidator<GetDraftApprenticeshipsRequest>
+    public class GetDraftApprenticeshipsQueryValidator : AbstractValidator<GetDraftApprenticeshipsQuery>
     {
-        public GetDraftApprenticeshipsValidator()
+        public GetDraftApprenticeshipsQueryValidator()
         {
             RuleFor(model => model.CohortId).GreaterThan(0);
         }

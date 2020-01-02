@@ -7,20 +7,20 @@ using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Types;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
 {
-    public class GetDraftApprenticeHandler : IRequestHandler<GetDraftApprenticeRequest, GetDraftApprenticeResponse>
+    public class GetDraftApprenticeshipQueryHandler : IRequestHandler<GetDraftApprenticeshipQuery, GetDraftApprenticeshipQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
 
-        public GetDraftApprenticeHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
+        public GetDraftApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;
         }
 
-        public async Task<GetDraftApprenticeResponse> Handle(GetDraftApprenticeRequest request, CancellationToken cancellationToken)
+        public async Task<GetDraftApprenticeshipQueryResult> Handle(GetDraftApprenticeshipQuery request, CancellationToken cancellationToken)
         {
             var requestingParty = _authenticationService.GetUserParty();
 
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice
                 .DraftApprenticeships.GetById(
                     request.CohortId,
                     request.DraftApprenticeshipId,
-                    draft => new GetDraftApprenticeResponse
+                    draft => new GetDraftApprenticeshipQueryResult
                     {
                         CourseCode = draft.CourseCode,
                         StartDate = draft.StartDate,

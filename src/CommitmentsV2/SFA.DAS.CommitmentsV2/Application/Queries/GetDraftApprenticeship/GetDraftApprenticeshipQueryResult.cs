@@ -1,9 +1,9 @@
 ﻿using System;
 using SFA.DAS.CommitmentsV2.Domain.Entities;
 
-namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice
+namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship
 {
-    public class GetDraftApprenticeResponse
+    public class GetDraftApprenticeshipQueryResult
     {
         public long Id { get; set; }
         public string FirstName { get; set; }

@@ -8,23 +8,23 @@ using SFA.DAS.CommitmentsV2.Types.Dtos;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 {
-    public class GetDraftApprenticeshipsHandler : IRequestHandler<GetDraftApprenticeshipsRequest, GetDraftApprenticeshipsResult>
+    public class GetDraftApprenticeshipsQueryHandler : IRequestHandler<GetDraftApprenticeshipsQuery, GetDraftApprenticeshipsQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public GetDraftApprenticeshipsHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetDraftApprenticeshipsQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public Task<GetDraftApprenticeshipsResult> Handle(GetDraftApprenticeshipsRequest request, CancellationToken cancellationToken)
+        public Task<GetDraftApprenticeshipsQueryResult> Handle(GetDraftApprenticeshipsQuery query, CancellationToken cancellationToken)
         {
             var cohort = _dbContext.Value.Cohorts
-                .Where(x => x.Id == request.CohortId)
+                .Where(x => x.Id == query.CohortId)
                 .Select(x => new { DraftApprenticeships = x.Apprenticeships})
                 .SingleOrDefault();
 
-            return Task.FromResult(new GetDraftApprenticeshipsResult
+            return Task.FromResult(new GetDraftApprenticeshipsQueryResult
             {
                 DraftApprenticeships = cohort?.DraftApprenticeships.Select(a => new DraftApprenticeshipDto
                 {
