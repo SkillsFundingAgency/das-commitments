@@ -16,5 +16,4 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
             public DateTime? ToDate { get; set; }
         }
     }
-
 }

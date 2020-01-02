@@ -11,15 +11,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetPriceEpisodes
             [TestCase(1, true)]
             public void Validate_WithSpecifiedCohortId_ShouldSetIsValidCorrectly(int apprenticeshipId, bool expectedIsValid)
             {
-                // arrange
                 var validator = new GetPriceEpisodesQueryValidator();
                 var validationResults = validator.Validate(new GetPriceEpisodesQuery(apprenticeshipId));
-
-                // act
-                var actualIsValid = validationResults.IsValid;
-
-                // Assert
-                Assert.AreEqual(expectedIsValid, actualIsValid);
+                Assert.AreEqual(expectedIsValid, validationResults.IsValid);
             }
     }
 }
