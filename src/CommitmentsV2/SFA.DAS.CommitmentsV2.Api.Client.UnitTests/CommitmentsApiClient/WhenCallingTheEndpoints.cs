@@ -206,9 +206,23 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}?sortField=", null, CancellationToken.None));
         }
-		
+
+        [Test]
+        public async Task GetApprovedApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilter()
+        {
+            //Arrange
+            var expectedProviderId = (uint)10;
+            var sortField = "test";
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}?sortField={sortField}", null, CancellationToken.None));
+        }
+
         [Test]
         public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
         {
