@@ -5,7 +5,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
 {
-    public class GetPriceEpisodesResponseMapper : IMapper<GetPriceEpisodesQueryResult, GetPriceEpisodesResponse>
+    public class GetPriceEpisodesResponseMapper : Shared.Interfaces.IMapper<GetPriceEpisodesQueryResult, GetPriceEpisodesResponse>
     {
         public Task<GetPriceEpisodesResponse> Map(GetPriceEpisodesQueryResult source)
         {
