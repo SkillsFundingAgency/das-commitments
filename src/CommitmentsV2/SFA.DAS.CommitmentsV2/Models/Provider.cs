@@ -29,15 +29,7 @@ namespace SFA.DAS.CommitmentsV2.Models
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             UserInfo userInfo)
         {
-            if (draftApprenticeshipDetails != null)
-            {
-                return new Cohort(provider, accountLegalEntity, transferSender, draftApprenticeshipDetails, Party.Provider, userInfo);
-            }
-            else
-            {
-                return new Cohort(provider, accountLegalEntity, Party.Provider, userInfo);
-            }
-
+            return new Cohort(provider, accountLegalEntity, Party.Provider, userInfo);
         }
     }
 }
