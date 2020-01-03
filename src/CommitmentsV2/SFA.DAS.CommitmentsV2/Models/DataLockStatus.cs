@@ -11,7 +11,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public string PriceEpisodeIdentifier { get; set; }
         public long ApprenticeshipId { get; set; }
         public string IlrTrainingCourseCode { get; set; }
-        public byte IlrTrainingType { get; set; }
         public DateTime? IlrActualStartDate { get; set; }
         public DateTime? IlrEffectiveFromDate { get; set; }
         public DateTime? IlrPriceEffectiveToDate { get; set; }
@@ -22,7 +21,6 @@ namespace SFA.DAS.CommitmentsV2.Models
         public long? ApprenticeshipUpdateId { get; set; }
         public bool IsResolved { get; set; }
         public byte EventStatus { get; set; }
-        public bool IsExpired { get; set; }
         public DateTime? Expired { get; set; }
 
         public virtual Apprenticeship Apprenticeship { get; set; }

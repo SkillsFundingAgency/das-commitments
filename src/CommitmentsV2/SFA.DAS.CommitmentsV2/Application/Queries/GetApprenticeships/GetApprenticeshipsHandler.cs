@@ -51,7 +51,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             var apprentices = await _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
-                .OrderBy(x=>x.DataLockStatus.Any(c=>!c.IsResolved))
+                .OrderBy(x => x.PendingUpdateOriginator != null)
                 .ThenBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -71,7 +71,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
                 .OrderBy(x => x.DataLockStatus.Any(c => !c.IsResolved))
                 .ThenBy(GetOrderByField(fieldName))
-                //.ThenBy(GetSecondarySortByField(fieldName))
+                .ThenBy(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
@@ -110,10 +110,8 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 case nameof(Apprenticeship.FirstName):
                     return apprenticeship => apprenticeship.LastName;
                 default:
-                    return null;
+                    return GetOrderByField(fieldName);
             }
         }
-
-        
     }
 }

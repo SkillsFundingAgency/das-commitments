@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Types
 {
-    public enum TriageStatus
+    public enum TriageStatus : byte
     {
         Unknown = 0,
         Change = 1,
