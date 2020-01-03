@@ -18,7 +18,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         [Test]
         public async Task Handle_EmployerQuery_WithExistingCohort_ShouldReturnTrue()
         {
-            var fixtures = new CanAccessCohortHandlerTestsFixture().SeedData().SetMatchingAccountQuery();
+            var fixtures = new CanAccessCohortQueryHandlerTestsFixture().SeedData().SetMatchingAccountQuery();
 
             var response = await fixtures.Handle();
 
@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         [Test]
         public async Task Handle_ProviderQuery_WithExistingCohort_ShouldReturnTrue()
         {
-            var fixtures = new CanAccessCohortHandlerTestsFixture().SeedData().SetMatchingProviderQuery();
+            var fixtures = new CanAccessCohortQueryHandlerTestsFixture().SeedData().SetMatchingProviderQuery();
 
             var response = await fixtures.Handle();
 
@@ -46,10 +46,10 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         }
     }
 
-    public class CanAccessCohortHandlerTestsFixture
+    public class CanAccessCohortQueryHandlerTestsFixture
     {
         public ProviderCommitmentsDbContext Db { get; set; }
-        public CanAccessCohortHandler Handler { get; set; }
+        public CanAccessCohortQueryHandler Handler { get; set; }
         public CanAccessCohortQuery Query { get; set; }
         private readonly long _providerId;
         private readonly long _accountId;
@@ -58,7 +58,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
         private Cohort _cohort;
         private long _cohortId;
 
-        public CanAccessCohortHandlerTestsFixture()
+        public CanAccessCohortQueryHandlerTestsFixture()
         {
             _autoFixture = new Fixture();
             _cohortId = _autoFixture.Create<long>();
@@ -67,29 +67,29 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.CanAccessCohort
 
             Db = new ProviderCommitmentsDbContext(new DbContextOptionsBuilder<ProviderCommitmentsDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
-            Handler = new CanAccessCohortHandler(
+            Handler = new CanAccessCohortQueryHandler(
                 new Lazy<ProviderCommitmentsDbContext >(() => Db));
         }
 
-        public CanAccessCohortHandlerTestsFixture SetMatchingAccountQuery()
+        public CanAccessCohortQueryHandlerTestsFixture SetMatchingAccountQuery()
         {
             Query = new CanAccessCohortQuery { CohortId = _cohortId, Party = Party.Employer, PartyId = _accountId };
             return this;
         }
 
-        public CanAccessCohortHandlerTestsFixture SetMatchingProviderQuery()
+        public CanAccessCohortQueryHandlerTestsFixture SetMatchingProviderQuery()
         {
             Query = new CanAccessCohortQuery { CohortId = _cohortId, Party = Party.Provider, PartyId = _providerId };
             return this;
         }
 
-        public CanAccessCohortHandlerTestsFixture SetNonMatchingQuery()
+        public CanAccessCohortQueryHandlerTestsFixture SetNonMatchingQuery()
         {
             Query = new CanAccessCohortQuery { CohortId = _cohortId + 1, Party = Party.Provider, PartyId = _accountId };
             return this;
         }
 
-        public CanAccessCohortHandlerTestsFixture SeedData()
+        public CanAccessCohortQueryHandlerTestsFixture SeedData()
         {
             _cohort = new Cohort
             {

@@ -2,8 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.CommitmentsV2.Api.Extensions;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary;
 
@@ -25,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         [Route("/pending-update")]
         public async Task<IActionResult> GetPendingUpdate(long accountId)
         {
-            var employer = await _mediator.Send(new GetAccountSummaryRequest
+            var employer = await _mediator.Send(new GetAccountSummaryQuery()
             {
                 AccountId = accountId
             });
