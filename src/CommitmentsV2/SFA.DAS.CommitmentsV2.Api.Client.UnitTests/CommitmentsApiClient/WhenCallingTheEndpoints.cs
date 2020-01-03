@@ -206,7 +206,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}?sortField=", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField=", null, CancellationToken.None));
         }
 
         [Test]
@@ -220,7 +220,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<ApprenticeshipDetails>>($"api/Apprentices/{expectedProviderId}?sortField={sortField}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}", null, CancellationToken.None));
         }
 
         [Test]
