@@ -9,29 +9,29 @@ using SFA.DAS.CommitmentsV2.Models;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
 {
-    public class GetAccountSummaryHandler : IRequestHandler<GetAccountSummaryRequest, GetAccountSummaryResponse>
+    public class GetAccountSummaryQueryHandler : IRequestHandler<GetAccountSummaryQuery, GetAccountSummaryQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public GetAccountSummaryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetAccountSummaryQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<GetAccountSummaryResponse> Handle(GetAccountSummaryRequest request,
+        public async Task<GetAccountSummaryQueryResult> Handle(GetAccountSummaryQuery query,
             CancellationToken cancellationToken)
         {
-            var accountQuery = PredicateBuilder.True<Cohort>().And(c => c.EmployerAccountId == request.AccountId);
+            var accountQuery = PredicateBuilder.True<Cohort>().And(c => c.EmployerAccountId == query.AccountId);
 
             var hasCohorts = await _dbContext.Value.Cohorts
                 .AnyAsync(accountQuery.And(CohortQueries.IsNotFullyApproved()), cancellationToken: cancellationToken);
 
             var hasApprenticeships = await _dbContext.Value.ApprovedApprenticeships
-                .AnyAsync(a => a.Cohort.EmployerAccountId == request.AccountId, cancellationToken: cancellationToken);
+                .AnyAsync(a => a.Cohort.EmployerAccountId == query.AccountId, cancellationToken: cancellationToken);
 
-            return new GetAccountSummaryResponse
+            return new GetAccountSummaryQueryResult
             {
-                AccountId = request.AccountId,
+                AccountId = query.AccountId,
                 HasCohorts = hasCohorts,
                 HasApprenticeships = hasApprenticeships
             };

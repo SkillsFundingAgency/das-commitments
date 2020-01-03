@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships
 {
-    public class GetDraftApprenticeshipsRequest : IRequest<GetDraftApprenticeshipsResult>
+    public class GetDraftApprenticeshipsQuery : IRequest<GetDraftApprenticeshipsQueryResult>
     {
-        public GetDraftApprenticeshipsRequest(long cohortId)
+        public GetDraftApprenticeshipsQuery(long cohortId)
         {
             CohortId = cohortId;
         }

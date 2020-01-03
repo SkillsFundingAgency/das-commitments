@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountSummary
 {
-    public class GetAccountSummaryResponse
+    public class GetAccountSummaryQueryResult
     {
         public long AccountId { get; set; }
         public bool HasCohorts { get; set; }

@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
 using HttpResponse = SFA.DAS.CommitmentsV2.Api.Types.Responses;
-using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprentice;
+using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeship;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
 {
-    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper : IMapper<CommandResponse.GetDraftApprenticeResponse, HttpResponse.GetDraftApprenticeshipResponse>
+    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper : IMapper<CommandResponse.GetDraftApprenticeshipQueryResult, HttpResponse.GetDraftApprenticeshipResponse>
     {
-        public Task<HttpResponse.GetDraftApprenticeshipResponse> Map(CommandResponse.GetDraftApprenticeResponse source)
+        public Task<HttpResponse.GetDraftApprenticeshipResponse> Map(CommandResponse.GetDraftApprenticeshipQueryResult source)
         {
             return Task.FromResult(new HttpResponse.GetDraftApprenticeshipResponse
             {

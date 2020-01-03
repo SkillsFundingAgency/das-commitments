@@ -12,8 +12,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetAccountSummary
         public void Validate_WithSpecifiedId_ShouldSetIsValidCorrectly(int id, bool expectedIsValid)
         {
             // arrange
-            var validator = new GetAccountSummaryValidator();
-            var validationResults = validator.Validate(new GetAccountSummaryRequest { AccountId = id });
+            var validator = new GetAccountSummaryQueryValidator();
+            var validationResults = validator.Validate(new GetAccountSummaryQuery { AccountId = id });
 
             // act
             var actualIsValid = validationResults.IsValid;

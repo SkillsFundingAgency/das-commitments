@@ -7,21 +7,21 @@ using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetAccountLegalEntity
 {
-    public class GetAccountLegalEntityHandler : IRequestHandler<GetAccountLegalEntityRequest, GetAccountLegalEntityResponse>
+    public class GetAccountLegalEntityQueryHandler : IRequestHandler<GetAccountLegalEntityQuery, GetAccountLegalEntityQueryResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public GetAccountLegalEntityHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public GetAccountLegalEntityQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public Task<GetAccountLegalEntityResponse> Handle(GetAccountLegalEntityRequest request, CancellationToken cancellationToken)
+        public Task<GetAccountLegalEntityQueryResult> Handle(GetAccountLegalEntityQuery query, CancellationToken cancellationToken)
         {
             return _dbContext.Value
                 .AccountLegalEntities.GetById(
-                    request.AccountLegalEntityId,
-                    ale => new GetAccountLegalEntityResponse
+                    query.AccountLegalEntityId,
+                    ale => new GetAccountLegalEntityQueryResult
                     {
                         AccountId = ale.AccountId,
                         MaLegalEntityId = ale.MaLegalEntityId,
