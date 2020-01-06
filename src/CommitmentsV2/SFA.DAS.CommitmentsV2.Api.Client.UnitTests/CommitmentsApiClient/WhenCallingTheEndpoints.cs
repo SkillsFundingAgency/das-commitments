@@ -210,6 +210,54 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
         }
 
         [Test]
+        public async Task GetApprovedApprenticeships_VerifyUrlAndPageNumberIsCorrectPassedIn()
+        {
+            //Arrange
+            var expectedProviderId = (uint) 10;
+            var expectedPageNumber = 2;
+           
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, expectedPageNumber);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+                $"api/apprenticeships/{expectedProviderId}?pageNumber={expectedPageNumber}&sortField=", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprovedApprenticeships_VerifyUrlAndPagItemCountIsCorrectPassedIn()
+        {
+            //Arrange
+            var expectedProviderId = (uint) 10;
+            var expectedPageItemCount = 3;
+           
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, pageItemCount:expectedPageItemCount);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+                $"api/apprenticeships/{expectedProviderId}?pageItemCount={expectedPageItemCount}&sortField=", null, CancellationToken.None));
+        }
+
+        [Test]
+        public async Task GetApprovedApprenticeships_VerifyUrlAndPageDataIsCorrectPassedIn()
+        {
+            //Arrange
+            var expectedProviderId = (uint) 10;
+            var expectedPageNumber = 2;
+            var expectedPageItemCount = 3;
+
+            //Act
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, expectedPageNumber, expectedPageItemCount);
+
+            //Assert$
+            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+                $"api/apprenticeships/{expectedProviderId}?pageNumber={expectedPageNumber}&pageItemCount={expectedPageItemCount}&sortField=", null, CancellationToken.None));
+        }
+
+        [Test]
         public async Task GetApprovedApprenticeships_VerifyUrlAndDataIsCorrectPassedWithAdditionalFilter()
         {
             //Arrange
@@ -217,11 +265,13 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             var sortField = "test";
 
             //Act
-            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField);
+            await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField:sortField);
 
             //Assert$
             _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}", null, CancellationToken.None));
         }
+
+
 
         [Test]
         public async Task GetAccount_VerifyUrlAndDataIsCorrectPassedIn()
