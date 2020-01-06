@@ -22,6 +22,5 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate
             public DateTime? EndDate { get; set; }
             public DateTime? DateOfBirth { get; set; }
         }
-
     }
 }
