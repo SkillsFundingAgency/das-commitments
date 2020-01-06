@@ -40,6 +40,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyCohortBelongsToAccount();
         }
 
+
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void TheCohortHasCorrectTransferInformation(Party creatingParty)
@@ -67,6 +68,18 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
 
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
+        public void TheCohortBelongsToTheGivenLegalEntity(Party creatingParty)
+        {
+            _fixture
+                .WithCreatingParty(creatingParty)
+                .WithDraftApprenticeship()
+                .CreateCohort();
+
+            _fixture.VerifyCohortBelongsToLegalEntity(); //this test covers the original cohort->legal entity relationship
+        }
+
+        [TestCase(Party.Provider)]
+        [TestCase(Party.Employer)]
         public void TheCohortBelongsToTheGivenAccountLegalEntity(Party creatingParty)
         {
             _fixture
@@ -74,7 +87,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
                 .WithDraftApprenticeship()
                 .CreateCohort();
 
-            _fixture.VerifyCohortBelongsToLegalEntity();
+            _fixture.VerifyCohortBelongsToAccountLegalEntity(); //this test covers the new cohort->ale relationship
         }
 
         [TestCase(Party.Provider, Originator.Provider)]

@@ -30,15 +30,18 @@ namespace SFA.DAS.CommitmentsV2.Models
             CheckIsEmployerOrProvider(originatingParty);
 
             EmployerAccountId = accountLegalEntity.AccountId;
+            AccountLegalEntityId = accountLegalEntity.Id;
+            ProviderId = provider.UkPrn;
+            ProviderName = provider.Name;
+            TransferSenderId = transferSender?.Id;
+            TransferSenderName = transferSender?.Name;
+
+            //Setting of these fields is here for backwards-compatibility only
             LegalEntityId = accountLegalEntity.LegalEntityId;
             LegalEntityName = accountLegalEntity.Name;
             LegalEntityAddress = accountLegalEntity.Address;
             LegalEntityOrganisationType = accountLegalEntity.OrganisationType;
             AccountLegalEntityPublicHashedId = accountLegalEntity.PublicHashedId;
-            ProviderId = provider.UkPrn;
-            ProviderName = provider.Name;
-            TransferSenderId = transferSender?.Id;
-            TransferSenderName = transferSender?.Name;
 
             // Reference cannot be set until we've saved the commitment (as we need the Id) but it's non-nullable so we'll use a temp value
             Reference = "";
@@ -115,6 +118,7 @@ namespace SFA.DAS.CommitmentsV2.Models
         public virtual long Id { get; set; }
         public string Reference { get; set; }
         public long EmployerAccountId { get; set; }
+        public long AccountLegalEntityId { get; set; }
         public string LegalEntityId { get; set; }
         public string LegalEntityName { get; set; }
         public string LegalEntityAddress { get; set; }
