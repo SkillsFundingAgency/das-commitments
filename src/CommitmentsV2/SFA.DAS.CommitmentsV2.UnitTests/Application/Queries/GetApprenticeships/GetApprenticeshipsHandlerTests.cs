@@ -471,7 +471,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Apprentices_Are_Sorted_By_Planned_Stop_Date(
+        public async Task Then_Apprentices_Are_Sorted_By_Planned_End_Date(
             GetApprenticeshipsRequest request,
             Mock<IAlertsMapper> alertsMapper,
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
@@ -486,7 +486,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_Second",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StopDate = DateTime.UtcNow.AddMonths(1),
+                    EndDate = DateTime.UtcNow.AddMonths(1),
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>()
@@ -497,7 +497,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_Third",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StopDate = DateTime.UtcNow.AddMonths(2),
+                    EndDate = DateTime.UtcNow.AddMonths(2),
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>()
@@ -508,7 +508,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                     LastName = "Should_Be_First",
                     Uln = "Uln",
                     CourseName = "Course",
-                    StopDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
                     ProviderRef = request.ProviderId.ToString(),
                     Cohort = new Cohort{LegalEntityName = "Employer"},
                     DataLockStatus = new List<DataLockStatus>()
@@ -522,7 +522,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .Setup(context => context.Apprenticeships)
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
-            request.SortField = nameof(Apprenticeship.StopDate);
+            request.SortField = nameof(Apprenticeship.EndDate);
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
