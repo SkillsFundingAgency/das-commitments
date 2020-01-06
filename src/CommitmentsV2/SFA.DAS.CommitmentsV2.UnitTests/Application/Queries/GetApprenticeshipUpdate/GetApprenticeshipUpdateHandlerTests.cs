@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeshipUpdate;
-using SFA.DAS.CommitmentsV2.Application.Queries.GetPriceEpisodes;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Models;
 
@@ -42,7 +39,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeshipU
         }
 
         [Test]
-        public async Task Handle_ThenShouldReturnResultWithFirstValueForApprenticeshipUpdate()
+        public async Task Handle_ThenShouldReturnResultWithTheFirstApprenticeshipUpdate()
         {
             _fixture.SeedData(2);
             await _fixture.Handle();
