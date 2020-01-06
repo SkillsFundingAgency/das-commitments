@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
 
-        public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, string sortField = "", CancellationToken cancellationToken = default)
+        public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, string sortField = "", bool reverseSort = false, CancellationToken cancellationToken = default)
         {
             return _client.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{providerId}?sortField={sortField}", null, cancellationToken);
         }

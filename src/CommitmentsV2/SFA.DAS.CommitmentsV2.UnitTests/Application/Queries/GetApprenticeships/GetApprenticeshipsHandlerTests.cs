@@ -135,6 +135,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = "";
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -213,6 +214,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(Apprenticeship.FirstName);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -276,6 +278,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(Apprenticeship.Uln);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -336,6 +339,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(Apprenticeship.Cohort.LegalEntityName);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -397,6 +401,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
 
             request.SortField = nameof(Apprenticeship.CourseName);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -460,6 +465,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(Apprenticeship.StartDate);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -523,6 +529,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(Apprenticeship.EndDate);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);
@@ -589,6 +596,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
                 .ReturnsDbSet(Apprenticeships);
             var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
             request.SortField = nameof(Apprenticeship.PaymentStatus);
+            request.ReverseSort = false;
 
             //Act
             var actual = await handler.Handle(request, CancellationToken.None);

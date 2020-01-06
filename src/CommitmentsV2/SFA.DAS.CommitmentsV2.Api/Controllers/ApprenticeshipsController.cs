@@ -25,11 +25,12 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{providerId}")]
-        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]string sortField = "")
+        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]string sortField = "", [FromQuery]bool reverseSort = false)
         {
             try
             {
-                var response = await _mediator.Send(new GetApprenticeshipsRequest {ProviderId = providerId, SortField = sortField });
+                var response = await _mediator.Send(
+                    new GetApprenticeshipsRequest {ProviderId = providerId, SortField = sortField, ReverseSort = reverseSort});
 
                 if (response == null)
                 {
