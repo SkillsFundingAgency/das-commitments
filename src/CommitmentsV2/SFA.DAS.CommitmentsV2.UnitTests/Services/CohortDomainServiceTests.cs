@@ -180,13 +180,32 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
-        public async Task CreateEmptyCohort_ThrowsBadRequest_WhenInvalidProvider()
+        public async Task CreateEmptyCohort_Creates_EmptyCohort()
         {
             await _fixture
                   .WithParty(Party.Provider)
                   .CreateEmptyCohort();
 
             _fixture.VerifyEmptyCohortCreation(Party.Provider);
+        }
+
+        [TestCase(Party.Employer, true)]
+        [TestCase(Party.Provider, false)]
+        [TestCase(Party.TransferSender, true)]
+        public async Task CreateEmptyCohort_Throws_If_Not_Provider(Party creatingParty, bool expectThrows)
+        {
+            await _fixture
+                .WithParty(creatingParty)
+                .CreateEmptyCohort();
+
+            if (expectThrows)
+            {
+                _fixture.VerifyException<InvalidOperationException>();
+            }
+            else
+            {
+                _fixture.VerifyNoException();
+            }
         }
 
         [Test]

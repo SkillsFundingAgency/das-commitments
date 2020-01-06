@@ -121,6 +121,12 @@ namespace SFA.DAS.CommitmentsV2.Services
         public async Task<Cohort> CreateEmptyCohort(long providerId, long accountId, long accountLegalEntityId, UserInfo userInfo, CancellationToken cancellationToken)
         {
             var originatingParty = _authenticationService.GetUserParty();
+
+            if (originatingParty != Party.Provider)
+            {
+                throw new InvalidOperationException($"Only Providers can create empty cohort");
+            }
+
             var db = _dbContext.Value;
             var provider = await GetProvider(providerId, db, cancellationToken);
             var accountLegalEntity = await GetAccountLegalEntity(accountId, accountLegalEntityId, db, cancellationToken);
