@@ -32,14 +32,37 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task GetApprovedApprentices()
         {
             //Arrange
-            var providerId = (uint) 10;
+            const uint providerId = 10;
 
             //Act
             await _controller.GetApprenticeships(providerId);
 
             //Assert
             _mediator.Verify(m => m.Send(
-                It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(providerId)), 
+                It.Is<GetApprenticeshipsRequest>(r => 
+                    r.ProviderId.Equals(providerId) &&
+                    r.PageNumber.Equals(1) &&
+                    r.PageItemCount.Equals(10)), 
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetApprovedApprenticesByPage()
+        {
+            //Arrange
+            const uint expectedProviderId = 10;
+            const int expectedPageNumber = 4;
+            const int expectedPageItemCount = 17;
+
+            //Act
+            await _controller.GetApprenticeships(expectedProviderId, expectedPageNumber, expectedPageItemCount);
+
+            //Assert
+            _mediator.Verify(m => m.Send(
+                It.Is<GetApprenticeshipsRequest>(r => 
+                    r.ProviderId.Equals(expectedProviderId) &&
+                    r.PageNumber.Equals(expectedPageNumber) &&
+                    r.PageItemCount.Equals(expectedPageItemCount)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -47,7 +70,8 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         public async Task ReturnApprovedApprentices()
         {
             //Arrange
-            var providerId = (uint)10;
+            const uint providerId = 10;
+
             var expectedApprenticeship = new ApprenticeshipDetails
             {
                 ApprenticeFirstName = "George",
