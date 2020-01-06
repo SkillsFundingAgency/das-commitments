@@ -37,11 +37,11 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             {
                 matched = (List<Apprenticeship>) await ApprenticeshipsReverseOrderedByField(cancellationToken, request.ProviderId, request.SortField);
             }
-            if (!string.IsNullOrEmpty(request.SortField) && request.SortField != nameof(Apprenticeship.DataLockStatus))
+            else if (!string.IsNullOrEmpty(request.SortField) && request.SortField != nameof(Apprenticeship.DataLockStatus))
             {
                 matched = (List<Apprenticeship>) await ApprenticeshipsOrderedByField(cancellationToken, request.ProviderId, request.SortField);
             }
-            else if (!string.IsNullOrEmpty(request.SortField) && request.ReverseSort)
+            else if (string.IsNullOrEmpty(request.SortField) && request.ReverseSort)
             {
                 matched = (List<Apprenticeship>) await ApprenticeshipsByReverseDefaultOrder(cancellationToken, request.ProviderId);
             }
