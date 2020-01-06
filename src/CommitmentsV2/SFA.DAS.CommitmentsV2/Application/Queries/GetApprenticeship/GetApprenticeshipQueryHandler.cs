@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.CommitmentsV2.Authentication;
 using SFA.DAS.CommitmentsV2.Data;
 using SFA.DAS.CommitmentsV2.Data.QueryExtensions;
 using SFA.DAS.CommitmentsV2.Types;
+using SFA.DAS.Encoding;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
 {
@@ -16,11 +18,13 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IEncodingService _encodingService;
 
-        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService)
+        public GetApprenticeshipQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext, IAuthenticationService authenticationService, IEncodingService encodingService)
         {
             _dbContext = dbContext;
             _authenticationService = authenticationService;
+            _encodingService = encodingService;
         }
 
 
@@ -29,18 +33,27 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeship
             var requestingParty = _authenticationService.GetUserParty();
 
             var x = await _dbContext.Value
-                .ApprovedApprenticeships.GetById(request.ApprenticeshipId, apprenticeship => 
+                .ApprovedApprenticeships
+                .GetById(request.ApprenticeshipId, apprenticeship => 
                     new GetApprenticeshipQueryResult
                     {
                         Id = apprenticeship.Id,
-                        CourseCode = apprenticeship.CourseCode
-                        //StartDate = apprenticeship.StartDate.Value,
-                        //DateOfBirth = apprenticeship.DateOfBirth.Value,
-                        //EndDate = apprenticeship.EndDate,
-                        //FirstName = apprenticeship.FirstName,
-                        //LastName = apprenticeship.LastName,
-                        //Reference = requestingParty == Party.Provider ? apprenticeship.ProviderRef : apprenticeship.EmployerRef,
-                        //Uln = apprenticeship.Uln
+                        CohortId = apprenticeship.CommitmentId,
+                        CourseCode = apprenticeship.CourseCode,
+                        CourseName = apprenticeship.CourseName,
+                        EmployerAccountId = apprenticeship.Cohort.EmployerAccountId,
+                        AccountLegalEntityId = _encodingService.Decode(apprenticeship.Cohort.AccountLegalEntityPublicHashedId, EncodingType.PublicAccountLegalEntityId),
+                        EmployerName = apprenticeship.Cohort.LegalEntityName,
+                        ProviderId = apprenticeship.Cohort.ProviderId.Value,
+                        ProviderName = apprenticeship.Cohort.ProviderName,
+                        DateOfBirth = apprenticeship.DateOfBirth.Value,
+                        FirstName = apprenticeship.FirstName,
+                        LastName = apprenticeship.LastName,
+                        Uln = apprenticeship.Uln,
+                        StartDate = apprenticeship.StartDate.Value,
+                        EndDate = apprenticeship.EndDate.Value,
+                        EndpointAssessorName = apprenticeship.EpaOrg.Name,
+                        Reference = requestingParty == Party.Provider ? apprenticeship.ProviderRef : apprenticeship.EmployerRef,
                     },
                     cancellationToken);
 
