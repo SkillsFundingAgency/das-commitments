@@ -4,7 +4,7 @@ using CommandResponse = SFA.DAS.CommitmentsV2.Application.Queries.GetDraftAppren
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
 {
-    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper : IMapper<CommandResponse.GetDraftApprenticeshipQueryResult, HttpResponse.GetDraftApprenticeshipResponse>
+    public class GetDraftApprenticeshipResponseToGetDraftApprenticeshipResponseMapper : IOldMapper<CommandResponse.GetDraftApprenticeshipQueryResult, HttpResponse.GetDraftApprenticeshipResponse>
     {
         public Task<HttpResponse.GetDraftApprenticeshipResponse> Map(CommandResponse.GetDraftApprenticeshipQueryResult source)
         {

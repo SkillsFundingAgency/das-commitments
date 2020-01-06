@@ -18,9 +18,9 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
         where TFrom : class
         where TTo : class
     {
-        protected Func<IMapper<TFrom, TTo>> MapperCreator { get; set; }
+        protected Func<IOldMapper<TFrom, TTo>> MapperCreator { get; set; }
 
-        protected IMapper<TFrom, TTo> CreateMapper()
+        protected IOldMapper<TFrom, TTo> CreateMapper()
         {
             if (MapperCreator == null)
             {
@@ -132,7 +132,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping
     ///     Base class for testing mappers that have a parameterless constructor
     /// </summary>
     public class MapperTester<TMapper, TFrom, TTo> : MapperTester<TFrom, TTo>
-        where TMapper : IMapper<TFrom, TTo>, new()
+        where TMapper : IOldMapper<TFrom, TTo>, new()
         where TFrom : class
         where TTo : class
     {

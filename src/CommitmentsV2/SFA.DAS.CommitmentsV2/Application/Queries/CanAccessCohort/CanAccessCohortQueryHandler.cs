@@ -8,11 +8,11 @@ using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Application.Queries.CanAccessCohort
 {
-    public class CanAccessCohortHandler : IRequestHandler<CanAccessCohortQuery, bool>
+    public class CanAccessCohortQueryHandler : IRequestHandler<CanAccessCohortQuery, bool>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
 
-        public CanAccessCohortHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
+        public CanAccessCohortQueryHandler(Lazy<ProviderCommitmentsDbContext> dbContext)
         {
             _dbContext = dbContext;
         }

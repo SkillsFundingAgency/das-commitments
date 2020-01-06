@@ -4,7 +4,7 @@ using SFA.DAS.CommitmentsV2.Application.Queries.GetDraftApprenticeships;
 
 namespace SFA.DAS.CommitmentsV2.Mapping.CommandToResponseMappers
 {
-    public class GetDraftApprenticeshipsResultMapper : IMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>
+    public class GetDraftApprenticeshipsResultMapper : IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse>
     {
         public Task<GetDraftApprenticeshipsResponse> Map(GetDraftApprenticeshipsQueryResult source)
         {

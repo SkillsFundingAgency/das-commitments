@@ -23,19 +23,19 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
     public class DraftApprenticeshipController : Controller
     {
         private readonly IMediator _mediator;
-        private readonly IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
-        private readonly IMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
-        private readonly IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
-        private readonly IMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
-        private readonly IMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> _deleteDraftApprenticeshipsMapper;
+        private readonly IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> _updateDraftApprenticeshipMapper;
+        private readonly IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> _getDraftApprenticeshipMapper;
+        private readonly IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> _addDraftApprenticeshipMapper;
+        private readonly IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> _getDraftApprenticeshipsResultMapper;
+        private readonly IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> _deleteDraftApprenticeshipsMapper;
 
         public DraftApprenticeshipController(
             IMediator mediator,
-            IMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
-            IMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
-            IMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, 
-            IMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
-            IMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper
+            IOldMapper<UpdateDraftApprenticeshipRequest, UpdateDraftApprenticeshipCommand> updateDraftApprenticeshipMapper,
+            IOldMapper<GetDraftApprenticeshipQueryResult, GetDraftApprenticeshipResponse> getDraftApprenticeshipMapper,
+            IOldMapper<AddDraftApprenticeshipRequest, AddDraftApprenticeshipCommand> addDraftApprenticeshipMapper, 
+            IOldMapper<GetDraftApprenticeshipsQueryResult, GetDraftApprenticeshipsResponse> getDraftApprenticeshipsResultMapper,
+            IOldMapper<DeleteDraftApprenticeshipRequest, DeleteDraftApprenticeshipCommand> deleteDraftApprenticeshipsMapper
             )
         {
             _mediator = mediator;

@@ -12,12 +12,12 @@ namespace SFA.DAS.CommitmentsV2.Services
     public class ReservationValidationService : IReservationValidationService
     {
         private readonly IReservationsApiClient _apiClient;
-        private readonly IMapper<ReservationValidationRequest, ReservationValidationMessage> _requestMapper;
-        private readonly IMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> _resultMapper;
+        private readonly IOldMapper<ReservationValidationRequest, ReservationValidationMessage> _requestMapper;
+        private readonly IOldMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> _resultMapper;
 
         public ReservationValidationService(IReservationsApiClient apiClient,
-            IMapper<ReservationValidationRequest, ReservationValidationMessage> requestMapper,
-            IMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> resultMapper)
+            IOldMapper<ReservationValidationRequest, ReservationValidationMessage> requestMapper,
+            IOldMapper<ReservationValidationResult, Domain.Entities.Reservations.ReservationValidationResult> resultMapper)
         {
             _apiClient = apiClient;
             _requestMapper = requestMapper;
