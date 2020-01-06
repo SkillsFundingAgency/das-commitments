@@ -180,6 +180,16 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
         }
 
         [Test]
+        public async Task CreateEmptyCohort_ThrowsBadRequest_WhenInvalidProvider()
+        {
+            await _fixture
+                  .WithParty(Party.Provider)
+                  .CreateEmptyCohort();
+
+            _fixture.VerifyEmptyCohortCreation(Party.Provider);
+        }
+
+        [Test]
         public async Task AddDraftApprenticeship_Provider_Adds_Draft_Apprenticeship()
         {
             _fixture.WithParty(Party.Employer).WithExistingCohort(Party.Employer);
@@ -843,6 +853,21 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
                 {
                     AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
                         DraftApprenticeshipDetails, UserInfo));
+                }
+            }
+
+            public void VerifyEmptyCohortCreation(Party party)
+            {
+                if (party == Party.Provider)
+                {
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
+                        null, UserInfo));
+                }
+
+                if (party == Party.Employer)
+                {
+                    AccountLegalEntity.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
+                        null, UserInfo));
                 }
             }
 

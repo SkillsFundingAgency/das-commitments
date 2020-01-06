@@ -16,7 +16,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
 {
     [TestFixture]
     [Parallelizable]
-    public class CreateEmptyCohortTests : FluentTest<CreateWithOtherPartyTestsFixture>
+    public class CreateEmptyCohortTests : FluentTest<CreateEmptyCohortTestsFixture>
     {
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
