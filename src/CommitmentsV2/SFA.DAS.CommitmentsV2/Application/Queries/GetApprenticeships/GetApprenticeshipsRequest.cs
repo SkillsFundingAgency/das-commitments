@@ -6,5 +6,6 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
     {
         public uint ProviderId { get; set; }
         public string SortField { get; set; }
+        public bool ReverseSort { get; set; }
     }
 }

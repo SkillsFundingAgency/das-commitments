@@ -30,9 +30,24 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         {
             var mapped = new List<ApprenticeshipDetails>();
 
-            var matched = await (string.IsNullOrEmpty(request.SortField) 
-                    ? ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId) 
-                    : ApprenticeshipsOrderedByField(cancellationToken,request.ProviderId, request.SortField));
+            var matched = new List<Apprenticeship>();
+
+            if (!string.IsNullOrEmpty(request.SortField) && request.SortField != nameof(Apprenticeship.DataLockStatus) && request.ReverseSort)
+            {
+                matched = (List<Apprenticeship>) await ApprenticeshipsReverseOrderedByField(cancellationToken, request.ProviderId, request.SortField);
+            }
+            else if (!string.IsNullOrEmpty(request.SortField) && request.SortField != nameof(Apprenticeship.DataLockStatus))
+            {
+                matched = (List<Apprenticeship>) await ApprenticeshipsOrderedByField(cancellationToken, request.ProviderId, request.SortField);
+            }
+            else if (string.IsNullOrEmpty(request.SortField) && request.ReverseSort)
+            {
+                matched = (List<Apprenticeship>) await ApprenticeshipsByReverseDefaultOrder(cancellationToken, request.ProviderId);
+            }
+            else
+            {
+                matched = (List<Apprenticeship>) await ApprenticeshipsByDefaultOrder(cancellationToken, request.ProviderId);
+            }
 
             foreach (var apprenticeship in matched)
             {
@@ -48,10 +63,43 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
         private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByDefaultOrder(CancellationToken cancellationToken, long? providerId)
         {
+            var apprenticeshipsWithAlerts = await _dbContext
+                .Apprenticeships
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator != null)
+                .OrderBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .ThenBy(x => x.Uln)
+                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.CourseName)
+                .ThenByDescending(x => x.StartDate)
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .ToListAsync(cancellationToken);
+
+            var apprenticeshipsWithoutAlerts = await _dbContext
+                .Apprenticeships
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId && apprenticeship.PendingUpdateOriginator == null)
+                .OrderBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .ThenBy(x => x.Uln)
+                .ThenBy(x => x.Cohort.LegalEntityName)
+                .ThenBy(x => x.CourseName)
+                .ThenByDescending(x => x.StartDate)
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .ToListAsync(cancellationToken);
+
+            apprenticeshipsWithAlerts.AddRange(apprenticeshipsWithoutAlerts);
+
+            return apprenticeshipsWithAlerts;
+        }
+
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByReverseDefaultOrder(CancellationToken cancellationToken, long? providerId)
+        {
             var apprentices = await _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
-                .OrderBy(x => x.PendingUpdateOriginator != null)
+                .OrderByDescending(x => x.PendingUpdateOriginator != null)
                 .ThenBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ThenBy(x => x.Uln)
@@ -69,9 +117,21 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
             var apprenticeships = await _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
-                .OrderBy(x => x.DataLockStatus.Any(c => !c.IsResolved))
-                .ThenBy(GetOrderByField(fieldName))
+                .OrderBy(GetOrderByField(fieldName))
                 .ThenBy(GetSecondarySortByField(fieldName))
+                .Include(apprenticeship => apprenticeship.Cohort)
+                .Include(apprenticeship => apprenticeship.DataLockStatus)
+                .ToListAsync(cancellationToken);
+            return apprenticeships;
+        }
+
+        private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsReverseOrderedByField(CancellationToken cancellationToken, long? providerId, string fieldName)
+        {
+            var apprenticeships = await _dbContext
+                .Apprenticeships
+                .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
+                .OrderByDescending(GetOrderByField(fieldName))
+                .ThenByDescending(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
                 .ToListAsync(cancellationToken);
