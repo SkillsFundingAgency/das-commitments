@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{providerId}")]
-        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]int pageNumber = 1, [FromQuery]int pageItemCount = 10, [FromQuery]string sortField = "")
+        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]int pageNumber = 1, [FromQuery]int pageItemCount = 10, [FromQuery]string sortField = "", [FromQuery]bool reverseSort = false)
         {
             try
             {
@@ -34,7 +34,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     ProviderId = providerId, 
                     PageNumber = pageNumber, 
                     PageItemCount = pageItemCount, 
-                    SortField = sortField
+                    SortField = sortField,
+					ReverseSort = reverseSort
                 });
 
                 if (response == null)
