@@ -8,9 +8,9 @@ using SFA.DAS.CommitmentsV2.Shared.Interfaces;
 
 namespace SFA.DAS.CommitmentsV2.Api.Controllers
 {
-    [Route("api/apprenticeships/{ApprenticeshipId}")]
     [ApiController]
     [Authorize]
+    [Route("api/apprenticeships/{ApprenticeshipId}")]
     public class ApprenticeshipUpdateController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,7 +23,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         }
 
         [HttpGet]
-        [Route("/pending-update")]
+        [Route("pending-update")]
         public async Task<IActionResult> GetPendingUpdate(long apprenticeshipId)
         {
             var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId));
