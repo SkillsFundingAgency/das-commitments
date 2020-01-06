@@ -14,5 +14,6 @@ namespace SFA.DAS.CommitmentsV2.Types
         public DateTime PlannedEndDateTime { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public IEnumerable<string> Alerts { get; set; }
+        public long ApprenticeshipId { get; set; }
     }
 }
