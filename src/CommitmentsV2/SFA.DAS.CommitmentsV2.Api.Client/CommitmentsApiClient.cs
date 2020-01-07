@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, string sortField = "", bool reverseSort = false, CancellationToken cancellationToken = default)
         {
-            return _client.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{providerId}?sortField={sortField}", null, cancellationToken);
+            return _client.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{providerId}?sortField={sortField}&reverseSort={reverseSort}", null, cancellationToken);
         }
 
         public Task<GetCohortResponse> GetCohort(long cohortId, CancellationToken cancellationToken = default)
