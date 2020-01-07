@@ -17,7 +17,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.Apprenticeships
         {
             return Task.FromResult(new ApprenticeshipDetails
             {
-                ApprenticeshipId = source.Id,
+                Id = source.Id,
                 ApprenticeFirstName = source.FirstName,
                 ApprenticeLastName = source.LastName,
                 CourseName = source.CourseName,

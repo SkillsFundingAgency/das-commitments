@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.Apprenticeships
         {
             var result = await mapper.Map(source);
 
-            result.ApprenticeshipId.Should().Be(source.Id);
+            result.Id.Should().Be(source.Id);
             result.ApprenticeFirstName.Should().Be(source.FirstName);
             result.ApprenticeLastName.Should().Be(source.LastName);
             result.CourseName.Should().Be(source.CourseName);
