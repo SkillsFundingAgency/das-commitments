@@ -442,8 +442,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
 
                 Provider = new Mock<Provider>();
                 Provider.Setup(x => x.UkPrn).Returns(ProviderId);
-                Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), null,
-                        null, It.IsAny<UserInfo>()))
+                Provider.Setup(x => x.CreateCohort(It.IsAny<Provider>(), It.IsAny<AccountLegalEntity>(), It.IsAny<UserInfo>()))
                     .Returns(NewCohort);
                 Db.Providers.Add(Provider.Object);
 
@@ -879,8 +878,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Services
             {
                 if (party == Party.Provider)
                 {
-                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), null,
-                        null, UserInfo));
+                    Provider.Verify(x => x.CreateCohort(Provider.Object, It.Is<AccountLegalEntity>(p => p == AccountLegalEntity.Object), UserInfo));
                 }
             }
 

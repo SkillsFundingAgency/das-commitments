@@ -12,14 +12,14 @@ namespace SFA.DAS.CommitmentsV2.Application.Commands.AddCohort
     public class AddEmptyCohortHandler : IRequestHandler<AddEmptyCohortCommand, AddCohortResult>
     {
         private readonly Lazy<ProviderCommitmentsDbContext> _dbContext;
-        private readonly ILogger<AddCohortWithOtherPartyHandler> _logger;
+        private readonly ILogger<AddEmptyCohortHandler> _logger;
         private readonly IEncodingService _encodingService;
         private readonly ICohortDomainService _cohortDomainService;
 
         public AddEmptyCohortHandler(
             Lazy<ProviderCommitmentsDbContext> dbContext,
             IEncodingService encodingService,
-            ILogger<AddCohortWithOtherPartyHandler> logger,
+            ILogger<AddEmptyCohortHandler> logger,
             ICohortDomainService cohortDomainService)
         {
             _dbContext = dbContext;

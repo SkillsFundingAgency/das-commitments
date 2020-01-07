@@ -133,7 +133,7 @@ namespace SFA.DAS.CommitmentsV2.Services
            
             var originator = GetCohortOriginator(originatingParty, provider, accountLegalEntity);
 
-            return originator.CreateCohort(provider, accountLegalEntity,null, null, userInfo);
+            return originator.CreateCohort(provider, accountLegalEntity, userInfo);
         }
 
         public async Task SendCohortToOtherParty(long cohortId, string message, UserInfo userInfo, CancellationToken cancellationToken)
@@ -198,7 +198,7 @@ namespace SFA.DAS.CommitmentsV2.Services
             }
         }
 
-        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId, ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
+        private static async Task<AccountLegalEntity> GetAccountLegalEntity(long accountId, long accountLegalEntityId,  ProviderCommitmentsDbContext db, CancellationToken cancellationToken)
         {
             var accountLegalEntity =
                 await db.AccountLegalEntities.SingleOrDefaultAsync(x => x.Id == accountLegalEntityId,

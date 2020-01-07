@@ -29,6 +29,11 @@ namespace SFA.DAS.CommitmentsV2.Models
             DraftApprenticeshipDetails draftApprenticeshipDetails,
             UserInfo userInfo)
         {
+            throw new NotImplementedException();
+        }
+
+        public virtual Cohort CreateCohort(Provider provider, AccountLegalEntity accountLegalEntity, UserInfo userInfo)
+        {
             return new Cohort(provider, accountLegalEntity, Party.Provider, userInfo);
         }
     }

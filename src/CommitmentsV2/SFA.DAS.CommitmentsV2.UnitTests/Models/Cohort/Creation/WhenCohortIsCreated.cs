@@ -40,7 +40,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Models.Cohort.Creation
             _fixture.VerifyCohortBelongsToAccount();
         }
 
-
         [TestCase(Party.Provider)]
         [TestCase(Party.Employer)]
         public void TheCohortHasCorrectTransferInformation(Party creatingParty)

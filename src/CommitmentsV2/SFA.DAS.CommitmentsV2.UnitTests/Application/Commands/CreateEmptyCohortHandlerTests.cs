@@ -20,7 +20,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
     [Parallelizable]
     public class CreateEmptyCohortHandlerTests : FluentTest<CreateEmptyCohortHandlerTestsFixture>
     { 
-
         private CreateEmptyCohortHandlerTestsFixture _fixture;
 
         [SetUp]
@@ -40,7 +39,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             _fixture.CohortDomainServiceMock.Verify(x => x.CreateEmptyCohort(providerId, accountId, accountLegalEntityId, _fixture.UserInfo, It.IsAny<CancellationToken>()));
         }
-
 
         [Test]
         public async Task Handle_WhenHandled_ShouldReturnCreateResponseWithCorrectReferenceAndCohortId()
@@ -102,7 +100,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Commands
 
             var handler = new AddEmptyCohortHandler(new Lazy<ProviderCommitmentsDbContext>(() => Db),
                 EncodingService,
-                Mock.Of<ILogger<AddCohortWithOtherPartyHandler>>(),
+                Mock.Of<ILogger<AddEmptyCohortHandler>>(),
                 CohortDomainServiceMock.Object);
 
             var response = await handler.Handle(command, CancellationToken.None);

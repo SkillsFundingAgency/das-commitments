@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
@@ -21,14 +22,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         [Test]
         public async Task WhenPostRequestReceived_ThenShouldReturnResponse()
         {
-            await TestAsync(
-                f => f.Create(),
-                (f, r) => r.Should().NotBeNull()
-                    .And.BeOfType<OkObjectResult>()
-                    .Which.Value.Should().NotBeNull()
-                    .And.Match<CreateCohortResponse>(v =>
-                        v.CohortId == f.Result.Id &&
-                        v.CohortReference == f.Result.Reference));
+            var fixture = new CreateEmptyCohortTestsFixture();
+            var result= await fixture.Create();
+
+            fixture.VerifyResponse(result);
         }
     }
 
@@ -60,6 +57,13 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.CohortControllerTests
         public Task<IActionResult> Create()
         {
             return Controller.Create(Request);
+        }
+
+        internal void VerifyResponse(IActionResult result)
+        {
+            var response = result.VerifyResponseObjectType<OkObjectResult>().WithModel<CreateCohortResponse>();
+            Assert.IsTrue(response.CohortId == Result.Id &&
+                        response.CohortReference == Result.Reference);
         }
     }
 }
