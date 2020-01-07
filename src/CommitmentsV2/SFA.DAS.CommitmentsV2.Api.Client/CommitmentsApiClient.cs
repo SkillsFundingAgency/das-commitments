@@ -46,7 +46,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
             return _client.PostAsJson<CreateCohortWithOtherPartyRequest, CreateCohortResponse>("api/cohorts/create-with-other-party", request, cancellationToken);
         }
 
-        public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, int pageNumber = 0, int pageItemCount = 0, string sortField = "", bool reverseSort = false, CancellationToken cancellationToken = default)
+        public Task<GetApprenticeshipsResponse> GetApprenticeships(uint providerId, int pageNumber = 0, int pageItemCount = 0, string sortField = "", bool reverseSort = false, CancellationToken cancellationToken = default)
         {
             var pageQuery = "";
 
@@ -60,7 +60,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
                 pageQuery += $"pageItemCount={pageItemCount}&";
             }
 
-            return _client.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+            return _client.Get<GetApprenticeshipsResponse>(
                 $"api/apprenticeships/{providerId}?{pageQuery}sortField={sortField}&reverseSort={reverseSort}", null, cancellationToken);
         }
 

@@ -43,7 +43,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
                     return NotFound();
                 }
 
-                return Ok(response.Apprenticeships);
+                return Ok(new CommitmentsV2.Types.GetApprenticeshipsResponse
+                {
+                    Apprenticeships = response.Apprenticeships,
+                    TotalApprenticeshipsFound = response.TotalApprenticeshipsFound
+                });
             }
             catch (Exception e)
             {

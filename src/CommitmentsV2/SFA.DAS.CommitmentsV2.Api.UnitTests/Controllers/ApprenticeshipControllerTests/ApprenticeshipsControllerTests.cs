@@ -10,6 +10,7 @@ using NUnit.Framework;
 using SFA.DAS.CommitmentsV2.Api.Controllers;
 using SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships;
 using SFA.DAS.CommitmentsV2.Types;
+using GetApprenticeshipsResponse = SFA.DAS.CommitmentsV2.Types.GetApprenticeshipsResponse;
 
 namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControllerTests
 {
@@ -69,6 +70,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
         {
             //Arrange
             const uint providerId = 10;
+            const int expectedTotalApprenticeshipsFound = 10;
 
             var expectedApprenticeship = new ApprenticeshipDetails
             {
@@ -83,9 +85,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             };
 
             _mediator.Setup(m => m.Send(It.Is<GetApprenticeshipsRequest>(r => r.ProviderId.Equals(providerId)),
-                It.IsAny<CancellationToken>())).ReturnsAsync(new GetApprenticeshipsResponse
+                It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Queries.GetApprenticeships.GetApprenticeshipsResponse
             {
-                    Apprenticeships = new []{ expectedApprenticeship}
+                    Apprenticeships = new []{ expectedApprenticeship},
+                    TotalApprenticeshipsFound = expectedTotalApprenticeshipsFound
             });
 
             //Act
@@ -94,11 +97,12 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             Assert.IsNotNull(result);
 
-            var apprentices = result.Value as ApprenticeshipDetails[];
+            var response = result.Value as GetApprenticeshipsResponse;
 
-            Assert.IsNotNull(apprentices);
-            Assert.IsNotEmpty(apprentices);
-            Assert.AreEqual(expectedApprenticeship, apprentices.First());
+            Assert.IsNotNull(response);
+            Assert.IsNotEmpty(response.Apprenticeships);
+            Assert.AreEqual(expectedApprenticeship, response.Apprenticeships.First());
+            Assert.AreEqual(expectedTotalApprenticeshipsFound, response.TotalApprenticeshipsFound);
         }
 
         [Test]

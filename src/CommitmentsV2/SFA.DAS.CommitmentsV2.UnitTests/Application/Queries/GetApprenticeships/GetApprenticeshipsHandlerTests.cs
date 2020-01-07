@@ -50,6 +50,35 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             result.Apprenticeships.Should().AllBeEquivalentTo(apprenticeshipDetails);
         }
 
+        [Test, RecursiveMoqAutoData]
+        public async Task Then_Returns_Apprenticeships_Total_Found(
+            GetApprenticeshipsRequest request,
+            List<Apprenticeship> apprenticeships,
+            ApprenticeshipDetails apprenticeshipDetails,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext,
+            [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
+            GetApprenticeshipsHandler handler)
+        {
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
+
+            apprenticeships[0].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = request.ProviderId;
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            mockMapper
+                .Setup(mapper => mapper.Map(It.IsIn(apprenticeships
+                    .Where(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId))))
+                .ReturnsAsync(apprenticeshipDetails);
+
+            var result = await handler.Handle(request, CancellationToken.None);
+
+            result.TotalApprenticeshipsFound
+                .Should().Be(apprenticeships
+                    .Count(apprenticeship => apprenticeship.Cohort.ProviderId == request.ProviderId));
+        }
+
         [Test, MoqAutoData]
         public async Task And_No_Sort_Term_Then_Apprentices_Are_Default_Sorted(
             GetApprenticeshipsRequest request,
@@ -290,6 +319,82 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual("D", actual.Apprenticeships.ElementAt(1).ApprenticeFirstName);
         }
 
+         [Test, MoqAutoData]
+        public async Task Then_Apprentices_Total_Found_Are_Return_With_Page_Data(
+            GetApprenticeshipsRequest request,
+            Mock<IAlertsMapper> alertsMapper,
+            [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
+        {
+            //Arrange
+            request.SortField = null;
+            request.PageNumber = 2;
+            request.PageItemCount = 2;
+
+            var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
+            var apprenticeships = new List<Apprenticeship>
+            {
+                new Apprenticeship
+                {
+                    FirstName = "A",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "B",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "C",
+                    LastName = "Zog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                },
+                new Apprenticeship
+                {
+                    FirstName = "D",
+                    LastName = "Fog",
+                    Uln = "Uln",
+                    CourseName = "Course",
+                    StartDate = DateTime.UtcNow,
+                    ProviderRef = request.ProviderId.ToString(),
+                    Cohort = new Cohort{LegalEntityName = "Employer"},
+                    DataLockStatus = new List<DataLockStatus>()
+                }
+            };
+            apprenticeships[0].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[1].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[2].Cohort.ProviderId = request.ProviderId;
+            apprenticeships[3].Cohort.ProviderId = request.ProviderId;
+
+            mockContext
+                .Setup(context => context.Apprenticeships)
+                .ReturnsDbSet(apprenticeships);
+            var handler = new GetApprenticeshipsHandler(mockContext.Object, mapper);
+
+            //Act
+            var actual = await handler.Handle(request, CancellationToken.None);
+
+            //Assert
+            Assert.AreEqual(apprenticeships.Count, actual.TotalApprenticeshipsFound);
+        }
+
         
         [Test, MoqAutoData]
         public async Task Then_Sorted_Apprentices_Are_Return_Per_Page(
@@ -451,7 +556,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual("B", actual.Apprenticeships.ElementAt(0).ApprenticeFirstName);
             Assert.AreEqual("A", actual.Apprenticeships.ElementAt(1).ApprenticeFirstName);
         }
-
         
         [Test, MoqAutoData]
         public async Task Then_Reverse_Sorted_Apprentices_Are_Return_Per_Page(

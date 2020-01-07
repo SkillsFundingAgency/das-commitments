@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -206,7 +205,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField=&reverseSort=False", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/{expectedProviderId}?sortField=&reverseSort=False", null, CancellationToken.None));
         }
 
         [Test]
@@ -221,7 +220,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, expectedPageNumber);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
                 $"api/apprenticeships/{expectedProviderId}?pageNumber={expectedPageNumber}&sortField=&reverseSort=False", null, CancellationToken.None));
         }
 
@@ -237,7 +236,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, pageItemCount:expectedPageItemCount);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
                 $"api/apprenticeships/{expectedProviderId}?pageItemCount={expectedPageItemCount}&sortField=&reverseSort=False", null, CancellationToken.None));
         }
         [Test]
@@ -252,7 +251,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, expectedPageNumber, expectedPageItemCount);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>(
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>(
                 $"api/apprenticeships/{expectedProviderId}?pageNumber={expectedPageNumber}&pageItemCount={expectedPageItemCount}&sortField=&reverseSort=False", null, CancellationToken.None));
         }
 
@@ -267,7 +266,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField:sortField);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort=False", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort=False", null, CancellationToken.None));
         }
 
         [Test]
@@ -282,7 +281,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client.UnitTests.CommitmentsApiClient
             await _fixture.CommitmentsApiClient.GetApprenticeships(expectedProviderId, sortField:sortField, reverseSort:reverseSort);
 
             //Assert$
-            _fixture.MockRestHttpClient.Verify(x => x.Get<IEnumerable<Types.Responses.ApprenticeshipDetails>>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort={reverseSort}", null, CancellationToken.None));
+            _fixture.MockRestHttpClient.Verify(x => x.Get<GetApprenticeshipsResponse>($"api/apprenticeships/{expectedProviderId}?sortField={sortField}&reverseSort={reverseSort}", null, CancellationToken.None));
         }
 
         [Test]
