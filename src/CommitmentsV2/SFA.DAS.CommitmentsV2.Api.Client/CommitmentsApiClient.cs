@@ -48,7 +48,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
 
         public Task<IEnumerable<Types.Responses.ApprenticeshipDetails>> GetApprenticeships(uint providerId, int pageNumber = 0, int pageItemCount = 0, string sortField = "", bool reverseSort = false, CancellationToken cancellationToken = default)
         {
-            var pageQuery = string.Empty;
+            var pageQuery = "";
 
             if (pageNumber > 0)
             {

@@ -9,9 +9,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
         public GetApprenticeshipsValidator()
         {
             RuleFor(request => request.ProviderId).Must(id => id > 0).WithMessage("The provider id must be set");
-            RuleFor(request => request.PageNumber).Must(number => number > 0).WithMessage("The page number must be set");
-            RuleFor(request => request.PageItemCount).Must(count => count > 0).WithMessage("The page item count must be set");
-
+           
             RuleFor(request => request.SortField)
                 .Must(field => string.IsNullOrEmpty(field) || 
                                typeof(Apprenticeship).GetProperties().Select(c => c.Name).Contains(field) ||

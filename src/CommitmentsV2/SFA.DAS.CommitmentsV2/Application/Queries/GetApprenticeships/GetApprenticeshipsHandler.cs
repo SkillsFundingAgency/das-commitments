@@ -91,6 +91,9 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
             apprenticeships.AddRange(apprenticeshipsWithoutAlerts);
 
+            if (pageItemCount < 1 || pageNumber < 1)
+                return apprenticeships;
+
             return apprenticeships
                 .Skip((pageNumber - 1) * pageItemCount)
                 .Take(pageItemCount)
@@ -99,7 +102,7 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
 
         private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsByReverseDefaultOrder(CancellationToken cancellationToken, long? providerId,  int pageNumber, int pageItemCount)
         {
-            var apprentices = await _dbContext
+            var apprentices = _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
                 .OrderByDescending(x => x.PendingUpdateOriginator != null)
@@ -110,45 +113,58 @@ namespace SFA.DAS.CommitmentsV2.Application.Queries.GetApprenticeships
                 .ThenBy(x => x.CourseName)
                 .ThenByDescending(x => x.StartDate)
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Skip((pageNumber - 1) * pageItemCount)
-                .Take(pageItemCount)
-                .ToListAsync(cancellationToken);
+                .Include(apprenticeship => apprenticeship.DataLockStatus);
+
+            if (pageItemCount < 1 || pageNumber < 1)
+            {
+                return await apprentices.ToListAsync(cancellationToken);
+            }
             
-            return apprentices;
+            return await apprentices.Skip((pageNumber - 1) * pageItemCount)
+            .Take(pageItemCount)
+            .ToListAsync(cancellationToken);
         }
 
     
         private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsOrderedByField(CancellationToken cancellationToken,long? providerId, string fieldName, int pageNumber, int pageItemCount)
         {
-            var apprenticeships = await _dbContext
+            var apprenticeships = _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
                 .OrderBy(GetOrderByField(fieldName))
                 .ThenBy(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
                 .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Skip((pageNumber - 1) * pageItemCount)
+                .Include(apprenticeship => apprenticeship.DataLockStatus);
+                
+            if (pageItemCount < 1 || pageNumber < 1)
+            {
+                return await apprenticeships.ToListAsync(cancellationToken);
+            }
+            
+            return await apprenticeships.Skip((pageNumber - 1) * pageItemCount)
                 .Take(pageItemCount)
                 .ToListAsync(cancellationToken);
-           
-            return apprenticeships;
         }
 
         private async Task<IEnumerable<Apprenticeship>> ApprenticeshipsReverseOrderedByField(CancellationToken cancellationToken, long? providerId, string fieldName, int pageNumber, int pageItemCount)
         {
-            var apprenticeships = await _dbContext
+            var apprenticeships = _dbContext
                 .Apprenticeships
                 .Where(apprenticeship => apprenticeship.Cohort.ProviderId == providerId)
                 .OrderByDescending(GetOrderByField(fieldName))
                 .ThenByDescending(GetSecondarySortByField(fieldName))
                 .Include(apprenticeship => apprenticeship.Cohort)
-                .Include(apprenticeship => apprenticeship.DataLockStatus)
-                .Skip((pageNumber - 1) * pageItemCount)
+                .Include(apprenticeship => apprenticeship.DataLockStatus);
+                
+            if (pageItemCount < 1 || pageNumber < 1)
+            {
+                return await apprenticeships.ToListAsync(cancellationToken);
+            }
+            
+            return await apprenticeships.Skip((pageNumber - 1) * pageItemCount)
                 .Take(pageItemCount)
                 .ToListAsync(cancellationToken);
-            return apprenticeships;
         }
 
         private Expression<Func<Apprenticeship, object>> GetOrderByField(string fieldName)

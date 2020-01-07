@@ -29,8 +29,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IMapper<Apprenticeship, ApprenticeshipDetails>> mockMapper,
             GetApprenticeshipsHandler handler)
         {
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             apprenticeships[0].Cohort.ProviderId = request.ProviderId;
             apprenticeships[1].Cohort.ProviderId = request.ProviderId;
@@ -59,8 +59,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             //Arrange
             request.SortField = "";
             request.ReverseSort = false;
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -164,8 +164,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
         {
             //Arrange
             request.SortField = null;
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.ReverseSort = true;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
@@ -617,8 +617,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var apprenticeships = new List<Apprenticeship>
@@ -699,8 +699,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.FirstName);
             request.ReverseSort = true;
 
@@ -782,8 +782,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
@@ -846,8 +846,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.Uln);
             request.ReverseSort = true;
 
@@ -910,8 +910,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
@@ -974,8 +974,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.Cohort.LegalEntityName);
             request.ReverseSort = true;
 
@@ -1038,8 +1038,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
@@ -1103,8 +1103,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.CourseName);
             request.ReverseSort = true;
 
@@ -1167,8 +1167,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
@@ -1234,8 +1234,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.StartDate);
             request.ReverseSort = true;
 
@@ -1302,8 +1302,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
@@ -1369,8 +1369,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.EndDate);
             request.ReverseSort = true;
 
@@ -1436,8 +1436,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>
@@ -1506,8 +1506,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
             request.SortField = nameof(Apprenticeship.PaymentStatus);
             request.ReverseSort = true;
 
@@ -1576,8 +1576,8 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             [Frozen] Mock<IProviderCommitmentsDbContext> mockContext)
         {
             //Arrange
-            request.PageNumber = 1;
-            request.PageItemCount = 10;
+            request.PageNumber = 0;
+            request.PageItemCount = 0;
 
             var mapper = new ApprenticeshipToApprenticeshipDetailsMapper(alertsMapper.Object);
             var Apprenticeships = new List<Apprenticeship>

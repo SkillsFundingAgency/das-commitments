@@ -25,7 +25,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
 
         [HttpGet]
         [Route("{providerId}")]
-        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]int pageNumber = 1, [FromQuery]int pageItemCount = 10, [FromQuery]string sortField = "", [FromQuery]bool reverseSort = false)
+        public async Task<IActionResult> GetApprenticeships(uint providerId, [FromQuery]int pageNumber = 0, [FromQuery]int pageItemCount = 0, [FromQuery]string sortField = "", [FromQuery]bool reverseSort = false)
         {
             try
             {

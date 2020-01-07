@@ -40,9 +40,7 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipControll
             //Assert
             _mediator.Verify(m => m.Send(
                 It.Is<GetApprenticeshipsRequest>(r => 
-                    r.ProviderId.Equals(providerId) &&
-                    r.PageNumber.Equals(1) &&
-                    r.PageItemCount.Equals(10)), 
+                    r.ProviderId.Equals(providerId)), 
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 

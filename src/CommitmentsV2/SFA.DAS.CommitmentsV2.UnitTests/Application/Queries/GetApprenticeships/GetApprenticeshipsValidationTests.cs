@@ -27,46 +27,6 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Application.Queries.GetApprenticeships
             Assert.AreEqual(expectedIsValid, actualIsValid);
         }
 
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        public void Validate_WithPageNumber_ShouldSetIsValidCorrectly(int pageNumber, bool expectedIsValid)
-        {
-            //Arrange
-            var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest
-            {
-                ProviderId = 1, 
-                PageNumber = pageNumber, 
-                PageItemCount = 1
-            });
-
-            //Act
-            var actualIsValid = validationResults.IsValid;
-
-            //Assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
-        }
-
-        [TestCase(0, false)]
-        [TestCase(1, true)]
-        public void Validate_WithPageItemCount_ShouldSetIsValidCorrectly(int itemCount, bool expectedIsValid)
-        {
-            // arrange
-            var validator = new GetApprenticeshipsValidator();
-            var validationResults = validator.Validate(new GetApprenticeshipsRequest
-            {
-                ProviderId = 1, 
-                PageNumber = 1, 
-                PageItemCount = itemCount
-            });
-
-            // act
-            var actualIsValid = validationResults.IsValid;
-
-            // Assert
-            Assert.AreEqual(expectedIsValid, actualIsValid);
-        }
-
         [TestCase("test",false)]
         [TestCase(null,true)]
         [TestCase("",true)]
