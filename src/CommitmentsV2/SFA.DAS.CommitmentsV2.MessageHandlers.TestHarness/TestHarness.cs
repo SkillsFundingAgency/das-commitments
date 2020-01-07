@@ -45,6 +45,7 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                 Console.WriteLine("K - CohortApprovedByEmployer");
                 Console.WriteLine("L - SendEmailToEmployerCommand");
                 Console.WriteLine("M - RunHealthCheckCommand");
+                Console.WriteLine("O - CohortDeletedEvent");
                 Console.WriteLine("X - Exit");
                 Console.WriteLine("Press [Key] for Test Option");
                 key = Console.ReadKey().Key;
@@ -121,6 +122,11 @@ namespace SFA.DAS.CommitmentsV2.MessageHandlers.TestHarness
                             await _publisher.Send(new RunHealthCheckCommand(), new SendOptions());
                             Console.WriteLine();
                             Console.WriteLine($"Sent {nameof(RunHealthCheckCommand)}");
+                            break;
+                        case ConsoleKey.O:
+                            await _publisher.Publish(new CohortDeletedEvent(cohortId, 22222, 33333, Party.None, DateTime.Now));
+                            Console.WriteLine();
+                            Console.WriteLine($"Published {nameof(CohortDeletedEvent)}");
                             break;
                     }
                 }

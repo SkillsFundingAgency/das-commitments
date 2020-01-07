@@ -26,14 +26,15 @@
 	[AccountLegalEntityPublicHashedId] CHAR(6) NULL,
 	[Originator] TINYINT NOT NULL DEFAULT 0,
 	[ApprenticeshipEmployerTypeOnApproval] TINYINT NULL,
-	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0
+	[IsFullApprovalProcessed] BIT NOT NULL DEFAULT 0,
+	[IsDeleted] BIT NOT NULL DEFAULT 0
 )
 GO
 
--- this was recommented by azure and has been added directly to prod
-CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus]
+CREATE NONCLUSTERED INDEX [IX_Commitment_ProviderId_CommitmentStatus] 
 ON [dbo].[Commitment] ([ProviderId], [CommitmentStatus]) 
-INCLUDE ([AccountLegalEntityPublicHashedId], [CreatedOn], [EditStatus], [EmployerAccountId], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
+INCLUDE ([AccountLegalEntityPublicHashedId], [ApprenticeshipEmployerTypeOnApproval], [CreatedOn], [EditStatus], [EmployerAccountId], [IsFullApprovalProcessed], [LastAction], [LastUpdatedByEmployerEmail], [LastUpdatedByEmployerName], [LastUpdatedByProviderEmail], [LastUpdatedByProviderName], [LegalEntityAddress], [LegalEntityId], [LegalEntityName], [LegalEntityOrganisationType], [Originator], [ProviderName], [Reference], [TransferApprovalActionedByEmployerEmail], [TransferApprovalActionedByEmployerName], [TransferApprovalActionedOn], [TransferApprovalStatus], [TransferSenderId], [TransferSenderName]) WITH (ONLINE = ON)
+
 GO
 
 -- but we have 2 natural id's, providerid and EmployerAccountId

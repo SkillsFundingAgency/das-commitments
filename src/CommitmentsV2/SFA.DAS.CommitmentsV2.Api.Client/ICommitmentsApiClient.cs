@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using SFA.DAS.CommitmentsV2.Api.Types.Requests;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
+using SFA.DAS.CommitmentsV2.Types;
 
 namespace SFA.DAS.CommitmentsV2.Api.Client
 {
@@ -25,5 +26,8 @@ namespace SFA.DAS.CommitmentsV2.Api.Client
         Task UpdateDraftApprenticeship(long cohortId, long apprenticeshipId, UpdateDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
         Task<bool> IsAgreementSigned(AgreementSignedRequest request, CancellationToken cancellationToken = default);
         Task<long?> GetLatestAgreementId(long accountLegalEntityId, CancellationToken cancellationToken = default);
+        Task DeleteDraftApprenticeship(long cohortId, long apprenticeshipId, DeleteDraftApprenticeshipRequest request, CancellationToken cancellationToken = default);
+		Task DeleteCohort(long cohortId, UserInfo userInfo, CancellationToken cancellationToken = default);
+        Task<AccountResponse> GetAccount(long accountId, CancellationToken cancellationToken = default);
     }
 }
