@@ -14,7 +14,7 @@ namespace SFA.DAS.CommitmentsV2.Data
 
         public DbReadOnlyContextFactory(CommitmentsV2Configuration configuration, ILoggerFactory loggerFactory)
         {
-            _connectionString = configuration.ReadonlyDatabaseConnectionString;
+            _connectionString = configuration.ReadOnlyDatabaseConnectionString;
             _loggerFactory = loggerFactory;
         }
 
