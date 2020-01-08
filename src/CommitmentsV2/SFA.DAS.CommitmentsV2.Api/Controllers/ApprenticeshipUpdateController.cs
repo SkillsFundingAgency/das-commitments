@@ -28,6 +28,11 @@ namespace SFA.DAS.CommitmentsV2.Api.Controllers
         {
             var result = await _mediator.Send(new GetApprenticeshipUpdateQuery(apprenticeshipId));
 
+            if (result == null)
+            {
+                return NotFound();
+            }
+
             var response = await _modelMapper.Map<GetApprenticeshipUpdateResponse>(result);
             return Ok(response);
         }

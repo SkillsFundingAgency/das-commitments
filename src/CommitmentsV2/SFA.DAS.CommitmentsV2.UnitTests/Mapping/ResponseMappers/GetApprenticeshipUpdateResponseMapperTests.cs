@@ -10,7 +10,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
 {
     [TestFixture]
     public class UpdateDraftApprenticeshipRequestToUpdateDraftApprenticeshipCommandMapperTests :
-    MapperTester<GetApprenticeshipUpdateMapper, GetApprenticeshipUpdateQueryResult, GetApprenticeshipUpdateResponse>
+    MapperTester<GetApprenticeshipUpdateResponseMapper, GetApprenticeshipUpdateQueryResult, GetApprenticeshipUpdateResponse>
     {
         [Test]
         public Task Map_Id_ShouldBeSet()
