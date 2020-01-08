@@ -32,6 +32,14 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
         }
 
         [Test]
+        public async Task WhenGetPendingUpdateRequestReceivedAndNoRecordsFound_ThenShouldReturnNotFoundResponse()
+        {
+            await _fixture.WithNoPendingUpdateFound().GetPendingUpdate();
+            _fixture.VerifyNotFoundResult();
+        }
+
+
+        [Test]
         public async Task WhenGetPendingUpdateRequestReceived_ThenShouldReturnResponse()
         {
             await _fixture.GetPendingUpdate();
@@ -70,6 +78,15 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                 Controller = new ApprenticeshipUpdateController(Mediator.Object, ModelMapper.Object);
             }
 
+            public GetPendingUpdateTestsFixture WithNoPendingUpdateFound()
+            {
+                Mediator.Setup(x => x.Send(It.IsAny<GetApprenticeshipUpdateQuery>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync((GetApprenticeshipUpdateQueryResult)null);
+
+                return this;
+            }
+
+
             public async Task GetPendingUpdate()
             {
                 Result = await Controller.GetPendingUpdate(ApprenticeshipId);
@@ -86,6 +103,10 @@ namespace SFA.DAS.CommitmentsV2.Api.UnitTests.Controllers.ApprenticeshipUpdateCo
                 var resultObject = (OkObjectResult) Result;
                 Assert.IsInstanceOf<GetApprenticeshipUpdateResponse>(resultObject.Value);
                 Assert.AreSame(MapperResult, resultObject.Value);
+            }
+            public void VerifyNotFoundResult()
+            {
+                Assert.IsInstanceOf<NotFoundResult>(Result);
             }
         }
     }
