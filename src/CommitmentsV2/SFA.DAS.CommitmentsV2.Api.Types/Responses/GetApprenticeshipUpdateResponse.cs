@@ -7,7 +7,7 @@ namespace SFA.DAS.CommitmentsV2.Api.Types.Responses
     {
         public long Id { get; set; }
         public long ApprenticeshipId { get; set; }
-        public Party Party { get; set; }
+        public Party OriginatingParty { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public ProgrammeType? TrainingType { get; set; }

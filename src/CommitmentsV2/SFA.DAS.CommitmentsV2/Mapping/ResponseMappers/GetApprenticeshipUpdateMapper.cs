@@ -19,7 +19,7 @@ namespace SFA.DAS.CommitmentsV2.Mapping.ResponseMappers
                 {
                     Id = source.Id,
                     ApprenticeshipId = source.ApprenticeshipId,
-                    Party = source.Originator.ToParty(),
+                    OriginatingParty = source.Originator.ToParty(),
                     FirstName = source.FirstName,
                     LastName = source.LastName,
                     TrainingType = source.TrainingType,

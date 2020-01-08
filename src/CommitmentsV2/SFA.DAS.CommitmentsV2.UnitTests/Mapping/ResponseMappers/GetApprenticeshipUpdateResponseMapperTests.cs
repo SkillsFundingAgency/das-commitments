@@ -28,7 +28,7 @@ namespace SFA.DAS.CommitmentsV2.UnitTests.Mapping.ResponseMappers
         [TestCase(Originator.Provider, Party.Provider)]
         public Task Map_Originator_ShouldBeSetToParty(Originator fromValue, Party expectedToValue)
         {
-            return AssertPropertySet(from => from.Originator = fromValue, to => to.Party == expectedToValue);
+            return AssertPropertySet(from => from.Originator = fromValue, to => to.OriginatingParty == expectedToValue);
         }
 
         [TestCase(null)]
